@@ -207,7 +207,6 @@ EOF;
         break;
 
     // --------------------------------------------------------------------
-
     case "search":
         if (array_key_exists("hostname", $_REQUEST))
             $hostname = $_REQUEST["hostname"];
@@ -219,7 +218,6 @@ EOF;
         break;
 
     // --------------------------------------------------------------------
-
     case "ignore":
         if (array_key_exists("id", $_REQUEST)) 
             $id = $_REQUEST["id"];
@@ -255,7 +253,17 @@ EOF;
         break;
 
     // --------------------------------------------------------------------
+    case "new":
+        if (array_key_exists("hostname", $_REQUEST))
+            $hostname = $_REQUEST["hostname"];
+        else die("Missing information.");
 
+        $page = sprintf("incident.php?action=new&hostname=%s",
+            urlencode($hostname));
+        Header(sprintf("Location: %s/%s", BASEURL, $page));
+        break;
+
+    // --------------------------------------------------------------------
     case "associate":
         if (array_key_exists("ticketid", $_REQUEST))
             $ticketid = $_REQUEST["ticketid"];
