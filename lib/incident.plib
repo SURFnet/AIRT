@@ -105,6 +105,7 @@ function AIR_getIncidents()
         ORDER BY id")
     or die("Unable to query database.");
 
+    if (db_num_rows($res) == 0) return array();
     $output = array(db_num_rows($res));
     $count = 0;
     while ($row = db_fetch_next($res))
@@ -210,73 +211,4 @@ class AIR_Incident
             decode_incidentid($this->id));
     } //getUpdateString
 } // AIR_Incident
-
-
-class AIR_Constituency
-{
-    var $id,
-        $name,
-        $description,
-        $contact_email,
-        $contact_name,
-        $contact_phone,
-        $created,
-        $createdby;
-
-    function setId($id)            { $this->id = $id; }
-    function setName($str)         { $this->name = $str; }
-    function setDescription($str)  { $this->description = $str; }
-    function setContactEmail($str) { $this->contact_email = $str; }
-    function setContactPhone($str) { $this->contact_phone = $str; }
-    function setContactName($str)  { $this->contact_name = $str; }
-    function setCreated($str)      { $this->created = $str; }
-    function setCreatedBy($id)     { $this->createdby = $id; }
-
-    function getId()           { return $this->id; }
-    function getName()         { return $this->name; }
-    function getDescription()  { return $this->description; }
-    function getContactEmail() { return $this->contact_email; }
-    function getContactName()  { return $this->contact_name; }
-    function getContactPhone() { return $this->contact_phone; }
-    function getCreated()      { return $this->created; }
-    function getCreatedBy()    { return $this->createdby; }
-
-    function getInsertString() 
-    {
-        return sprintf("
-            INSERT INTO constituencies
-            (id, name, description, contact_email, contact_name,
-             contact_phone, created, createdby)
-            VALUES
-            (nextval('constituencies_seq') , %s, %s, %s, %s, 
-             %s, %s, %s)",
-            db_masq_null($this->name),
-            db_masq_null($this->description),
-            db_masq_null($this->contact_email),
-            db_masq_null($this->contact_name),
-            db_masq_null($this->contact_phone),
-            db_masq_null($this->created),
-            $this->createdby);
-    } // getInsertString()
-
-    function getUpdateString()
-    {
-        return sprintf("
-             UPDATE constituencies
-                SET    name = %s,
-                       description = %s,
-                       contact_email = %s,
-                       contact_name  = %s,
-                       contact_phone = %s
-                WHERE  id = %s",
-            db_masq_null($this->name),
-            db_masq_null($this->description),
-            db_masq_null($this->contact_email),
-            db_masq_null($this->contact_name),
-            db_masq_null($this->contact_phone),
-            $this->id);
-    } // getUpdateString()
-
-
-} // Constituency
 ?>

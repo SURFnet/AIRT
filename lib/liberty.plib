@@ -129,7 +129,7 @@ function pagefooter()
 <td>&nbsp;</td>
 <td>
 <small>
-<a href="index.php">CERT Console</a>
+<a href="index.php">Console</a>
 
 &nbsp;
 <B>&gt;</B>

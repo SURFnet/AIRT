@@ -317,6 +317,13 @@ EOF;
     //--------------------------------------------------------------------
     case "list":
         pageHeader("Incident overview");
+        $incidents = AIR_getIncidents();
+        if (count($incidents) == 0)
+        {
+            echo "No incidents defined.";
+            pageFooter();
+            exit;
+        }
 
         echo <<<EOF
 <table width='100%'>
@@ -327,7 +334,6 @@ EOF;
     <td align='center'><small>Click to search</small></td>
 </tr>
 EOF;
-        $incidents = AIR_getIncidents();
         $count = 0;
         foreach ($incidents as $index => $incident)
         {
