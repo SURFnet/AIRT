@@ -1,6 +1,5 @@
 <?php
 /* $Id$ 
- * index.php - Index page for UvT-CERT
  *
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
  * Copyright (C) 2004	Tilburg University, The Netherlands
@@ -28,6 +27,8 @@ require_once LIBDIR."/database.plib";
 define("AIRTURL", "http://infolab.uvt.nl/airt");
 define("AIRTPREFIX","airt");
 
+/* Export the incident id's listed in the array $ids in XML format.
+ */
 function exportIncident($ids) {
 
     $expr = "(";
@@ -67,14 +68,24 @@ function exportIncident($ids) {
     db_close($conn);
 }
 
+/* $doc contains a DOM tree to which the data in $row will be added. $row is
+ * an associative array containing the output of the query which is executed
+ * in exportIncident(). 
+ * 
+ * This function will determine if $row is a new incident, which is not yet
+ * part of the DOM tree output. If it is, only the IP address of the incident
+ * gets added to it. Determining if an incident is identical is solely done
+ * based on the <identification> element of the <incident>.
+ *
+ * The XML structure is documented in airt.xsd, which can be found in the
+ * source/doc directory.
+ */
 function addIncidentToTree(&$doc, $row) {
 
     $tles = $doc->child_nodes();
     $root = $tles[0];
     $added = false;
 
-    $pattern = sprintf("%s%s", INCIDENTID_PREFIX, $row["id"]);
-	
     $context = $doc->xpath_new_context();
     $context->xpath_register_ns("airt", "http://infolab.uvt.nl/airt");
     $res = $context->xpath_eval("//airt:airt/airt:incident");
@@ -82,75 +93,73 @@ function addIncidentToTree(&$doc, $row) {
     /* $res->nodeset now contains all incident elements */
     foreach ($res->nodeset as $node) {
 
-	/* iterate over all identification tags to find an identification
-	 * we recognize. TODO: How would one do this using xpath too ? 
-	 */
-	foreach ($node->get_elements_by_tagname("identification") as $n) {
-	    $prefix = $n->get_elements_by_tagname("prefix");
-	    $ref    = $n->get_elements_by_tagname("reference");
-	    if (!$prefix || !$ref) continue;
+		/* iterate over all identification tags to find an identification
+		 * we recognize. TODO: How would one do this using xpath too ? 
+		 */
+		foreach ($node->get_elements_by_tagname("identification") as $n) {
+			$prefix = $n->get_elements_by_tagname("prefix");
+			$ref    = $n->get_elements_by_tagname("reference");
+			if (!$prefix || !$ref) continue;
 
-	    /* if the incident already exists, add the IP address to it,
-	     * rather than creating a new incident
-	     */
-	    if ($prefix[0]->get_content() == INCIDENTID_PREFIX &&
-	        $ref[0]->get_content() == $row["id"]) {
+			/* if the incident already exists, add the IP address to it,
+			 * rather than creating a new incident
+			 */
+			if ($prefix[0]->get_content() == INCIDENTID_PREFIX &&
+				$ref[0]->get_content() == $row["id"]) {
 
-		$new_element = $doc->create_element_ns(AIRTURL, "address");
-		$new_element->set_content($row["ip"]);
-		$node->append_child($new_element);
-		$added = true;
-		break;
-	    }
-	}
+			$new_element = $doc->create_element_ns(AIRTURL, "address");
+			$new_element->set_content($row["ip"]);
+			$node->append_child($new_element);
+			$added = true;
+			break;
+			}
+		}
     }
 
     if (!$added) {
-	$ISO8601_filter = "Y-m-d\\TH:i:sO";
-	$incident_element = $doc->create_element_ns(AIRTURL, "incident");
+		$ISO8601_filter = "Y-m-d\\TH:i:sO";
+		$incident_element = $doc->create_element_ns(AIRTURL, "incident");
 
-	// awful hack; assume we only have one identifier block until we 
-	// are ready to build the import module
-	$id_element = $doc->create_element_ns(AIRTURL, "identification");
-	$id_element->set_attribute("id", sprintf("%s%s",
-		INCIDENTID_PREFIX, $row["id"]));
-	$prefix_element = $doc->create_element_ns(AIRTURL, "prefix");
-	$prefix_element->set_content(INCIDENTID_PREFIX);
-	$ref_element = $doc->create_element_ns(AIRTURL, "reference");
-	$ref_element->set_content($row["id"]);
-		
-	$state_element = $doc->create_element_ns(AIRTURL, "state");
-	$state_element->set_content($row["state"]);
+		$id_element = $doc->create_element_ns(AIRTURL, "identification");
 
-	$status_element = $doc->create_element_ns(AIRTURL, "status");
-	$status_element->set_content($row["status"]);
+		$prefix_element = $doc->create_element_ns(AIRTURL, "prefix");
+		$prefix_element->set_content(INCIDENTID_PREFIX);
 
-	$type_element = $doc->create_element_ns(AIRTURL, "type");
-	$type_element->set_content($row["type"]);
+		$ref_element = $doc->create_element_ns(AIRTURL, "reference");
+		$ref_element->set_content($row["id"]);
+			
+		$state_element = $doc->create_element_ns(AIRTURL, "state");
+		$state_element->set_content($row["state"]);
 
-	$_element = $doc->create_element_ns(AIRTURL, "created");
-	$_element->set_content(Date($ISO8601_filter,$row["created"]));
+		$status_element = $doc->create_element_ns(AIRTURL, "status");
+		$status_element->set_content($row["status"]);
 
-	$updated_element = $doc->create_element_ns(AIRTURL, "updated");
-	$updated_element->set_content(Date($ISO8601_filter,$row["updated"]));
+		$type_element = $doc->create_element_ns(AIRTURL, "type");
+		$type_element->set_content($row["type"]);
 
-	// build the tree
-	$incident_element -> append_child($id_element);
-	$id_element -> append_child($prefix_element);
-	$id_element -> append_child($ref_element);
+		$_element = $doc->create_element_ns(AIRTURL, "created");
+		$_element->set_content(Date($ISO8601_filter,$row["created"]));
 
-	$incident_element -> append_child($state_element);
-	$incident_element -> append_child($status_element);
-	$incident_element -> append_child($type_element);
-	$incident_element -> append_child($_element);
-	$incident_element -> append_child($updated_element);
+		$updated_element = $doc->create_element_ns(AIRTURL, "updated");
+		$updated_element->set_content(Date($ISO8601_filter,$row["updated"]));
 
-	if (array_key_exists("ip", $row)) {
-	    $ip_element = $doc->create_element_ns(AIRTURL, "address");
-	    $ip_element->set_content($row["ip"]);
-	    $incident_element -> append_child($ip_element);
-	}
+		// build the tree
+		$incident_element -> append_child($id_element);
+		$id_element -> append_child($prefix_element);
+		$id_element -> append_child($ref_element);
 
-	$root->append_child($incident_element);
+		$incident_element -> append_child($state_element);
+		$incident_element -> append_child($status_element);
+		$incident_element -> append_child($type_element);
+		$incident_element -> append_child($_element);
+		$incident_element -> append_child($updated_element);
+
+		if (array_key_exists("ip", $row)) {
+			$ip_element = $doc->create_element_ns(AIRTURL, "address");
+			$ip_element->set_content($row["ip"]);
+			$incident_element -> append_child($ip_element);
+		}
+
+		$root->append_child($incident_element);
     }
 }

@@ -162,21 +162,22 @@ Regio             : $regio
 Naam              : $naam
 
 EOF;
-                $_SESSION["current_name"] = $naam;
-		$ds = ldap_connect("ldap.uvt.nl")
-		or die("Unable to connect to ldap server");
+            $_SESSION["current_name"] = $naam;
+			$ds = ldap_connect("ldap.uvt.nl")
+			or die("Unable to connect to ldap server");
 
-		$r = ldap_bind($ds);
+			$r = ldap_bind($ds);
 	        $sr = @ldap_search($ds, 
 	            "o=Universiteit van Tilburg, c=NL",
 	            "(&(objectclass=person)(employeenumber=$anr))");
 
 	        $info = ldap_get_entries($ds, $sr);
-	        for ($i=0; $i < $info["count"]; $i++)
-	        {
-		    $class = $info[$i]["organizationalstatus"][0];
+	        for ($i=0; $i < $info["count"]; $i++) {
+		    	$class = $info[$i]["organizationalstatus"][0];
 	            $telnr = $info[$i]["telephonenumber"][0];
 	            $email = $info[$i]["mail"][0];
+
+				$_SESSION["current_email"] = $email;
 
 	            if (ereg(" ([0-9]+)$", $telnr, $m))
 	                $telnr = $m[1];
@@ -322,6 +323,9 @@ function search_info_breburg($ip, $networkid)
             $host1        = gethostbyaddr($ip1);
             $anr          = eregi_replace("^s", "", $data[6]);
             $email        = $data[7];
+
+			$_SESSION["current_email"] = $email;
+
             if ($ip2 == "") 
                 $host2="";
             else 

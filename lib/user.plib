@@ -40,5 +40,6 @@ function _getUser($criteria, $value) {
 }
 
 function getUserByUserID($userid) {
-	return _getUser("userid", $userid);
+	$temp = _getUser("id", $userid);
+	return $temp[0];
 }
