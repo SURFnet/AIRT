@@ -262,6 +262,10 @@ CREATE SEQUENCE role_permissions_sequence;
 
 end transaction;
 
+-- 
+-- Preload administrator account and administrator role
+--
+
 begin transaction;
 
 INSERT INTO users
