@@ -1,0 +1,1 @@
+m4_define([AIRT_VERSION],[20050124.1])

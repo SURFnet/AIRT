@@ -20,8 +20,6 @@
 # 
 
 scriptdir=$(pkgdatadir)/lib
-script_DATA = airt.plib authentication.plib constituency.plib \
-	event.plib export.plib history.plib incident.plib pgsql.plib \
-	postgresql-7.2.plib search.plib user.plib
+script_DATA = airt.plib authentication.plib constituency.plib event.plib export.plib history.plib incident.plib pgsql.plib postgresql-7.2.plib search.plib user.plib
 
 EXTRA_DIST = $(script_DATA)

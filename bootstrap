@@ -16,20 +16,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-test -f acinclude.m4 || {
-    if test -f /usr/share/autoconf-archive/ac_define_dir.m4
-    then
-        ln -s /usr/share/autoconf-archive/ac_define_dir.m4 acinclude.m4
-    else
-        cat <<EOT
-You need the autoconf-archive Debian package, version >= 20031029-1.
-Alternatively, you could please install the GNU Autoconf Macro Archive's
-http://www.gnu.org/software/ac-archive/htmldoc/ac_define_dir.html as
-acinclude.m4.
-EOT
-   fi
-}
-aclocal \
-&& automake --gnu --add-missing \
+aclocal-1.8 \
+&& automake-1.8 --gnu --add-missing \
 && autoconf
 

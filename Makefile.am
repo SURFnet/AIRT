@@ -21,4 +21,4 @@
 SUBDIRS = php lib doc
 
 docdir = $(datadir)/doc/$(PACKAGE)
-doc_DATA = AUTHORS README
+doc_DATA = AUTHORS README TODO VERSION.m4

@@ -16,13 +16,16 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 # $Id$
+m4_include([VERSION.m4])dnl
 
-AC_PREREQ(2.57)
-AC_INIT
-AM_INIT_AUTOMAKE(airt, `cat VERSION`)
+AC_INIT([airt], [AIRT_VERSION], [kees@leune.org])
 
-AC_DEFINE_DIR(SYSCONF_PATH, sysconfdir)
-AC_DEFINE_DIR(SCRIPT_PATH, datadir/liberty)
+AC_PREREQ(2.59)
+AC_COPYRIGHT([
+Copyright (C) 2004 Tilburg University, The Netherlands
+])
+
+AM_INIT_AUTOMAKE()
 
 AC_OUTPUT([Makefile
            doc/Makefile
