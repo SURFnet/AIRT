@@ -50,6 +50,18 @@ switch ($action)
 <input type="hidden" name="action" value="check">
 <input type="submit" value="Login">
 </form>
+
+<P>
+<HR>
+<P>
+<BLOCKQUOTE><small>
+    AIR version pre-0.1, Copyright (C) 2004  Kees Leune 
+    &lt;<a href="mailto:kees@uvt.nl">kees@uvt.nl</a>&gt;<BR>
+    AIR comes with ABSOLUTELY NO WARRANTY; for details 
+    <a href="license.php">click here</a>.<BR>
+    This is free software, and you are welcome to redistribute it
+    under certain conditions; type `show c' for details.
+</small></BLOCKQUOTE>
 EOF;
         break;
 

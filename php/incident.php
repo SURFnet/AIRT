@@ -22,7 +22,7 @@
  */
 require "../lib/liberty.plib";
 require "../lib/userfunctions.plib";
-require "../lib/air.plib";
+require "../lib/api.plib";
 
 if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
 else $action="list";
@@ -237,7 +237,7 @@ EOF;
             $state=$_POST["state"];
 
         $now = Date("Y-m-d H:i:s");
-        $incident = new AIR_Inident();
+        $incident = new AIR_Incident();
         $incident->setIp($ip);
         $incident->setStatus($status); 
         $incident->setState($state);
@@ -398,17 +398,13 @@ EOF;
         Header(sprintf("Location: %s/%s?action=list",
             BASEURL, $SELF));
 
-        
         break;
 
     //--------------------------------------------------------------------
     case "history":
+        // TODO
         break;
 
-    //--------------------------------------------------------------------
-    case "comment":
-        break;
-    
     //--------------------------------------------------------------------
     default:
         die("Unknown action");

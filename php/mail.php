@@ -22,6 +22,7 @@
  */
  require '../lib/liberty.plib';
  require '../lib/rt.plib';
+ require '../lib/api.plib';
 
  $SELF="$BASEURL/mail.php";
 
@@ -130,8 +131,32 @@ EOF;
             printf("<PRE>%s</PRE>", $body);
         }
 
-        // allow association with ticket if not already associated
-
+        // list open tickets
+        $incidents = AIR_getIncidents();
+        echo <<<EOF
+<div width="100%" style="background-color: #DDDDDD">
+<form action="$SELF" method="POST">
+<input type="hidden" name="action" value="associate">
+<input type="hidden" name="ticket" value="$id"">
+Link to incident:
+<select name="incident">
+<option value="">--- Choose incident ---</option>
+EOF;
+        foreach ($incidents as $i => $incident)
+        {
+            printf("<option value='%s'>%s: %s (%s)</option>\n",
+                decode_incidentid($incident["id"]),
+                normalize_incidentid($incident["id"]),
+                gethostbyaddr($incident["ip"]),
+                $incident["category"]
+                );
+        }
+        echo <<<EOF
+</select>
+<input type="submit" value="Ok!">
+</form>
+</div>
+EOF;
         pageFooter();
         break;
 
@@ -185,17 +210,18 @@ EOF;
 
     // --------------------------------------------------------------------
     case "associate":
-        if (array_key_exists("ticketid", $_REQUEST))
-            $ticketid = $_REQUEST["ticketid"];
+        if (array_key_exists("ticket", $_REQUEST))
+            $ticket = $_REQUEST["ticket"];
         else die("Missing information.");
         
-        if (array_key_exists("incidentid", $_REQUEST))
-            $incidentid = decode_incidentid(
-                normalize_incidentid($_REQUEST["incidentid"])
+        if (array_key_exists("incident", $_REQUEST))
+            $incident = decode_incidentid(
+                normalize_incidentid($_REQUEST["incident"])
             );
         else die("Missing information.");
 
-        printf("TODO");
+        printf("ticket=%s, incident=%s",
+            $ticket, $incident);
 
         break;
 

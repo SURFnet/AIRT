@@ -310,7 +310,7 @@ class AIR_Incident
              constituency, created, creator, lastupdatedby, lastupdated )
             VALUES
             (nextval('incidentid_seq'), %s, %s, %s, %s, %s, %s, 
-                %s, '%s', %s, %s, '%s')",
+                %s, %s, %s, %s, %s)",
                 db_masq_null($this->ip),
                 db_masq_null($this->status),
                 db_masq_null($this->state),
