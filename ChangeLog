@@ -3,7 +3,8 @@
 * php/incident.php: Forced all email addresses to lower case, input field 
   to jump directly to an incident.
 * lib/incident.plib: getIncident() now returns false when requested incident
-  does not exists.
+  does not exists; addIPToIncident now correctly sets constituency and
+  hostname.
 * etc/apahace-airt.conf.in: Typo fix
 
 2005-feb-09  Kees Leune  <kees@uvt.nl>
