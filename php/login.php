@@ -23,6 +23,26 @@ $public=1;
 include "../lib/airt.plib";
 include "../lib/rt.plib";
 
+function check_SSL()
+{
+    if (isset($_SERVER["SSL_CLIENT_CERT"]))
+    {
+        $data = openssl_x509_parse($_SERVER["SSL_CLIENT_CERT"]);
+        if ($data["issuer"]["CN"] != "UvT-CA")
+            die("Invalid certificate authority");
+
+        $now = time();
+        if ($now < $data["validFrom_time_t"] ||
+            $now > $data["validTo_time_t"])
+            die("Certificate expired");
+
+        $subject = $data["subject"]["CN"];
+        if ($data["subject"]["OU"] == "UvT-CERT")
+            return $subject;
+    }
+    return false;
+}
+
 if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST[action];
 else $action = "none";
 
@@ -51,6 +71,15 @@ switch ($action)
 <input type="hidden" name="action" value="check">
 <input type="submit" value="Login">
 </form>
+EOF;
+        if (check_SSL() != false)
+        {
+            printf("<P><a href=\"$SELF?action=ssl\">Log in via SSL client
+            certificate</a> [<a 
+            href=\"$SELF?action=sslinfo\">SSL info</a>]");
+        }
+
+echo <<<EOF
 
 <P>
 <HR>
@@ -91,7 +120,7 @@ EOF;
             "Welcome %s. Your last login was at %s from %s.\n",
             $login, Date("r"), gethostbyaddr($_SERVER["REMOTE_ADDR"])));
         fclose($f);
-          
+
         session_start();
         $_SESSION["username"] = $login;
         $_SESSION["userid"]   = $userid;
@@ -101,6 +130,37 @@ EOF;
         Header("Location: index.php");
             
         break;
+
+        case "ssl";
+            $name = check_SSL();
+            if ($name == false)
+            {
+                Location("Header: $SELF");
+                exit;
+            }
+            switch ($name)
+            {
+                case "Kees Leune":
+                    $username="kees";
+                    $userid="26";
+                    break;
+                case "Teun Nijssen":
+                    $username="teun";
+                    break;
+                default:
+                    Location("Header: $SELF");
+                    exit;
+            }
+
+            session_start();
+            $_SESSION["username"] = $username;
+            $_SESSION["userid"]   = $userid;
+            $_SESSION["ip"]       = $_SERVER["REMOTE_ADDR"];
+            $_SESSION["last"]     = time();
+
+            Header("Location: index.php");
+            break;
+
 
     default:
         die("Unknown action.");

@@ -69,8 +69,9 @@ echo "<HR>";
 
 <tr valign="top">
     <td>
+<!--
 <a href="mail.php">Incoming messages</a> (<?php echo $new; ?> new)
-
+-->
 <P>
 
 <a href="incident.php">Incident management</a>
