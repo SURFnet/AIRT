@@ -25,12 +25,6 @@
 
 /***** 1. GLOBAL SETTINGS *****/
 
-// The URL where the application may be reached
-$BASEURL = '/airt';
-
-// base URL of the application
-define('BASEURL', $BASEURL);
-
 // location of the .plib files
 define('LIBDIR', '@PHPLIBPATH@');
     

@@ -25,8 +25,6 @@
  require_once LIBDIR.'/airt.plib';
  require_once LIBDIR.'/database.plib';
  
- $SELF = "constituency_contacts.php";
-
  if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
  else $action = "list";
 
@@ -45,19 +43,18 @@
         or die("Unable to execute query.");
 
         echo "Please select a constituency to edit assign contacts:<P>";
-        while($row=db_fetch_next($res))
-        {
+        while($row=db_fetch_next($res)) {
             $id = $row["id"];
             $label = $row["label"];
             $name = $row["name"];
-            echo "<a href=\"$SELF?action=edit&consid=$id\">$label - $name</a><P>";
+            echo "<a href=\"$_SERVER[PHP_SELF]?action=edit&consid=$id\">$label - $name</a><P>";
         }
         db_free_result($res);
 
         db_close($conn);
         pageFooter();
         break;
-        
+
     //-----------------------------------------------------------------
     case "edit":
         if (array_key_exists("consid", $_GET)) $consid=$_GET["consid"];
@@ -74,8 +71,7 @@
              WHERE  id=$consid")
         or die("Unable to execute query 1.");
 
-        if (db_num_rows($res) == 0)
-        {
+        if (db_num_rows($res) == 0) {
             die("Invalid constituency.");
         }
 
@@ -83,9 +79,9 @@
         $label = $row["label"];
         $name  = $row["name"];
         db_free_result($res);
-        
+
         echo "<h3>Current contacts of constituency $label</H3>";
-        
+
         $res = db_query($conn,
             "SELECT u.id, login, lastname, firstname, email, phone
              FROM   constituency_contacts cc, users u
@@ -94,15 +90,12 @@
              ")
         or die("Unable to execute query(2).");
 
-        if (db_num_rows($res) == 0)
-        {
+        if (db_num_rows($res) == 0) {
             echo "<I>No assigned users.</I>";
-        } 
-        else
-        {
+        }
+        else {
             echo "<table border=1 cellpadding=4>";
-            while ($row = db_fetch_next($res))
-            {
+            while ($row = db_fetch_next($res)) {
                 $login = $row["login"];
                 $lastname = $row["lastname"];
                 $firstname = $row["firstname"];
@@ -110,13 +103,14 @@
                 $phone = $row["phone"];
                 $id = $row["id"];
 
-                printf("<tr>
-                            <td>%s (%s, %s)</td>
-                            <td><a href=\"mailto:%s\">%s</a></td>
-                            <td>%s</td>
-                            <td><a
-                            href=\"$SELF?action=remove&cons=%s&user=%s\">Remove</a></td>
-                        </tr>",
+                printf("
+<tr>
+    <td>%s (%s, %s)</td>
+    <td><a href=\"mailto:%s\">%s</a></td>
+    <td>%s</td>
+    <td><a href=\"$_SERVER[PHP_SELF]?action=remove&cons=%s&user=%s\">Remove</a>
+	</td>
+</tr>",
                         $login, $lastname, $firstname,
                         $email, $email,
                         $phone, $consid, $id);
@@ -139,13 +133,12 @@
         {
             echo <<<EOF
 <P>
-<FORM action="$SELF" method="POST">
+<FORM action="$_SERVER[PHP_SELF]" method="POST">
 Add user(s) to role: 
 <SELECT MULTIPLE name="userid[]">
 
 EOF;
-        while ($row = db_fetch_next($res))
-        {
+        while ($row = db_fetch_next($res)) {
             $login     = $row["login"];
             $lastname  = $row["lastname"];
             $firstname = $row["firstname"];
@@ -161,16 +154,14 @@ EOF;
 <input type="submit" value="Assign">
 </FORM>
 EOF;
-        } 
-        else
-        {   
+        } else {
             echo "<P><I>No unassigned users.</I>";
         }
         db_close($conn);
 
         echo <<<EOF
 <P><HR>
-<a href="$SELF">Select another constituency</a> &nbsp;|&nbsp;
+<a href="$_SERVER[PHP_SELF]">Select another constituency</a> &nbsp;|&nbsp;
 <a href="maintenance.php">Settings</a>
 EOF;
         pageFooter();
@@ -185,9 +176,8 @@ EOF;
 
         $conn = db_connect(DBDB, DBUSER, DBPASSWD)
         or die("Unable to connect to database.");
-        
-        foreach ($userid as $key=>$value)
-        {
+
+        foreach ($userid as $key=>$value) {
             $res=db_query($conn,"
                 INSERT INTO constituency_contacts
                 (id, constituency, userid)
@@ -196,7 +186,7 @@ EOF;
             or die("Unable to execute query");
         }
         db_close($conn);
-        Header("Location: $SELF?action=edit&consid=$consid");
+        Header("Location: $_SERVER[PHP_SELF]?action=edit&consid=$consid");
         break;
 
     //-----------------------------------------------------------------
@@ -215,10 +205,10 @@ EOF;
              AND    constituency=$cons")
         or die("Unable to execute query");
         db_close($conn);
-        Header("Location: $SELF?action=edit&consid=$cons");
+        Header("Location: $_SERVER[PHP_SELF]?action=edit&consid=$cons");
 
         break;
-    
+
     //-----------------------------------------------------------------
     default:
         die("Unknown action: $action");

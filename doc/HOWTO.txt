@@ -1,0 +1,16 @@
+1. How to customize appearance (aka I want _my_ logo!)
+
+	AIRT ships "out of the box" without any predescribed graphical formatting.
+	To customize the appearance of AIRT, activate the custom features login in
+	the AIRT configuration file. This is done by uncommenting the statement
+	that defines CUSTOMFUNCTIONS.
+
+	The file with your custom functions should contain the following:
+
+		registerEventHandler('pageHeaeder', 'showPageheader');
+
+		function showPageHeader($data) {
+			/* do your customization here; $data is an associative array with
+			 * two keys: title and helptopic.
+			 /
+		}

@@ -3,6 +3,7 @@
 SUBDIRS = . examples
 
 docdir =  $(datadir)/doc/$(PACKAGE)
-doc_DATA = events.txt session-variables.txt airtschema.sql airtbootstrap.sql
+doc_DATA = events.txt session-variables.txt airtschema.sql airtbootstrap.sql \
+	HOWTO.txt
 
 EXTRA_DIST = $(doc_DATA)

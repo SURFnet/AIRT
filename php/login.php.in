@@ -24,17 +24,15 @@ require_once 'config.plib';
 require_once LIBDIR."/authentication.plib";
 require_once LIBDIR."/airt.plib";
 
-if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST['action'];
+if (array_key_exists('action', $_REQUEST)) $action=$_REQUEST['action'];
 else $action = "none";
-
-$SELF = "login.php";
 
 switch ($action) {
     case "none":
         pageHeader("AIRT login page");
         echo <<<EOF
 <P>
-<form action="$SELF" method="POST">
+<form action="$_SERVER[PHP_SELF]" method="POST">
 <table>
 <tr>
     <td>Login</td>
@@ -99,7 +97,7 @@ EOF;
 			"remoteip" => $_SERVER['REMOTE_ADDR']
 		));
 
-        session_start();
+        // session_start();
         foreach (array("username", "userid", "ip", "last") as $key => $value)
             session_register($value);
 

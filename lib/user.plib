@@ -65,19 +65,34 @@ function addUser($user) {
 	$conn = @db_connect(DBDB, DBUSER, DBPASSWD)
 	or die("Unable to connect to database in addUser");
 
+	if (array_key_exists('lastname', $user)) $lastname=$user['lastname'];
+	else $lastname = '';
+	if (array_key_exists('firstname', $user)) $firstname=$user['firstname'];
+	else $firstname = '';
+	if (array_key_exists('email', $user)) $email=$user['email'];
+	else $email = '';
+	if (array_key_exists('phone', $user)) $phone=$user['phone'];
+	else $phone = '';
+	if (array_key_exists('login', $user)) $login=$user['login'];
+	else $login = '';
+	if (array_key_exists('userid', $user)) $userid=$user['userid'];
+	else $userid = '';
+	if (array_key_exists('password', $user)) $password=$user['password'];
+	else $password = '';
+
 	$query = sprintf("
 		INSERT INTO users
 		(id, lastname, firstname, email, phone, login, userid,
 		password)
 		VALUES
 		(nextval('users_sequence'), %s, %s, %s, %s, %s, %s, %s)",
-		db_masq_null($user['lastname']),
-		db_masq_null($user['firstname']),
-		db_masq_null($user['email']),
-		db_masq_null($user['phone']),
-		db_masq_null($user['login']),
-		db_masq_null($user['userid']),
-		db_masq_null($user['password'])
+		db_masq_null('lastname'),
+		db_masq_null('firstname'),
+		db_masq_null('email'),
+		db_masq_null('phone'),
+		db_masq_null('login'),
+		db_masq_null('userid'),
+		db_masq_null(sha1('password'))
 	);
 	$res = @db_query($conn, $query)
 	or die("Unable to query database in addUser.");

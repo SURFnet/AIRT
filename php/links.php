@@ -24,14 +24,11 @@
  require_once 'config.plib';
  require_once LIBDIR.'/airt.plib';
  require_once LIBDIR.'/database.plib';
- 
- $SELF = "links.php";
 
  if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
  else $action = "list";
 
- switch ($action)
- {
+ switch ($action) {
     // --------------------------------------------------------------
     case "list":
         pageHeader("Links");
@@ -60,11 +57,11 @@
                 printf("<a href=\"%s\">%s</a>", 
                     $row["url"], $row["label"]);
                 printf("</td>\n");
-                printf("<td><a href=\"%s/%s?action=edit&id=%s\">edit</a></td>",
-                    BASEURL, $SELF, urlencode($row["id"]));
-                printf("<td><a href=\"%s/%s?action=delete&id=%s\">delete</a>
+                printf("<td><a href=\"%s?action=edit&id=%s\">edit</a></td>",
+                    $_SERVER['PHP_SELF'], urlencode($row["id"]));
+                printf("<td><a href=\"%s?action=delete&id=%s\">delete</a>
                         </td>",
-                    BASEURL, $SELF, urlencode($row["id"]));
+                    $_SERVER['PHP_SELF'], urlencode($row["id"]));
                 printf("</tr>\n");
             }
             printf("</table>");
@@ -73,7 +70,7 @@
         echo <<<EOF
 <HR>
 <BR><B>Add new URL</B><BR>
-<form action="$SELF" method="POST">
+<form action="$_SERVER[PHP_SELF]" method="POST">
 <input type="hidden" name="action" value="add">
 <table>
 <tr>
@@ -117,7 +114,7 @@ EOF;
         or die("Unable to insert URL");
 
         db_close($conn);
-        Header("Location: $SELF");
+        Header("Location: $_SERVER[PHP_SELF]");
         break;
 
     // --------------------------------------------------------------
@@ -135,7 +132,7 @@ EOF;
         or die("Unable to delete URL");
 
         db_close($conn);
-        Header("Location: $SELF");
+        Header("Location: $_SERVER[PHP_SELF]");
         break;
 
     // --------------------------------------------------------------
@@ -143,7 +140,7 @@ EOF;
         if (array_key_exists("id", $_REQUEST))
             $id = $_REQUEST["id"]
         or die("Missing information (3).");
-        
+
         $conn = db_connect(DBDB, DBUSER, DBPASSWD)
         or die("Unable to connect to database.");
 
@@ -163,7 +160,7 @@ EOF;
         $description = $row["label"];
 
         echo <<<EOF
-<form action="$SELF" method="POST">
+<form action="$_SERVER[PHP_SELF]" method="POST">
 <input type="hidden" name="action" value="update">
 <input type="hidden" name="id" value="$id">
 <table>
@@ -194,7 +191,7 @@ EOF;
         if (array_key_exists("id", $_REQUEST))
             $id = $_REQUEST["id"]
         or die("Missing information (3).");
-        
+
         $conn = db_connect(DBDB, DBUSER, DBPASSWD)
         or die("Unable to connect to database.");
 
@@ -209,11 +206,10 @@ EOF;
         or die("Unable to update URL");
         db_close($conn);
 
-        Header("Location: $SELF");
+        Header("Location: $_SERVER[PHP_SELF]");
         break;
     // --------------------------------------------------------------
     default:
         die("Unknown action: $action");
 } // switch
 ?>
- 

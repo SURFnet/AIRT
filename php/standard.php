@@ -33,7 +33,6 @@ require_once 'Mail/mime.php';
 if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
 else $action = "list";
 
-$SELF="standard.php";
 $FILES = array();
 
 function loadAllowedFiles() {
@@ -106,8 +105,7 @@ function read_standard_message($str)
  * $msg = the buffer containing the message
  * return false on failure, or the subject line on success
  */
-function get_subject($msg)
-{
+function get_subject($msg) {
     $match = ereg("@SUBJECT@(.*)@ENDSUBJECT@", $msg, $regs);
     if (!$match) return false;
 
@@ -118,10 +116,7 @@ function get_subject($msg)
 /**
  * List all standard messages. Returns the number of messages
  */
-function list_standard_messages()
-{
-    global $SELF;
-
+function list_standard_messages() {
     $dir = STATEDIR."/templates";
     $dh = @opendir($dir)
     or die ("Unable to open directory with standard messages.");
@@ -135,19 +130,19 @@ function list_standard_messages()
         $msg = read_standard_message($file);
         $subject = get_subject($msg);
         printf("<tr bgcolor=%s>
-            <td><a href=\"%s/%s?action=prepare&filename=%s\">prepare</a></td>
+            <td><a href=\"%s?action=prepare&filename=%s\">prepare</a></td>
             <td>%s</td>
 			<td>%s</td>
-            <td><a href=\"%s/%s?action=edit&filename=%s\">edit</a></td>
+            <td><a href=\"%s?action=edit&filename=%s\">edit</a></td>
             <td><a onclick=\"return confirm('Are you sure that you want ".
             "to delete this message?')\"
-            href=\"%s/%s?action=delete&filename=%s\">delete</a></td>
+            href=\"%s?action=delete&filename=%s\">delete</a></td>
             </tr>",
             $count++%2==0?"#DDDDDD":"#FFFFFF",
-            BASEURL, $SELF, urlencode($file),
+            $_SERVER['PHP_SELF'], urlencode($file),
             $file, $subject,
-            BASEURL, $SELF, urlencode($file),
-            BASEURL, $SELF, urlencode($file)
+            $_SERVER['PHP_SELF'], urlencode($file),
+            $_SERVER['PHP_SELF'], urlencode($file)
             );
     }
     echo "</table>";
@@ -219,7 +214,7 @@ function prepare_message($filename) {
 
 
 	echo <<<EOF
-<FORM action="$SELF" method="POST">
+<FORM action="$_SERVER[PHP_SELF]" method="POST">
 <TABLE WIDTH="80">
 <TR>
 	<TD>To:</TD>
@@ -341,7 +336,7 @@ switch ($action)
             printf("<I>No standard messages available.</I>");
         echo <<<EOF
 <P>
-<a href="$BASEURL/$SELF?action=new">Create a new message</a>
+<a href="$_SERVER[PHP_SELF]?action=new">Create a new message</a>
 EOF;
 
         pageFooter();
@@ -349,18 +344,18 @@ EOF;
 
     // -------------------------------------------------------------------
     case "edit":
+		$msg = '';
         if (array_key_exists("filename", $_REQUEST))
             $filename=$_REQUEST["filename"];
         else die("Missing parameter.");
 
+
         pageHeader("Edit standard message");
 
-        if (($msg = read_standard_message($filename)) == false)
-        {
+        if (($msg = read_standard_message($filename)) == false) {
             printf("Message not available.");
         }
-        else
-        {
+        else {
             echo <<<EOF
 Update the message and press the 'Save!' button to save the message. The first
 line of the message will be used as the subject. You may use the following
@@ -373,7 +368,7 @@ EOF;
 
 <P>
 
-<form action="$SELF" method="POST">
+<form action="$_SERVER[PHP_SELF]" method="POST">
 <textarea wrap name="message" cols=75 rows=20>$msg</textarea>
 <P>
 <input type="hidden" name="action" value="save">
@@ -385,7 +380,7 @@ EOF;
         }
 
         pageFooter();
-        
+
         break;
 
     // -------------------------------------------------------------------
@@ -404,7 +399,7 @@ EOF;
 		if (!valid_write($filename)) die ("Invalid filename.");
 
         save_standard_message($filename, $message);
-        Header("Location: $BASEURL/$SELF");
+        Header("Location: $_SERVER[PHP_SELF]");
         break;
 
     // -------------------------------------------------------------------
@@ -418,11 +413,11 @@ EOF;
         print_variables_info();
         echo <<<EOF
 <P>
-<form action="$SELF" method="POST">
+<form action="$_SERVER[PHP_SELF]" method="POST">
 File name: <input type="text" size="40" name="filename">
 <P>
 Message:<BR>
-<textarea wrap name="message" cols=75 rows=20>$msg</textarea>
+<textarea wrap name="message" cols=75 rows=20></textarea>
 <P>
 <input type="hidden" name="action" value="save">
 <input type="submit" value="Save!">
@@ -439,7 +434,7 @@ EOF;
 
 		if (valid_write($filename)) 
 			unlink(STATEDIR."/templates/$filename");
-        Header("Location: ".BASEURL."/$SELF");
+        Header("Location: $_SERVER[PHP_SELF]");
         break;
 
     // -------------------------------------------------------------------
@@ -512,7 +507,7 @@ EOF;
 
 		addIncidentComment(sprintf("Email sent to %s: %s",
 			$to, $subject));
-		Header("Location: $SELF");
+		Header("Location: $_SERVER[PHP_SELF]");
 		break;
 
 

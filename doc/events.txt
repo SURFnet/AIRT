@@ -4,6 +4,10 @@ AIRT offers a site customization mechanism which is event driven. In
 customfunctions.plib, define zero or more event handlers per event to
 influence the application's behaviour.
 
+Event: pageheader
+Data:  array with keys: title, helptopic
+Note:  Generated before each page view
+
 Event: invalidlogin
 Data:  array with keys: login, remoteip
 Note:  Generated on invalid login attempt
@@ -21,7 +25,7 @@ Data:  array: label=>"label", name=>"name"
 Note:  Generated after updating a constituency
 
 Event: deleteconstituency
-Data:  id of constituency
+Data:  array with keys: constituencyid
 Note:  Event is generate prior to removal
 
 Event: newincident

@@ -31,12 +31,9 @@
  if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
  else $action = "none";
 
- $SELF = "search.php";
-
- function ShowSearch()
- {
+ function ShowSearch() {
         echo <<<EOF
-<form action="$SELF" method="POST">
+<form action="$_SERVER[PHP_SELF]" method="POST">
 <input type="hidden" name="action" value="search">
 <table width="100%" bgcolor="#DDDDDD" border=0 cellpadding=2>
 <tr>

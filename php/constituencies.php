@@ -26,13 +26,10 @@
  require_once LIBDIR.'/database.plib';
  require_once LIBDIR.'/constituency.plib';
  
- $SELF = "constituencies.php";
-
  if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
  else $action = "list";
 
- function show_form($id="")
- {
+ function show_form($id="") {
     $label = $description = "";
     $action = "add";
     $submit = "Add!";
@@ -51,7 +48,7 @@
         }
     }
     echo <<<EOF
-<form action="$SELF" method="POST">
+<form action="$_SERVER[PHP_SELF]" method="POST">
 <input type="hidden" name="action" value="$action">
 <input type="hidden" name="consid" value="$id">
 <table>
@@ -101,7 +98,7 @@ EOF;
             $color = ($count++%2==0?"#FFFFFF":"#DDDDDD");
             echo <<<EOF
 <tr valign="top" bgcolor="$color">
-    <td><a href="$SELF?action=edit&cons=$consid">edit</a></td>
+    <td><a href="$_SERVER[PHP_SELF]?action=edit&cons=$consid">edit</a></td>
     <td>$label</td>
     <td>$name</td>
     <td>
@@ -165,13 +162,14 @@ EOF;
 
             db_close($conn);
 
-			generateEvent("newconstituency", 
-				array("label"=>$label, "name"=>$name));
-            Header("Location: $SELF");
+			generateEvent("newconstituency", array(
+				"label"=>$label,
+				"name"=>$description
+			));
+            Header("Location: $_SERVER[PHP_SELF]");
         }
 
-        else if ($action=="update")
-        {
+        else if ($action=="update") {
             if ($consid=="") die("Missing information (3).");
             $conn = db_connect(DBDB, DBUSER, DBPASSWD)
             or die("Unable to connect to database.");
@@ -187,19 +185,23 @@ EOF;
             or die("Unable to excute query.");
 
             db_close($conn);
-			generateEvent("updateconstituency", 
-				array("label"=>$label, "name"=>$name));
-            Header("Location: $SELF");
+			generateEvent("updateconstituency", array(
+				"label"=>$label,
+				"name"=>$description
+			));
+            Header("Location: $_SERVER[PHP_SELF]");
         }
 
         break;
 
     //-----------------------------------------------------------------
     case "Delete":
-        if (array_key_exists("cons", $_GET)) $cons=$_GET["cons"];
-        else die("Missing information.");
+        if (array_key_exists("consid", $_POST)) $cons=$_POST["consid"];
+        else die("Missing information (1).");
 
-		generateEvent("deleteconstituency", $id);
+		generateEvent("deleteconstituency", array(
+			"constituencyid" => $cons
+		));
 
         $conn = db_connect(DBDB, DBUSER, DBPASSWD)
         or die("Unable to connect to database.");
@@ -210,7 +212,7 @@ EOF;
         or die("Unable to execute query.");
 
         db_close($conn);
-        Header("Location: $SELF");
+        Header("Location: $_SERVER[PHP_SELF]");
 
         break;
     //-----------------------------------------------------------------

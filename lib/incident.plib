@@ -261,7 +261,7 @@ function addIPtoIncident($ip, $incident) {
 
 	generateEvent("incidentaddip", array(
 		"incidentid" => $incident,
-		"constituency" => $constituency,
+		"constituency" => $networkid,
 		"hostname" => $hostname,
 		"ip" => $ip
 	));

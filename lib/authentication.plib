@@ -1,5 +1,5 @@
 <?php
-/*
+/* vim: syntax=php
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
  * Copyright (C) 2004	Tilburg University, The Netherlands
 
@@ -23,8 +23,7 @@
  */
 require_once LIBDIR."/database.plib";
 
-function airt_authenticate($username, $password)
-{
+function airt_authenticate($username, $password) {
     $conn = db_connect(DBDB, DBUSER, DBPASSWD)
     or die("Unable to connect to database.");
 
@@ -34,23 +33,21 @@ function airt_authenticate($username, $password)
         WHERE  login = '%s'
         AND    password = '%s'",
         $username,
-        $password
+        sha1($password)
     );
 
     $res = db_query($conn, $query) 
     or die("Unable to query database.");
 
-    if (db_num_rows($res) > 0)
-    {
+    if (db_num_rows($res) > 0) {
         $row = db_fetch_next($res);
         $userid = $row["userid"];
         db_free_result($res);
         db_close($conn);
-        
+
         return $userid;
     }
-    else
-    {
+    else {
         db_free_result($res);
         db_close($conn);
 

@@ -26,14 +26,10 @@
  require_once LIBDIR.'/database.plib';
  require_once LIBDIR.'/constituency.plib';
 
- $SELF = "networks.php";
-
  if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
  else $action = "list";
 
  function show_form($id="") {
-	global $SELF;
-
     $label = "";
     $action = "add";
     $submit = "Add!";
@@ -41,8 +37,7 @@
 	$netmask = "";
 	$network = "";
 
-    if ($id != "")
-    {
+    if ($id != "") {
         $networks = getNetworks();
         if (array_key_exists($id, $networks))
         {
@@ -56,7 +51,7 @@
         }
     }
     echo <<<EOF
-<form action="$SELF" method="POST">
+<form action="$_SERVER[PHP_SELF]" method="POST">
 <input type="hidden" name="action" value="$action">
 <input type="hidden" name="id" value="$id">
 <table>
@@ -152,8 +147,8 @@ EOF;
     <td>$label</td>
     <td><a href="constituencies.php?action=edit&cons=$constituency"
         >$constituency_name</a></td>
-    <td><a href="$SELF?action=edit&id=$id"><small>edit</small></td>
-    <td><a href="$SELF?action=delete&id=$id"><small>delete</small></td>
+    <td><a href="$_SERVER[PHP_SELF]?action=edit&id=$id"><small>edit</small></td>
+    <td><a href="$_SERVER[PHP_SELF]?action=delete&id=$id"><small>delete</small></td>
 </tr>
 EOF;
         } // while $row
@@ -207,7 +202,7 @@ EOF;
             ) or die("Unable to excute query.");
 
             db_close($conn);
-            Header("Location: $SELF");
+            Header("Location: $_SERVER[PHP_SELF]");
         }
 
         else if ($action=="update")
@@ -231,7 +226,7 @@ EOF;
                 )
             ) or die("Unable to excute query.");
 
-            Header("Location: $SELF");
+            Header("Location: $_SERVER[PHP_SELF]");
         }
 
         break;
@@ -250,7 +245,7 @@ EOF;
         or die("Unable to execute query.");
 
         db_close($conn);
-        Header("Location: $SELF");
+        Header("Location: $_SERVER[PHP_SELF]");
         
         break;
     //-----------------------------------------------------------------

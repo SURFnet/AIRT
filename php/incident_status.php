@@ -25,13 +25,10 @@
  require_once LIBDIR.'/airt.plib';
  require_once LIBDIR.'/database.plib';
  
- $SELF = "incident_status.php";
-
  if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
  else $action = "list";
 
- function show_form($id="")
- {
+ function show_form($id="") {
     $label = "";
     $action = "add";
     $submit = "Add!";
@@ -57,7 +54,7 @@
         db_close($conn);
     }
     echo <<<EOF
-<form action="$SELF" method="POST">
+<form action="$_SERVER[PHP_SELF]" method="POST">
 <input type="hidden" name="action" value="$action">
 <input type="hidden" name="id" value="$id">
 <table>
@@ -92,7 +89,7 @@ EOF;
     <td><B>Label</B></td>
     <td><B>Edit</B></td>
     <td><B>Delete</B></td>
-    
+
 </tr>
 EOF;
         $count=0;
@@ -104,8 +101,8 @@ EOF;
             echo <<<EOF
 <tr valign="top" bgcolor="$color">
     <td>$label</td>
-    <td><a href="$SELF?action=edit&id=$id">edit</a></td>
-    <td><a href="$SELF?action=delete&id=$id">delete</a></td>
+    <td><a href="$_SERVER[PHP_SELF]?action=edit&id=$id">edit</a></td>
+    <td><a href="$_SERVER[PHP_SELF]?action=delete&id=$id">delete</a></td>
 </tr>
 EOF;
         } // while $row
@@ -151,7 +148,7 @@ EOF;
             or die("Unable to excute query.");
 
             db_close($conn);
-            Header("Location: $SELF");
+            Header("Location: $_SERVER[PHP_SELF]");
         }
 
         else if ($action=="update")
@@ -169,7 +166,7 @@ EOF;
             or die("Unable to excute query.");
 
             db_close($conn);
-            Header("Location: $SELF");
+            Header("Location: $_SERVER[PHP_SELF]");
         }
 
         break;
@@ -188,8 +185,8 @@ EOF;
         or die("Unable to execute query.");
 
         db_close($conn);
-        Header("Location: $SELF");
-        
+        Header("Location: $_SERVER[PHP_SELF]");
+
         break;
     //-----------------------------------------------------------------
     default:

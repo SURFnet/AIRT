@@ -66,43 +66,34 @@ Installation manual for packages
 
         postgres:~% createdb airt
         CREATE DATABASE
-    
+
     Step 2. Create the database user that is referred to in the configuration
     file. For example,
 
-        postgres:~% createuser airt
-        Shall the new user be allowed to create databases? (y/n) n
-        Shall the new user be allowed to create more new users? (y/n) n
+        postgres:~% createuser airt --no-createuser --no-adduser -P
         CREATE USER
 
-    Step 3. Set the database password. For example
+	You will be prompted for a password for the AIRT user. Keep this password
+	somewhere handy, as you will need it again.
 
-        postgres:~% psql template1
-        Welcome to psql 7.4.6, the PostgreSQL interactive terminal.
-        ...
-
-        template1=# alter user airt with password 'yourpassword';
-        ALTER USER
-
-
-    Step 4. Edit /usr/local/etc/airt/airt.cfg and set the 
+    Step 3. Edit /usr/local/etc/airt/airt.cfg and set the 
     variables apropriately. Note that the configuration file is a
     regular PHP program, and any PHP construct can be used in it. For example,
     it is possible to move the database password out of the main configuration
     file and move it to its own file by using PHP's require_once operator.
 
-    Step 5. Make sure the airt user has access to the database. Edit
+    Step 4. Make sure the airt user has access to the database. Edit
     pg_hba.conf. On most systems, that file can be found in /etc/postgresql,
     but your milage may vary.
-    
+
     Keep in mind that the order of access control rules in pg_hba.conf is
     important. Add the following line after the line which grants the postgres
     user access to all databases:
 
         local   airt        airt       password
 
-    
-    Step 6. As root, signal postgres to reload the configuration. On most
+
+    Step 5. As root, signal postgres to reload the configuration. On most
     installations, this may be achieved by a command similar to 
     /etc/init.d/postgresql restart, however you may have chosen a different
     setup. 
@@ -111,8 +102,8 @@ Installation manual for packages
 
         root:~# invoke-rc.d postgresql reload
 
-    Step 7. Initialise the database.
-    
+    Step 6. Initialise the database.
+
     Dont worry if the script outputs ERRORs in the the beginning; this is due
     to the fact that it tries to drop sequences and tables that may not exist
     yet.
@@ -122,13 +113,13 @@ Installation manual for packages
     postgres:~% gunzip -c /usr/local/share/doc/airt/airtschema.sql.gz \
             |psql airt airt
 
-        
-    Step 8. Bootstrap the database.
-            
+
+    Step 7. Bootstrap the database.
+
     postgres:~% psql airt airt < \
         /usr/local/share/doc/airt/airtbootstrap.sql 
 
-    Step 9. Configure your web browser. If you are using Apache, the easiest
+    Step 8. Configure your web server. If you are using Apache, the easiest
     way to do this is to add a symbolic link in your configuration directory
     and include that file.
 
@@ -136,14 +127,14 @@ Installation manual for packages
     in /etc/apache/conf.d (or /etc/apache2/conf.d) which leads to
     /usr/local/etc/airt/airt-apache.conf
 
-    Step 10. Confirm that the configuration file is correct. Apache
+    Step 9. Confirm that the configuration file is correct. Apache
     administrators do
 
         root:~# apachectl configtest
 
     (or apache2ctl, or apache-sslctl, etc)
 
-    Step 11. If everything checks out, reload the apache configuration and you
+    Step 10. If everything checks out, reload the apache configuration and you
     should be done. If apache is already running, do
 
         root:~# /etc/init.d/apache reload
@@ -152,7 +143,7 @@ Installation manual for packages
 
         root:~# /etc/init.d/apache start
 
-    Step 12. Change the admin password. Point your browser at the machine that
+    Step 11. Change the admin password. Point your browser at the machine that
     hosts the application and log in with user admin, password admin. On the
     main menu, click Edit settings > Edit users. Then, on the line with the
     admin user, click edit and set a (different) password.

@@ -25,20 +25,16 @@
  require_once LIBDIR.'/airt.plib';
  require_once LIBDIR.'/database.plib';
  require_once LIBDIR.'/user.plib';
- 
- $SELF = "users.php";
 
  if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
  else $action = "list";
 
- function show_form($id="")
- {
-    $lastname = $firstname = $email = $phone = $login = "";
+ function show_form($id="") {
+    $lastname = $firstname = $email = $phone = $login = $userid = '';
     $action = "add";
     $submit = "Add!";
 
-    if ($id != "")
-    {
+    if ($id != "") {
         $conn = db_connect(DBDB, DBUSER, DBPASSWD)
         or die("Unable to connect to database.");
 
@@ -48,22 +44,28 @@
         WHERE  id = '$id'")
         or die("Unable to query database.");
 
-        if (db_num_rows($res) > 0)
-        {
+        if (db_num_rows($res) > 0) {
             $row = db_fetch_next($res);
-            $lastname = $row["lastname"];
-            $firstname = $row["firstname"];
-            $email = $row["email"];
-            $phone = $row["phone"];
-            $login = $row["login"];
-			$userid = $row["userid"];
+			if (array_key_exists('lastname', $row))
+				$lastname=$row['lastname'];
+			if (array_key_exists('firstname', $row))
+				$firstname=$row['firstname'];
+			if (array_key_exists('email', $row))
+				$email=$row['email'];
+			if (array_key_exists('phone', $row))
+				$phone=$row['phone'];
+			if (array_key_exists('login', $row))
+				$login=$row['login'];
+			if (array_key_exists('userid', $row))
+				$userid=$row['userid'];
+
             $action = "update";
             $submit = "Update!";
         }
         db_close($conn);
     }
     echo <<<EOF
-<form action="$SELF" method="POST">
+<form action="$_SERVER[PHP_SELF]" method="POST">
 <input type="hidden" name="action" value="$action">
 <input type="hidden" name="id" value="$id">
 <table>
@@ -151,10 +153,10 @@ EOF;
     <td>%s</td>
     <td><a href='mailto:%s'>%s</a></td>
     <td>%s</td>
-    <td><a href='$SELF?action=edit&id=%s'>edit</a></td>
+    <td><a href='$_SERVER[PHP_SELF]?action=edit&id=%s'>edit</a></td>
     <td><a 
        onclick=\"return confirm('Are you sure that you want to delete %s?')\"
-       href='$SELF?action=delete&id=%s'>delete</a></td>
+       href='$_SERVER[PHP_SELF]?action=delete&id=%s'>delete</a></td>
 </tr>",
             ($count++%2==0?"#FFFFFF":"#DDDDDD"),
             $login, $userid, $lastname, $firstname, $email, $email, $phone,
@@ -253,7 +255,7 @@ EOF;
 			));
 
             db_close($conn);
-            Header("Location: $SELF");
+            Header("Location: $_SERVER[PHP_SELF]");
         }
 
         // ========== UPDATE ===========
@@ -295,7 +297,7 @@ EOF;
                     %s, 
                     password=%s", 
                         $query,
-                        db_masq_null($password)
+                        db_masq_null(sha1($password))
 				);
             }
             $query = sprintf("
@@ -311,7 +313,7 @@ EOF;
             or die("Unable to execute query 1");
 
             db_close($conn);
-            Header("Location: $SELF");
+            Header("Location: $_SERVER[PHP_SELF]");
         }
 
         break;
@@ -335,14 +337,14 @@ EOF;
 <p>The most likely cause for this failure is that the user is associated with
 one or more incidents.</p>
 
-<p><a href="$SELF">continue...</a></p>
+<p><a href="$_SERVER[PHP_SELF]">continue...</a></p>
 EOF;
 			pageFooter();
 			exit;
 		}
 
         db_close($conn);
-        Header("Location: $SELF");
+        Header("Location: $_SERVER[PHP_SELF]");
 
         break;
 

@@ -31,8 +31,6 @@ require_once LIBDIR.'/user.plib';
 if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
 else $action="list";
 
-$SELF="incident.php";
-
 function showBasicIncidentData($type, $state, $status) {
 	echo <<<EOF
 <hr>
@@ -72,13 +70,10 @@ function showIncidentForm() {
     if (array_key_exists("active_ip", $_SESSION))
         $address = $_SESSION["active_ip"];
 	else $address = "";
+
     if (array_key_exists("constituency_id", $_SESSION))
         $constituency = $_SESSION["constituency_id"];
-	/*
-    if (array_key_exists("current_name", $_SESSION))
-        $name = $_SESSION["current_name"];
-	else $name = "";
-	*/
+		
     if (array_key_exists("current_email", $_SESSION))
         $email = $_SESSION["current_email"];
 
@@ -122,59 +117,59 @@ eof;
 
 
 function showeditform() {
-
-	$incident = getincident($_session["incidentid"]);
+	$incident = getincident($_SESSION["incidentid"]);
 	$type = $incident["type"];
 	$state = $incident["state"];
 	$status = $incident["status"];
 
-    if (array_key_exists("active_ip", $_session))
-        $address = $_session["active_ip"];
-    if (array_key_exists("constituency_id", $_session))
-        $constituency = $_session["constituency_id"];
+    if (array_key_exists("active_ip", $_SESSION))
+        $address = $_SESSION["active_ip"];
+    if (array_key_exists("constituency_id", $_SESSION))
+        $constituency = $_SESSION["constituency_id"];
 	
-	echo <<<eof
-<form action="$self" method="post">
-eof;
-	showbasicincidentdata($type, $state, $status);
+	echo <<<EOF
+<form action="$_SERVER[PHP_SELF]" method="post">
+EOF;
+	showBasicIncidentData($type, $state, $status);
 
-	echo <<<eof
+	echo <<<EOF
 <input type="submit" name="action" value="update">
 </form>
 <HR>
 <h3>Affected IP addresses</h3>
 <table cellpadding="4">
 EOF;
-	foreach ($incident["ips"] as $address) {
+	foreach ($incident['ips'] as $address) {
 		printf("
 <tr>
 	<td><a href=\"search.php?action=search&hostname=%s\">%s</a></td>
 	<td>%s</td>
-	<td><a href=\"$SELF?action=deleteip&ip=%s\">remove</a></td>
+	<td><a href=\"$_SERVER[PHP_SELF]?action=deleteip&ip=%s\">remove</a></td>
 </tr>
 	",
 		urlencode($address),
 		$address,
-		$address==""?"Unknown":gethostbyaddr(gethostbyname($address)),
+		$address==""?"Unknown":@gethostbyaddr(@gethostbyname($address)),
 		urlencode($address)
 		);
 	}
-	echo <<<EOF
-	</table>
-	<p/>
 
-	<P/>
-	<form action="$SELF" method="POST">
-	<input type="hidden" name="action" value="addip">
-	<table bgColor="#DDDDDD" cellpadding="2">
-	<tr>
-		<td>IP Address</td>
-		<td><input type="text" name="ip" size="40" value="$address"></td>
-		<td><input type="submit" value="Add">
-		</td>
-	</tr>
-	</table>
-	</form>
+	echo <<<EOF
+</table>
+<p/>
+
+<P/>
+<form action="$_SERVER[PHP_SELF]" method="POST">
+<input type="hidden" name="action" value="addip">
+<table bgColor="#DDDDDD" cellpadding="2">
+<tr>
+	<td>IP Address</td>
+	<td><input type="text" name="ip" size="40"></td>
+	<td><input type="submit" value="Add">
+	</td>
+</tr>
+</table>
+</form>
 EOF;
 
 	echo <<<EOF
@@ -189,7 +184,7 @@ EOF;
 	<td>%s</td>
 	<td><a href=\"mailto:%s\">%s</a></td>
 	<td>%s, %s</td>
-	<td><a href=\"$SELF?action=deluser&userid=%s\">remove</a></td>
+	<td><a href=\"$_SERVER[PHP_SELF]?action=deluser&userid=%s\">remove</a></td>
 </tr>
 		", $u["userid"],
 	       $u["email"],
@@ -203,36 +198,34 @@ EOF;
 	if (array_key_exists("current_userid", $_SESSION)) {
 		$userid = $_SESSION["current_userid"];
 		$u = getUserByUserID($userid);
-		if (sizeof($u) > 0)
-		{
+		if (sizeof($u) > 0) {
 			$lastname = $u[0]["lastname"];
 			$email = $u[0]["email"];
-		} else {
-			$userid = "";
-		}
-	} else {
-		$userid = ""; 
-	}
+		} else $userid = "";
+	} else $userid = ""; 
 
-	$email = $_SESSION['current_email'];
+	if (array_key_exists('current_email', $_SESSION))
+		$email = $_SESSION['current_email'];
+	else $email='';
+
 	echo <<<EOF
-	</table>
-	<p/>
+</table>
+<p/>
 
-	<form action="$SELF" method="POST">
-	<input type="hidden" name="action" value="adduser">
+<form action="$_SERVER[PHP_SELF]" method="POST">
+<input type="hidden" name="action" value="adduser">
 
-	<table bgColor="#DDDDDD" cellpadding="2" border="0">
-	<tr>
-		<td>Email address of user:</td>
-		<td><input type="text" size="40" name="email" value="$email"></td>
-		<td><input type="submit" value="Add"></td>
-		<td><a href="help.php?topic=incident-adduser">help</td>
-	</tr>
-	</table>
-	<input type="checkbox" name="addifmissing">
-	If checked, create user if email address unknown
-	</form>
+<table bgColor="#DDDDDD" cellpadding="2" border="0">
+<tr>
+	<td>Email address of user:</td>
+	<td><input type="text" size="40" name="email" value="$email"></td>
+	<td><input type="submit" value="Add"></td>
+	<td><a href="help.php?topic=incident-adduser">help</td>
+</tr>
+</table>
+<input type="checkbox" name="addifmissing">
+If checked, create user if email address unknown
+</form>
 EOF;
 			
 } // showeditform
@@ -273,7 +266,7 @@ EOF;
 
 		echo <<<EOF
 <p>
-<form action="$SELF" method="post">
+<form action="$_SERVER[PHP_SELF]" method="post">
 <input type="hidden" name="action" value="addcomment">
 <table bgcolor="#DDDDDD" border=0 cellpadding=2>
 <tr>
@@ -292,7 +285,7 @@ EOF;
     case "new":
         PageHeader("New Incident");
         echo <<<EOF
-<form action="$SELF" method="POST">
+<form action="$_SERVER[PHP_SELF]" method="POST">
 EOF;
         showIncidentForm();
         echo <<<EOF
@@ -415,7 +408,7 @@ and you chose not to add it to the database.</p>
 <p>The incident has been created, however no users have been associated with
 it.</p>
 
-<p><a href="$SELF">Continue...</a>
+<p><a href="$_SERVER[PHP_SELF]">Continue...</a>
 EOF;
 					pageFooter();
 					exit;
@@ -424,7 +417,7 @@ EOF;
 		}
 		
 		if ($sendmail == "on") Header("Location: standard.php");
-		else Header("Location: $SELF");
+		else Header("Location: $_SERVER[PHP_SELF]");
         break;
 
 
@@ -445,7 +438,7 @@ EOF;
 Enter incident number
 	</td>
 	<td>
-<FORM action="$SELF" method="POST">
+<FORM action="$_SERVER[PHP_SELF]" method="POST">
 <INPUT TYPE="hidden" name="action" value="details">
 <INPUT TYPE="input" name="incidentid" size="14">
 <INPUT TYPE="submit" value="Details">
@@ -458,7 +451,7 @@ Enter incident number
 Select incident status
 	</td>
 	<td>
-<FORM action="$SELF" method="POST">
+<FORM action="$_SERVER[PHP_SELF]" method="POST">
 <INPUT TYPE="hidden" name="action" value="list">
  <SELECT name="filter">
 EOF;
@@ -552,7 +545,7 @@ EOF;
 				$color = ($count++%2 == 1) ? '#FFFFFF' : '#DDDDDD';
                 echo <<<EOF
 <tr bgcolor='$color'>
-	<td><a href="$SELF?action=details&incidentid=$id">details</a></td>
+	<td><a href="$_SERVER[PHP_SELF]?action=details&incidentid=$id">details</a></td>
     <td>$incidentid</td>
 	<td>$constituency</td>
     <td>$hostline</td>
@@ -571,7 +564,7 @@ EOF;
 
         echo <<<EOF
 <p>
-<form action="$SELF" method="POST">
+<form action="$_SERVER[PHP_SELF]" method="POST">
 <input type="submit" name="action" value="New incident">
 </form>
 EOF;
@@ -597,7 +590,7 @@ EOF;
 			"incidentid" => $incidentid,
 			"ip"         => $ip
 		));
-		Header(sprintf("Location: $SELF?action=details&incidentid=%s",
+		Header(sprintf("Location: $_SERVER[PHP_SELF]?action=details&incidentid=%s",
 			urlencode($incidentid)));
 		break;
 
@@ -617,7 +610,7 @@ EOF;
 			"incidentid" => $incidentid,
 			"ip"         => $ip
 		));
-		Header(sprintf("Location: $SELF?action=details&incidentid=%s",
+		Header(sprintf("Location: $_SERVER[PHP_SELF]?action=details&incidentid=%s",
 			urlencode($incidentid)));
 		break;
 
@@ -650,7 +643,7 @@ EOF;
 		addIncidentComment(sprintf("User %s added to incident.",
 			$user["email"]));
 		
-		Header(sprintf("Location: $SELF?action=details&incidentid=%s",
+		Header(sprintf("Location: $_SERVER[PHP_SELF]?action=details&incidentid=%s",
 			urlencode($incidentid)));
 		
 		break;
@@ -667,7 +660,7 @@ EOF;
 		addIncidentComment(sprintf("User %s removed from incident.", 
 			$user["email"]));
 
-		Header(sprintf("Location: $SELF?action=details&incidentid=%s",
+		Header(sprintf("Location: $_SERVER[PHP_SELF]?action=details&incidentid=%s",
 			urlencode($incidentid)));
 		break;
 
@@ -680,10 +673,10 @@ EOF;
 		addIncidentComment($comment);
 		generateEvent("incidentcommentadd", array(
 			"comment"=>$comment,
-			"incidentid"=>$incidentid
+			"incidentid"=>$_SESSION['incidentid']
 		));
 
-		Header("Location: $SELF?action=details&incidentid=$_SESSION[incidentid]");
+		Header("Location: $_SERVER[PHP_SELF]?action=details&incidentid=$_SESSION[incidentid]");
 		break;
 
     //--------------------------------------------------------------------
@@ -729,7 +722,7 @@ EOF;
 			getIncidentStatusLabelByID($status),
 			getIncidentTypeLabelByID($type)));
 
-		Header("Location: $SELF");
+		Header("Location: $_SERVER[PHP_SELF]");
 		break;
 
     //--------------------------------------------------------------------

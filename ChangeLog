@@ -1,5 +1,7 @@
 2005-feb-14  Kees Leune  <kees@uvt.nl>
 * php/networks.php: network list is now sorted by IP address
+* all files: numerous warning fixes; removed all references to $SELF and
+  BASEURL
 
 2005-feb-12  Kees Leune  <kees@uvt.nl>
 * php/standard.php: Typo fix (@ID@ -> @INCIDENTID@)
