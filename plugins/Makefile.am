@@ -21,6 +21,6 @@
 SUBDIRS = pic
 
 scriptdir=$(pkgdatadir)/php
-script_DATA =colorstate.php
+script_DATA =colorstate.php debuginfo.php iptables.php
 
 EXTRA_DIST = $(script_DATA)
