@@ -22,8 +22,11 @@
  * index.php - AIR console
  * $Id$
  */
-require "../lib/database.plib";
-require "../lib/air.plib";
+require_once "../lib/database.plib";
+require_once "../lib/air.plib";
+require_once "../lib/incident.plib";
+require_once "../lib/rt.plib";
+require_once "../lib/constituency.plib";
 
 if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
 else $action = "list";
@@ -35,11 +38,6 @@ function show_defaults()
     $activeip = $_SESSION["active_ip"];
     $activeid = $_SESSION["active_incidentid"];
     $activeticket = $_SESSION["active_ticketid"];
-    $sip = $_SESSION["ip"];
-    $slast = Date("r", $_SESSION["last"]);
-    $expire = Date("r", $_SESSION["last"] + SESSION_TIMEOUT);
-    $uid = $_SESSION["userid"];
-    $uname = $_SESSION["username"];
 
 echo <<<EOF
 <PRE>
@@ -48,9 +46,35 @@ echo <<<EOF
     Active Ticket  : $activeticket
 </PRE>
 EOF;
-
-
 } // show_defaults
+
+function set_defaults()
+{
+
+    $user = RT_getUserById($_SESSION["userid"]);
+    $username = $user["realname"];
+
+    // 1. by incident id
+    if (array_key_exists("active_incidentid", $_SESSION))
+    {
+        $incidentid = decode_incidentid($_SESSION["active_incidentid"]);
+        $incident = AIR_getIncidentById($incidentid);
+        $hostname = gethostbyaddr($incident->getIp());
+        $con = AIR_getConstituencyById($incident->getConstituency());
+        $constituency = $con->getName();
+    }
+    
+    echo <<<EOF
+    <PRE>
+    Hostname     = $hostname
+    CERT member  = $username
+    Incident     = $incidentid
+    Constituency =  $constituency
+    </PRE>
+EOF;
+    
+}
+
 
 /** 
  * Read a standard message from the filesystem
@@ -192,6 +216,11 @@ EOF;
 <a href="$BASEURL/$SELF?action=delete&filename=$filename">Delete</a>
 EOF;
         pageFooter();
+        break;
+
+    // -------------------------------------------------------------------
+    case "generate":
+        set_defaults();
         break;
 
     // -------------------------------------------------------------------
