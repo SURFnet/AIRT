@@ -25,17 +25,21 @@
  require_once LIBDIR.'/airt.plib';
  require_once LIBDIR.'/database.plib';
  require_once LIBDIR.'/constituency.plib';
- 
+
  $SELF = "networks.php";
 
  if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
  else $action = "list";
 
- function show_form($id="")
- {
+ function show_form($id="") {
+	global $SELF;
+
     $label = "";
     $action = "add";
     $submit = "Add!";
+	$constituency = "";
+	$netmask = "";
+	$network = "";
 
     if ($id != "")
     {
@@ -129,7 +133,7 @@ EOF;
 EOF;
 
         $networklist = getNetworks();
-		usort(&$networklist, "airt_netsort");
+		usort($networklist, "airt_netsort");
         $constituencies = getConstituencies();
 
         $count=0;
