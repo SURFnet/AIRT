@@ -1,0 +1,13 @@
+Source: php4-rss
+Section: web
+Priority: optional
+Maintainer: Kees Leune <kees@leune.org>
+Build-Depends-Indep: debhelper (>> 4.0.0), autoconf-archive
+Standards-Version: 3.6.1
+
+Package: php4-rss
+Architecture: al
+Depends: php4, php4-pear
+Description: RSS parser for PEAR
+  Provides RSS parser functionality for PHP applications using the PEAR
+  framework.

@@ -1,0 +1,4 @@
+php4-rss (0.9.2-1) unstable; urgency=low
+  * Initial packaging for Debian
+ 
+ -- Kees Leune <kees@leune.org>  Tue,  4 Apr 2005 11:06:17 +0200
