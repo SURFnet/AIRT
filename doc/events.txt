@@ -8,6 +8,10 @@ Event: pageheader
 Data:  array with keys: title, helptopic
 Note:  Generated before each page view
 
+Event: loginscreen
+Data:  N/A
+Note:  Generated when the login screen is displayed.
+
 Event: invalidlogin
 Data:  array with keys: login, remoteip
 Note:  Generated on invalid login attempt

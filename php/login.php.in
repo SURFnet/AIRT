@@ -62,6 +62,7 @@ switch ($action) {
     under certain conditions; See the license for more details.
 </small></BLOCKQUOTE>
 EOF;
+		generateEvent('loginscreen');
         break;
 
 
@@ -87,24 +88,7 @@ EOF;
             exit;
         }
 
-        $f = fopen(STATEDIR."/last_$login.txt","w");
-        fputs($f, sprintf(
-            "Welcome %s. Your last login was at %s from %s.\n",
-            $login, Date("r"), gethostbyaddr($_SERVER["REMOTE_ADDR"])));
-        fclose($f);
-		generateEvent("goodlogin", array(
-			"login" => $login,
-			"remoteip" => $_SERVER['REMOTE_ADDR']
-		));
-
-        // session_start();
-        foreach (array("username", "userid", "ip", "last") as $key => $value)
-            session_register($value);
-
-        $_SESSION["username"] = $login;
-        $_SESSION["userid"]   = $userid;
-        $_SESSION["ip"]       = $_SERVER["REMOTE_ADDR"];
-        $_SESSION["last"]     = time();
+		airt_initsession($userid);
 
         Header("Location: index.php");
 

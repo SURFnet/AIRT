@@ -22,7 +22,7 @@
  */
 if (defined('CUSTOM_FUNCTIONS')) require_once CUSTOM_FUNCTIONS;
 
-session_start();
+@session_start();
 
 if (!isset($public) || !$public) {
     if (!array_key_exists("username", $_SESSION)) {
@@ -151,7 +151,7 @@ function registerEventHandler($event, $function) {
 		$glEventHandlers[$event] = array($function);
 }
 
-function generateEvent($event, $data="") {
+function generateEvent($event, $data=array()) {
 	global $glEventHandlers;
 
 	if (isset($glEventHandlers) &&

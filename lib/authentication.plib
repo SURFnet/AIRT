@@ -22,6 +22,7 @@
  * $Id$
  */
 require_once LIBDIR."/database.plib";
+require_once LIBDIR."/user.plib";
 
 function airt_authenticate($username, $password) {
     $conn = db_connect(DBDB, DBUSER, DBPASSWD)
@@ -56,4 +57,31 @@ function airt_authenticate($username, $password) {
 } // airt_authenticate
 
 
+function airt_initsession($userid='') {
+	if ($userid == '') die("Invalid login!");
+
+	$user = getUserByUserID($userid);
+	if (!$user) die("Incorrect login!");
+
+	$f = fopen(STATEDIR."/last_$user[login].txt","w");
+	fputs($f, sprintf(
+		"Welcome %s. Your last login was at %s from %s.\n",
+		$user['login'], 
+		Date("r"), 
+		@gethostbyaddr($_SERVER["REMOTE_ADDR"])));
+	fclose($f);
+	generateEvent("goodlogin", array(
+		"login" => $user['login'],
+		"remoteip" => $_SERVER['REMOTE_ADDR']
+	));
+
+	// session_start();
+	foreach (array("username", "userid", "ip", "last") as $key => $value)
+		session_register($value);
+
+	$_SESSION["username"] = $user['login'];
+	$_SESSION["userid"]   = $user['id'];
+	$_SESSION["ip"]       = $_SERVER["REMOTE_ADDR"];
+	$_SESSION["last"]     = time();
+}
 ?>

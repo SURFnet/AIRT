@@ -14,3 +14,20 @@
 			 * two keys: title and helptopic.
 			 /
 		}
+
+2. How to customize the login procedure
+
+	To implement your own login procedure, two steps need to be taken. 
+	
+	Begin with catching the event 'loginscreen', which is generated after the
+	login screen is shown. 
+
+	Authenticate the user in such a way that you are able to find the correct
+	id as stored in the users() table. 
+	
+	Then, using this id, call the function airt_initsession() with the id as
+	parameter. This function sets up the required context. All error messages,
+	warnings and communication with the user is something you will have to do
+	yourself.
+
+	
