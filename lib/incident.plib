@@ -179,6 +179,8 @@ function getIncident($id) {
 		WHERE id=$id")
     or die("Unable to execute query 1.");
 
+	if (db_num_rows($res) == 0) return false;
+
 	$row = db_fetch_next($res);
 	$data = $row;
 

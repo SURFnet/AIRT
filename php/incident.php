@@ -242,10 +242,20 @@ switch ($action)
 			$incidentid=$_REQUEST["incidentid"];
         else die("Missing information(1).");
 
-		$incidentid = decode_incidentid(normalize_incidentid($incidentid));
+		$norm_incidentid = normalize_incidentid($incidentid);
+		$incidentid = decode_incidentid($norm_incidentid);
+
+		if (!getIncident($incidentid)) {
+			pageHeader("Invalid incident");
+			printf("Requested incident ($norm_incidentid) does not exist.",
+				$norm_incidentid);
+			pageFooter();
+			exit;
+		}
+
 		$_SESSION["incidentid"] = $incidentid;
 
-		pageHeader("Incident details ".normalize_incidentid($incidentid));
+		pageHeader("Incident details: $norm_incidentid");
 		showEditForm();
 
 		echo <<<EOF
