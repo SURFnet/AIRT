@@ -36,6 +36,7 @@ pageHeader("AIRT Maintenance Center");
 
 <a href="users.php">Edit users</a>
 
+<!--
 <P>
 
 <a href="roles.php">Edit roles</a> 
@@ -43,6 +44,7 @@ pageHeader("AIRT Maintenance Center");
 <P>
 
 <a href="roleassignments.php">Manage role assignments</a>
+-->
 
 
 

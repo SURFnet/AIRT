@@ -21,7 +21,7 @@
 SUBDIRS = pic
 
 scriptdir=$(pkgdatadir)/php
-script_DATA = constituencies.php constituency_contacts.php export.php incident.php incident_states.php incident_status.php incident_types.php index.php license.php links.php login.php logout.php maintenance.php networks.php roleassignments.php roles.php search.php standard.php users.php config.plib help.php
+script_DATA = constituencies.php constituency_contacts.php export.php incident.php incident_states.php incident_status.php incident_types.php index.php license.php links.php login.php logout.php maintenance.php networks.php search.php standard.php users.php config.plib help.php
 
 CLEANFILES = config.plib login.php
 DISTCLEANFILES = $(CLEANFILES)
