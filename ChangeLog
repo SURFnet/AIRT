@@ -1,3 +1,7 @@
+2005-feb-06  Kees Leune  <kees@uvt.nl>
+* php/help.php: New help system
+* php/search.php: Added list of previous incidents when searching IP 
+
 2005-feb-03  Kees Leune  <kees@uvt.nl>
 * php/login.php.in: Log to syslog on invalid logins
 * php/logout.php: Fixed a bug which caused you not to log out

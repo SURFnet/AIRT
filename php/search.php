@@ -73,15 +73,15 @@ EOF;
         else die("Missing information.");
 
         // normalize to IP address
-        $ip = gethostbyname($hostname);
+        $ip = @gethostbyname(trim($hostname));
 
         // get FQDN
-        $hostname = gethostbyaddr($ip);
+        $hostname = @gethostbyaddr($ip);
 
         // call user-supplied categorization routine. Returns the id of the
         // constituency
         $networkid = categorize($ip);
-		if (defined('CUSTOM_FUNCTIONS'))
+		if (defined('CUSTOM_FUNCTIONS') && function_exists("custom_categorize"))
 			$networkid = custom_categorize($ip, $networkid);
 
         // get addl info
@@ -118,19 +118,72 @@ EOF;
         // call user-defined search function. Must print in unformatted layout
         // additional info about hostname needed to make a decision.
         echo "<HR>";
-		if (defined('CUSTOM_FUNCTIONS')) {
+		if (defined('CUSTOM_FUNCTIONS') && function_exists("search_info")) {
 			search_info($ip, $networkid);
 			echo "<HR>";
 		}
 
-
         // include previous incidents
-		// TODO
         echo <<<EOF
 <h2>Previous incidents</h2>
-	
-<I>Under construction</I>
 EOF;
+		$conn = db_connect(DBDB, DBUSER, DBPASSWD)
+		or die("Unable to connect to database.");
+
+		$res = db_query($conn, "
+			SELECT  i.id as incidentid,
+					extract (epoch from a.added) as created,
+					t.label as type,
+					s.label as state,
+					s2.label as status
+
+			FROM    incidents i, 
+			        incident_addresses a,
+					incident_types t,
+					incident_status s2,
+					incident_states s
+
+			WHERE   i.id = a.incident
+			AND     i.status = s2.id
+			AND     i.state = s.id
+			AND     i.type = t.id
+
+			ORDER BY incidentid")
+		or die("Unable to query.");
+
+		if (db_num_rows($res)) {
+			echo <<<EOF
+<table cellpadding="3">
+<tr>
+	<th>Incident ID</th>
+	<th>Created</th>
+	<th>Type</th>
+	<th>State</th>
+	<th>Status</th>
+</tr>
+EOF;
+			$count = 0;
+			while ($row = db_fetch_next($res)) {
+				printf("<tr bgcolor=\"%s\">
+					<td>%s</td>
+					<td>%s</td>
+					<td>%s</td>
+					<td>%s</td>
+					<td>%s</td>
+					</tr>",
+						($count++ % 2 == 0 ? "#DDDDDD" : "#FFFFFF"),
+						normalize_incidentid($row["incidentid"]),
+						Date("d M Y", $row["created"]),
+						$row["type"],
+						$row["state"],
+						$row["status"]);
+			}
+			echo <<<EOF
+</table>
+EOF;
+		} else {
+			echo "<I>No previous incidents</I>";
+		}
 		
 		echo <<<EOF
 <h2>Link address to incident</h2>
