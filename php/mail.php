@@ -39,9 +39,10 @@
 
         $res = db_query($conn, 
             "SELECT   t.id, u.emailaddress, t.subject, t.created
-             FROM     tickets t, users u
+             FROM     tickets t, users u, queues q
              WHERE    t.creator = u.id
-             AND      queue = 7 
+             AND      t.queue = q.id
+             AND      q.name = '".LIBERTYQUEUE."'
              ORDER BY t.created")
         or die("Unable to query database: ".db_errormessage());
 
@@ -89,7 +90,7 @@
         echo <<<EOF
 <P>
 <form action="$SELF" method="POST">
-<table width="100%" bgcolor=#DDDDDD border=0 cellpadding=2>
+<table width="100%" bgcolor="#DDDDDD" border=0 cellpadding=2>
 <tr>
     <td>IP address:</td>
     <td>
@@ -109,17 +110,7 @@
 
 </table>
 </form>
-EOF;
 
-        // show ticket information
-        if ($row = db_fetch_next($res))
-        {
-            $from = $row["emailaddress"];
-            $name = $row["realname"];
-            $subject = $row["subject"];
-            $created = Date("r",$row["created"]);
-            
-            echo <<<EOF
 <table>
 <tr>
     <td>From:</td>
@@ -135,6 +126,15 @@ EOF;
 </tr>
 </table>
 EOF;
+
+        // show ticket information
+        if ($row = db_fetch_next($res))
+        {
+            $from = $row["emailaddress"];
+            $name = $row["realname"];
+            $subject = $row["subject"];
+            $created = Date("r",$row["created"]);
+            
         }
         db_free_result($res);
 
@@ -154,6 +154,17 @@ EOF;
         }
 
         db_close($conn);
+
+        echo <<<EOF
+<form action="$SELF" method="POST">
+<div width="100%" style="background-color: #DDDDDD">
+Incident ID:
+    <input type="text" size="40" name="incidentid">
+    <input type="submit" value="Add to incident">
+</div>
+<input type="hidden" name="action" value="associate">
+</form>
+EOF;
 
         pageFooter();
         break;

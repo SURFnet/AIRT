@@ -31,6 +31,8 @@ if (!isset($public) || !$public)
 $BASEURL = "https://liberty.uvt.nl/liberty";
 define("BASEURL", $BASEURL);
 
+define("LIBERTYQUEUE", "UvT-CERT");
+
 // connect string for the database
 define("DBCONNECTSTRING", "dbname=cert user=cert password=mmUYQMX7TQoN");
 
