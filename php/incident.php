@@ -270,6 +270,8 @@ EOF;
     case "Add":
         if (array_key_exists("address", $_POST)) $address=$_POST["address"];
         else $address="";
+		// make sure we have an IP address here
+		$address = @gethostbyname($address);
         if (array_key_exists("constituency", $_POST)) 
             $constituency=$_POST["constituency"];
         else $constituency="";
