@@ -5,10 +5,36 @@ end-users. We propose to build this incident response support system by using
 existing components, most notably the request tracker component.
 
 However, as request tracker is a fully independent product, the interface
-between RT and LIBERTY needs to be as small as possible. Furthermore, we will
+between RT and AIR needs to be as small as possible. Furthermore, we will
 not adjust the RT database schema in any way, shape or form and locate all
-integration between RT and LIBERTY on the LIBERTY side.
+integration between RT and AIR on the AIR side.
 
-The role that RT plays in LIBERTY is the role of mail handling and
-categorization. 
+The role that RT plays in AIR is the role of mail handling and
+categorization and to provide authentication data for users. 
 
+
+SESSIONS
+========
+
+AIR uses PHP sessions to maintain some form of state. The following session
+variables are available
+
+userid            : user id of the current user
+username          : user name of the current user
+active_ip         : last manipulated IP address (search/incident)
+active_incidentid : last manipulated incident ID (search/incident)
+active_ticketid   : last manipulated RT ticket ID (search/edit)
+
+Sessions will remain valid as long as the IP address of the requestor remains
+the same, when the userid/username remains set and when the user remains
+unidle for less than a settable amount of time.
+
+AUTHENTICATION
+==============
+
+Authentication is achieved by checking a username/password combination against
+the request tracker information. The user must be a member of a settable RT
+group. The password in RT is a base-64 encrypted MD5 hash.
+
+FILES AND DIRECTORIES
+=====================
