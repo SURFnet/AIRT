@@ -2,6 +2,7 @@
 * php/login.php.in: Log to syslog on invalid logins
 * php/logout.php: Fixed a bug which caused you not to log out
 * php/standard.php: Removed hard-wired mail to kees
+* lib/history.plib: Fixed DEBUG bug
 * etc/airt-apache.conf.in: Hook for local extensions
 
 2005-jan-31  Kees Leune  <kees@uvt.nl>
