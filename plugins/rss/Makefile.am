@@ -1,4 +1,4 @@
-# Makefile for php4-rss
+# Makefile for php-rss
 # $Id$
 
-SUBDIRS = . XML_RSS-0.9.2
+SUBDIRS = XML_RSS-0.9.2 .

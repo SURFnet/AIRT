@@ -1,4 +1,4 @@
-# Makefile for php4-rss
+# Makefile for php-rss
 # $Id$
 
 scriptdir=$(datadir)/php/XML

@@ -1,4 +1,4 @@
-Source: php4-rss
+Source: php-rss
 Section: web
 Priority: optional
 Maintainer: Kees Leune <kees@leune.org>
