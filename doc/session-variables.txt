@@ -8,5 +8,6 @@ $_SESSION["constituency_id"]
 $_SESSION["current_name"]      Last name of current user
 $_SESSION["current_email"]     Email address of current user
 $_SESSION["current_userid"]	   Organisational user ID of current user
+$_SESSION["current_info"]	   Free text field used in standard msgs
 
 $_SESSION["incidentid"]		   Incident ID of current incident

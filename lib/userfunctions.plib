@@ -153,16 +153,14 @@ function search_info_essent($ip, $networkid)
 
 	    if ($hostname_essent == $hostname)
 	    {
-		    echo <<<EOF
-<PRE>	 
-Hostname          : $hostname
+			$userinfo = 
+"Hostname          : $hostname
 MAC adres         : $mac
 Administratienr   : $anr
 Regio             : $regio
-Naam              : $naam
-
-EOF;
+Naam              : $naam";
             $_SESSION["current_name"] = $naam;
+
 			$ds = ldap_connect("ldap.uvt.nl")
 			or die("Unable to connect to ldap server");
 
@@ -171,27 +169,28 @@ EOF;
 	            "o=Universiteit van Tilburg, c=NL",
 	            "(&(objectclass=person)(employeenumber=$anr))");
 
-	        $info = ldap_get_entries($ds, $sr);
-	        for ($i=0; $i < $info["count"]; $i++) {
-		    	$class = $info[$i]["organizationalstatus"][0];
-	            $telnr = $info[$i]["telephonenumber"][0];
-	            $email = $info[$i]["mail"][0];
+	        $ldapinfo = ldap_get_entries($ds, $sr);
+	        for ($i=0; $i < $ldapinfo["count"]; $i++) {
+		    	$class = $ldapinfo[$i]["organizationalstatus"][0];
+	            $telnr = $ldapinfo[$i]["telephonenumber"][0];
+	            $email = $ldapinfo[$i]["mail"][0];
 
 				$_SESSION["current_email"] = $email;
 
 	            if (ereg(" ([0-9]+)$", $telnr, $m))
 	                $telnr = $m[1];
 	            
-		    echo <<<EOF
+		    	$userinfo .= "
 Type              : $class
-Mail              : <a href="mailto:$email">$email</a>
-
-EOF;
-                $_SESSION["current_email"] = $email;
-		  if ($class=="Staff") 
-		  	echo "Internal phone    : $telnr";
+Mail              : $email";
+				$_SESSION["current_email"] = $email;
+				if ($class=="Staff") 
+					$userinfo .= "
+Internal phone    : $telnr";
 	        }
                 
+		$_SESSION["current_info"] = $userinfo;
+		echo "<PRE>$userinfo</PRE>";
 	   } // if hostname match
 	}  // if pattern match
     } // while

@@ -233,7 +233,7 @@ function prepare_message($filename) {
 	<TD><INPUT TYPE="text" size="50" name="replyto" value="$replyto"></TD>
 </TR>
 </TABLE>
-<TEXTAREA name="body" cols="80" rows="30">$msg</TEXTAREA>
+<TEXTAREA name="msg" cols="80" rows="30">$msg</TEXTAREA>
 <P>
 <INPUT TYPE="hidden" name="action" value="send">
 <INPUT TYPE="submit" value="Send">
@@ -265,6 +265,15 @@ function print_variables_info()
     <td>Will be replaced with the subject of the current incident</td>
 </tr>
 <tr>
+	<td>@USEREMAIL@</td>
+	<td>Will be replaced with the email address of the user.</td>
+</tr>
+<tr>
+	<td>@USERINFO@</td>
+	<td>Will be replaced with detailed information about the user, if that
+	information is available.</td>
+</tr>
+<tr>
     <td>@YOURNAME@</td>
     <td>Will be replaced with the full name of the logged in incident
     handler</td>
@@ -290,6 +299,8 @@ function replace_vars($msg)
 	$out = ereg_replace("@USERNAME@", $_SESSION["current_name"], $out);
 
 	$out = ereg_replace("@USEREMAIL@", $_SESSION["current_email"], $out);
+	
+	$out = ereg_replace("@USERINFO@", $_SESSION["current_info"], $out);
 
 	$u = getUserByUserId($_SESSION["userid"]);
 	$name = sprintf("%s %s", $u["firstname"], $u["lastname"]);
@@ -432,14 +443,32 @@ EOF;
 	case "send":
 		if (array_key_exists("from", $_POST)) $from=$_POST["from"];
 		else die("Missing parameter 1.");
+
 		if (array_key_exists("to", $_POST)) $to=$_POST["to"];
 		else die("Missing parameter 2.");
 		if (array_key_exists("replyto", $_POST)) $replyto=$_POST["replyto"];
 		else die("Missing parameter 3.");
 		if (array_key_exists("subject", $_POST)) $subject=$_POST["subject"];
 		else die("Missing parameter 4.");
-		if (array_key_exists("msg", $_POST)) $subject=$_POST["msg"];
+		if (array_key_exists("msg", $_POST)) $msg=$_POST["msg"];
 		else die("Missing parameter 5.");
+
+		if (MAILCC != '') $cc=",$cc";
+		else $cc='';
+
+		$msg = strip_tags($msg);
+		$msg = stripslashes($msg);
+
+		$envfrom=MAILENVFROM;
+$to = "kees@uvt.nl";
+		$mailto = sprintf("%s%s", $to, $cc);
+		mail($mailto, $subject, $msg, 
+			"From: $from\r\n".
+			"Reply-To: $replyto\r\n",
+			"-f$envfrom");
+		Header("Location: $SELF");
+
+		break;
 
 
     // -------------------------------------------------------------------
