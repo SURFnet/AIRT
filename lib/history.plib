@@ -32,11 +32,6 @@ function addIncidentComment($comment, $incidentid="", $userid="", $conn="") {
 		$conn = db_connect(DBDB, DBUSER, DBPASSWD)
 		or die("unable to connect to database.");
 		$c = true;
-		if (defined('DEBUG') && DEBUG) 
-			printf("Creating new database connection.");
-	} else {
-		if (defined'(DEBUG') && DEBUG)
-			printf("Re-using database connection.");
 	}
 
 	$res = db_query($conn, sprintf("
@@ -49,10 +44,7 @@ function addIncidentComment($comment, $incidentid="", $userid="", $conn="") {
 			$userid
 		))
 	or die("Unable to execute query.");
-	if ($c) {
-		db_close($conn);
-		if (defined('DEBUG') && DEBUG) printf("Closing database connection.");
-	}
+	if ($c) db_close($conn);
 }
 
 function showIncidentHistory($incidentid="") {
