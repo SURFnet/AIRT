@@ -162,7 +162,7 @@ EOF;
 			while ($row = db_fetch_next($res)) {
 				printf("
 	<tr bgcolor=\"%s\">
-		<td><a href=\"incident.php?action=edit&incidentid=%s\">%s</a></td>
+		<td><a href=\"incident.php?action=details&incidentid=%s\">%s</a></td>
 		<td>%s</td>
 		<td>%s</td>
 		<td>%s</td>

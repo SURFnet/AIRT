@@ -1,3 +1,7 @@
+2005-xxx-xx  Kees Leune  <kees@uvt.nl>
+* php/index.php: new event mainmenutop and mainmenubottom
+* php/search.php: Fixed bug 1172478
+
 2005-feb-28  Kees Leune  <kees@uvt.nl>
 * php/incident.php: Fixed incorrect check for uninitialsed variable in
   creating new incidents.
