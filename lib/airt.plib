@@ -218,7 +218,7 @@ function registerEventHandler($event, $function) {
 		$glEventHandlers[$event] = array($function);
 }
 
-function generateEvent($event, $data) {
+function generateEvent($event, $data="") {
 	global $glEventHandlers;
 
 	if (array_key_exists($event, $glEventHandlers)) {

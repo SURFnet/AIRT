@@ -493,7 +493,7 @@ EOF;
 
 
 		/* set up mail recipient */
-		if ($MAILCC != '') $mailto = array($to, $cc);
+		if (defined('MAILCC')) $mailto = array($to, MAILCC);
 		else $mailto = array($to);
 
 		/* set up envelope sender */

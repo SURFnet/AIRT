@@ -75,23 +75,7 @@ define('SESSION_TIMEOUT', 600);
 
 
 
-
-/***** 4. SYSLOG SETTINGS *****/
-
-// set to 'true' to log invalid logins to syslog. Do not define at all,
-// or set to false to not do it.
-define('USE_SYSLOG', true);
-
-// syslog facility to use
-define('SYSLOG_FACILITY', LOG_LOCAL0);
-
-// syslog priority to use
-define('SYSLOG_PRIORITY', LOG_WARNING);
-
-
-
-
-/***** 5. SITE CUSTOMIZATION *****/
+/***** 4. SITE CUSTOMIZATION *****/
 
 // Incident ID prefix
 define('INCIDENTID_PREFIX', 'Example-CERT#');
