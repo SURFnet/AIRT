@@ -28,8 +28,6 @@
  require_once LIBDIR.'/incident.plib';
  require_once LIBDIR.'/constituency.plib';
 
- if (defined('CUSTOM_FUNCTIONS')) require_once CUSTOM_FUNCTIONS;
-
  if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
  else $action = "none";
 
@@ -212,7 +210,7 @@ EOF;
 EOF;
         showSearch();
         pageFooter();
-        
+
         break;
     default:
         die("Unknown action.");

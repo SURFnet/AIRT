@@ -20,8 +20,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+if (defined('CUSTOM_FUNCTIONS')) require_once CUSTOM_FUNCTIONS;
 
-$glEventHandlers = array();
 
 if (!isset($public) || !$public)
 {
@@ -207,12 +207,24 @@ function choice($label, $value, $default)
 }
 
 // TODO: fix, test and extend
-function addEventHandler($event, $function) {
+function registerEventHandler($event, $function) {
 	global $glEventHandlers;
 
-	if (array_key_exists($event, $glEventHandlers)) 
+	if (!isset($glEventHandlers)) $glEventHandlers = array();
+
+	if (array_key_exists($event, $glEventHandlers))
 		array_push($glEventHandlers[$event], $function);
 	else
 		$glEventHandlers[$event] = array($function);
+}
+
+function generateEvent($event, $data) {
+	global $glEventHandlers;
+
+	echo sizeof($glEventHandlers);
+	if (array_key_exists($event, $glEventHandlers)) {
+		foreach ($glEventHandlers[$event] as $fun) 
+			call_user_func($fun, $data);
+	}
 }
 ?>

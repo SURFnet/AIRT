@@ -89,6 +89,10 @@ EOF;
 			}
 
             pageHeader("Permission denied.");
+			generateEvent("invalidlogin", array(
+				"login" => $login,
+				"remoteip" => $_SERVER['REMOTE_ADDR']
+			));
             printf("Username and/or password incorrect.");
             pageFooter();
             exit;
@@ -99,6 +103,10 @@ EOF;
             "Welcome %s. Your last login was at %s from %s.\n",
             $login, Date("r"), gethostbyaddr($_SERVER["REMOTE_ADDR"])));
         fclose($f);
+		generateEvent("goodlogin", array(
+			"login" => $login,
+			"remoteip" => $_SERVER['REMOTE_ADDR']
+		));
 
         session_start();
         foreach (array("username", "userid", "ip", "last") as $key => $value)
@@ -110,7 +118,7 @@ EOF;
         $_SESSION["last"]     = time();
 
         Header("Location: index.php");
-            
+
         break;
 
     default:

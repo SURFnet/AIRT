@@ -164,6 +164,9 @@ EOF;
             or die("Unable to excute query.");
 
             db_close($conn);
+
+			generateEvent("newconstituency", 
+				array("label"=>$label, "name"=>$name));
             Header("Location: $SELF");
         }
 
@@ -184,6 +187,8 @@ EOF;
             or die("Unable to excute query.");
 
             db_close($conn);
+			generateEvent("updateconstituency", 
+				array("label"=>$label, "name"=>$name));
             Header("Location: $SELF");
         }
 
@@ -193,6 +198,8 @@ EOF;
     case "Delete":
         if (array_key_exists("cons", $_GET)) $cons=$_GET["cons"];
         else die("Missing information.");
+
+		generateEvent("deleteconstituency", $id);
 
         $conn = db_connect(DBDB, DBUSER, DBPASSWD)
         or die("Unable to connect to database.");
@@ -204,7 +211,7 @@ EOF;
 
         db_close($conn);
         Header("Location: $SELF");
-        
+
         break;
     //-----------------------------------------------------------------
     default:

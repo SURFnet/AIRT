@@ -292,7 +292,7 @@ EOF;
         $res = db_query($conn, "begin transaction")
         or die("Unable to execute query 1.");
         db_free_result($res);
-        
+
         $res = db_query($conn, 
             "select nextval('incidents_sequence') as incidentid")
         or die("Unable to execute query 2.");
@@ -344,6 +344,14 @@ EOF;
         $res = db_query($conn, "end transaction");
         db_close($conn);
 
+		generateEvent("newincident", array(
+			"incidentid" => $incidentid,
+			"ip"         => $ip,
+			"hostname"   => $hostname,
+			"state"      => $state,
+			"status"     => $status,
+			"type"       => $type
+		));
         if ($sendmail == "on") Header("Location: standard.php");
 		else Header("Location: $SELF");
         break;
@@ -358,6 +366,7 @@ EOF;
 		if (array_key_exists("filter", $_POST)) $filter = $_POST["filter"];
 		else $filter = 1;
 
+		generateEvent("incidentlistpre");
 		echo <<<EOF
 <FORM action="$SELF" method="POST">
 <INPUT TYPE="hidden" name="action" value="list">
@@ -472,6 +481,7 @@ EOF;
 <input type="submit" name="action" value="New incident">
 </form>
 EOF;
+		generateEvent("incidentlistpost");
         pageFooter();
         break;
         
@@ -488,6 +498,11 @@ EOF;
 			addIncidentComment(sprintf("IP address %s added to incident.",
 			$ip));
 		}
+
+		generateEvent("addiptoincident", array(
+			"incidentid" => $incidentid,
+			"ip"         => $ip
+		));
 		Header(sprintf("Location: $SELF?action=edit&incidentid=%s",
 			urlencode($incidentid)));
 		break;
@@ -504,6 +519,10 @@ EOF;
 		addIncidentComment(sprintf("IP address %s removed from incident.", 
 			$ip));
 
+		generateEvent("remoteipfromincident", array(
+			"incidentid" => $incidentid,
+			"ip"         => $ip
+		));
 		Header(sprintf("Location: $SELF?action=edit&incidentid=%s",
 			urlencode($incidentid)));
 		break;
@@ -515,11 +534,6 @@ EOF;
 		break;
 
     //--------------------------------------------------------------------
-    case "close":
-		echo "To be implemented.";
-        break;
-
-    //--------------------------------------------------------------------
     case "history":
         if (array_key_exists("incidentid", $_REQUEST))
 			$incidentid=$_REQUEST["incidentid"];
@@ -527,7 +541,9 @@ EOF;
 		$_SESSION["incidentid"] = $incidentid;
 
 		pageHeader("Incident history");
+		generateEvent("historyshowpre", array("incidentid"=>$incidentid));
 		showIncidentHistory($incidentid);
+		generateEvent("historyshowpost", array("incidentid"=>$incidentid));
 
 		echo <<<EOF
 <p>
@@ -552,6 +568,10 @@ EOF;
 		else die ("Missing information.");
 
 		addIncidentComment($comment);
+		generateEvent("incidentcommentadd", array(
+			"comment"=>$comment,
+			"incidentid"=>$incidentid
+		));
 
 		Header("Location: $SELF?action=history&incidentid=$_SESSION[incidentid]");
 		break;
@@ -571,6 +591,13 @@ EOF;
 		if (array_key_exists("type", $_POST))
 			$type = $_POST["type"];
 		else die("Missing information (4).");
+
+		generateEvent("incidentupdate", array(
+			"incidentid" => $incidentid,
+			"state" => $state,
+			"status" => $status,
+			"type" => $type
+		));
 
 		$conn = db_connect(DBDB, DBUSER, DBPASSWD)
 		or die("Unable to connect to database.");

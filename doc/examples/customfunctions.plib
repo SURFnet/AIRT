@@ -23,26 +23,27 @@
   - function search_info($ip, $hostname, $consituency); prints additional
     information about hostname
   
-  The functions may set two session variables at their discretion
-    $_SESSION["current_user"] = Full name of the user
-    $_SESSION["current_ip"]   = IP address of the user
-  
   $Id$
  */
 
-// customize here-- TODO: find out how to do that nicely with packaging
-// 
+registerEvent("invalidlogin", "local_invalidlogin");
+ 
 /** Custom categorization */
-function custom_categorize($ip, $networkid)
-{
+function custom_categorize($ip, $networkid) {
     return $networkid;
 } // custom_categorize
 
 
-function search_info($ip, $networkid)
-{
+function search_info($ip, $networkid) {
 	return;
 } // search_info
 
+function local_invalidlogin($data) {
+	openlog('airt', LOG_ODELAY, LOG_LOCAL0);
+	syslog(LOG_WARNING, 
+		sprintf('Invalid login attempt by %s from %s',
+		$data["login"], $data["remoteip"])
+	);
+}
 
 ?>

@@ -5,11 +5,11 @@ customfunctions.plib, define zero or more event handlers per event to
 influence the application's behaviour.
 
 Event: invalidlogin
-Data:  comma separated list; field1=login, field2=remote ip
+Data:  array with keys: login, remoteip
 Note:  Generated on invalid login attempt
 	
 Event: goodlogin
-Data:  comma separated list; field1=login, field2=remote ip
+Data:  array with keys: login, remoteip
 Note:  Generated on valid login attempt
 
 Event: newconstituency
