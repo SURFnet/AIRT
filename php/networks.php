@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * constituencies.php -- manage constituency data
+ * netblocks.php -- manage net blocks
  * 
  * $Id$
  */
@@ -26,128 +26,135 @@
  require_once LIBDIR.'/database.plib';
  require_once LIBDIR.'/constituency.plib';
  
- $SELF = "constituencies.php";
+ $SELF = "networks.php";
 
  if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
  else $action = "list";
 
  function show_form($id="")
  {
-    $label = $description = "";
+    $label = "";
     $action = "add";
     $submit = "Add!";
 
     if ($id != "")
     {
-        $constituencies = getConstituencies();
-
-        if (array_key_exists($id, $constituencies))
+        $networks = getNetworks();
+        if (array_key_exists($id, $networks))
         {
-            $row = $constituencies[$id];
+            $row = $networks["$id"];
             $action = "update";
             $submit = "Update!";
-            $label = $row["label"];
-            $description = $row["name"];
+            $network = $row["network"];
+            $netmask = $row["netmask"];
+            $label   = $row["label"];
+            $constituency = $row["constituency"];
         }
     }
     echo <<<EOF
 <form action="$SELF" method="POST">
 <input type="hidden" name="action" value="$action">
-<input type="hidden" name="consid" value="$id">
+<input type="hidden" name="id" value="$id">
 <table>
+<tr>
+    <td>Network Address</td>
+    <td><input type="text" size="30" name="network" value="$network"></td>
+</tr>
+<tr>
+    <td>Netmask</td>
+    <td><input type="text" size="30" name="netmask" value="$netmask"></td>
+</tr>
 <tr>
     <td>Label</td>
     <td><input type="text" size="30" name="label" value="$label"></td>
 </tr>
 <tr>
-    <td>Description</td>
-    <td><input type="text" size="30" name="description" value="$description">
-        </td>
-</tr>
+    <td>Constituency</td>
+    <td>
+EOF;
+        showConstituencySelection("constituency", $constituency);
+    echo <<<EOF
 </table>
 <p>
 <input type="submit" value="$submit">
+</form>
 EOF;
-    if ($action=="update")
-        echo "<input type=\"submit\" name=\"action\" value=\"Delete\">";
-
-    echo "</form>";
  }
 
  switch ($action)
  {
     // --------------------------------------------------------------
     case "list":
-        pageHeader("Constituencies");
+        pageHeader("Networks");
 
         echo <<<EOF
-<table width="100%" cellpadding="3">
+<table cellpadding="3">
 <tr>
-    <th>&nbsp;</th>
-    <th>Label</th>
-    <th>Description</th>
-    <th>Netblocks</th>
+    <td><B>Network</B></td>
+    <td><B>Netmask</B></td>
+    <td><B>Label</B></td>
+    <td><B>Constituency</B></td>
+    <td><B>Edit</B></td>
+    <td><B>Delete</B></td>
+    
 </tr>
 EOF;
+    
+        $networklist = getNetworks();
         $constituencies = getConstituencies();
-        $networks = getNetworks();
 
         $count=0;
-        foreach ($constituencies as $id => $row)
+        foreach ($networklist as $id=>$data)
         {
-            $label = $row["label"];
-            $name  = $row["name"];
-            $consid = $id;
+            $network      = $data["network"];
+            $netmask      = $data["netmask"];
+            $label        = $data["label"];
+            $constituency = $data["constituency"];
+            $constituency_name  = $constituencies["$constituency"]["name"];
             $color = ($count++%2==0?"#FFFFFF":"#DDDDDD");
             echo <<<EOF
 <tr valign="top" bgcolor="$color">
-    <td><a href="$SELF?action=edit&cons=$consid">edit</a></td>
+    <td>$network</td>
+    <td>$netmask</td>
     <td>$label</td>
-    <td>$name</td>
-    <td>
-EOF;
-            foreach ($networks as $id=>$row2)
-            {
-                if ($row2["constituency"] != $consid) continue;
-                $label   = $row2["label"];
-                $network = $row2["network"];
-                $netmask = $row2["netmask"];
-
-                echo "- $label<BR>  <small>$network / $netmask</small><BR>";
-            }
-
-            echo <<<EOF
-</td>
+    <td><a href="constituencies.php?action=edit&cons=$constituency"
+        >$constituency_name</a></td>
+    <td><a href="$SELF?action=edit&id=$id"><small>edit</small></td>
+    <td><a href="$SELF?action=delete&id=$id"><small>delete</small></td>
 </tr>
 EOF;
         } // while $row
         echo "</table>";
 
-        echo "<h3>New constituency</h3>";
+        echo "<h3>New network</h3>";
         show_form("");
 
         break;
 
     //-----------------------------------------------------------------
     case "edit":
-        if (array_key_exists("cons", $_GET)) $cons=$_GET["cons"];
+        if (array_key_exists("id", $_GET)) $id=$_GET["id"];
         else die("Missing information.");
 
-        pageHeader("Edit constituency");
-        show_form($cons);
+        pageHeader("Edit Network");
+        show_form($id);
         pageFooter();
         break;
 
     //-----------------------------------------------------------------
     case "add":
     case "update":
-        if (array_key_exists("consid", $_POST)) $consid=$_POST["consid"];
-        else $consid="";
-        if (array_key_exists("label", $_POST)) $label=$_POST["label"];
+        if (array_key_exists("id", $_POST)) $id=$_POST["id"];
+        else $id="";
+        if (array_key_exists("network", $_POST)) $network=$_POST["network"];
         else die("Missing information (1).");
-        if (array_key_exists("description", $_POST)) 
-            $description=$_POST["description"];
+        if (array_key_exists("netmask", $_POST)) $netmask=$_POST["netmask"];
         else die("Missing information (2).");
+        if (array_key_exists("label", $_POST)) $label=$_POST["label"];
+        else die("Missing information (3).");
+        if (array_key_exists("constituency", $_POST)) 
+            $constituency=$_POST["constituency"];
+        else die("Missing information (4).");
 
         if ($action=="add")
         {
@@ -155,13 +162,16 @@ EOF;
             or die("Unable to connect to database.");
 
             $res = db_query($conn, sprintf("
-                INSERT INTO constituencies
-                (id, label, name)
+                INSERT INTO networks
+                (id, network, netmask, label, constituency)
                 VALUES
-                (nextval('constituencies_sequence'), %s, %s)",
+                (nextval('networks_sequence'), %s, %s, %s, %s)",
+                    db_masq_null($network),
+                    db_masq_null($netmask),
                     db_masq_null($label),
-                    db_masq_null($description)))
-            or die("Unable to excute query.");
+                    $constituency
+                )
+            ) or die("Unable to excute query.");
 
             db_close($conn);
             Header("Location: $SELF");
@@ -169,37 +179,41 @@ EOF;
 
         else if ($action=="update")
         {
-            if ($consid=="") die("Missing information (3).");
+            if ($id=="") die("Missing information (5).");
             $conn = db_connect(DBDB, DBUSER, DBPASSWD)
             or die("Unable to connect to database.");
 
             $res = db_query($conn, sprintf("
-                UPDATE constituencies
-                set  label=%s,
-                     name=%s
+                UPDATE networks
+                SET    network=%s,
+                       netmask=%s,
+                       label=%s,
+                       constituency=%s
                 WHERE id=%s",
+                    db_masq_null($network),
+                    db_masq_null($netmask),
                     db_masq_null($label),
-                    db_masq_null($description),
-                    $consid))
-            or die("Unable to excute query.");
+                    $constituency,
+                    $id
+                )
+            ) or die("Unable to excute query.");
 
-            db_close($conn);
             Header("Location: $SELF");
         }
 
         break;
 
     //-----------------------------------------------------------------
-    case "Delete":
-        if (array_key_exists("cons", $_GET)) $cons=$_GET["cons"];
+    case "delete":
+        if (array_key_exists("id", $_GET)) $id=$_GET["id"];
         else die("Missing information.");
 
         $conn = db_connect(DBDB, DBUSER, DBPASSWD)
         or die("Unable to connect to database.");
 
         $res = db_query($conn, "
-            DELETE FROM constituencies
-            WHERE  id='$cons'")
+            DELETE FROM networks
+            WHERE  id='$id'")
         or die("Unable to execute query.");
 
         db_close($conn);

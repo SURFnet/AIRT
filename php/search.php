@@ -21,12 +21,10 @@
  * 
  * $Id$
  */
-
- require_once '../lib/airt.plib';
- require_once '../lib/constituency.plib';
- require_once '../lib/incident.plib';
- require_once '../lib/rt.plib';
- require_once '../lib/userfunctions.plib';
+ 
+ require_once '/etc/airt/airt.cfg';
+ require_once LIBDIR.'/airt.plib';
+ require_once LIBDIR.'/userfunctions.plib';
 
  if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
  else $action = "none";
@@ -66,7 +64,10 @@ EOF;
         $hostname = gethostbyaddr($ip);
 
         // call user-supplied categorization routine
-        $constituency = categorize($ip, $hostname);
+        $category = custom_categorize($ip, categorize($ip));
+
+        echo "$category";
+        exit;
 
         // update active IP address
         $_SESSION["active_ip"] = $ip;

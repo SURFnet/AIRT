@@ -166,6 +166,7 @@ CREATE TABLE networks (
     id          integer,
     network     varchar(128),
     netmask     varchar(128),
+    label       varchar(50),
     constituency integer,
     primary key (id),
     foreign key (constituency) references constituencies(id)

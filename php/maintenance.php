@@ -74,6 +74,10 @@ pageHeader("AIRT Maintenance Center");
 
 <P>
 
+<a href="networks.php">Edit networks</a>
+
+<P>
+
 <a href="constituencies.php">Edit constituencies</a>
 
 <P>

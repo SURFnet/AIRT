@@ -37,23 +37,81 @@ function getConstituencies()
 
     $constituencies=array();
     while ($row = db_fetch_next($res))
-        $constituencies[$row["label"]]=$row["name"];
+        $constituencies[$row["id"]]=array(
+            "label" => $row["label"],
+            "name"  => $row["name"]
+        );
     db_close($conn);
     return $constituencies;
 }
 
 
-function showConstituencySelection($name)
+function showConstituencySelection($name="constituency", $default=-1)
 {
     printf("<select name=\"%s\">\n",
         htmlentities($name));
     $constituencies = getConstituencies();
-    foreach ($constituencies as $i=>$l)
+    foreach ($constituencies as $id=>$data)
     {
-        printf("<option value=%s>%s</option>\n",
-            htmlentities($i),
-            htmlentities($l));
+        printf("<option value=%s %s>%s (%s)</option>\n",
+            htmlentities($id),
+            ($id == $default)?"SELECTED":"",
+            htmlentities($data["name"]),
+            htmlentities($data["label"])
+        );
     }
+    printf("</select>\n");
+}
+
+
+function getNetworks()
+{
+    $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+    or die("Unable to connect to database.");
+
+    $res = db_query($conn,
+        "SELECT   id, network, netmask, label, constituency
+         FROM     networks
+         ORDER BY id")
+    or die("Unable to connect to database.");
+
+    $networks=array();
+    while ($row = db_fetch_next($res))
+    {
+        $networks[$row["id"]]=array(
+            "network"     => $row["network"],
+            "netmask"     => $row["netmask"],
+            "label"       => $row["label"],
+            "constituency"=> $row["constituency"]
+        );
+    }
+    db_close($conn);
+    return $networks;
+}
+
+
+function showNetworksSelection($name="network", $default=-1)
+{
+    printf("<select name=\"%s\">\n",
+        htmlentities($name));
+    $networks = getNetworks();
+    foreach ($networks as $id => $data)
+    {
+        printf("<!-- %s, %s, %s, %s -->\n",
+            $id, $data[0], $data[1], $data[2]);
+        $network = $data["network"];
+        $netmask = $data["netmask"];
+        $label   = $data["label  "];
+
+        printf("<option value=%s %s>%s/%s</option>\n",
+            htmlentities($id),
+            ($id == $default)?"SELECTED":"",
+            htmlentities($network),
+            htmlentities($netmask),
+            htmlentities($label)
+        );
+    }
+    printf("</select>\n");
 }
 
 ?>

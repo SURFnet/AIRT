@@ -26,103 +26,69 @@
  * $Id$
  */
 $public = 1;
-require_once 'database.plib';
-require_once 'airt.plib';
+require_once '/etc/airt/airt.cfg';
+require_once LIBDIR.'/airt.plib';
+require_once LIBDIR.'/database.plib';
+require_once LIBDIR.'/constituency.plib';
+require_once LIBDIR.'/search.plib';
 
- // load DUN database
- $fname = sprintf("%s/%s", LIBERTY_VARDATA, "dun.txt");
- $f = @fopen($fname, "r")
- or die("Unable to open DUN.");
 
- $dun = array();
- while (!feof($f))
- {
-    $line = fgets($f);
-    if (trim($line) == "") continue;
 
-    $data = explode("|", $line);
-    $dun[$data[2]] = $data;
- }
+/** Custom categorization */
+function custom_categorize($ip, $defaultcategory)
+{
+    $category = $defaultcategory;
+    $match = false;
 
- function categorize($ip, $hostname)
- {
-    if (!ereg("\.(uvt|kub)\.nl$", $hostname)) return "External";
-
-    if (ereg("^(db|gt|ro|mi)[0-9]+\.(uvt|kub)\.nl$", $hostname))
-        return "Essent";
-
-    return categorize_uvt($hostname);
- } // categorize
-
- function constituency_to_id($cons)
- {
-    $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
-    or die("Unable to connect to database.");
-    $res = db_query($conn, 
-        "SELECT id
-         FROM   constituencies
-         WHERE  name='$cons'")
-    or die("Unable to query.");
-    if (db_num_rows($res) == 0) return -1;
-    $row = db_fetch_next($res);
-    return $row["id"];
- }
- 
- function constituency_to_name($cons)
- {
-    $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
-    or die("Unable to connect to database.");
-    $res = db_query($conn, 
-        "SELECT name
-         FROM   constituencies
-         WHERE  id='$cons'")
-    or die("Unable to query.");
-    if (db_num_rows($res) == 0) return -1;
-    $row = db_fetch_next($res);
-    return $row["name"];
- }
-
- function search_info($ip, $hostname, $constituency)
- {
-    if ($constituency == "") $constituency = categorize($ip, $hostname);
-
-    switch ($constituency)
+    // The catchall UvT-domain needs to be refined further
+    if ($defaultcategory == 1)
     {
-        case "Essent":
-            search_info_essent($ip, $hostname);
-            break;
-        case "FEW":
-        case "FRW":
-        case "FLW":
-        case "FSW":
-        case "DSO":
-        case "ITS":
-            search_info_internal($ip, $hostname);
-            break;
-        default:
-            die("Unknown constituency: $constituency");
-    } // switch
- } // search_info
+         // find IP address in DUN database
+         // DUN is HOSTNAME based. Translate our IP and strip off domain
+         $data = explode(".",gethostbyaddr($ip));
+         $hostname = strtoupper($data[0]);
 
+         $fname = sprintf("%s/%s", CERTDIR, "dun.txt");
+         $f = @fopen($fname, "r")
+         or die("Unable to open DUN.");
 
- /**
-  * Identify UvT constituency via IntReg database.
-  */
- function categorize_uvt($hostname)
- {
-     global $dun;
-     
-     // strip of domain name
-     $hostname = eregi_replace("\.(uvt|kub)\.nl", "", $hostname);
+         while (!feof($f))
+         {
+            $line = fgets($f);
+            if (trim($line) == "") continue;
 
-     // make all caps
-     $hostname = strtoupper($hostname);
-
-     $constituency = "Unknown";
-     if (array_key_exists($hostname, $dun))
-        return trim($dun[$hostname][1]);
-    else return "Unknown";
-} // categorize_uvt
+            $data = explode("|", $line);
+            if ($hostname == $data[2])
+            {
+                $faculteit = $data[1];
+                $match = true;
+                break;
+            }
+         }
+         fclose($f);
+         if ($match)
+         {
+            switch ($faculteit)
+            {
+                case "FEW": 
+                    $category = 1;
+                    break;
+                case "FRW": 
+                    $category = 5;
+                    break;
+                case "FSW": 
+                    $category = 6;
+                    break;
+                case "FLW": 
+                    $category = 7;
+                    break;
+                default:
+                    $category = 2;
+            } // switch
+        } // if match
+    } // UvT-class
+    return $category;
+}
 
 
 /**
