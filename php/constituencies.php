@@ -169,9 +169,6 @@ EOF;
             $id = $_REQUEST["id"];
         else $id = "";
 
-        $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
-        or die("Unable to connect to database.");
-
         $now = Date("Y-m-d H:i:s");
 
         if ($action == "add")

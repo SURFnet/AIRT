@@ -56,37 +56,23 @@ switch ($action)
             $id=$_REQUEST["id"];
         else die("Missing information (1).");
 
-        $id = normalize_incidentid($id);
+        $incident = AIR_getIncidentById($id);
+        if ($incident->getId() == -1) die("Unknown ID: $id");
 
-        $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
-        or die("Unable to connect to database.");
-
-        $r = db_query($conn, sprintf("
-            SELECT * 
-            FROM incidents
-            WHERE id='%s'",
-                decode_incidentid($id)))
-        or die("Unable to query database.");
-
-        if (db_num_rows($r) == 0)
-            die("Unknown incident id");
-
-        $row           = db_fetch_next($r);
-        $ip            = $row["ip"];
-        $constituency  = $row["constituency"];
-        $rtid          = $row["rtid"];
-        $status        = $row["status"];
-        $category      = $row["category"];
-        $user_email    = $row["user_email"];
-        $user_name     = $row["user_name"];
-        $state         = $row["state"];
+        $ip            = $incident->getIp();
+        $constituency  = $incident->getConstituency();
+        $rtid          = $incident->getRTId();
+        $status        = $incident->getStatus();
+        $category      = $incident->getCategory();
+        $user_email    = $incident->getUserEmail();
+        $user_name     = $incident->getUserName();
+        $state         = $incident->getstate();
         $hostname      = gethostbyaddr($ip);
 
         if ($constituency=="") 
             $constituency = categorize($ip, gethostbyaddr($ip));
 
-        db_free_result($r);
-        db_close($conn);
+        // no break on purpose
 
     //---------------------------------------------------------------
     case "new":
