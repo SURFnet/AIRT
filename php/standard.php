@@ -291,7 +291,7 @@ function print_variables_info()
     handler</td>
 </tr>
 <tr>
-    <td>@ID@</td>
+    <td>@INCIDENTID@</td>
     <td>Will be replaced with the current incident id</td>
 </tr>
 </table>
