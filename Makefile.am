@@ -23,7 +23,4 @@ SUBDIRS = php lib doc etc man .
 docdir = $(datadir)/doc/$(PACKAGE)
 doc_DATA = AUTHORS README 
 
-CLEANFILES = INSTALL
-DISTCLEANFILES = INSTALL
-
 EXTRA_DIST = README.in 
