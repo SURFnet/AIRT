@@ -159,15 +159,37 @@ EOF;
             printf("<PRE>%s</PRE>", $row["content"]);
         }
 
+        db_free_result($res);
+
+        $res = db_query($conn, sprintf(
+            "SELECT *
+             FROM   ticketcustomfieldvalues c, tickets t, queues q, 
+                    customfields f
+             WHERE  c.ticket = t.id
+             AND    t.queue = q.id
+             AND    c.customfield = f.id
+             AND    f.name = 'IncidentID'
+             AND    t.id = '%s'", $id))
+        or die("Unable to query database: ".db_errormessage());
+
+        if (db_num_rows($res) > 0)
+        {
+            $row = db_fetch_next($res);
+            $incidentid = $row["IncidentID"];
+        }
+
         db_close($conn);
 
         echo <<<EOF
 <div width="100%" style="background-color: #DDDDDD">
+<form action="$SELF" method="post">
 Incident ID:
-    <input type="text" size="40" name="incidentid">
+    <input type="text" size="40" name="incidentid" value="$incidentid">
     <input type="submit" value="Add to incident">
 </div>
 <input type="hidden" name="action" value="associate">
+<input type="hidden" name="incidentid-old" value="$incidentid">
+<input type="hidden" name="ticketid" value="$id">
 </form>
 EOF;
 
@@ -220,6 +242,61 @@ EOF;
         or die("Unable to insert transaction: ".db_errormessage());
 
         Header("Location: $SELF");
+        break;
+
+    // --------------------------------------------------------------------
+
+    case "associate":
+        // TODO associate
+
+        if (array_key_exists("ticketid", $_REQUEST))
+            $ticketid = $_REQUEST["ticketid"];
+        else die("Missing information.");
+        
+        if (array_key_exists("incidentid", $_REQUEST))
+            $incidentid = normalize_incidentid($_REQUEST["incidentid"]);
+        else die("Missing information.");
+        
+        if (array_key_exists("incidentid-old", $_REQUEST))
+            $oldincidentid = normalize_incidentid($_REQUEST["incidentid-old"]);
+        else die("Missing information.");
+
+        $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
+        or die("unable to connect to database: ".db_errormessage());
+
+        $now = Date("Y-m-d H:i:s");
+
+        if ($oldincidentid == encode_incidentid(""))
+        {
+            /* insert */
+            $query = sprintf("
+                INSERT INTO ticketcustomfieldvalues
+                (ticket, customfield, content, creator, created, 
+                 lastupdatedby, lastupdated)
+                VALUES
+                (%s, %s, '%s', %s, '%s', %s, '%s')",
+                $ticketid,
+                $_SESSION["fieldid_incidentid"],
+                $incidentid,
+                $_SESSION["userid"],
+                $now,
+                $_SESSION["userid"],
+                $now);
+            $res = db_query($conn, $query)
+            or die("unable to insert incident id");
+
+            printf("Updated."); // TODO: do something meaningful
+            db_close($conn);
+            break;
+        } 
+
+        if ($oldincidentid != $incidentid)
+        {       
+            /* update */
+            db_close($conn);
+            break;
+        }
+
         break;
 
     // --------------------------------------------------------------------

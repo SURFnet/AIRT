@@ -88,17 +88,47 @@ EOF;
             pageFooter();
             exit;
         }
-        else $row = db_fetch_next($res);
+        $row = db_fetch_next($res);
+        $userid = $row["id"];
 
         $f = fopen("/var/lib/cert/last_$login.txt","w");
         fputs($f, sprintf(
             "Welcome %s. Your last login was at %s from %s.\n",
             $login, Date("r"), gethostbyaddr($_SERVER["REMOTE_ADDR"])));
         fclose($f);
-            
+          
+        /* get correct queue id */
+        db_free_result($res);
+        $res = db_query($conn, "
+            SELECT id
+            FROM   queues
+            WHERE  name = '".LIBERTYQUEUE."'")
+        or die("Error retrieving liberty queue id: ".db_errormsg());
+
+        if (db_num_rows($res) == 0) die("No liberty queue?!");
+        $row = db_fetch_next($res);
+        $queueid = $row["id"];
+       
+        /* get customfieldid's */
+        db_free_result($res);
+        $res = db_query($conn, "
+            SELECT id
+            FROM   customfields
+            WHERE  name = 'IncidentID'")
+        or die("Unable to retrieve id of incidentid field: ".db_errormsg());
+
+        if (db_num_rows($res) == 0) die("Cannot find field id: incidentid");
+        $row = db_fetch_next($res);
+        $incidentidid = $row["id"];
+
         session_start();
         $_SESSION[username] = $login;
-        $_SESSION[userid] = $row["id"];
+        $_SESSION[userid] = $userid;
+        $_SESSION[queueid] = $queueid;
+        $_SESSION[fieldid_incidentid] = $incidentidid;
+
+        db_free_result($res);
+        db_close($conn);
         Header("Location: index.php");
             
         break;

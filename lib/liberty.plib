@@ -54,6 +54,8 @@ define("CERTGROUP", "DutyTeam");
 // time after which unacknowleged incidents will be flagged (in seconds)
 define("WARN_UNACK", (60*60*24*6));
 
+// Incident ID prefix
+define("INCIDENTID_PREFIX", "UvT-CERT#");
 /**
  * Display the page header
  * @in title The title of the page
@@ -162,5 +164,26 @@ EOF;
 function email($msg)
 {
     printf("<a href=\"%s\">%s</a>", $msg, $msg);
+}
+
+/**
+ */
+function encode_incidentid($id)
+{
+    return sprintf("%s%06d", INCIDENTID_PREFIX, $id);
+}
+
+function decode_incidentid($id)
+{
+    $x = ereg_replace(INCIDENTID_PREFIX, "", $id);
+    while (ereg("0", $x))
+        $x = ereg_replace("0", "", $x);
+    return $x;
+}
+
+function normalize_incidentid($id)
+{
+    $id = decode_incidentid($id);
+    return encode_incidentid($id);
 }
 ?>
