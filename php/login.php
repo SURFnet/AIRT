@@ -93,8 +93,10 @@ EOF;
         fclose($f);
           
         session_start();
-        $_SESSION[username] = $login;
-        $_SESSION[userid] = $userid;
+        $_SESSION["username"] = $login;
+        $_SESSION["userid"]   = $userid;
+        $_SESSION["ip"]       = $_SERVER["REMOTE_ADDR"];
+        $_SESSION["last"]     = time();
 
         Header("Location: index.php");
             

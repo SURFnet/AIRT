@@ -58,6 +58,9 @@ switch ($action)
             $id=$_REQUEST["id"];
         else die("Missing information (1).");
 
+        // set active incident id
+        $_SESSION["active_incidentid"] = normalize_incidentid($id);
+
         $incident = AIR_getIncidentById($id);
         if ($incident->getId() == -1) die("Unknown ID: $id");
 
@@ -238,6 +241,9 @@ EOF;
         if (array_key_exists("state", $_POST))
             $state=$_POST["state"];
 
+        // set active incident id
+        $_SESSION["active_incidentid"] = normalize_incidentid($id);
+
         $now = Date("Y-m-d H:i:s");
         $incident = new AIR_Incident();
         $incident->setIp($ip);
@@ -303,6 +309,9 @@ EOF;
         // state: optional
         if (array_key_exists("state", $_POST))
             $state=$_POST["state"];
+
+        // set active incident id
+        $_SESSION["active_incidentid"] = normalize_incidentid($id);
 
         $id = normalize_incidentid($id);
         $now = Date("Y-m-d H:i:s");

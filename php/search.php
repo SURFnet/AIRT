@@ -66,6 +66,9 @@ EOF;
         // call user-supplied categorization routine
         $constituency = categorize($ip, $hostname);
 
+        // update active IP address
+        $_SESSION["active_ip"] = $ip;
+
         pageHeader("Detailed information for host $hostname");
 
         // call user-defined search function. Must print in unformatted layout
