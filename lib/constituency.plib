@@ -114,4 +114,43 @@ function showNetworksSelection($name="network", $default=-1)
     printf("</select>\n");
 }
 
+function showConstituencyContacts($constituencyid)
+{
+    $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+    or die("Unable to connect to database.");
+
+    $res = db_query($conn,
+        "SELECT  u.lastname, u.firstname, u.email, u.phone, c.name
+         FROM    constituencies c, constituency_contacts c2, users u
+         WHERE   c2.constituency = c.id
+         AND     c2.userid = u.id
+         AND     c.id = $constituencyid
+         ")
+    or die("Unable to execute query.");
+
+    echo <<<EOF
+<table cellpadding=3>
+<tr>
+    <td>Name</td>
+    <td>Email</td>
+    <td>Phone</td>
+</tr>
+EOF;
+    $count=0;
+    while ($row = db_fetch_next($res))
+    {
+        printf("<tr>
+            <td>%s, %s</td>
+            <td><a href=\"%s\">%s</a></td>
+            <td>%s</td>
+            </tr>",
+            $row["lastname"], $row["firstname"],
+            $row["email"], $row["email"],
+            $row["phone"]
+        );
+    }
+    echo "</table>";
+    db_close($conn);
+}
+
 ?>
