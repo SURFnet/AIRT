@@ -153,30 +153,21 @@ EOF;
         else die("Missing information");
 
         $now = Date("Y-m-d H:i:s");
-        $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
-        or die("unable to connect to database: ".db_errormessage());
+        RT_setTicketField($id, "status", "'rejected'");
+        RT_setTicketField($id, "lastupdatedby", $_SESSION["userid"]);
+        RT_setTicketField($id, "lastupdated", "'$now'");
 
-        // update ticket status
-        $res = db_query($conn, sprintf("
-            UPDATE tickets
-            SET    status = 'rejected',
-                   lastupdatedby = %s,
-                   lastupdated = '%s'
-            WHERE  id = '%s'", 
-            $_SESSION["userid"], $now, $id))
-        or die("Unable to update status: ".db_errormessage());
+        $transaction = new RT_Transaction();
+        $transaction->setEffectiveTicket($id);
+        $transaction->setTicket($id);
+        $transaction->setType("Status");
+        $transaction->setField("Status");
+        $transaction->setOldValue("new");
+        $transaction->setNewValue("rejected");
+        $transaction->setCreator($_SESSION["userid"]);
+        $transaction->setCreated($now);
 
-        pg_free_result($res);
-
-        // add transaction
-        $res = db_query($conn, sprintf("
-            INSERT INTO transactions
-            (effectiveticket, ticket, type, field, oldvalue, newvalue,
-             creator, created)
-            VALUES
-            ('%s', '%s', 'Status', 'Status', 'new', 'rejected', %s, '%s')",
-            $id, $id, $_SESSION["userid"], $now))
-        or die("Unable to insert transaction: ".db_errormessage());
+        RT_addTransaction($transaction);
 
         Header("Location: $SELF");
         break;

@@ -205,13 +205,85 @@ function RT_getAttachmentsOfTicket($id)
 
 
 
-function RT_setTicketField($field, $value)
+function RT_setTicketField($ticketid, $field, $value)
 {
+    $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
+    or die("unable to connect to database: ".db_errormessage());
+
+    // update ticket status
+    $res = db_query($conn, sprintf("
+        UPDATE tickets
+        SET    $field = $value
+        WHERE  id = $ticketid"))
+    or die("Unable to update status: ".db_errormessage());
+
+    db_close($conn);
 } // RT_setTicketField
+
 
 function RT_addTransaction($transaction)
 {
+    $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
+    or die("unable to connect to database: ".db_errormessage());
+
+    // update ticket status
+    $res = db_query($conn, $transaction->getInsertStatement())
+    or die("Unable to insert transaction: ".db_errormessage());
+
+    db_close($conn);
 } // RT_addTransaction
+
+function RT_masq_null($str) {
+    return ($str == "" ? "NULL": "'$str'");
+}
+
+class RT_Transaction 
+{
+    var $effectiveticket,
+        $ticket,
+        $type,
+        $field,
+        $oldvalue,
+        $newvalue,
+        $creator,
+        $created;
+
+    function setEffectiveTicket($id) { $this->effectiveTicket = $id; }
+    function setTicket($id)          { $this->ticket = $id; }
+    function setField($str)          { $this->field = $str; }
+    function setType($str)           { $this->type = $str; }
+    function setOldValue($str)       { $this->oldvalue = $str; }
+    function setNewValue($str)       { $this->newvalue = $str; }
+    function setCreator($id)         { $this->creator = $id; }
+    function setCreated($str)        { $this->created = $str; }
+
+    function getEffectiveTicket()    { return $this->effectiveticket; }
+    function getTicket()             { return $this->ticket; }
+    function getField()              { return $this->field; }
+    function getType()               { return $this->type; }
+    function getOldValue()           { return $this->oldvalue; }
+    function getNewValue()           { return $this->newvalue; }
+    function getCreator()            { return $this->creator; }
+    function getCreated()            { return $this->created; }
+
+
+    function getInsertStatement()
+    {
+        return sprintf("
+            INSERT INTO transactions
+            (effectiveticket, ticket, type, field, oldvalue, newvalue,
+             creator, created)
+            VALUES
+            (%s, %s, %s, %s, %s, %s, %s, %s)",
+            $this->effectiveTicket, $this->ticket, RT_masq_null($this->field), 
+            RT_masq_null($this->type), RT_masq_null($this->oldvalue), 
+            RT_masq_null($this->newvalue), $this->creator, 
+            RT_masq_null($this->created));
+    }
+
+} // RT_Transaction
+    
+    
 
 /* EOF */
 ?>
