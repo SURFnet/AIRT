@@ -50,41 +50,10 @@ function footer()
 }
 
 
-function showIncidentForm($id="")
-{
-    $constituency = $name = $email = $type = $state = $states = "";
-    if (array_key_exists("active_ip", $_SESSION))
-        $address = $_SESSION["active_ip"];
-    if (array_key_exists("constituency_id", $_SESSION))
-        $constituency = $_SESSION["constituency_id"];
-    if (array_key_exists("current_name", $_SESSION))
-        $name = $_SESSION["current_name"];
-    if (array_key_exists("current_email", $_SESSION))
-        $email = $_SESSION["current_email"];
-    if ($id == "")
-    {
-        echo <<<EOF
-<table cellpadding="4">
-<tr>
-    <td>Hostname or IP address</td>
-    <td><input type="text" size="30" name="address" value="$address"></td>
-</tr>
-<tr>
-    <td>Constituency</td>
-    <td>
-EOF;
-        showConstituencySelection("constituency", $constituency);
-        echo <<<EOF
-    </td>
-</tr>
-<tr>
-    <td>User's name</td>
-    <td><input type="text" size="30" value="$name" name="name"></td>
-</tr>
-<tr>
-    <td>User's email</td>
-    <td><input type="text" size="30" value="$email" name="email"></td>
-</tr>
+function showBasicIncidentData($type, $state, $status) {
+	echo <<<EOF
+<h3>Basic incident data</h3>
+<table>
 <tr>
     <td>Incident type</td>
     <td>
@@ -111,14 +80,154 @@ EOF;
 </tr>
 </table>
 EOF;
-    } // new incident
+}
+
+function showIncidentForm() {
+    $constituency = $name = $email = $type = $state = $states = "";
+    if (array_key_exists("active_ip", $_SESSION))
+        $address = $_SESSION["active_ip"];
+    if (array_key_exists("constituency_id", $_SESSION))
+        $constituency = $_SESSION["constituency_id"];
+    if (array_key_exists("current_name", $_SESSION))
+        $name = $_SESSION["current_name"];
+    if (array_key_exists("current_email", $_SESSION))
+        $email = $_SESSION["current_email"];
+
+	showBasicIncidentData($type, $state, $status);
+	echo <<<EOF
+<h3>Affected IP addresses</h3>
+<table cellpadding="4">
+<tr>
+    <td>Hostname or IP address</td>
+    <td><input type="text" size="30" name="address" value="$address"></td>
+</tr>
+<tr>
+    <td>Constituency</td>
+    <td>
+EOF;
+        showConstituencySelection("constituency", $constituency);
+        echo <<<EOF
+    </td>
+</tr>
+</table>
+
+<h3>Affected users</h3>
+<table>
+<tr>
+    <td>User's name</td>
+    <td><input type="text" size="30" value="$name" name="name"></td>
+</tr>
+<tr>
+    <td>User's email</td>
+    <td><input type="text" size="30" value="$email" name="email"></td>
+</tr>
+</table>
+
+EOF;
 } // showIncidentForm
+
+
+
+function showEditForm() {
+	$incident = getIncident($_SESSION["incidentid"]);
+	$type = $incident["type"];
+	$state = $incident["state"];
+	$status = $incident["status"];
+
+	showBasicIncidentData($type, $state, $status);
+
+	echo <<<EOF
+<h3>Affected IP addresses</h3>
+<table cellpadding="4">
+EOF;
+	foreach ($incident["ips"] as $address) {
+		printf("
+<tr>
+	<td><a href=\"search.php?action=search&hostname=%s\">%s</a></td>
+	<td>%s</td>
+	<td><a href=\"$SELF?action=deleteip&ip=%s\">remove</a></td>
+</tr>
+	",
+		urlencode($address),
+		$address,
+		$address==""?"Unknown":gethostbyaddr($address),
+		urlencode($address)
+		);
+	}
+	echo <<<EOF
+	</table>
+
+	<p/>
+	<form action="$SELF" method="POST">
+	<input type="hidden" name="action" value="addip">
+	<table cellpadding=4>
+	<tr>
+		<td>IP Address</td>
+		<td><input type="text" name="ip" size="30"></td>
+		<td><input type="submit" value="Add"></td>
+	</tr>
+	</table>
+	</form>
+EOF;
+
+	echo <<<EOF
+<h3>Affected users</h3>
+<table cellpadding="4">
+EOF;
+	foreach ($incident["users"] as $users) {
+		printf("
+<tr>
+	<td>anr/td>
+	<td><a href=\"mailto:%s\">%s</a></td>
+	<td>%s %s</td>
+	<td><a href=\"$SELF?action=deleteuser&userid=%s\">remove</a></td>
+</tr>
+		", $u["email"],
+		   $u["email"],
+		   $u["lastname"],
+		   $u["firstname"],
+		   urlencode($incidentid),
+		   urlencode($userid)
+		);
+	}
+echo <<<EOF
+</table>
+
+	<p/>
+	<form action="$SELF" method="POST">
+	<input type="hidden" name="action" value="adduser">
+	<table cellpadding=4>
+	<tr>
+		<td>Userid</td>
+		<td><input type="text" name="userid" size="30"></td>
+		<td><input type="submit" value="Add"></td>
+	</tr>
+	</table>
+	</form>
+EOF;
+} // showeditform
+
+
 
 switch ($action)
 {
     //--------------------------------------------------------------------
     case "edit":
-        break;
+        if (array_key_exists("incidentid", $_REQUEST))
+			$incidentid=$_REQUEST["incidentid"];
+        else die("Missing information(1).");
+		$_SESSION["incidentid"] = $incidentid;
+
+		pageHeader("Edit incident");
+		echo <<<EOF
+<form action="$SELF" method="POST">
+EOF;
+		showEditForm();
+		echo <<<EOF
+<input type="submit" name="action" value="Update">
+</form>
+EOF;
+		break;
 
     //---------------------------------------------------------------
     case "New incident":
@@ -186,12 +295,13 @@ EOF;
 
         $res = db_query($conn, sprintf(
             "insert into incident_addresses
-             (id, incident, ip, added, addedby)
+             (id, incident, ip, constituency, added, addedby)
              values
-             (%s, %s, %s, CURRENT_TIMESTAMP, %s)",
+             (%s, %s, %s, %s, CURRENT_TIMESTAMP, %s)",
                 $iaid,
                 $incidentid,
-                db_masq_null("$address"),
+                db_masq_null($address),
+				db_masq_null($constituency),
                 $_SESSION["userid"]
             )
         ) or die("Unable to execute query 5.");
@@ -221,13 +331,16 @@ EOF;
                       c2.login  as updater, 
                       s1.label  as state, 
                       s2.label  as status, 
+					  c3.label  as constituency,
                       t.label   as type,
                       a.ip      as ip
              FROM     incidents i, credentials c1, credentials c2,
                       incident_states s1, incident_status s2, 
-                      incident_types t, incident_addresses a
+                      incident_types t, incident_addresses a, 
+					  constituencies c3
              WHERE    i.creator = c1.userid
              AND      i.updatedby = c2.userid
+			 AND      a.constituency = c3.id
              AND      i.state = s1.id
              AND      i.status = s2.id
              AND      i.type = t.id
@@ -244,12 +357,14 @@ EOF;
             echo <<<EOF
 <table width='100%'>
 <tr>
+	<td>&nbsp;</td>
     <td>Incident ID</td>
+	<td>Consituency</td>
     <td>IP address</td>
-    <td>Last updated</td>
     <td>Status</td>
     <td>State</td>
     <td>Type</td>
+    <td>Last updated</td>
 </tr>
 EOF;
             $count = 0;
@@ -261,16 +376,20 @@ EOF;
                 $status  = $row["status"];
                 $state   = $row["state"];
                 $type    = $row["type"];
+                $constituency = $row["constituency"];
                 $incidentid = encode_incidentid($id);
 
+				$color = ($count++%2 == 0) ? '#FFFFFF' : '#DDDDDD';
                 echo <<<EOF
-<tr>
+<tr bgcolor='$color'>
+	<td><a href="$SELF?action=edit&incidentid=$id">edit</a></td>
     <td>$incidentid</td>
+	<td>$constituency</td>
     <td>$ip</td>
-    <td>$updated</td>
     <td>$status</td>
     <td>$state</td>
     <td>$type</td>
+    <td>$updated</td>
 </tr>
 EOF;
             } // while
@@ -288,6 +407,37 @@ EOF;
         pageFooter();
         break;
         
+    //--------------------------------------------------------------------
+	case "addip":
+        if (array_key_exists("incidentid", $_SESSION))
+			$incidentid = $_SESSION["incidentid"];
+		else die("Missing information (1).");
+        if (array_key_exists("ip", $_POST)) $ip = gethostbyname($_POST["ip"]);
+		else die("Missing information (2).");
+
+		addIpToIncident($ip, $incidentid);
+		Header(sprintf("Location: $SELF?action=edit&incidentid=%s",
+			urlencode($incidentid)));
+		break;
+
+    //--------------------------------------------------------------------
+	case "deleteip":
+        if (array_key_exists("incidentid", $_SESSION))
+			$incidentid = $_SESSION["incidentid"];
+		else die("Missing information (1).");
+        if (array_key_exists("ip", $_GET)) $ip = $_GET["ip"];
+		else die("Missing information (2).");
+
+		removeIpFromIncident($ip, $incidentid);
+		Header(sprintf("Location: $SELF?action=edit&incidentid=%s",
+			urlencode($incidentid)));
+		break;
+
+
+    //--------------------------------------------------------------------
+	case "adduser":
+		break;
+
     //--------------------------------------------------------------------
     case "close":
         break;

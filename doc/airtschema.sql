@@ -28,6 +28,7 @@ DROP SEQUENCE constituencies_sequence;
 DROP SEQUENCE roles_sequence;
 DROP SEQUENCE users_sequence;
 DROP SEQUENCE incidents_sequence;
+DROP SEQUENCE incident_users_sequence;
 DROP SEQUENCE incident_addresses_sequence;
 DROP SEQUENCE role_assignments_sequence;
 DROP SEQUENCE constituency_contacts_sequence;
@@ -58,6 +59,7 @@ DROP TABLE urls CASCADE;
 DROP TABLE permissions CASCADE;
 DROP TABLE role_permissions CASCADE;
 DROP TABLE blocks CASCADE;
+DROP TABLE incident_users CASCADE;
 
 begin transaction;
 
@@ -119,14 +121,24 @@ CREATE TABLE incidents (
 );
 
 CREATE TABLE incident_addresses (
+    id           integer,
+    incident     integer,
+    ip           varchar(128),
+	constituency integer,
+    added        timestamp,
+    addedby      integer,
+    primary key  (id),
+    foreign key  (incident) references incidents(id),
+    foreign key  (addedby)  references users(id)
+);
+
+create table incident_users (
     id          integer,
-    incident    integer,
-    ip          varchar(128),
-    added       timestamp,
-    addedby     integer,
+    incidentid  integer,
+    userid      integer,
     primary key (id),
-    foreign key (incident) references incidents(id),
-    foreign key (addedby)  references users(id)
+    foreign key (incidentid) references incidents(id),
+    foreign key (userid) references users(id)
 );
 
 CREATE TABLE role_assignments (
@@ -247,6 +259,7 @@ CREATE SEQUENCE urls_sequence;
 CREATE SEQUENCE permissions_sequence;
 CREATE SEQUENCE role_permissions_sequence;
 CREATE SEQUENCE blocks_sequence;
+CREATE SEQUENCE incident_users_sequence;
 
 end transaction;
 

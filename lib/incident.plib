@@ -165,6 +165,57 @@ function getOpenIncidents()
 }
 
 
+function getIncident($id) {
+    $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+    or die("Unable to connect to database.");
+
+	// get basic info
+    $res = db_query($conn,
+        "SELECT   id as incidentid,
+                  extract(epoch from created) as created, 
+				  creator,
+				  extract(epoch from updated) as updated,
+				  updatedby,
+				  state,
+				  status,
+				  type
+		FROM incidents
+		WHERE id=$id")
+    or die("Unable to execute query 1.");
+
+	$row = db_fetch_next($res);
+	$data = $row;
+
+	// get ip addresses
+	pg_free_result($res);
+	$res = db_query($conn,
+		"SELECT  ip
+		 FROM    incident_addresses
+		 WHERE   incident = '$id'")
+	or die("Unable to execute query 2.");
+
+	$ips = array();
+	while ($row = db_fetch_next($res))
+		array_push($ips, $row["ip"]);
+	$data["ips"] = $ips;
+
+	// get users
+	db_free_result($res);
+	$res = db_query($conn,
+		"SELECT  userid
+		 FROM    incident_users
+		 WHERE   incidentid = '$id'")
+	or die("Unable to execute query 3.");
+
+	$users = array();
+	while ($row = db_fetch_next($res))
+		array_push($users, $row["userid"]);
+	$data["users"] = $users;
+
+	db_close($conn);
+	return $data;
+}
+
 function showOpenIncidentSelection($name)
 {
     $incidents = getOpenIncidents();
@@ -184,5 +235,37 @@ function showOpenIncidentSelection($name)
     }
     printf("</select>");
     return $count;
+}
+
+function addIPtoIncident($ip, $incident) {
+	$conn = db_connect(DBDB, DBUSER, DBPASSWD)
+	or die("unable to connect to database.");
+
+	$res = db_query($conn, sprintf("
+		INSERT INTO incident_addresses
+		(id, incident, ip)
+		VALUES
+		(nextval('incident_addresses_sequence'), %s, %s)",
+			db_masq_null($incident),
+			db_masq_null($ip)
+		))
+	or die("Unable to execute query.");
+	db_close($conn);
+}
+
+
+function removeIPfromIncident($ip, $incident) {
+	$conn = db_connect(DBDB, DBUSER, DBPASSWD)
+	or die("unable to connect to database.");
+
+	$res = db_query($conn, sprintf("
+		DELETE FROM incident_addresses
+		WHERE ip=%s
+		AND   incident=%s",
+			db_masq_null($ip),
+			db_masq_null($incident)
+		))
+	or die("Unable to execute query.");
+	db_close($conn);
 }
 ?>
