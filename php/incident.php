@@ -52,20 +52,24 @@ function footer()
 
 function showIncidentForm($id="")
 {
-    
+    $constituency = $name = $email = $type = $state = $states = 0;
+    if (array_key_exists("active_ip", $_SESSION))
+        $address = $_SESSION["active_ip"];
+    if (array_key_exists("constituency_id", $_SESSION))
+        $constituency = $_SESSION["constituency_id"];
     if ($id == "")
     {
         echo <<<EOF
 <table cellpadding="4">
 <tr>
     <td>Hostname or IP address</td>
-    <td><input type="text" size="30" name="address"></td>
+    <td><input type="text" size="30" name="address" value="$address"></td>
 </tr>
 <tr>
     <td>Constituency</td>
     <td>
 EOF;
-        showConstituencySelection("constituency");
+        showConstituencySelection("constituency", $constituency);
         echo <<<EOF
     </td>
 </tr>
@@ -113,13 +117,21 @@ switch ($action)
         break;
 
     //---------------------------------------------------------------
+    case "New incident":
     case "new":
         PageHeader("New Incident");
+        echo <<<EOF
+<form action="$SELF" method="POST">
+EOF;
         showIncidentForm();
+        echo <<<EOF
+<input type="submit" name="action" value="Add">
+</form>
+EOF;
         break;
 
     //--------------------------------------------------------------------
-    case "add":
+    case "Add":
         break;
 
     //--------------------------------------------------------------------
@@ -192,6 +204,13 @@ EOF;
             db_free_result($res);
             db_close($conn);
         } // else
+
+        echo <<<EOF
+<p>
+<form action="$SELF" method="POST">
+<input type="submit" name="action" value="New incident">
+</form>
+EOF;
         pageFooter();
         break;
         

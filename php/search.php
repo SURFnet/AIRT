@@ -87,6 +87,7 @@ EOF;
 
         // update active IP address
         $_SESSION["active_ip"] = $ip;
+        $_SESSION["constituency_id"] = $consid;
 
         pageHeader("Detailed information for host $hostname");
         
@@ -115,20 +116,26 @@ EOF;
         echo "<h2>Previous incidents</h2>";
 
         // create new incident
+        $count = showOpenIncidentSelection("incidentid");
+        if ($count == 0) echo "<I>No previous incidents</I><P>";
+
         echo <<<EOF
 <form action="incident.php" method="POST">
 <input type="hidden" name="ip" value="ip">
-<input type="hidden" name="ip" value="ip">
-<input type="submit" name="link" value="Link to incident">
 EOF;
-        showOpenIncidentSelection("incidentid");
+        if ($count>0)
+        {
+            echo <<<EOF
+<input type="submit" name="action" value="Link to incident">
+EOF;
+        }
         echo <<<EOF
-<input type="submit" name="new" value="New incident">
+<input type="submit" name="action" value="New incident">
 </form>
 <P>
 <HR>
+<H2>New Search</H2>
 EOF;
-
         showSearch();
         pageFooter();
         

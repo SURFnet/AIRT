@@ -164,9 +164,13 @@ function getOpenIncidents()
 
 function showOpenIncidentSelection($name)
 {
+    $states = getOpenIncidents();
+    $count = count($states);
+    if ($count == 0) return 0;
+
     printf("<select name=\"%s\">\n",
         htmlentities($name));
-    $states = getOpenIncidents();
+
     foreach ($states as $i=>$data)
     {
         printf("<option value=%s>%s, %s <%s> (%s)</option>\n",
@@ -178,5 +182,6 @@ function showOpenIncidentSelection($name)
         );
     }
     printf("</select>");
+    return $count;
 }
 ?>

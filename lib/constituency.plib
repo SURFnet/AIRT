@@ -72,7 +72,7 @@ function getNetworks()
     $res = db_query($conn,
         "SELECT   id, network, netmask, label, constituency
          FROM     networks
-         ORDER BY id")
+         ORDER BY network,netmask")
     or die("Unable to connect to database.");
 
     $networks=array();

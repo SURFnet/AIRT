@@ -44,7 +44,7 @@ echo "<HR>";
 
 <P>
 
-<a href="incident.php">Incident management</a> TOFIX
+<a href="incident.php">Incident management</a> (Work in progress)
 
 <P>
 
