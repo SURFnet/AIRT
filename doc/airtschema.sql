@@ -18,7 +18,7 @@
 
 
 -- $Id$
--- In CVS at $CVS$
+-- In CVS at $Source$
 
 
 DROP SEQUENCE incident_types_sequence;
@@ -250,36 +250,5 @@ CREATE SEQUENCE permissions_sequence;
 CREATE SEQUENCE role_permissions_sequence;
 CREATE SEQUENCE blocks_sequence;
 CREATE SEQUENCE incident_users_sequence;
-
-end transaction;
-
--- 
--- Preload administrator account and administrator role
---
-
-begin transaction;
-
-INSERT INTO users
-    (id, lastname, login, password) 
-    VALUES
-    (nextval('users_sequence'), 'Administrator', 'admin', 'admin');
-INSERT INTO roles
-    (id, label)
-    VALUES
-    (nextval('roles_sequence'), 'Administrator');
-INSERT INTO permissions
-    (id, label)
-    VALUES
-    (nextval('permissions_sequence'), 'administrator');
-INSERT INTO role_assignments
-    (id, role, userid)
-    VALUES
-    (nextval('role_assignments_sequence'), 1, 1);
-INSERT INTO role_permissions
-    (id, role, permission)
-    VALUES
-    (nextval('role_assignments_sequence'), 1, 1);
-insert into constituencies (id,label,name) values (-1, 'default', 'default');
-insert into networks (id, network, netmask, label, constituency) values ( -1, '0.0.0.0', '0.0.0.0', 'Default network', -1);
 
 end transaction;
