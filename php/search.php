@@ -60,6 +60,11 @@ EOF;
         
     // ------------------------------------------------------------------
     case "search":
+		unset($_SESSION["current_name"]);
+		unset($_SESSION["current_name"]);
+		unset($_SESSION["current_name"]);
+		unset($_SESSION["current_name"]);
+
         if (array_key_exists("hostname", $_REQUEST)) 
             $hostname = $_REQUEST["hostname"];
         else die("Missing information.");

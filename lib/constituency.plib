@@ -137,6 +137,7 @@ function showConstituencyContacts($constituencyid)
 </tr>
 EOF;
     $count=0;
+	$_SESSION["current_email"] = "";
     while ($row = db_fetch_next($res))
     {
         printf("<tr>
@@ -148,6 +149,11 @@ EOF;
             $row["email"], $row["email"],
             $row["phone"]
         );
+
+		if ($_SESSION["current_email"] == "") 
+			$_SESSION["current_email"] = $row["email"];
+		else
+			$_SESSION["current_email"] .= ','.$row["email"];
     }
     echo "</table>";
     db_close($conn);

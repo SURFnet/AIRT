@@ -280,6 +280,11 @@ function print_variables_info()
     handler</td>
 </tr>
 <tr>
+    <td>@YOURNFIRSTAME@</td>
+    <td>Will be replaced with the first name of the logged in incident
+    handler</td>
+</tr>
+<tr>
     <td>@ID@</td>
     <td>Will be replaced with the current incident id</td>
 </tr>
