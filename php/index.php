@@ -52,6 +52,10 @@ echo "<HR>";
 
 <P>
 
+<a href="standard.php">Mail templates</a>
+
+<P>
+
 <a href="maintenance.php">Edit settings</a>
 
 <P>
