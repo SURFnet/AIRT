@@ -1,5 +1,6 @@
 <?php
-/* $Id$ 
+/* vim: syntax=php
+ * $Id$ 
  * pgsql.plib - UvT-CERT postgres frontend
 
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
@@ -20,24 +21,21 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-function db_errormessage() 
-{
+function db_errormessage() {
     return pg_errormessage();
 } // db_error
 
 
-function db_connect($database, $username, $password)
-{
+function db_connect($database, $username, $password) {
     $connectstring = sprintf("dbname=%s user=%s password=%s",
         $database, $username, $password);
-    $conn = @pg_connect($connectstring);
+    $conn = @pg_connect($connectstring, PGSQL_CONNECT_FORCE_NEW);
 
     return $conn;
 } // db_connect
 
 
-function db_query($conn, $query)
-{
+function db_query($conn, $query) {
     if (defined('DEBUG') && DEBUG)
 		printf("<PRE>$query</PRE>");
     $res = pg_query($conn, $query);
@@ -46,34 +44,29 @@ function db_query($conn, $query)
 } // pg_query
 
 
-function db_fetch_next($res)
-{
+function db_fetch_next($res) {
     return pg_fetch_assoc($res);
 } // pg_fetch_next
 
 
-function db_close($conn)
-{
+function db_close($conn) {
     return pg_close($conn);
 }
 
 
-function db_num_rows($res) 
-{
+function db_num_rows($res) {
     return pg_num_rows($res);
 }
 
 
-function db_free_result($res)
-{
+function db_free_result($res) {
     return pg_free_result($res);
 }
 
 /* Return $str surrounded by singles quotes, or the string NULL is $str is an
  * empty string
  */
-function db_masq_null($str) 
-{
+function db_masq_null($str) {
     return ($str == "" ? "NULL": "'$str'");
 }
 

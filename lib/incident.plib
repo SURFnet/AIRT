@@ -1,5 +1,5 @@
 <?php
-/*
+/* vim: syntax=php
  * AIRT: Application for Incident Response Teams
  * Copyright (C) 2004	Kees Leune <kees@uvt.nl>
 
@@ -256,7 +256,6 @@ function addIPtoIncident($ip, $incident) {
 	db_close($conn);
 }
 
-
 function removeIPfromIncident($ip, $incident) {
 	$conn = db_connect(DBDB, DBUSER, DBPASSWD)
 	or die("unable to connect to database.");
@@ -272,7 +271,66 @@ function removeIPfromIncident($ip, $incident) {
 	db_close($conn);
 }
 
+/* Fetch the label of an incident state by ID */
+function getIncidentStateLabelByID($id) {
+	$conn = db_connect(DBDB, DBUSER, DBPASSWD)
+	or die("unable to connect to database.");
 
+	$res = db_query($conn, sprintf("
+		SELECT label
+		FROM   incident_states
+		WHERE  id='$id'", $id))
+	or die("Unable to fetch state label");
 
+	if (db_num_rows($res)) {
+		$row = db_fetch_next($res);
+		$out = $row["label"];
+	} else $out = "unknown";
 
+	db_close($conn);
+
+	return $out;
+}	
+
+/* Fetch the label of an incident status by ID */
+function getIncidentStatusLabelByID($id) {
+	$conn = db_connect(DBDB, DBUSER, DBPASSWD)
+	or die("unable to connect to database.");
+
+	$res = db_query($conn, sprintf("
+		SELECT label
+		FROM   incident_status
+		WHERE  id='$id'", $id))
+	or die("Unable to fetch status label");
+
+	if (db_num_rows($res)) {
+		$row = db_fetch_next($res);
+		$out = $row["label"];
+	} else $out = "unknown";
+
+	db_close($conn);
+
+	return $out;
+}	
+
+/* Fetch the label of an incident type by ID */
+function getIncidentTypeLabelByID($id) {
+	$conn = db_connect(DBDB, DBUSER, DBPASSWD)
+	or die("unable to connect to database.");
+
+	$res = db_query($conn, sprintf("
+		SELECT label
+		FROM   incident_types
+		WHERE  id='$id'", $id))
+	or die("Unable to fetch status label");
+
+	if (db_num_rows($res)) {
+		$row = db_fetch_next($res);
+		$out = $row["label"];
+	} else $out = "unknown";
+
+	db_close($conn);
+
+	return $out;
+}	
 ?>

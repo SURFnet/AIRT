@@ -316,6 +316,10 @@ EOF;
         ) or die("Unable to execute query 3.");
         db_free_result($res);
 		addIncidentComment("Incident created", "", "", $conn);
+		addIncidentComment(sprintf("state=%s, status=%s, type=%s",
+			getIncidentStateLabelByID($state),
+			getIncidentStatusLabelByID($status),
+			getIncidentTypeLabelById($type)), "", "", $conn);
 
         $res = db_query($conn,
             "select nextval('incident_addresses_sequence') as iaid")
@@ -556,6 +560,8 @@ EOF;
 	<td><input type="submit" value="Add"></td>
 </tr>
 </table>
+<P>
+<a href="incident.php?action=edit&incidentid=$incidentid">Edit details</a>
 </form>
 EOF;
 		pageFooter();
@@ -615,9 +621,9 @@ EOF;
 
 		addIncidentComment(sprintf("Incident updated: state=%s, ".
 			"status=%s type=%s", 
-			$state,
-			$status,
-			$type));
+			getIncidentStateLabelByID($state),
+			getIncidentStatusLabelByID($status),
+			getIncidentTypeLabelByID($type)));
 
 		Header("Location: $SELF");
 		break;

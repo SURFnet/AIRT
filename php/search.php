@@ -163,14 +163,16 @@ EOF;
 EOF;
 			$count = 0;
 			while ($row = db_fetch_next($res)) {
-				printf("<tr bgcolor=\"%s\">
-					<td>%s</td>
-					<td>%s</td>
-					<td>%s</td>
-					<td>%s</td>
-					<td>%s</td>
-					</tr>",
+				printf("
+	<tr bgcolor=\"%s\">
+		<td><a href=\"incident.php?action=edit&incidentid=%s\">%s</a></td>
+		<td>%s</td>
+		<td>%s</td>
+		<td>%s</td>
+		<td>%s</td>
+	</tr>",
 						($count++ % 2 == 0 ? "#DDDDDD" : "#FFFFFF"),
+						$row["incidentid"],
 						normalize_incidentid($row["incidentid"]),
 						Date("d M Y", $row["created"]),
 						$row["type"],
