@@ -81,10 +81,9 @@ EOF;
         $network = $networks[$networkid]["network"];
         $netmask = $networks[$networkid]["netmask"];
         $netname = $networks[$networkid]["label"];
-        $conslabel = $constituencies[$networks[$networkid]["constituency"]]
-            ["label"];
-        $consname  = $constituencies[$networks[$networkid]["constituency"]]
-            ["name"];
+        $consid  = $networks[$networkid]["constituency"];
+        $conslabel = $constituencies[$consid]["label"];
+        $consname  = $constituencies[$consid]["name"];
 
         // update active IP address
         $_SESSION["active_ip"] = $ip;
@@ -98,9 +97,12 @@ Search results for the following host:
     IP Address          : $ip
     Hostname            : $hostname
     Network             : $netname ($network/$netmask)
-    Constituency        : $consname ($conslabel)
+    Constituency        : $consname
 </PRE>
+
+<H2>Constituency Contacts</H2>
 EOF;
+    showConstituencyContacts($consid);
 
         // call user-defined search function. Must print in unformatted layout
         // additional info about hostname needed to make a decision.
