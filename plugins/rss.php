@@ -49,12 +49,13 @@ foreach ($rssfeeds as $feed) {
 	$rss->parse();
 
 	$channelinfo = $rss->getChannelInfo();
-	printf("<h2 class='feed'><a class='item' href='%s'>%s</a></h2>\n",
+	printf("<h2 class='feed'><a target='rss' class='item'
+		href='%s'>%s</a></h2>\n",
 		$channelinfo['link'], 
 		$channelinfo['title']);
 	printf("<ul>\n");
 	foreach ($rss->getItems() as $item) 
-		printf("<li><a class='item' href='%s'>%s</a>\n",
+		printf("<li><a target='rss' class='item' href='%s'>%s</a>\n",
 			$item['link'],
 			$item['title']);
 	printf("</ul>\n");
