@@ -88,48 +88,23 @@
 </table>
 </form>
 EOF;
-
-        $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
-        or die("unable to connect to database: ".db_errormessage());
-
-        // check if the mail is already associated with an incident.
-        $res = db_query($conn, sprintf(
-            "SELECT c.content as IncidentID
-             FROM   ticketcustomfieldvalues c, tickets t, queues q, 
-                    customfields f
-             WHERE  c.ticket = t.id
-             AND    t.queue = q.id
-             AND    c.customfield = f.id
-             AND    f.name = 'IncidentID'
-             AND    t.id = %s", $id))
-        or die("Unable to query database: ".db_errormessage());
-
-        if (db_num_rows($res) > 0)
+       
+        // show ticket summary
+        $ticket = RT_getTicketById($id);
+        if (count($ticket) == 0) 
         {
-            $row = db_fetch_next($res);
-            $incidentid = $row["incidentid"];
+            printf("Unable to retrieve message.");
+            return;
         }
+        $userid  = $ticket["creator"];
+        $subject = $ticket["subject"];
+        $created = $ticket["created"];
 
-        pg_free_result($res);
+        $creator = RT_getUserById($userid);
+        $from    = $creator["emailaddress"];
+        $name    = $creator["realname"];
 
-        $res = db_query($conn,
-            "SELECT   u.emailaddress, u.realname, t.subject, 
-               extract (epoch from t.created) as created
-             FROM     tickets t, users u
-             WHERE    t.id = '$id'
-             AND      u.id = t.creator")
-        or die("Unable to query database: ".db_errormessage());
-        
-
-        // show ticket information
-        if ($row = db_fetch_next($res))
-        {
-            $from = $row["emailaddress"];
-            $name = $row["realname"];
-            $subject = $row["subject"];
-            $created = Date("r",$row["created"]);
-
-            echo <<<EOF
+        echo <<<EOF
 <table cellpadding="2">
 <tr>
     <td>From:</td>
@@ -143,48 +118,19 @@ EOF;
     <td>Date:</td>
     <td>$created</td>
 </tr>
+</table>
 EOF;
-            if ($incidentid != "") 
-                echo <<<EOF
-<tr>
-    <td>Incident ID:</td>
-    <td>$incidentid</td>
-</tr>
-EOF;
-            echo "</table>";
+   
+        // show message body
+        $attachmentids = RT_getAttachmentsOfTicket($id);
+        foreach ($attachmentids as $index => $i)
+        {
+            $attach = RT_getAttachmentById($i);
+            $body    = $attach["content"];
+            printf("<PRE>%s</PRE>", $body);
         }
-        db_free_result($res);
-
-
-        // get actual message 
-        $query = sprintf("
-            SELECT a.headers, a.content
-            FROM   attachments a, transactions t
-            WHERE  t.ticket = '%s'
-            AND    a.transactionid = t.id
-            ", $id);
-        $res = db_query($conn, $query)
-        or die("Unable to query database: ".db_errormessage());
-
-        while ($row = db_fetch_next($res))
-            printf("<PRE>%s</PRE>", $row["content"]);
-
-        db_free_result($res);
-        db_close($conn);
 
         // allow association with ticket if not already associated
-        if ($incidentid == "") 
-            echo <<<EOF
-<div width="100%" style="background-color: #DDDDDD">
-<form action="$SELF" method="post">
-Incident ID:
-    <input type="text" size="40" name="incidentid" value="$incidentid">
-    <input type="submit" value="Add to incident">
-</div>
-<input type="hidden" name="action" value="associate">
-<input type="hidden" name="ticketid" value="$id">
-</form>
-EOF;
 
         pageFooter();
         break;
@@ -258,40 +204,8 @@ EOF;
             );
         else die("Missing information.");
 
-        $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
-        or die("unable to connect to database: ".db_errormessage());
+        printf("TODO");
 
-        $now = Date("Y-m-d H:i:s");
-
-        /* insert */
-        $query = sprintf("
-            INSERT INTO ticketcustomfieldvalues
-            (ticket, customfield, content, creator, created, 
-             lastupdatedby, lastupdated)
-            VALUES
-            (%s, %s, '%s', %s, '%s', %s, '%s')",
-            $ticketid,
-            $_SESSION["fieldid_incidentid"],
-            $incidentid,
-            $_SESSION["userid"],
-            $now,
-            $_SESSION["userid"],
-            $now);
-        $res = db_query($conn, $query)
-        or die("unable to insert incident id");
-
-        // reset status
-        db_free_result($res);
-
-        $res = db_query($conn, sprintf("
-            UPDATE tickets
-            SET    status = 'open' 
-            WHERE  id = '%s'",
-            $ticketid))
-        or die("Unable to alter status.");
-
-        printf("Updated."); // TODO: do something meaningful
-        db_close($conn);
         break;
 
     // --------------------------------------------------------------------

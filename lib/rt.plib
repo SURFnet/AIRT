@@ -131,6 +131,7 @@ function RT_getNewTicketIds($queue)
     return $output;
 } // RT_getNewMessageIds
 
+
 /* Return a ticket by ticket id 
  * An associative array.
  */
@@ -157,12 +158,52 @@ function RT_getTicketById($id)
 
 function RT_getAttachmentById($id)
 {
+    $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
+    or die("Unable to connect to database: ".db_errormessage());
+
+    $res = db_query($conn,
+        "SELECT *
+         FROM   attachments
+         WHERE  id=$id")
+    or die("Unable to query database: ".db_errormessage());
+
+    if (db_num_rows($res) == 0) 
+        $row = array();
+    else
+        $row = db_fetch_next($res);
+
+    db_close($conn);
+    return $row;
 } // RT_getAttachmentById($id)
 
 
+/* Retrieve a list of attachment IDs associated with a certain ticket 
+ * Returns an array contain attachment IDs, or an empty array when none are
+ * found.
+ */
 function RT_getAttachmentsOfTicket($id)
 {
+    $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
+    or die("Unable to connect to database: ".db_errormessage());
+
+    $query = sprintf("
+        SELECT a.id
+        FROM   attachments a, transactions t
+        WHERE  t.ticket = '%s'
+        AND    a.transactionid = t.id
+        ", $id);
+    $res = db_query($conn, $query)
+    or die("Unable to query database: ".db_errormessage());
+
+    $output = array(db_num_rows($res));
+    $count = 0;
+    while ($row = db_fetch_next($res))
+        $output[$count++] = $row["id"];
+
+    return $output;
 } // RT_getAttachmentsOfTicket
+
+
 
 function RT_setTicketField($field, $value)
 {
