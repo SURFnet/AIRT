@@ -1,0 +1,62 @@
+$Id$
+
+AIRT offers a site customization mechanism which is event driven. In
+customfunctions.plib, define zero or more event handlers per event to
+influence the application's behaviour.
+
+Event: invalidlogin
+Data:  comma separated list; field1=login, field2=remote ip
+Note:  Generated on invalid login attempt
+	
+Event: goodlogin
+Data:  comma separated list; field1=login, field2=remote ip
+Note:  Generated on valid login attempt
+
+Event: newconstituency
+Data:  array: label=>"label", name=>"name"
+Note:  Generated after adding a new constituency
+
+Event: updateconstituency
+Data:  array: label=>"label", name=>"name"
+Note:  Generated after updating a constituency
+
+Event: deleteconstituency
+Data:  id of constituency
+Note:  Event is generate prior to removal
+
+Event: newincident
+Data: array with keys: incidentid, ip, hostname, state, status, type
+Note: Generated after adding a new incident
+
+Event: incidentlistpre
+Data:  none
+Note: Genereated prior to listing current incidents
+
+Event: incidentlistpost
+Data:  none
+Note: Genereated after listing current incidents
+
+Event: addiptoincident
+data:  array with keys: incidentid, ip
+Note:  Generated after adding address to incident
+
+event: removeipfrom
+data:  array with keys: incidentid, ip
+Note:  Generated after removing address from incident
+
+event: historyshowpre
+data:  array with key: incidentid
+Note:  Generated before showing incident history
+
+event: historyshowpost
+data:  array with key: incidentid
+Note:  Generated after showing incident history
+
+event: incidentcommentadd
+data:  array with keys: comment, incidentid
+Note:  Generated when adding a comment to an incident
+
+event: incidentupdate
+data:  array with keys: incidentid, state, status, type
+Note:  Generated prior to updating an incident
+
