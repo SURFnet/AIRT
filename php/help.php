@@ -22,23 +22,41 @@
 require_once 'config.plib';
 require_once LIBDIR.'/airt.plib';
 
-if (array_key_exists('topic', $_GET) $topic=$_GET['topic'];
+if (array_key_exists('topic', $_GET)) $topic = $_GET['topic'];
 else die('Missing topic.');
 
+pageHeader("Help information");
 switch ($topic) {
+	// --------------------------------------------------------------
 	case 'search-search':
 		echo <<<EOF
-Help information for IP address search.
+<a name="search-search">
+<h3>Help information for IP address search.</h3>
+
+<p>Enter the IP address or the host name of the node that you would like more
+information on.</p>
+
+<p>Use hotkey <b>ctrl-a</b> to focus the cursor in the input field.</p>
+</a>
 EOF;
 		break;
 	
+	// --------------------------------------------------------------
 	case 'search-info':
 		echo <<<EOF
 Help information for IP address search results.
 EOF;
-		break:
+		break;
 
+	// --------------------------------------------------------------
 	default:
 		echo 'Unknown help topic';
 }
+
+	$r = $_SERVER["HTTP_REFERER"];
+	echo <<<EOF
+	<a href="$r">Back...</a>
+EOF;
+
+pageFooter();
 ?>

@@ -1,5 +1,6 @@
 <?php
-/* $Id$ 
+/* vim:syntax=php
+ * $Id$ 
  * airt.plib - UvT-CERT skeleton page
 
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
@@ -74,7 +75,7 @@ if (!isset($public) || !$public)
  * Display the page header
  * @in title The title of the page
  */
-function pageheader($title) 
+function pageheader($title, $helptopic="") 
 {
     global $public;
     
@@ -95,10 +96,21 @@ function pageheader($title)
 <td>
     <table width='100%%'>
     <tr>
-       <td align='left'><h2>$title</h2></td>
-       <td align='right'><B>$username</B></td>
+       <td align="left"><h2>$title</h2></td>
+       <td align="right"><B>$username</B></td>
     </tr>
+EOF;
+	$help = validate_input($helptopic);
+	if ($help != "") echo <<<EOF
+	<tr>
+		<td colspan="2" align="right">
+			<small><a href="help.php?topic=$help">help</a></small>
+		</td>
+	</tr>
+EOF;
+	echo <<<EOF
     </table>
+</td>
 </tr>
 
 <tr valign="top">
@@ -130,16 +142,23 @@ EOF;
 } // pageheader()
 
 
+/** 
+ * Validate input provided by user
+ * TODO: make this function do something
+ */
+function validate_input($input) {
+	return $input;
+}
+
+
 /**
  * Display the page footer
  * @in pagefooter The footer of the page
  */
-function pagefooter() 
-{
+function pagefooter() {
     echo <<<EOF
 </td>
 </tr>
-
 </table>
 </body></html>
 EOF;
