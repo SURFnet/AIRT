@@ -305,6 +305,7 @@ function replace_vars($msg)
 	$u = getUserByUserId($_SESSION["userid"]);
 	$name = sprintf("%s %s", $u["firstname"], $u["lastname"]);
 	$out = ereg_replace("@YOURNAME@", $name, $out);
+	$out = ereg_replace("@YOURFIRSTNAME@", $u["firstname"], $out);
 
 	$out = ereg_replace("@INCIDENTID@",
 		normalize_incidentid($_SESSION["incidentid"]), $out);
