@@ -221,6 +221,9 @@ function RT_setTicketField($ticketid, $field, $value)
 } // RT_setTicketField
 
 
+/* Add a transaction to request tracker. The input is an instance of the
+ * transaction class.
+ */
 function RT_addTransaction($transaction)
 {
     $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
@@ -233,10 +236,15 @@ function RT_addTransaction($transaction)
     db_close($conn);
 } // RT_addTransaction
 
+/* Return $str surrounded by singles quotes, or the string NULL is $str is an
+ * empty string
+ */
 function RT_masq_null($str) {
     return ($str == "" ? "NULL": "'$str'");
 }
 
+/* Transaction class
+ */
 class RT_Transaction 
 {
     var $effectiveticket,
@@ -284,6 +292,5 @@ class RT_Transaction
 } // RT_Transaction
     
     
-
 /* EOF */
 ?>
