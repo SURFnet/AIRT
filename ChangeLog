@@ -1,3 +1,6 @@
+2005-xxx-yy  Kees Leune  <kees@uvt.nl
+* php/standard.php: Typo fix (@ID@ -> @INCIDENTID@)
+
 2005-feb-09  Kees Leune  <kees@uvt.nl>
 * php/login.php: Proper error messages when opening non-existing dirs
 * php/incident.php: Removed history and edit as sepeate options and
