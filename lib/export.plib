@@ -63,9 +63,8 @@ function exportIncident($ids) {
 
     while ($row = db_fetch_next($res)) addIncidentToTree($doc, $row);
 
-    print $doc->dump_mem(true, "UTF-8");
-
     db_close($conn);
+    return $doc->dump_mem(true, "UTF-8");
 }
 
 /* $doc contains a DOM tree to which the data in $row will be added. $row is

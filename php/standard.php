@@ -25,6 +25,10 @@ require_once '/etc/airt/airt.cfg';
 require_once LIBDIR."/airt.plib";
 require_once LIBDIR."/user.plib";
 require_once LIBDIR."/history.plib";
+require_once LIBDIR."/incident.plib";
+require_once LIBDIR."/export.plib";
+require_once 'Mail.php';
+require_once 'Mail/mime.php';
 
 if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
 else $action = "list";
@@ -237,8 +241,10 @@ function prepare_message($filename) {
 <TEXTAREA name="msg" cols="80" rows="30">$msg</TEXTAREA>
 <P>
 <INPUT TYPE="hidden" name="action" value="send">
-<INPUT TYPE="submit" value="Send">
 <INPUT TYPE="reset"  value="Reset">
+<INPUT TYPE="submit" value="Send">
+<INPUT TYPE="checkbox" name="sendxml"> Check to attach incident data in AIRT
+format.
 </FORM>
 EOF;
 	pageFooter();
@@ -450,7 +456,6 @@ EOF;
 	case "send":
 		if (array_key_exists("from", $_POST)) $from=$_POST["from"];
 		else die("Missing parameter 1.");
-
 		if (array_key_exists("to", $_POST)) $to=$_POST["to"];
 		else die("Missing parameter 2.");
 		if (array_key_exists("replyto", $_POST)) $replyto=$_POST["replyto"];
@@ -459,24 +464,53 @@ EOF;
 		else die("Missing parameter 4.");
 		if (array_key_exists("msg", $_POST)) $msg=$_POST["msg"];
 		else die("Missing parameter 5.");
-
-		if (MAILCC != '') $cc=",$cc";
-		else $cc='';
+		if (array_key_exists("sendxml", $_POST)) $attach=$_POST["sendxml"];
+		else $attach="off";
 
 		$msg = strip_tags($msg);
 		$msg = stripslashes($msg);
+		
 
-		$envfrom=MAILENVFROM;
+		/* create the headers for the message */
+		$hdrs = array(
+			'From'     => $from,
+			'Subject'  => $subject,
+			'Reply-To' => $replyto,
+			'To'       => $to
+		);
+		
+		/* get a new mime class instance and set it up */
+		$mime = new Mail_mime("\n");
+		$mime->setTxtBody($msg);
+		if ($attach == "on") {
+			$attachment = exportIncident(array($_SESSION["incidentid"]));
+			$mime->addAttachment($attachment, 'application/xml',
+				normalize_incidentid($_SESSION["incidentid"]).'.xml',
+				false);
+		}
+		$body = $mime->get();
+		$hdrs = $mime->headers($hdrs);
+
+
+		/* set up mail recipient */
 $to = "kees@uvt.nl";
-		$mailto = sprintf("%s%s", $to, $cc);
-		mail($mailto, $subject, $msg, 
-			"From: $from\r\n".
-			"Reply-To: $replyto\r\n",
-			"-f$envfrom");
-		Header("Location: $SELF");
+		if ($MAILCC != '') $mailto = array($to, $cc);
+		else $mailto = array($to);
+
+		/* set up envelope sender */
+		$envfrom="-f".MAILENVFROM;
+		
+		/* send via Mail class */
+		$params = array(
+			'sendmail_params' => $envfrom
+		);
+		$mail = &Mail::factory('sendmail', $params);
+		if (! $mail->send($mailto, $hdrs, $body)) 
+			die("Error sending message!");
 
 		addIncidentComment(sprintf("Email sent to %s: %s",
 			$to, $subject));
+		Header("Location: $SELF");
 		break;
 
 
