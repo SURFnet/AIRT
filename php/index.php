@@ -29,14 +29,14 @@ require_once LIBDIR."/database.plib";
 pageHeader("AIRT Control Center");
 
 $filename=sprintf(STATEDIR."/last_%s.txt", $_SESSION["username"]);
-if (file_exists($filename))
-{
+if (file_exists($filename)) {
   $f = fopen($filename, "r");
   $lastlogin = fgets($f, 255);
   fclose($f);
   printf("<small>$lastlogin</small>");
 }
 echo "<HR>";
+generateEvent('mainmenutop');
 ?>
 
 
@@ -86,5 +86,6 @@ echo "<HR>";
    href="logout.php">Logout</a>
 
 <?php
+	generateEvent('mainmenubottom');
     pageFooter();
 ?>

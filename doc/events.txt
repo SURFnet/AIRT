@@ -87,3 +87,12 @@ Note:  Generated after adding an IP address to an incident
 event: incidentdelip
 data:  array with keys: incidentid, ip
 Note:  Generated after removing an IP address from an incident
+
+event: mainmenutop
+data: none
+Note: Generated immediately after the last login status, but before the main
+      menu is displayed.
+
+event: mainmenubottom
+data: none
+Note: Generated immediately after the main menu, but before the page footer
