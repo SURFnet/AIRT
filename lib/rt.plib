@@ -120,7 +120,11 @@ function RT_getNewTicketIds($queue)
          ORDER BY t.created")
     or die("Unable to query database: ".db_errormessage());
 
-    $output = array(db_num_rows($res));
+    $size = count(db_num_rows($res));
+    if ($size == 0)
+        return array();
+
+    $output = array($size);
     $count = 0;
     while ($row = db_fetch_next($res))
     {
@@ -213,8 +217,8 @@ function RT_setTicketField($ticketid, $field, $value)
     // update ticket status
     $res = db_query($conn, sprintf("
         UPDATE tickets
-        SET    $field = $value
-        WHERE  id = $ticketid"))
+        SET    %s = %s
+        WHERE  id = %s", $field, $value, $ticketid))
     or die("Unable to update status: ".db_errormessage());
 
     db_close($conn);
@@ -256,6 +260,30 @@ function RT_countNewMessages($queue)
   
     return $row["amount"];
 } // RT_countNewMessages
+
+
+function RT_getTicketIdsByEffectiveId($id)
+{
+    $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
+    or die("Unable to connect to database: ".db_errormsg());
+  
+    $res = db_query($conn, sprintf("
+        SELECT *
+        FROM   tickets
+        WHERE  effectiveid = %s
+        ORDER BY created", 
+        $id))
+    or die("Unable to query database: ".db_errormsg());
+ 
+    $size = db_num_rows($res);
+    $output = array($size);
+    $count = 0;
+    while ($row = db_fetch_next($res))
+        $output[$count++] = $row["id"];
+    db_close($conn);
+
+    return $output;
+}
 
 
 /* Transaction class

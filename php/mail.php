@@ -34,8 +34,14 @@
     case "none":
         pageHeader("Incoming messages");
         $msgs = RT_getNewTicketIds(LIBERTYQUEUE);
-        $count = count($msgs);
+        $count = RT_countNewMessages(LIBERTYQUEUE);
 
+        if ($count == 0)
+        {
+            echo "No new messages.";
+            pageFooter();
+            break;
+        } 
         echo <<<EOF
 <form action="$SELF" method="POST">
 <input type="hidden" name="action" value="ignoreall">
@@ -55,6 +61,8 @@ EOF;
             $created   = $msg["created"];
             $subject   = $msg["subject"];
             $sender_id = $msg["creator"];
+            $status    = $msg["status"];
+            if ($status != "new") continue;
 
             $sender    = RT_getUserById($sender_id);
             $sender_name = $sender["realname"];
@@ -97,7 +105,7 @@ EOF;
     <td>
         <input type="text" size="40" name="hostname">
     </td>
-    <td><input type="submit" value="Search"></td>
+    <td><input type="submit" name="action" value="Search"></td>
 </tr>
 
 
@@ -158,7 +166,7 @@ EOF;
             printf("<PRE>%s</PRE>", $body);
         }
 
-        // list open tickets
+        // list open incidents
         $incidents = AIR_getIncidents();
         echo <<<EOF
 <div width="100%" style="background-color: #DDDDDD">
@@ -189,6 +197,7 @@ EOF;
 
     // --------------------------------------------------------------------
     case "search":
+    case "Search":
         if (array_key_exists("hostname", $_REQUEST))
             $hostname = $_REQUEST["hostname"];
         else die("Missing information");
@@ -238,17 +247,36 @@ EOF;
     // --------------------------------------------------------------------
     case "associate":
         if (array_key_exists("ticket", $_REQUEST))
-            $ticket = $_REQUEST["ticket"];
+            $ticketid = $_REQUEST["ticket"];
         else die("Missing information.");
         
         if (array_key_exists("incident", $_REQUEST))
-            $incident = decode_incidentid(
+            $incidentid = decode_incidentid(
                 normalize_incidentid($_REQUEST["incident"])
             );
         else die("Missing information.");
 
-        printf("ticket=%s, incident=%s",
-            $ticket, $incident);
+        // if a ticket is already associated with this incident, merge this
+        // ticket into that one; else create a new one
+        $in = AIR_getIncidentById(decode_incidentid($incidentid));
+
+        if ($in->getId() == -1) die("Unknown incident");
+
+        $rtid = $in->getRTId();
+        if ($rtid == "")
+        {
+            $in->setRTId($ticketid);
+            AIR_updateIncident($in);
+
+            RT_setTicketField($ticketid, "status", "'open'");
+            Header("Location: $SELF");
+        }
+        else
+        {
+            RT_setTicketField($ticketid, "effectiveid", $rtid);
+            RT_setTicketField($ticketid, "status", "'open'");
+            Header("Location: $SELF");
+        }
 
         break;
 

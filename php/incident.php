@@ -23,6 +23,7 @@
 require "../lib/air.plib";
 require "../lib/incident.plib";
 require "../lib/constituency.plib";
+require "../lib/rt.plib";
 require "../lib/userfunctions.plib";
 
 if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
@@ -409,9 +410,83 @@ EOF;
 
     //--------------------------------------------------------------------
     case "history":
-        // TODO
-        break;
+        if (array_key_exists("id", $_REQUEST)) $id=$_REQUEST["id"];
+        else die("Missing information (1).");
 
+        pageHeader("Ticket history");
+
+        echo "<h2>Basic information of incident $id</h2>";
+        $incident = AIR_getIncidentById($id);
+        if ($incident->id == -1) die("Unknown incident");
+        $constituency = AIR_getConstituencyById($incident->getConstituency());
+
+        printf("
+<table cellpadding='3'>
+<tr>
+    <td>Incident number:</td>
+    <td>%s</td>
+</tr>
+<tr>
+    <td>IP address:</td>
+    <td>%s</td>
+</tr>
+<tr>
+    <td>Hostname:</td>
+    <td>%s</td>
+</tr>
+<tr>
+    <td>Constituency:</td>
+    <td>%s</td>
+</tr>
+<tr>
+    <td>Full name of user:</td>
+    <td>%s</td>
+</tr>
+<tr>
+    <td>Email address of user:</td>
+    <td>%s</td>
+</tr>
+<tr>
+    <td>Category:</td>
+    <td>%s</td>
+</tr>
+</table>", 
+        encode_incidentid($incident->getId()),
+        $incident->getIp(),
+        gethostbyaddr($incident->getIp()), 
+        $constituency->getName(),
+        $incident->getUserName(),
+        $incident->getUserEmail(), 
+        $incident->getStatus(),
+        $incident->getCategory());
+
+        echo "<h2>Messages</h2>";
+        $incident = AIR_getIncidentById($id);
+        $rtid = $incident->rtid;
+        if ($rtid != "")
+        {
+            $ticketids = RT_getTicketIdsByEffectiveId($rtid);
+            foreach ($ticketids as $key => $value)
+            {
+                $ticket = RT_getTicketById($value);
+                $attachments = RT_getAttachmentsOfTicket($value);
+
+                $creator = RT_getUserById($ticket["creator"]);
+                printf("<div width='100%%' style='background-color: #DDDDDD'>");
+                printf("Received: %s from %s &lt;%s&gt;<BR>",
+                    $ticket["created"], $creator["realname"],
+                    $creator["emailaddress"]);
+                printf("</div>");
+                foreach ($attachments as $k => $v)
+                {
+                    $a = RT_getAttachmentById($v);
+                    printf("<PRE>%s</PRE>", $a["content"]);
+                }
+            }
+        }
+
+        pageFooter();
+        break;
     //--------------------------------------------------------------------
     default:
         die("Unknown action");

@@ -38,7 +38,7 @@ function db_connect($database, $username, $password)
 
 function db_query($conn, $query)
 {
-//   printf("<PRE>$query</PRE>");
+//    printf("<PRE>$query</PRE>");
     $res = pg_query($conn, $query);
 
     return $res;

@@ -189,10 +189,11 @@ class AIR_Incident
         return sprintf("
             INSERT INTO incidents
             (id, ip, status, state, category, user_name, user_email, 
-             constituency, created, creator, lastupdatedby, lastupdated )
+             constituency, created, creator, lastupdatedby, lastupdated,
+             rtid)
             VALUES
             (nextval('incidentid_seq'), %s, %s, %s, %s, %s, %s, 
-                %s, %s, %s, %s, %s)",
+                %s, %s, %s, %s, %s, %s)",
                 db_masq_null($this->ip),
                 db_masq_null($this->status),
                 db_masq_null($this->state),
@@ -203,7 +204,9 @@ class AIR_Incident
                 db_masq_null($this->created),
                 db_masq_null($this->creator),
                 db_masq_null($this->lastupdatedby),
-                db_masq_null($this->lastupdated));
+                db_masq_null($this->lastupdated),
+                db_masq_null($this->rtid)
+                );
     } // getInsertString
 
     function getUpdateString()
@@ -218,7 +221,8 @@ class AIR_Incident
                    user_email = %s,
                    constituency = %s,
                    lastupdatedby = %s,
-                   lastupdated = %s
+                   lastupdated = %s,
+                   rtid = %s
             WHERE  id = '%s'",
             db_masq_null($this->ip), 
             db_masq_null($this->status), 
@@ -229,6 +233,7 @@ class AIR_Incident
             db_masq_null($this->constituency),
             db_masq_null($this->lastupdatedby),
             db_masq_null($this->lastupdated),
+            db_masq_null($this->rtid),
             decode_incidentid($this->id));
     } //getUpdateString
 } // AIR_Incident
