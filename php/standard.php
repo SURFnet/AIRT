@@ -493,7 +493,10 @@ EOF;
 
 
 		/* set up mail recipient */
-		if (defined('MAILCC')) $mailto = array($to, MAILCC);
+		if (defined('MAILCC')) {
+			$mailto = array($to, MAILCC);
+			$hdrs["Cc"] = MAILCC;
+		}
 		else $mailto = array($to);
 
 		/* set up envelope sender */
