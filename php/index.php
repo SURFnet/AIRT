@@ -44,11 +44,11 @@ echo "<HR>";
 
 <P>
 
-<a href="incident.php">Incident management</a>
+<a href="incident.php">Incident management</a> TOFIX
 
 <P>
 
-<a href="search.php">IP Address lookup</a>
+<a href="search.php">IP Address lookup</a> TOFIX
 
 <P>
 
