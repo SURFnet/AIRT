@@ -40,14 +40,8 @@ echo "<HR>";
 ?>
 
 
-<table width="100%">
-<tr>
-    <td><B>Common tasks</B></td>
-    <td><B>Maintenance tasks</B></td>
-</tr>
+<B>Main tasks</B>
 
-<tr valign="top">
-    <td>
 <P>
 
 <a href="incident.php">Incident management</a>
@@ -55,6 +49,10 @@ echo "<HR>";
 <P>
 
 <a href="search.php">IP Address lookup</a>
+
+<P>
+
+<a href="maintenance.php">Edit settings</a>
 
 <P>
 
@@ -77,27 +75,6 @@ echo "<HR>";
     }
     db_close($conn);
 ?>
-
-<td>
-<a href="users.php">Edit users</a>
-
-<P>
-
-<a href="constituencies.php">Edit constituencies</a>
-
-<P>
-
-<a href="links.php">Edit links</a>
-
-<P>
-
-<a href="standard.php">Edit standard messages</a>
-
-<P>
-
-</td>
-
-</table>
 
 <P>
 
