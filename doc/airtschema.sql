@@ -260,4 +260,33 @@ CREATE SEQUENCE urls_sequence;
 CREATE SEQUENCE permissions_sequence;
 CREATE SEQUENCE role_permissions_sequence;
 
-end transaction
+end transaction;
+
+begin transaction;
+
+INSERT INTO users
+    (id, lastname) 
+    VALUES
+    (nextval('users_sequence'), 'Administrator');
+INSERT INTO credentials 
+    (id, userid, login, password) 
+    VALUES
+    (nextval('credentials_sequence'), 1, 'admin', 'admin');
+INSERT INTO roles
+    (id, label)
+    VALUES
+    (nextval('roles_sequence'), 'Administrator');
+INSERT INTO permissions
+    (id, label)
+    VALUES
+    (nextval('permissions_sequence'), 'administrator');
+INSERT INTO role_assignments
+    (id, role, userid)
+    VALUES
+    (nextval('role_assignments_sequence'), 1, 1);
+INSERT INTO role_permissions
+    (id, role, permission)
+    VALUES
+    (nextval('role_assignments_sequence'), 1, 1);
+
+end transaction;
