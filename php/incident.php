@@ -190,7 +190,8 @@ EOF;
 <h3>Affected users</h3>
 <table cellpadding="4">
 EOF;
-	foreach ($incident["users"] as $users) {
+	foreach ($incident["users"] as $user) {
+		$u = getUserByUserId($user);
 		printf("
 <tr>
 	<td>anr/td>
@@ -203,12 +204,12 @@ EOF;
 		   $u["lastname"],
 		   $u["firstname"],
 		   urlencode($incidentid),
-		   urlencode($userid)
+		   urlencode($user)
 		);
 	}
 
-	if (array_key_exists("userid", $_SESSION)) {
-		$userid = $_SESSION["userid"];
+	if (array_key_exists("current_userid", $_SESSION)) {
+		$userid = $_SESSION["current_userid"];
 		$u = getUserByUserID($userid);
 		if (sizeof($u) > 0)
 		{
@@ -224,15 +225,23 @@ EOF;
 	echo <<<EOF
 	</table>
 	<p/>
+
 	<form action="$SELF" method="POST">
 	<input type="hidden" name="action" value="adduser">
 EOF;
 	if ( $userid == "" ) 
 		echo "No selected user.";
-	else
-		echo "Selected user: $userid, $lastname ($email)";
+	else {
+		$u = getUserByUserId($userid);
+		printf("Selected user: %s (%s)", 
+			$u["lastname"],
+			$u["email"]);
+		echo <<<EOF
+		<input type="submit" value="Add">
+EOF;
+	}
+			
 	echo <<<EOF
-	<input type="submit" value="Add">
 	</form>
 EOF;
 } // showeditform
