@@ -87,15 +87,20 @@ function AIR_addIncident($incident)
 
     db_close($conn);
 
+    // update active ip in session
+    $_SESSION["active_ip"] = $incident->getIp();
+    
+    // add history to the database.
     $now = Date("Y-m-d H:i:s");
     $history = new AIR_History();
-    $history->setIncidentId($incident->getId());
+    $history->setIncidentId($id);
     $history->setCreator($_SESSION["userid"]);
     $history->setCreated($now);
     $history->setType("create");
     $history->setNewValue($incident->getId());
     AIR_addHistory($history);
 
+    // generate and trigger event
     $event = new AIR_Event();
     $event->setType("addincident");
     $event->setField("ip", $incident->getIp() );
@@ -107,7 +112,6 @@ function AIR_addIncident($incident)
     $event->setField("status", $incident->getStatus() );
     AIR_triggerEvent($event);
 
-    $_SESSION["active_ip"] = $incident->getIp();
     
     return $id;
 } // AIR_addIncident
