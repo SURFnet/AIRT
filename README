@@ -1,18 +1,3 @@
-README FOR AIRT
 $Id$
 
-AIRT is a program for incident response teams
-
-REQUIREMENTS
-============
-* Request Tracker 3
-    http://www.bestpractical.com
-
-* Apache Webserver
-    http://www.apache.org
-
-* PHP4 Scripting language
-    http://www.php.net
-
-* Postgresql Object Relational Database
-    http://www.postgresql.org
+AIRT is a program for incident response teams. Extend this file.
