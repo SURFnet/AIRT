@@ -40,6 +40,14 @@ USERS ( id, lastname, firstname, email, phone )
 ROLES ( id, label )
     primary key: id
 
+PERMISSIONS ( id, label)
+    primary key: id
+
+ROLE_PERMISSIONS (id, role, permission)
+    primary key: id
+    foreign key: role       references roles(id)
+                 permission references permissions(id)
+
 INCIDENTS ( id, created, creator, updated, updatedby, state, status, type )
     primary key: id
     foreign key: creator references users(id)

@@ -21,299 +21,104 @@
  *
  * $Id$
  */
-require_once 'airt.plib';
-require_once 'database.plib';
-require_once 'event.plib';
-require_once 'history.plib';
+require_once '/etc/airt/airt.cfg';
+require_once LIBDIR.'/database.plib';
 
-function AIR_getIncidentsByIp($ip)
+function getIncidentStates()
 {
-    if ($ip == "") return array();
- 
-    $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
-    or die("Unable to connect to database.");
- 
-    $r = db_query($conn, sprintf("
-         SELECT * 
-         FROM incidents
-         WHERE ip='%s'", $ip))
-    or die("Unable to query database.");
-
-    if (db_num_rows($r) == 0) return array();
-
-    $count = 0;
-    $output = array(db_num_rows($r));
-    while ($row = db_fetch_next($r))
-    {
-        $output[$count++] = $row;
-    }
-
-    db_close($conn);
-    return $output;
-} // AIR_getIncidentByIp
-
-
-/* Get incident by id. If the incident does not exist, the returned incident
- * will have an id of -1.
- */
-function AIR_getIncidentById($id)
-{
-    if ($id == "")
-    {
-        $output = new AIR_Incident();
-        $output->setId(-1);
-        return $output;
-    }
-    $id = normalize_incidentid($id);
- 
-    $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
-    or die("Unable to connect to database.");
- 
-    $r = db_query($conn, sprintf("
-         SELECT * 
-         FROM incidents
-         WHERE id=%s",
-             decode_incidentid($id)))
-    or die("Unable to query database.");
- 
-    $incident = new AIR_Incident();
-    
-    if (db_num_rows($r) > 0)
-    {
-        $row = db_fetch_next($r);
-        $incident->setId($row["id"]);
-        $incident->setIp($row["ip"]);
-        $incident->setConstituency($row["constituency"]);
-        $incident->setRTId($row["rtid"]);
-        $incident->setStatus($row["status"]);
-        $incident->setCategory($row["category"]);
-        $incident->setUserEmail($row["user_email"]);
-        $incident->setUserName($row["user_name"]);
-        $incident->setState($row["state"]);
-        $incident->setHostname(gethostbyaddr($incident->getIp()));
-    }
-    else
-        $incident->setId = -1;    
-
-    db_close($conn);
-    return $incident;
-} // AIR_getIncidentByIp
-
-
-/*  Add new incident $incident to database.
- */
-function AIR_addIncident($incident)
-{
-    $id = AIR_getNextIncidentId();
-    $incident->setId($id);
-
-    $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
+    $conn = db_connect(DBDB, DBUSER, DBPASSWD)
     or die("Unable to connect to database.");
 
-    $res = @db_query($conn, $incident->getInsertString())
-    or die("Unable to query database.".db_errorMessage());
-
-    db_close($conn);
-
-    // update active ip in session
-    $_SESSION["active_ip"] = $incident->getIp();
-    $_SESSION["active_incidentid"] = $incident->getId();
-    
-    // add history to the database.
-    $now = Date("Y-m-d H:i:s");
-    $history = new AIR_History();
-    $history->setIncidentId($id);
-    $history->setCreator($_SESSION["userid"]);
-    $history->setCreated($now);
-    $history->setType("create");
-    $history->setNewValue($incident->getId());
-    AIR_addHistory($history);
-
-    // generate and trigger event
-    $event = new AIR_Event();
-    $event->setType("addincident");
-    $event->setField("ip", $incident->getIp() );
-    $event->setField("category", $incident->getCategory() );
-    $event->setField("constituency", $incident->getConstituency() );
-    $event->setField("user_email", $incident->getUserEmail() );
-    $event->setField("user_name", $incident->getUserName() );
-    $event->setField("state", $incident->getState() );
-    $event->setField("status", $incident->getStatus() );
-    AIR_triggerEvent($event);
-
-    
-    return $id;
-} // AIR_addIncident
-
-
-/* Update an incident
- */
-function AIR_updateIncident($incident)
-{
-    $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
+    $res = db_query($conn,
+        "SELECT   id, label
+         FROM     incident_states
+         ORDER BY id")
     or die("Unable to connect to database.");
 
-    $res = db_query($conn, $incident->getUpdateString())
-    or die("Unable to query database.");
-
-    db_close($conn);
-} // AIR_addIncident
-
-
-/* Retrieve all incidents in a multidomensional array. If there are no
- * incidents, an empty array will be returned.
- */
-function AIR_getIncidents()
-{
-    $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
-    or die("Unable to connect to database.");
-
-    $res = db_query($conn, "
-        SELECT   * 
-        FROM     incidents 
-        ORDER BY created")
-    or die("Unable to query database.");
-
-    if (db_num_rows($res) == 0) return array();
-    $output = array(db_num_rows($res));
-    $count = 0;
+    $states=array();
     while ($row = db_fetch_next($res))
-        $output[$count++] = $row;
+        $states[$row["id"]]=$row["label"];
     db_close($conn);
-
-    return $output;
-} // AIR_Incidents
-
-
-/* Associate $incident with ticket $ticket
- * Returns true on success, false on failure
- */
-function AIR_associate($incident, $ticket)
-{
-    $in  = AIR_getIncidentById($incident);
-    if ($in->getId() == -1) return false;
-
-    $in->setRTId($ticket);
-    AIR_updateIncident($in);
-    return true;
-} // AIR_associate
-
-
-/* Get the next incident id */
-function AIR_getNextIncidentId()
-{
-    $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
-    or die("Unable to connect to database.");
-
-    $res = db_query($conn, "SELECT nextval('incidentid_seq') as next")
-    or die("Unable to query database.");
-
-    $row = db_fetch_next($res);
-    $id = $row["next"];
-
-    db_close($conn);
-    return $id;
+    return $states;
 }
 
-class AIR_Incident
+
+function showIncidentStateSelection($name)
 {
-    var $id,
-        $ip,
-        $constituency,
-        $rtid,
-        $status,
-        $category,
-        $user_email,
-        $user_name,
-        $state,
-        $hostname,
-        $created,
-        $creator,
-        $lastupdatedby,
-        $lastupdated;
-
-    function setId($id)            { $this->id = $id; }
-    function setIp($str)           { $this->ip = $str; }
-    function setConstituency($id)  { $this->constituency = $id; }
-    function setRTId($id)          { $this->rtid = $id; }
-    function setStatus($str)       { $this->status = $str; }
-    function setCategory($str)     { $this->category = $str; }
-    function setUserEmail($str)    { $this->user_email = $str; }
-    function setUserName($str)     { $this->user_name = $str; }
-    function setState($str)        { $this->state = $str; }
-    function setHostname($str)     { $this->hostname = $str; }
-    function setCreated($str)      { $this->created = $str; }
-    function setCreator($str)      { $this->creator = $str; }
-    function setLastUpdatedBy($str){ $this->lastupdatedby = $str; }
-    function setLastUpdated($str)  { $this->lastupdated = $str; }
-
-    function getId()               { return $this->id; }
-    function getIp()               { return $this->ip; }
-    function getConstituency()     { return $this->constituency; }
-    function getRTId()             { return $this->rtid; }
-    function getStatus()           { return $this->status; }
-    function getCategory()         { return $this->category; }
-    function getUserEmail()        { return $this->user_email; }
-    function getUserName()         { return $this->user_name; }
-    function getState()            { return $this->state; }
-    function getHostname()         { return $this->hostname; }
-    function getCreated($str)      { return $this->created; }
-    function getCreator($str)      { return $this->creator; }
-    function getLastUpdatedBy($str){ return $this->lastupdatedby; }
-    function getLastUpdated($str)  { return $this->lastupdated; }
-
-    function getInsertString()
+    printf("<select name=\"%s\">\n",
+        htmlentities($name));
+    $states = getIncidentStates();
+    foreach ($states as $i=>$l)
     {
-        return sprintf("
-            INSERT INTO incidents
-            (id, ip, status, state, category, user_name, user_email, 
-             constituency, created, creator, lastupdatedby, lastupdated,
-             rtid)
-            VALUES
-            (%s, %s, %s, %s, %s, %s, %s, 
-                %s, %s, %s, %s, %s, %s)",
-                db_masq_null($this->id),
-                db_masq_null($this->ip),
-                db_masq_null($this->status),
-                db_masq_null($this->state),
-                db_masq_null($this->category),
-                db_masq_null($this->user_name),
-                db_masq_null($this->user_email),
-                db_masq_null($this->constituency),
-                db_masq_null($this->created),
-                db_masq_null($this->creator),
-                db_masq_null($this->lastupdatedby),
-                db_masq_null($this->lastupdated),
-                db_masq_null($this->rtid)
-                );
-    } // getInsertString
+        printf("<option value=%s>%s</option>\n",
+            htmlentities($i),
+            htmlentities($l));
+    }
+}
 
-    function getUpdateString()
+
+function getIncidentStatus()
+{
+    $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+    or die("Unable to connect to database.");
+
+    $res = db_query($conn,
+        "SELECT   id, label
+         FROM     incident_status
+         ORDER BY id")
+    or die("Unable to connect to database.");
+
+    $status=array();
+    while ($row = db_fetch_next($res))
+        $status[$row["id"]]=$row["label"];
+    db_close($conn);
+    return $status;
+}
+
+
+function showIncidentStatusSelection($name)
+{
+    printf("<select name=\"%s\">\n",
+        htmlentities($name));
+    $status = getIncidentStatus();
+    foreach ($status as $i=>$l)
     {
-        return sprintf("
-            UPDATE incidents
-            SET    ip = %s,
-                   status = %s,
-                   state = %s,
-                   category = %s,
-                   user_name = %s,
-                   user_email = %s,
-                   constituency = %s,
-                   lastupdatedby = %s,
-                   lastupdated = %s,
-                   rtid = %s
-            WHERE  id = '%s'",
-            db_masq_null($this->ip), 
-            db_masq_null($this->status), 
-            db_masq_null($this->state), 
-            db_masq_null($this->category),    
-            db_masq_null($this->user_name),
-            db_masq_null($this->user_email),
-            db_masq_null($this->constituency),
-            db_masq_null($this->lastupdatedby),
-            db_masq_null($this->lastupdated),
-            db_masq_null($this->rtid),
-            decode_incidentid($this->id));
-    } //getUpdateString
-} // AIR_Incident
+        printf("<option value=%s>%s</option>\n",
+            htmlentities($i),
+            htmlentities($l));
+    }
+}
+
+
+function getIncidentTypes()
+{
+    $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+    or die("Unable to connect to database.");
+
+    $res = db_query($conn,
+        "SELECT   id, label
+         FROM     incident_types
+         ORDER BY id")
+    or die("Unable to connect to database.");
+
+    $types=array();
+    while ($row = db_fetch_next($res))
+        $types[$row["id"]]=$row["label"];
+    db_close($conn);
+    return $types;
+}
+
+
+function showIncidentTypeSelection($name)
+{
+    printf("<select name=\"%s\">\n",
+        htmlentities($name));
+    $states = getIncidentTypes();
+    foreach ($states as $i=>$l)
+    {
+        printf("<option value=%s>%s</option>\n",
+            htmlentities($i),
+            htmlentities($l));
+    }
+}
 ?>

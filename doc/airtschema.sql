@@ -38,6 +38,8 @@ DROP SEQUENCE incident_comments_sequence;
 DROP SEQUENCE ip_comments_sequence;
 DROP SEQUENCE user_comments_sequence;
 DROP SEQUENCE urls_sequence;
+DROP SEQUENCE permissions_sequence;
+DROP SEQUENCE role_permissions_sequence;
 
 DROP TABLE incident_types CASCADE; 
 DROP TABLE incident_states CASCADE;
@@ -56,6 +58,8 @@ DROP TABLE incident_comments CASCADE;
 DROP TABLE ip_comments CASCADE; 
 DROP TABLE user_comments CASCADE; 
 DROP TABLE urls CASCADE;
+DROP TABLE permissions;
+DROP TABLE role_permissions;
 
 begin transaction;
 
@@ -221,6 +225,20 @@ CREATE TABLE urls (
     foreign key (createdby) references users(id)
 );
 
+CREATE TABLE permissions (
+    id          integer,
+    label       varchar(128),
+    primary key (id)
+);
+
+CREATE TABLE role_permissions (
+    id          integer,
+    role        integer,
+    permission  integer,
+    primary key (id),
+    foreign key (role) references roles(id),
+    foreign key (permission) references permissions(id)
+);
 
 CREATE SEQUENCE incident_types_sequence;
 CREATE SEQUENCE incident_states_sequence;
@@ -239,5 +257,7 @@ CREATE SEQUENCE incident_comments_sequence;
 CREATE SEQUENCE ip_comments_sequence;
 CREATE SEQUENCE user_comments_sequence;
 CREATE SEQUENCE urls_sequence;
+CREATE SEQUENCE permissions_sequence;
+CREATE SEQUENCE role_permissions_sequence;
 
 end transaction
