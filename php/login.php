@@ -31,7 +31,7 @@ $SELF = "login.php";
 switch ($action) 
 {
     case "none":
-        pageHeader("UvT-CERT Login page");
+        pageHeader("Liberty login page");
         echo <<<EOF
 <form action="$SELF" method="POST">
 <table>
