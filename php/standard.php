@@ -30,6 +30,50 @@ if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
 else $action = "list";
 
 $SELF="standard.php";
+$FILES = array();
+
+function loadAllowedFiles() {
+	$f = array();
+    $dh = @opendir(STATEDIR."/templates")
+    or die ("Unable to open directory with standard messages.");
+
+    while ($file = readdir($dh))
+    {
+        // skip dot files
+        if (ereg("^[.]", $file)) continue;
+		array_push($f, $file);
+	}
+	closedir($dh);
+
+	return $f;
+}
+
+
+/* a filename is allowed if it exists in the $FILES global array. Note that we
+ * use a global here, but consider it to be a read-only datastructure. If the
+ * $FILES array has not been initialized, access will be refused.
+ *
+ * Returns: true is the file may be read;
+ * Returns: false when it may not be read;
+ */
+function valid_read($name) {
+	global $FILES;
+
+	if (!isset($FILES)) return false;
+	if (!in_array($name, $FILES)) return false;
+
+	return true;
+}
+
+
+/* A filename may be written if it only consists of [a-zA-Z_-].
+ * NOTE: do not include period or any kind of directory limiters (i.e. / on
+ * real OSses)
+ */
+function valid_write($name) {
+	if (ereg('^[a-zA-Z0-9_-]+$', $name)) return true;
+	else return false;
+}
 
 
 /** 
@@ -39,6 +83,8 @@ $SELF="standard.php";
  */
 function read_standard_message($str)
 {
+	if (!valid_read($str)) return false;
+
     $filename = STATEDIR."/templates/$str";
     if (($f = fopen($filename, "r")) == false) return false;
     
@@ -80,22 +126,22 @@ function list_standard_messages()
     $count=0;
     while ($file = readdir($dh))
     {
-        // skip dot files
-        if (ereg("^[.]", $file)) continue;
+		if (!valid_read($file)) continue;
 
         $msg = read_standard_message($file);
         $subject = get_subject($msg);
         printf("<tr bgcolor=%s>
-            <td><a href=\"%s/%s?action=show&filename=%s\">%s</a></td>
             <td>%s</td>
+			<td>%s</td>
+            <td><a href=\"%s/%s?action=prepare&filename=%s\">send</a></td>
             <td><a href=\"%s/%s?action=edit&filename=%s\">edit</a></td>
             <td><a onclick=\"return confirm('Are you sure that you want ".
             "to delete this message?')\"
             href=\"%s/%s?action=delete&filename=%s\">delete</a></td>
             </tr>",
             $count++%2==0?"#DDDDDD":"#FFFFFF",
-            BASEURL, $SELF, urlencode($file), $file,
-            $subject,
+            $file, $subject,
+            BASEURL, $SELF, urlencode($file),
             BASEURL, $SELF, urlencode($file),
             BASEURL, $SELF, urlencode($file)
             );
@@ -118,14 +164,14 @@ function show_message($name)
         return false;
     }
 
-    printf("<PRE>%s</PRE>", replace_vars($message));
+    printf("%s", replace_vars($message));
     
 } // show_message
 
 
 function save_standard_message($filename, $msg)
 {
-    if ($filename == "" || $msg == "") return false;
+    if ($filename == "" || $msg == "" || !valid_write($filename)) return false;
 
     $filename = STATEDIR."/templates/$filename";
     if (($f = fopen($filename, "w")) == false) return false;
@@ -136,6 +182,61 @@ function save_standard_message($filename, $msg)
 
     return true;
 } // save_standard_message
+
+
+function prepare_message($filename) {
+	pageHeader("Send standard message.");
+	if (!valid_read($filename)) {
+		echo "Invalid message template.";
+		return;
+	}
+
+	// get vars
+	$to = $_SESSSION["user_email"];
+	$from = $_SESSION["user_name"];
+	$replyto = $from;
+
+	// load message and replace all standard variables
+	$msg = replace_vars(read_standard_message($filename));
+
+	// extract subject
+	$subject = get_subject($msg);
+
+	// remove first line from standard message (which is the subject)
+	$m = explode("\n", $msg);
+	unset($m[0]);
+	$msg = implode("\n", $m);
+
+
+	echo <<<EOF
+<FORM action="$SELF" method="POST">
+<TABLE WIDTH="80">
+<TR>
+	<TD>To:</TD>
+	<TD><INPUT TYPE="text" size="50" name="to" value="$to"></TD>
+</TR>
+<TR>
+	<TD>Subject:</TD>
+	<TD><INPUT TYPE="text" size="50" name="subject" value="$subject"></TD>
+</TR>
+<TR>
+	<TD>From:</TD>
+	<TD><INPUT TYPE="text" size="50" name="from" value="$from"></TD>
+</TR>
+<TR>
+	<TD>Reply-To:</TD>
+	<TD><INPUT TYPE="text" size="50" name="replyto" value="$replyto"></TD>
+</TR>
+</TABLE>
+<TEXTAREA name="body" cols="80" rows="30">$msg</TEXTAREA>
+<P>
+<INPUT TYPE="hidden" name="action" value="send">
+<INPUT TYPE="submit" value="Send">
+<INPUT TYPE="reset"  value="Reset">
+</FORM>
+EOF;
+	pageFooter();
+} // prepare_message
 
 
 function print_variables_info()
@@ -179,7 +280,7 @@ function replace_vars($msg)
 	$out = ereg_replace("@IPADDRESS@", $_SESSION["active_ip"], $out);
 
 	$out = ereg_replace("@HOSTNAME@", 
-		gethostbyaddr($_SESSION["active_ip"]), $out);
+		@gethostbyaddr($_SESSION["active_ip"]), $out);
 
 	$out = ereg_replace("@USERNAME@", $_SESSION["current_name"], $out);
 
@@ -189,7 +290,8 @@ function replace_vars($msg)
 	$name = sprintf("%s %s", $u["firstname"], $u["lastname"]);
 	$out = ereg_replace("@YOURNAME@", $name, $out);
 
-	$out = ereg_replace("@INCIDENTID@", $_SESSION["incidentid"], $out);
+	$out = ereg_replace("@INCIDENTID@",
+		normalize_incidentid($_SESSION["incidentid"]), $out);
 
     return $out ;
 } // replace_vars
@@ -197,6 +299,8 @@ function replace_vars($msg)
 /*************************************************************************
  * BODY
  *************************************************************************/
+$FILES = loadAllowedFiles();
+
 switch ($action)
 {
     // -------------------------------------------------------------------
@@ -267,13 +371,8 @@ EOF;
 
 		$message = strip_tags($message);
 		$message = stripslashes($message);
-
-        if (!ereg("^[a-zA-Z0-9.-_]+$", $filename))
-            die("Invalid file name");
-        if (ereg("\.\.", $filename))
-            die("Invalid file name");
-        if (strlen($filename)>40)
-            die("File name too long");
+		
+		if (!valid_write($filename)) die ("Invalid filename.");
 
         save_standard_message($filename, $message);
         Header("Location: $BASEURL/$SELF");
@@ -309,34 +408,19 @@ EOF;
             $filename=$_REQUEST["filename"];
         else die("Missing parameter.");
 
-        unlink(STATEDIR."/templates/$filename");
+		if (valid_write($filename)) 
+			unlink(STATEDIR."/templates/$filename");
         Header("Location: ".BASEURL."/$SELF");
         break;
 
     // -------------------------------------------------------------------
-    case "show":
+    case "prepare":
         if (array_key_exists("filename", $_REQUEST))
             $filename=$_REQUEST["filename"];
         else die("Missing parameter.");
 
-        pageHeader("Standard message");
-        show_message($filename);
-
-        echo <<<EOF
-<B>Operations:</B><BR>
-<a href="$BASEURL/$SELF?action=list">List</a>
-&nbsp;|&nbsp;
-<a href="$BASEURL/$SELF?action=edit&filename=$filename">Edit</a>
-&nbsp;|&nbsp;
-<a onclick="return confirm('Are you sure that you delete this message?')"
-href="$BASEURL/$SELF?action=delete&filename=$filename">Delete</a>
-EOF;
-        pageFooter();
-        break;
-
-    // -------------------------------------------------------------------
-    case "generate":
-        set_defaults();
+		prepare_message($filename);
+		pageFooter();
         break;
 
     // -------------------------------------------------------------------
