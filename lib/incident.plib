@@ -70,6 +70,8 @@ function AIR_getIncidentById($id)
 } // AIR_getIncidentById
 
 
+/*  Add new incident $incident to database.
+ */
 function AIR_addIncident($incident)
 {
     $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
@@ -82,6 +84,8 @@ function AIR_addIncident($incident)
 } // AIR_addIncident
 
 
+/* Update an incident
+ */
 function AIR_updateIncident($incident)
 {
     $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
@@ -94,6 +98,9 @@ function AIR_updateIncident($incident)
 } // AIR_addIncident
 
 
+/* Retrieve all incidents in a multidomensional array. If there are no
+ * incidents, an empty array will be returned.
+ */
 function AIR_getIncidents()
 {
     $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
@@ -114,6 +121,20 @@ function AIR_getIncidents()
 
     return $output;
 } // AIR_Incidents
+
+
+/* Associate $incident with ticket $ticket
+ * Returns true on success, false on failure
+ */
+function AIR_associate($incident, $ticket)
+{
+    $in  = AIR_getIncidentById($incident);
+    if ($in->getId() == -1) return false;
+
+    $in->setRTId($ticket);
+    AIR_updateIncident($in);
+    return true;
+} // AIR_associate
 
 
 class AIR_Incident
