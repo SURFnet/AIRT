@@ -108,6 +108,26 @@ EOF;
         $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
         or die("unable to connect to database: ".db_errormessage());
 
+        // check if the mail is already associated with an incident.
+        $res = db_query($conn, sprintf(
+            "SELECT c.content as IncidentID
+             FROM   ticketcustomfieldvalues c, tickets t, queues q, 
+                    customfields f
+             WHERE  c.ticket = t.id
+             AND    t.queue = q.id
+             AND    c.customfield = f.id
+             AND    f.name = 'IncidentID'
+             AND    t.id = %s", $id))
+        or die("Unable to query database: ".db_errormessage());
+
+        if (db_num_rows($res) > 0)
+        {
+            $row = db_fetch_next($res);
+            $incidentid = $row["incidentid"];
+        }
+
+        pg_free_result($res);
+
         $res = db_query($conn,
             "SELECT   u.emailaddress, u.realname, t.subject, 
                extract (epoch from t.created) as created
@@ -126,7 +146,7 @@ EOF;
             $created = Date("r",$row["created"]);
 
             echo <<<EOF
-<table>
+<table cellpadding="2">
 <tr>
     <td>From:</td>
     <td>$name &lt;$from&gt;</td>
@@ -139,12 +159,20 @@ EOF;
     <td>Date:</td>
     <td>$created</td>
 </tr>
-</table>
 EOF;
+            if ($incidentid != "") 
+                echo <<<EOF
+<tr>
+    <td>Incident ID:</td>
+    <td>$incidentid</td>
+</tr>
+EOF;
+            echo "</table>";
         }
         db_free_result($res);
 
-        // get actual email 
+
+        // get actual message 
         $query = sprintf("
             SELECT a.headers, a.content
             FROM   attachments a, transactions t
@@ -155,32 +183,14 @@ EOF;
         or die("Unable to query database: ".db_errormessage());
 
         while ($row = db_fetch_next($res))
-        {
             printf("<PRE>%s</PRE>", $row["content"]);
-        }
 
         db_free_result($res);
-
-        $res = db_query($conn, sprintf(
-            "SELECT *
-             FROM   ticketcustomfieldvalues c, tickets t, queues q, 
-                    customfields f
-             WHERE  c.ticket = t.id
-             AND    t.queue = q.id
-             AND    c.customfield = f.id
-             AND    f.name = 'IncidentID'
-             AND    t.id = '%s'", $id))
-        or die("Unable to query database: ".db_errormessage());
-
-        if (db_num_rows($res) > 0)
-        {
-            $row = db_fetch_next($res);
-            $incidentid = $row["IncidentID"];
-        }
-
         db_close($conn);
 
-        echo <<<EOF
+        // allow association with ticket if not already associated
+        if ($incidentid == "") 
+            echo <<<EOF
 <div width="100%" style="background-color: #DDDDDD">
 <form action="$SELF" method="post">
 Incident ID:
@@ -247,8 +257,6 @@ EOF;
     // --------------------------------------------------------------------
 
     case "associate":
-        // TODO associate
-
         if (array_key_exists("ticketid", $_REQUEST))
             $ticketid = $_REQUEST["ticketid"];
         else die("Missing information.");
@@ -284,6 +292,16 @@ EOF;
                 $now);
             $res = db_query($conn, $query)
             or die("unable to insert incident id");
+
+            // reset status
+            db_free_result($res);
+
+            $res = db_query($conn, sprintf("
+                UPDATE tickets
+                SET    status = 'open' 
+                WHERE  id = '%s'",
+                $ticketid))
+            or die("Unable to alter status.");
 
             printf("Updated."); // TODO: do something meaningful
             db_close($conn);
