@@ -19,7 +19,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * index.php - AIR console
  * $Id$
  */
 require_once '/etc/airt/airt.cfg';
@@ -209,6 +208,9 @@ function prepare_message($filename) {
 	$m = explode("\n", $msg);
 	unset($m[0]);
 	$msg = implode("\n", $m);
+
+	// to
+	$to = $_SESSION["current_email"];
 
 
 	echo <<<EOF
