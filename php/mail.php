@@ -96,6 +96,8 @@ EOF;
         if (array_key_exists("id", $_REQUEST)) $id = $_REQUEST["id"];
         else die("Missing parameter.");
 
+        $_SESSION["active_ticketid"] = $id;
+
         echo <<<EOF
 <div width="100%" style="background-color: #DDDDDD">
 <form action="$SELF" method="POST">
