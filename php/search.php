@@ -115,6 +115,10 @@ EOF;
         // include previous incidents
         echo "<h2>Previous incidents</h2>";
 
+		echo <<<EOF
+<h2>Link address to incident</h2>
+EOF;
+		
         // create new incident
         $count = showOpenIncidentSelection("incidentid");
         if ($count == 0) echo "<I>No previous incidents</I><P>";
