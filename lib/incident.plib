@@ -26,6 +26,33 @@ require_once 'database.plib';
 require_once 'event.plib';
 require_once 'history.plib';
 
+function AIR_getIncidentsByIp($ip)
+{
+    if ($ip == "") return array();
+ 
+    $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
+    or die("Unable to connect to database.");
+ 
+    $r = db_query($conn, sprintf("
+         SELECT * 
+         FROM incidents
+         WHERE ip='%s'", $ip))
+    or die("Unable to query database.");
+
+    if (db_num_rows($r) == 0) return array();
+
+    $count = 0;
+    $output = array(db_num_rows($r));
+    while ($row = db_fetch_next($r))
+    {
+        $output[$count++] = $row;
+    }
+
+    db_close($conn);
+    return $output;
+} // AIR_getIncidentById
+
+
 /* Get incident by id. If the incident does not exist, the returned incident
  * will have an id of -1.
  */
@@ -69,7 +96,7 @@ function AIR_getIncidentById($id)
 
     db_close($conn);
     return $incident;
-} // AIR_getIncidentById
+} // AIR_getIncidentByIp
 
 
 /*  Add new incident $incident to database.

@@ -82,11 +82,11 @@ require_once 'air.plib';
     return $row["name"];
  }
 
- function search_info($ip, $hostname, $consituency)
+ function search_info($ip, $hostname, $constituency)
  {
-    if ($constituency == "") $consituency = categorize($ip, $hostname);
+    if ($constituency == "") $constituency = categorize($ip, $hostname);
 
-    switch ($consituency)
+    switch ($constituency)
     {
         case "Essent":
             search_info_essent($ip, $hostname);

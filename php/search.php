@@ -22,9 +22,11 @@
  * $Id$
  */
 
- require '../lib/air.plib';
- require '../lib/constituency.plib';
- require '../lib/userfunctions.plib';
+ require_once '../lib/air.plib';
+ require_once '../lib/constituency.plib';
+ require_once '../lib/incident.plib';
+ require_once '../lib/rt.plib';
+ require_once '../lib/userfunctions.plib';
 
  if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
  else $action = "none";
@@ -92,6 +94,31 @@ Telephone        %s
             $con->getContactEmail(),
             $con->getContactEmail(),
             $con->getContactPhone());
+
+        // include previous incidents
+        echo "<h2>Previous incidents</h2>";
+        $prev = AIR_getIncidentsByIp($ip);
+
+        if (count($prev) == 0)
+            printf("<I>No previous incidents</I>");
+        else
+        {
+            echo "<UL>";
+            foreach ($prev as $key => $row)
+            {
+                $user = RT_getUserById($row["creator"]);
+                printf("<li><a href=\"%s/incident.php?action=history&id=%s\">
+                %s (%s): created on %s by %s</a>",
+                    BASEURL, 
+                    urlencode($row["id"]),
+                    encode_incidentid($row["id"]),
+                    $row["category"],
+                    $row["created"],
+                    $user["realname"]
+                );
+            }
+            echo "</UL>";
+        }
          
         printf("<P><a href=\"%s/incident.php?action=new&hostname=%s&".
                "constituency=%s\">Create new incident</a>",

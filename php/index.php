@@ -52,9 +52,11 @@ if (file_exists($filename))
   fclose($f);
   printf("<small>$last</small>");
 }
+/*
 echo "<P>";
 echo "The current UvT-CERT color state is: <B>".getColorState()."</B>";
 echo "<P>";
+*/
 echo "<HR>";
 ?>
 
