@@ -27,6 +27,7 @@ Copyright (C) 2004 Tilburg University, The Netherlands
 
 AC_DEFINE_DIR(ETCPATH, sysconfdir/airt)
 AC_DEFINE_DIR(PHPPATH, datadir/@PACKAGE@/php)
+AC_DEFINE_DIR(DOCPATH, datadir/doc/@PACKAGE@)
 
 AM_INIT_AUTOMAKE()
 
