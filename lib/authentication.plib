@@ -1,0 +1,64 @@
+<?php
+/*
+ * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
+ * Copyright (C) 2004	Tilburg University, The Netherlands
+
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ * constituencies.php -- manage constituency data
+ * 
+ * $Id$
+ */
+require_once '/etc/airt/airt.cfg';
+require_once LIBDIR."/database.plib";
+
+function airt_authenticate($username, $password)
+{
+    $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+    or die("Unable to connect to database.");
+
+    $query = sprintf("
+        SELECT *
+        FROM   credentials c, users u
+        WHERE  c.userid = u.id
+        AND    c.login = '%s'
+        AND    c.password = '%s'",
+        $username,
+        $password
+    );
+
+    $res = db_query($conn, $query) 
+    or die("Unable to query database.");
+
+    if (db_num_rows($res) > 0)
+    {
+        $row = db_fetch_next($res);
+        $userid = $row["userid"];
+        db_free_result($res);
+        db_close($conn);
+        
+        return $userid;
+    }
+    else
+    {
+        db_free_result($res);
+        db_close($conn);
+
+        return -1;
+    }
+} // airt_authenticate
+
+
+?>
