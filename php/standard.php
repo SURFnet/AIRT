@@ -130,7 +130,7 @@ function list_standard_messages()
         $msg = read_standard_message($file);
         $subject = get_subject($msg);
         printf("<tr bgcolor=%s>
-            <td><a href=\"%s/%s?action=prepare&filename=%s\">send</a></td>
+            <td><a href=\"%s/%s?action=prepare&filename=%s\">prepare</a></td>
             <td>%s</td>
 			<td>%s</td>
             <td><a href=\"%s/%s?action=edit&filename=%s\">edit</a></td>
