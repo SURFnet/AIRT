@@ -24,6 +24,7 @@
 require_once '/etc/airt/airt.cfg';
 require_once LIBDIR."/airt.plib";
 require_once LIBDIR."/user.plib";
+require_once LIBDIR."/history.plib";
 
 if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
 else $action = "list";
@@ -469,6 +470,8 @@ $to = "kees@uvt.nl";
 			"-f$envfrom");
 		Header("Location: $SELF");
 
+		addIncidentComment(sprintf("Email sent to %s: %s",
+			$to, $subject));
 		break;
 
 
