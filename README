@@ -5,16 +5,14 @@ In CVS at $Source$
 
 	After installing the AIRT package, a few actions need to be taken.
 
-	Step 1. Edit /usr/local/etc/airt/airt.cfg and set the variables apropriately.
-
-	Step 2. Create the database referred to in the configuration file. This
+	Step 1. Create the database referred to in the configuration file. This
 	would typically be achieved by changing to the postgres user and giving
 	the following commands
 
 		postgres:~% createdb airt
 		CREATE DATABASE
 	
-	Step 3. Create the database user that is referred to in the configuration
+	Step 2. Create the database user that is referred to in the configuration
 	file. For example,
 
 		postgres:~% createuser airt
@@ -22,7 +20,7 @@ In CVS at $Source$
 		Shall the new user be allowed to create more new users? (y/n) n
 		CREATE USER
 
-	Step 4. Set the database password. For example
+	Step 3. Set the database password. For example
 
 		postgres:~% psql template1
 		Welcome to psql 7.4.6, the PostgreSQL interactive terminal.
@@ -30,7 +28,10 @@ In CVS at $Source$
 
 		template1=# alter user airt with password 'yourpassword';
 		ALTER USER
-	
+
+
+	Step 4. Edit /usr/local/etc/airt/airt.cfg and set the variables apropriately.
+
 	Step 5. Make sure the airt user has access to the database. Edit
 	/etc/postgresql/pg_hba.conf and add the line. 
 
@@ -39,8 +40,12 @@ In CVS at $Source$
 	Keep in mind that the order of access control rules in pg_hba.conf is
 	important. Add the line after the line which grants the postgres user
 	access to all databases.
+	
+	Step 6. As root, signal postgres to reload the configuration
 
-	Step 6. Initialise the database.
+	    root:~# invoke-rc.d postgresql reload
+
+	Step 7. Initialise the database.
 
 	postgres:~% gunzip -c /usr/local/share/doc/airt/airtschema.sql.gz \
 		    |psql airt airt
@@ -49,12 +54,12 @@ In CVS at $Source$
 	to the fact that it tries to drop sequences and tables that may not exist
 	yet.
 		
-	Step 7. Bootstrap the database.
+	Step 8. Bootstrap the database.
 			
-	postgres:~% gunzip -c /usr/local/share/doc/airt/airtbootstrap.sql.gz \
-		    |psql airt airt
+	postgres:~% psql airt airt < \
+		/usr/local/share/doc/airt/airtbootstrap.sql 
 
-	Step 8. Configure apache. The easiest way to do this is to add a symbolic
+	Step 9. Configure apache. The easiest way to do this is to add a symbolic
 	link in /etc/apache/conf.d, which points to 
 	/usr/local/etc/airt/airt-apache.conf
 
@@ -62,11 +67,11 @@ In CVS at $Source$
 
 		root:/etc/apache/conf.d:# ln -s /usr/local/etc/airt/airt-apache.conf
 
-	Step 9. Confirm that the configuration file is correct
+	Step 10. Confirm that the configuration file is correct
 
 		root:~# apachectl configtest
 
-	Step 10. If everything checks out, reload the apache configuration and you
+	Step 11. If everything checks out, reload the apache configuration and you
 	should be done. If apache is already running, do
 
 		root:~# invoke-rc.d apache reload
@@ -75,7 +80,7 @@ In CVS at $Source$
 
 		root:~# invoke-rc.d apache start
 
-	Step 11. Change the admin password. Point your browser at the machine that
+	Step 12. Change the admin password. Point your browser at the machine that
 	hosts the application and log in with user admin, password admin. On the
 	main menu, click Edit settings > Edit users. Then, on the line with the
 	admin user, click edit and set a (different) password.
