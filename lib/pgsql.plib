@@ -1,7 +1,7 @@
-<?php 
+<?php
 /* $Id$ 
- * logout.php - Allows users to log out 
- 
+ * pgsql.plib - UvT-CERT postgres frontend
+
  * LIBERTY: INCIDENT RESPONSE SUPPORT FOR END-USERS
  * Copyright (C) 2004	Kees Leune <kees@uvt.nl>
 
@@ -19,19 +19,46 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-$public=1;
-include "lib/liberty.plib";
-pageHeader("UvT-CERT Control Center");
 
-@session_unset();
-@session_destroy();
+function db_error() 
+{
+    return pg_errormsg();
+} // db_error
 
-echo <<<EOF
-   You have been logged out.
 
-   <P>
+function db_connect($database, $username, $password)
+{
+    $connectstring = sprintf("dbname=%s user=%s password=%s",
+        $database, $username, $password);
+    $conn = pg_connect($connectstring);
 
-   Click here to <a href='login.php'>log in again</a>.
-EOF;
+    return $conn;
+} // db_connect
+
+
+function db_query($conn, $query)
+{
+    $res = pg_query($conn, $query);
+
+    return $res;
+} // pg_query
+
+
+function db_fetch_next($res)
+{
+    return pg_fetch_assoc($res);
+} // pg_fetch_next
+
+
+function db_close($conn)
+{
+    return pg_close($conn);
+}
+
+
+function db_num_rows($res) 
+{
+    return pg_num_rows($res);
+}
 
 ?>

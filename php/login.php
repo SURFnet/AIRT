@@ -20,7 +20,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 $public=1;
-include "lib/uvtcert.plib";
+include "../lib/liberty.plib";
+include "../lib/pgsql.plib";
 
 if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST[action];
 else $action = "none";
@@ -54,15 +55,41 @@ EOF;
 
 
     case "check":
-        require 'lib/logins.plib';
+        if (array_key_exists("login", $_REQUEST))
+            $login = $_REQUEST["login"];
+        else die("Missing required field.");
 
-        if (array_key_exists("login", $_POST)) 
-            $login=$_POST["login"];
-        else die("Missing information (1).");
-
+        // password must be HTTP post
         if (array_key_exists("password", $_POST))
-            $password=$_POST["password"];
-        else die("Missing information (2).");
+            $password = $_POST["password"];
+        else die("Missing required field.");
+
+        $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
+        or die("Unable to connect to database.".db_errormsg());
+
+        $query = sprintf("
+            SELECT u.id
+            FROM   users u, groups g, groupmembers m
+            WHERE  u.name = '%s'
+            AND    u.password = '%s'
+            AND    u.id = m.memberid
+            AND    m.groupid = g.id
+            AND    g.name = '%s'", 
+                $login, 
+                md5($password, true), 
+                CERTGROUP);
+printf("$query");
+        $res = db_query($conn, $query)
+        or die("Unable to query database: ".db_errormsg());
+
+
+        if (db_num_rows($res) == 0)
+        {
+            pageHeader("Permission denied.");
+            printf("Username and/or password incorrect.");
+            pageFooter();
+            exit;
+        }
 
         $filename="/var/lib/cert/bad_login_$login.txt";
         /* check for lockout */

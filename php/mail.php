@@ -21,6 +21,48 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
  require '../lib/liberty.plib';
+ require '../lib/pgsql.plib';
+
  $SELF="$BASEURL/mail.php";
+
+ if (array_key_exists("action", $_SESSION)) $action=$_SESSION["action"];
+ else $action="none";
+
+ switch ($action)
+ {
+    case "none":
+        $conn = db_connect(RTNAME, RTUSER, RTPASS)
+        or die("unable to connect to database: ".db_errormsg());
+
+        $res = db_query($conn, 
+            "SELECT   u.name, a.subject, a.created
+             FROM     tickets t, attachments a, users u
+             WHERE    t.id = a.id
+             AND      t.creator = u.id
+             AND      queue = 0
+             ORDER BY t.created")
+        or die("Unable to query database: ".db_errormsg());
+
+        printf("<TABLE>\n");
+        while ($row = db_fetch_next($res))
+        {
+            $requestor = $row["name"];
+            $subject   = $row["subject"];
+            $created   = $row["created"];
+
+            printf("<TR>\n");
+            printf("<TD>%s</TD>\n", $requestor);
+            printf("<TD>%s</TD>\n", $subject);
+            printf("<TD>%s</TD>\n", $created);
+            printf("</TR>");
+
+        } // while
+        printf("</TABLE>\n");
+
+        db_close($conn);
+        break;
+    default:
+        die("Unknown action.");
+ } // switch
 
 ?>

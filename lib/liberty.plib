@@ -33,8 +33,15 @@ $BASEURL = "https://liberty.uvt.nl/cert";
 // connect string for the database
 define("DBCONNECTSTRING", "dbname=cert user=cert password=mmUYQMX7TQoN");
 
+// connect string for RT
+define("RTNAME", "rtdb");
+define("RTUSER", "rtadmin");
+define("RTPASSWD", "Em48eUQwN4tS");
+
 // mail to which status updates will be sent
 define("CERT_MAILADDR", "cert@uvt.nl");
+
+define("CERTGROUP", "DutyTeam");
 
 // time after which unacknowleged incidents will be flagged (in seconds)
 define("WARN_UNACK", (60*60*24*6));

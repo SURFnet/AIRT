@@ -1,4 +1,3 @@
-# Makefile for liberty
 # LIBERTY: INCIDENT RESPONSE SUPPORT FOR END-USERS
 # Copyright (C) 2004	Kees Leune <kees@uvt.nl>
 #
@@ -18,7 +17,9 @@
 #
 # $Id$
 
-SUBDIRS = html
+# 
 
-docdir = $(datadir)/doc/$(PACKAGE)
-doc_DATA = AUTHORS README
+scriptdir=$(pkgdatadir)
+script_DATA = index.php login.php logout.php mail.php
+
+EXTRA_DIST = $(script_DATA)
