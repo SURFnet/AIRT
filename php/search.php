@@ -24,6 +24,8 @@
  
  require_once '/etc/airt/airt.cfg';
  require_once LIBDIR.'/airt.plib';
+ require_once LIBDIR.'/incident.plib';
+ require_once LIBDIR.'/constituency.plib';
  require_once LIBDIR.'/userfunctions.plib';
 
  if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
@@ -63,67 +65,59 @@ EOF;
         // get FQDN
         $hostname = gethostbyaddr($ip);
 
-        // call user-supplied categorization routine
-        $category = custom_categorize($ip, categorize($ip));
+        // call user-supplied categorization routine. Returns the id of the
+        // constituency
+        $networkid = custom_categorize($ip, categorize($ip));
 
-        echo "$category";
-        exit;
+        // get addl info
+        $networks = getNetworks();
+        $constituencies = getConstituencies();
+
+        $network = $networks[$networkid]["network"];
+        $netmask = $networks[$networkid]["netmask"];
+        $netname = $networks[$networkid]["label"];
+        $conslabel = $constituencies[$networks[$networkid]["constituency"]]
+            ["label"];
+        $consname  = $constituencies[$networks[$networkid]["constituency"]]
+            ["name"];
 
         // update active IP address
         $_SESSION["active_ip"] = $ip;
 
         pageHeader("Detailed information for host $hostname");
+        
+        echo <<<EOF
+Search results for the following host:
+<PRE>
+    
+    IP Address          : $ip
+    Hostname            : $hostname
+    Network             : $netname ($network/$netmask)
+    Constituency        : $consname ($conslabel)
+</PRE>
+EOF;
 
         // call user-defined search function. Must print in unformatted layout
         // additional info about hostname needed to make a decision.
-        search_info($ip, $hostname, $constituency);
+        echo "<HR>";
+        search_info($ip, $networkid);
+        echo "<HR>";
 
-
-        // include constuency
-        $con = AIR_getConstituencyByName($constituency);
-
-        echo "<h2>Constituency</h2>";
-        printf("
-        <pre>
-Constituency     %s
-Contact point    %s
-Email            <a href=\"mailto:%s\">%s</a>
-Telephone        %s
-        </pre>", 
-            $constituency,
-            $con->getContactName(),
-            $con->getContactEmail(),
-            $con->getContactEmail(),
-            $con->getContactPhone());
 
         // include previous incidents
         echo "<h2>Previous incidents</h2>";
-        $prev = AIR_getIncidentsByIp($ip);
 
-        if (count($prev) == 0)
-            printf("<I>No previous incidents</I>");
-        else
-        {
-            echo "<UL>";
-            foreach ($prev as $key => $row)
-            {
-                $user = RT_getUserById($row["creator"]);
-                printf("<li><a href=\"%s/incident.php?action=history&id=%s\">
-                %s (%s): created on %s by %s</a>",
-                    BASEURL, 
-                    urlencode($row["id"]),
-                    encode_incidentid($row["id"]),
-                    $row["category"],
-                    $row["created"],
-                    $user["realname"]
-                );
-            }
-            echo "</UL>";
-        }
-         
-        printf("<P><a href=\"%s/incident.php?action=new&hostname=%s&".
-               "constituency=%s\">Create new incident</a>",
-            BASEURL, urlencode($hostname), urlencode($constituency));
+        // create new incident
+        echo <<<EOF
+<form action="incident.php" method="POST">
+<input type="hidden" name="ip" value="ip">
+<input type="hidden" name="ip" value="ip">
+<input type="submit" name="link" value="Link to incident">
+EOF;
+        showOpenIncidentSelection("incidentid");
+        echo <<<EOF
+<input type="submit" name="new" value="New incident">
+EOF;
 
         pageFooter();
         

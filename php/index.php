@@ -48,7 +48,7 @@ echo "<HR>";
 
 <P>
 
-<a href="search.php">IP Address lookup</a> TOFIX
+<a href="search.php">IP Address lookup</a>
 
 <P>
 

@@ -54,6 +54,7 @@ function showIncidentStateSelection($name)
             htmlentities($i),
             htmlentities($l));
     }
+    printf("</select>");
 }
 
 
@@ -87,6 +88,7 @@ function showIncidentStatusSelection($name)
             htmlentities($i),
             htmlentities($l));
     }
+    printf("</select>");
 }
 
 
@@ -120,5 +122,61 @@ function showIncidentTypeSelection($name)
             htmlentities($i),
             htmlentities($l));
     }
+    printf("</select>");
+}
+
+function getOpenIncidents()
+{
+    $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+    or die("Unable to connect to database.");
+
+    $res = db_query($conn,
+        "SELECT   created, 
+                  u1.lastname as creator_lastname,
+                  u1.firstname as creator_firstname,
+                  u1.email as creator_email,
+                  u1.phone as creator_phone, 
+                  updated, 
+                  u2.lastname as updatedby_lastname,
+                  u2.firstname as updatedby_firstname,
+                  u2.email as updatedby_email,
+                  u2.phone as updatedby_phone,
+                  s2.label as state,
+                  s1.label as status, 
+                  t.label as type
+         FROM     incidents i, incident_status s1, incident_states s2, 
+                  incident_types t, users u1, users u2
+         WHERE    i.status = s1.id
+         AND      i.state = s2.id
+         AND      i.type = t.id
+         AND      i.creator = u1.id
+         AND      i.updatedby = u2.id
+         AND      s1.label IN ('open', 'stalled')")
+    or die("Unable to connect to database.");
+
+    $incidents=array();
+    while ($row = db_fetch_next($res))
+        $incidents[$row["id"]]=$row;
+    db_close($conn);
+    return $incidents;
+}
+
+
+function showOpenIncidentSelection($name)
+{
+    printf("<select name=\"%s\">\n",
+        htmlentities($name));
+    $states = getOpenIncidents();
+    foreach ($states as $i=>$data)
+    {
+        printf("<option value=%s>%s, %s <%s> (%s)</option>\n",
+            htmlentities($i),
+            htmlentities($data["creator_lastname"]),
+            htmlentities($data["creator_firstname"]),
+            htmlentities($data["creator_email"]),
+            htmlentities($data["type"])
+        );
+    }
+    printf("</select>");
 }
 ?>

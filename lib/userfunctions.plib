@@ -18,14 +18,13 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  * 
  * userfunctions.plib - User defined functions. Most contain 
- * - function categorize($ip, $hostname); returns a string representing the
- *   consituency
+ * - function custom_categorize($ip, $defaultcategory); 
+         returns the category identifier
  * - function search_info($ip, $hostname, $consituency); prints additional
  *   information about hostname
  * 
  * $Id$
  */
-$public = 1;
 require_once '/etc/airt/airt.cfg';
 require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/database.plib';
@@ -35,13 +34,14 @@ require_once LIBDIR.'/search.plib';
 
 
 /** Custom categorization */
-function custom_categorize($ip, $defaultcategory)
+function custom_categorize($ip, $networkid)
 {
-    $category = $defaultcategory;
+    $networks = getNetworks();
+    $category = $networks[$networkid]["constituency"];
     $match = false;
 
     // The catchall UvT-domain needs to be refined further
-    if ($defaultcategory == 1)
+    if (in_array($networkid, array(0=>1, 1=>12, 2=>13, 3=>14, 4=>14, 5=>15)))
     {
          // find IP address in DUN database
          // DUN is HOSTNAME based. Translate our IP and strip off domain
@@ -60,7 +60,7 @@ function custom_categorize($ip, $defaultcategory)
             $data = explode("|", $line);
             if ($hostname == $data[2])
             {
-                $faculteit = $data[1];
+                $faculteit = trim($data[1]);
                 $match = true;
                 break;
             }
@@ -71,35 +71,63 @@ function custom_categorize($ip, $defaultcategory)
             switch ($faculteit)
             {
                 case "FEW": 
-                    $category = 1;
+                    $category = 12;
                     break;
                 case "FRW": 
-                    $category = 5;
+                    $category = 13;
                     break;
                 case "FSW": 
-                    $category = 6;
+                    $category = 14;
                     break;
                 case "FLW": 
-                    $category = 7;
+                    $category = 15;
                     break;
                 default:
-                    $category = 2;
+                    $category = 1;
             } // switch
         } // if match
     } // UvT-class
     return $category;
-}
+} // custom_categorize
+
+
+function search_info($ip, $networkid)
+{
+    $constituencies = getConstituencies();
+    $networks = getNetworks();
+    $consid = $networks[$networkid]["constituency"];
+    $label = $constituencies[$consid]["label"];
+    switch ($label)
+    {
+        case "feb":
+        case "frw":
+        case "fsw":
+        case "flw":
+        case "uvt":
+            search_info_uvt($ip, $networkid);
+            break;
+        case "breburg":
+            search_info_breburg($ip, $networkid);
+            break;
+        case "essent";
+            search_info_essent($ip, $networkid);
+            break;
+        default:
+            search_info_extern($ip, $networkid);
+            break;
+    } // switch
+} // search_info
 
 
 /**
  * Essent users:
  * Print info about users and do a ldap lookup to find matching email address
  */
-function search_info_essent($ip, $hostname)
+function search_info_essent($ip, $networkid) 
 {
-    $hostname = ereg_replace("\.(kub|uvt)\.nl$", "", $hostname);
+    $hostname = ereg_replace("\.(kub|uvt)\.nl$", "", gethostbyaddr($hostname));
 
-    $f = fopen(sprintf("%s/%s", LIBERTY_VARDATA, "essent.txt"), "r")
+    $f = fopen(sprintf("%s/%s", CERTDATA, "essent.txt"), "r")
     or die ("Unable to open essent file");
 
     while (!feof($f))
@@ -167,24 +195,32 @@ EOF;
  * Query IP adress in DUN. Find matching support unit, do a ph lookup for
  * phone number and room number and find additional information via LDAP
  */
-function search_info_internal($ip, $hostname)
+function search_info_uvt($ip, $networkid)
 {
-    global $dun;
-
     // strip of domain
-    $hostname = strtoupper(ereg_replace("\.(uvt|kub)\.nl", "", 
-        $hostname));
+    $hostname = strtoupper(
+        ereg_replace("\.(kub|uvt)\.nl$", "", gethostbyaddr($ip))
+    );
+    $fname = sprintf("%s/%s", CERTDIR, "dun.txt");
+    $f = @fopen($fname, "r")
+    or die("Unable to open DUN.");
 
-    if (!array_key_exists($hostname, $dun)) return "Unknown host: $hostname";
+    while (!feof($f))
+    {
+        $line = fgets($f);
+        if (trim($line) == "") continue;
 
-    echo "<h2>Dun output</h2>";
-    $mac = $dun[$hostname][0];
-    $fac = trim($dun[$hostname][1]);
-    $omschr = $dun[$hostname][3];
-    $gezien = $dun[$hostname][4];
-    $outlet = $dun[$hostname][6];
+        $data = explode("|", $line);
+        if ($hostname == $data[2])
+        {
+            $mac    = $data[0];
+            $fac    = trim($data[1]);
+            $omschr = $data[3];
+            $gezien = $data[4];
+            $outlet = $data[6];
 
-    echo <<<EOF
+            echo <<<EOF
+<h2>DUN output</h2>
 <pre>
 MAC Address      $mac
 Dienst/Faculteit $fac
@@ -194,63 +230,65 @@ Outlet           $outlet
 </pre>
 EOF;
 
-    /* find room number */
-    if (ereg("^([A-Z] [0-9]+)", $outlet, $matches))
-    {
-        $roomno = $matches[1];
-    }
-
-    /* get additional info from ldap */
-    $ds = ldap_connect("ldap.uvt.nl")
-    or die("Unable to connect to ldap server");
-
-    $r = ldap_bind($ds);
-
-    $f = fopen("http://drcservices.uvt.nl/telefoongids/namen.txt?", "r")
-    or die("Unable to open phonebook");
-
-
-    printf("<h2>Phone book matches</h2>");
-    printf("<PRE>");
-    while (!feof($f)) 
-    {
-        $line = trim(fgets($f));
-        if ($line == "") continue;
-
-        if ($roomno != "" && ereg($roomno, $line, $m))
-        {
-            printf("%s\n", $line);
-            flush();
-
-            if (ereg("^[0-9]+  ([^ ,]+)", $line, $m)) 
-            {
-                $name = $m[1];
-
-                $sr = @ldap_search($ds, 
-                    "o=Universiteit van Tilburg, c=NL",
-                    "(&(objectclass=person)(roomnumber=$roomno)(sn=$name*))");
-
-                $info = ldap_get_entries($ds, $sr);
-                for ($i=0; $i < $info["count"]; $i++)
-                {
-                    $telnr = $info[$i]["telephonenumber"][0];
-                    $email = $info[$i]["mail"][0];
-
-                    if (ereg(" ([0-9]+)$", $telnr, $m))
-                        $telnr = $m[1];
-                    
-                    echo "      <a href=\"mailto:$email\">$email</a>
-                    \n";
-                }
-            } // lastname found
-        } // roomno found
-    }
-    printf("</PRE>");
-    fclose($f);
-EOF;
+            /* find room number */
+            if (ereg("^([A-Z] [0-9]+)", $outlet, $matches))
+                $roomno = $matches[1];
     
-    flush();
+            /* get additional info from ldap */
+            $ds = ldap_connect("ldap.uvt.nl")
+            or die("Unable to connect to ldap server");
+    
+            $r = ldap_bind($ds);
+    
+            $f2 = fopen("http://drcservices.uvt.nl/telefoongids/namen.txt?", "r")
+            or die("Unable to open phonebook");
+    
+    
+            printf("<h2>Phone book matches</h2>");
+            printf("<PRE>"); // XXX XXX
+            while (!feof($f2)) 
+            {
+                $line = trim(fgets($f2));
+                if ($line == "") continue;
+    
+                if ($roomno != "" && ereg($roomno, $line, $m))
+                {
+                    printf("%s\n", $line);
+                    flush();
+    
+                    if (ereg("^[0-9]+  ([^ ,]+)", $line, $m)) 
+                    {
+                        $name = $m[1];
+    
+                        $sr = @ldap_search($ds, 
+                            "o=Universiteit van Tilburg, c=NL",
+                            "(&(objectclass=person)(roomnumber=$roomno)(sn=$name*))");
+    
+                        $info = ldap_get_entries($ds, $sr);
+                        for ($i=0; $i < $info["count"]; $i++)
+                        {
+                            $telnr = $info[$i]["telephonenumber"][0];
+                            $email = $info[$i]["mail"][0];
+    
+                            if (ereg(" ([0-9]+)$", $telnr, $m))
+                                $telnr = $m[1];
+                            
+                            echo "      <a href=\"mailto:$email\">$email</a>
+                            \n";
+                        }
+                    } // lastname found
+                } // roomno found
+            } // while f2
+            printf("</PRE>");
+            fclose($f2);
+        } // hostname match
+    } // reading DUN
 } // search_info_internal()
 
+
+function search_info_extern($ip, $networkid)
+{
+    printf("Extern");
+}
 
 ?>

@@ -38,7 +38,7 @@ function categorize($ip)
         $netmask = ip2long($data["netmask"]);
         if (($longip & $netmask) == $network) $category = $id;
     }
-    
+
     return $category;
 } // categorize
 
