@@ -18,7 +18,7 @@
 #
 # $Id$
 
-SUBDIRS = php lib doc
+SUBDIRS = php lib doc etc
 
 docdir = $(datadir)/doc/$(PACKAGE)
 doc_DATA = AUTHORS README TODO VERSION.m4

@@ -18,10 +18,10 @@
 # $Id$
 
 # 
-scriptdir=$(sysconfdir)
-script_DATA = airt-apache.conf
+configdir=$(sysconfdir)/$(PACKAGE)
+config_DATA = airt-apache.conf airt.cfg
 
 CLEANFILES = airt-apache.conf
 DISTCLEANFILES = $(CLEANFILES)
 
-EXTRA_DIST = airt-apache.conf.in
+EXTRA_DIST = airt-apache.conf.in airt.cfg
