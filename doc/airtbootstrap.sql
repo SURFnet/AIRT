@@ -56,14 +56,14 @@ INSERT INTO networks
 INSERT INTO incident_status
 		(id, label)
 		VALUES
-		(1, 'open');
+		(nextval('incident_status_sequence'), 'open');
 INSERT INTO incident_status
 		(id, label)
 		VALUES
-		(2, 'closed');
+		(nextval('incident_status_sequence'), 'closed');
 INSERT INTO incident_status
 		(id, label)
 		VALUES
-		(3, 'stalled');
+		(nextval('incident_status_sequence'), 'stalled');
 
 end transaction;
