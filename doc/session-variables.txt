@@ -1,0 +1,6 @@
+$_SESSION["active_ip"]			 
+$_SESSION["constituency_id"]
+$_SESSION["current_name"]
+$_SESSION["current_email"]
+
+$_SESSION["incidentid"]		Incident ID of current incident
