@@ -47,11 +47,10 @@ function categorize($ip)
     $category = "-1";
     $longip   = ip2long($ip);
 
-    foreach ($networks as $id => $data)
-    {
+    foreach ($networks as $id => $data) {
         $network = ip2long($data["network"]);
         $netmask = ip2long($data["netmask"]);
-        if (($longip & $netmask) == $network) $category = $id;
+        if (($longip & $netmask) == $network) $category = $data["id"];
     }
 
     return $category;

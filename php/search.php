@@ -145,6 +145,7 @@ EOF;
 			AND     i.status = s2.id
 			AND     i.state = s.id
 			AND     i.type = t.id
+			AND     a.ip = '$ip'
 
 			ORDER BY incidentid")
 		or die("Unable to query.");

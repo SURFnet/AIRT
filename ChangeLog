@@ -1,7 +1,8 @@
 2005-feb-06  Kees Leune  <kees@uvt.nl>
-* php/airt.plib: Implemented event driven mechanism
 * php/help.php: New help system
 * php/search.php: Added list of previous incidents when searching IP 
+* lib/airt.plib: Implemented event driven mechanism
+* lib/search.plib: Fixed bug in network classification
 
 2005-feb-03  Kees Leune  <kees@uvt.nl>
 * php/incident.php: Incident status filter

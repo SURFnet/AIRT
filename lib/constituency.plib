@@ -23,8 +23,7 @@
  */
 require_once LIBDIR.'/database.plib';
 
-function getConstituencies()
-{
+function getConstituencies() {
     $conn = db_connect(DBDB, DBUSER, DBPASSWD)
     or die("Unable to connect to database.");
 
@@ -78,6 +77,7 @@ function getNetworks()
     while ($row = db_fetch_next($res))
     {
         $networks[$row["id"]]=array(
+		    "id"          => $row["id"],
             "network"     => $row["network"],
             "netmask"     => $row["netmask"],
             "label"       => $row["label"],
