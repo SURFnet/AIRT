@@ -1,0 +1,123 @@
+<?php
+/* $Id$ 
+ * index.php - Index page for UvT-CERT
+ *
+ * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
+ * Copyright (C) 2004	Tilburg University, The Netherlands
+
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ * $Id$
+ */
+require_once '/etc/airt/airt.cfg';
+require_once LIBDIR."/airt.plib";
+require_once LIBDIR."/database.plib";
+
+function exportIncident($ids) {
+
+	$expr = "(";
+	foreach ($ids as $incident)
+		$expr .= "$incident,";
+	$expr = rtrim($expr, ",").")";
+	
+	$conn = db_connect(DBDB, DBUSER, DBPASSWD)
+	or die("Unable to connect to database.");
+
+	$res = db_query($conn, "
+		SELECT    incidents.id,
+				  extract (epoch from incidents.created) as created,
+				  extract (epoch from incidents.updated) as updated,
+				  incident_states.label as state,
+				  incident_status.label as status,
+				  incident_types.label  as type,
+				  incident_addresses.ip as ip
+		FROM      incidents
+		LEFT JOIN incident_addresses ON (incidents.id = incident_addresses.incident)
+		LEFT JOIN incident_states ON (incidents.state = incident_states.id)
+		LEFT JOIN incident_status ON (incidents.status = incident_status.id)
+		LEFT JOIN incident_types ON (incidents.type = incident_types.id)
+		WHERE     incidents.id IN $expr
+		AND       incidents.id = incident_addresses.incident
+		ORDER BY  incidents.id")
+	or die("Unable to query database.");
+
+	$doc = domxml_new_doc("1.0");
+	$root = $doc->add_root("airt");
+
+	while ($row = db_fetch_next($res)) {
+		addIncidentToTree($doc, $row);
+	}
+
+	print $doc->dump_mem();
+
+	db_close($conn);
+}
+
+function addIncidentToTree(&$doc, $row) {
+	$tles = $doc->child_nodes();
+	$root = $tles[0];
+	$added = false;
+	foreach ($root->child_nodes() as $node) {
+		/* if an elemnt with attribute "id" and value $row["id"] already
+		 * exists, all we have to do is add the IP address and leave the rest
+		 * of the data untouced. Else, we need to create a new incident
+		 * element.
+		 */ 
+		if ($node->node_type() == XML_ELEMENT_NODE &&
+			$node->node_name() == "incident" &&
+			$node->has_attribute("id") &&
+			$node->get_attribute("id") == $row["id"]) {
+			$new_element = $doc->create_element("address");
+			$new_element->set_content($row["ip"]);
+			$node->append_child($new_element);
+			$added = true;
+		}
+	}
+
+	if (!$added) {
+		$incident_element = $doc->create_element("incident");
+		$incident_element->set_attribute("id", $row["id"]);
+		$incident_element->set_attribute("prefix", INCIDENTID_PREFIX);
+
+		$state_element = $doc->create_element("state");
+		$state_element->set_content($row["state"]);
+
+		$status_element = $doc->create_element("status");
+		$status_element->set_content($row["status"]);
+
+		$type_element = $doc->create_element("type");
+		$type_element->set_content($row["type"]);
+
+		$created_element = $doc->create_element("created");
+		$created_element->set_content($row["created"]);
+
+		$updated_element = $doc->create_element("updated");
+		$updated_element->set_content($row["updated"]);
+
+		$incident_element -> append_child($state_element);
+		$incident_element -> append_child($status_element);
+		$incident_element -> append_child($type_element);
+		$incident_element -> append_child($created_element);
+		$incident_element -> append_child($updated_element);
+
+		if (array_key_exists("ip", $row)) {
+			$ip_element = $doc->create_element("address");
+			$ip_element->set_content($row["ip"]);
+			$incident_element -> append_child($ip_element);
+		}
+
+		$root->append_child($incident_element);
+	}
+}

@@ -157,7 +157,7 @@ function getOpenIncidents()
          AND      i.creator = u1.id
          AND      i.updatedby = u2.id
          AND      i.id = a.incident
-         AND      s2.label IN ('open', 'stalled')")
+         AND      s1.label IN ('open', 'stalled')")
     or die("Unable to connect to database.");
 
     $incidents=array();
