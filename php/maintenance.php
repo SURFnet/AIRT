@@ -78,7 +78,7 @@ pageHeader("AIRT Maintenance Center");
 
 <P>
 
-<a href="constituency_contacts.php">Edit constituency contacts</a> TODO
+<a href="constituency_contacts.php">Edit constituency contacts</a> 
 
 
 
