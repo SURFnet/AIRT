@@ -113,8 +113,13 @@ EOF;
 
 
         // include previous incidents
-        echo "<h2>Previous incidents</h2>";
-
+		// TODO
+        echo <<<EOF
+<h2>Previous incidents</h2>";
+	
+<I>Under construction</I>
+EOF;
+		
 		echo <<<EOF
 <h2>Link address to incident</h2>
 EOF;
