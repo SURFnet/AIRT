@@ -25,6 +25,7 @@ require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/database.plib';
 require_once LIBDIR.'/constituency.plib';
 require_once LIBDIR.'/incident.plib';
+require_once LIBDIR.'/user.plib';
 
 if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
 else $action="list";
@@ -58,7 +59,7 @@ function showBasicIncidentData($type, $state, $status) {
     <td>Incident type</td>
     <td>
 EOF;
-        showIncidentTypeSelection("type");
+        showIncidentTypeSelection("type", $type);
         echo <<<EOF
     </td>
 </tr>
@@ -66,7 +67,7 @@ EOF;
     <td>Incident state</td>
     <td>
 EOF;
-        showIncidentStateSelection("state");
+        showIncidentStateSelection("state", $state);
         echo <<<EOF
     </td>
 </tr>
@@ -74,7 +75,7 @@ EOF;
     <td>Incident status</td>
     <td>
 EOF;
-        showIncidentStatusSelection("status");
+        showIncidentStatusSelection("status", $status);
         echo <<<EOF
     </td>
 </tr>
@@ -133,10 +134,16 @@ function showEditForm() {
 	$type = $incident["type"];
 	$state = $incident["state"];
 	$status = $incident["status"];
-
+	
+	echo <<<EOF
+<form action="$SELF" method="POST">
+EOF;
 	showBasicIncidentData($type, $state, $status);
 
 	echo <<<EOF
+<input type="submit" name="action" value="Update">
+</form>
+<HR>
 <h3>Affected IP addresses</h3>
 <table cellpadding="4">
 EOF;
@@ -150,14 +157,16 @@ EOF;
 	",
 		urlencode($address),
 		$address,
-		$address==""?"Unknown":gethostbyaddr($address),
+		$address==""?"Unknown":gethostbyaddr(gethostbyname($address)),
 		urlencode($address)
 		);
 	}
 	echo <<<EOF
 	</table>
-
 	<p/>
+	Enter IP address or hostname to add to this incident.
+
+	<P/>
 	<form action="$SELF" method="POST">
 	<input type="hidden" name="action" value="addip">
 	<table cellpadding=4>
@@ -171,6 +180,7 @@ EOF;
 EOF;
 
 	echo <<<EOF
+<HR>
 <h3>Affected users</h3>
 <table cellpadding="4">
 EOF;
@@ -190,19 +200,33 @@ EOF;
 		   urlencode($userid)
 		);
 	}
-echo <<<EOF
-</table>
 
+	if (array_key_exists("userid", $_SESSION)) {
+		$userid = $_SESSION["userid"];
+		$u = getUserByUserID($userid);
+		if (sizeof($u) > 0)
+		{
+			$lastname = $u[0]["lastname"];
+			$email = $u[0]["email"];
+		} else {
+			$userid = "";
+		}
+	} else { 
+		$userid = ""; 
+	}
+
+	echo <<<EOF
+	</table>
 	<p/>
 	<form action="$SELF" method="POST">
 	<input type="hidden" name="action" value="adduser">
-	<table cellpadding=4>
-	<tr>
-		<td>Userid</td>
-		<td><input type="text" name="userid" size="30"></td>
-		<td><input type="submit" value="Add"></td>
-	</tr>
-	</table>
+EOF;
+	if ( $userid == "" ) 
+		echo "No selected user.";
+	else
+		echo "Selected user: $userid, $lastname ($email)";
+	echo <<<EOF
+	<input type="submit" value="Add">
 	</form>
 EOF;
 } // showeditform
@@ -219,14 +243,7 @@ switch ($action)
 		$_SESSION["incidentid"] = $incidentid;
 
 		pageHeader("Edit incident");
-		echo <<<EOF
-<form action="$SELF" method="POST">
-EOF;
 		showEditForm();
-		echo <<<EOF
-<input type="submit" name="action" value="Update">
-</form>
-EOF;
 		break;
 
     //---------------------------------------------------------------
@@ -345,6 +362,7 @@ EOF;
              AND      i.status = s2.id
              AND      i.type = t.id
              AND      i.id = a.incident
+			 AND      s1.label in ('open', 'stalled')
              ORDER BY i.id")
         or die("Unable to execute query (1)");
 
@@ -358,13 +376,13 @@ EOF;
 <table width='100%'>
 <tr>
 	<td>&nbsp;</td>
-    <td>Incident ID</td>
-	<td>Consituency</td>
-    <td>IP address</td>
-    <td>Status</td>
-    <td>State</td>
-    <td>Type</td>
-    <td>Last updated</td>
+    <th>Incident ID</th>
+	<th>Consituency</th>
+    <th>IP address</th>
+    <th>Status</th>
+    <th>State</th>
+    <th>Type</th>
+    <th>Last updated</th>
 </tr>
 EOF;
             $count = 0;
@@ -379,7 +397,7 @@ EOF;
                 $constituency = $row["constituency"];
                 $incidentid = encode_incidentid($id);
 
-				$color = ($count++%2 == 0) ? '#FFFFFF' : '#DDDDDD';
+				$color = ($count++%2 == 1) ? '#FFFFFF' : '#DDDDDD';
                 echo <<<EOF
 <tr bgcolor='$color'>
 	<td><a href="$SELF?action=edit&incidentid=$id">edit</a></td>
@@ -415,7 +433,8 @@ EOF;
         if (array_key_exists("ip", $_POST)) $ip = gethostbyname($_POST["ip"]);
 		else die("Missing information (2).");
 
-		addIpToIncident($ip, $incidentid);
+		if (trim($ip) != "") 
+			addIpToIncident(trim($ip), $incidentid);
 		Header(sprintf("Location: $SELF?action=edit&incidentid=%s",
 			urlencode($incidentid)));
 		break;
@@ -436,15 +455,51 @@ EOF;
 
     //--------------------------------------------------------------------
 	case "adduser":
+		echo "To be implemented.";
 		break;
 
     //--------------------------------------------------------------------
     case "close":
+		echo "To be implemented.";
         break;
 
     //--------------------------------------------------------------------
     case "history":
+		echo "To be implemented.";
         break;
+
+    //--------------------------------------------------------------------
+	case "Update":
+		if (array_key_exists("incidentid", $_SESSION)) 
+			$incidentid = $_SESSION["incidentid"];
+		else die("Missing information.");
+		if (array_key_exists("state", $_POST))
+			$state = $_POST["state"];
+		else die("Missing information (2).");
+		if (array_key_exists("status", $_POST))
+			$status = $_POST["status"];
+		else die("Missing information (3).");
+		if (array_key_exists("type", $_POST))
+			$type = $_POST["type"];
+		else die("Missing information (4).");
+
+		$conn = db_connect(DBDB, DBUSER, DBPASSWD)
+		or die("Unable to connect to database.");
+		$res = db_query($conn, sprintf("
+			UPDATE incidents
+			SET    state=%s,
+				   status=%s,
+				   type=%s,
+				   updated=CURRENT_TIMESTAMP,
+				   updatedby=%s
+			WHERE  id = %s",
+			$state, $status, $type, $_SESSION["userid"], $incidentid))
+		or die("Unable to update incident.");
+		db_close($conn);
+
+		Header("Location: $SELF");
+		break;
+
     //--------------------------------------------------------------------
     default:
         die("Unknown action");

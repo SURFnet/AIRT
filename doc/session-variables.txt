@@ -1,6 +1,12 @@
+$_SESSION["username"];			username of AIRT user
+$_SESSION["userid"];			userid of AIRT user
+$_SESSION["ip"];				IP address from which session started
+$_SESSION["last"];				Time of last interaction in session
+
 $_SESSION["active_ip"]			 
 $_SESSION["constituency_id"]
-$_SESSION["current_name"]
-$_SESSION["current_email"]
+$_SESSION["current_name"]      Last name of current user
+$_SESSION["current_email"]     Email address of current user
+$_SESSION["current_userid"]	   Organisational user ID of current user
 
-$_SESSION["incidentid"]		Incident ID of current incident
+$_SESSION["incidentid"]		   Incident ID of current incident

@@ -43,15 +43,16 @@ function getIncidentStates()
 }
 
 
-function showIncidentStateSelection($name)
+function showIncidentStateSelection($name, $default="")
 {
     printf("<select name=\"%s\">\n",
         htmlentities($name));
     $states = getIncidentStates();
     foreach ($states as $i=>$l)
     {
-        printf("<option value=%s>%s</option>\n",
+        printf("<option value='%s' %s>%s</option>\n",
             htmlentities($i),
+			($i == $default) ? "SELECTED" : "",
             htmlentities($l));
     }
     printf("</select>");
@@ -77,15 +78,16 @@ function getIncidentStatus()
 }
 
 
-function showIncidentStatusSelection($name)
+function showIncidentStatusSelection($name, $default="")
 {
     printf("<select name=\"%s\">\n",
         htmlentities($name));
     $status = getIncidentStatus();
     foreach ($status as $i=>$l)
     {
-        printf("<option value=%s>%s</option>\n",
+        printf("<option value='%s' %s>%s</option>\n",
             htmlentities($i),
+			($i == $default) ? "SELECTED" : "",
             htmlentities($l));
     }
     printf("</select>");
@@ -111,15 +113,16 @@ function getIncidentTypes()
 }
 
 
-function showIncidentTypeSelection($name)
+function showIncidentTypeSelection($name, $default="")
 {
     printf("<select name=\"%s\">\n",
         htmlentities($name));
     $states = getIncidentTypes();
     foreach ($states as $i=>$l)
     {
-        printf("<option value=%s>%s</option>\n",
+        printf("<option value='%s' %s>%s</option>\n",
             htmlentities($i),
+			($i == $default) ? "SELECTED" : "",
             htmlentities($l));
     }
     printf("</select>");
@@ -243,11 +246,12 @@ function addIPtoIncident($ip, $incident) {
 
 	$res = db_query($conn, sprintf("
 		INSERT INTO incident_addresses
-		(id, incident, ip)
+		(id, incident, ip, added, addedby)
 		VALUES
-		(nextval('incident_addresses_sequence'), %s, %s)",
+		(nextval('incident_addresses_sequence'), %s, %s, CURRENT_TIMESTAMP, %s)",
 			db_masq_null($incident),
-			db_masq_null($ip)
+			db_masq_null($ip),
+			db_masq_null($_SESSION["userid"])
 		))
 	or die("Unable to execute query.");
 	db_close($conn);
