@@ -1,29 +1,33 @@
 <?php
 /*
- * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
- * Copyright (C) 2004	Kees Leune <kees@uvt.nl>
+  AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
+  Copyright (C) 2004	Kees Leune <kees@uvt.nl>
 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- * 
- * userfunctions.plib - User defined functions. Most contain 
- * - function custom_categorize($ip, $defaultcategory); 
-         returns the category identifier
- * - function search_info($ip, $hostname, $consituency); prints additional
- *   information about hostname
- * 
- * $Id$
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  
+  userfunctions.plib - User defined functions. Most contain 
+  - function custom_categorize($ip, $defaultcategory); 
+        returns the category identifier
+  - function search_info($ip, $hostname, $consituency); prints additional
+    information about hostname
+  
+  The functions may set two session variables at their discretion
+    $_SESSION["current_user"] = Full name of the user
+    $_SESSION["current_ip"]   = IP address of the user
+  
+  $Id$
  */
 require_once '/etc/airt/airt.cfg';
 require_once LIBDIR.'/airt.plib';
@@ -158,6 +162,7 @@ Regio             : $regio
 Naam              : $naam
 
 EOF;
+                $_SESSION["current_name"] = $naam;
 		$ds = ldap_connect("ldap.uvt.nl")
 		or die("Unable to connect to ldap server");
 
@@ -181,6 +186,7 @@ Type              : $class
 Mail              : <a href="mailto:$email">$email</a>
 
 EOF;
+                $_SESSION["current_email"] = $email;
 		  if ($class=="Staff") 
 		  	echo "Internal phone    : $telnr";
 	        }
@@ -233,6 +239,7 @@ Laatst gezien    $gezien
 Outlet           $outlet
 </pre>
 EOF;
+            $_SESSION["current_name"] = $omschr;
 
             /* find room number */
             if (ereg("^([A-Z] [0-9]+)", $outlet, $matches))
@@ -321,9 +328,14 @@ function search_info_breburg($ip, $networkid)
                 $host2 = gethostbyaddr($ip2);
             flush();
 
+            $name = sprintf("%s%s%s",
+                $voornaam, 
+                ($voorvoegsels==""?" ":" $voorvoegsels "),
+                $achternaam);
+            $_SESSION["current_name"] = $name;
             echo <<<EOF
 <PRE>
-Naam              : $voornaam $voorvoegsels $achternaam
+Naam              : $name
 Instelling        : $instelling
 Studentnummer     : $anr
 Email             : $email

@@ -52,11 +52,15 @@ function footer()
 
 function showIncidentForm($id="")
 {
-    $constituency = $name = $email = $type = $state = $states = 0;
+    $constituency = $name = $email = $type = $state = $states = "";
     if (array_key_exists("active_ip", $_SESSION))
         $address = $_SESSION["active_ip"];
     if (array_key_exists("constituency_id", $_SESSION))
         $constituency = $_SESSION["constituency_id"];
+    if (array_key_exists("current_name", $_SESSION))
+        $name = $_SESSION["current_name"];
+    if (array_key_exists("current_email", $_SESSION))
+        $email = $_SESSION["current_email"];
     if ($id == "")
     {
         echo <<<EOF
@@ -75,11 +79,11 @@ EOF;
 </tr>
 <tr>
     <td>User's name</td>
-    <td><input type="text" size="30" name="name"></td>
+    <td><input type="text" size="30" value="$name" name="name"></td>
 </tr>
 <tr>
     <td>User's email</td>
-    <td><input type="text" size="30" name="email"></td>
+    <td><input type="text" size="30" value="$email" name="email"></td>
 </tr>
 <tr>
     <td>Incident type</td>
@@ -132,6 +136,71 @@ EOF;
 
     //--------------------------------------------------------------------
     case "Add":
+        if (array_key_exists("address", $_POST)) $address=$_POST["address"];
+        else $address="";
+        if (array_key_exists("constituency", $_POST)) 
+            $constituency=$_POST["constituency"];
+        else $constituency="";
+        if (array_key_exists("type", $_POST)) $type=$_POST["type"];
+        else $type="";
+        if (array_key_exists("state", $_POST)) $state=$_POST["state"];
+        else $state="";
+        if (array_key_exists("status", $_POST)) $status=$_POST["status"];
+        else $status="";
+        
+        $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+        or die("Unable to connect to database.");
+
+        $res = db_query($conn, "begin transaction")
+        or die("Unable to execute query 1.");
+        db_free_result($res);
+        
+        $res = db_query($conn, 
+            "select nextval('incidents_sequence') as incidentid")
+        or die("Unable to execute query 2.");
+        $row = db_fetch_next($res);
+        $incidentid = $row["incidentid"];
+        db_free_result($res);
+
+        $res = db_query($conn, sprintf(
+            "insert into incidents
+             (id, created, creator, updated, updatedby, state, status, type)
+             values
+             (%s, CURRENT_TIMESTAMP, %s, CURRENT_TIMESTAMP, %s, %s, %s, %s)",
+                $incidentid,
+                $_SESSION["userid"],
+                $_SESSION["userid"],
+                $state,
+                $status,
+                $type
+            )
+        ) or die("Unable to execute query 3.");
+        db_free_result($res);
+
+        $res = db_query($conn,
+            "select nextval('incident_addresses_sequence') as iaid")
+        or die("Unable to execute query 4.");
+        $row = db_fetch_next($res);
+        $iaid = $row["iaid"];
+        db_free_result($res);
+
+        $res = db_query($conn, sprintf(
+            "insert into incident_addresses
+             (id, incident, ip, added, addedby)
+             values
+             (%s, %s, %s, CURRENT_TIMESTAMP, %s)",
+                $iaid,
+                $incidentid,
+                db_masq_null("$address"),
+                $_SESSION["userid"]
+            )
+        ) or die("Unable to execute query 5.");
+        db_free_result($res);
+
+        $res = db_query($conn, "end transaction");
+        db_close($conn);
+
+        Header("Location: $SELF");
         break;
 
     //--------------------------------------------------------------------
@@ -146,21 +215,23 @@ EOF;
 
         $res = db_query($conn,
             "SELECT   i.id      as incidentid, 
-                      i.created as created,
-                      i.updated as updated,
+                      extract(epoch from i.created) as created,
+                      extract(epoch from i.updated) as updated,
                       c1.login  as creator, 
                       c2.login  as updater, 
                       s1.label  as state, 
                       s2.label  as status, 
-                      t.label   as type
+                      t.label   as type,
+                      a.ip      as ip
              FROM     incidents i, credentials c1, credentials c2,
                       incident_states s1, incident_status s2, 
-                      incident_types t
+                      incident_types t, incident_addresses a
              WHERE    i.creator = c1.userid
              AND      i.updatedby = c2.userid
              AND      i.state = s1.id
              AND      i.status = s2.id
              AND      i.type = t.id
+             AND      i.id = a.incident
              ORDER BY i.id")
         or die("Unable to execute query (1)");
 
@@ -174,6 +245,7 @@ EOF;
 <table width='100%'>
 <tr>
     <td>Incident ID</td>
+    <td>IP address</td>
     <td>Last updated</td>
     <td>Status</td>
     <td>State</td>
@@ -183,8 +255,9 @@ EOF;
             $count = 0;
             while ($row = db_fetch_next($res))
             {   
-                $id      = $row["id"];
-                $updated = $row["updated"];
+                $id      = $row["incidentid"];
+                $ip      = $row["ip"];
+                $updated = Date("d M Y", $row["updated"]);
                 $status  = $row["status"];
                 $state   = $row["state"];
                 $type    = $row["type"];
@@ -193,6 +266,7 @@ EOF;
                 echo <<<EOF
 <tr>
     <td>$incidentid</td>
+    <td>$ip</td>
     <td>$updated</td>
     <td>$status</td>
     <td>$state</td>

@@ -28,18 +28,17 @@ DROP SEQUENCE constituencies_sequence;
 DROP SEQUENCE roles_sequence;
 DROP SEQUENCE users_sequence;
 DROP SEQUENCE incidents_sequence;
-DROP SEQUENCE ipaddresses_sequence;
 DROP SEQUENCE incident_addresses_sequence;
 DROP SEQUENCE role_assignments_sequence;
 DROP SEQUENCE constituency_contacts_sequence;
 DROP SEQUENCE networks_sequence;
 DROP SEQUENCE credentials_sequence;
 DROP SEQUENCE incident_comments_sequence;
-DROP SEQUENCE ip_comments_sequence;
 DROP SEQUENCE user_comments_sequence;
 DROP SEQUENCE urls_sequence;
 DROP SEQUENCE permissions_sequence;
 DROP SEQUENCE role_permissions_sequence;
+DROP SEQUENCE blocks_sequence;
 
 DROP TABLE incident_types CASCADE; 
 DROP TABLE incident_states CASCADE;
@@ -48,18 +47,17 @@ DROP TABLE constituencies CASCADE;
 DROP TABLE roles CASCADE;
 DROP TABLE users CASCADE;
 DROP TABLE incidents CASCADE;
-DROP TABLE ipaddresses CASCADE;
 DROP TABLE incident_addresses CASCADE;
 DROP TABLE role_assignments CASCADE;
 DROP TABLE constituency_contacts CASCADE;
 DROP TABLE networks CASCADE;
 DROP TABLE credentials CASCADE;
 DROP TABLE incident_comments CASCADE; 
-DROP TABLE ip_comments CASCADE; 
 DROP TABLE user_comments CASCADE; 
 DROP TABLE urls CASCADE;
-DROP TABLE permissions;
-DROP TABLE role_permissions;
+DROP TABLE permissions CASCADE;
+DROP TABLE role_permissions CASCADE;
+DROP TABLE blocks CASCADE;
 
 begin transaction;
 
@@ -120,27 +118,14 @@ CREATE TABLE incidents (
     foreign key (type)      references incident_types(id)
 );
 
-CREATE TABLE ipaddresses (
-    id          integer,
-    address     varchar(128),
-    hostname    varchar(128),
-    constituency integer,
-    client      integer,
-    primary key (id),
-    foreign key (constituency) references constituencies(id),
-    foreign key (client)       references users(id)
-);
-
-
 CREATE TABLE incident_addresses (
     id          integer,
     incident    integer,
-    address     integer,
+    ip          varchar(128),
     added       timestamp,
     addedby     integer,
     primary key (id),
     foreign key (incident) references incidents(id),
-    foreign key (address)  references ipaddresses(id),
     foreign key (addedby)  references users(id)
 );
 
@@ -194,17 +179,6 @@ CREATE TABLE incident_comments (
     foreign key (addedby) references users(id)
 );
 
-CREATE TABLE ip_comments ( 
-    id          integer,
-    address     integer,
-    comment     varchar(240),
-    added       timestamp,
-    addedby     integer,
-    primary key (id),
-    foreign key (address) references ipaddresses(id),
-    foreign key (addedby) references users(id)
-);
-
 CREATE TABLE user_comments ( 
     id          integer,
     userid      integer,
@@ -241,6 +215,19 @@ CREATE TABLE role_permissions (
     foreign key (permission) references permissions(id)
 );
 
+CREATE TABLE blocks (
+    id            integer,
+    ip            varchar(128),
+    block_start   timestamp,
+    block_end     timestamp,
+    lastupdated   timestamp,
+    lastupdatedby integer,
+    incident      integer,
+    primary key (id),
+    foreign key (lastupdatedby) references users(id),
+    foreign key (incident) references incidents(id)
+);
+
 CREATE SEQUENCE incident_types_sequence;
 CREATE SEQUENCE incident_states_sequence;
 CREATE SEQUENCE incident_status_sequence;
@@ -255,11 +242,11 @@ CREATE SEQUENCE constituency_contacts_sequence;
 CREATE SEQUENCE networks_sequence;
 CREATE SEQUENCE credentials_sequence;
 CREATE SEQUENCE incident_comments_sequence;
-CREATE SEQUENCE ip_comments_sequence;
 CREATE SEQUENCE user_comments_sequence;
 CREATE SEQUENCE urls_sequence;
 CREATE SEQUENCE permissions_sequence;
 CREATE SEQUENCE role_permissions_sequence;
+CREATE SEQUENCE blocks_sequence;
 
 end transaction;
 

@@ -131,32 +131,35 @@ function getOpenIncidents()
     or die("Unable to connect to database.");
 
     $res = db_query($conn,
-        "SELECT   created, 
+        "SELECT   i.id as incidentid,
+                  extract(epoch from created), 
                   u1.lastname as creator_lastname,
                   u1.firstname as creator_firstname,
                   u1.email as creator_email,
                   u1.phone as creator_phone, 
-                  updated, 
+                  extract(epoch from updated), 
                   u2.lastname as updatedby_lastname,
                   u2.firstname as updatedby_firstname,
                   u2.email as updatedby_email,
                   u2.phone as updatedby_phone,
                   s2.label as state,
                   s1.label as status, 
-                  t.label as type
+                  t.label as type,
+                  a.ip as ip
          FROM     incidents i, incident_status s1, incident_states s2, 
-                  incident_types t, users u1, users u2
+                  incident_types t, users u1, users u2, incident_addresses a
          WHERE    i.status = s1.id
          AND      i.state = s2.id
          AND      i.type = t.id
          AND      i.creator = u1.id
          AND      i.updatedby = u2.id
-         AND      s1.label IN ('open', 'stalled')")
+         AND      i.id = a.incident
+         AND      s2.label IN ('open', 'stalled')")
     or die("Unable to connect to database.");
 
     $incidents=array();
     while ($row = db_fetch_next($res))
-        $incidents[$row["id"]]=$row;
+        $incidents[$row["incidentid"]]=$row;
     db_close($conn);
     return $incidents;
 }
@@ -164,22 +167,20 @@ function getOpenIncidents()
 
 function showOpenIncidentSelection($name)
 {
-    $states = getOpenIncidents();
-    $count = count($states);
+    $incidents = getOpenIncidents();
+    $count = count($incidents);
     if ($count == 0) return 0;
 
     printf("<select name=\"%s\">\n",
         htmlentities($name));
 
-    foreach ($states as $i=>$data)
+    foreach ($incidents as $i=>$data)
     {
-        printf("<option value=%s>%s, %s <%s> (%s)</option>\n",
+        printf("<option value=%s>%s: %s (%s)</option>\n",
             htmlentities($i),
-            htmlentities($data["creator_lastname"]),
-            htmlentities($data["creator_firstname"]),
-            htmlentities($data["creator_email"]),
-            htmlentities($data["type"])
-        );
+            normalize_incidentid($i),
+            $data["ip"],
+            $data["type"]);
     }
     printf("</select>");
     return $count;
