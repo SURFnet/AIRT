@@ -240,6 +240,7 @@ Outlet           $outlet
 </pre>
 EOF;
             $_SESSION["current_name"] = $omschr;
+			$_SESSION["current_email"] = $fac;
 
             /* find room number */
             if (ereg("^([A-Z] [0-9]+)", $outlet, $matches))

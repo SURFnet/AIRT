@@ -179,7 +179,8 @@ EOF;
 	<tr>
 		<td>IP Address</td>
 		<td><input type="text" name="ip" size="30" value="$address"></td>
-		<td><input type="submit" value="Add"></td>
+		<td><input type="submit" value="Add">
+		</td>
 	</tr>
 	</table>
 	</form>
@@ -271,6 +272,8 @@ EOF;
         showIncidentForm();
         echo <<<EOF
 <input type="submit" name="action" value="Add">
+		<input type="checkbox" name="sendmail">
+		Check to prepare mail.
 </form>
 EOF;
         break;
@@ -290,7 +293,9 @@ EOF;
         else $state="";
         if (array_key_exists("status", $_POST)) $status=$_POST["status"];
         else $status="";
-        
+		if (array_key_exists("sendmail", $_POST)) $sendmail=$_POST["sendmail"];
+		else $sendmail="off";
+
         $conn = db_connect(DBDB, DBUSER, DBPASSWD)
         or die("Unable to connect to database.");
 
@@ -350,7 +355,8 @@ EOF;
         $res = db_query($conn, "end transaction");
         db_close($conn);
 
-        Header("Location: $SELF");
+        if ($sendmail == "on") Header("Location: standard.php");
+		else Header("Location: $SELF");
         break;
 
 

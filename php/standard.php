@@ -193,10 +193,10 @@ function prepare_message($filename) {
 	// get vars
 	$cert = getUserByUserId($_SESSION["userid"]);
 	if (MAILFROM == '') $from = $cert["email"];
-	else $from = MAILFROM;
+	else $from = replace_vars(MAILFROM);
 
 	if (REPLYTO == '') $replyto = $cert["email"];
-	else $replyto = REPLYTO;
+	else $replyto = replace_vars(REPLYTO);
 
 	// load message and replace all standard variables
 	$msg = replace_vars(read_standard_message($filename));
