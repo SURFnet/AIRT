@@ -20,7 +20,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 $public=1;
-require_once '@ETCPATH/airt.cfg';
+require_once 'config.plib';
 require_once LIBDIR.'/airt.plib';
 
 pageHeader("AIRT Control Center");

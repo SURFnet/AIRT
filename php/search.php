@@ -22,7 +22,7 @@
  * $Id$
  */
  
- require_once '@ETCPATH@/airt.cfg';
+ require_once 'config.plib';
  require_once LIBDIR.'/airt.plib';
  require_once LIBDIR.'/incident.plib';
  require_once LIBDIR.'/constituency.plib';
