@@ -3,12 +3,12 @@
 
 Alias /airt/ @PHPPATH@/
 <Directory @PHPPATH@>
-	Options        Indexes
+    Options        Indexes
     DirectoryIndex index.php
 
-	# do not allow .plib files to be accessed via the webserver
-	<Files ~ "\.plib$">
-	    Order allow,deny
-		Deny from all
-	</Files>
+    # do not allow .plib files to be accessed via the webserver
+    <Files ~ "\.plib$">
+        Order allow,deny
+        Deny from all
+    </Files>
 </Directory>
