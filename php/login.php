@@ -94,6 +94,9 @@ EOF;
         fclose($f);
 
         session_start();
+        foreach (array("username", "userid", "ip", "last") as $key => $value)
+            session_register($value);
+
         $_SESSION["username"] = $login;
         $_SESSION["userid"]   = $userid;
         $_SESSION["ip"]       = $_SERVER["REMOTE_ADDR"];

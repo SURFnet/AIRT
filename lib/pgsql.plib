@@ -28,7 +28,7 @@ function db_errormessage()
 
 function db_connect($database, $username, $password)
 {
-    $connectstring = sprintf("dbname=%s user=%s password=%s",
+    $connectstring = sprintf("host=localhost dbname=%s user=%s password=%s",
         $database, $username, $password);
     $conn = pg_connect($connectstring);
 

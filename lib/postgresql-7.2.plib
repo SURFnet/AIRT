@@ -1,7 +1,7 @@
 <?php
     /* database compatibility library */
 
-    function db_fetch_enxt($res)
+    function db_fetch_next($res)
     {
         // for PHP < 4.2.0
         global $DB_ROWCOUNT;
@@ -26,10 +26,14 @@
         return pg_close($conn);
     }
 
-    function db_connect($connectstring)
+    function db_connect($database, $username, $password)
     {
-        return pg_connect($connectstring);
+        $connectstring = sprintf("host=localhost dbname=%s user=%s password=%s",
+            $database, $username, $password);
+        $conn = pg_connect($connectstring);
+        return $conn;
     }
+
 
     function db_query($conn, $query)
     {
@@ -52,4 +56,15 @@
         // for PHP >=4.2.0
         // return pg_num_rows($res);
     }
+
+
+    /* Return $str surrounded by singles quotes, or the string NULL is $str is an
+     * empty string
+     */ 
+    function db_masq_null($str)
+    {
+        return ($str == "" ? "NULL": "'$str'");
+    }
+
+
 ?>

@@ -54,7 +54,7 @@ function custom_categorize($ip, $networkid)
 
          while (!feof($f))
          {
-            $line = fgets($f);
+            $line = fgets($f, 255);
             if (trim($line) == "") continue;
 
             $data = explode("|", $line);
@@ -135,7 +135,7 @@ function search_info_essent($ip, $networkid)
 
     while (!feof($f))
     {
-    	$line = trim(fgets($f));
+    	$line = trim(fgets($f, 255));
 	if ($line=="") continue;
 
 	if (ereg("^([a-z]+[0-9]+) ([0-9a-f:]+) ([^ ]+) ([^ ]+) +(.*)$",
@@ -211,7 +211,7 @@ function search_info_uvt($ip, $networkid)
 
     while (!feof($f))
     {
-        $line = fgets($f);
+        $line = fgets($f, 255);
         if (trim($line) == "") continue;
 
         $data = explode("|", $line);
@@ -252,7 +252,7 @@ EOF;
             printf("<PRE>"); // XXX XXX
             while (!feof($f2)) 
             {
-                $line = trim(fgets($f2));
+                $line = trim(fgets($f2, 255));
                 if ($line == "") continue;
     
                 if ($roomno != "" && ereg($roomno, $line, $m))

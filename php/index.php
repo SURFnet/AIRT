@@ -32,9 +32,9 @@ $filename=sprintf(STATEDIR."/last_%s.txt", $_SESSION["username"]);
 if (file_exists($filename))
 {
   $f = fopen($filename, "r");
-  $last = fgets($f);
+  $lastlogin = fgets($f, 255);
   fclose($f);
-  printf("<small>$last</small>");
+  printf("<small>$lastlogin</small>");
 }
 echo "<HR>";
 ?>
