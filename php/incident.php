@@ -249,8 +249,18 @@ EOF;
         $incident->setConstituency($constituency);
         $incident->setCreated($now);
         $incident->setCreator($_SESSION["userid"]);
-
         AIR_addIncident($incident);
+
+        $event = new AIR_Event();
+        $event->setType("addincident");
+        $event->setField("ip", $ip);
+        $event->setField("category", $category);
+        $event->setField("constituency", $constituency);
+        $event->setField("user_email", $user_email);
+        $event->setField("user_name", $user_name);
+        $event->setField("state", $state);
+        $event->setField("status", $status);
+        triggerEvent($event);
 
         Header(sprintf("Location: %s/%s?action=list",
             BASEURL, $SELF));
@@ -309,6 +319,18 @@ EOF;
         $incident->setLastUpdatedBy($_SESSION["userid"]);
 
         Air_updateIncident($incident);
+        
+        $event = new AIR_Event();
+        $event->setType("updateincident");
+        $event->setField("id", $incidentid);
+        $event->setField("ip", $ip);
+        $event->setField("category", $category);
+        $event->setField("constituency", $constituency);
+        $event->setField("user_email", $user_email);
+        $event->setField("user_name", $user_name);
+        $event->setField("state", $state);
+        $event->setField("status", $status);
+        triggerEvent($event);
 
         Header(sprintf("Location: %s/%s?action=list",
             BASEURL, $SELF));
@@ -402,6 +424,11 @@ EOF;
         $incident = AIR_getIncidentById($id);
         $incident->setStatus("closed");
         AIR_updateIncident($incident);
+        
+        $event = new AIR_Event();
+        $event->setType("closeincident");
+        $event->setField("id", $id);
+        triggerEvent($event);
 
         Header(sprintf("Location: %s/%s?action=list",
             BASEURL, $SELF));

@@ -158,4 +158,84 @@ function normalize_incidentid($id)
     $id = decode_incidentid($id);
     return encode_incidentid($id);
 }
+
+function triggerEvent($event)
+{
+    switch ($event->type)
+    {
+        case "addincident":
+            mail("kees@uvt.nl", "AIR: ".$event->getType(),
+                sprintf("
+IP          : %s 
+Category    : %s
+Constituency: %s
+User email  : %s
+User name   : %s
+State       : %s
+Status      : %s",
+                $event->getField("ip"),
+                $event->getField("category"),
+                $event->getField("constituency"),
+                $event->getField("user_email"),
+                $event->getField("user_name"),
+                $event->getField("state"),
+                $event->getField("status")
+                ),
+                "From: Kees Leune - AIR <kees@uvt.nl>\r\n",
+                "-f kees@uvt.nl");
+            break;
+        case "updateincident":
+            break;
+        case "closeincident":
+            break;
+        
+    }
+} // triggerEvent
+
+
+class AIR_Event 
+{
+    var $data;
+    var $type;
+
+    function AIR_Event()
+    {
+        $this->data = array();
+    }
+
+    function setField($key, $value)
+    {
+        if ($key == "type") 
+            $this->type = $value;
+        else
+            $this->data[$key] = $value;
+    }
+
+    function getField($key)
+    {
+        if ($key == "type")
+            return $type;
+        else if (array_key_exists($key, $this->data)) 
+            return $this->data["$key"];
+        else
+            return 0;
+    }
+
+    function existsField($key)
+    {
+        return array_key_exists($key, $this->data);
+    }
+
+
+    function getType() 
+    {
+        return $this->type;
+    }
+
+
+    function setType($str) 
+    {
+        $this->type = $str;
+    }
+} // AIR_Event
 ?>
