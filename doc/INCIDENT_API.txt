@@ -1,0 +1,68 @@
+$Id$
+
+AIR_getIncidentById($id)
+    
+    $id: id of the requested incident
+    Returns: AIR_Incident
+    
+    Get incident by id. If the incident does not exist, the returned incident
+    will have an id of -1.
+
+AIR_addIncident($incident)
+    
+    $incident: instance of AIR_Incident class representing the new incident
+    Returns: nothing
+
+    Add the given incident
+
+AIR_updateIncident($incident)
+
+    $incident: instance of AIR_Incident class representing the updated incident
+    Returns: nothing
+
+    Update the given incident
+
+AIR_getIncidents()
+
+    Returns: an multi dimensional array representing all incidents
+
+    Return all incidents
+
+AIR_associate($incident, $ticket)
+    
+    $incident: incident to associate
+    $ticket: ticket to be associated
+
+    Associate $incident with ticket $ticket.
+
+class AIR_Incident
+
+    function setId($id)
+    function setIp($str)
+    function setConstituency($id)  
+    function setRTId($id)          
+    function setStatus($str)       
+    function setCategory($str)     
+    function setUserEmail($str)    
+    function setUserName($str)     
+    function setState($str)        
+    function setHostname($str)     
+    function setCreated($str)      
+    function setCreator($str)      
+    function setLastUpdatedBy($str)
+    function setLastUpdated($str)  
+
+    function getId()               
+    function getIp()               
+    function getConstituency() 
+    function getRTId()             
+    function getStatus()           
+    function getCategory()         
+    function getUserEmail()        
+    function getUserName()         
+    function getState()            
+    function getHostname()         
+    function getCreated($str)      
+    function getCreator($str)      
+    function getLastUpdatedBy($str) }
+    function getLastUpdated($str)  

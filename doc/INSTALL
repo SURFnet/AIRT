@@ -1,0 +1,35 @@
+INSTALL -- very basic install guide. Probably lacking a lot of implicit
+knowledge and additional information.
+
+$Id$
+
+* Install request tracker, select postgres databases
+
+* Install the AIR package
+
+* Log on to the postgres command line client and execute the SQL statements 
+  from the file 'libertyschema.sql'
+
+* edit /usr/share/liberty/lib/liberty.plib and set the variables in the
+  beginning of that file
+
+* Create a new queue for the liberty application
+
+* Create a user group for the liberty users and assign the appropriate users
+  to that group.
+
+* edit /usr/share/liberty/lib/userfunctions.plib and create at least two php
+  functions:
+
+  - function categorize($ip, $hostname); returns a string representing the
+    constituency
+  - function search_info($ip, $hostname, $constituency); prints additional
+    information about hostname
+
+* Point browser to liberty main screen and add constituencies. Make sure that
+  constituency names match the returned strings from the functions defined
+  above EXACTLY (no additional whitespaces, correct capitalization, etc).
+
+* Set up request tracker to deliver mail to your liberty queue
+
+* Ready

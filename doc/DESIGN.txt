@@ -1,0 +1,14 @@
+$Id$
+
+The objective of this project is to develop a system for incident response for
+end-users. We propose to build this incident response support system by using
+existing components, most notably the request tracker component.
+
+However, as request tracker is a fully independent product, the interface
+between RT and LIBERTY needs to be as small as possible. Furthermore, we will
+not adjust the RT database schema in any way, shape or form and locate all
+integration between RT and LIBERTY on the LIBERTY side.
+
+The role that RT plays in LIBERTY is the role of mail handling and
+categorization. 
+
