@@ -342,9 +342,9 @@ EOF;
                 $incidentid,
                 $_SESSION["userid"],
                 $_SESSION["userid"],
-                $state,
-                $status,
-                $type
+                $state == "" ? 'NULL' : $state ,
+                $status == "" ? 'NULL' : $status ,
+                $type == "" ? 'NULL' : $type
             )
         ) or die("Unable to execute query 3.");
         db_free_result($res);

@@ -1,4 +1,8 @@
-2005-feb-14  Kees Leune  <kees@uvt.nl>
+2005-feb-28  Kees Leune  <kees@uvt.nl>
+* php/incident.php: Fixed incorrect check for uninitialsed variable in
+  creating new incidents.
+
+2005-feb-24  Kees Leune  <kees@uvt.nl>
 * php/networks.php: network list is now sorted by IP address
 * all files: numerous warning fixes; removed all references to $SELF and
   BASEURL
