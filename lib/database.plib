@@ -38,8 +38,8 @@ function db_connect($database, $username, $password)
 
 function db_query($conn, $query)
 {
-    if (DEBUG)
-    printf("<PRE>$query</PRE>");
+    if (defined('DEBUG' && DEBUG)))
+		printf("<PRE>$query</PRE>");
     $res = pg_query($conn, $query);
 
     return $res;
