@@ -50,7 +50,7 @@ function AIR_getIncidentsByIp($ip)
 
     db_close($conn);
     return $output;
-} // AIR_getIncidentById
+} // AIR_getIncidentByIp
 
 
 /* Get incident by id. If the incident does not exist, the returned incident
@@ -77,6 +77,7 @@ function AIR_getIncidentById($id)
     or die("Unable to query database.");
  
     $incident = new AIR_Incident();
+    
     if (db_num_rows($r) > 0)
     {
         $row = db_fetch_next($r);

@@ -186,8 +186,7 @@ function encode_incidentid($id)
 function decode_incidentid($id)
 {
     $x = ereg_replace(INCIDENTID_PREFIX, "", $id);
-    while (ereg("0", $x))
-        $x = ereg_replace("0", "", $x);
+    $x = ereg_replace("^0*", "", $x);
     return $x;
 }
 
