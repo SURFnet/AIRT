@@ -115,7 +115,7 @@ EOF;
         // include previous incidents
 		// TODO
         echo <<<EOF
-<h2>Previous incidents</h2>";
+<h2>Previous incidents</h2>
 	
 <I>Under construction</I>
 EOF;
