@@ -67,74 +67,79 @@ EOF;
 }
 
 function showIncidentForm() {
-    $constituency = $name = $email = $type = $state = $states = "";
+    $constituency = $name = $email = $type = $state = $status = "";
+
     if (array_key_exists("active_ip", $_SESSION))
         $address = $_SESSION["active_ip"];
+	else $address = "";
     if (array_key_exists("constituency_id", $_SESSION))
         $constituency = $_SESSION["constituency_id"];
+	/*
     if (array_key_exists("current_name", $_SESSION))
         $name = $_SESSION["current_name"];
+	else $name = "";
+	*/
     if (array_key_exists("current_email", $_SESSION))
         $email = $_SESSION["current_email"];
 
-	showBasicIncidentData($type, $state, $status);
-	echo <<<EOF
+	showbasicincidentdata($type, $state, $status);
+	echo <<<eof
 <hr>
-<h3>Affected IP addresses</h3>
+<h3>affected ip addresses</h3>
 <table cellpadding="4">
 <tr>
-    <td>Hostname or IP address</td>
+    <td>hostname or ip address</td>
     <td><input type="text" size="30" name="address" value="$address"></td>
 </tr>
 <tr>
-    <td>Constituency</td>
+    <td>constituency</td>
     <td>
-EOF;
-        showConstituencySelection("constituency", $constituency);
-		$email = $_SESSION['current_email'];
-        echo <<<EOF
+eof;
+        showconstituencyselection("constituency", $constituency);
+		$email = $_session['current_email'];
+        echo <<<eof
     </td>
 </tr>
 </table>
 
 <hr>
-<h3>Affected users</h3>
+<h3>affected users</h3>
 	
-<table bgColor="#DDDDDD" cellpadding="2" border="0">
+<table bgcolor="#dddddd" cellpadding="2" border="0">
 <tr>
-	<td>Email address of user:</td>
+	<td>email address of user:</td>
 	<td><input type="text" size="40" name="email" value="$email"></td>
 	<td><a href="help.php?topic=incident-adduser">help</td>
 </tr>
 </table>
 <input type="checkbox" name="addifmissing">
-	If checked, create user if email address unknown
+	if checked, create user if email address unknown
 <p>
 <hr>
-EOF;
-} // showIncidentForm
+eof;
+} // showincidentform
 
 
 
-function showEditForm() {
+function showeditform() {
 
-	$incident = getIncident($_SESSION["incidentid"]);
+	$incident = getincident($_session["incidentid"]);
 	$type = $incident["type"];
 	$state = $incident["state"];
 	$status = $incident["status"];
 
-    if (array_key_exists("active_ip", $_SESSION))
-        $address = $_SESSION["active_ip"];
-    if (array_key_exists("constituency_id", $_SESSION))
-        $constituency = $_SESSION["constituency_id"];
+    if (array_key_exists("active_ip", $_session))
+        $address = $_session["active_ip"];
+    if (array_key_exists("constituency_id", $_session))
+        $constituency = $_session["constituency_id"];
 	
-	echo <<<EOF
-<form action="$SELF" method="POST">
-EOF;
-	showBasicIncidentData($type, $state, $status);
+	echo <<<eof
+<form action="$self" method="post">
+eof;
+	showbasicincidentdata($type, $state, $status);
 
-	echo <<<EOF
-<input type="submit" name="action" value="Update">
+	echo <<<eof
+<input type="submit" name="action" value="update">
 </form>
 <HR>
 <h3>Affected IP addresses</h3>
@@ -363,6 +368,7 @@ EOF;
         $iaid = $row["iaid"];
         db_free_result($res);
 
+		$hostname = @gethostbyaddr($address);
         $res = db_query($conn, sprintf(
             "insert into incident_addresses
              (id, incident, ip, hostname, constituency, added, addedby)
@@ -371,7 +377,7 @@ EOF;
                 $iaid,
                 $incidentid,
                 db_masq_null($address),
-                db_masq_null(gethostbyaddr($address)),
+                db_masq_null($hostname),
 				db_masq_null($constituency),
                 $_SESSION["userid"]
             )
@@ -385,7 +391,7 @@ EOF;
 
 		generateEvent("newincident", array(
 			"incidentid" => $incidentid,
-			"ip"         => $ip,
+			"ip"         => $address,
 			"hostname"   => $hostname,
 			"state"      => $state,
 			"status"     => $status,

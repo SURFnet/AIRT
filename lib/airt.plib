@@ -22,10 +22,10 @@
  */
 if (defined('CUSTOM_FUNCTIONS')) require_once CUSTOM_FUNCTIONS;
 
+session_start();
 
 if (!isset($public) || !$public)
 {
-    session_start();
     if (!array_key_exists("username", $_SESSION)) 
     {
         Header("Location: login.php");
@@ -77,10 +77,9 @@ if (!isset($public) || !$public)
  * Display the page header
  * @in title The title of the page
  */
-function pageheader($title, $helptopic="") 
-{
+function pageheader($title, $helptopic="") {
     global $public;
-    
+
     $username=$_SESSION["username"];
     $BASEURL=BASEURL;
     echo <<<EOF
