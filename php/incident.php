@@ -365,14 +365,15 @@ EOF;
         $count = 0;
         foreach ($incidents as $index => $incident)
         {
+            // get status
+            $status       = $incident["status"];
+            if ($status == "closed") continue;
+
             $id           = normalize_incidentid($incident["id"]);
             $ip           = $incident["ip"];
             $category     = $incident["category"];
             $date_created = $incident["created"];
 
-            // get status
-            $status       = $incident["status"];
-            if ($status == "closed") continue;
 
             // get state
             $state        = $incident["state"];
@@ -428,15 +429,10 @@ EOF;
         if (array_key_exists("id", $_REQUEST)) $id=$_REQUEST["id"];
         else die("Missing information (1).");
 
-        $incident = AIR_getIncidentById($id);
+        $incident = AIR_getIncidentById(decode_incidentid($id));
         $incident->setStatus("closed");
         AIR_updateIncident($incident);
         
-        $event = new AIR_Event();
-        $event->setType("closeincident");
-        $event->setField("id", $id);
-        triggerEvent($event);
-
         Header(sprintf("Location: %s/%s?action=list",
             BASEURL, $SELF));
 
