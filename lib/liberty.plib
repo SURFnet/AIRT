@@ -56,6 +56,10 @@ define("WARN_UNACK", (60*60*24*6));
 
 // Incident ID prefix
 define("INCIDENTID_PREFIX", "UvT-CERT#");
+
+// directory containing status files and reference info
+define("LIBERTY_VARDATA", "/var/lib/liberty");
+
 /**
  * Display the page header
  * @in title The title of the page

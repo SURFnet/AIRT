@@ -94,7 +94,7 @@
 <tr>
     <td>Action</td>
     <td>
-        <input type="radio" name="action" value="search">Search</input>
+        <input type="radio" name="action" value="search" CHECKED>Search</input>
         <input type="radio" name="action" value="new">New incident</input>
         <input type="radio" name="action" value="ignore">Ignore message</input>
         <input type="hidden" name="id" value="$id">
@@ -213,7 +213,7 @@ EOF;
         else die("Missing information");
 
         Header(
-            sprintf("Location: https://liberty.uvt.nl/cert/search.php?ip=%s&action=search",
+            sprintf("Location: search.php?hostname=%s&action=search",
             urlencode($hostname)));
         break;
 
