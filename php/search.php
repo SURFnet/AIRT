@@ -33,10 +33,8 @@
 
  $SELF = "search.php";
 
- switch ($action)
+ function ShowSearch()
  {
-    case "none":
-        pageHeader("IP address search:");
         echo <<<EOF
 <form action="$SELF" method="POST">
 <input type="hidden" name="action" value="search">
@@ -50,6 +48,13 @@
 </tr>
 </table>
 EOF;
+ }
+
+ switch ($action)
+ {
+    case "none":
+        pageHeader("IP address search:");
+        showSearch();
         pageFooter();
         break;
         
@@ -117,8 +122,12 @@ EOF;
         showOpenIncidentSelection("incidentid");
         echo <<<EOF
 <input type="submit" name="new" value="New incident">
+</form>
+<P>
+<HR>
 EOF;
 
+        showSearch();
         pageFooter();
         
         break;

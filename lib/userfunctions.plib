@@ -37,11 +37,11 @@ require_once LIBDIR.'/search.plib';
 function custom_categorize($ip, $networkid)
 {
     $networks = getNetworks();
-    $category = $networks[$networkid]["constituency"];
+    $category = $networkid;
     $match = false;
 
     // The catchall UvT-domain needs to be refined further
-    if (in_array($networkid, array(0=>1, 1=>12, 2=>13, 3=>14, 4=>14, 5=>15)))
+    if (in_array($networkid, array(1, 12, 13, 14, 14, 15)))
     {
          // find IP address in DUN database
          // DUN is HOSTNAME based. Translate our IP and strip off domain
@@ -125,9 +125,12 @@ function search_info($ip, $networkid)
  */
 function search_info_essent($ip, $networkid) 
 {
-    $hostname = ereg_replace("\.(kub|uvt)\.nl$", "", gethostbyaddr($hostname));
+    // strip of domain
+    $hostname = strtolower(
+        ereg_replace("\.(kub|uvt)\.nl$", "", gethostbyaddr($ip))
+    );
 
-    $f = fopen(sprintf("%s/%s", CERTDATA, "essent.txt"), "r")
+    $f = fopen(sprintf("%s/%s", CERTDIR, "essent.txt"), "r")
     or die ("Unable to open essent file");
 
     while (!feof($f))
@@ -185,6 +188,7 @@ EOF;
 	   } // if hostname match
 	}  // if pattern match
     } // while
+    echo "</PRE>";
     
     fclose($f);
 } // search_info_essent
@@ -286,9 +290,95 @@ EOF;
 } // search_info_internal()
 
 
+function search_info_breburg($ip, $networkid)
+{
+    $f = fopen(CERTDIR."/wonenbreburg.csv", "r")
+    or die ("Unable to open essent file");
+
+    while (!feof($f))
+    {
+    	$line = trim(fgets($f,160));
+	if ($line=="") continue;
+        $data = explode(",", $line);
+
+        $ip1 = trim($data[8]); 
+        $ip2 = trim($data[9]); 
+
+        if ($ip1 == $ip || $ip2 == $ip)
+        {
+            $voornaam     = $data[0];
+            $voorvoegsels = $data[1];
+            $achternaam   = $data[2];
+            $mac1         = $data[3];
+            $mac2         = $data[4];
+            $instelling   = $data[5];
+            $host1        = gethostbyaddr($ip1);
+            $anr          = eregi_replace("^s", "", $data[6]);
+            $email        = $data[7];
+            if ($ip2 == "") 
+                $host2="";
+            else 
+                $host2 = gethostbyaddr($ip2);
+            flush();
+
+            echo <<<EOF
+<PRE>
+Naam              : $voornaam $voorvoegsels $achternaam
+Instelling        : $instelling
+Studentnummer     : $anr
+Email             : $email
+</PRE>
+EOF;
+
+echo <<<EOF
+<PRE>
+Aansluiting 1:
+    MAC adres     : $mac1
+    IP adres      : $ip1
+    Host name     : $host1
+
+Aansluiting 2:
+    MAC adres     : $mac2
+    IP adres      : $ip2
+    Host name     : $host2
+</PRE>
+EOF;
+        }
+    } // while
+    fclose($f);
+}
+
 function search_info_extern($ip, $networkid)
 {
-    printf("Extern");
+    $cmd1=escapeshellcmd("/usr/bin/whois $ip");
+    $cmd2=escapeshellcmd("/usr/bin/dig -t ALL $ip");
+    $cmd3=escapeshellcmd("/usr/bin/traceroute $ip");
+    $cmd4=escapeshellcmd("/usr/bin/rblcheck $ip");
+
+    echo "<h2>Whois</h2>";
+    echo "<PRE>";
+    system($cmd1); 
+    echo"</PRE>";
+    flush();
+
+    echo "<h2>Dig</h2>";
+    echo "<PRE>";
+    system($cmd2);
+    echo "</PRE>";
+    flush();
+
+    echo "<h2>RBL check</h2>";
+    echo "<PRE>";
+    system($cmd4);
+    echo "</PRE>";
+    flush();
+    
+    echo "<h2>Traceroute</h2>";
+    echo "<PRE>";
+    system($cmd3);
+    echo "</PRE>";
+    flush();
+
 }
 
 ?>
