@@ -3,7 +3,7 @@
  * index.php - Index page for UvT-CERT
  *
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
- * Copyright (C) 2004	Kees Leune <kees@uvt.nl>
+ * Copyright (C) 2004	Tilburg University, The Netherlands
 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

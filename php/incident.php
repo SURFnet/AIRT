@@ -1,7 +1,7 @@
 <?php
 /*
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
- * Copyright (C) 2004	Kees Leune <kees@uvt.nl>
+ * Copyright (C) 2004	Tilburg University, The Netherlands
 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,6 @@
 require_once "../lib/airt.plib";
 require_once "../lib/incident.plib";
 require_once "../lib/constituency.plib";
-require_once "../lib/rt.plib";
 require_once "../lib/history.plib";
 require_once "../lib/userfunctions.plib";
 
@@ -64,7 +63,6 @@ switch ($action)
 
         $incident = AIR_getIncidentById($id);
         if ($incident->getId() == -1) die("Unknown ID: $id");
-        
 
         $ip            = $incident->getIp();
         $constituency  = $incident->getConstituency();
@@ -524,6 +522,7 @@ EOF;
 
 
         echo "<h2>Messages</h2>";
+        /*
         $incident = AIR_getIncidentById($id);
         $rtid = $incident->rtid;
         if ($rtid != "")
@@ -547,6 +546,7 @@ EOF;
                 }
             }
         }
+        */
 
         pageFooter();
         break;

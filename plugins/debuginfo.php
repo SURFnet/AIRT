@@ -1,5 +1,5 @@
 <?php
-    require '../lib/air.plib';
+    require '../lib/airt.plib';
 
     pageHeader("Debug info");
 
