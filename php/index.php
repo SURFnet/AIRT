@@ -44,7 +44,7 @@ echo "<HR>";
 
 <P>
 
-<a href="incident.php">Incident management</a> (Work in progress)
+<a href="incident.php">Incident management</a>
 
 <P>
 
