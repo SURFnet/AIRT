@@ -2,7 +2,7 @@
 /* $Id$ 
  * index.php - Index page for UvT-CERT
  *
- * AIR: APPLICATION FOR INCIDENT RESPONSE
+ * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
  * Copyright (C) 2004	Kees Leune <kees@uvt.nl>
 
  * This program is free software; you can redistribute it and/or modify

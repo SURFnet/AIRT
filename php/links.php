@@ -1,6 +1,6 @@
 <?php
 /*
- * AIR: APPLICATION FOR INCIDENT RESPONSE
+ * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
  * Copyright (C) 2004	Kees Leune <kees@uvt.nl>
 
  * This program is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
  * 
  * $Id$
  */
- require '../lib/air.plib';
+ require '../lib/airt.plib';
  require '../lib/database.plib';
  
  $SELF = "links.php";

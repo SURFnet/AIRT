@@ -1,6 +1,6 @@
 <?php
     $public = 1;
-    require '../lib/air.plib';
+    require '../lib/airt.plib';
     pageHeader("GNU General Public License");
     echo "<PRE>";
     include "../COPYING";

@@ -2,7 +2,7 @@
 /* $Id$ 
  * standard.php - Standard messages
  *
- * AIR: APPLICATION FOR INCIDENT RESPONSE
+ * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
  * Copyright (C) 2004	Kees Leune <kees@uvt.nl>
 
  * This program is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
  * $Id$
  */
 require_once "../lib/database.plib";
-require_once "../lib/air.plib";
+require_once "../lib/airt.plib";
 require_once "../lib/incident.plib";
 require_once "../lib/rt.plib";
 require_once "../lib/constituency.plib";

@@ -1,5 +1,5 @@
 # Makefile for liberty
-# LIBERTY: INCIDENT RESPONSE SUPPORT FOR END-USERS
+# AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
 # Copyright (C) 2004	Kees Leune <kees@uvt.nl>
 #
 # This program is free software; you can redistribute it and/or modify

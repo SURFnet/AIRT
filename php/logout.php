@@ -2,7 +2,7 @@
 /* $Id$ 
  * logout.php - Allows users to log out 
  
- * AIR: APPLICATION FOR INCIDENT RESPONSE
+ * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
  * Copyright (C) 2004	Kees Leune <kees@uvt.nl>
 
  * This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 $public=1;
-include "../lib/air.plib";
+include "../lib/airt.plib";
 pageHeader("AIR Control Center");
 
 @session_unset();
