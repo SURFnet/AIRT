@@ -1,11 +1,15 @@
-AIRT installation manual for packages
--------------------------------------
 $Id$
 In CVS at $Source$
 
-1. Configurating AIRT after installation
+AIRT Overview
+-------------
 
-    After installing the AIRT package, a few actions need to be taken.
+AIRT installation manual for packages
+-------------------------------------
+
+1. Configuring AIRT after installation
+
+    After installing AIRT, a few actions need to be taken.
 
     Step 1. Create the database referred to in the configuration file. This
     would typically be achieved by changing to the postgres user and giving
@@ -32,58 +36,119 @@ In CVS at $Source$
         ALTER USER
 
 
-    Step 4. Edit @ETCPATH@/airt.cfg and set the variables apropriately.
+    Step 4. Edit @ETCPATH@/airt.cfg and set the 
+    variables apropriately. Note that the configuration file is a
+    regular PHP program, and any PHP construct can be used in it. For example,
+    it is possible to move the database password out of the main configuration
+    file and move it to its own file by using PHP's require_once operator.
 
     Step 5. Make sure the airt user has access to the database. Edit
-    /etc/postgresql/pg_hba.conf and add the line. 
+    pg_hba.conf. On most systems, that file can be found in /etc/postgresql,
+    but your milage may vary.
     
     Keep in mind that the order of access control rules in pg_hba.conf is
-    important. Add the line after the line which grants the postgres user
-    access to all databases.
+    important. Add the following line after the line which grants the postgres
+    user access to all databases:
 
         local   airt        airt       password
 
     
-    Step 6. As root, signal postgres to reload the configuration
+    Step 6. As root, signal postgres to reload the configuration. On most
+    installations, this may be achieved by a command similar to 
+    /etc/init.d/postgresql restart, however you may have chosen a different
+    setup. 
+
+    Debian administrators may use the command:
 
         root:~# invoke-rc.d postgresql reload
 
     Step 7. Initialise the database.
+    
+    Dont worry if the script outputs ERRORs in the the beginning; this is due
+    to the fact that it tries to drop sequences and tables that may not exist
+    yet.
+
+    Having psql and gunzip in your PATH, do:
 
     postgres:~% gunzip -c @DOCPATH@/airtschema.sql.gz \
             |psql airt airt
 
-    Dont worry if the scripts outputs ERRORs in the the beginning; this is due
-    to the fact that it tries to drop sequences and tables that may not exist
-    yet.
         
     Step 8. Bootstrap the database.
             
     postgres:~% psql airt airt < \
         @DOCPATH@/airtbootstrap.sql 
 
-    Step 9. Configure apache. The easiest way to do this is to add a symbolic
-    link in /etc/apache/conf.d, which points to 
+    Step 9. Configure your web browser. If you are using Apache, the easiest
+    way to do this is to add a symbolic link in your configuration directory
+    and include that file.
+
+    Debian administrators can achieve the same by adding a symbolic link
+    in /etc/apache/conf.d (or /etc/apache2/conf.d) which leads to
     @ETCPATH@/airt-apache.conf
 
-    As root do
-
-        root:/etc/apache/conf.d:# ln -s @ETCPATH@/airt-apache.conf
-
-    Step 10. Confirm that the configuration file is correct
+    Step 10. Confirm that the configuration file is correct. Apache
+    administrators do
 
         root:~# apachectl configtest
+
+    (or apache2ctl, or apache-sslctl, etc)
 
     Step 11. If everything checks out, reload the apache configuration and you
     should be done. If apache is already running, do
 
-        root:~# invoke-rc.d apache reload
+        root:~# /etc/init.d/apache reload
 
     else do
 
-        root:~# invoke-rc.d apache start
+        root:~# /etc/init.d/apache start
 
     Step 12. Change the admin password. Point your browser at the machine that
     hosts the application and log in with user admin, password admin. On the
     main menu, click Edit settings > Edit users. Then, on the line with the
     admin user, click edit and set a (different) password.
+
+    NOTE: For the time being, passwords are stored in PLAIN TEXT in the
+    database. Make sure you keep that in mind when you choose a password, and
+    also inform your users about this fact.
+
+AIRT deinstallation manual for packages
+---------------------------------------
+
+Uninstalling AIRT consists of the following steps:
+
+    Step 1: Remove PHP files; generally this may be achieved by 
+
+        root:~# rm -rf /usr/share/airt
+
+    Depending on your packacing policy, this may differ. Debian administrators
+    do
+
+        root:~# apt-get remove --purge airt
+
+    Step 2: Remove data files. Generally this may be achieved by
+
+        root:~# rm -rf /var/lib/airt
+
+    Debian administrators can skip this step, as it is taken care of by the
+    --purge option to apt-get remove.
+
+    Step 3: Remove the database. This may be achieved by
+
+        postgres:~% psql template1
+        Welcome to psql 7.4.6, the PostgreSQL interactive terminal.
+        ...
+
+        template1=# drop database airt;
+        DROP database
+
+    Step 4: Remove the database user. This may be achieved by
+
+        template1=# drop user airt;
+        DROP USER
+
+    Step 5: Update pg_hba.conf. Remove the line which grants access to the
+    airt database from pg_hba.conf and signal Postgresql to reload its
+    configuration files.
+
+# EOF
