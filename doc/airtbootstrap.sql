@@ -45,7 +45,25 @@ INSERT INTO role_permissions
     (id, role, permission)
     VALUES
     (nextval('role_assignments_sequence'), 1, 1);
-insert into constituencies (id,label,name) values (-1, 'default', 'default');
-insert into networks (id, network, netmask, label, constituency) values ( -1, '0.0.0.0', '0.0.0.0', 'Default network', -1);
+INSERT INTO constituencies
+		(id,label,name) 
+		VALUES
+		(-1, 'default', 'default');
+INSERT INTO networks
+		(id, network, netmask, label, constituency) 
+		VALUES
+		( -1, '0.0.0.0', '0.0.0.0', 'Default network', -1);
+INSERT INTO incident_status
+		(id, label)
+		VALUES
+		(1, 'open');
+INSERT INTO incident_status
+		(id, label)
+		VALUES
+		(2, 'closed');
+INSERT INTO incident_status
+		(id, label)
+		VALUES
+		(3, 'stalled');
 
 end transaction;
