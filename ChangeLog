@@ -1,4 +1,8 @@
+2005-jan-31  Kees Leune  <kees@leune.org>
+* php/login.php.in: Update version number on login screen automagically
+
 2005-jan-31  Kees Leune  <kees@uvt.nl>
+
 * lib/userfunctions.plib: removed from distribution
 * lib/database.plib: Fixed bug in debug flag
 * etc/airt.cfg.in: added hook for customfunctions
