@@ -42,9 +42,10 @@
 <input type="hidden" name="action" value="search">
 <table width="100%" bgcolor="#DDDDDD" border=0 cellpadding=2>
 <tr>
-    <td>IP address:</td>
+    <td><label for="hostnameid" accesskey="A">IP address:</label>
+	</td>
     <td>
-        <input type="text" size="40" name="hostname">
+        <input type="text" id="hostnameid" size="40" name="hostname">
         <input type="submit" value="Search">
     </td>
 </tr>
@@ -55,7 +56,7 @@ EOF;
  switch ($action)
  {
     case "none":
-        pageHeader("IP address search:");
+        pageHeader("IP address search", "search-search");
         showSearch();
         pageFooter();
         break;
@@ -98,7 +99,7 @@ EOF;
         $_SESSION["active_ip"] = $ip;
         $_SESSION["constituency_id"] = $consid;
 
-        pageHeader("Detailed information for host $hostname");
+        pageHeader("Detailed information for host $hostname", "search-info");
         
         echo <<<EOF
 Search results for the following host:
