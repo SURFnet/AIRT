@@ -38,7 +38,7 @@ function db_connect($database, $username, $password)
 
 function db_query($conn, $query)
 {
-    if (defined('DEBUG') && DEBUG))
+    if (defined('DEBUG') && DEBUG)
 		printf("<PRE>$query</PRE>");
     $res = pg_query($conn, $query);
 
