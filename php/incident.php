@@ -33,17 +33,6 @@ else $action="list";
 
 $SELF="incident.php";
 
-function choice($label, $value, $default)
-{
-    if ($value == $default)
-        return sprintf("<OPTION value='%s' SELECTED>%s</OPTION>\n",
-            $value, $label);
-    else
-        return sprintf("<OPTION value='%s'>%s</OPTION>\n",
-            $value, $label);
-}
-
-
 function footer()
 {
     printf("<P><a href=\"%s?action=new\">Create new incident</a>", $SELF);
@@ -366,6 +355,33 @@ EOF;
         $conn = db_connect(DBDB, DBUSER, DBPASSWD)
         or die("Unable to connect to database.");
 
+		if (array_key_exists("filter", $_POST)) $filter = $_POST["filter"];
+		else $filter = 1;
+
+		echo <<<EOF
+<FORM action="$SELF" method="POST">
+<INPUT TYPE="hidden" name="action" value="list">
+Select incident status <SELECT name="filter">
+EOF;
+		choice("open", 1, $filter);
+		choice("stalled", 2, $filter);
+		choice("open or stalled", 3, $filter);
+		echo <<<EOF
+</SELECT>
+<INPUT TYPE="submit" VALUE="Ok">
+</FORM>
+EOF;
+		switch ($_POST["filter"]) {
+			case 1: $sqlfilter = "AND s2.label = 'open'";
+				break;
+			case 2: $sqlfilter = "AND s2.label = 'stalled'";
+				break;
+			case 3: $sqlfilter = "AND s2.label IN ('open', 'stalled')";
+				break;
+			default:
+				$sqlfilter="";
+		}
+
         $res = db_query($conn,
             "SELECT   i.id      as incidentid, 
                       extract(epoch from i.created) as created,
@@ -388,8 +404,7 @@ EOF;
              AND      i.state = s1.id
              AND      i.status = s2.id
              AND      i.type = t.id
-             AND      i.id = a.incident
-			 AND      s2.label in ('open', 'stalled')
+             AND      i.id = a.incident ".$sqlfilter."
              ORDER BY i.id")
         or die("Unable to execute query (1)");
 
@@ -413,8 +428,7 @@ EOF;
 </tr>
 EOF;
             $count = 0;
-            while ($row = db_fetch_next($res))
-            {   
+            while ($row = db_fetch_next($res)) {
                 $id      = $row["incidentid"];
                 $ip      = $row["ip"];
                 $hostname= $row["hostname"];
@@ -447,6 +461,7 @@ EOF;
 EOF;
             } // while
             echo "</table>";
+			printf("<P><I>$count incidents displayed.</I><P>");
             db_free_result($res);
             db_close($conn);
         } // else

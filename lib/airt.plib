@@ -174,4 +174,14 @@ function normalize_incidentid($id)
     return encode_incidentid($id);
 }
 
+
+function choice($label, $value, $default)
+{
+    if ($value == $default)
+        return sprintf("<OPTION value='%s' SELECTED>%s</OPTION>\n",
+            $value, $label);
+    else
+        return sprintf("<OPTION value='%s'>%s</OPTION>\n",
+            $value, $label);
+}
 ?>
