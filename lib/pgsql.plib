@@ -20,9 +20,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-function db_error() 
+function db_errormessage() 
 {
-    return pg_errormsg();
+    return pg_errormessage();
 } // db_error
 
 
@@ -61,4 +61,9 @@ function db_num_rows($res)
     return pg_num_rows($res);
 }
 
+
+function db_free_result($res)
+{
+    return pg_free_result($res);
+}
 ?>
