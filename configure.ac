@@ -32,13 +32,12 @@ AC_DEFINE_DIR(DOCPATH, datadir/doc/@PACKAGE@)
 AM_INIT_AUTOMAKE()
 
 AC_OUTPUT([Makefile
-	INSTALL
+	README
 	doc/Makefile
 	lib/Makefile
 	php/Makefile
 	etc/Makefile
 	php/pic/Makefile
 	php/config.plib
-	lib/config.plib
 	etc/airt-apache.conf
 ])

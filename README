@@ -1,3 +1,70 @@
+AIRT installation manual for packages
+-------------------------------------
 $Id$
+In CVS at $Source$
 
-AIRT is a program for incident response teams. Extend this file.
+	After installing the AIRT package, a few actions need to be taken.
+
+	Step 1. Edit /usr/local/etc/airt/airt.cfg and set the variables apropriately.
+
+	Step 2. Create the database referred to in the configuration file. This
+	would typically be achieved by changing to the postgres user and giving
+	the following commands
+
+		postgres@eternity:~% createdb airt
+		CREATE DATABASE
+	
+	Step 3. Create the database user that is referred to in the configuration
+	file. For example,
+
+		postgres@eternity:~% createuser airt
+		Shall the new user be allowed to create databases? (y/n) n
+		Shall the new user be allowed to create more new users? (y/n) n
+		CREATE USER
+
+	Step 4. Set the database password. For example
+
+		postgres@eternity:~% psql template1
+		Welcome to psql 7.4.6, the PostgreSQL interactive terminal.
+		...
+
+		template1=# alter user airt with password 'yourpassword';
+		ALTER USER
+	
+	Step 5. Make sure the airt user has access to the database. Edit
+	/etc/postgresql/pg_hba.conf and add the line. 
+
+		local   airt        airt       password
+
+	Keep in mind that the order of access control rules in pg_hba.conf is
+	important. Add the line after the line which grants the postgres user
+	access to all databases.
+
+	Step 6. Initialise the database.
+
+		postgres@eternity:~% psql airt airt < \
+			/usr/local/share/doc/airt/airtschema.sql
+		
+	Step 7. Bootstrap the database.
+			
+		postgres@eternity:~% psql airt airt < \
+			/usr/local/share/doc/airt/airtbootstrap.sql
+
+	Step 8. Configure apache. The easiest way to do this is to add a symbolic
+	link in /etc/apache/conf.d, which points to 
+	/usr/local/etc/airt/airt-apache.conf
+
+	As root do
+
+		root@eternity:/etc/apache/conf.d:# ln -s /usr/local/etc/airt/airt-apache.conf
+
+	Step 9. Confirm that the configuration file is correct
+
+		root@eternity:~# apachectl configtest
+
+	Step 10. If everything checks out, reload the apache configuration and you
+	should be done.
+
+		root@eternity:~# invoke-rc.d apache graceful
+
+
