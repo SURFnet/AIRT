@@ -125,6 +125,7 @@ CREATE TABLE incident_addresses (
     id           integer,
     incident     integer,
     ip           varchar(128),
+	hostname     varchar(128),
 	constituency integer,
     added        timestamp,
     addedby      integer,

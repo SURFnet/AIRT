@@ -25,6 +25,7 @@ require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/database.plib';
 require_once LIBDIR.'/constituency.plib';
 require_once LIBDIR.'/incident.plib';
+require_once LIBDIR.'/history.plib';
 require_once LIBDIR.'/user.plib';
 
 if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
@@ -325,8 +326,7 @@ EOF;
             )
         ) or die("Unable to execute query 3.");
         db_free_result($res);
-		addIncidentComment(sprintf("Incident created by %s",
-			$_SESSION["username"]), "", "", $conn);
+		addIncidentComment("Incident created", "", "", $conn);
 
         $res = db_query($conn,
             "select nextval('incident_addresses_sequence') as iaid")
@@ -337,20 +337,20 @@ EOF;
 
         $res = db_query($conn, sprintf(
             "insert into incident_addresses
-             (id, incident, ip, constituency, added, addedby)
+             (id, incident, ip, hostname, constituency, added, addedby)
              values
-             (%s, %s, %s, %s, CURRENT_TIMESTAMP, %s)",
+             (%s, %s, %s, %s, %s, CURRENT_TIMESTAMP, %s)",
                 $iaid,
                 $incidentid,
                 db_masq_null($address),
+                db_masq_null(gethostbyaddr($address)),
 				db_masq_null($constituency),
                 $_SESSION["userid"]
             )
         ) or die("Unable to execute query 5.");
         db_free_result($res);
-		addIncidentComment(sprintf("IP address %s added to incident by %s.",
-			$address, 
-			$_SESSION["username"]), "", "", $conn);
+		addIncidentComment(sprintf("IP address %s added to incident.",
+			$address), "", "", $conn);
 
         $res = db_query($conn, "end transaction");
         db_close($conn);
@@ -462,9 +462,8 @@ EOF;
 
 		if (trim($ip) != "") {
 			addIpToIncident(trim($ip), $incidentid);
-			addIncidentComment(sprintf("IP address %s added to incident by %s.",
-			$ip, 
-			$_SESSION["username"]));
+			addIncidentComment(sprintf("IP address %s added to incident.",
+			$ip));
 		}
 		Header(sprintf("Location: $SELF?action=edit&incidentid=%s",
 			urlencode($incidentid)));
@@ -479,10 +478,8 @@ EOF;
 		else die("Missing information (2).");
 
 		removeIpFromIncident($ip, $incidentid);
-		addIncidentComment(sprintf("IP address %s removed from incident by
-		%s.", 
-			$ip, 
-			$_SESSION["username"]));
+		addIncidentComment(sprintf("IP address %s removed from incident.", 
+			$ip));
 
 		Header(sprintf("Location: $SELF?action=edit&incidentid=%s",
 			urlencode($incidentid)));
@@ -506,32 +503,35 @@ EOF;
         else die("Missing information(1).");
 		$_SESSION["incidentid"] = $incidentid;
 
-		$conn = db_connect(DBDB, DBUSER, DBPASSWD)
-		or die ("Unable to connect to database.");
-
-		$res = db_query($conn, sprintf("
-			SELECT comment, extract(epoch from added) as added
-			FROM   incident_comments
-			WHERE  incident = %s
-			ORDER BY added",
-				$_SESSION["incidentid"]
-			))
-		or die ("Unable to query database.");
-
 		pageHeader("Incident history");
-		echo "<table cellpadding=3>";
-		$count = 0;
-		while ($row = db_fetch_next($res)) 
-			printf("<tr bgcolor=%s><td>%s</td><td>%s</td></tr>",
-				($count++%2==1) ? "#FFFFFF" : "#DDDDDD",
-				Date("d-M-Y H:i:s", $row["added"]),
-				$row["comment"]
-			);
+		showIncidentHistory($incidentid);
 
-		db_close($conn);
-
-		pageFooteR();
+		echo <<<EOF
+<p>
+<form action="$SELF" method="post">
+<input type="hidden" name="action" value="addcomment">
+<table bgcolor="#DDDDDD" border=0 cellpadding=2>
+<tr>
+    <td>New comment: </td>
+	<td><input type="text" size="45" name="comment"></td>
+	<td><input type="submit" value="Add"></td>
+</tr>
+</table>
+</form>
+EOF;
+		pageFooter();
         break;
+
+    //--------------------------------------------------------------------
+	case "addcomment":
+		if (array_key_exists("comment", $_REQUEST)) 
+			$comment = $_REQUEST["comment"];
+		else die ("Missing information.");
+
+		addIncidentComment($comment);
+
+		Header("Location: $SELF?action=history&incidentid=$_SESSION[incidentid]");
+		break;
 
     //--------------------------------------------------------------------
 	case "Update":
@@ -563,9 +563,8 @@ EOF;
 		or die("Unable to update incident.");
 		db_close($conn);
 
-		addIncidentComment(sprintf("Incident updated by %s: state=%s, ".
+		addIncidentComment(sprintf("Incident updated: state=%s, ".
 			"status=%s type=%s", 
-			$_SESSION["username"],
 			$state,
 			$status,
 			$type));

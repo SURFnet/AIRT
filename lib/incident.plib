@@ -274,34 +274,6 @@ function removeIPfromIncident($ip, $incident) {
 }
 
 
-function addIncidentComment($comment, $incidentid="", $userid="", $conn="") {
-	if ($incidentid=="") $incidentid=$_SESSION["incidentid"];
-	if ($userid=="") $userid=$_SESSION["userid"];
-	$c = false;
 
-	if ($conn=="") {
-		$conn = db_connect(DBDB, DBUSER, DBPASSWD)
-		or die("unable to connect to database.");
-		$c = true;
-		if (DEBUG) printf("Creating new database connection.");
-	} else {
-		if (DEBUG) printf("Re-using database connection.");
-	}
-
-	$res = db_query($conn, sprintf("
-		INSERT INTO incident_comments
-		(id, incident, comment, added, addedby)
-		VALUES
-		(nextval('incident_comments_sequence'), %s, %s, CURRENT_TIMESTAMP, %s)",
-			$incidentid,
-			db_masq_null($comment),
-			$userid
-		))
-	or die("Unable to execute query.");
-	if ($c) {
-		db_close($conn);
-		if (DEBUG) printf("Closing database connection.");
-	}
-}
 
 ?>
