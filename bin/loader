@@ -1,0 +1,190 @@
+#!/usr/bin/php4
+<?php
+$public=1;
+require_once '/etc/airt/airt.cfg';
+require_once LIBDIR.'/airt.plib';
+require_once LIBDIR.'/database.plib';
+
+$gl_states = array();
+$gl_status = array();
+$gl_types = array();
+$gl_users = array();
+$gl_cons = array();
+
+
+function fetchStates() {
+	$states = array();
+
+	$conn = db_connect(DBDB, DBUSER, DBPASS);
+	$res = db_query($conn, "SELECT * FROM incident_states");
+	while ($row = db_fetch_next($res)) 
+		$states[$row['label']] = $row['id'];
+		
+	db_close($conn);
+	return $states;
+}
+
+
+function fetchStatus() {
+	$status = array();
+
+	$conn = db_connect(DBDB, DBUSER, DBPASS);
+	$res = db_query($conn, "SELECT * FROM incident_status");
+	while ($row = db_fetch_next($res)) 
+		$status[$row['label']] = $row['id'];
+		
+	db_close($conn);
+	return $status;
+}
+
+
+function fetchTypes() {
+	$types = array();
+
+	$conn = db_connect(DBDB, DBUSER, DBPASS);
+	$res = db_query($conn, "SELECT * FROM incident_types");
+	while ($row = db_fetch_next($res)) 
+		$types[$row['label']] = $row['id'];
+		
+	db_close($conn);
+	return $types;
+}
+
+function fetchUsers() {
+	$users = array();
+
+	$conn = db_connect(DBDB, DBUSER, DBPASS);
+	$res = db_query($conn, "SELECT * FROM users");
+	while ($row = db_fetch_next($res)) 
+		$users[$row['login']] = $row['id'];
+		
+	db_close($conn);
+	return $users;
+}
+
+function fetchConstituencies() {
+	$con = array();
+
+	$conn = db_connect(DBDB, DBUSER, DBPASS);
+	$res = db_query($conn, "SELECT * FROM constituencies");
+	while ($row = db_fetch_next($res)) 
+		$con[$row['label']] = $row['id'];
+		
+	db_close($conn);
+	return $con;
+}
+
+function translateState($state) {
+	global $gl_states;
+
+	if (!array_key_exists($state, $gl_states)) {
+		printf("Unknown state: $state\n");
+		return 0;
+	}
+	else return $gl_states[$state];
+}
+
+
+function translateStatus($status) {
+	global $gl_status;
+
+	if (!array_key_exists($status, $gl_status)) {
+		printf("Unknown status: $status\n");
+		return "0";
+	}
+	else return $gl_status[$status];
+}
+
+
+function translateType($type) {
+	global $gl_types;
+
+	if (!array_key_exists($type, $gl_types)) {
+		printf("Unknown type: $type\n");
+		return "0";
+	}
+	else return $gl_types[$type];
+}
+
+function translateUser($user) {
+	global $gl_users;
+
+	if (!array_key_exists($user, $gl_users)) {
+		printf("Unknown user: $user\n");
+		return "0";
+	}
+	else return $gl_users[$user];
+}
+
+function translateConstituency($con) {
+	global $gl_cons;
+
+	if ($con == '') return 5;
+
+	if (!array_key_exists($con, $gl_cons)) {
+		printf("Unknown con: $con\n");
+		return 0;
+	}
+	else return $gl_cons[$con];
+}
+
+
+$gl_states = fetchStates();
+$gl_status = fetchStatus();
+$gl_types  = fetchTypes();
+$gl_users  = fetchUsers();
+$gl_cons  = fetchConstituencies();
+
+
+$f = fopen("1", "r") or die("Unable to open 1");
+printf("begin transaction;\n");
+while (!feof($f)) {
+	$in = trim(fgets($f));
+	if ($in == '') continue;
+	$data = explode("\t", $in);
+
+	$id = decode_incidentid($data[0]);
+
+	$ip = $data[1];
+
+	$status = translateStatus($data[2]);
+	
+	$type = translateType($data[3]);
+
+	// skip rtid
+
+	$name = $data[5];
+
+	$email = $data[6];
+
+	$constituency = translateConstituency($data[7]);
+
+	$created = $data[8];
+
+	// skip closed
+	
+	$creator = translateUser($data[10]);
+	
+	// skip editor
+
+	/* if ($id) printf("
+INSERT INTO incidents 
+(id, created, creator, updated, updatedby, status, type)
+VALUES
+(%d, '%s', %d, '%s', %d, %d, %d);\n",
+	$id, $created, $creator, $created, $creator, $status,
+	$type);
+	*/
+
+/*
+	if ($id) printf("
+INSERT INTO incident_addresses 
+(id, incident, ip, constituency, added, addedby)
+VALUES
+(nextval('incident_addresses_sequence'), %d, '%s', %d, '%s', %d);\n",
+	$id, $ip, $constituency, $created, $creator);
+}
+*/
+
+printf("end transaction;\n");
+?>
