@@ -1,7 +1,5 @@
 # configure.ac for php4-rss
 # $Id$
-m4_include([0.9.2])dnl
-
 AC_INIT([php4-rss], [0.9.2], [kees@leune.org])
 
 AC_PREREQ(2.59)

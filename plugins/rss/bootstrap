@@ -3,6 +3,6 @@
 # $Id$
 
 aclocal \
-&& automake \
+&& automake --add-missing \
 && autoconf
 
