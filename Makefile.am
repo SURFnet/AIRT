@@ -18,7 +18,7 @@
 #
 # $Id$
 
-SUBDIRS = html
+SUBDIRS = html lib
 
 docdir = $(datadir)/doc/$(PACKAGE)
 doc_DATA = AUTHORS README

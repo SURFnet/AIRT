@@ -18,7 +18,7 @@
 # $Id$
 # 
 
-scriptdir=$(pkgdatadir)/pic
+scriptdir=$(pkgdatadir)/php/pic
 script_DATA = uvtcert.png uvtcert-bg.png
 
 EXTRA_DIST = $(script_DATA)

@@ -18,9 +18,8 @@
 # $Id$
 
 # 
-SUBDIRS = pic
 
-scriptdir=$(pkgdatadir)/php
-script_DATA = index.php login.php logout.php mail.php incident.php
+scriptdir=$(pkgdatadir)/lib
+script_DATA = pgsql.plib liberty.plib
 
 EXTRA_DIST = $(script_DATA)
