@@ -21,185 +21,216 @@
  * 
  * $Id$
  */
- require '../lib/airt.plib';
- require '../lib/constituency.plib';
+ require_once '/etc/airt/airt.cfg';
+ require_once LIBDIR.'/airt.plib';
+ require_once LIBDIR.'/database.plib';
  
  $SELF = "constituencies.php";
 
  if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
  else $action = "list";
 
+ function show_form($id="")
+ {
+    $label = $description = "";
+    $action = "add";
+    $submit = "Add!";
+
+    if ($id != "")
+    {
+        $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+        or die("Unable to connect to database.");
+
+        $res = db_query($conn, "
+        SELECT label, name
+        FROM   constituencies c
+        WHERE  c.id = '$id'")
+        or die("Unable to query database.");
+
+        if (db_num_rows($res) > 0)
+        {
+            $row = db_fetch_next($res);
+            $action = "update";
+            $submit = "Update!";
+            $label = $row["label"];
+            $description = $row["name"];
+        }
+        db_close($conn);
+    }
+    echo <<<EOF
+<form action="$SELF" method="POST">
+<input type="hidden" name="action" value="$action">
+<input type="hidden" name="consid" value="$id">
+<table>
+<tr>
+    <td>Label</td>
+    <td><input type="text" size="30" name="label" value="$label"></td>
+</tr>
+<tr>
+    <td>Description</td>
+    <td><input type="text" size="30" name="description" value="$description">
+        </td>
+</tr>
+</table>
+<p>
+<input type="submit" value="$submit">
+EOF;
+    if ($action=="update")
+        echo "<input type=\"submit\" name=\"action\" value=\"Delete\">";
+
+    echo "</form>";
+ }
+
  switch ($action)
  {
     // --------------------------------------------------------------
     case "list":
         pageHeader("Constituencies");
+        $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+        or die("Unable to connect to database.");
+
+        $res = db_query($conn,
+            "SELECT   id, label, name
+             FROM     constituencies
+             ORDER BY label")
+        or die("Unable to execute query 1");
+
         echo <<<EOF
-<table width="100%" border="1">
+<table width="100%" cellpadding="3">
 <tr>
-    <th>Name</th>
-    <th>Security Entry Point</th>
-    <th>Email</th>
-    <th>Phone</th>
-    <th>Edit</th>
+    <th>&nbsp;</th>
+    <th>Label</th>
+    <th>Description</th>
+    <th>Netblocks</th>
 </tr>
 EOF;
-        $constituencies = AIR_getConstituencies();
-        $count = 0;
-        foreach ($constituencies as $i => $tuple)
+        $count=0;
+        while ($row = db_fetch_next($res))
         {
-            $id  = $tuple["id"];
-            $name = $tuple["name"];
-            $contact_email = $tuple["contact_email"];
-            $contact_name  = $tuple["contact_name"];
-            $contact_phone = $tuple["contact_phone"];
-            $bgcolor = ($count++%2==0 ? "#DDDDDD" : "#FFFFFF");
+            $label = $row["label"];
+            $name  = $row["name"];
+            $consid = $row["id"];
+            $color = ($count++%2==0?"#FFFFFF":"#DDDDDD");
+            echo <<<EOF
+<tr valign="top" bgcolor="$color">
+    <td><a href="$SELF?action=edit&cons=$consid">edit</a></td>
+    <td>$label</td>
+    <td>$name</td>
+    <td>
+EOF;
+            $res2 = db_query($conn,
+                "SELECT network, netmask
+                 FROM   networks
+                 WHERE  constituency = $consid
+                 ORDER BY network")
+            or die("Unable to excute query 2");
+
+            while ($row2 = db_fetch_next($res2))
+            {
+                $network = $row2["network"];
+                $netmask = $row2["netmask"];
+
+                echo "$network / $netmask<BR>";
+            }
+            printf("<a href='$SELF?action=editblocks&cons=%s'>edit
+            networks</a>", $consid);
+
+            db_free_result($res2);
 
             echo <<<EOF
-<tr bgcolor="$bgcolor">
-    <td>$name</td>
-    <td>$contact_name</td>
-    <td>$contact_email</td>
-    <td>$contact_phone</td>
-    <td><small><a href="$SELF?action=edit&id=$id">edit</a></small></td>
+</td>
 </tr>
 EOF;
-        }
-        echo <<<EOF
-</table>
-<P>
-<a href="$SELF?action=new">New constituency</a>
-EOF;
+        } // while $row
+        echo "</table>";
+
+        db_free_result($res);
+        db_close($conn);
+
+        echo "<h3>New constituency</h3>";
+        show_form("");
+
+        break;
+
+    //-----------------------------------------------------------------
+    case "edit":
+        if (array_key_exists("cons", $_GET)) $cons=$_GET["cons"];
+        else die("Missing information.");
+
+        pageHeader("Edit constituency");
+        show_form($cons);
         pageFooter();
         break;
 
-    // --------------------------------------------------------------
-    case "edit":
-        PageHeader("Edit");
-        if (array_key_exists("id", $_REQUEST))
-            $id = $_REQUEST["id"];
-        else die("Missing information.");
-
-        $constituency = AIR_getConstituencyById($id);
-        $name          = $constituency->getName();
-        $description   = $constituency->getDescription();
-        $contact_name  = $constituency->getContactName();
-        $contact_email = $constituency->getContactEmail();
-        $contact_phone = $constituency->getContactPhone();
-
-        // note: break missing on purpose!
-
-    // --------------------------------------------------------------
-    case "new":
-        echo "<form action=\"$SELF\" method=\"post\">";
-        if ($action == "new") 
-        {
-            $next = "add";
-            pageHeader("New constituency");
-        }
-        else 
-        {
-            $next = "update";
-            echo "<input type=\"hidden\" name=\"id\" value=\"$id\">";
-        }
-        echo <<<EOF
-<input type="hidden" name="action" value="$next">
-<table>
-<tr>
-    <td>Constituency name:</td>
-    <td><input type="text" name="name" size="30" value="$name"></td>
-</tr>
-<tr>
-    <td>Description:</td>
-    <td><input type="text" name="description" size="50" 
-        value="$description">
-    </td>
-<tr>
-    <td>Security Entry Point (SEP):</td>
-    <td><input type="text" name="contact_name" size="50" 
-        value="$contact_name">
-    </td>
-</tr>
-<tr>
-    <td>SEP email address:</td>
-    <td><input type="text" name="contact_email" size="50"
-        value="$contact_email">
-    </td>
-</tr>
-<tr>
-    <td>SEP phone:</td>
-    <td><input type="text" name="contact_phone" size="50"
-        value="$contact_phone">
-    </td>
-</tr>
-</table>
-<p>
-<input type="submit" value="$next!">
-</form>
-EOF;
-        break;
-
-        
-    // --------------------------------------------------------------
+    //-----------------------------------------------------------------
     case "add":
     case "update":
-        // required fields
-        if (array_key_exists("name", $_REQUEST))
-            $name = $_REQUEST["name"];
-        else die("Missing constituency name");
+        if (array_key_exists("consid", $_POST)) $consid=$_POST["consid"];
+        else $consid="";
+        if (array_key_exists("label", $_POST)) $label=$_POST["label"];
+        else die("Missing information (1).");
+        if (array_key_exists("description", $_POST)) 
+            $description=$_POST["description"];
+        else die("Missing information (2).");
 
-        // optional fields
-        if (array_key_exists("description", $_REQUEST))
-            $description = $_REQUEST["description"];
-        else $description = "";
-        
-        if (array_key_exists("contact_email", $_REQUEST))
-            $contact_email = $_REQUEST["contact_email"];
-        else $contact_email = "";
-        
-        if (array_key_exists("contact_phone", $_REQUEST))
-            $contact_phone = $_REQUEST["contact_phone"];
-        else $contact_phone = "";
-        
-        if (array_key_exists("contact_name", $_REQUEST))
-            $contact_name = $_REQUEST["contact_name"];
-        else $contact_name = "";
-
-        if (array_key_exists("id", $_REQUEST))
-            $id = $_REQUEST["id"];
-        else $id = "";
-
-        $now = Date("Y-m-d H:i:s");
-
-        if ($action == "add")
+        if ($action=="add")
         {
-            $constituency = new AIR_Constituency();
-            $constituency->setName($name);
-            $constituency->setDescription($description);
-            $constituency->setContactEmail($contact_email);
-            $constituency->setContactName($contact_name);
-            $constituency->setContactPhone($contact_phone);
-            $constituency->setCreated($now);
-            $constituency->setCreatedBy($_SESSION["userid"]);
+            $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+            or die("Unable to connect to database.");
 
-            AIR_addConstituency($constituency);
+            $res = db_query($conn, sprintf("
+                INSERT INTO constituencies
+                (id, label, name)
+                VALUES
+                (nextval('constituencies_sequence'), %s, %s)",
+                    db_masq_null($label),
+                    db_masq_null($description)))
+            or die("Unable to excute query.");
+
+            db_close($conn);
+            Header("Location: $SELF");
         }
 
-        else if ($action == "update")
+        else if ($action=="update")
         {
-            $constituency = AIR_getConstituencyById($id);
-            $constituency->setName($name);
-            $constituency->setDescription($description);
-            $constituency->setContactEmail($contact_email);
-            $constituency->setContactName($contact_name);
-            $constituency->setContactPhone($contact_phone);
+            if ($consid=="") die("Missing information (3).");
+            $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+            or die("Unable to connect to database.");
 
-            AIR_updateConstituency($constituency);
+            $res = db_query($conn, sprintf("
+                UPDATE constituencies
+                set  label=%s,
+                     name=%s
+                WHERE id=%s",
+                    db_masq_null($label),
+                    db_masq_null($description),
+                    $consid))
+            or die("Unable to excute query.");
+
+            db_close($conn);
+            Header("Location: $SELF");
         }
-
-        Header(sprintf("Location: %s/%s?action=list", BASEURL, $SELF));
 
         break;
+
+    //-----------------------------------------------------------------
+    case "Delete":
+        if (array_key_exists("cons", $_GET)) $cons=$_GET["cons"];
+        else die("Missing information.");
+
+        $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+        or die("Unable to connect to database.");
+
+        $res = db_query($conn, "
+            DELETE FROM constituencies
+            WHERE  id='$cons'")
+        or die("Unable to execute query.");
+
+        db_close($conn);
+        Header("Location: $SELF");
+        
+        break;
+    //-----------------------------------------------------------------
     default:
         die("Unknown action: $action");
  } // switch

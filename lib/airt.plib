@@ -111,9 +111,9 @@ EOF;
 <P/>
 <P/>
 <small>
-<a href="$BASEURL">Home</a><BR/>
-<a href="$BASEURL/incidents.php">Incidents</a><BR/>
-<a href="$BASEURL/search.php">Search</a><BR/>
+<a href="$BASEURL/">Home</a><BR/><BR/>
+<a href="$BASEURL/incidents.php">Incidents</a><BR/><BR/>
+<a href="$BASEURL/search.php">Search</a><BR/><BR/>
 <a onclick="return confirm('Are you sure that you want to log out?')"
    href="logout.php">Logout</a>
 </small>
