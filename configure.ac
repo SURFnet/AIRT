@@ -39,6 +39,7 @@ AC_OUTPUT([Makefile
 	lib/Makefile
 	php/Makefile
 	etc/Makefile
+	man/Makefile
 	php/pic/Makefile
 	php/config.plib
 	etc/airt-apache.conf
