@@ -1,4 +1,4 @@
-
+<?php
 /* config.plib 
  *
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
@@ -20,6 +20,5 @@
  *
  * $Id$
  */
-<?php
   require_once "@ETCPATH@/airt.cfg";
 ?>

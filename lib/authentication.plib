@@ -21,7 +21,6 @@
  * 
  * $Id$
  */
-require_once '/etc/airt/airt.cfg';
 require_once LIBDIR."/database.plib";
 
 function airt_authenticate($username, $password)
