@@ -17,7 +17,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
   
-  userfunctions.plib - User defined functions. Most contain 
+  customfunctions.plib - User defined functions. Most contain 
   - function custom_categorize($ip, $defaultcategory); 
         returns the category identifier
   - function search_info($ip, $hostname, $consituency); prints additional
@@ -29,13 +29,9 @@
   
   $Id$
  */
-require_once LIBDIR.'/airt.plib';
-require_once LIBDIR.'/database.plib';
-require_once LIBDIR.'/constituency.plib';
-require_once LIBDIR.'/search.plib';
 
-
-
+// customize here-- TODO: find out how to do that nicely with packaging
+// 
 /** Custom categorization */
 function custom_categorize($ip, $networkid)
 {

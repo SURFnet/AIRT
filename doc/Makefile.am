@@ -1,5 +1,7 @@
 # Makefile.am for AIR
 # $Id$
+SUBDIRS = . examples
+
 docdir =  $(datadir)/doc/$(PACKAGE)
 doc_DATA = session-variables.txt airtschema.sql airtbootstrap.sql
 

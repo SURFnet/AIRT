@@ -25,44 +25,48 @@
 
 
 // The URL where the application may be reached
-$BASEURL = "/airt";
+$BASEURL = '/airt';
 
 // base URL of the application
-define("BASEURL", $BASEURL);
+define('BASEURL', $BASEURL);
 
 // location of the .plib files
-define("LIBDIR", "@PHPLIBPATH@");
+define('LIBDIR', '@PHPLIBPATH@');
     
 // location of the persistant state files, writable by www-server
-define("STATEDIR", "@STATEPATH@");
+define('STATEDIR', '@STATEPATH@');
 
 // sender-from in standard emails. 
 // If left empty, the email address of the currently logged in AIRT 
 // use will be used. 
-define("MAILFROM", "Example-CERT - @YOURFIRSTNAME@ <user@host.com>");
+define('MAILFROM', 'Example-CERT - @YOURFIRSTNAME@ <user@host.com>');
 
 // Any mail sent from this sysstem will have the following envelope sender.
 // Note: dont leave this empty, or you will get the userid of the owner of
 // your web server process. Only use an email address here, dont add a name.
-define("MAILENVFROM", "user@host.com");
+define('MAILENVFROM', 'user@host.com');
 
 // this email address will always be cc'ed on outgoing messages. 
 // If left empty, no cc's of standard messages will be sent.
-define("MAILCC", "user@host.com");
+define('MAILCC', 'user@host.com');
 
 // reply-to used in standard emails. 
 // If left empty, the email address of the currently logged in AIRT 
 // use will be used. 
-define("REPLYTO", "Example-CERT - @YOURFIRSTNAME@ <user@host.com>");
+define('REPLYTO', 'Example-CERT - @YOURFIRSTNAME@ <user@host.com>');
 
 // connect string for the database
-define("DBDB", "airt");
-define("DBUSER", "airt");
-define("DBPASSWD", "**********");        // <--- CHANGE THIS
+define('DBDB', 'airt');
+define('DBUSER', 'airt');
+define('DBPASSWD', '**********');        // <--- CHANGE THIS
 
 // Incident ID prefix
-define("INCIDENTID_PREFIX", "Example-CERT#");
+define('INCIDENTID_PREFIX', 'Example-CERT#');
 
 // the session timeout in seconds
-define("SESSION_TIMEOUT", 600);
+define('SESSION_TIMEOUT', 600);
+
+// local customization can be found in this file. If undefined, no local
+// additions are done
+// define('CUSTOM_FUNCTIONS', '/usr/local/share/airt/customfunctions.plib');
 ?>

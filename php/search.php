@@ -26,7 +26,8 @@
  require_once LIBDIR.'/airt.plib';
  require_once LIBDIR.'/incident.plib';
  require_once LIBDIR.'/constituency.plib';
- require_once LIBDIR.'/userfunctions.plib';
+
+ if (defined('CUSTOM_FUNCTIONS')) require_once CUSTOM_FUNCTIONS;
 
  if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
  else $action = "none";
@@ -77,7 +78,9 @@ EOF;
 
         // call user-supplied categorization routine. Returns the id of the
         // constituency
-        $networkid = custom_categorize($ip, categorize($ip));
+        $networkid = categorize($ip);
+		if (defined('CUSTOM_FUNCTIONS'))
+			$networkid = custom_categorize($ip, $networkid);
 
         // get addl info
         $networks = getNetworks();
@@ -113,8 +116,10 @@ EOF;
         // call user-defined search function. Must print in unformatted layout
         // additional info about hostname needed to make a decision.
         echo "<HR>";
-        search_info($ip, $networkid);
-        echo "<HR>";
+		if (defined('CUSTOM_FUNCTIONS')) {
+			search_info($ip, $networkid);
+			echo "<HR>";
+		}
 
 
         // include previous incidents

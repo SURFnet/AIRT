@@ -36,13 +36,14 @@ AM_INIT_AUTOMAKE()
 AC_OUTPUT([Makefile
 	README
 	doc/Makefile
+	doc/examples/Makefile
 	lib/Makefile
 	php/Makefile
 	etc/Makefile
-	man/Makefile
-	php/pic/Makefile
-	php/config.plib
 	etc/airt-apache.conf
 	etc/airt.cfg
+	man/Makefile
+	php/config.plib
+	php/pic/Makefile
 	man/airt.pod
 ])
