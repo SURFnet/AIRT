@@ -1,0 +1,8 @@
+#!/bin/sh
+# bootstrap for php4-rss
+# $Id$
+
+aclocal \
+&& automake \
+&& autoconf
+
