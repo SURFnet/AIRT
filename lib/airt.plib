@@ -77,69 +77,11 @@ if (!isset($public) || !$public)
  * Display the page header
  * @in title The title of the page
  */
-function pageheader($title, $helptopic="") {
-    global $public;
-
-    $username=$_SESSION["username"];
-    $BASEURL=BASEURL;
-    echo <<<EOF
-<html>
-<head>
-<title>$title</title>
-<!-- $Id$ -->
-</head>
-
-<body background='$BASEURL/pic/uvtcert-bg.png' bgcolor='white'>
-<table width='100%%'>
-<tr>
-<td width='200' nowrap><img 
-   src='$BASEURL/pic/uvtcert.png'></td>
-<td>
-    <table width='100%%'>
-    <tr>
-       <td align="left"><h2>$title</h2></td>
-       <td align="right"><B>$username</B></td>
-    </tr>
-EOF;
-	$help = validate_input($helptopic);
-	if ($help != "") echo <<<EOF
-	<tr>
-		<td colspan="2" align="right">
-			<small><a href="help.php?topic=$help">help</a></small>
-		</td>
-	</tr>
-EOF;
-	echo <<<EOF
-    </table>
-</td>
-</tr>
-
-<tr valign="top">
-EOF;
-    if (!isset($public) || !$public)
-    {
-    echo <<<EOF
-<td>
-<P/>
-<P/>
-<small>
-<a href="$BASEURL/">Home</a><BR/><BR/>
-<a href="$BASEURL/incident.php">Incidents</a><BR/><BR/>
-<a href="$BASEURL/search.php">Search</a><BR/><BR/>
-<a href="$BASEURL/standard.php">Mail templates</a><BR/><BR/>
-<a href="$BASEURL/maintenance.php">Settings</a><BR/><BR/>
-<a onclick="return confirm('Are you sure that you want to log out?')"
-   href="logout.php">Logout</a>
-</small>
-</td>
-EOF;
-    }
-    else
-    {
-        // do not show nav bar on public pages
-        echo "<td>&nbsp;</td>";
-    }
-    echo "<td align='left'>";
+function pageheader($title="", $helptopic="") {
+	generateEvent(array(
+		"title"->$title,
+		"helptopic"->$helptopic
+	));
 } // pageheader()
 
 
