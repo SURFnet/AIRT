@@ -1,0 +1,134 @@
+#!/usr/bin/php4
+<?php
+/*
+ * LIBERTY: INCIDENT RESPONSE SUPPORT FOR END-USERS
+ * Copyright (C) 2004	Kees Leune <kees@uvt.nl>
+
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ * rt.plib - Connector module for RT
+ *
+ * $Id$
+ */
+$public = 1;
+require_once 'database.plib';
+require_once 'liberty.plib';
+
+/* Check if the provided info is a valid username/password combination.
+ * THe function will return -1 on failure; or the userid on success.
+ */
+function RT_checkLogin($username, $password)
+{
+    $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
+    or die("Unable to connect to database.".db_errormsg());
+
+    $query = sprintf("
+        SELECT u.id
+        FROM   users u, groups g, groupmembers m
+        WHERE  u.id = m.memberid
+        AND    m.groupid = g.id
+        AND    u.name = '%s'
+        AND    g.name = '%s'", 
+            $username, 
+            CERTGROUP);
+
+    $res = db_query($conn, $query)
+    or die("Unable to query database: ".db_errormsg());
+
+    if (db_num_rows($res) == 0) return -1;
+    $row = db_fetch_next($res);
+    db_close($conn);
+
+    return $row["id"];
+} // RT_checkLogin
+
+
+/* Find a request tracker queue by name
+ * Returns -1 if the queue was not found; or the queue id on success
+ */
+function RT_getQueueByName($name)
+{
+    $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
+    or die("Unable to connect to database.".db_errormsg());
+
+    /* get correct queue id */
+    $res = db_query($conn, "
+        SELECT id
+        FROM   queues
+        WHERE  name = '$name'")
+    or die("Error retrieving queue id: ".db_errormsg());
+
+    if (db_num_rows($res) == 0) return -1;
+    $row = db_fetch_next($res);
+    db_close($conn);
+
+    $queueid = $row["id"];
+} // RT_getQueueByName
+
+
+/* Return an array of open messages in the provides queue
+ * Each returned element is a message id
+ */
+function RT_getNewMessageIds($queue)
+{
+
+    $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
+    or die("unable to connect to database: ".db_errormessage());
+
+    $res = db_query($conn, 
+        "SELECT   t.id
+         FROM     tickets t, users u, queues q
+         WHERE    t.creator = u.id
+         AND      t.queue = q.id
+         AND      q.name = '$queue'
+         AND      t.status = 'new'
+         ORDER BY t.created")
+    or die("Unable to query database: ".db_errormessage());
+
+    $output = array(db_num_rows($res));
+    $count = 0;
+    while ($row = db_fetch_next($res))
+    {
+        $id        = $row["id"];
+        $array[$count++] = $id;
+    } // while
+    
+    return $output;
+} // RT_getNewMessageIds
+
+/* Return a ticket by ticket id 
+ * An associative array.
+ */
+function RT_getTicketById($id)
+{
+} // RT_getTicketById
+
+
+function RT_getAttachmentById($id)
+{
+} // RT_getAttachmentById($id)
+
+
+function RT_getAttachmentsOfTicket($id)
+{
+} // RT_getAttachmentsOfTicket
+
+function RT_setTicketField($field, $value)
+{
+} // RT_setTicketField
+
+function RT_addTransaction($transaction)
+{
+} // RT_addTransaction

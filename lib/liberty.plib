@@ -45,6 +45,11 @@ define("RTNAME", "rtdb");
 define("RTUSER", "rtadmin");
 define("RTPASSWD", "Em48eUQwN4tS");
 
+// connect string for LIBERTY
+define("DBNAME", "rtdb");
+define("DBUSER", "rtadmin");
+define("DBPASSWD", "Em48eUQwN4tS");
+
 // mail to which status updates will be sent
 define("CERT_MAILADDR", "cert@uvt.nl");
 

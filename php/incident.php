@@ -58,7 +58,7 @@ switch ($action)
 
         $id = normalize_incidentid($id);
 
-        $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
+        $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
         or die("Unable to connect to database.");
 
         $r = db_query($conn, sprintf("
@@ -132,7 +132,7 @@ switch ($action)
 EOF;
 
         echo choice("--- Choose consituency ---", "", $constituency);
-        $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
+        $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
         or die("Unable to connect to database.");
 
         $res = db_query($conn,
@@ -263,7 +263,7 @@ EOF;
         if (array_key_exists("state", $_POST))
             $state=$_POST["state"];
 
-        $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
+        $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
         or die("Unable to connect to database.");
 
         $now = Date("Y-m-d H:i:s");
@@ -334,7 +334,7 @@ EOF;
 
         $id = normalize_incidentid($id);
 
-        $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
+        $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
         or die("Unable to connect to database.");
 
         session_start();
@@ -370,7 +370,7 @@ EOF;
     //--------------------------------------------------------------------
     case "list":
         pageHeader("Incident overview");
-        $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
+        $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
         or die("Unable to connect to database.");
 
         $r = db_query($conn, "SELECT 

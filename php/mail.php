@@ -21,7 +21,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
  require '../lib/liberty.plib';
- require '../lib/database.plib';
+ require '../lib/rt.plib';
 
  $SELF="$BASEURL/mail.php";
 

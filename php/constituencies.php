@@ -34,7 +34,7 @@
     // --------------------------------------------------------------
     case "list":
         pageHeader("Constituencies");
-        $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
+        $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
         or die("Unable to connect to database.");
 
         $res = db_query($conn, "
@@ -89,7 +89,7 @@ EOF;
             $id = $_REQUEST["id"];
         else die("Missing information.");
 
-        $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
+        $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
         or die("Unable to connect to database.");
 
         $res = db_query($conn,
@@ -191,7 +191,7 @@ EOF;
             $id = $_REQUEST["id"];
         else $id = "";
 
-        $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
+        $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
         or die("Unable to connect to database.");
 
         $now = Date("Y-m-d H:i:s");
