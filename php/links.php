@@ -21,8 +21,9 @@
  * 
  * $Id$
  */
- require '../lib/airt.plib';
- require '../lib/database.plib';
+ require_once '/etc/airt/airt.cfg';
+ require_once LIBDIR.'/airt.plib';
+ require_once LIBDIR.'/database.plib';
  
  $SELF = "links.php";
 
@@ -34,12 +35,12 @@
     // --------------------------------------------------------------
     case "list":
         pageHeader("Links");
-        $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
+        $conn = db_connect(DBDB, DBUSER, DBPASSWD)
         or die("Unable to connect to database.");
 
         $res = db_query($conn, "
             SELECT *
-            FROM   URLs
+            FROM   urls
             ORDER BY created")
         or die("Unable to reqtrieve URLs");
 
@@ -57,7 +58,7 @@
                     $count++%2==0 ? "#DDDDDD" : "#FFFFFF");
                 printf("<td>\n");
                 printf("<a href=\"%s\">%s</a>", 
-                    $row["url"], $row["description"]);
+                    $row["url"], $row["label"]);
                 printf("</td>\n");
                 printf("<td><a href=\"%s/%s?action=edit&id=%s\">edit</a></td>",
                     BASEURL, $SELF, urlencode($row["id"]));
@@ -100,15 +101,15 @@ EOF;
             $description = $_REQUEST["description"]
         or die("Missing information (2).");
 
-        $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
+        $conn = db_connect(DBDB, DBUSER, DBPASSWD)
         or die("Unable to connect to database.");
 
         $now = Date("Y-m-d H:i:s");
         $res = db_query($conn, sprintf("
-            INSERT INTO URLs
-            (id, url, description, created, createdby)
+            INSERT INTO urls
+            (id, url, label, created, createdby)
             VALUES
-            (nextval('URLs_seq'), %s, %s, '%s', %s)",
+            (nextval('urls_sequence'), %s, %s, '%s', %s)",
             db_masq_null($url),
             db_masq_null($description),
             $now,
@@ -125,11 +126,11 @@ EOF;
         or die("Missing information (1).");
 
 
-        $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
+        $conn = db_connect(DBDB, DBUSER, DBPASSWD)
         or die("Unable to connect to database.");
 
         $res = db_query($conn, sprintf("
-            DELETE FROM URLs
+            DELETE FROM urls
             WHERE ID=%s", $id))
         or die("Unable to delete URL");
 
@@ -143,12 +144,12 @@ EOF;
             $id = $_REQUEST["id"]
         or die("Missing information (3).");
         
-        $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
+        $conn = db_connect(DBDB, DBUSER, DBPASSWD)
         or die("Unable to connect to database.");
 
         $res = db_query($conn, sprintf("
-            SELECT url, description
-            FROM   URLs
+            SELECT url, label
+            FROM   urls
             WHERE  id=%s", $id))
         or die("Unable to retrieve URL");
 
@@ -159,7 +160,7 @@ EOF;
         db_close($conn);
 
         $url = $row["url"];
-        $description = $row["description"];
+        $description = $row["label"];
 
         echo <<<EOF
 <form action="$SELF" method="POST">
@@ -194,12 +195,12 @@ EOF;
             $id = $_REQUEST["id"]
         or die("Missing information (3).");
         
-        $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
+        $conn = db_connect(DBDB, DBUSER, DBPASSWD)
         or die("Unable to connect to database.");
 
         $res = db_query($conn, sprintf("
             UPDATE URLs
-            SET    description=%s,
+            SET    label=%s,
                    url=%s
             WHERE  id=%s", 
             db_masq_null($description),

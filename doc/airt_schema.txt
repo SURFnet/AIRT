@@ -93,3 +93,7 @@ INCIDENT_COMMENTS ( id, incident, comment, added, addedby )
 USER_COMMENTS ( id, user, comment, added, addedby )
     primary key: id
     foreign key: user references users(id)
+
+URLS ( id, url, label, createdby, created )
+    primary key: id
+    foreign key: createdby references users(id)

@@ -20,7 +20,6 @@
 -- $Id$
 -- In CVS at $CVS$
 
-begin transaction;
 
 DROP SEQUENCE incident_types_sequence;
 DROP SEQUENCE incident_states_sequence;
@@ -38,6 +37,7 @@ DROP SEQUENCE credentials_sequence;
 DROP SEQUENCE incident_comments_sequence;
 DROP SEQUENCE ip_comments_sequence;
 DROP SEQUENCE user_comments_sequence;
+DROP SEQUENCE urls_sequence;
 
 DROP TABLE incident_types CASCADE; 
 DROP TABLE incident_states CASCADE;
@@ -55,7 +55,9 @@ DROP TABLE credentials CASCADE;
 DROP TABLE incident_comments CASCADE; 
 DROP TABLE ip_comments CASCADE; 
 DROP TABLE user_comments CASCADE; 
+DROP TABLE urls CASCADE;
 
+begin transaction;
 
 CREATE TABLE incident_types ( 
     id          integer,
@@ -209,6 +211,16 @@ CREATE TABLE user_comments (
     foreign key (addedby) references users(id)
 );
 
+CREATE TABLE urls (
+    id          integer,
+    url         varchar(255),
+    label       varchar(255),
+    createdby   integer,
+    created     timestamp,
+    primary key (id),
+    foreign key (createdby) references users(id)
+);
+
 
 CREATE SEQUENCE incident_types_sequence;
 CREATE SEQUENCE incident_states_sequence;
@@ -226,5 +238,6 @@ CREATE SEQUENCE credentials_sequence;
 CREATE SEQUENCE incident_comments_sequence;
 CREATE SEQUENCE ip_comments_sequence;
 CREATE SEQUENCE user_comments_sequence;
+CREATE SEQUENCE urls_sequence;
 
 end transaction

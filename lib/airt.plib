@@ -19,8 +19,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-define("ETCDIR", '/home/kees/etc/air');
-include ETCDIR.'/air.cfg';
+require_once '/etc/airt/airt.cfg';
 
 if (!isset($public) || !$public)
 {
@@ -78,37 +77,55 @@ if (!isset($public) || !$public)
  */
 function pageheader($title) 
 {
-    printf("
+    global $public;
+    
+    $username=$_SESSION["username"];
+    $BASEURL=BASEURL;
+    echo <<<EOF
 <html>
 <head>
-<title>%s</title>
+<title>$title</title>
 <!-- $Id$ -->
 </head>
 
-<body background='%s/uvtcert-bg.png' bgcolor='white'>
+<body background='$BASEURL/pic/uvtcert-bg.png' bgcolor='white'>
 <table width='100%%'>
 <tr>
 <td width='200' nowrap><img 
-   src='%s/pic/uvtcert.png'></td>
+   src='$BASEURL/pic/uvtcert.png'></td>
 <td>
-
     <table width='100%%'>
     <tr>
-       <td align='left'><h2>%s</h2></td>
-       <td align='right'><B>%s</B></td>
+       <td align='left'><h2>$title</h2></td>
+       <td align='right'><B>$username</B></td>
     </tr>
     </table>
 </tr>
 
-<tr>
+<tr valign="top">
+EOF;
+    if (!isset($public) || !$public)
+    {
+    echo <<<EOF
 <td>
-<td><hr></td>
-</tr>
-
-<tr>
-<td>&nbsp;</td>
-<td align='left'>", $title, BASEURL."/pic", BASEURL, $title, 
-    $_SESSION["username"]);
+<P/>
+<P/>
+<small>
+<a href="$BASEURL">Home</a><BR/>
+<a href="$BASEURL/incidents.php">Incidents</a><BR/>
+<a href="$BASEURL/search.php">Search</a><BR/>
+<a onclick="return confirm('Are you sure that you want to log out?')"
+   href="logout.php">Logout</a>
+</small>
+</td>
+EOF;
+    }
+    else
+    {
+        // do not show nav bar on public pages
+        echo "<td>&nbsp;</td>";
+    }
+    echo "<td align='left'>";
 } // pageheader()
 
 
@@ -122,46 +139,6 @@ function pagefooter()
 </td>
 </tr>
 
-<tr>
-<td></td>
-<td> <P> <HR> <P>
-</td>
-</tr>
-
-<tr>
-<td>&nbsp;</td>
-<td>
-<small>
-<a href="index.php">Console</a>
-
-&nbsp;
-<B>&gt;</B>
-&nbsp;
-
-<a href="mail.php">Mail</a>
-
-&nbsp;
-<B>|</B>
-&nbsp;
-
-<a href="incident.php">Incidents</a>
-
-&nbsp;
-<B>|</B>
-&nbsp;
-
-<a href="search.php">Search</a>
-
-&nbsp;
-<B>|</B>
-&nbsp;
-
-<a onclick="return confirm('Are you sure that you want to log out?')"
-   href="logout.php">Logout</a>
-
-</small>
-</td>
-</tr>
 </table>
 </body></html>
 EOF;

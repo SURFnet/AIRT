@@ -20,28 +20,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 $public=1;
-include "../lib/airt.plib";
-include "../lib/rt.plib";
-
-function check_SSL()
-{
-    if (isset($_SERVER["SSL_CLIENT_CERT"]))
-    {
-        $data = openssl_x509_parse($_SERVER["SSL_CLIENT_CERT"]);
-        if ($data["issuer"]["CN"] != "UvT-CA")
-            die("Invalid certificate authority");
-
-        $now = time();
-        if ($now < $data["validFrom_time_t"] ||
-            $now > $data["validTo_time_t"])
-            die("Certificate expired");
-
-        $subject = $data["subject"]["CN"];
-        if ($data["subject"]["OU"] == "UvT-CERT")
-            return $subject;
-    }
-    return false;
-}
+require_once '/etc/airt/airt.cfg';
+require_once LIBDIR."/authentication.plib";
+require_once LIBDIR."/airt.plib";
 
 if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST[action];
 else $action = "none";
@@ -51,7 +32,7 @@ $SELF = "login.php";
 switch ($action) 
 {
     case "none":
-        pageHeader("AIR login page");
+        pageHeader("AIRT login page");
         echo <<<EOF
 <P>
 <form action="$SELF" method="POST">
@@ -71,21 +52,12 @@ switch ($action)
 <input type="hidden" name="action" value="check">
 <input type="submit" value="Login">
 </form>
-EOF;
-        if (check_SSL() != false)
-        {
-            printf("<P><a href=\"$SELF?action=ssl\">Log in via SSL client
-            certificate</a> [<a 
-            href=\"$SELF?action=sslinfo\">SSL info</a>]");
-        }
-
-echo <<<EOF
 
 <P>
 <HR>
 <P>
 <BLOCKQUOTE><small>
-    AIR version pre-0.1, Copyright (C) 2004  Kees Leune 
+    AIR version pre-0.1, Copyright (C) 2004  Tilburg University
     &lt;<a href="mailto:kees@uvt.nl">kees@uvt.nl</a>&gt;<BR>
     AIR comes with ABSOLUTELY NO WARRANTY; for details 
     <a href="license.php">click here</a>.<BR>
@@ -106,7 +78,7 @@ EOF;
             $password = $_POST["password"];
         else die("Missing required field.");
 
-        $userid = RT_checkLogin($login, $password);
+        $userid = airt_authenticate($login, $password);
         if ($userid == -1)
         {
             pageHeader("Permission denied.");
@@ -115,7 +87,7 @@ EOF;
             exit;
         }
 
-        $f = fopen("/var/lib/cert/last_$login.txt","w");
+        $f = fopen(STATEDIR."/last_$login.txt","w");
         fputs($f, sprintf(
             "Welcome %s. Your last login was at %s from %s.\n",
             $login, Date("r"), gethostbyaddr($_SERVER["REMOTE_ADDR"])));
@@ -130,37 +102,6 @@ EOF;
         Header("Location: index.php");
             
         break;
-
-        case "ssl";
-            $name = check_SSL();
-            if ($name == false)
-            {
-                Location("Header: $SELF");
-                exit;
-            }
-            switch ($name)
-            {
-                case "Kees Leune":
-                    $username="kees";
-                    $userid="26";
-                    break;
-                case "Teun Nijssen":
-                    $username="teun";
-                    break;
-                default:
-                    Location("Header: $SELF");
-                    exit;
-            }
-
-            session_start();
-            $_SESSION["username"] = $username;
-            $_SESSION["userid"]   = $userid;
-            $_SESSION["ip"]       = $_SERVER["REMOTE_ADDR"];
-            $_SESSION["last"]     = time();
-
-            Header("Location: index.php");
-            break;
-
 
     default:
         die("Unknown action.");

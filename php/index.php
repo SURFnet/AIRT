@@ -22,29 +22,13 @@
  * index.php - AIR console
  * $Id$
  */
-require "../lib/database.plib";
-require "../lib/airt.plib";
-require "../lib/rt.plib";
+require_once '/etc/airt/airt.cfg';
+require_once LIBDIR."/airt.plib";
+require_once LIBDIR."/database.plib";
 
-pageHeader("AIR Control Center");
+pageHeader("AIRT Control Center");
 
-$new = RT_countNewMessages(LIBERTYQUEUE);
-
-function getColorState()
-{
-    $f = @fopen(
-        "https://liberty.uvt.nl/liberty/colorstate.php?action=label",
-        "r");
-    if ($f) 
-        $threat = fgets($f);
-    else 
-        $theat = "";
-    @fclose($f);
-
-    return $threat;
-}
-
-$filename=sprintf("/var/lib/cert/last_%s.txt", $_SESSION["username"]);
+$filename=sprintf(STATEDIR."/last_%s.txt", $_SESSION["username"]);
 if (file_exists($filename))
 {
   $f = fopen($filename, "r");
@@ -52,11 +36,6 @@ if (file_exists($filename))
   fclose($f);
   printf("<small>$last</small>");
 }
-/*
-echo "<P>";
-echo "The current UvT-CERT color state is: <B>".getColorState()."</B>";
-echo "<P>";
-*/
 echo "<HR>";
 ?>
 
@@ -69,9 +48,6 @@ echo "<HR>";
 
 <tr valign="top">
     <td>
-<!--
-<a href="mail.php">Incoming messages</a> (<?php echo $new; ?> new)
--->
 <P>
 
 <a href="incident.php">Incident management</a>
@@ -83,19 +59,19 @@ echo "<HR>";
 <P>
 
 <?php
-    $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
+    $conn = db_connect(DBDB, DBUSER, DBPASSWD)
     or die("Unable to connect to database.");
 
     $res = db_query($conn, "
         SELECT *
-        FROM   URLs
+        FROM   urls
         ORDER BY created")
     or die("Unable to query database.");
 
     while ($row = db_fetch_next($res))
     {
         $url = $row["url"];
-        $description = $row["description"];
+        $description = $row["label"];
         printf("<a href=\"%s\">%s</a><p>",
             $url, $description);
     }
@@ -103,6 +79,9 @@ echo "<HR>";
 ?>
 
 <td>
+<a href="users.php">Edit users</a>
+
+<P>
 
 <a href="constituencies.php">Edit constituencies</a>
 
