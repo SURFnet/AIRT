@@ -21,6 +21,6 @@
 # SUBDIRS = pic
 
 scriptdir=$(pkgdatadir)/php
-script_DATA =colorstate.php debuginfo.php
+script_DATA = debuginfo.php rss.php
 
 EXTRA_DIST = $(script_DATA)
