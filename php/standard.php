@@ -131,17 +131,17 @@ function list_standard_messages()
         $msg = read_standard_message($file);
         $subject = get_subject($msg);
         printf("<tr bgcolor=%s>
+            <td><a href=\"%s/%s?action=prepare&filename=%s\">send</a></td>
             <td>%s</td>
 			<td>%s</td>
-            <td><a href=\"%s/%s?action=prepare&filename=%s\">send</a></td>
             <td><a href=\"%s/%s?action=edit&filename=%s\">edit</a></td>
             <td><a onclick=\"return confirm('Are you sure that you want ".
             "to delete this message?')\"
             href=\"%s/%s?action=delete&filename=%s\">delete</a></td>
             </tr>",
             $count++%2==0?"#DDDDDD":"#FFFFFF",
-            $file, $subject,
             BASEURL, $SELF, urlencode($file),
+            $file, $subject,
             BASEURL, $SELF, urlencode($file),
             BASEURL, $SELF, urlencode($file)
             );
@@ -192,9 +192,12 @@ function prepare_message($filename) {
 	}
 
 	// get vars
-	$to = $_SESSSION["user_email"];
-	$from = $_SESSION["user_name"];
-	$replyto = $from;
+	$cert = getUserByUserId($_SESSION["userid"]);
+	if (MAILFROM == '') $from = $cert["email"];
+	else $from = MAILFROM;
+
+	if (REPLYTO == '') $replyto = $cert["email"];
+	else $replyto = REPLYTO;
 
 	// load message and replace all standard variables
 	$msg = replace_vars(read_standard_message($filename));
