@@ -23,23 +23,38 @@
  * on XML_Tree.
  */
 require_once 'XML/RSS.php';
-
+?>
+<STYLE>
+<!--
+a.item:visited { font-size: 12px; text-decoration: none; color: blue;}
+a.item:active { 
+	font-size: 12px; 
+	font-weight: bold; 
+	text-decoration: none; 
+	color: blue; 
+}
+a.item:link { font-size: 12px; text-decoration: none; color: blue; }
+h2.feed { font-size: 12px; }
+-->
+</STYLE>
+<?php
 $rssfeeds = array(
 	'sans'  => 'http://images.dshield.org/rssfeed.xml',
 	'sophos' => 'http://www.sophos.com/virusinfo/infofeed/tenalerts.xml'
 );
 
 foreach ($rssfeeds as $feed) {
+	echo "<HR>";
 	$rss =& new XML_Rss($feed);
 	$rss->parse();
 
 	$channelinfo = $rss->getChannelInfo();
-	printf("<h2 class='feed'><a href='%s'>%s</a></h2>\n",
+	printf("<h2 class='feed'><a class='item' href='%s'>%s</a></h2>\n",
 		$channelinfo['link'], 
 		$channelinfo['title']);
-	printf("<ul class='item'>\n");
+	printf("<ul>\n");
 	foreach ($rss->getItems() as $item) 
-		printf("<li><a href='%s'>%s</a>\n",
+		printf("<li><a class='item' href='%s'>%s</a>\n",
 			$item['link'],
 			$item['title']);
 	printf("</ul>\n");
