@@ -34,5 +34,5 @@ AC_OUTPUT([Makefile
 	lib/Makefile
 	php/Makefile
 	php/pic/Makefile
-	php/config.plib.in
+	php/config.plib
 ])

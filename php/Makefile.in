@@ -55,29 +55,14 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 subdir = php
 DIST_COMMON = README $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
-	$(srcdir)/constituencies.php.in \
-	$(srcdir)/constituency_contacts.php.in $(srcdir)/export.php.in \
-	$(srcdir)/incident.php.in $(srcdir)/incident_states.php.in \
-	$(srcdir)/incident_status.php.in \
-	$(srcdir)/incident_types.php.in $(srcdir)/index.php.in \
-	$(srcdir)/license.php.in $(srcdir)/links.php.in \
-	$(srcdir)/login.php.in $(srcdir)/logout.php.in \
-	$(srcdir)/maintenance.php.in $(srcdir)/networks.php.in \
-	$(srcdir)/roleassignments.php.in $(srcdir)/roles.php.in \
-	$(srcdir)/search.php.in $(srcdir)/standard.php.in \
-	$(srcdir)/users.php.in
+	$(srcdir)/config.plib.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
 	$(top_srcdir)/VERSION.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(mkdir_p)
-CONFIG_CLEAN_FILES = constituencies.php constituency_contacts.php \
-	export.php incident.php incident_states.php \
-	incident_status.php incident_types.php index.php license.php \
-	links.php login.php logout.php maintenance.php networks.php \
-	roleassignments.php roles.php search.php standard.php \
-	users.php
+CONFIG_CLEAN_FILES = config.plib
 SOURCES =
 DIST_SOURCES =
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
@@ -186,43 +171,7 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
-constituencies.php: $(top_builddir)/config.status $(srcdir)/constituencies.php.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-constituency_contacts.php: $(top_builddir)/config.status $(srcdir)/constituency_contacts.php.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-export.php: $(top_builddir)/config.status $(srcdir)/export.php.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-incident.php: $(top_builddir)/config.status $(srcdir)/incident.php.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-incident_states.php: $(top_builddir)/config.status $(srcdir)/incident_states.php.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-incident_status.php: $(top_builddir)/config.status $(srcdir)/incident_status.php.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-incident_types.php: $(top_builddir)/config.status $(srcdir)/incident_types.php.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-index.php: $(top_builddir)/config.status $(srcdir)/index.php.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-license.php: $(top_builddir)/config.status $(srcdir)/license.php.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-links.php: $(top_builddir)/config.status $(srcdir)/links.php.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-login.php: $(top_builddir)/config.status $(srcdir)/login.php.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-logout.php: $(top_builddir)/config.status $(srcdir)/logout.php.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-maintenance.php: $(top_builddir)/config.status $(srcdir)/maintenance.php.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-networks.php: $(top_builddir)/config.status $(srcdir)/networks.php.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-roleassignments.php: $(top_builddir)/config.status $(srcdir)/roleassignments.php.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-roles.php: $(top_builddir)/config.status $(srcdir)/roles.php.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-search.php: $(top_builddir)/config.status $(srcdir)/search.php.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-standard.php: $(top_builddir)/config.status $(srcdir)/standard.php.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-users.php: $(top_builddir)/config.status $(srcdir)/users.php.in
+config.plib: $(top_builddir)/config.status $(srcdir)/config.plib.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 uninstall-info-am:
 install-scriptDATA: $(script_DATA)
