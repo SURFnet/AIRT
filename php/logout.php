@@ -2,7 +2,7 @@
 /* $Id$ 
  * logout.php - Allows users to log out 
  
- * LIBERTY: INCIDENT RESPONSE SUPPORT FOR END-USERS
+ * AIR: APPLICATION FOR INCIDENT RESPONSE
  * Copyright (C) 2004	Kees Leune <kees@uvt.nl>
 
  * This program is free software; you can redistribute it and/or modify
@@ -20,8 +20,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 $public=1;
-include "../lib/liberty.plib";
-pageHeader("UvT-CERT Control Center");
+include "../lib/air.plib";
+pageHeader("AIR Control Center");
 
 @session_unset();
 @session_destroy();

@@ -2,7 +2,7 @@
 /* $Id$
  * login.php - allows users to log in to this site. 
  *
- * LIBERTY: INCIDENT RESPONSE SUPPORT FOR END-USERS
+ * AIR: APPLICATION FOR INCIDENT RESPONSE
  * Copyright (C) 2004	Kees Leune <kees@uvt.nl>
 
  * This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 $public=1;
-include "../lib/liberty.plib";
+include "../lib/air.plib";
 include "../lib/rt.plib";
 
 if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST[action];
@@ -31,7 +31,7 @@ $SELF = "login.php";
 switch ($action) 
 {
     case "none":
-        pageHeader("Liberty login page");
+        pageHeader("AIR login page");
         echo <<<EOF
 <form action="$SELF" method="POST">
 <table>

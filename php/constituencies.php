@@ -1,6 +1,6 @@
 <?php
 /*
- * LIBERTY: INCIDENT RESPONSE SUPPORT FOR END-USERS
+ * AIR: APPLICATION FOR INCIDENT RESPONSE
  * Copyright (C) 2004	Kees Leune <kees@uvt.nl>
 
  * This program is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
  * 
  * $Id$
  */
- require '../lib/liberty.plib';
+ require '../lib/air.plib';
  require '../lib/constituency.plib';
  
  $SELF = "constituencies.php";
