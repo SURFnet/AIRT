@@ -95,11 +95,11 @@ EOF;
         $_SESSION["constituency_id"] = $consid;
 
         pageHeader("Detailed information for host $hostname", "search-info");
-        
+
         echo <<<EOF
 Search results for the following host:
 <PRE>
-    
+
     IP Address          : $ip
     Hostname            : $hostname
     Network             : $netname ($network/$netmask)

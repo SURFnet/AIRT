@@ -246,8 +246,7 @@ EOF;
 } // prepare_message
 
 
-function print_variables_info()
-{
+function print_variables_info() {
     echo <<<EOF
 <table cellpadding="2">
 <tr>
@@ -294,8 +293,7 @@ EOF;
 }
 
 
-function replace_vars($msg)
-{
+function replace_vars($msg) {
     $out = $msg;
 
 	$out = ereg_replace("@IPADDRESS@", $_SESSION["active_ip"], $out);
@@ -325,8 +323,7 @@ function replace_vars($msg)
  *************************************************************************/
 $FILES = loadAllowedFiles();
 
-switch ($action)
-{
+switch ($action) {
     // -------------------------------------------------------------------
     case "list":
         pageHeader("Available standard messages");
@@ -462,9 +459,13 @@ EOF;
 		if (array_key_exists("sendxml", $_POST)) $attach=$_POST["sendxml"];
 		else $attach="off";
 
+		/* prevent sending bogus stuff */
+		if (trim($to) == '') die('Empty recipient?');
+		if (trim($msg) == '') die('Empty message body?');
+	
+		/* clean off html and stuff (only unformatted mail) */
 		$msg = strip_tags($msg);
 		$msg = stripslashes($msg);
-		
 
 		/* create the headers for the message */
 		$hdrs = array(
