@@ -18,64 +18,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ * index.php - Liberty console
+ * $Id$
  */
   include "../lib/liberty.plib";
   $SELF="index.php";
 
-  if (array_key_exists("action", $_REQUEST))
-      $action = $_REQUEST["action"];
-  else $action="none";
+  pageHeader("Liberty Control Center");
 
-  switch ($action)
-  {
-      case "increase":
-          require 'lib/getnextincident.plib';
-          getNextIncident();
-          Header("Location: $SELF");
-          break;
-      case "none":
-          break;
-      default:
-          die("Unkown action ($action).");
-  }
-
-  pageHeader("UvT-CERT Control Center");
-
-  $f = fopen("/var/lib/cert/incident.txt", "r");
-  $no = trim(fgets($f));
-  fclose ($f);
-
-  echo "<TABLE WIDTH='100%'>";
-  echo "<TR>";
-  echo "<TD align='left'>";
-  printf("Het huidige UvT-CERT incident nummer is UvT-CERT#%05d",
-      $no);
-  echo "</TD>";
-  $f = @fopen("/var/tmp/iscstatus", "r");
-  if ($f) 
-  {
-      echo "<TD align='right'>";
-      $level = trim(fgets($f));
-      fclose($f);
-      echo "<a href=\"http://isc.sans.org/\"><img ".
-           "src=\"".BASEURL."/pic/threatlevel_$level.gif\" border=0></a>";
-      echo "</TD>";
-  }
-  echo "</TR>";
-
-  echo "<TR>";
-  echo "<TD align='left'>";
-  printf("<a href='$SELF?action=increase'>Volgend incident</a>");
-  echo "</TD>";
-
-  echo "<TD align='right'>";
-  echo "ISC Infocon level: $level";
-  echo "</TD>";
-  echo "</TR>";
-
-  echo "</TABLE>";
-  echo "<HR>";
   echo "<P>";
+
   $filename=sprintf("/var/lib/cert/last_%s.txt", $_SESSION["username"]);
   if (file_exists($filename))
   {
@@ -92,25 +45,15 @@
 
 <P>
 
+<a href="mail.php">Incoming messages</a>
+
+<P>
+
 <a href="incident.php">Incident management</a>
 
 <P>
 
-<?php
-require 'lib/logins.plib';
-session_start();
-$user=$_SESSION["username"];
-$pass=$USERNAMES[$user];
-echo <<<EOF
-<a href="https://liberty.uvt.nl/rt/RTIR/index.html?user=$user&pass=$pass">Request tracker</a>
-EOF;
-?>
-
-<P>
-
 <a href="ports.php">Common TCP/UDP port lookup</a>
-
-<P>
 
 <P>
 
@@ -132,6 +75,6 @@ EOF;
 <a onclick="return confirm('Are you sure that you want to log out?')" 
    href="logout.php">Logout</a>
 
-<?
+<?php
     pageFooter();
 ?>

@@ -16,11 +16,9 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # $Id$
-
 # 
-SUBDIRS = pic
 
-scriptdir=$(pkgdatadir)
-script_DATA = index.php login.php logout.php mail.php
+scriptdir=$(pkgdatadir)/pic
+script_DATA = uvtcert.png uvtcert-bg.png
 
 EXTRA_DIST = $(script_DATA)

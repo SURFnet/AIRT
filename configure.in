@@ -26,4 +26,5 @@ AC_DEFINE_DIR(SCRIPT_PATH, datadir/liberty)
 
 AC_OUTPUT([Makefile
            html/Makefile
+           html/pic/Makefile
          ])
