@@ -86,12 +86,12 @@ function addUser($user) {
 		password)
 		VALUES
 		(nextval('users_sequence'), %s, %s, %s, %s, %s, %s, %s)",
-		db_masq_null('lastname'),
-		db_masq_null('firstname'),
-		db_masq_null('email'),
-		db_masq_null('phone'),
-		db_masq_null('login'),
-		db_masq_null('userid'),
+		db_masq_null(lastname),
+		db_masq_null(firstname),
+		db_masq_null(email),
+		db_masq_null(phone),
+		db_masq_null(login),
+		db_masq_null(userid),
 		db_masq_null(sha1('password'))
 	);
 	$res = @db_query($conn, $query)

@@ -108,8 +108,7 @@
 EOF;
  }
 
- switch ($action)
- {
+ switch ($action) {
     // --------------------------------------------------------------
     case "list":
         pageHeader("AIRT users");
@@ -122,7 +121,7 @@ EOF;
             FROM   users
             ORDER BY login")
         or die("Unable to query database.");
-        
+
         echo <<<EOF
 <table width="100%" cellpadding=3>
 <tr>
@@ -135,8 +134,7 @@ EOF;
 </tr>
 EOF;
         $count=0;
-        while ($row = db_fetch_next($res))
-        {
+        while ($row = db_fetch_next($res)) {
 			$id = $row["id"];
             $login = $row["login"];
             $lastname = $row["lastname"];
@@ -183,20 +181,20 @@ EOF;
 
         if (array_key_exists("lastname", $_POST)) $lastname=$_POST["lastname"];
         else die("Missing information (2).");
-        
+
         if (array_key_exists("firstname", $_POST)) 
             $firstname=$_POST["firstname"];
         else die("Missing information (3).");
 
         if (array_key_exists("email", $_POST)) $email=strtolower($_POST["email"]);
         else die("Missing information (4).");
-        
+
         if (array_key_exists("phone", $_POST)) $phone=$_POST["phone"];
         else die("Missing information (5).");
-        
+
         if (array_key_exists("password", $_POST)) $password=$_POST["password"];
         else $password="";
-        
+
         if (array_key_exists("password2", $_POST))
             $password2=$_POST["password2"];
         else $password2="";
@@ -208,10 +206,8 @@ EOF;
         else $id="";
 
         // ========= ADD ==========
-        if ($action == "add")
-        {
-            if ($password != $password2)
-            {
+        if ($action == "add") {
+            if ($password != $password2) {
                 pageHeader("Error");
                 echo <<<EOF
 The passwords that you provided do not match.<P>
@@ -230,8 +226,7 @@ EOF;
                  WHERE  login='$login'")
             or die("Unable to query database.");
 
-            if (db_num_rows($res) > 0)
-            {
+            if (db_num_rows($res) > 0) {
                 pageHeader("Error");
                 echo <<<EOF
 Login <em>$login</em> is already in use.<P>

@@ -45,6 +45,5 @@ AC_OUTPUT([Makefile
     etc/airt.cfg
     man/Makefile
     php/config.plib
-    php/pic/Makefile
     man/airt.pod
 ])

@@ -23,6 +23,10 @@ require_once '/etc/airt/airt.cfg';
 require_once LIBDIR.'/authentication.plib';
 require_once LIBDIR.'/airt.plib';
 
+/* CAUTION: This page expects the option
+ * 	SSLOptions +ExportCertData
+ * To be set in apache's mod_ssl config!
+ */
 $crt = openssl_x509_parse(openssl_x509_read($_SERVER['SSL_CLIENT_CERT']));
 
 /* get some stuff from the certificate; dont forget to convert email address
