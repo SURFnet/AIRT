@@ -1,4 +1,5 @@
 <?php 
+session_start();
 /* $Id$ 
  * logout.php - Allows users to log out 
  
@@ -25,8 +26,7 @@ require_once LIBDIR.'/airt.plib';
 
 pageHeader("AIRT Control Center");
 
-@session_unset();
-@session_destroy();
+session_destroy();
 
 echo <<<EOF
    You have been logged out.
@@ -35,5 +35,4 @@ echo <<<EOF
 
    Click here to <a href='login.php'>log in again</a>.
 EOF;
-
 ?>

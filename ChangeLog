@@ -1,5 +1,6 @@
 2005-feb-03  Kees Leune  <kees@uvt.nl>
 * php/login.php.in: Log to syslog on invalid logins
+* php/logout.php: Fixed a bug which caused you not to log out
 * php/standard.php: Removed hard-wired mail to kees
 * etc/airt-apache.conf.in: Hook for local extensions
 
