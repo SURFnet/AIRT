@@ -208,7 +208,7 @@ function choice($label, $value, $default)
 
 // TODO: fix, test and extend
 function addEventHandler($event, $function) {
-	global glEventHandlers;
+	global $glEventHandlers;
 
 	if (array_key_exists($event, $glEventHandlers)) 
 		array_push($glEventHandlers[$event], $function);
