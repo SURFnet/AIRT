@@ -23,7 +23,7 @@
  * $Id$
  */
 require "../lib/database.plib";
-require "../lib/air.plib";
+require "../lib/airt.plib";
 require "../lib/rt.plib";
 
 pageHeader("AIR Control Center");
