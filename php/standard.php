@@ -22,59 +22,14 @@
  * index.php - AIR console
  * $Id$
  */
-require_once "../lib/database.plib";
-require_once "../lib/airt.plib";
-require_once "../lib/incident.plib";
-require_once "../lib/rt.plib";
-require_once "../lib/constituency.plib";
+require_once '/etc/airt/airt.cfg';
+require_once LIBDIR."/database.plib";
+require_once LIBDIR."/airt.plib";
 
 if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
 else $action = "list";
 
 $SELF="standard.php";
-
-function show_defaults()
-{
-    $activeip = $_SESSION["active_ip"];
-    $activeid = $_SESSION["active_incidentid"];
-    $activeticket = $_SESSION["active_ticketid"];
-
-echo <<<EOF
-<PRE>
-    Active Incident: $activeid
-    Active IP      : $activeip
-    Active Ticket  : $activeticket
-</PRE>
-EOF;
-} // show_defaults
-
-
-function set_defaults()
-{
-
-    $user = RT_getUserById($_SESSION["userid"]);
-    $username = $user["realname"];
-
-    // 1. by incident id
-    if (array_key_exists("active_incidentid", $_SESSION))
-    {
-        $incidentid = decode_incidentid($_SESSION["active_incidentid"]);
-        $incident = AIR_getIncidentById($incidentid);
-        $hostname = gethostbyaddr($incident->getIp());
-        $con = AIR_getConstituencyById($incident->getConstituency());
-        $constituency = $con->getName();
-    }
-    
-    echo <<<EOF
-    <PRE>
-    Hostname     = $hostname
-    CERT member  = $username
-    Incident     = $incidentid
-    Constituency =  $constituency
-    </PRE>
-EOF;
-    
-}
 
 
 /** 
@@ -84,7 +39,7 @@ EOF;
  */
 function read_standard_message($str)
 {
-    $filename = ETCDIR."/standard_messages/$str";
+    $filename = STATEDIR."/templates/$str";
     if (($f = fopen($filename, "r")) == false) return false;
     
 
@@ -116,7 +71,7 @@ function list_standard_messages()
 {
     global $SELF;
 
-    $dir = ETCDIR."/standard_messages";
+    $dir = STATEDIR."/templates";
     $dh = @opendir($dir)
     or die ("Unable to open directory with standard messages.");
 
@@ -171,7 +126,7 @@ function save_standard_message($filename, $msg)
 {
     if ($filename == "" || $msg == "") return false;
 
-    $filename = ETCDIR."/standard_messages/$filename";
+    $filename = STATEDIR."/templates/$filename";
     if (($f = fopen($filename, "w")) == false) return false;
 
     fwrite($f, $msg);
@@ -218,9 +173,10 @@ EOF;
 function replace_vars($msg)
 {
     $out = $msg;
+    /*
     $incident = AIR_getIncidentById($_SESSION["active_incidentid"]);
     $user = RT_getUserById($_SESSION["userid"]);
-
+*/
     $out = ereg_replace("@ID@", 
         normalize_incidentid($_SESSION["active_incidentid"]), $out);
     $out = ereg_replace("@HOSTNAME@", 
@@ -240,8 +196,6 @@ switch ($action)
     // -------------------------------------------------------------------
     case "list":
         pageHeader("Available standard messages");
-        echo "<h2>Session defaults</h2>";
-        show_defaults();
 
         echo "<h2>Messages</H2>";
         if (list_standard_messages() == 0)
@@ -346,7 +300,7 @@ EOF;
             $filename=$_REQUEST["filename"];
         else die("Missing parameter.");
 
-        unlink(ETCDIR."/standard_messages/$filename");
+        unlink(STATEDIR."/templates/$filename");
         Header("Location: ".BASEURL."/$SELF");
         break;
 

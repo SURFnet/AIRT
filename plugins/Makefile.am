@@ -18,7 +18,7 @@
 # $Id$
 
 # 
-SUBDIRS = pic
+# SUBDIRS = pic
 
 scriptdir=$(pkgdatadir)/php
 script_DATA =colorstate.php debuginfo.php

@@ -21,7 +21,9 @@
 SUBDIRS = pic
 
 scriptdir=$(pkgdatadir)/php
-script_DATA = index.php login.php logout.php mail.php incident.php \
-    search.php constituencies.php standard.php
+script_DATA = index.php login.php logout.php incident.php \
+    search.php constituencies.php standard.php incident_states.php \
+    incident_status.php incident_types.php license.php links.php \
+    maintenance.php roleassignments.php roles.php users.php
 
 EXTRA_DIST = $(script_DATA)

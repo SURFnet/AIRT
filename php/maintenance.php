@@ -53,15 +53,15 @@ pageHeader("AIRT Maintenance Center");
 
 <P>
 
-<a href="">Edit incident states</a> TODO
+<a href="incident_states.php">Edit incident states</a>
 
 <P>
 
-<a href="">Edit incident statuses</a> TODO
+<a href="incident_status.php">Edit incident statuses</a>
 
 <P>
 
-<a href="">Edit incident types</a> TODO
+<a href="incident_types.php">Edit incident types</a> 
 
 <P>
 
