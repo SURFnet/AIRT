@@ -21,8 +21,6 @@
  * 
  * $Id$
  */
-require '../lib/air.plib';
-require '../lib/database.plib';
  
 $SELF = "colorstate.php";
 
@@ -53,6 +51,10 @@ switch ($action)
 {
     // -------------------------------------------------------------------
     case "image":
+        $public = 1;
+        require '../lib/air.plib';
+        require '../lib/database.plib';
+
         $row = getColorState();
         $url = $row["url"];
         printf("<img src=\"%s\">", $url);
@@ -60,6 +62,10 @@ switch ($action)
 
     // -------------------------------------------------------------------
     case "label":
+        $public = 1;
+        require '../lib/air.plib';
+        require '../lib/database.plib';
+        
         $row = getColorState();
         $colorstate = $row["colorstate"];
         printf($colorstate);
@@ -67,6 +73,9 @@ switch ($action)
 
     // -------------------------------------------------------------------
     case "new":
+        require '../lib/air.plib';
+        require '../lib/database.plib';
+
         pageHeader("Color states");
 
         $row = getColorState();
@@ -134,6 +143,9 @@ EOF;
 
     // -------------------------------------------------------------------
     case "add":
+        require '../lib/air.plib';
+        require '../lib/database.plib';
+
         if (array_key_exists("url", $_REQUEST)) $url=$_REQUEST["url"];
         else die("Missing information (1).");
 
@@ -159,8 +171,12 @@ EOF;
         Header("Location: $SELF");
 
         break;
+
     // -------------------------------------------------------------------
     case "delete":
+        require '../lib/air.plib';
+        require '../lib/database.plib';
+
         if (array_key_exists("id", $_REQUEST)) $id=$_REQUEST["id"];
         else die("Missing information (1).");
 
@@ -175,8 +191,12 @@ EOF;
 
         Header("Location: $SELF");
         break;
+
     // -------------------------------------------------------------------
     case "activate":
+        require '../lib/air.plib';
+        require '../lib/database.plib';
+
         if (array_key_exists("id", $_REQUEST)) $id=$_REQUEST["id"];
         else die("Missing information (1).");
 

@@ -30,6 +30,20 @@ pageHeader("AIR Control Center");
 
 $new = RT_countNewMessages(LIBERTYQUEUE);
 
+function getColorState()
+{
+    $f = @fopen(
+        "https://liberty.uvt.nl/liberty/colorstate.php?action=label",
+        "r");
+    if ($f) 
+        $threat = fgets($f);
+    else 
+        $theat = "";
+    @fclose($f);
+
+    return $threat;
+}
+
 $filename=sprintf("/var/lib/cert/last_%s.txt", $_SESSION["username"]);
 if (file_exists($filename))
 {
@@ -37,8 +51,11 @@ if (file_exists($filename))
   $last = fgets($f);
   fclose($f);
   printf("<small>$last</small>");
-  echo "<P>&nbsp;<P>";
 }
+echo "<P>";
+echo "The current UvT-CERT color state is: <B>".getColorState()."</B>";
+echo "<P>";
+echo "<HR>";
 ?>
 
 

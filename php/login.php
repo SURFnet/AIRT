@@ -33,6 +33,7 @@ switch ($action)
     case "none":
         pageHeader("AIR login page");
         echo <<<EOF
+<P>
 <form action="$SELF" method="POST">
 <table>
 <tr>
