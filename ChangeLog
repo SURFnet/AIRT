@@ -1,3 +1,6 @@
+2005-feb-08  Kees Leune  <kees@uvt.nl>
+* php/standard.php: MAIL_CC recipient is now also shown in smtp header
+
 2005-feb-06  Kees Leune  <kees@uvt.nl>
 * php/help.php: New help system
 * php/search.php: Added list of previous incidents when searching IP 
