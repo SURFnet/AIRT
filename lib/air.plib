@@ -60,6 +60,12 @@ function AIR_getConstituencies()
  */
 function AIR_getConstituencyById($id)
 {
+    if ($id == "")
+    {
+        $output = new AIR_Constituency();
+        $output->setId(-1);
+        return $output;
+    }
     $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
     or die("Unable to connect to database.");
 
@@ -95,6 +101,41 @@ function AIR_getConstituencyById($id)
 } // AIR_getConstituencyById
 
 
+function AIR_getConstituencyByName($str)
+{
+    $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
+    or die("Unable to connect to database.");
+
+    $res = db_query($conn,
+        "SELECT *
+         FROM   constituencies
+         WHERE  name='$str'")
+    or die("Unable to query database.");
+
+    $output = new AIR_Constituency();
+
+    if (db_num_rows($res) > 0)
+    {
+        $row = db_fetch_next($res);
+        $output->setName($row["name"]);
+        $output->setDescription($row["description"]);
+        $output->setContactEmail($row["contact_email"]);
+        $output->setContactName($row["contact_name"]);
+        $output->setContactPhone($row["contact_phone"]);
+        $output->setId($row["id"]);
+        $output->setCreated($row["created"]);
+        $output->setCreatedBy($row["createdby"]);
+    } 
+    else
+    {
+        $output->setId(-1);
+    }
+
+    db_close($conn);
+    return $output;
+} // AIR_getConstituencyByName
+
+
 /* Update a constituency
  */
 function AIR_updateConstituency($constituency)
@@ -121,6 +162,194 @@ function AIR_addConstituency($constituency)
 
     db_close($conn);
 } // AIR_addConstituency
+
+
+/* Get incident by id. If the incident does not exist, the returned incident
+ * will have an id of -1.
+ */
+function AIR_getIncidentById($id)
+{
+    if ($id == "")
+    {
+        $output = new AIR_Incident();
+        $output->setId(-1);
+        return $output;
+    }
+    $id = normalize_incidentid($id);
+ 
+    $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
+    or die("Unable to connect to database.");
+ 
+    $r = db_query($conn, sprintf("
+         SELECT * 
+         FROM incidents
+         WHERE id=%s",
+             decode_incidentid($id)))
+    or die("Unable to query database.");
+ 
+    $incident = new AIR_Incident();
+    if (db_num_rows($r) > 0)
+    {
+        $row = db_fetch_next($r);
+        $incident->setId($row["id"]);
+        $incident->setIp($row["ip"]);
+        $incident->setConstituency($row["constituency"]);
+        $incident->setRTId($row["rtid"]);
+        $incident->setStatus($row["status"]);
+        $incident->setCategory($row["category"]);
+        $incident->setUserEmail($row["user_email"]);
+        $incident->setUserName($row["user_name"]);
+        $incident->setState($row["state"]);
+        $incident->setHostname(gethostbyaddr($incident->getIp()));
+    }
+    else
+        $incident->setId = -1;    
+
+    db_close($conn);
+    return $incident;
+} // AIR_getIncidentById
+
+
+function AIR_addIncident($incident)
+{
+    $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
+    or die("Unable to connect to database.");
+
+    $res = db_query($conn, $incident->getInsertString())
+    or die("Unable to query database.");
+
+    db_close($conn);
+} // AIR_addIncident
+
+
+function AIR_updateIncident($incident)
+{
+    $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
+    or die("Unable to connect to database.");
+
+    $res = db_query($conn, $incident->getUpdateString())
+    or die("Unable to query database.");
+
+    db_close($conn);
+} // AIR_addIncident
+
+
+function AIR_getIncidents()
+{
+    $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
+    or die("Unable to connect to database.");
+
+    $res = db_query($conn, "
+        SELECT   * 
+        FROM     incidents 
+        ORDER BY id")
+    or die("Unable to query database.");
+
+    $output = array(db_num_rows($res));
+    $count = 0;
+    while ($row = db_fetch_next($res))
+        $output[$count++] = $row;
+    db_close($conn);
+
+    return $output;
+} // AIR_Incidents
+
+
+class AIR_Incident
+{
+    var $id,
+        $ip,
+        $constituency,
+        $rtid,
+        $status,
+        $category,
+        $user_email,
+        $user_name,
+        $state,
+        $hostname,
+        $created,
+        $creator,
+        $lastupdatedby,
+        $lastupdated;
+
+    function setId($id)            { $this->id = $id; }
+    function setIp($str)           { $this->ip = $str; }
+    function setConstituency($id)  { $this->constituency = $id; }
+    function setRTId($id)          { $this->rtid = $id; }
+    function setStatus($str)       { $this->status = $str; }
+    function setCategory($str)     { $this->category = $str; }
+    function setUserEmail($str)    { $this->user_email = $str; }
+    function setUserName($str)     { $this->user_name = $str; }
+    function setState($str)        { $this->state = $str; }
+    function setHostname($str)     { $this->hostname = $str; }
+    function setCreated($str)      { $this->created = $str; }
+    function setCreator($str)      { $this->creator = $str; }
+    function setLastUpdatedBy($str){ $this->lastupdatedby = $str; }
+    function setLastUpdated($str)  { $this->lastupdated = $str; }
+
+    function getId()               { return $this->id; }
+    function getIp()               { return $this->ip; }
+    function getConstituency()     { return $this->constituency; }
+    function getRTId()             { return $this->rtid; }
+    function getStatus()           { return $this->status; }
+    function getCategory()         { return $this->category; }
+    function getUserEmail()        { return $this->user_email; }
+    function getUserName()         { return $this->user_name; }
+    function getState()            { return $this->state; }
+    function getHostname()         { return $this->hostname; }
+    function getCreated($str)      { return $this->created; }
+    function getCreator($str)      { return $this->creator; }
+    function getLastUpdatedBy($str){ return $this->lastupdatedby; }
+    function getLastUpdated($str)  { return $this->lastupdated; }
+
+    function getInsertString()
+    {
+        return sprintf("
+            INSERT INTO incidents
+            (id, ip, status, state, category, user_name, user_email, 
+             constituency, created, creator, lastupdatedby, lastupdated )
+            VALUES
+            (nextval('incidentid_seq'), %s, %s, %s, %s, %s, %s, 
+                %s, '%s', %s, %s, '%s')",
+                db_masq_null($this->ip),
+                db_masq_null($this->status),
+                db_masq_null($this->state),
+                db_masq_null($this->category),
+                db_masq_null($this->user_name),
+                db_masq_null($this->user_email),
+                db_masq_null($this->constituency),
+                db_masq_null($this->created),
+                db_masq_null($this->creator),
+                db_masq_null($this->lastupdatedby),
+                db_masq_null($this->lastupdated));
+    } // getInsertString
+
+    function getUpdateString()
+    {
+        return sprintf("
+            UPDATE incidents
+            SET    ip = %s,
+                   status = %s,
+                   state = %s,
+                   category = %s,
+                   user_name = %s,
+                   user_email = %s,
+                   constituency = %s,
+                   lastupdatedby = %s,
+                   lastupdated = %s
+            WHERE  id = '%s'",
+            db_masq_null($this->ip), 
+            db_masq_null($this->status), 
+            db_masq_null($this->state), 
+            db_masq_null($this->category),    
+            db_masq_null($this->user_name),
+            db_masq_null($this->user_email),
+            db_masq_null($this->constituency),
+            db_masq_null($this->lastupdatedby),
+            db_masq_null($this->lastupdated),
+            decode_incidentid($this->id));
+    } //getUpdateString
+} // AIR_Incident
 
 
 class AIR_Constituency

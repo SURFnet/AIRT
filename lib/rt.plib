@@ -236,12 +236,27 @@ function RT_addTransaction($transaction)
     db_close($conn);
 } // RT_addTransaction
 
-/* Return $str surrounded by singles quotes, or the string NULL is $str is an
- * empty string
- */
-function RT_masq_null($str) {
-    return ($str == "" ? "NULL": "'$str'");
-}
+
+function RT_countNewMessages($queue)
+{
+    $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
+    or die("Unable to connect to database: ".db_errormsg());
+  
+    $res = db_query($conn, sprintf("
+      SELECT COUNT(DISTINCT t.id) AS amount
+      FROM   tickets t, queues q
+      WHERE  status = 'new'
+      AND    t.queue = q.id
+      AND    q.name = '%s'",
+      $queue))
+    or die("Unable to query database: ".db_errormsg());
+  
+    $row = db_fetch_next($res);
+    db_close($conn);
+  
+    return $row["amount"];
+} // RT_countNewMessages
+
 
 /* Transaction class
  */
@@ -283,10 +298,10 @@ class RT_Transaction
              creator, created)
             VALUES
             (%s, %s, %s, %s, %s, %s, %s, %s)",
-            $this->effectiveTicket, $this->ticket, RT_masq_null($this->field), 
-            RT_masq_null($this->type), RT_masq_null($this->oldvalue), 
-            RT_masq_null($this->newvalue), $this->creator, 
-            RT_masq_null($this->created));
+            $this->effectiveTicket, $this->ticket, db_masq_null($this->field), 
+            db_masq_null($this->type), db_masq_null($this->oldvalue), 
+            db_masq_null($this->newvalue), $this->creator, 
+            db_masq_null($this->created));
     }
 
 } // RT_Transaction

@@ -21,8 +21,8 @@
  * $Id$
  */
 require "../lib/liberty.plib";
-require "../lib/database.plib";
 require "../lib/userfunctions.plib";
+require "../lib/air.plib";
 
 if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
 else $action="list";
@@ -118,22 +118,9 @@ switch ($action)
 EOF;
 
         echo choice("--- Choose consituency ---", "", $constituency);
-        $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
-        or die("Unable to connect to database.");
-
-        $res = db_query($conn,
-            "SELECT * 
-             FROM   constituencies
-             ORDER BY name")
-        or die("Unable to query constituencies");
-
-        while ($row = db_fetch_next($res))
-        {
-            $id = $row["id"];
-            $descr = $row["description"];
-            echo choice($descr, $id, $constituency);
-        }
-        db_close($conn);
+        $cons = AIR_getConstituencies();
+        foreach ($cons as $i => $c)
+            echo choice($c["description"], $c["id"], $constituency);
 
         echo <<<EOF
         </select>
@@ -249,32 +236,19 @@ EOF;
         if (array_key_exists("state", $_POST))
             $state=$_POST["state"];
 
-        $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
-        or die("Unable to connect to database.");
-
         $now = Date("Y-m-d H:i:s");
-        $query = sprintf("
-            INSERT INTO incidents
-            (id, ip, status, state, category, user_name, user_email, 
-             constituency, created, creator, lastupdatedby, lastupdated )
-            VALUES
-            (nextval('incidentid_seq'), '%s', '%s', '%s', '%s', %s, %s, 
-                %s, '%s', %s, %s, '%s')",
-                $ip, 
-                $status, 
-                $state,
-                $category,
-                $user_name==""?"NULL":"'$user_name'",
-                $user_email==""?"NULL":"'$user_email'",
-                $constituency, 
-                $now, 
-                $_SESSION["userid"],
-                $_SESSION["userid"],
-                $now
-                );
-        $r = db_query($conn, $query)
-        or die("Unable to insert incident.");
-        db_close($conn);
+        $incident = new AIR_Inident();
+        $incident->setIp($ip);
+        $incident->setStatus($status); 
+        $incident->setState($state);
+        $incident->setCategory($category);
+        $incident->setUserName($user_name);
+        $incident->setUserEmail($user_email);
+        $incident->setConstituency($constituency);
+        $incident->setCreated($now);
+        $incident->setCreator($_SESSION["userid"]);
+
+        AIR_addIncident($incident);
 
         Header(sprintf("Location: %s/%s?action=list",
             BASEURL, $SELF));
@@ -319,35 +293,21 @@ EOF;
             $state=$_POST["state"];
 
         $id = normalize_incidentid($id);
+        $now = Date("Y-m-d H:i:s");
+        $incident = new AIR_Incident();
+        $incident->setId($incidentid);
+        $incident->setIp($ip);
+        $incident->setStatus($status); 
+        $incident->setState($state);
+        $incident->setCategory($category);
+        $incident->setUserName($user_name);
+        $incident->setUserEmail($user_email);
+        $incident->setConstituency($constituency);
+        $incident->setLastUpdated($now);
+        $incident->setLastUpdatedBy($_SESSION["userid"]);
 
-        $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
-        or die("Unable to connect to database.");
+        Air_updateIncident($incident);
 
-        session_start();
-        $query = sprintf("
-            UPDATE incidents
-            SET    ip = '%s',
-                   status = '%s',
-                   category = '%s',
-                   user_name = %s,
-                   user_email = %s,
-                   constituency = %s,
-                   lastupdatedby = '%s',
-                   lastupdated = '%s'
-            WHERE  id = '%s'",
-            $ip, 
-            $status, 
-            $category,
-            $user_name    == "" ? "NULL" : "'$user_name'",
-            $user_email   == "" ? "NULL" : "'$user_email'",
-            $constituency == "" ? "NULL" : $constituency,
-            $_SESSION["userid"],
-            Date("Y-m-d H:i:s"),
-            decode_incidentid($incidentid));
-        $r = db_query($conn, $query)
-        or die("Unable to update incident.");
-        db_close($conn);     
-        
         Header(sprintf("Location: %s/%s?action=list",
             BASEURL, $SELF));
 
@@ -356,43 +316,45 @@ EOF;
     //--------------------------------------------------------------------
     case "list":
         pageHeader("Incident overview");
-        $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
-        or die("Unable to connect to database.");
 
-        $r = db_query($conn, "SELECT 
-            i.id, ip, status, category, c.name as constituency,
-            extract(epoch from i.created) 
-            FROM incidents i, constituencies c
-            WHERE status='open'
-            AND   i.constituency = c.id
-            order by id")
-        or die("Unable to query incidents.");
-
-        echo "<table width='100%'>\n";
-        echo "<tr>
-                <td></td>
-                <td align='center'><small>Click to edit</small></td>
-                <td></td>
-                <td align='center'><small>Click to search</small></td>
-            </tr>";
+        echo <<<EOF
+<table width='100%'>
+<tr>
+    <td></td>
+    <td align='center'><small>Click to edit</small></td>
+    <td></td>
+    <td align='center'><small>Click to search</small></td>
+</tr>
+EOF;
+        $incidents = AIR_getIncidents();
         $count = 0;
-        while ($row = pg_fetch_array($r))
+        foreach ($incidents as $index => $incident)
         {
-            $id           = normalize_incidentid($row["id"]);
-            $ip           = $row["ip"];
-            $constituency = $row["constituency"];
-            $status       = $row["status"];
-            $category     = $row["category"];
-            $date_created = Date("d M Y", $row["date_part"]);
+            $id           = normalize_incidentid($incident["id"]);
+            $ip           = $incident["ip"];
+            $category     = $incident["category"];
+            $date_created = $incident["created"];
 
-            if ($count++%2==0) $bgcolor="#FFFFFF"; else $bgcolor="#DDDDDD";
+            // get status
+            $status       = $incident["status"];
+            if ($status == "closed") continue;
+
+            // get state
+            $state        = $incident["state"];
+            if ($state == "") $state = "New";
+
+            // get constitution
+            $con = AIR_getConstituencyById($incident["constituency"]);
+            if ($con->getId() == -1) $constituency = "Unknown";
+            else $constituency = $con->getName();
 
             // check if incident is overdue
-            if ($state == "" && ((time() - $row["date_part"]) > WARN_UNACK))
+            if ($state == "new" && ((time() - $row["date_part"]) > WARN_UNACK))
                 $flags = "*";
             else
                 $flags = "&nbsp;";
                 
+            if ($count++%2==0) $bgcolor="#FFFFFF"; else $bgcolor="#DDDDDD";
             printf("<tr bgcolor=$bgcolor>
                     <td>%s</td>
                     <td><a href=\"$SELF?action=edit&id=%s\">%s</a></td>
@@ -416,8 +378,7 @@ EOF;
                     href=\"$SELF?action=close&id=%s\">close</a></small>",
                     urlencode($id))
             );
-        }
-        db_close($conn);
+        } // foreach
         echo "</table>\n";
         printf("<P><small><i>%s %s selected.</small><P>",
             $count, $count==1?"record":"records");
@@ -427,6 +388,17 @@ EOF;
         
     //--------------------------------------------------------------------
     case "close":
+        if (array_key_exists("id", $_REQUEST)) $id=$_REQUEST["id"];
+        else die("Missing information (1).");
+
+        $incident = AIR_getIncidentById($id);
+        $incident->setStatus("closed");
+        AIR_updateIncident($incident);
+
+        Header(sprintf("Location: %s/%s?action=list",
+            BASEURL, $SELF));
+
+        
         break;
 
     //--------------------------------------------------------------------

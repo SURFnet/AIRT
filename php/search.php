@@ -23,7 +23,7 @@
  */
 
  require '../lib/liberty.plib';
- require '../lib/database.plib';
+ require '../lib/air.plib';
  require '../lib/userfunctions.plib';
 
  if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
@@ -73,17 +73,10 @@ EOF;
         search_info($ip, $hostname, $constituency);
 
 
-        $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
-        or die("Unable to connect to database.");
-
-        $res = db_query($conn, "
-            SELECT *
-            FROM   constituencies
-            WHERE  name = '$constituency'")
-        or die("Unable to query database.");
+        // include constuency
+        $con = AIR_getConstituencyByName($constituency);
 
         echo "<h2>Constituency</h2>";
-        $row = db_fetch_next($res);
         printf("
         <pre>
 Constituency     %s
@@ -92,11 +85,10 @@ Email            <a href=\"mailto:%s\">%s</a>
 Telephone        %s
         </pre>", 
             $constituency,
-            $row["contact_name"],
-            $row["contact_email"],
-            $row["contact_email"],
-            $row["contact_phone"]);
-        db_close($conn);
+            $con->getContactName(),
+            $con->getContactEmail(),
+            $con->getContactEmail(),
+            $con->getContactPhone());
          
         printf("<P><a href=\"%s/incident.php?action=new&hostname=%s&".
                "constituency=%s\">Create new incident</a>",
