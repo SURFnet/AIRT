@@ -23,7 +23,11 @@ if (!isset($public) || !$public)
 {
     session_start();
     if (!array_key_exists("username", $_SESSION)) {
-        Header("Location: login.php?action=none");
+        Header("Location: login.php");
+        exit;
+    }
+    if (!array_key_exists("userid", $_SESSION)) {
+        Header("Location: login.php");
         exit;
     }
 }

@@ -21,8 +21,9 @@
  * $Id$
  */
 require "../lib/liberty.plib";
+require "../lib/incident.plib";
+require "../lib/constituency.plib";
 require "../lib/userfunctions.plib";
-require "../lib/api.plib";
 
 if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
 else $action="list";

@@ -22,7 +22,7 @@
  * $Id$
  */
  require '../lib/liberty.plib';
- require '../lib/api.plib';
+ require '../lib/constituency.plib';
  
  $SELF = "constituencies.php";
 

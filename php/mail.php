@@ -22,7 +22,7 @@
  */
  require '../lib/liberty.plib';
  require '../lib/rt.plib';
- require '../lib/api.plib';
+ require '../lib/incident.plib';
 
  $SELF="$BASEURL/mail.php";
 
@@ -34,11 +34,19 @@
     case "none":
         pageHeader("Incoming messages");
         $msgs = RT_getNewTicketIds(LIBERTYQUEUE);
+        $count = count($msgs);
 
         echo <<<EOF
 <form action="$SELF" method="POST">
 <input type="hidden" name="action" value="ignoreall">
 <table width="100%" border="0" cellpadding="2">
+<tr>
+<td>&nbsp;</td>
+<td colspan=2><i>$count new messages in incoming queue<i></td>
+</tr>
+<tr>
+<td colspan=3><hr></td>
+</tr>
 EOF;
         $count = 0;
         foreach ($msgs as $a => $index)
@@ -63,6 +71,9 @@ EOF;
             printf("</TR>");
         }
         echo <<<EOF
+<tr>
+<td colspan=3><hr></td>
+</tr>
         </TABLE>
         <P>
         <input type='submit' value='Ignore toggled'>
