@@ -221,7 +221,6 @@ function registerEventHandler($event, $function) {
 function generateEvent($event, $data) {
 	global $glEventHandlers;
 
-	echo sizeof($glEventHandlers);
 	if (array_key_exists($event, $glEventHandlers)) {
 		foreach ($glEventHandlers[$event] as $fun) 
 			call_user_func($fun, $data);
