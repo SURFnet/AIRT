@@ -24,6 +24,7 @@
 require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/constituency.plib';
 
+/* used by reversesortbymask-- do not call directly */
 function netmaskcmp($a, $b) {
 	$sizea = 1 + strrpos(decbin(ip2long($a["netmask"])), "1");
 	$sizeb = 1 + strrpos(decbin(ip2long($b["netmask"])), "1");
@@ -33,6 +34,7 @@ function netmaskcmp($a, $b) {
 	else return 1;
 }
 
+/* sort the network list by reverse netmask */
 function reversesortbymask ($networks) {
 	usort($networks, "netmaskcmp");
 	return $networks;
