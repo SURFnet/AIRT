@@ -88,7 +88,7 @@ function AIR_addIncident($incident)
     db_close($conn);
 
     // update active ip in session
-    $_SESSION["active_ip"] = $incident->getIp();
+    $_SESSION["active_ip"] = $id;
     
     // add history to the database.
     $now = Date("Y-m-d H:i:s");

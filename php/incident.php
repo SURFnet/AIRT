@@ -20,11 +20,12 @@
  * Incidents.php - incident management interface
  * $Id$
  */
-require "../lib/air.plib";
-require "../lib/incident.plib";
-require "../lib/constituency.plib";
-require "../lib/rt.plib";
-require "../lib/userfunctions.plib";
+require_once "../lib/air.plib";
+require_once "../lib/incident.plib";
+require_once "../lib/constituency.plib";
+require_once "../lib/rt.plib";
+require_once "../lib/history.plib";
+require_once "../lib/userfunctions.plib";
 
 if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
 else $action="list";
@@ -487,6 +488,39 @@ EOF;
         $incident->getUserEmail(), 
         $incident->getStatus(),
         $incident->getCategory());
+
+        echo "<h2>Activity</h2>";
+        echo "<table>";
+        $history = AIR_getHistory($incident->getId());
+        $count = 0;
+        foreach ($history as $key=>$tuple)
+        {
+            switch ($tuple["type"])
+            {
+                case "create":
+                    $info = "Incident created";
+                    break;
+                case "state":
+                    $info = "State changed to ".$tuple["newvalue"];
+                    break;
+                case "close":
+                    $info = "Incident closed,";
+                    break;
+                default:
+                    $info = $tuple["newvalue"];
+
+            }
+            $user = RT_getUserById($tuple["createdby"]);
+            printf("<tr cellpadding=3 bgColor='%s'>
+                <td>%s</td><td>%s</td><td>%s</td></tr>",
+                $count++%2==0 ? "#DDDDDD": "#FFFFFF",
+                $tuple["created"],
+                $user["realname"],
+                $info
+                );
+        }
+        echo "</table>";
+
 
         echo "<h2>Messages</h2>";
         $incident = AIR_getIncidentById($id);

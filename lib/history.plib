@@ -57,6 +57,27 @@ function AIR_addHistory($history)
 } // AIR_addHistory
 
 
+function AIR_getHistory($id)
+{
+    $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
+    or die("Unable to connect to database: ".db_errormessage());
+
+    $res = db_query($conn, "
+        SELECT *
+        FROM   history
+        WHERE  incidentid = '$id'
+        ORDER BY CREATED")
+    or die("Unable to query database: ".db_errormessage());
+
+    if (db_num_rows($res) == 0) return array();
+    $output = array(db_num_rows($res));
+    $count=0;
+    while ($row = db_fetch_next($res))
+        $output[$count++] = $row;
+    db_close($conn);
+    return $output;
+}
+
 class AIR_History
 {
     var $id,
@@ -75,24 +96,25 @@ class AIR_History
     function setOldValue($str)  { $this->oldvalue = $str; }
     function setNewValue($str)  { $this->newvalue = $str; }
 
-    function getId($id)         { return $this->id; }
-    function getCreator($id)    { return $this->creator; }
-    function getCreated($str)   { return $this->created; }
-    function getIncidentId($id) { return $this->incidentid; }
-    function getType($str)      { return $this->type; }
-    function getOldValue($str)  { return $this->oldvalue; }
-    function getNewValue($str)  { return $this->newvalue; }
+    function getId()            { return $this->id; }
+    function getCreator()       { return $this->creator; }
+    function getCreated()       { return $this->created; }
+    function getIncidentId()    { return $this->incidentid; }
+    function getType()          { return $this->type; }
+    function getOldValue()      { return $this->oldvalue; }
+    function getNewValue()      { return $this->newvalue; }
 
     function getInsertString()
     {
         return sprintf("
             INSERT INTO history 
-            (id, created, createdby, type, oldvalue, newvalue)
+            (id, created, createdby, incidentid, type, oldvalue, newvalue)
             VALUES
-            (%s, %s, %s, %s, %s, %s)",
+            (%s, %s, %s, %s, %s, %s, %s)",
                 $this->id,
                 db_masq_null($this->created),
                 $this->creator,
+                db_masq_null($this->incidentid),
                 db_masq_null($this->type),
                 db_masq_null($this->oldvalue),
                 db_masq_null($this->newvalue)
