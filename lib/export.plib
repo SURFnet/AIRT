@@ -94,9 +94,17 @@ function addIncidentToTree(&$doc, $row) {
 	if (!$added) {
 		$ISO8601_filter = "Y-m-d\\TH:i:sO";
 		$incident_element = $doc->create_element_ns(AIRTURL, "incident");
-		$incident_element->set_attribute("id", $row["id"]);
-		$incident_element->set_attribute("prefix", INCIDENTID_PREFIX);
 
+		// awful hack; assume we only have one identifier block until we 
+		// are ready to build the import module
+		$id_element = $doc->create_element_ns(AIRTURL, "identification");
+		$id_element->set_attribute("id", sprintf("%s%s",
+			INCIDENTID_PREFIX, $row["id"]));
+		$prefix_element = $doc->create_element_ns(AIRTURL, "prefix");
+		$prefix_element->set_content(INCIDENTID_PREFIX);
+		$ref_element = $doc->create_element_ns(AIRTURL, "reference");
+		$ref_element->set_content($row["id"]);
+		
 		$state_element = $doc->create_element_ns(AIRTURL, "state");
 		$state_element->set_content($row["state"]);
 
@@ -111,6 +119,11 @@ function addIncidentToTree(&$doc, $row) {
 
 		$updated_element = $doc->create_element_ns(AIRTURL, "updated");
 		$updated_element->set_content(Date($ISO8601_filter,$row["updated"]));
+
+		// build the tree
+		$incident_element -> append_child($id_element);
+		$id_element -> append_child($prefix_element);
+		$id_element -> append_child($ref_element);
 
 		$incident_element -> append_child($state_element);
 		$incident_element -> append_child($status_element);

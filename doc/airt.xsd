@@ -15,23 +15,35 @@
 
 	<xs:complexType name="incidentType">
 		<xs:sequence>
+			<xs:element name="identification" 
+				type="airt:identificationType" minOccurs="1"
+				maxOccurs="inbounced"/>
 			<xs:element name="state" type="xs:string"
-						minOccurs="0" maxOccurs="1"/>
+				minOccurs="0" maxOccurs="1"/>
 			<xs:element name="status" type="xs:string"
-						minOccurs="0" maxOccurs="1"/>
+				minOccurs="0" maxOccurs="1"/>
 			<xs:element name="type" type="xs:string"
-						minOccurs="0" maxOccurs="1"/>
+				minOccurs="0" maxOccurs="1"/>
 			<xs:element name="created" type="xs:dateTime"
-						minOccurs="0" maxOccurs="1"/>
+				minOccurs="0" maxOccurs="1"/>
 			<xs:element name="updated" type="xs:dateTime"
-						minOccurs="0" maxOccurs="1"/>
+				minOccurs="0" maxOccurs="1"/>
 			<xs:element name="address" type="airt:ipaddress"
-						minOccurs="0" maxOccurs="1"/>
+				minOccurs="0" maxOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
 
 	<xs:simpleType name="ipaddress">
 		<xs:restriction base="xs:string"/>
 	</xs:simpleType>
+
+	<xs:complexType name="identificationType">
+		<xs:sequence>
+			<xs:element name="prefix" type="xs:string" 
+				minOccurs="1" maxOccurs="1"/>
+			<xs:element name="reference" type="xs:string" 
+				minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
 
 </xs:schema>

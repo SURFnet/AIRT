@@ -23,8 +23,8 @@
  * $Id$
  */
 require_once '/etc/airt/airt.cfg';
-require_once LIBDIR."/database.plib";
 require_once LIBDIR."/airt.plib";
+require_once LIBDIR."/user.plib";
 
 if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
 else $action = "list";
@@ -43,6 +43,7 @@ function read_standard_message($str)
     if (($f = fopen($filename, "r")) == false) return false;
     
 
+	set_magic_quotes_runtime(0);
     $msg = fread($f, filesize($filename));
     fclose($f);
 
@@ -129,6 +130,7 @@ function save_standard_message($filename, $msg)
     $filename = STATEDIR."/templates/$filename";
     if (($f = fopen($filename, "w")) == false) return false;
 
+	set_magic_quotes_runtime(0);
     fwrite($f, $msg);
     fclose($f);
 
@@ -173,17 +175,21 @@ EOF;
 function replace_vars($msg)
 {
     $out = $msg;
-    /*
-    $incident = AIR_getIncidentById($_SESSION["active_incidentid"]);
-    $user = RT_getUserById($_SESSION["userid"]);
-*/
-    $out = ereg_replace("@ID@", 
-        normalize_incidentid($_SESSION["active_incidentid"]), $out);
-    $out = ereg_replace("@HOSTNAME@", 
-        gethostbyaddr($_SESSION["active_ip"]), $out);
-    $out = ereg_replace("@USERNAME@", $incident->getUserName(), $out);
-    $out = ereg_replace("@YOURNAME@", 
-        $user["realname"], $out);
+
+	$out = ereg_replace("@IPADDRESS@", $_SESSION["active_ip"], $out);
+
+	$out = ereg_replace("@HOSTNAME@", 
+		gethostbyaddr($_SESSION["active_ip"]), $out);
+
+	$out = ereg_replace("@USERNAME@", $_SESSION["current_name"], $out);
+
+	$out = ereg_replace("@USEREMAIL@", $_SESSION["current_email"], $out);
+
+	$u = getUserByUserId($_SESSION["userid"]);
+	$name = sprintf("%s %s", $u["firstname"], $u["lastname"]);
+	$out = ereg_replace("@YOURNAME@", $name, $out);
+
+	$out = ereg_replace("@INCIDENTID@", $_SESSION["incidentid"], $out);
 
     return $out ;
 } // replace_vars
@@ -259,11 +265,14 @@ EOF;
             $message=$_REQUEST["message"];
         else die("Missing parameter.");
 
+		$message = strip_tags($message);
+		$message = stripslashes($message);
+
         if (!ereg("^[a-zA-Z0-9.-_]+$", $filename))
             die("Invalid file name");
         if (ereg("\.\.", $filename))
             die("Invalid file name");
-        if (strlen($filename)>30)
+        if (strlen($filename)>40)
             die("File name too long");
 
         save_standard_message($filename, $message);
