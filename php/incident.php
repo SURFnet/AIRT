@@ -241,8 +241,6 @@ EOF;
         if (array_key_exists("state", $_POST))
             $state=$_POST["state"];
 
-        // set active incident id
-        $_SESSION["active_incidentid"] = normalize_incidentid($id);
 
         $now = Date("Y-m-d H:i:s");
         $incident = new AIR_Incident();
@@ -255,18 +253,10 @@ EOF;
         $incident->setConstituency($constituency);
         $incident->setCreated($now);
         $incident->setCreator($_SESSION["userid"]);
-        AIR_addIncident($incident);
-
-        $event = new AIR_Event();
-        $event->setType("addincident");
-        $event->setField("ip", $ip);
-        $event->setField("category", $category);
-        $event->setField("constituency", $constituency);
-        $event->setField("user_email", $user_email);
-        $event->setField("user_name", $user_name);
-        $event->setField("state", $state);
-        $event->setField("status", $status);
-        triggerEvent($event);
+        $id = AIR_addIncident($incident);
+        
+        // set active incident id
+        $_SESSION["active_incidentid"] = normalize_incidentid($id);
 
         Header(sprintf("Location: %s/%s?action=list",
             BASEURL, $SELF));
@@ -422,6 +412,8 @@ EOF;
         printf("<P><small><i>%s %s selected.</small><P>",
             $count, $count==1?"record":"records");
 
+        printf("<a href=\"%s?action=new&ip=%s\">New incident</a>",
+            $SELF, urlencode($_SESSION["active_ip"]));
         pageFooter();
         break;
         

@@ -22,6 +22,7 @@
 drop table URLs;
 drop table constituencies;
 drop table incidents;
+drop table history;
 
 create table constituencies
 (
@@ -69,9 +70,30 @@ create table incidents
     foreign key (constituency) references constituencies (id),
 );
 
+/* history types
+ *     create  = create incident
+ *     close   = close incident
+ *     state   = update state
+ *     comment = add comment to ticket
+ */
+create table history
+(
+    id                  integer,
+    created             timestamp,
+    createdby           integer,
+    incidentid          integer,
+    type                varchar(30),
+    oldvalue            varchar(200),
+    newvalue            varchar(200),
+
+    primary key (id),
+    foreign key (incidentid) references incidents (id)
+);
+
 create sequence constituencies_seq;
 create sequence incidentid_seq;
 create sequence URLs_seq;
+create sequence history_seq;
 
 create index incidents_ip_index on incidents (ip);
 create index incidents_status_index on incidents (status);

@@ -61,4 +61,9 @@ define("AIR_TEMPLATEDIR", "/home/kees/etc/air/templates");
 
 // directory containing status files and reference info
 define("LIBERTY_VARDATA", "/var/lib/liberty");
+
+// the session timeout in seconds
+define("SESSION_TIMEOUT", 600);
+
+
 ?>

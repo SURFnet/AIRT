@@ -23,6 +23,8 @@
  */
 require_once 'air.plib';
 require_once 'database.plib';
+require_once 'event.plib';
+require_once 'history.plib';
 
 /* Get incident by id. If the incident does not exist, the returned incident
  * will have an id of -1.
@@ -74,13 +76,40 @@ function AIR_getIncidentById($id)
  */
 function AIR_addIncident($incident)
 {
+    $id = AIR_getNextIncidentId();
+    $incident->setId($id);
+
     $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
     or die("Unable to connect to database.");
 
-    $res = db_query($conn, $incident->getInsertString())
-    or die("Unable to query database.");
+    $res = @db_query($conn, $incident->getInsertString())
+    or die("Unable to query database.".db_errorMessage());
 
     db_close($conn);
+
+    $now = Date("Y-m-d H:i:s");
+    $history = new AIR_History();
+    $history->setIncidentId($incident->getId());
+    $history->setCreator($_SESSION["userid"]);
+    $history->setCreated($now);
+    $history->setType("create");
+    $history->setNewValue($incident->getId());
+    AIR_addHistory($history);
+
+    $event = new AIR_Event();
+    $event->setType("addincident");
+    $event->setField("ip", $incident->getIp() );
+    $event->setField("category", $incident->getCategory() );
+    $event->setField("constituency", $incident->getConstituency() );
+    $event->setField("user_email", $incident->getUserEmail() );
+    $event->setField("user_name", $incident->getUserName() );
+    $event->setField("state", $incident->getState() );
+    $event->setField("status", $incident->getStatus() );
+    AIR_triggerEvent($event);
+
+    $_SESSION["active_ip"] = $incident->getIp();
+    
+    return $id;
 } // AIR_addIncident
 
 
@@ -109,7 +138,7 @@ function AIR_getIncidents()
     $res = db_query($conn, "
         SELECT   * 
         FROM     incidents 
-        ORDER BY id")
+        ORDER BY created")
     or die("Unable to query database.");
 
     if (db_num_rows($res) == 0) return array();
@@ -136,6 +165,22 @@ function AIR_associate($incident, $ticket)
     return true;
 } // AIR_associate
 
+
+/* Get the next incident id */
+function AIR_getNextIncidentId()
+{
+    $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
+    or die("Unable to connect to database.");
+
+    $res = db_query($conn, "SELECT nextval('incidentid_seq') as next")
+    or die("Unable to query database.");
+
+    $row = db_fetch_next($res);
+    $id = $row["next"];
+
+    db_close($conn);
+    return $id;
+}
 
 class AIR_Incident
 {
@@ -192,8 +237,9 @@ class AIR_Incident
              constituency, created, creator, lastupdatedby, lastupdated,
              rtid)
             VALUES
-            (nextval('incidentid_seq'), %s, %s, %s, %s, %s, %s, 
+            (%s, %s, %s, %s, %s, %s, %s, 
                 %s, %s, %s, %s, %s, %s)",
+                db_masq_null($this->id),
                 db_masq_null($this->ip),
                 db_masq_null($this->status),
                 db_masq_null($this->state),
