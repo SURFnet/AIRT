@@ -1,8 +1,0 @@
-#!/bin/sh
-# bootstrap for php-rss
-# $Id$
-
-aclocal-1.8 \
-&& automake-1.8 --add-missing --gnu \
-&& autoconf
-
