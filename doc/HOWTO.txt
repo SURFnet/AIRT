@@ -32,3 +32,6 @@
 	parameter. This function sets up the required context. All error messages,
 	warnings and communication with the user is something you will have to do
 	yourself.
+
+	An example of how to use client-side certificates for authentication can
+	be found in the examples.
