@@ -30,6 +30,28 @@ else $action = "list";
 
 $SELF="standard.php";
 
+function show_defaults()
+{
+    $activeip = $_SESSION["active_ip"];
+    $activeid = $_SESSION["active_incidentid"];
+    $activeticket = $_SESSION["active_ticketid"];
+    $sip = $_SESSION["ip"];
+    $slast = Date("r", $_SESSION["last"]);
+    $expire = Date("r", $_SESSION["last"] + SESSION_TIMEOUT);
+    $uid = $_SESSION["userid"];
+    $uname = $_SESSION["username"];
+
+echo <<<EOF
+<PRE>
+    Active Incident: $activeid
+    Active IP      : $activeip
+    Active Ticket  : $activeticket
+</PRE>
+EOF;
+
+
+} // show_defaults
+
 /** 
  * Read a standard message from the filesystem
  * $str = the name of the file to be read
@@ -126,12 +148,17 @@ switch ($action)
     // -------------------------------------------------------------------
     case "list":
         pageHeader("Available standard messages");
+        echo "<h2>Session defaults</h2>";
+        show_defaults();
+
+        echo "<h2>Messages</H2>";
         if (list_standard_messages() == 0)
             printf("<I>No standard messages available.</I>");
         echo <<<EOF
 <P>
 <a href="$BASEURL/$SELF?action=new">Create a new message</a>
 EOF;
+
         pageFooter();
         break;
 
@@ -158,8 +185,10 @@ EOF;
 
         echo <<<EOF
 <B>Operations:</B><BR>
+<a href="$BASEURL/$SELF?action=list">List</a>
+&nbsp;|&nbsp;
 <a href="$BASEURL/$SELF?action=edit&filename=$filename">Edit</a>
-&nbsp;
+&nbsp;|&nbsp;
 <a href="$BASEURL/$SELF?action=delete&filename=$filename">Delete</a>
 EOF;
         pageFooter();

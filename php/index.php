@@ -110,6 +110,11 @@ echo "<HR>";
 <a href="links.php">Edit links</a>
 
 <P>
+
+<a href="standard.php">Edit standard messages</a>
+
+<P>
+
 </td>
 
 </table>
