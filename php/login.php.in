@@ -30,6 +30,8 @@ else $action = "none";
 switch ($action) {
     case "none":
         pageHeader("AIRT login page");
+
+
         echo <<<EOF
 <P>
 <form action="$_SERVER[PHP_SELF]" method="POST">
@@ -44,7 +46,11 @@ switch ($action) {
     <td><input type="password"  name="password" size="25"></td>
 </tr>
 </table>
+EOF;
 
+		generateEvent('loginscreen');
+
+echo <<<EOF
 <P>
 <input type="hidden" name="action" value="check">
 <input type="submit" value="Login">
@@ -62,7 +68,6 @@ switch ($action) {
     under certain conditions; See the license for more details.
 </small></BLOCKQUOTE>
 EOF;
-		generateEvent('loginscreen');
         break;
 
 
@@ -79,19 +84,13 @@ EOF;
         $userid = airt_authenticate($login, $password);
         if ($userid == -1) {
             pageHeader("Permission denied.");
-			generateEvent("invalidlogin", array(
-				"login" => $login,
-				"remoteip" => $_SERVER['REMOTE_ADDR']
-			));
             printf("Username and/or password incorrect.");
+			airt_invalidCredentials();
             pageFooter();
-            exit;
-        }
+			exit();
+		}
 
-		airt_initsession($userid);
-
-        Header("Location: index.php");
-
+		airt_initSession($userid);
         break;
 
     default:

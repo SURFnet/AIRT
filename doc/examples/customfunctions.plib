@@ -27,6 +27,8 @@
  */
 
 registerEvent("invalidlogin", "local_invalidlogin");
+registerEventHandler('loginscreen', 'loginscreen');
+
  
 /** Custom categorization */
 function custom_categorize($ip, $networkid) {
@@ -44,6 +46,16 @@ function local_invalidlogin($data) {
 		sprintf('Invalid login attempt by %s from %s',
 		$data["login"], $data["remoteip"])
 	);
+}
+
+function loginscreen() {
+        $loginscript = dirname($_SERVER['PHP_SELF']).'/local/certificatelogin.ph
+p';
+        echo <<<EOF
+<p>
+<a href="$loginscript">Login using client certificate</a>
+<p>
+EOF;
 }
 
 ?>

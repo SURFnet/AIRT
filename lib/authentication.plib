@@ -83,5 +83,15 @@ function airt_initsession($userid='') {
 	$_SESSION["userid"]   = $user['id'];
 	$_SESSION["ip"]       = $_SERVER["REMOTE_ADDR"];
 	$_SESSION["last"]     = time();
+
+	Header("Location: $_SESSION[BASEURL]/index.php");
 }
+
+function airt_invalidCredentials($login = '') {
+	generateEvent("invalidlogin", array(
+				"login" => $login,
+				"remoteip" => $_SERVER['REMOTE_ADDR']
+			));
+}
+
 ?>

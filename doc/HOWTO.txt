@@ -23,11 +23,12 @@
 	login screen is shown. 
 
 	Authenticate the user in such a way that you are able to find the correct
-	id as stored in the users() table. 
+	id as stored in the users() table. If the user provides incorrect
+	credentials, call the function airt_invalidCredentials(). The argument to
+	the function should be some kind of key value that you used to
+	authenticate the user (login, SSL CN, etc);
 	
-	Then, using this id, call the function airt_initsession() with the id as
+	Then, using this id, call the function airt_initSession() with the id as
 	parameter. This function sets up the required context. All error messages,
 	warnings and communication with the user is something you will have to do
 	yourself.
-
-	

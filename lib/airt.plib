@@ -23,6 +23,8 @@
 if (defined('CUSTOM_FUNCTIONS')) require_once CUSTOM_FUNCTIONS;
 
 @session_start();
+if (!array_key_exists('BASEURL', $_SESSION))
+	$_SESSION['BASEURL'] = dirname($_SERVER['PHP_SELF']);
 
 if (!isset($public) || !$public) {
     if (!array_key_exists("username", $_SESSION)) {
