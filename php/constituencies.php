@@ -47,7 +47,7 @@
 <table width="100%" border="1">
 <tr>
     <th>Name</th>
-    <th>Contact</th>
+    <th>Security Entry Point</th>
     <th>Email</th>
     <th>Phone</th>
     <th>Edit</th>
@@ -128,7 +128,7 @@ EOF;
 <input type="hidden" name="action" value="$next">
 <table>
 <tr>
-    <td>constituency name:</td>
+    <td>Constituency name:</td>
     <td><input type="text" name="name" size="30" value="$name"></td>
 </tr>
 <tr>
@@ -137,19 +137,19 @@ EOF;
         value="$description">
     </td>
 <tr>
-    <td>Contact person/institute:</td>
+    <td>Security Entry Point (SEP):</td>
     <td><input type="text" name="contact_name" size="50" 
         value="$contact_name">
     </td>
 </tr>
 <tr>
-    <td>Contact email address:</td>
+    <td>SEP email address:</td>
     <td><input type="text" name="contact_email" size="50"
         value="$contact_email">
     </td>
 </tr>
 <tr>
-    <td>Contact phone:</td>
+    <td>SEP phone:</td>
     <td><input type="text" name="contact_phone" size="50"
         value="$contact_phone">
     </td>

@@ -20,7 +20,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 $public=1;
-include "lib/liberty.plib";
+include "../lib/liberty.plib";
 pageHeader("UvT-CERT Control Center");
 
 @session_unset();

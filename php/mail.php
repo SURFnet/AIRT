@@ -198,7 +198,6 @@ Incident ID:
     <input type="submit" value="Add to incident">
 </div>
 <input type="hidden" name="action" value="associate">
-<input type="hidden" name="incidentid-old" value="$incidentid">
 <input type="hidden" name="ticketid" value="$id">
 </form>
 EOF;
@@ -270,11 +269,9 @@ EOF;
         else die("Missing information.");
         
         if (array_key_exists("incidentid", $_REQUEST))
-            $incidentid = normalize_incidentid($_REQUEST["incidentid"]);
-        else die("Missing information.");
-        
-        if (array_key_exists("incidentid-old", $_REQUEST))
-            $oldincidentid = normalize_incidentid($_REQUEST["incidentid-old"]);
+            $incidentid = decode_incidentid(
+                normalize_incidentid($_REQUEST["incidentid"])
+            );
         else die("Missing information.");
 
         $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
@@ -282,47 +279,35 @@ EOF;
 
         $now = Date("Y-m-d H:i:s");
 
-        if ($oldincidentid == encode_incidentid(""))
-        {
-            /* insert */
-            $query = sprintf("
-                INSERT INTO ticketcustomfieldvalues
-                (ticket, customfield, content, creator, created, 
-                 lastupdatedby, lastupdated)
-                VALUES
-                (%s, %s, '%s', %s, '%s', %s, '%s')",
-                $ticketid,
-                $_SESSION["fieldid_incidentid"],
-                $incidentid,
-                $_SESSION["userid"],
-                $now,
-                $_SESSION["userid"],
-                $now);
-            $res = db_query($conn, $query)
-            or die("unable to insert incident id");
+        /* insert */
+        $query = sprintf("
+            INSERT INTO ticketcustomfieldvalues
+            (ticket, customfield, content, creator, created, 
+             lastupdatedby, lastupdated)
+            VALUES
+            (%s, %s, '%s', %s, '%s', %s, '%s')",
+            $ticketid,
+            $_SESSION["fieldid_incidentid"],
+            $incidentid,
+            $_SESSION["userid"],
+            $now,
+            $_SESSION["userid"],
+            $now);
+        $res = db_query($conn, $query)
+        or die("unable to insert incident id");
 
-            // reset status
-            db_free_result($res);
+        // reset status
+        db_free_result($res);
 
-            $res = db_query($conn, sprintf("
-                UPDATE tickets
-                SET    status = 'open' 
-                WHERE  id = '%s'",
-                $ticketid))
-            or die("Unable to alter status.");
+        $res = db_query($conn, sprintf("
+            UPDATE tickets
+            SET    status = 'open' 
+            WHERE  id = '%s'",
+            $ticketid))
+        or die("Unable to alter status.");
 
-            printf("Updated."); // TODO: do something meaningful
-            db_close($conn);
-            break;
-        } 
-
-        if ($oldincidentid != $incidentid)
-        {       
-            /* update */
-            db_close($conn);
-            break;
-        }
-
+        printf("Updated."); // TODO: do something meaningful
+        db_close($conn);
         break;
 
     // --------------------------------------------------------------------
