@@ -363,15 +363,15 @@ EOF;
 <INPUT TYPE="hidden" name="action" value="list">
 Select incident status <SELECT name="filter">
 EOF;
-		choice("open", 1, $filter);
-		choice("stalled", 2, $filter);
-		choice("open or stalled", 3, $filter);
+		echo choice("open", 1, $filter);
+		echo choice("stalled", 2, $filter);
+		echo choice("open or stalled", 3, $filter);
 		echo <<<EOF
 </SELECT>
 <INPUT TYPE="submit" VALUE="Ok">
 </FORM>
 EOF;
-		switch ($_POST["filter"]) {
+		switch ($filter) {
 			case 1: $sqlfilter = "AND s2.label = 'open'";
 				break;
 			case 2: $sqlfilter = "AND s2.label = 'stalled'";
