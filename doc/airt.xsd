@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<xs:schema 
+   xmlns:xs="http://infolab.w3.org/2001/XMLSchema"
+   xmlns:airt="http://infolab.uvt.nl/airt"
+   targetNamespace="http://infolab.uvt.nl/airt">
+
+	<xs:element name="airt" type="airt:airtType"/>
+
+	<xs:complexType name="airtType">
+		<xs:sequence>
+			<xs:element name="incident" type="airt:incidentType"
+						minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="incidentType">
+		<xs:sequence>
+			<xs:element name="state" type="xs:string"
+						minOccurs="0" maxOccurs="1"/>
+			<xs:element name="status" type="xs:string"
+						minOccurs="0" maxOccurs="1"/>
+			<xs:element name="type" type="xs:string"
+						minOccurs="0" maxOccurs="1"/>
+			<xs:element name="created" type="xs:dateTime"
+						minOccurs="0" maxOccurs="1"/>
+			<xs:element name="updated" type="xs:dateTime"
+						minOccurs="0" maxOccurs="1"/>
+			<xs:element name="address" type="airt:ipaddress"
+						minOccurs="0" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:simpleType name="ipaddress">
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+
+</xs:schema>

@@ -32,5 +32,6 @@ foreach (getOpenIncidents() as $id=>$incident)
 	array_push($selection, $id);
 
 Header("Content-Type: application/xml");
+// Header("Content-Type: text/plain");
 exportIncident($selection);
 ?>

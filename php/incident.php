@@ -130,10 +130,16 @@ EOF;
 
 
 function showEditForm() {
+
 	$incident = getIncident($_SESSION["incidentid"]);
 	$type = $incident["type"];
 	$state = $incident["state"];
 	$status = $incident["status"];
+
+    if (array_key_exists("active_ip", $_SESSION))
+        $address = $_SESSION["active_ip"];
+    if (array_key_exists("constituency_id", $_SESSION))
+        $constituency = $_SESSION["constituency_id"];
 	
 	echo <<<EOF
 <form action="$SELF" method="POST">
@@ -172,7 +178,7 @@ EOF;
 	<table cellpadding=4>
 	<tr>
 		<td>IP Address</td>
-		<td><input type="text" name="ip" size="30"></td>
+		<td><input type="text" name="ip" size="30" value="$address"></td>
 		<td><input type="submit" value="Add"></td>
 	</tr>
 	</table>
