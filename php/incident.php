@@ -64,6 +64,7 @@ switch ($action)
 
         $incident = AIR_getIncidentById($id);
         if ($incident->getId() == -1) die("Unknown ID: $id");
+        
 
         $ip            = $incident->getIp();
         $constituency  = $incident->getConstituency();
@@ -77,6 +78,8 @@ switch ($action)
 
         if ($constituency=="") 
             $constituency = categorize($ip, gethostbyaddr($ip));
+        
+        $_SESSION["active_ip"] = $ip;
 
         // no break on purpose
 
@@ -258,6 +261,7 @@ EOF;
         
         // set active incident id
         $_SESSION["active_incidentid"] = normalize_incidentid($id);
+        $_SESSION["active_ip"] = $ip;
 
         Header(sprintf("Location: %s/%s?action=list",
             BASEURL, $SELF));
@@ -303,6 +307,7 @@ EOF;
 
         // set active incident id
         $_SESSION["active_incidentid"] = normalize_incidentid($id);
+        $_SESSION["active_ip"] = $ip;
 
         $id = normalize_incidentid($id);
         $now = Date("Y-m-d H:i:s");

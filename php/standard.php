@@ -48,6 +48,7 @@ echo <<<EOF
 EOF;
 } // show_defaults
 
+
 function set_defaults()
 {
 
@@ -161,7 +162,7 @@ function show_message($name)
         return false;
     }
 
-    printf("<PRE>%s</PRE>", $message);
+    printf("<PRE>%s</PRE>", replace_vars($message));
     
 } // show_message
 
@@ -212,6 +213,24 @@ function print_variables_info()
 </table>
 EOF;
 }
+
+
+function replace_vars($msg)
+{
+    $out = $msg;
+    $incident = AIR_getIncidentById($_SESSION["active_incidentid"]);
+    $user = RT_getUserById($_SESSION["userid"]);
+
+    $out = ereg_replace("@ID@", 
+        normalize_incidentid($_SESSION["active_incidentid"]), $out);
+    $out = ereg_replace("@HOSTNAME@", 
+        gethostbyaddr($_SESSION["active_ip"]), $out);
+    $out = ereg_replace("@USERNAME@", $incident->getUserName(), $out);
+    $out = ereg_replace("@YOURNAME@", 
+        $user["realname"], $out);
+
+    return $out ;
+} // replace_vars
 
 /*************************************************************************
  * BODY
