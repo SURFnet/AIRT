@@ -22,7 +22,7 @@
  * $Id$
  */
  require '../lib/liberty.plib';
- require '../lib/database.plib';
+ require '../lib/air.plib';
  
  $SELF = "constituencies.php";
 
@@ -34,15 +34,6 @@
     // --------------------------------------------------------------
     case "list":
         pageHeader("Constituencies");
-        $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
-        or die("Unable to connect to database.");
-
-        $res = db_query($conn, "
-            SELECT   * 
-            FROM     constituencies 
-            ORDER BY name")
-        or die("Unable to query database.");
-
         echo <<<EOF
 <table width="100%" border="1">
 <tr>
@@ -53,14 +44,15 @@
     <th>Edit</th>
 </tr>
 EOF;
+        $constituencies = AIR_getConstituencies();
         $count = 0;
-        while ($row = db_fetch_next($res))
+        foreach ($constituencies as $i => $tuple)
         {
-            $id  = $row["id"];
-            $name = $row["name"];
-            $contact_email = $row["contact_email"];
-            $contact_name  = $row["contact_name"];
-            $contact_phone = $row["contact_phone"];
+            $id  = $tuple["id"];
+            $name = $tuple["name"];
+            $contact_email = $tuple["contact_email"];
+            $contact_name  = $tuple["contact_name"];
+            $contact_phone = $tuple["contact_phone"];
             $bgcolor = ($count++%2==0 ? "#DDDDDD" : "#FFFFFF");
 
             echo <<<EOF
@@ -78,7 +70,6 @@ EOF;
 <P>
 <a href="$SELF?action=new">New constituency</a>
 EOF;
-        db_close($conn);
         pageFooter();
         break;
 
@@ -89,27 +80,14 @@ EOF;
             $id = $_REQUEST["id"];
         else die("Missing information.");
 
-        $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
-        or die("Unable to connect to database.");
+        $constituency = AIR_getConstituencyById($id);
+        $name          = $constituency->getName();
+        $description   = $constituency->getDescription();
+        $contact_name  = $constituency->getContactName();
+        $contact_email = $constituency->getContactEmail();
+        $contact_phone = $constituency->getContactPhone();
 
-        $res = db_query($conn,
-            "SELECT *
-             FROM   constituencies
-             WHERE  id=$id")
-        or die("Unable to query database.");
-
-        if (db_num_rows($res) > 0)
-        {
-            $row = db_fetch_next($res);
-            $name = $row["name"];
-            $description = $row["description"];
-            $contact_name = $row["contact_name"];
-            $contact_email = $row["contact_email"];
-            $contact_phone = $row["contact_phone"];
-        }
-        db_free_result($res);
-        db_close($conn);
-
+        // note: break missing on purpose!
 
     // --------------------------------------------------------------
     case "new":
@@ -197,40 +175,31 @@ EOF;
         $now = Date("Y-m-d H:i:s");
 
         if ($action == "add")
-            $res = db_query($conn, sprintf("
-                INSERT INTO constituencies
-                (id, name, description, contact_email, contact_name,
-                 contact_phone, created, createdby)
-                VALUES
-                (nextval('constituencies_seq') , '%s', '%s', '%s', '%s', 
-                 '%s', '%s', %s)",
-                $name,
-                $description,
-                $contact_email,
-                $contact_name,
-                $contact_phone,
-                $now,
-                $_SESSION["userid"]))
-            or die("Unable to add constituency.");
-        else if ($action == "update")
-            $res = db_query($conn, sprintf("
-                UPDATE constituencies
-                SET    name = '%s',
-                       description = '%s',
-                       contact_email = '%s',
-                       contact_name  = '%s',
-                       contact_phone = '%s'
-                WHERE  id = %s", 
-                $name,
-                $description,
-                $contact_email,
-                $contact_name,
-                $contact_phone,
-                $id
-                ))
-            or die("Unable to update constituency.");
+        {
+            $constituency = new AIR_Constituency();
+            $constituency->setName($name);
+            $constituency->setDescription($description);
+            $constituency->setContactEmail($contact_email);
+            $constituency->setContactName($contact_name);
+            $constituency->setContactPhone($contact_phone);
+            $constituency->setCreated($now);
+            $constituency->setCreatedBy($_SESSION["userid"]);
 
-        db_close($conn);
+            AIR_addConstituency($constituency);
+        }
+
+        else if ($action == "update")
+        {
+            $constituency = AIR_getConstituencyById($id);
+            $constituency->setName($name);
+            $constituency->setDescription($description);
+            $constituency->setContactEmail($contact_email);
+            $constituency->setContactName($contact_name);
+            $constituency->setContactPhone($contact_phone);
+
+            AIR_updateConstituency($constituency);
+        }
+
         Header(sprintf("Location: %s/%s?action=list", BASEURL, $SELF));
 
         break;

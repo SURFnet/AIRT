@@ -54,6 +54,10 @@ function AIR_getConstituencies()
 } // AIR_getConstituencies
 
 
+/* Retrieve a constituency 
+ * Returns a consituency object. If the consituency does not exist, the
+ * returned object will have an id of -1
+ */
 function AIR_getConstituencyById($id)
 {
     $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
@@ -65,16 +69,58 @@ function AIR_getConstituencyById($id)
          WHERE  id=$id")
     or die("Unable to query database.");
 
-    if (db_num_rows($next) == 0)
-        $output = array();
-    else        
-        $output = db_fetch_next($res);
+    $output = new AIR_Constituency();
+
+    if (db_num_rows($res) > 0)
+    {
+        $row = db_fetch_next($res);
+        $output->setName($row["name"]);
+        $output->setDescription($row["description"]);
+        $output->setContactEmail($row["contact_email"]);
+        $output->setContactName($row["contact_name"]);
+        $output->setContactPhone($row["contact_phone"]);
+        $output->setId($row["id"]);
+        $output->setCreated($row["created"]);
+        $output->setCreatedBy($row["createdby"]);
+    } 
+    else
+    {
+        $output->setId(-1);
     }
+
     db_free_result($res);
     db_close($conn);
 
     return $output;
-} AIR_getConstituencyById
+} // AIR_getConstituencyById
+
+
+/* Update a constituency
+ */
+function AIR_updateConstituency($constituency)
+{
+    $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
+    or die("Unable to connect to database.");
+
+    $res = db_query($conn, $constituency->getUpdateString())
+    or die("Unable to query database.");
+
+    db_close($conn);
+} // AIR_updateConstituency
+
+
+/* Insert a constituency 
+ */
+function AIR_addConstituency($constituency)
+{
+    $conn = db_connect(DBNAME, DBUSER, DBPASSWD)
+    or die("Unable to connect to database.");
+
+    $res = db_query($conn, $constituency->getInsertString())
+    or die("Unable to query database.");
+
+    db_close($conn);
+} // AIR_addConstituency
 
 
 class AIR_Constituency
@@ -93,6 +139,7 @@ class AIR_Constituency
     function setDescription($str)  { $this->description = $str; }
     function setContactEmail($str) { $this->contact_email = $str; }
     function setContactPhone($str) { $this->contact_phone = $str; }
+    function setContactName($str)  { $this->contact_name = $str; }
     function setCreated($str)      { $this->created = $str; }
     function setCreatedBy($id)     { $this->createdby = $id; }
 
@@ -100,6 +147,7 @@ class AIR_Constituency
     function getName()         { return $this->name; }
     function getDescription()  { return $this->description; }
     function getContactEmail() { return $this->contact_email; }
+    function getContactName()  { return $this->contact_name; }
     function getContactPhone() { return $this->contact_phone; }
     function getCreated()      { return $this->created; }
     function getCreatedBy()    { return $this->createdby; }
@@ -111,16 +159,34 @@ class AIR_Constituency
             (id, name, description, contact_email, contact_name,
              contact_phone, created, createdby)
             VALUES
-            (nextval('constituencies_seq') , '%s', '%s', '%s', '%s', 
-             '%s', '%s', %s)",
-            $this->name,
-            $this->description,
-            $this->contact_email,
-            $this->contact_name,
-            $this->contact_phone,
-            $this->created,
+            (nextval('constituencies_seq') , %s, %s, %s, %s, 
+             %s, %s, %s)",
+            db_masq_null($this->name),
+            db_masq_null($this->description),
+            db_masq_null($this->contact_email),
+            db_masq_null($this->contact_name),
+            db_masq_null($this->contact_phone),
+            db_masq_null($this->created),
             $this->createdby);
     } // getInsertString()
+
+    function getUpdateString()
+    {
+        return sprintf("
+             UPDATE constituencies
+                SET    name = %s,
+                       description = %s,
+                       contact_email = %s,
+                       contact_name  = %s,
+                       contact_phone = %s
+                WHERE  id = %s",
+            db_masq_null($this->name),
+            db_masq_null($this->description),
+            db_masq_null($this->contact_email),
+            db_masq_null($this->contact_name),
+            db_masq_null($this->contact_phone),
+            $this->id);
+    } // getUpdateString()
 
 
 } // Constituency
