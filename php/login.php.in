@@ -62,7 +62,7 @@ switch ($action)
     AIR comes with ABSOLUTELY NO WARRANTY; for details 
     <a href="license.php">click here</a>.<BR>
     This is free software, and you are welcome to redistribute it
-    under certain conditions; type `show c' for details.
+    under certain conditions; See the license for more details.
 </small></BLOCKQUOTE>
 EOF;
         break;
