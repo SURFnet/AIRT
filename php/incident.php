@@ -91,6 +91,7 @@ function showIncidentForm() {
     <td>
 EOF;
         showConstituencySelection("constituency", $constituency);
+		$email = $_SESSION['current_email'];
         echo <<<EOF
     </td>
 </tr>
@@ -102,7 +103,7 @@ EOF;
 <table bgColor="#DDDDDD" cellpadding="2" border="0">
 <tr>
 	<td>Email address of user:</td>
-	<td><input type="text" size="40" name="email"></td>
+	<td><input type="text" size="40" name="email" value="$email"></td>
 	<td><a href="help.php?topic=incident-adduser">help</td>
 </tr>
 </table>
@@ -208,6 +209,7 @@ EOF;
 		$userid = ""; 
 	}
 
+	$email = $_SESSION['current_email'];
 	echo <<<EOF
 	</table>
 	<p/>
@@ -218,7 +220,7 @@ EOF;
 	<table bgColor="#DDDDDD" cellpadding="2" border="0">
 	<tr>
 		<td>Email address of user:</td>
-		<td><input type="text" size="40" name="email"></td>
+		<td><input type="text" size="40" name="email" value="$email"></td>
 		<td><input type="submit" value="Add"></td>
 		<td><a href="help.php?topic=incident-adduser">help</td>
 	</tr>
