@@ -23,9 +23,27 @@
  * $Id$
  */
   include "../lib/liberty.plib";
-  $SELF="index.php";
+  include "../lib/database.plib";
 
   pageHeader("Liberty Control Center");
+
+  $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
+  or die("Unable to connect to database: ".db_errormsg());
+
+  $res = db_query($conn, sprintf("
+    SELECT COUNT(DISTINCT t.id) AS amount
+    FROM   tickets t, queues q
+    WHERE  status = 'new'
+    AND    t.queue = q.id
+    AND    q.name = '%s'", 
+    LIBERTYQUEUE))
+  or die("Unable to query database: ".db_errormsg());
+
+  $row = db_fetch_next($res);
+  $new = $row["amount"];
+
+  db_free_result($res);
+  db_close($conn);
 
   echo "<P>";
 
@@ -41,15 +59,16 @@
 ?>
 
 
-<a href="search.php">IP Address lookup</a>
 
-<P>
-
-<a href="mail.php">Incoming messages</a>
+<a href="mail.php">Incoming messages</a> (<?php echo $new; ?> new)
 
 <P>
 
 <a href="incident.php">Incident management</a>
+
+<P>
+
+<a href="search.php">IP Address lookup</a>
 
 <P>
 
