@@ -34,16 +34,17 @@ AC_DEFINE_DIR(STATEPATH, localstatedir/@PACKAGE@)
 AM_INIT_AUTOMAKE()
 
 AC_OUTPUT([Makefile
-	README
-	doc/Makefile
-	doc/examples/Makefile
-	lib/Makefile
-	php/Makefile
-	etc/Makefile
-	etc/airt-apache.conf
-	etc/airt.cfg
-	man/Makefile
-	php/config.plib
-	php/pic/Makefile
-	man/airt.pod
+    README
+    doc/Makefile
+    doc/examples/Makefile
+    lib/Makefile
+    php/Makefile
+	php/login.php
+    etc/Makefile
+    etc/airt-apache.conf
+    etc/airt.cfg
+    man/Makefile
+    php/config.plib
+    php/pic/Makefile
+    man/airt.pod
 ])
