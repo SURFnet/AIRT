@@ -1,4 +1,10 @@
 Alias /airt/ @PHPPATH@/
 <Directory @PHPPATH@>
     DirectoryIndex index.php
+
+	// do not allow .plib files to be accessed via the webserver
+	<Files ~ "\.plib$">
+	    Order allow,deny
+		Deny from all
+	</Files>
 </Directory>
