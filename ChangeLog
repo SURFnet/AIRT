@@ -1,10 +1,8 @@
-
-
 2005-feb-03  Kees Leune  <kees@leune.org>
 * php/login.php.in: Log to syslog on invalid logins
+* etc/airt-apache.conf.in: Hook for local extensions
 
 2005-jan-31  Kees Leune  <kees@uvt.nl>
-
 * php/login.php.in: Update version number on login screen automagically
 * lib/userfunctions.plib: removed from distribution
 * lib/database.plib: Fixed bug in debug flag
@@ -12,5 +10,4 @@
 * doc/examples/customfunctions.plib: added customfunctions example
 
 2005-jan-24  Kees Leune  <kees@uvt.nl>
-
 * Initial public version of AIRT
