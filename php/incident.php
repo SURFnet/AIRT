@@ -59,11 +59,22 @@ switch ($action)
             $hostname = $_REQUEST["hostname"];
         else die("Missing information.");
 
+        if (array_key_exists("constituency", $_REQUEST))
+            $constituency = $_REQUEST["constituency"];
+        else $constituency = "Unknown";
+        
+        if (array_key_exists("category", $_REQUEST))
+            $category = $_REQUEST["category"];
+        else $category = "Unknown";
+
+
         $hostname = trim(gethostbyname($hostname));
         $hostname = gethostbyaddr($hostname);
 
         // TODO
-        printf("New hostname: $hostname");
+        printf("Hostname    : $hostname<BR>");
+        printf("Constituency: $constituency<BR>");
+        printf("Category    : $category<BR>");
         break;
 
     //--------------------------------------------------------------------
