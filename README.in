@@ -3,84 +3,87 @@ AIRT installation manual for packages
 $Id$
 In CVS at $Source$
 
-	After installing the AIRT package, a few actions need to be taken.
+1. Configurating AIRT after installation
 
-	Step 1. Create the database referred to in the configuration file. This
-	would typically be achieved by changing to the postgres user and giving
-	the following commands
+    After installing the AIRT package, a few actions need to be taken.
 
-		postgres:~% createdb airt
-		CREATE DATABASE
-	
-	Step 2. Create the database user that is referred to in the configuration
-	file. For example,
+    Step 1. Create the database referred to in the configuration file. This
+    would typically be achieved by changing to the postgres user and giving
+    the following commands
 
-		postgres:~% createuser airt
-		Shall the new user be allowed to create databases? (y/n) n
-		Shall the new user be allowed to create more new users? (y/n) n
-		CREATE USER
+        postgres:~% createdb airt
+        CREATE DATABASE
+    
+    Step 2. Create the database user that is referred to in the configuration
+    file. For example,
 
-	Step 3. Set the database password. For example
+        postgres:~% createuser airt
+        Shall the new user be allowed to create databases? (y/n) n
+        Shall the new user be allowed to create more new users? (y/n) n
+        CREATE USER
 
-		postgres:~% psql template1
-		Welcome to psql 7.4.6, the PostgreSQL interactive terminal.
-		...
+    Step 3. Set the database password. For example
 
-		template1=# alter user airt with password 'yourpassword';
-		ALTER USER
+        postgres:~% psql template1
+        Welcome to psql 7.4.6, the PostgreSQL interactive terminal.
+        ...
+
+        template1=# alter user airt with password 'yourpassword';
+        ALTER USER
 
 
-	Step 4. Edit @ETCPATH@/airt.cfg and set the variables apropriately.
+    Step 4. Edit @ETCPATH@/airt.cfg and set the variables apropriately.
 
-	Step 5. Make sure the airt user has access to the database. Edit
-	/etc/postgresql/pg_hba.conf and add the line. 
+    Step 5. Make sure the airt user has access to the database. Edit
+    /etc/postgresql/pg_hba.conf and add the line. 
+    
+    Keep in mind that the order of access control rules in pg_hba.conf is
+    important. Add the line after the line which grants the postgres user
+    access to all databases.
 
-		local   airt        airt       password
+        local   airt        airt       password
 
-	Keep in mind that the order of access control rules in pg_hba.conf is
-	important. Add the line after the line which grants the postgres user
-	access to all databases.
-	
-	Step 6. As root, signal postgres to reload the configuration
+    
+    Step 6. As root, signal postgres to reload the configuration
 
-	    root:~# invoke-rc.d postgresql reload
+        root:~# invoke-rc.d postgresql reload
 
-	Step 7. Initialise the database.
+    Step 7. Initialise the database.
 
-	postgres:~% gunzip -c @DOCPATH@/airtschema.sql.gz \
-		    |psql airt airt
+    postgres:~% gunzip -c @DOCPATH@/airtschema.sql.gz \
+            |psql airt airt
 
-	Dont worry if the scripts outputs ERRORs in the the beginning; this is due
-	to the fact that it tries to drop sequences and tables that may not exist
-	yet.
-		
-	Step 8. Bootstrap the database.
-			
-	postgres:~% psql airt airt < \
-		@DOCPATH@/airtbootstrap.sql 
+    Dont worry if the scripts outputs ERRORs in the the beginning; this is due
+    to the fact that it tries to drop sequences and tables that may not exist
+    yet.
+        
+    Step 8. Bootstrap the database.
+            
+    postgres:~% psql airt airt < \
+        @DOCPATH@/airtbootstrap.sql 
 
-	Step 9. Configure apache. The easiest way to do this is to add a symbolic
-	link in /etc/apache/conf.d, which points to 
-	@ETCPATH@/airt-apache.conf
+    Step 9. Configure apache. The easiest way to do this is to add a symbolic
+    link in /etc/apache/conf.d, which points to 
+    @ETCPATH@/airt-apache.conf
 
-	As root do
+    As root do
 
-		root:/etc/apache/conf.d:# ln -s @ETCPATH@/airt-apache.conf
+        root:/etc/apache/conf.d:# ln -s @ETCPATH@/airt-apache.conf
 
-	Step 10. Confirm that the configuration file is correct
+    Step 10. Confirm that the configuration file is correct
 
-		root:~# apachectl configtest
+        root:~# apachectl configtest
 
-	Step 11. If everything checks out, reload the apache configuration and you
-	should be done. If apache is already running, do
+    Step 11. If everything checks out, reload the apache configuration and you
+    should be done. If apache is already running, do
 
-		root:~# invoke-rc.d apache reload
+        root:~# invoke-rc.d apache reload
 
-	else do
+    else do
 
-		root:~# invoke-rc.d apache start
+        root:~# invoke-rc.d apache start
 
-	Step 12. Change the admin password. Point your browser at the machine that
-	hosts the application and log in with user admin, password admin. On the
-	main menu, click Edit settings > Edit users. Then, on the line with the
-	admin user, click edit and set a (different) password.
+    Step 12. Change the admin password. Point your browser at the machine that
+    hosts the application and log in with user admin, password admin. On the
+    main menu, click Edit settings > Edit users. Then, on the line with the
+    admin user, click edit and set a (different) password.

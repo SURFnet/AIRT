@@ -1,0 +1,19 @@
+$Id$
+
+Common problems
+---------------
+
+- The AIRT URL cannot be openend.
+
+	This is most likely caused by the fact that you do not have a web server
+	configured. AIRT is written in PHP4, and PHP4 is most commonly used as a
+	web server plugin. In Debian, PHP4 only suggests Apache, and as a result
+	will not automatically install it for you when you install PHP4.
+
+	If you install AIRT on a Debian system without a prior Apache
+	configuration, please take the following steps:
+
+	# apt-get install --reinstall apache php4
+
+	You will have to configure Apache, but you should not have to redo any
+	AIRT configuration.
