@@ -35,7 +35,12 @@
         pageHeader("Incoming messages");
         $msgs = RT_getNewTicketIds(LIBERTYQUEUE);
 
-        printf("<TABLE WIDTH=\"100%%\" BORDER=\"1\">\n");
+        echo <<<EOF
+<form action="$SELF" method="POST">
+<input type="hidden" name="action" value="ignoreall">
+<table width="100%" border="0" cellpadding="2">
+EOF;
+        $count = 0;
         foreach ($msgs as $a => $index)
         {
             $msg       = RT_getTicketById($index);
@@ -46,48 +51,59 @@
             $sender    = RT_getUserById($sender_id);
             $sender_name = $sender["realname"];
             
-            printf("<TR valign='top'>\n");
+            printf("<TR bgcolor='%s' valign='top'>\n",
+                $count++%2==0 ? "#DDDDDD" : "#FFFFFF");
+            printf("<TD align='center'>
+                <INPUT TYPE='checkbox' name='id[]' value='%s'>
+            </TD>", $index);
             printf("<TD><B><a href='%s?action=show&id=%s'>%s</a></B><BR>
                         <small>%s</small></TD>\n", 
                 $SELF, $index, $subject, $sender_name);
             printf("<TD NOWRAP>%s</TD>\n", $created);
             printf("</TR>");
         }
-        printf("</TABLE>\n");
+        echo <<<EOF
+        </TABLE>
+        <P>
+        <input type='submit' value='Ignore toggled'>
+EOF;
 
         pageFooter();
         break;
     
     // --------------------------------------------------------------------
-    
     case "show":
         pageHeader("Message details");
         if (array_key_exists("id", $_REQUEST)) $id = $_REQUEST["id"];
         else die("Missing parameter.");
 
         echo <<<EOF
+<div width="100%" style="background-color: #DDDDDD">
 <form action="$SELF" method="POST">
-<table width="100%" bgcolor="#DDDDDD" border=0 cellpadding=2>
+<table border=0 cellpadding=2>
 <tr>
     <td>IP address:</td>
     <td>
         <input type="text" size="40" name="hostname">
-        <input type="submit" value="Apply">
     </td>
+    <td><input type="submit" value="Search"></td>
 </tr>
+
 
 <tr>
     <td>Action</td>
     <td>
-        <input type="radio" name="action" value="search" CHECKED>Search</input>
+        <input type="radio" name="action" value="reply">Reply</input>
+        <input type="radio" name="action" value="ignore">Ignore</input>
         <input type="radio" name="action" value="new">New incident</input>
-        <input type="radio" name="action" value="ignore">Ignore message</input>
         <input type="hidden" name="id" value="$id">
     </td>
+    <td><input type="submit" value="Apply"></td>
 </tr>
 
 </table>
 </form>
+</div>
 EOF;
        
         // show ticket summary
@@ -226,7 +242,34 @@ EOF;
         break;
 
     // --------------------------------------------------------------------
+    case "ignoreall":
+        if (array_key_exists("id", $_REQUEST))
+            $id[] = $_REQUEST["id"];
 
+        foreach ($id[0] as $k=> $v)
+        {
+            $now = Date("Y-m-d H:i:s");
+            RT_setTicketField($v, "status", "'rejected'");
+            RT_setTicketField($v, "lastupdatedby", $_SESSION["userid"]);
+            RT_setTicketField($v, "lastupdated", "'$now'");
+
+            $transaction = new RT_Transaction();
+            $transaction->setEffectiveTicket($v);
+            $transaction->setTicket($v);
+            $transaction->setType("Status");
+            $transaction->setField("Status");
+            $transaction->setOldValue("new");
+            $transaction->setNewValue("rejected");
+            $transaction->setCreator($_SESSION["userid"]);
+            $transaction->setCreated($now);
+
+            RT_addTransaction($transaction);
+        }
+        Header("Location: $SELF");
+
+        break;
+        
+    // --------------------------------------------------------------------
     default:
         die("Unknown action.");
  } // switch
