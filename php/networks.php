@@ -81,6 +81,34 @@ EOF;
 EOF;
  }
 
+ /* very ugly function that is a first attempt to sort networks for the
+  * overview. Currently this is done by comparing the individual network bytes
+  * of the network address; the largest one comes first. 
+  * TODO: improve this code to make it IPv4-independent, and maybe take
+  * netmasks in account too. Also; there has to be a more elegant way of
+  * coding this.
+  */
+ function airt_netsort($a, $b) {
+	 $ea = explode('.', $a['network']);
+	 $eb = explode('.', $b['network']);
+
+	 if ($ea[0] > $eb[0]) return 1;
+	 else if ($ea[0] < $eb[0]) return -1;
+	 else {
+		 if ($ea[1] > $eb[1]) return 1;
+		 else if ($ea[1] < $eb[1]) return -1;
+		 else {
+			 if ($ea[2] > $eb[2]) return 1;
+			 else if ($ea[2] < $eb[2]) return -1;
+			 else {
+				 if ($ea[3] > $eb[3]) return 1;
+				 else if ($ea[3] < $eb[3]) return -1;
+				 else return 0;
+			 }
+		 }
+	 }
+ }
+
  switch ($action)
  {
     // --------------------------------------------------------------
@@ -96,16 +124,17 @@ EOF;
     <td><B>Constituency</B></td>
     <td><B>Edit</B></td>
     <td><B>Delete</B></td>
-    
+
 </tr>
 EOF;
-    
+
         $networklist = getNetworks();
+		usort(&$networklist, "airt_netsort");
         $constituencies = getConstituencies();
 
         $count=0;
-        foreach ($networklist as $id=>$data)
-        {
+        foreach ($networklist as $nid=>$data) {
+			$id = $data["id"];
             $network      = $data["network"];
             $netmask      = $data["netmask"];
             $label        = $data["label"];

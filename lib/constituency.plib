@@ -62,8 +62,7 @@ function showConstituencySelection($name="constituency", $default=-1)
 }
 
 
-function getNetworks()
-{
+function getNetworks() {
     $conn = db_connect(DBDB, DBUSER, DBPASSWD)
     or die("Unable to connect to database.");
 
