@@ -45,7 +45,7 @@ function custom_categorize($ip, $networkid)
     $match = false;
 
     // The catchall UvT-domain needs to be refined further
-    if (in_array($networkid, array(1, 12, 13, 14, 14, 15)))
+    if (in_array($networkid, array(1, 7, 8, 9, 10, 11)))
     {
          // find IP address in DUN database
          // DUN is HOSTNAME based. Translate our IP and strip off domain
@@ -75,19 +75,19 @@ function custom_categorize($ip, $networkid)
             switch ($faculteit)
             {
                 case "FEW": 
-                    $category = 12;
+                    $category = 7;
                     break;
                 case "FRW": 
-                    $category = 13;
+                    $category = 9;
                     break;
                 case "FSW": 
-                    $category = 14;
+                    $category = 10;
                     break;
                 case "FLW": 
-                    $category = 15;
+                    $category = 8;
                     break;
                 default:
-                    $category = 1;
+                    $category = 11;
             } // switch
         } // if match
     } // UvT-class

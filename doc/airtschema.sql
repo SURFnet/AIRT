@@ -33,7 +33,6 @@ DROP SEQUENCE incident_addresses_sequence;
 DROP SEQUENCE role_assignments_sequence;
 DROP SEQUENCE constituency_contacts_sequence;
 DROP SEQUENCE networks_sequence;
-DROP SEQUENCE credentials_sequence;
 DROP SEQUENCE incident_comments_sequence;
 DROP SEQUENCE user_comments_sequence;
 DROP SEQUENCE urls_sequence;
@@ -52,7 +51,6 @@ DROP TABLE incident_addresses CASCADE;
 DROP TABLE role_assignments CASCADE;
 DROP TABLE constituency_contacts CASCADE;
 DROP TABLE networks CASCADE;
-DROP TABLE credentials CASCADE;
 DROP TABLE incident_comments CASCADE; 
 DROP TABLE user_comments CASCADE; 
 DROP TABLE urls CASCADE;
@@ -100,6 +98,9 @@ CREATE TABLE users (
     firstname   varchar(100),
     email       varchar(100),
     phone       varchar(100),
+	login		varchar(100),
+	userid		varchar(100),
+	password	varchar(100),
     primary key (id)
 );
 
@@ -167,17 +168,6 @@ CREATE TABLE networks (
     constituency integer,
     primary key (id),
     foreign key (constituency) references constituencies(id)
-);
-
-CREATE TABLE credentials (
-    id          integer,
-    userid      integer,
-    login       varchar(64),
-    password    varchar(64),
-    ou          varchar(64),
-    ca          varchar(64),
-    primary key (id),
-    foreign key (userid) references users(id)
 );
 
 CREATE TABLE incident_comments ( 
@@ -252,7 +242,6 @@ CREATE SEQUENCE incident_addresses_sequence;
 CREATE SEQUENCE role_assignments_sequence;
 CREATE SEQUENCE constituency_contacts_sequence;
 CREATE SEQUENCE networks_sequence;
-CREATE SEQUENCE credentials_sequence;
 CREATE SEQUENCE incident_comments_sequence;
 CREATE SEQUENCE user_comments_sequence;
 CREATE SEQUENCE urls_sequence;
@@ -270,13 +259,9 @@ end transaction;
 begin transaction;
 
 INSERT INTO users
-    (id, lastname) 
+    (id, lastname, login, password) 
     VALUES
-    (nextval('users_sequence'), 'Administrator');
-INSERT INTO credentials 
-    (id, userid, login, password) 
-    VALUES
-    (nextval('credentials_sequence'), 1, 'admin', 'admin');
+    (nextval('users_sequence'), 'Administrator', 'admin', 'admin');
 INSERT INTO roles
     (id, label)
     VALUES

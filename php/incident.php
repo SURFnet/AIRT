@@ -286,6 +286,7 @@ EOF;
         or die("Unable to execute query 2.");
         $row = db_fetch_next($res);
         $incidentid = $row["incidentid"];
+		$_SESSION["incidentid"] = $incidentid;
         db_free_result($res);
 
         $res = db_query($conn, sprintf(
@@ -302,6 +303,8 @@ EOF;
             )
         ) or die("Unable to execute query 3.");
         db_free_result($res);
+		addIncidentComment(sprintf("Incident created by %s",
+			$_SESSION["username"]), "", "", $conn);
 
         $res = db_query($conn,
             "select nextval('incident_addresses_sequence') as iaid")
@@ -323,6 +326,9 @@ EOF;
             )
         ) or die("Unable to execute query 5.");
         db_free_result($res);
+		addIncidentComment(sprintf("IP address %s added to incident by %s.",
+			$address, 
+			$_SESSION["username"]), "", "", $conn);
 
         $res = db_query($conn, "end transaction");
         db_close($conn);
@@ -330,9 +336,6 @@ EOF;
         Header("Location: $SELF");
         break;
 
-    //--------------------------------------------------------------------
-    case "update":
-        break;
 
     //--------------------------------------------------------------------
     case "list":
@@ -344,25 +347,25 @@ EOF;
             "SELECT   i.id      as incidentid, 
                       extract(epoch from i.created) as created,
                       extract(epoch from i.updated) as updated,
-                      c1.login  as creator, 
-                      c2.login  as updater, 
+                      u1.login  as creator, 
+                      u2.login  as updater, 
                       s1.label  as state, 
                       s2.label  as status, 
 					  c3.label  as constituency,
                       t.label   as type,
                       a.ip      as ip
-             FROM     incidents i, credentials c1, credentials c2,
+             FROM     incidents i, users u1, users u2,
                       incident_states s1, incident_status s2, 
                       incident_types t, incident_addresses a, 
 					  constituencies c3
-             WHERE    i.creator = c1.userid
-             AND      i.updatedby = c2.userid
+             WHERE    i.creator = u1.id
+             AND      i.updatedby = u2.id
 			 AND      a.constituency = c3.id
              AND      i.state = s1.id
              AND      i.status = s2.id
              AND      i.type = t.id
              AND      i.id = a.incident
-			 AND      s1.label in ('open', 'stalled')
+			 AND      s2.label in ('open', 'stalled')
              ORDER BY i.id")
         or die("Unable to execute query (1)");
 
@@ -408,6 +411,7 @@ EOF;
     <td>$state</td>
     <td>$type</td>
     <td>$updated</td>
+	<td><a href="$SELF?action=history&incidentid=$id">history</a></td>
 </tr>
 EOF;
             } // while
@@ -433,8 +437,12 @@ EOF;
         if (array_key_exists("ip", $_POST)) $ip = gethostbyname($_POST["ip"]);
 		else die("Missing information (2).");
 
-		if (trim($ip) != "") 
+		if (trim($ip) != "") {
 			addIpToIncident(trim($ip), $incidentid);
+			addIncidentComment(sprintf("IP address %s added to incident by %s.",
+			$ip, 
+			$_SESSION["username"]));
+		}
 		Header(sprintf("Location: $SELF?action=edit&incidentid=%s",
 			urlencode($incidentid)));
 		break;
@@ -448,6 +456,11 @@ EOF;
 		else die("Missing information (2).");
 
 		removeIpFromIncident($ip, $incidentid);
+		addIncidentComment(sprintf("IP address %s removed from incident by
+		%s.", 
+			$ip, 
+			$_SESSION["username"]));
+
 		Header(sprintf("Location: $SELF?action=edit&incidentid=%s",
 			urlencode($incidentid)));
 		break;
@@ -465,11 +478,41 @@ EOF;
 
     //--------------------------------------------------------------------
     case "history":
-		echo "To be implemented.";
+        if (array_key_exists("incidentid", $_REQUEST))
+			$incidentid=$_REQUEST["incidentid"];
+        else die("Missing information(1).");
+		$_SESSION["incidentid"] = $incidentid;
+
+		$conn = db_connect(DBDB, DBUSER, DBPASSWD)
+		or die ("Unable to connect to database.");
+
+		$res = db_query($conn, sprintf("
+			SELECT comment, extract(epoch from added) as added
+			FROM   incident_comments
+			WHERE  incident = %s
+			ORDER BY added",
+				$_SESSION["incidentid"]
+			))
+		or die ("Unable to query database.");
+
+		pageHeader("Incident history");
+		echo "<table cellpadding=3>";
+		$count = 0;
+		while ($row = db_fetch_next($res)) 
+			printf("<tr bgcolor=%s><td>%s</td><td>%s</td></tr>",
+				($count++%2==1) ? "#FFFFFF" : "#DDDDDD",
+				Date("d-M-Y H:i:s", $row["added"]),
+				$row["comment"]
+			);
+
+		db_close($conn);
+
+		pageFooteR();
         break;
 
     //--------------------------------------------------------------------
 	case "Update":
+    case "update":
 		if (array_key_exists("incidentid", $_SESSION)) 
 			$incidentid = $_SESSION["incidentid"];
 		else die("Missing information.");
@@ -496,6 +539,13 @@ EOF;
 			$state, $status, $type, $_SESSION["userid"], $incidentid))
 		or die("Unable to update incident.");
 		db_close($conn);
+
+		addIncidentComment(sprintf("Incident updated by %s: state=%s, ".
+			"status=%s type=%s", 
+			$_SESSION["username"],
+			$state,
+			$status,
+			$type));
 
 		Header("Location: $SELF");
 		break;

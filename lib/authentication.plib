@@ -30,11 +30,10 @@ function airt_authenticate($username, $password)
     or die("Unable to connect to database.");
 
     $query = sprintf("
-        SELECT *
-        FROM   credentials c, users u
-        WHERE  c.userid = u.id
-        AND    c.login = '%s'
-        AND    c.password = '%s'",
+        SELECT id as userid
+        FROM   users
+        WHERE  login = '%s'
+        AND    password = '%s'",
         $username,
         $password
     );

@@ -85,11 +85,10 @@
         echo "<h3>Users currently assigned to role $rolelabel</h3>";
         
         $res = db_query($conn,
-            "SELECT c.userid, login, lastname, firstname, email, phone
-             FROM   role_assignments ra, users u, credentials c
+            "SELECT u.id, login, lastname, firstname, email, phone
+             FROM   role_assignments ra, users u
              WHERE  ra.role=$roleid
-             AND    ra.userid = u.id
-             AND    ra.userid = c.userid")
+             AND    ra.userid = u.id")
         or die("Unable to execute query(2).");
 
         if (db_num_rows($res) == 0)
@@ -106,7 +105,7 @@
                 $firstname = $row["firstname"];
                 $email = $row["email"];
                 $phone = $row["phone"];
-                $userid = $row["userid"];
+                $id = $row["id"];
 
                 printf("<tr>
                             <td>%s (%s, %s)</td>
@@ -117,17 +116,16 @@
                         </tr>",
                         $login, $lastname, $firstname,
                         $email, $email,
-                        $phone, $roleid, $userid);
+                        $phone, $roleid, $id);
             }
             echo "</table>";
         }
 
         db_free_result($res);
         $res = db_query($conn,
-            "SELECT c.userid, login, lastname, firstname
-             FROM    users u, credentials c
-             WHERE   u.id = c.userid
-             AND     NOT u.id IN (
+            "SELECT  u.id, login, lastname, firstname
+             FROM    users u
+             WHERE   NOT u.id IN (
                 SELECT userid
                 FROM   role_assignments
                 WHERE  role=$roleid
@@ -148,9 +146,9 @@ EOF;
             $login     = $row["login"];
             $lastname  = $row["lastname"];
             $firstname = $row["firstname"];
-            $userid    = $row["userid"];
+            $id        = $row["id"];
 
-            printf("<option value=\"$userid\">$login ($lastname, ".
+            printf("<option value=\"$id\">$login ($lastname, ".
             "$firstname)</option>\n");
         }
         echo <<<EOF

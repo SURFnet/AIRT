@@ -50,7 +50,7 @@
             $id = $row["id"];
             $label = $row["label"];
             $name = $row["name"];
-            echo "<a href=\"$SELF?action=edit&id=$id\">$label - $name</a><P>";
+            echo "<a href=\"$SELF?action=edit&consid=$id\">$label - $name</a><P>";
         }
         db_free_result($res);
 
@@ -60,7 +60,7 @@
         
     //-----------------------------------------------------------------
     case "edit":
-        if (array_key_exists("id", $_GET)) $id=$_GET["id"];
+        if (array_key_exists("consid", $_GET)) $consid=$_GET["consid"];
         else die("Missing information.");
 
         pageHeader("Edit constituency assignments");
@@ -71,7 +71,7 @@
         $res = db_query($conn, 
             "SELECT label, name
              FROM   constituencies
-             WHERE  id=$id")
+             WHERE  id=$consid")
         or die("Unable to execute query 1.");
 
         if (db_num_rows($res) == 0)
@@ -87,11 +87,11 @@
         echo "<h3>Current contacts of constituency $label</H3>";
         
         $res = db_query($conn,
-            "SELECT cr.userid, login, lastname, firstname, email, phone
-             FROM   constituency_contacts cc, users u, credentials cr
-             WHERE  cc.constituency=$id
+            "SELECT u.id, login, lastname, firstname, email, phone
+             FROM   constituency_contacts cc, users u
+             WHERE  cc.constituency=$consid
              AND    cc.userid = u.id
-             AND    cc.userid = cr.userid")
+             ")
         or die("Unable to execute query(2).");
 
         if (db_num_rows($res) == 0)
@@ -108,7 +108,7 @@
                 $firstname = $row["firstname"];
                 $email = $row["email"];
                 $phone = $row["phone"];
-                $userid = $row["userid"];
+                $id = $row["id"];
 
                 printf("<tr>
                             <td>%s (%s, %s)</td>
@@ -119,20 +119,19 @@
                         </tr>",
                         $login, $lastname, $firstname,
                         $email, $email,
-                        $phone, $id, $userid);
+                        $phone, $consid, $id);
             }
             echo "</table>";
         }
 
         db_free_result($res);
         $res = db_query($conn,
-            "SELECT c.userid, login, lastname, firstname
-             FROM    users u, credentials c
-             WHERE   u.id = c.userid
-             AND     NOT u.id IN (
+            "SELECT  id, login, lastname, firstname
+             FROM    users
+             WHERE   NOT id IN (
                 SELECT userid
                 FROM   constituency_contacts
-                WHERE  constituency=$id
+                WHERE  constituency=$consid
              )")
         or die("Unable to execute query(3).");
 
@@ -150,14 +149,14 @@ EOF;
             $login     = $row["login"];
             $lastname  = $row["lastname"];
             $firstname = $row["firstname"];
-            $userid    = $row["userid"];
+            $id    = $row["id"];
 
-            printf("<option value=\"$userid\">$login ($lastname, ".
+            printf("<option value=\"$id\">$login ($lastname, ".
             "$firstname)</option>\n");
         }
         echo <<<EOF
 </SELECT>
-<input type="hidden" name="cons" value="$id">
+<input type="hidden" name="consid" value="$consid">
 <input type="hidden" name="action" value="assignuser">
 <input type="submit" value="Assign">
 </FORM>
@@ -179,7 +178,7 @@ EOF;
 
     //-----------------------------------------------------------------
     case "assignuser":
-        if (array_key_exists("cons", $_POST)) $cons=$_POST["cons"];
+        if (array_key_exists("consid", $_POST)) $consid=$_POST["consid"];
         else die("Missing information (1).");
         if (array_key_exists("userid", $_POST)) $userid=$_POST["userid"];
         else die("Missing information (2).");
@@ -193,18 +192,18 @@ EOF;
                 INSERT INTO constituency_contacts
                 (id, constituency, userid)
                 VALUES
-                (nextval('role_assignments_sequence'), $cons, $value)")
+                (nextval('role_assignments_sequence'), $consid, $value)")
             or die("Unable to execute query");
         }
         db_close($conn);
-        Header("Location: $SELF?action=edit&id=$cons");
+        Header("Location: $SELF?action=edit&consid=$consid");
         break;
 
     //-----------------------------------------------------------------
     case "remove":
         if (array_key_exists("cons", $_GET)) $cons=$_GET["cons"];
         else die("Missing information (1).");
-        if (array_key_exists("user", $_GET)) $userid=$_GET["user"];
+        if (array_key_exists("user", $_GET)) $id=$_GET["user"];
         else die("Missing information (2).");
 
         $conn = db_connect(DBDB, DBUSER, DBPASSWD)
@@ -212,11 +211,11 @@ EOF;
 
         $res = db_query($conn,
             "DELETE FROM constituency_contacts
-             WHERE  userid=$userid
+             WHERE  userid=$id
              AND    constituency=$cons")
         or die("Unable to execute query");
         db_close($conn);
-        Header("Location: $SELF?action=edit&id=$cons");
+        Header("Location: $SELF?action=edit&consid=$cons");
 
         break;
     

@@ -42,10 +42,9 @@
         or die("Unable to connect to database.");
 
         $res = db_query($conn, "
-        SELECT lastname, firstname, email, phone, login
-        FROM   users u, credentials c
-        WHERE  u.id = c.userid
-        AND    c.userid = '$id'")
+        SELECT lastname, firstname, email, phone, login, userid, password
+        FROM   users
+        WHERE  id = '$id'")
         or die("Unable to query database.");
 
         if (db_num_rows($res) > 0)
@@ -56,6 +55,7 @@
             $email = $row["email"];
             $phone = $row["phone"];
             $login = $row["login"];
+			$userid = $row["userid"];
             $action = "update";
             $submit = "Update!";
         }
@@ -64,11 +64,15 @@
     echo <<<EOF
 <form action="$SELF" method="POST">
 <input type="hidden" name="action" value="$action">
-<input type="hidden" name="userid" value="$id">
+<input type="hidden" name="id" value="$id">
 <table>
 <tr>
     <td>Login</td>
     <td><input type="text" size="30" name="login" value="$login"></td>
+</tr>
+<tr>
+    <td>Organizational user id</td>
+    <td><input type="text" size="30" name="userid" value="$userid"></td>
 </tr>
 <tr>
     <td>Last name</td>
@@ -110,10 +114,9 @@ EOF;
         or die ("Unable to connect to database.");
 
         $res = db_query($conn, "
-            SELECT c.login, u.lastname, u.firstname, u.email, u.phone,
-                   c.userid
-            FROM   users u, credentials c
-            WHERE  u.id = c.userid
+            SELECT id, login, lastname, firstname, email, phone,
+                   userid
+            FROM   users
             ORDER BY login")
         or die("Unable to query database.");
         
@@ -121,6 +124,7 @@ EOF;
 <table width="100%" cellpadding=3>
 <tr>
     <th>Login</th>
+	<th>User id</th>
     <th>Last name</th>
     <th>First name</th>
     <th>Email</th>
@@ -130,6 +134,7 @@ EOF;
         $count=0;
         while ($row = db_fetch_next($res))
         {
+			$id = $row["id"];
             $login = $row["login"];
             $lastname = $row["lastname"];
             $firstname = $row["firstname"];
@@ -142,16 +147,17 @@ EOF;
     <td>%s</td>
     <td>%s</td>
     <td>%s</td>
+    <td>%s</td>
     <td><a href='mailto:%s'>%s</a></td>
     <td>%s</td>
-    <td><a href='$SELF?action=edit&userid=%s'>edit</a></td>
+    <td><a href='$SELF?action=edit&id=%s'>edit</a></td>
     <td><a 
        onclick=\"return confirm('Are you sure that you want to delete %s?')\"
-       href='$SELF?action=delete&userid=%s'>delete</a></td>
+       href='$SELF?action=delete&id=%s'>delete</a></td>
 </tr>",
             ($count++%2==0?"#FFFFFF":"#DDDDDD"),
-            $login, $lastname, $firstname, $email, $email, $phone,
-            $userid, $login, $userid);
+            $login, $userid, $lastname, $firstname, $email, $email, $phone,
+            $id, $login, $id);
         }
         db_free_result($res);
         db_close($conn);
@@ -195,6 +201,8 @@ EOF;
         if (array_key_exists("userid", $_POST)) $userid=$_POST["userid"];
         else $userid="";
 
+        if (array_key_exists("id", $_POST)) $id=$_POST["id"];
+        else $id="";
 
         // ========= ADD ==========
         if ($action == "add")
@@ -214,8 +222,8 @@ EOF;
             or die("Unable to connect to database.");
 
             $res = db_query($conn,
-                "SELECT userid
-                 FROM   credentials
+                "SELECT id
+                 FROM   users
                  WHERE  login='$login'")
             or die("Unable to query database.");
 
@@ -233,76 +241,32 @@ EOF;
 
             db_free_result($res);
 
-            // begin transaction
-            $query = "begin transaction;";
-            $res = db_query($conn, $query)
-            or die("Unable to query database.");
-
-            // get userid
-            $query = "SELECT nextval('users_sequence') as nextval";
-            $res = db_query($conn, $query)
-            or die("Unable to query database.");
-            $row = db_fetch_next($res);
-            $userid = $row["nextval"];
-            db_free_result($res);
-
             // insert user
             $query = sprintf("
                 INSERT INTO users
-                (id, lastname, firstname, email, phone)
+                (id, lastname, firstname, email, phone, login, userid,
+				password)
                 VALUES
-                (%s, %s, %s, %s, %s)",
-                $userid,
+                (nextval('users_sequence'), %s, %s, %s, %s, %s, %s, %s)",
                 db_masq_null($lastname),
                 db_masq_null($firstname),
                 db_masq_null($email),
-                db_masq_null($phone));
-            $res = db_query($conn, $query)
-            or die("Unable to query database.");
-            
-            // insert credentials
-            $query = sprintf("
-                INSERT INTO credentials
-                (id, userid, login, password)
-                VALUES
-                (nextval('credentials_sequence'), %s, %s, %s)",
-                $userid,
+                db_masq_null($phone),
                 db_masq_null($login),
-                db_masq_null($password));
+                db_masq_null($userid),
+                db_masq_null($password)
+				);
             $res = db_query($conn, $query)
             or die("Unable to query database.");
-
-            // commit
-            $query = "end transaction;";
-            $res = db_query($conn, $query)
-            or die("Unable to query database.");
-
-            Header("Location: $SELF");
 
             db_close($conn);
+            Header("Location: $SELF");
         }
 
         // ========== UPDATE ===========
         else if ($action == "update")
         {
-            if ($userid=="") die("Missing information(A)");
-
-            $query1 = sprintf("
-                UPDATE users
-                SET    lastname=%s,
-                       firstname=%s,
-                       email=%s,
-                       phone=%s
-                WHERE  id = %s",
-                    db_masq_null($lastname),
-                    db_masq_null($firstname),
-                    db_masq_null($email),
-                    db_masq_null($phone),
-                    $userid);
-            $query2 = sprintf("
-                UPDATE credentials
-                SET    login=%s",
-                db_masq_null($login));
+            if ($id=="") die("Missing information(A)");
             if ($password != "")
             {
                 if ($password != $password2)
@@ -316,26 +280,42 @@ EOF;
                     pageFooter();
                     exit;
                 }
-                $query2=sprintf("
+			}
+
+            $query = sprintf("
+                UPDATE users
+                SET    lastname=%s,
+                       firstname=%s,
+                       email=%s,
+                       phone=%s,
+                       login=%s,
+                       userid=%s",
+                    db_masq_null($lastname),
+                    db_masq_null($firstname),
+                    db_masq_null($email),
+                    db_masq_null($phone),
+					db_masq_null($login),
+					db_masq_null($userid),
+                    $id);
+			if ($password != "") {
+                $query=sprintf("
                     %s, 
                     password=%s", 
-                        $query2,
-                        db_masq_null($password));
+                        $query,
+                        db_masq_null($password)
+				);
             }
-            $query2 = sprintf("
+            $query = sprintf("
                 %s
-                WHERE userid=%s",
-                    $query2,
-                    $userid);
+                WHERE id=%s",
+                    $query,
+                    $id);
 
             $conn = db_connect(DBDB, DBUSER, DBPASSWD)
             or die("Unable to connect to database.");
 
-            $res = db_query($conn, $query1)
+            $res = db_query($conn, $query)
             or die("Unable to execute query 1");
-            
-            $res = db_query($conn, $query2)
-            or die("Unable to execute query 2");
 
             db_close($conn);
             Header("Location: $SELF");
@@ -345,25 +325,16 @@ EOF;
 
     // --------------------------------------------------------------
     case "delete":
-        if (array_key_exists("userid", $_GET)) $userid=$_GET["userid"];
-        else $userid="";
+        if (array_key_exists("id", $_GET)) $id=$_GET["id"];
+        else $id="";
 
         $conn = db_connect(DBDB, DBUSER, DBPASSWD)
         or die("Unable to connect to database.");
        
-        $res = db_query($conn, "begin transaction");
-
-        $res = db_query($conn,
-            "DELETE FROM credentials
-             WHERE  userid = $userid")
-        or die("Unable to execute query 22");
-
         $res = db_query($conn,
             "DELETE FROM users
-             WHERE  id = $userid")
+             WHERE  id = $id")
         or die("Unable to execute query 1");
-
-        $res = db_query($conn, "end transaction");
 
         db_close($conn);
         Header("Location: $SELF");
@@ -372,11 +343,11 @@ EOF;
 
     // --------------------------------------------------------------
     case "edit":
-        if (array_key_exists("userid", $_GET)) $userid=$_GET["userid"];
+        if (array_key_exists("id", $_GET)) $id=$_GET["id"];
         else die("Missing information (1).");
 
         pageHeader("Edit user information");
-        show_form($userid);
+        show_form($id);
         pageFooter();
         break;
 
