@@ -493,7 +493,6 @@ EOF;
 
 
 		/* set up mail recipient */
-$to = "kees@uvt.nl";
 		if ($MAILCC != '') $mailto = array($to, $cc);
 		else $mailto = array($to);
 
