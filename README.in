@@ -1,11 +1,60 @@
 $Id$
 In CVS at $Source$
 
-AIRT Overview
--------------
+Overview
+--------
 
-AIRT installation manual for packages
--------------------------------------
+Site customization
+------------------
+
+No two incident response teams are the same. AIRT offers a number of local
+site customization hooks which can be used to taylor its behaviour for local
+circumstances. The hooks that are presently provided are
+
+* site specific ip address classification
+
+	Depending on the setup of a site, simple classification of an IP address
+	into a network might not be enough. AIRT offers customization by defining
+	a function 
+
+	function custom_categorize($ip, $networkid) {
+		    return $networkid;
+	} 
+
+	The function takes as input the IP address that needs to be categorized
+	and the network id in which it is placed by AIRT's built-in categorization
+	system. Return the network id in which you want the ip to be categorized.
+
+* site specific ip address details
+
+	After an IP address has been categorized into a network, additional
+	detail can be provided by defining this function. Note that it is possible
+	to see session variables in this function. A list of settable session
+	variables can be found in the documentation tree.
+
+	function search_info($ip, $networkid) {
+			return;
+	} // search_info
+
+* hooks for "events"
+
+	Use the customfunctions.plib list to add custom event handlers. Event
+	handlers take the format
+
+	addEventHandler($eventType, $handlerFunction)
+
+	E.g. to add a local event handler for the creation of a new incident, add
+	a line
+
+	addEventHander("newincident", "local_NewIncident");
+
+	Every time a new incident is created, the function local_NewIncident will
+	be called, which may take one argument. The argument will contain a
+	event-specific string.
+
+
+Installation manual for packages
+--------------------------------
 
 1. Configuring AIRT after installation
 

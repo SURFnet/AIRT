@@ -21,6 +21,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+$glEventHandlers = array();
+
 if (!isset($public) || !$public)
 {
     session_start();
@@ -202,5 +204,15 @@ function choice($label, $value, $default)
     else
         return sprintf("<OPTION value='%s'>%s</OPTION>\n",
             $value, $label);
+}
+
+// TODO: fix, test and extend
+function addEventHandler($event, $function) {
+	global glEventHandlers;
+
+	if (array_key_exists($event, $glEventHandlers)) 
+		array_push($glEventHandlers[$event], $function);
+	else
+		$glEventHandlers[$event] = array($function);
 }
 ?>
