@@ -22,7 +22,7 @@
  * index.php - AIR console
  * $Id$
  */
-require_once '/etc/airt/airt.cfg';
+require_once '/usr/local/etc/airt/airt.cfg';
 require_once LIBDIR."/airt.plib";
 require_once LIBDIR."/database.plib";
 
