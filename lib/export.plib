@@ -30,120 +30,111 @@ define("AIRTPREFIX","airt");
 
 function exportIncident($ids) {
 
-	$expr = "(";
-	foreach ($ids as $incident)
-		$expr .= "$incident,";
-	$expr = rtrim($expr, ",").")";
-	
-	$conn = db_connect(DBDB, DBUSER, DBPASSWD)
-	or die("Unable to connect to database.");
+    $expr = "(";
+    foreach ($ids as $incident)
+	    $expr .= "$incident,";
+    $expr = rtrim($expr, ",").")";
+    
+    $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+    or die("Unable to connect to database.");
 
-	$res = db_query($conn, "
-		SELECT    incidents.id,
-				  extract (epoch from incidents.created) as created,
-				  extract (epoch from incidents.updated) as updated,
-				  incident_states.label as state,
-				  incident_status.label as status,
-				  incident_types.label  as type,
-				  incident_addresses.ip as ip
-		FROM      incidents
-		LEFT JOIN incident_addresses ON (incidents.id = incident_addresses.incident)
-		LEFT JOIN incident_states ON (incidents.state = incident_states.id)
-		LEFT JOIN incident_status ON (incidents.status = incident_status.id)
-		LEFT JOIN incident_types ON (incidents.type = incident_types.id)
-		WHERE     incidents.id IN $expr
-		AND       incidents.id = incident_addresses.incident
-		ORDER BY  incidents.id")
-	or die("Unable to query database.");
+    $res = db_query($conn, "
+	    SELECT    incidents.id,
+		      extract (epoch from incidents.created) as created,
+		      extract (epoch from incidents.updated) as updated,
+		      incident_states.label as state,
+		      incident_status.label as status,
+		      incident_types.label  as type,
+		      incident_addresses.ip as ip
+	    FROM      incidents
+	    LEFT JOIN incident_addresses ON (incidents.id = incident_addresses.incident)
+	    LEFT JOIN incident_states ON (incidents.state = incident_states.id)
+	    LEFT JOIN incident_status ON (incidents.status = incident_status.id)
+	    LEFT JOIN incident_types ON (incidents.type = incident_types.id)
+	    WHERE     incidents.id IN $expr
+	    AND       incidents.id = incident_addresses.incident
+	    ORDER BY  incidents.id")
+    or die("Unable to query database.");
 
-	$doc = domxml_new_doc("1.0");
-	$root = $doc->create_element_ns(AIRTURL, "airt", AIRTPREFIX);
-	$doc->append_child($root);
+    $doc = domxml_new_doc("1.0");
+    $root = $doc->create_element_ns(AIRTURL, "airt", AIRTPREFIX);
+    $doc->append_child($root);
 
-	while ($row = db_fetch_next($res)) {
-		addIncidentToTree($doc, $row);
-	}
+    while ($row = db_fetch_next($res)) addIncidentToTree($doc, $row);
 
-	print $doc->dump_mem(true, "UTF-8");
+    print $doc->dump_mem(true, "UTF-8");
 
-	db_close($conn);
+    db_close($conn);
 }
 
 function addIncidentToTree(&$doc, $row) {
 
-	$tles = $doc->child_nodes();
-	$root = $tles[0];
-	$added = false;
-	foreach ($root->child_nodes() as $node) {
-		$context = $doc->xpath_new_context();
-		$context->xpath_register_ns("airt", "http://infolab.uvt.nl/airt");
-		$x = $context->xpath_eval("/airt:airt/airt:incident/airt:identification/@id");
-		print("---:");
-		var_export($x);
-		print("\n\n");
+    $tles = $doc->child_nodes();
+    $root = $tles[0];
+    $added = false;
 
-		/* if an elemnt with attribute "id" and value $row["id"] already
-		 * exists, all we have to do is add the IP address and leave the rest
-		 * of the data untouced. Else, we need to create a new incident
-		 * element.
-		 */ 
-		if ($node->node_type() == XML_ELEMENT_NODE &&
-			$node->node_name() == "incident" &&
-			$node->has_attribute("id") &&
-			$node->get_attribute("id") == $row["id"]) {
-			$new_element = $doc->create_element_ns(AIRTURL, "address");
-			$new_element->set_content($row["ip"]);
-			$node->append_child($new_element);
-			$added = true;
-		}
-	}
+    $pattern = sprintf("%s%s", INCIDENTID_PREFIX, $row["id"]);
+	
+    /* fix this so that we only get one incident block per ip */
+    $context = $doc->xpath_new_context();
+    $context->xpath_register_ns("airt", "http://infolab.uvt.nl/airt");
+    $res = $context->xpath_eval("//airt:airt/airt:incident");
+    foreach ($res->nodeset as $node) {
+	var_dump($node);	
+	/*
+	$new_element = $doc->create_element_ns(AIRTURL, "address");
+	$new_element->set_content($row["ip"]);
+	$node->append_child($new_element);
+	$added = true;
+	*/
+    }
 
-	if (!$added) {
-		$ISO8601_filter = "Y-m-d\\TH:i:sO";
-		$incident_element = $doc->create_element_ns(AIRTURL, "incident");
+    if (!$added) {
+	$ISO8601_filter = "Y-m-d\\TH:i:sO";
+	$incident_element = $doc->create_element_ns(AIRTURL, "incident");
 
-		// awful hack; assume we only have one identifier block until we 
-		// are ready to build the import module
-		$id_element = $doc->create_element_ns(AIRTURL, "identification");
-		$id_element->set_attribute("id", sprintf("%s%s",
-			INCIDENTID_PREFIX, $row["id"]));
-		$prefix_element = $doc->create_element_ns(AIRTURL, "prefix");
-		$prefix_element->set_content(INCIDENTID_PREFIX);
-		$ref_element = $doc->create_element_ns(AIRTURL, "reference");
-		$ref_element->set_content($row["id"]);
+	// awful hack; assume we only have one identifier block until we 
+	// are ready to build the import module
+	$id_element = $doc->create_element_ns(AIRTURL, "identification");
+	$id_element->set_attribute("id", sprintf("%s%s",
+		INCIDENTID_PREFIX, $row["id"]));
+	$prefix_element = $doc->create_element_ns(AIRTURL, "prefix");
+	$prefix_element->set_content(INCIDENTID_PREFIX);
+	$ref_element = $doc->create_element_ns(AIRTURL, "reference");
+	$ref_element->set_content($row["id"]);
 		
-		$state_element = $doc->create_element_ns(AIRTURL, "state");
-		$state_element->set_content($row["state"]);
+	$state_element = $doc->create_element_ns(AIRTURL, "state");
+	$state_element->set_content($row["state"]);
 
-		$status_element = $doc->create_element_ns(AIRTURL, "status");
-		$status_element->set_content($row["status"]);
+	$status_element = $doc->create_element_ns(AIRTURL, "status");
+	$status_element->set_content($row["status"]);
 
-		$type_element = $doc->create_element_ns(AIRTURL, "type");
-		$type_element->set_content($row["type"]);
+	$type_element = $doc->create_element_ns(AIRTURL, "type");
+	$type_element->set_content($row["type"]);
 
-		$_element = $doc->create_element_ns(AIRTURL, "created");
-		$_element->set_content(Date($ISO8601_filter,$row["created"]));
+	$_element = $doc->create_element_ns(AIRTURL, "created");
+	$_element->set_content(Date($ISO8601_filter,$row["created"]));
 
-		$updated_element = $doc->create_element_ns(AIRTURL, "updated");
-		$updated_element->set_content(Date($ISO8601_filter,$row["updated"]));
+	$updated_element = $doc->create_element_ns(AIRTURL, "updated");
+	$updated_element->set_content(Date($ISO8601_filter,$row["updated"]));
 
-		// build the tree
-		$incident_element -> append_child($id_element);
-		$id_element -> append_child($prefix_element);
-		$id_element -> append_child($ref_element);
+	// build the tree
+	$incident_element -> append_child($id_element);
+	$id_element -> append_child($prefix_element);
+	$id_element -> append_child($ref_element);
 
-		$incident_element -> append_child($state_element);
-		$incident_element -> append_child($status_element);
-		$incident_element -> append_child($type_element);
-		$incident_element -> append_child($_element);
-		$incident_element -> append_child($updated_element);
+	$incident_element -> append_child($state_element);
+	$incident_element -> append_child($status_element);
+	$incident_element -> append_child($type_element);
+	$incident_element -> append_child($_element);
+	$incident_element -> append_child($updated_element);
 
-		if (array_key_exists("ip", $row)) {
-			$ip_element = $doc->create_element_ns(AIRTURL, "address");
-			$ip_element->set_content($row["ip"]);
-			$incident_element -> append_child($ip_element);
-		}
-
-		$root->append_child($incident_element);
+	if (array_key_exists("ip", $row)) {
+	    $ip_element = $doc->create_element_ns(AIRTURL, "address");
+	    $ip_element->set_content($row["ip"]);
+	    $incident_element -> append_child($ip_element);
 	}
+
+	$root->append_child($incident_element);
+    }
 }
