@@ -30,17 +30,15 @@ $BASEURL = "/airt";
 // base URL of the application
 define("BASEURL", $BASEURL);
 
-// where can the files be found on disk
-define("BASEDIR", "@PHPPATH@");
-    
 // location of the .plib files
 define("LIBDIR", "@PHPLIBPATH@");
     
 // location of the persistant state files, writable by www-server
 define("STATEDIR", "@STATEPATH@");
 
-// sender-from in standard emails. Leave empty for current user. Must 
-// be an email address. 
+// sender-from in standard emails. 
+// If left empty, the email address of the currently logged in AIRT 
+// use will be used. 
 define("MAILFROM", "Example-CERT - @YOURFIRSTNAME@ <user@host.com>");
 
 // Any mail sent from this sysstem will have the following envelope sender.
@@ -48,29 +46,19 @@ define("MAILFROM", "Example-CERT - @YOURFIRSTNAME@ <user@host.com>");
 // your web server process. Only use an email address here, dont add a name.
 define("MAILENVFROM", "user@host.com");
 
-// this email address will always be cc'ed on outgoing messages
-define("MAILCC", "Example CERT team <user@host.com>");
+// this email address will always be cc'ed on outgoing messages. 
+// If left empty, no cc's of standard messages will be sent.
+define("MAILCC", "user@host.com");
 
-// reply-to used in standard emails. Leave empty for current user. Must be 
-// an email address; 
+// reply-to used in standard emails. 
+// If left empty, the email address of the currently logged in AIRT 
+// use will be used. 
 define("REPLYTO", "Example-CERT - @YOURFIRSTNAME@ <user@host.com>");
-
-// maximum length of an input line
-define("MAXLINELEN", 255);
-    
-// set to true for some basic debugging
-define("DEBUG", false);
 
 // connect string for the database
 define("DBDB", "airt");
 define("DBUSER", "airt");
 define("DBPASSWD", "**********");        // <--- CHANGE THIS
-
-// mail to which status updates will be sent
-define("CERT_MAILADDR", "user@host.com");
-
-// time after which unacknowleged incidents will be flagged (in seconds)
-define("WARN_UNACK", (60*60*24*6));
 
 // Incident ID prefix
 define("INCIDENTID_PREFIX", "Example-CERT#");

@@ -1,8 +1,12 @@
+# Configuration file for AIRT
+# $Id$
+
 Alias /airt/ @PHPPATH@/
 <Directory @PHPPATH@>
+	Options        Indexes
     DirectoryIndex index.php
 
-	// do not allow .plib files to be accessed via the webserver
+	# do not allow .plib files to be accessed via the webserver
 	<Files ~ "\.plib$">
 	    Order allow,deny
 		Deny from all
