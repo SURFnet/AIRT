@@ -32,42 +32,7 @@ if (!isset($public) || !$public)
     }
 }
 
-
-$BASEURL = "https://liberty.uvt.nl/liberty";
-
-// base URL of the application
-define("BASEURL", $BASEURL);
-
-// RT queue for liberty
-define("LIBERTYQUEUE", "UvT-CERT");
-
-// connect string for the database
-define("DBCONNECTSTRING", "dbname=cert user=cert password=mmUYQMX7TQoN");
-
-// connect string for RT
-define("RTNAME", "rtdb");
-define("RTUSER", "rtadmin");
-define("RTPASSWD", "Em48eUQwN4tS");
-
-// connect string for LIBERTY
-define("DBNAME", "rtdb");
-define("DBUSER", "rtadmin");
-define("DBPASSWD", "Em48eUQwN4tS");
-
-// mail to which status updates will be sent
-define("CERT_MAILADDR", "cert@uvt.nl");
-
-// cert group defined in RT
-define("CERTGROUP", "DutyTeam");
-
-// time after which unacknowleged incidents will be flagged (in seconds)
-define("WARN_UNACK", (60*60*24*6));
-
-// Incident ID prefix
-define("INCIDENTID_PREFIX", "UvT-CERT#");
-
-// directory containing status files and reference info
-define("LIBERTY_VARDATA", "/var/lib/liberty");
+include '/home/kees/etc/air/air.cfg';
 
 /**
  * Display the page header

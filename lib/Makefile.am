@@ -20,6 +20,6 @@
 # 
 
 scriptdir=$(pkgdatadir)/lib
-script_DATA = pgsql.plib liberty.plib rt.plib
+script_DATA = air.plib constituency.plib incident.plib pgsql.plib rt.plib
 
 EXTRA_DIST = $(script_DATA)
