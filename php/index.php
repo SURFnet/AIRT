@@ -22,6 +22,7 @@
  * index.php - AIR console
  * $Id$
  */
+require "../lib/database.plib";
 require "../lib/air.plib";
 require "../lib/rt.plib";
 
@@ -61,27 +62,35 @@ if (file_exists($filename))
 
 <P>
 
-<a href="ports.php">Common TCP/UDP port lookup</a>
+<?php
+    $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
+    or die("Unable to connect to database.");
 
-<P>
+    $res = db_query($conn, "
+        SELECT *
+        FROM   URLs
+        ORDER BY created")
+    or die("Unable to query database.");
 
-<a href="contacten_extern.php">Externe contactpunten</a>
-
-<P>
-
-<a href="dienstlijst.php">De dienstlijst</a>
-
-<P>
-
-<a href="contactlijst.php">De UvT-CERT telefoonnummers</a>
-
-</td>
-
+    while ($row = db_fetch_next($res))
+    {
+        $url = $row["url"];
+        $description = $row["description"];
+        printf("<a href=\"%s\">%s</a><p>",
+            $url, $description);
+    }
+    db_close($conn);
+?>
 
 <td>
 
 <a href="constituencies.php">Edit constituencies</a>
 
+<P>
+
+<a href="links.php">Edit links</a>
+
+<P>
 </td>
 
 </table>
