@@ -43,6 +43,7 @@ function footer()
 
 function showBasicIncidentData($type, $state, $status) {
 	echo <<<EOF
+<hr>
 <h3>Basic incident data</h3>
 <table>
 <tr>
@@ -86,6 +87,7 @@ function showIncidentForm() {
 
 	showBasicIncidentData($type, $state, $status);
 	echo <<<EOF
+<hr>
 <h3>Affected IP addresses</h3>
 <table cellpadding="4">
 <tr>
@@ -102,18 +104,20 @@ EOF;
 </tr>
 </table>
 
+<hr>
 <h3>Affected users</h3>
-<table>
+	
+<table bgColor="#DDDDDD" cellpadding="2" border="0">
 <tr>
-    <td>User's name</td>
-    <td><input type="text" size="30" value="$name" name="name"></td>
-</tr>
-<tr>
-    <td>User's email</td>
-    <td><input type="text" size="30" value="$email" name="email"></td>
+	<td>Email address of user:</td>
+	<td><input type="text" size="40" name="email"></td>
+	<td><a href="help.php?topic=incident-adduser">help</td>
 </tr>
 </table>
-
+<input type="checkbox" name="addifmissing">
+	If checked, create user if email address unknown
+<p>
+<hr>
 EOF;
 } // showIncidentForm
 
@@ -160,15 +164,14 @@ EOF;
 	echo <<<EOF
 	</table>
 	<p/>
-	Enter IP address or hostname to add to this incident.
 
 	<P/>
 	<form action="$SELF" method="POST">
 	<input type="hidden" name="action" value="addip">
-	<table cellpadding=4>
+	<table bgColor="#DDDDDD" cellpadding="2">
 	<tr>
 		<td>IP Address</td>
-		<td><input type="text" name="ip" size="30" value="$address"></td>
+		<td><input type="text" name="ip" size="40" value="$address"></td>
 		<td><input type="submit" value="Add">
 		</td>
 	</tr>
@@ -185,17 +188,17 @@ EOF;
 		$u = getUserByUserId($user);
 		printf("
 <tr>
-	<td>anr/td>
+	<td>%s</td>
 	<td><a href=\"mailto:%s\">%s</a></td>
-	<td>%s %s</td>
-	<td><a href=\"$SELF?action=deleteuser&userid=%s\">remove</a></td>
+	<td>%s, %s</td>
+	<td><a href=\"$SELF?action=deluser&userid=%s\">remove</a></td>
 </tr>
-		", $u["email"],
+		", $u["userid"],
+	       $u["email"],
 		   $u["email"],
 		   $u["lastname"],
 		   $u["firstname"],
-		   urlencode($incidentid),
-		   urlencode($user)
+		   urlencode($u["id"])
 		);
 	}
 
@@ -209,7 +212,7 @@ EOF;
 		} else {
 			$userid = "";
 		}
-	} else { 
+	} else {
 		$userid = ""; 
 	}
 
@@ -219,22 +222,20 @@ EOF;
 
 	<form action="$SELF" method="POST">
 	<input type="hidden" name="action" value="adduser">
-EOF;
-	if ( $userid == "" ) 
-		echo "No selected user.";
-	else {
-		$u = getUserByUserId($userid);
-		printf("Selected user: %s (%s)", 
-			$u["lastname"],
-			$u["email"]);
-		echo <<<EOF
-		<input type="submit" value="Add">
-EOF;
-	}
-			
-	echo <<<EOF
+
+	<table bgColor="#DDDDDD" cellpadding="2" border="0">
+	<tr>
+		<td>Email address of user:</td>
+		<td><input type="text" size="40" name="email"></td>
+		<td><input type="submit" value="Add"></td>
+		<td><a href="help.php?topic=incident-adduser">help</td>
+	</tr>
+	</table>
+	<input type="checkbox" name="addifmissing">
+	If checked, create user if email address unknown
 	</form>
 EOF;
+			
 } // showeditform
 
 
@@ -242,14 +243,37 @@ EOF;
 switch ($action)
 {
     //--------------------------------------------------------------------
-    case "edit":
+    case "details":
         if (array_key_exists("incidentid", $_REQUEST))
 			$incidentid=$_REQUEST["incidentid"];
         else die("Missing information(1).");
 		$_SESSION["incidentid"] = $incidentid;
 
-		pageHeader("Edit incident");
+		pageHeader("Incident details");
 		showEditForm();
+
+		echo <<<EOF
+<hr>
+<h3>History</h3>
+EOF;
+		generateEvent("historyshowpre", array("incidentid"=>$incidentid));
+		showIncidentHistory($incidentid);
+		generateEvent("historyshowpost", array("incidentid"=>$incidentid));
+
+		echo <<<EOF
+<p>
+<form action="$SELF" method="post">
+<input type="hidden" name="action" value="addcomment">
+<table bgcolor="#DDDDDD" border=0 cellpadding=2>
+<tr>
+    <td>New comment: </td>
+	<td><input type="text" size="45" name="comment"></td>
+	<td><input type="submit" value="Add"></td>
+</tr>
+</table>
+</form>
+EOF;
+
 		break;
 
     //---------------------------------------------------------------
@@ -285,6 +309,11 @@ EOF;
         else $status="";
 		if (array_key_exists("sendmail", $_POST)) $sendmail=$_POST["sendmail"];
 		else $sendmail="off";
+		if (array_key_exists("email", $_POST)) $email=$_POST["email"];
+		else $email="";
+		if (array_key_exists("addifmissing", $_POST))
+			$addif=$_POST["addifmissing"];
+		else $addif="off";
 
         $conn = db_connect(DBDB, DBUSER, DBPASSWD)
         or die("Unable to connect to database.");
@@ -356,7 +385,31 @@ EOF;
 			"status"     => $status,
 			"type"       => $type
 		));
-        if ($sendmail == "on") Header("Location: standard.php");
+
+
+		if ($email != "") {
+			$user = getUserByEmail($email);
+			if (!$user) {
+				if ($addif == "on") {
+					addUser(array("email"=>$email));
+					$user = getUserByEmail($email);
+					addUserToIncident($user["id"], $incidentid);
+				} else {
+					echo <<<EOF
+<p>The e-mail address specified in the incident data entry form is unknown
+and you chose not to add it to the database.</p>
+
+<p>The incident has been created, however no users have been associated with
+it.</p>
+
+<p><a href="$SELF">Continue...</a>
+EOF;
+				exit();
+				}
+			} else addUserToIncident($user["id"], $incidentid);
+		}
+		
+		if ($sendmail == "on") Header("Location: standard.php");
 		else Header("Location: $SELF");
         break;
 
@@ -461,7 +514,7 @@ EOF;
 				$color = ($count++%2 == 1) ? '#FFFFFF' : '#DDDDDD';
                 echo <<<EOF
 <tr bgcolor='$color'>
-	<td><a href="$SELF?action=edit&incidentid=$id">edit</a></td>
+	<td><a href="$SELF?action=details&incidentid=$id">details</a></td>
     <td>$incidentid</td>
 	<td>$constituency</td>
     <td>$hostline</td>
@@ -469,7 +522,6 @@ EOF;
     <td>$state</td>
     <td>$type</td>
     <td>$updated</td>
-	<td><a href="$SELF?action=history&incidentid=$id">history</a></td>
 </tr>
 EOF;
             } // while
@@ -488,7 +540,7 @@ EOF;
 		generateEvent("incidentlistpost");
         pageFooter();
         break;
-        
+
     //--------------------------------------------------------------------
 	case "addip":
         if (array_key_exists("incidentid", $_SESSION))
@@ -507,7 +559,7 @@ EOF;
 			"incidentid" => $incidentid,
 			"ip"         => $ip
 		));
-		Header(sprintf("Location: $SELF?action=edit&incidentid=%s",
+		Header(sprintf("Location: $SELF?action=details&incidentid=%s",
 			urlencode($incidentid)));
 		break;
 
@@ -527,45 +579,59 @@ EOF;
 			"incidentid" => $incidentid,
 			"ip"         => $ip
 		));
-		Header(sprintf("Location: $SELF?action=edit&incidentid=%s",
+		Header(sprintf("Location: $SELF?action=details&incidentid=%s",
 			urlencode($incidentid)));
 		break;
 
 
     //--------------------------------------------------------------------
 	case "adduser":
-		echo "To be implemented.";
+		if (array_key_exists("email", $_REQUEST))
+			$email = validate_input($_REQUEST["email"]);
+		else die("Missing information (1).");
+		if (array_key_exists("addifmissing", $_REQUEST))
+			$add = validate_input($_REQUEST["addifmissing"]);
+		else $add = 'off';
+		$incidentid = $_SESSION["incidentid"];
+		if ($incidentid == '') die("Missing information (2).");
+
+		$id = getUserByEmail($userdetails);
+		if (!$id) {
+			if ($add == 'on') {
+				addUser(array("email"=>$email));
+				$id = getUserByEmail($email);
+			}
+			else {
+				printf("Unknown email address. User not added.");
+				exit();
+			}
+		}
+		
+		$user = getUserByUserID($id["id"]);
+		addUserToIncident($id["id"], $incidentid);
+		addIncidentComment(sprintf("User %s added to incident.",
+			$user["login"]));
+		
+		Header(sprintf("Location: $SELF?action=details&incidentid=%s",
+			urlencode($incidentid)));
+		
 		break;
-
     //--------------------------------------------------------------------
-    case "history":
-        if (array_key_exists("incidentid", $_REQUEST))
-			$incidentid=$_REQUEST["incidentid"];
-        else die("Missing information(1).");
-		$_SESSION["incidentid"] = $incidentid;
+	case "deluser":
+        if (array_key_exists("incidentid", $_SESSION))
+			$incidentid = $_SESSION["incidentid"];
+		else die("Missing information (1).");
+        if (array_key_exists("userid", $_GET)) $userid = $_GET["userid"];
+		else die("Missing information (2).");
 
-		pageHeader("Incident history");
-		generateEvent("historyshowpre", array("incidentid"=>$incidentid));
-		showIncidentHistory($incidentid);
-		generateEvent("historyshowpost", array("incidentid"=>$incidentid));
+		removeUserFromIncident($userid, $incidentid);
+		$user = getUserByUserID($userid);
+		addIncidentComment(sprintf("User %s removed from incident.", 
+			$user["login"]));
 
-		echo <<<EOF
-<p>
-<form action="$SELF" method="post">
-<input type="hidden" name="action" value="addcomment">
-<table bgcolor="#DDDDDD" border=0 cellpadding=2>
-<tr>
-    <td>New comment: </td>
-	<td><input type="text" size="45" name="comment"></td>
-	<td><input type="submit" value="Add"></td>
-</tr>
-</table>
-<P>
-<a href="incident.php?action=edit&incidentid=$incidentid">Edit details</a>
-</form>
-EOF;
-		pageFooter();
-        break;
+		Header(sprintf("Location: $SELF?action=details&incidentid=%s",
+			urlencode($incidentid)));
+		break;
 
     //--------------------------------------------------------------------
 	case "addcomment":
@@ -579,7 +645,7 @@ EOF;
 			"incidentid"=>$incidentid
 		));
 
-		Header("Location: $SELF?action=history&incidentid=$_SESSION[incidentid]");
+		Header("Location: $SELF?action=details&incidentid=$_SESSION[incidentid]");
 		break;
 
     //--------------------------------------------------------------------

@@ -49,6 +49,22 @@ EOF;
 		break;
 
 	// --------------------------------------------------------------
+	case 'incident-adduser':
+		echo <<<EOF
+<p>Enter user details in this field. AIRT processing logic will attempt to match
+this information by a user by trying the following tests.</p>
+
+<ol>
+<li>AIRT login</li>
+<li>Organizational userid</li>
+<li>Email address</li>
+</ol>
+
+<p>The results of the first test that returns a match will be used. If no
+match is found, you will be redirected to the edit users page.</p>
+EOF;
+		break;
+	// --------------------------------------------------------------
 	default:
 		echo 'Unknown help topic';
 }

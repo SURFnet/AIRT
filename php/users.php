@@ -24,6 +24,7 @@
  require_once 'config.plib';
  require_once LIBDIR.'/airt.plib';
  require_once LIBDIR.'/database.plib';
+ require_once LIBDIR.'/user.plib';
  
  $SELF = "users.php";
 
@@ -241,23 +242,15 @@ EOF;
 
             db_free_result($res);
 
-            // insert user
-            $query = sprintf("
-                INSERT INTO users
-                (id, lastname, firstname, email, phone, login, userid,
-				password)
-                VALUES
-                (nextval('users_sequence'), %s, %s, %s, %s, %s, %s, %s)",
-                db_masq_null($lastname),
-                db_masq_null($firstname),
-                db_masq_null($email),
-                db_masq_null($phone),
-                db_masq_null($login),
-                db_masq_null($userid),
-                db_masq_null($password)
-				);
-            $res = db_query($conn, $query)
-            or die("Unable to query database.");
+			addUser(array(
+				"lastname" => $lastname,
+				"firstname" => $firstname,
+				"email" => $email,
+				"phone" => $phone,
+				"login" => $login,
+				"userid" => $userid,
+				"password" => $password
+			));
 
             db_close($conn);
             Header("Location: $SELF");
