@@ -429,6 +429,20 @@ EOF;
         break;
 
     // -------------------------------------------------------------------
+	case "send":
+		if (array_key_exists("from", $_POST)) $from=$_POST["from"];
+		else die("Missing parameter 1.");
+		if (array_key_exists("to", $_POST)) $to=$_POST["to"];
+		else die("Missing parameter 2.");
+		if (array_key_exists("replyto", $_POST)) $replyto=$_POST["replyto"];
+		else die("Missing parameter 3.");
+		if (array_key_exists("subject", $_POST)) $subject=$_POST["subject"];
+		else die("Missing parameter 4.");
+		if (array_key_exists("msg", $_POST)) $subject=$_POST["msg"];
+		else die("Missing parameter 5.");
+
+
+    // -------------------------------------------------------------------
     default:
         die("Unknown action: $action");
 } // switch
