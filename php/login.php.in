@@ -81,6 +81,13 @@ EOF;
         $userid = airt_authenticate($login, $password);
         if ($userid == -1)
         {
+			if (defined('USE_SYSLOG') && USE_SYSLOG) {
+				openlog('airt', LOG_ODELAY, SYSLOG_FACILITY);
+				syslog(SYSLOG_PRIORITY, 
+					sprintf('Invalid login attempt by %s from %s',
+					$login, $_SERVER['REMOTE_ADDR']));
+			}
+
             pageHeader("Permission denied.");
             printf("Username and/or password incorrect.");
             pageFooter();

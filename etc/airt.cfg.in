@@ -23,6 +23,7 @@
  */
 
 
+/***** 1. GLOBAL SETTINGS *****/
 
 // The URL where the application may be reached
 $BASEURL = '/airt';
@@ -36,6 +37,10 @@ define('LIBDIR', '@PHPLIBPATH@');
 // location of the persistant state files, writable by www-server
 define('STATEDIR', '@STATEPATH@');
 
+
+
+
+/**** 2. EMAIL SETTINGS *****/
 // sender-from in standard emails. 
 // If left empty, the email address of the currently logged in AIRT 
 // use will be used. 
@@ -55,16 +60,41 @@ define('MAILCC', 'user@host.com');
 // use will be used. 
 define('REPLYTO', 'Example-CERT - @YOURFIRSTNAME@ <user@host.com>');
 
+
+
+
+/***** 3. DATABASE SETTINGS *****/
 // connect string for the database
 define('DBDB', 'airt');
 define('DBUSER', 'airt');
 define('DBPASSWD', '**********');        // <--- CHANGE THIS
 
-// Incident ID prefix
-define('INCIDENTID_PREFIX', 'Example-CERT#');
 
 // the session timeout in seconds
 define('SESSION_TIMEOUT', 600);
+
+
+
+
+/***** 4. SYSLOG SETTINGS *****/
+
+// set to 'true' to log invalid logins to syslog. Do not define at all,
+// or set to false to not do it.
+define('USE_SYSLOG', true);
+
+// syslog facility to use
+define('SYSLOG_FACILITY', LOG_LOCAL0);
+
+// syslog priority to use
+define('SYSLOG_PRIORITY', LOG_WARNING);
+
+
+
+
+/***** 5. SITE CUSTOMIZATION *****/
+
+// Incident ID prefix
+define('INCIDENTID_PREFIX', 'Example-CERT#');
 
 // local customization can be found in this file. If undefined, no local
 // additions are done
