@@ -29,7 +29,7 @@ require_once LIBDIR.'/constituency.plib';
 function categorize($ip)
 {
     $networks = getNetworks();
-    $category = "unknown";
+    $category = "-1";
     $longip   = ip2long($ip);
     
     foreach ($networks as $id => $data)

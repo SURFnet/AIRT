@@ -77,7 +77,7 @@ EOF;
         // get addl info
         $networks = getNetworks();
         $constituencies = getConstituencies();
-
+		
         $network = $networks[$networkid]["network"];
         $netmask = $networks[$networkid]["netmask"];
         $netname = $networks[$networkid]["label"];

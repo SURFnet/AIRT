@@ -376,7 +376,8 @@ EOF;
                       s2.label  as status, 
 					  c3.label  as constituency,
                       t.label   as type,
-                      a.ip      as ip
+                      a.ip      as ip,
+					  a.hostname as hostname
              FROM     incidents i, users u1, users u2,
                       incident_states s1, incident_status s2, 
                       incident_types t, incident_addresses a, 
@@ -404,7 +405,7 @@ EOF;
 	<td>&nbsp;</td>
     <th>Incident ID</th>
 	<th>Consituency</th>
-    <th>IP address</th>
+    <th>Hostname</th>
     <th>Status</th>
     <th>State</th>
     <th>Type</th>
@@ -416,6 +417,8 @@ EOF;
             {   
                 $id      = $row["incidentid"];
                 $ip      = $row["ip"];
+                $hostname= $row["hostname"];
+				$hostname2=@gethostbyaddr($ip);
                 $updated = Date("d M Y", $row["updated"]);
                 $status  = $row["status"];
                 $state   = $row["state"];
@@ -423,13 +426,18 @@ EOF;
                 $constituency = $row["constituency"];
                 $incidentid = encode_incidentid($id);
 
+				if ($hostname == $hostname2) 
+					$hostline = $hostname;
+				else
+					$hostline = "$hostname **";
+
 				$color = ($count++%2 == 1) ? '#FFFFFF' : '#DDDDDD';
                 echo <<<EOF
 <tr bgcolor='$color'>
 	<td><a href="$SELF?action=edit&incidentid=$id">edit</a></td>
     <td>$incidentid</td>
 	<td>$constituency</td>
-    <td>$ip</td>
+    <td>$hostline</td>
     <td>$status</td>
     <td>$state</td>
     <td>$type</td>

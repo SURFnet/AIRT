@@ -279,5 +279,7 @@ INSERT INTO role_permissions
     (id, role, permission)
     VALUES
     (nextval('role_assignments_sequence'), 1, 1);
+insert into constituencies (id,label,name) values (-1, 'default', 'default');
+insert into networks (id, network, netmask, label, constituency) values ( -1, '0.0.0.0', '0.0.0.0', 'Default network', -1);
 
 end transaction;
