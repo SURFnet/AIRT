@@ -1,0 +1,4 @@
+Alias /airt/ @PHPDIR@/
+<Directory @PHPDIR@>
+    DirectoryIndex index.php
+</Directory>

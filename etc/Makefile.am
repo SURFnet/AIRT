@@ -1,6 +1,5 @@
-# configure.in for liberty
-# AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
-# Copyright (C) 2004    Kees Leune <kees@uvt.nl>
+# AIR: APPLICATION FOR INCIDENT RESPONSE
+# Copyright (C) 2004	Kees Leune <kees@uvt.nl>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,28 +14,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
 # $Id$
-m4_include([VERSION.m4])dnl
 
-AC_INIT([airt], [AIRT_VERSION], [kees@leune.org])
+# 
+scriptdir=$(sysconfdir)
+script_DATA = airt-apache.conf
 
-AC_PREREQ(2.59)
-AC_COPYRIGHT([
-Copyright (C) 2004 Tilburg University, The Netherlands
-])
+CLEANFILES = airt-apache.conf
+DISTCLEANFILES = $(CLEANFILES)
 
-AC_DEFINE_DIR(ETCPATH, sysconfdir/airt)
-AC_DEFINE_DIR(PHPPATH, pkgdatadir/php)
-
-AM_INIT_AUTOMAKE()
-
-AC_OUTPUT([Makefile
-	doc/Makefile
-	lib/Makefile
-	php/Makefile
-	etc/Makefile
-	php/pic/Makefile
-	php/config.plib
-	lib/config.plib
-	etc/airt-apache.conf
-])
+EXTRA_DIST = airt-apache.conf.in
