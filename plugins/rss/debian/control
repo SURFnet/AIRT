@@ -2,7 +2,7 @@ Source: php4-rss
 Section: web
 Priority: optional
 Maintainer: Kees Leune <kees@leune.org>
-Build-Depends-Indep: debhelper (>> 4.0.0), autoconf-archive
+Build-Depends-Indep: debhelper (>> 4.0.0)
 Standards-Version: 3.6.1
 
 Package: php4-rss
