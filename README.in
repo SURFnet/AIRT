@@ -70,7 +70,7 @@ Installation manual for packages
     Step 2. Create the database user that is referred to in the configuration
     file. For example,
 
-        postgres:~% createuser airt --no-createuser --no-adduser -P
+        postgres:~% createuser airt --no-createdb --no-adduser -P
         CREATE USER
 
 	You will be prompted for a password for the AIRT user. Keep this password
