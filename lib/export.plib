@@ -75,18 +75,34 @@ function addIncidentToTree(&$doc, $row) {
 
     $pattern = sprintf("%s%s", INCIDENTID_PREFIX, $row["id"]);
 	
-    /* fix this so that we only get one incident block per ip */
     $context = $doc->xpath_new_context();
     $context->xpath_register_ns("airt", "http://infolab.uvt.nl/airt");
     $res = $context->xpath_eval("//airt:airt/airt:incident");
+
+    /* $res->nodeset now contains all incident elements */
     foreach ($res->nodeset as $node) {
-	var_dump($node);	
-	/*
-	$new_element = $doc->create_element_ns(AIRTURL, "address");
-	$new_element->set_content($row["ip"]);
-	$node->append_child($new_element);
-	$added = true;
-	*/
+
+	/* iterate over all identification tags to find an identification
+	 * we recognize. TODO: How would one do this using xpath too ? 
+	 */
+	foreach ($node->get_elements_by_tagname("identification") as $n) {
+	    $prefix = $n->get_elements_by_tagname("prefix");
+	    $ref    = $n->get_elements_by_tagname("reference");
+	    if (!$prefix || !$ref) continue;
+
+	    /* if the incident already exists, add the IP address to it,
+	     * rather than creating a new incident
+	     */
+	    if ($prefix[0]->get_content() == INCIDENTID_PREFIX &&
+	        $ref[0]->get_content() == $row["id"]) {
+
+		$new_element = $doc->create_element_ns(AIRTURL, "address");
+		$new_element->set_content($row["ip"]);
+		$node->append_child($new_element);
+		$added = true;
+		break;
+	    }
+	}
     }
 
     if (!$added) {
