@@ -1,6 +1,7 @@
 2005-xxx-yy  Kees Leune  <kees@uvt.nl
 * php/standard.php: Typo fix (@ID@ -> @INCIDENTID@)
 * php/incident.php: Forced all email addresses to lower case
+* php/incident.php: Input field to jump directly to an incident
 * etc/apahace-airt.conf.in: Typo fix
 
 2005-feb-09  Kees Leune  <kees@uvt.nl>

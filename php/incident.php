@@ -241,9 +241,11 @@ switch ($action)
         if (array_key_exists("incidentid", $_REQUEST))
 			$incidentid=$_REQUEST["incidentid"];
         else die("Missing information(1).");
+
+		$incidentid = decode_incidentid(normalize_incidentid($incidentid));
 		$_SESSION["incidentid"] = $incidentid;
 
-		pageHeader("Incident details");
+		pageHeader("Incident details ".normalize_incidentid($incidentid));
 		showEditForm();
 
 		echo <<<EOF
@@ -421,9 +423,28 @@ EOF;
 
 		generateEvent("incidentlistpre");
 		echo <<<EOF
+<table cellpadding="3">
+<tr>
+	<td>
+Enter incident number
+	</td>
+	<td>
+<FORM action="$SELF" method="POST">
+<INPUT TYPE="hidden" name="action" value="details">
+<INPUT TYPE="input" name="incidentid" size="14">
+<INPUT TYPE="submit" value="Details">
+</FORM>
+	</td>
+</tr>
+
+<tr>
+	<td>
+Select incident status
+	</td>
+	<td>
 <FORM action="$SELF" method="POST">
 <INPUT TYPE="hidden" name="action" value="list">
-Select incident status <SELECT name="filter">
+ <SELECT name="filter">
 EOF;
 		echo choice("open", 1, $filter);
 		echo choice("stalled", 2, $filter);
@@ -432,6 +453,11 @@ EOF;
 </SELECT>
 <INPUT TYPE="submit" VALUE="Ok">
 </FORM>
+	</td>
+</tr>
+</table>
+
+
 EOF;
 		switch ($filter) {
 			case 1: $sqlfilter = "AND s2.label = 'open'";
