@@ -75,6 +75,13 @@ function addIncidentToTree(&$doc, $row) {
 	$root = $tles[0];
 	$added = false;
 	foreach ($root->child_nodes() as $node) {
+		$context = $doc->xpath_new_context();
+		$context->xpath_register_ns("airt", "http://infolab.uvt.nl/airt");
+		$x = $context->xpath_eval("/airt:airt/airt:incident/airt:identification/@id");
+		print("---:");
+		var_export($x);
+		print("\n\n");
+
 		/* if an elemnt with attribute "id" and value $row["id"] already
 		 * exists, all we have to do is add the IP address and leave the rest
 		 * of the data untouced. Else, we need to create a new incident
