@@ -164,6 +164,20 @@ function show_message($name)
 } // show_message
 
 
+function save_standard_message($filename, $msg)
+{
+    if ($filename == "" || $msg == "") return false;
+
+    $filename = ETCDIR."/standard_messages/$filename";
+    if (($f = fopen($filename, "w")) == false) return false;
+
+    fwrite($f, $msg);
+    fclose($f);
+
+    return true;
+} // save_standard_message
+
+
 /*************************************************************************
  * BODY
  *************************************************************************/
@@ -188,6 +202,78 @@ EOF;
 
     // -------------------------------------------------------------------
     case "edit":
+        if (array_key_exists("filename", $_REQUEST))
+            $filename=$_REQUEST["filename"];
+        else die("Missing parameter.");
+
+        pageHeader("Edit standard message");
+
+        if (($msg = read_standard_message($filename)) == false)
+        {
+            printf("Message not available.");
+        }
+        else
+        {
+            echo <<<EOF
+Update the message and press the 'Save!' button to save the message. The first
+line of the message will be used as the subject. You may use the following
+special variables in the template:
+
+<P>
+
+<table cellpadding="2">
+<tr>
+    <td>@SUBJECT@ .. @ENDSUBJECT</td>
+    <td>Delimits the subject line of the message</td>
+</tr>
+<tr>
+    <td>@HOSTNAME@</td>
+    <td>Will be replaced with the currently active hostname</td>
+</tr>
+<tr>
+    <td>@IPADDRESS@</td>
+    <td>Will be replaced with the currently active IP address</td>
+</tr>
+<tr>
+    <td>@USERNAME@</td>
+    <td>Will be replaced with the subject of the current incident</td>
+</tr>
+<tr>
+    <td>@YOURNAME@</td>
+    <td>Will be replaced with the full name of the logged in incident
+    handler</td>
+</tr>
+</table>
+
+<P>
+
+<form action="$SELF" method="POST">
+<textarea wrap name="message" cols=75 rows=30>$msg</textarea>
+<P>
+<input type="hidden" name="action" value="save">
+<input type="hidden" name="filename" value="$filename">
+<input type="submit" value="Save!">
+<input type="reset" value="Cancel!">
+</form>
+EOF;
+        }
+
+        pageFooter();
+        
+        break;
+
+    // -------------------------------------------------------------------
+    case "save":
+        if (array_key_exists("filename", $_REQUEST))
+            $filename=$_REQUEST["filename"];
+        else die("Missing parameter.");
+
+        if (array_key_exists("message", $_REQUEST))
+            $message=$_REQUEST["message"];
+        else die("Missing parameter.");
+
+        save_standard_message($filename, $message);
+        Header("Location: $BASEURL/$SELF");
         break;
 
     // -------------------------------------------------------------------
