@@ -21,7 +21,7 @@
 configdir=$(sysconfdir)/$(PACKAGE)
 config_DATA = airt-apache.conf airt.cfg
 
-CLEANFILES = airt-apache.conf
+CLEANFILES = airt-apache.conf airt.cfg
 DISTCLEANFILES = $(CLEANFILES)
 
-EXTRA_DIST = airt-apache.conf.in airt.cfg
+EXTRA_DIST = airt-apache.conf.in airt.cfg.in

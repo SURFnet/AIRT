@@ -31,32 +31,29 @@ $BASEURL = "/airt";
 define("BASEURL", $BASEURL);
 
 // where can the files be found on disk
-define("BASEDIR", "/home/kees/cvs/maximus/airt/source/php");
+define("BASEDIR", "@PHPPATH@");
     
 // location of the .plib files
-define("LIBDIR", "/home/kees/cvs/maximus/airt/source/lib");
+define("LIBDIR", "@PHPLIBPATH@");
     
 // location of the persistant state files, writable by www-server
-define("STATEDIR", "/var/lib/airt");
-
-// location of the persistant data files, readable by www-server
-define("CERTDIR", "/var/lib/cert-data");
+define("STATEDIR", "@STATEPATH@");
 
 // sender-from in standard emails. Leave empty for current user. Must 
 // be an email address. 
-define("MAILFROM", "UvT-CERT - @YOURFIRSTNAME@ <cert@uvt.nl>");
+define("MAILFROM", "Example-CERT - @YOURFIRSTNAME@ <user@host.com>");
 
 // Any mail sent from this sysstem will have the following envelope sender.
 // Note: dont leave this empty, or you will get the userid of the owner of
 // your web server process. Only use an email address here, dont add a name.
-define("MAILENVFROM", "cert@uvt.nl");
+define("MAILENVFROM", "user@host.com");
 
 // this email address will always be cc'ed on outgoing messages
-define("MAILCC", "Kees Leune <kees@uvt.nl>");
+define("MAILCC", "Example CERT team <user@host.com>");
 
 // reply-to used in standard emails. Leave empty for current user. Must be 
 // an email address; 
-define("REPLYTO", "UvT-CERT - @YOURFIRSTNAME@ <cert@uvt.nl>");
+define("REPLYTO", "Example-CERT - @YOURFIRSTNAME@ <user@host.com>");
 
 // maximum length of an input line
 define("MAXLINELEN", 255);
@@ -67,16 +64,16 @@ define("DEBUG", false);
 // connect string for the database
 define("DBDB", "airt");
 define("DBUSER", "airt");
-define("DBPASSWD", "mmUYQMX7TQoN");
+define("DBPASSWD", "**********");        // <--- CHANGE THIS
 
 // mail to which status updates will be sent
-define("CERT_MAILADDR", "kees@uvt.nl");
+define("CERT_MAILADDR", "user@host.com");
 
 // time after which unacknowleged incidents will be flagged (in seconds)
 define("WARN_UNACK", (60*60*24*6));
 
 // Incident ID prefix
-define("INCIDENTID_PREFIX", "UvT-CERT#");
+define("INCIDENTID_PREFIX", "Example-CERT#");
 
 // the session timeout in seconds
 define("SESSION_TIMEOUT", 600);
