@@ -25,6 +25,7 @@
 require_once 'XML/RSS.php';
 
 $rssfeeds = array(
+	'sans'  => 'http://images.dshield.org/rssfeed.xml',
 	'sophos' => 'http://www.sophos.com/virusinfo/infofeed/tenalerts.xml'
 );
 
@@ -33,10 +34,10 @@ foreach ($rssfeeds as $feed) {
 	$rss->parse();
 
 	$channelinfo = $rss->getChannelInfo();
-	printf("<h2><a href='%s'>%s</a></h2>\n",
+	printf("<h2 class='feed'><a href='%s'>%s</a></h2>\n",
 		$channelinfo['link'], 
 		$channelinfo['title']);
-	printf("<ul>\n");
+	printf("<ul class='item'>\n");
 	foreach ($rss->getItems() as $item) 
 		printf("<li><a href='%s'>%s</a>\n",
 			$item['link'],
