@@ -589,7 +589,7 @@ EOF;
 		$incidentid = $_SESSION["incidentid"];
 		if ($incidentid == '') die("Missing information (2).");
 
-		$id = getUserByEmail($userdetails);
+		$id = getUserByEmail($email);
 		if (!$id) {
 			if ($add == 'on') {
 				addUser(array("email"=>$email));
@@ -604,7 +604,7 @@ EOF;
 		$user = getUserByUserID($id["id"]);
 		addUserToIncident($id["id"], $incidentid);
 		addIncidentComment(sprintf("User %s added to incident.",
-			$user["login"]));
+			$user["email"]));
 		
 		Header(sprintf("Location: $SELF?action=details&incidentid=%s",
 			urlencode($incidentid)));
@@ -621,7 +621,7 @@ EOF;
 		removeUserFromIncident($userid, $incidentid);
 		$user = getUserByUserID($userid);
 		addIncidentComment(sprintf("User %s removed from incident.", 
-			$user["login"]));
+			$user["email"]));
 
 		Header(sprintf("Location: $SELF?action=details&incidentid=%s",
 			urlencode($incidentid)));
