@@ -1,7 +1,7 @@
 # Configuration file for AIRT
 # $Id$
 
-Uncomment this section to enable local extensions to airt.
+# Uncomment this section to enable local extensions to airt.
 # Alias /airt/local/ /usr/local/share/airt/www/
 # <Directory /usr/local/share/airt/www>
 #     Options -Indexes
