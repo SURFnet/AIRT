@@ -303,7 +303,7 @@ EOF;
         else $status="";
 		if (array_key_exists("sendmail", $_POST)) $sendmail=$_POST["sendmail"];
 		else $sendmail="off";
-		if (array_key_exists("email", $_POST)) $email=$_POST["email"];
+		if (array_key_exists("email", $_POST)) $email=strtolower($_POST["email"]);
 		else $email="";
 		if (array_key_exists("addifmissing", $_POST))
 			$addif=$_POST["addifmissing"];

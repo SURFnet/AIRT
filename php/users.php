@@ -186,7 +186,7 @@ EOF;
             $firstname=$_POST["firstname"];
         else die("Missing information (3).");
 
-        if (array_key_exists("email", $_POST)) $email=$_POST["email"];
+        if (array_key_exists("email", $_POST)) $email=strtolower($_POST["email"]);
         else die("Missing information (4).");
         
         if (array_key_exists("phone", $_POST)) $phone=$_POST["phone"];
