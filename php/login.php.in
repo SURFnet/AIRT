@@ -57,7 +57,7 @@ switch ($action)
 <HR>
 <P>
 <BLOCKQUOTE><small>
-    AIRT version @AIRT_VERSION@, Copyright (C) 2004-2005 Tilburg University
+    AIRT version @VERSION@, Copyright (C) 2004-2005 Tilburg University
     &lt;<a href="mailto:kees@uvt.nl">kees@uvt.nl</a>&gt;<BR>
     AIR comes with ABSOLUTELY NO WARRANTY; for details 
     <a href="license.php">click here</a>.<BR>
