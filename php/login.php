@@ -21,7 +21,7 @@
  */
 $public=1;
 include "../lib/liberty.plib";
-include "../lib/pgsql.plib";
+include "../lib/database.plib";
 
 if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST[action];
 else $action = "none";
@@ -67,21 +67,19 @@ EOF;
         $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
         or die("Unable to connect to database.".db_errormsg());
 
+// TODO: password check
+
         $query = sprintf("
             SELECT u.id
             FROM   users u, groups g, groupmembers m
             WHERE  u.name = '%s'
-            AND    u.password = '%s'
             AND    u.id = m.memberid
             AND    m.groupid = g.id
             AND    g.name = '%s'", 
                 $login, 
-                md5($password, true), 
                 CERTGROUP);
-printf("$query");
         $res = db_query($conn, $query)
         or die("Unable to query database: ".db_errormsg());
-
 
         if (db_num_rows($res) == 0)
         {
@@ -90,58 +88,18 @@ printf("$query");
             pageFooter();
             exit;
         }
+        else $row = db_fetch_next($res);
 
-        $filename="/var/lib/cert/bad_login_$login.txt";
-        /* check for lockout */
-        if (file_exists($filename))
-        {
-            $f = fopen($filename, "r");
-            $count = 0;
-            while (!feof($f))
-            {
-                $line = fgets($f);
-                if ($line=="") continue;
-                $last = $line;
-                $count++;
-            }
-            fclose($f);
-            $now=Date("U");
-            $delta=$now-$last;
-            if ($count > 3 && $delta < 900)
-            {
-                pageHeader("Access denied.");
-                printf("Your account has been blocked due to subsequent
-                invalid logins.");
-                printf("<P><a href=\"%s\">Try again</a>", $SELF);
-                exit();
-            }
-        }
-
-        /* process login */
-        if (array_key_exists($login, $USERNAMES) &&
-            $USERNAMES[$login] == $password) 
-        {
-            $f = fopen("/var/lib/cert/last_$login.txt","w");
-            fputs($f, sprintf(
-                "Welcome %s. Your last login was at %s from %s.\n",
-                $login, Date("r"), gethostbyaddr($_SERVER["REMOTE_ADDR"])));
-            fclose($f);
+        $f = fopen("/var/lib/cert/last_$login.txt","w");
+        fputs($f, sprintf(
+            "Welcome %s. Your last login was at %s from %s.\n",
+            $login, Date("r"), gethostbyaddr($_SERVER["REMOTE_ADDR"])));
+        fclose($f);
             
-            if (file_exists($filename)) unlink($filename);
-            session_start();
-            $_SESSION[username] = $login;
-            Header("Location: index.php");
-            return;
-        }
-        else 
-        {
-            $f = fopen($filename,"a");
-            fputs($f, date("U")."\n");
-            fclose($f);
-            pageHeader("Access denied.");
-            printf("Invalid username or password.");
-            printf("<P><a href=\"%s\">Try again</a>", $SELF);
-        }
+        session_start();
+        $_SESSION[username] = $login;
+        $_SESSION[userid] = $row["id"];
+        Header("Location: index.php");
             
         break;
 

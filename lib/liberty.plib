@@ -28,9 +28,13 @@ if (!isset($public) || !$public)
     }
 }
 
+
 $BASEURL = "https://liberty.uvt.nl/liberty";
+
+// base URL of the application
 define("BASEURL", $BASEURL);
 
+// RT queue for liberty
 define("LIBERTYQUEUE", "UvT-CERT");
 
 // connect string for the database
@@ -44,6 +48,7 @@ define("RTPASSWD", "Em48eUQwN4tS");
 // mail to which status updates will be sent
 define("CERT_MAILADDR", "cert@uvt.nl");
 
+// cert group defined in RT
 define("CERTGROUP", "DutyTeam");
 
 // time after which unacknowleged incidents will be flagged (in seconds)

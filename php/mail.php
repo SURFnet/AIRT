@@ -20,12 +20,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
- $public = 1;
  require '../lib/liberty.plib';
- require '../lib/pgsql.plib';
+ require '../lib/database.plib';
 
  $SELF="$BASEURL/mail.php";
- session_start();
+
  if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
  else $action="none";
 
@@ -38,11 +37,13 @@
         or die("unable to connect to database: ".db_errormessage());
 
         $res = db_query($conn, 
-            "SELECT   t.id, u.emailaddress, t.subject, t.created
+            "SELECT   t.id, u.emailaddress, t.subject, t.status,
+                       extract (epoch from t.created) as created
              FROM     tickets t, users u, queues q
              WHERE    t.creator = u.id
              AND      t.queue = q.id
              AND      q.name = '".LIBERTYQUEUE."'
+             AND      t.status = 'new'
              ORDER BY t.created")
         or die("Unable to query database: ".db_errormessage());
 
@@ -51,8 +52,11 @@
         {
             $requestor = $row["emailaddress"];
             $subject   = $row["subject"];
-            $created   = $row["created"];
+            $created   = Date("D, d M Y, H:i:s", $row["created"]);
             $id        = $row["id"];
+            $status    = $row["status"];
+
+            if (trim($subject) == "") $subject="(No subject)";
 
             printf("<TR valign='top'>\n");
             printf("<TD><B><a href='%s?action=show&id=%s'>%s</a></B><BR>
@@ -76,19 +80,7 @@
         if (array_key_exists("id", $_REQUEST)) $id = $_REQUEST["id"];
         else die("Missing parameter.");
 
-        $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
-        or die("unable to connect to database: ".db_errormessage());
-
-        $res = db_query($conn,
-            "SELECT   u.emailaddress, u.realname, t.subject, 
-               extract (epoch from t.created) as created
-             FROM     tickets t, users u
-             WHERE    t.id = '$id'
-             AND      u.id = t.creator")
-        or die("Unable to query database: ".db_errormessage());
-        
         echo <<<EOF
-<P>
 <form action="$SELF" method="POST">
 <table width="100%" bgcolor="#DDDDDD" border=0 cellpadding=2>
 <tr>
@@ -105,12 +97,35 @@
         <input type="radio" name="action" value="search">Search</input>
         <input type="radio" name="action" value="new">New incident</input>
         <input type="radio" name="action" value="ignore">Ignore message</input>
+        <input type="hidden" name="id" value="$id">
     </td>
 </tr>
 
 </table>
 </form>
+EOF;
 
+        $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
+        or die("unable to connect to database: ".db_errormessage());
+
+        $res = db_query($conn,
+            "SELECT   u.emailaddress, u.realname, t.subject, 
+               extract (epoch from t.created) as created
+             FROM     tickets t, users u
+             WHERE    t.id = '$id'
+             AND      u.id = t.creator")
+        or die("Unable to query database: ".db_errormessage());
+        
+
+        // show ticket information
+        if ($row = db_fetch_next($res))
+        {
+            $from = $row["emailaddress"];
+            $name = $row["realname"];
+            $subject = $row["subject"];
+            $created = Date("r",$row["created"]);
+
+            echo <<<EOF
 <table>
 <tr>
     <td>From:</td>
@@ -126,15 +141,6 @@
 </tr>
 </table>
 EOF;
-
-        // show ticket information
-        if ($row = db_fetch_next($res))
-        {
-            $from = $row["emailaddress"];
-            $name = $row["realname"];
-            $subject = $row["subject"];
-            $created = Date("r",$row["created"]);
-            
         }
         db_free_result($res);
 
@@ -156,7 +162,6 @@ EOF;
         db_close($conn);
 
         echo <<<EOF
-<form action="$SELF" method="POST">
 <div width="100%" style="background-color: #DDDDDD">
 Incident ID:
     <input type="text" size="40" name="incidentid">
@@ -180,6 +185,44 @@ EOF;
             sprintf("Location: https://liberty.uvt.nl/cert/search.php?ip=%s&action=search",
             urlencode($hostname)));
         break;
+
+    // --------------------------------------------------------------------
+
+    case "ignore":
+        if (array_key_exists("id", $_REQUEST)) 
+            $id = $_REQUEST["id"];
+        else die("Missing information");
+
+        $now = Date("Y-m-d H:i:s");
+        $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
+        or die("unable to connect to database: ".db_errormessage());
+
+        // update ticket status
+        $res = db_query($conn, sprintf("
+            UPDATE tickets
+            SET    status = 'rejected',
+                   lastupdatedby = %s,
+                   lastupdated = '%s'
+            WHERE  id = '%s'", 
+            $_SESSION["userid"], $now, $id))
+        or die("Unable to update status: ".db_errormessage());
+
+        pg_free_result($res);
+
+        // add transaction
+        $res = db_query($conn, sprintf("
+            INSERT INTO transactions
+            (effectiveticket, ticket, type, field, oldvalue, newvalue,
+             creator, created)
+            VALUES
+            ('%s', '%s', 'Status', 'Status', 'new', 'rejected', %s, '%s')",
+            $id, $id, $_SESSION["userid"], $now))
+        or die("Unable to insert transaction: ".db_errormessage());
+
+        Header("Location: $SELF");
+        break;
+
+    // --------------------------------------------------------------------
 
     default:
         die("Unknown action.");
