@@ -25,6 +25,9 @@
  * 
  * $Id$
  */
+$public = 1;
+require_once 'database.plib';
+require_once 'liberty.plib';
 
  // load DUN database
  $fname = sprintf("%s/%s", LIBERTY_VARDATA, "dun.txt");
@@ -50,6 +53,34 @@
 
     return categorize_uvt($hostname);
  } // categorize
+
+ function constituency_to_id($cons)
+ {
+    $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
+    or die("Unable to connect to database.");
+    $res = db_query($conn, 
+        "SELECT id
+         FROM   constituencies
+         WHERE  name='$cons'")
+    or die("Unable to query.");
+    if (db_num_rows($res) == 0) return -1;
+    $row = db_fetch_next($res);
+    return $row["id"];
+ }
+ 
+ function constituency_to_name($cons)
+ {
+    $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
+    or die("Unable to connect to database.");
+    $res = db_query($conn, 
+        "SELECT name
+         FROM   constituencies
+         WHERE  id='$cons'")
+    or die("Unable to query.");
+    if (db_num_rows($res) == 0) return -1;
+    $row = db_fetch_next($res);
+    return $row["name"];
+ }
 
  function search_info($ip, $hostname, $consituency)
  {
@@ -196,39 +227,6 @@ Laatst gezien    $gezien
 Outlet           $outlet
 </pre>
 EOF;
-
-    /* get contact info */
-    $f = fopen(sprintf("%s/%s", LIBERTY_VARDATA, "contacts.txt"), "r")
-    or die ("Unable to open contacts.");
-
-    while (!feof($f))
-    {
-        $line = fgets($f);
-        $data = explode("|", $line);
-        if ($data[0] == $fac)
-        {
-            echo "<h2>Contact info for $fac</h2>";
-
-            $name  = $data[1];
-            $telno = $data[2];
-            $email = $data[3];
-            $room  = $data[4];
-            
-            echo <<<EOF
-<pre>
-Naam:     $name
-Telefoon: $telno
-Email:    <a href="mailto:$email">$email</a>
-Kamer:    $room
-
-
-</pre>
-EOF;
-	$contact=$email;
-        }
-    } // while
-
-    flush();
 
     /* find room number */
     if (ereg("^([A-Z] [0-9]+)", $outlet, $matches))

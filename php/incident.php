@@ -22,6 +22,7 @@
  */
 require "../lib/liberty.plib";
 require "../lib/database.plib";
+require "../lib/userfunctions.plib";
 
 if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
 else $action="list";
@@ -51,43 +52,335 @@ switch ($action)
 {
     //--------------------------------------------------------------------
     case "edit":
-        break;
+        if (array_key_exists("id", $_REQUEST)) 
+            $id=$_REQUEST["id"];
+        else die("Missing information (1).");
 
-    //--------------------------------------------------------------------
+        $id = normalize_incidentid($id);
+
+        $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
+        or die("Unable to connect to database.");
+
+        $r = db_query($conn, sprintf("
+            SELECT * 
+            FROM incidents
+            WHERE id='%s'",
+                decode_incidentid($id)))
+        or die("Unable to query database.");
+
+        if (db_num_rows($r) == 0)
+            die("Unknown incident id");
+
+        $row           = db_fetch_next($r);
+        $ip            = $row["ip"];
+        $constituency  = $row["constituency"];
+        $rtid          = $row["rtid"];
+        $status        = $row["status"];
+        $category      = $row["category"];
+        $user_email    = $row["user_email"];
+        $user_name     = $row["user_name"];
+        $state         = $row["state"];
+        $hostname      = gethostbyaddr($ip);
+
+        if ($constituency=="") 
+            $constituency = categorize($ip, gethostbyaddr($ip));
+
+        db_free_result($r);
+        db_close($conn);
+
+    //---------------------------------------------------------------
     case "new":
-        if (array_key_exists("hostname", $_REQUEST))
-            $hostname = $_REQUEST["hostname"];
-        else die("Missing information.");
+        pageHeader("New/edit ticket");
+        if ($hostname == "") 
+            if (array_key_exists("hostname", $_REQUEST))
+            {
+                $hostname = $_REQUEST["hostname"];
+                $ip = gethostbyname($hostname);
+                $hostname = gethostbyaddr($ip);
+            }
+            else 
+            {
+                $hostname = "";
+                $ip = "";
+            }
 
-        if (array_key_exists("constituency", $_REQUEST))
-            $constituency = $_REQUEST["constituency"];
-        else $constituency = "Unknown";
-        
-        if (array_key_exists("category", $_REQUEST))
-            $category = $_REQUEST["category"];
-        else $category = "Unknown";
+        if ($constituency == "") 
+            if (array_key_exists("constituency", $_REQUEST))
+                $constituency = constituency_to_id($_REQUEST["constituency"]);
+            else $constituency = "";
+       
+        if ($category == "")
+            if (array_key_exists("category", $_REQUEST))
+                $category = $_REQUEST["category"];
+            else $category = "";
+
+        echo <<<EOF
+<form method="post" action="$SELF">
+<input type="hidden" name="id" value="$id">
+<table cellpadding=3>
+
+<tr>
+    <td>IP address</td>
+    <td><input type="text" name="ip" size="40" value="$ip"></td>
+</tr>
+
+<tr>
+    <td>Consituency</td>
+    <td>
+    
+    <select name="constituency">
+EOF;
+
+        echo choice("--- Choose consituency ---", "", $constituency);
+        $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
+        or die("Unable to connect to database.");
+
+        $res = db_query($conn,
+            "SELECT * 
+             FROM   constituencies
+             ORDER BY name")
+        or die("Unable to query constituencies");
+
+        while ($row = db_fetch_next($res))
+        {
+            $id = $row["id"];
+            $descr = $row["description"];
+            echo choice($descr, $id, $constituency);
+        }
+        db_close($conn);
+
+        echo <<<EOF
+        </select>
+    </td>
+</tr>
+
+<tr>
+    <td>Full name of user</td>
+    <td><input type="text" name="user_name" size="40" value="$user_name"></td>
+</tr>
+
+<tr>
+    <td>Email address of user</td>
+    <td><input type="text" name="user_email" size="40" value="$user_email"></td>
+</tr>
+
+<tr>
+    <td>Ticket status</td>
+    <td><select name="status">
+EOF;
+        echo choice("--- Choose status ---", "", $status);
+        echo choice("Open", "open", $status);
+        echo choice("Closed", "closed", $status);
+        echo <<<EOF
+        </select>
+    </td>
+</tr>
+
+<tr>
+    <td>Category</td>
+    <td><select name="category">
+EOF;
+        echo choice("--- Choose category ---", "", $category);
+        echo choice("System compromise (virus, etc)", "compromise", $category);
+        echo choice("Spam", "spam", $category);
+        echo choice("Portscan", "portscan", $category);
+        echo choice("Active hacking", "hack", $category);
+        echo <<<EOF
+        </select>
+    </td>
+</tr>
+
+<tr>
+    <td>Ticket state</td>
+    <td><select name="state">
+EOF;
+        echo choice("--- Choose state ---", "", $state);
+        echo choice("Acknowledged", "acknowledged", $state);
+        echo choice("Block requested", "blockrequest", $state);
+        echo choice("Blocked", "blocked", $state);
+        echo choice("Unblock requested", "unblockrequest", $state);
+        echo choice("Unblocked", "unblocked", $state);
+        echo choice("Forwarded", "forwarded", $state);
+        echo <<<EOF
+        </select>
+        <input type="hidden" name="state_before" value="$state">
+    </td>
+</tr>
+
+</table>
+
+<P>
+EOF;
+
+        if ($action == "new")
+            echo <<<EOF
+<input type="submit" value="Create">
+<input type="hidden" name="action" value="add">
+EOF;
+        else
+            echo <<<EOF
+<input type="submit" value="Update">
+<input type="hidden" name="action" value="update">
+EOF;
+
+        echo "</form>";
+        pageFooter();
 
 
-        $hostname = trim(gethostbyname($hostname));
-        $hostname = gethostbyaddr($hostname);
-
-        // TODO
-        printf("Hostname    : $hostname<BR>");
-        printf("Constituency: $constituency<BR>");
-        printf("Category    : $category<BR>");
         break;
 
     //--------------------------------------------------------------------
     case "add":
+        // ip: required
+        if (array_key_exists("ip", $_POST)) $ip = $_POST["ip"];
+        else die("Missing information (2).");
+        $ip = gethostbyname($ip);
+
+        // status: default to open
+        if (array_key_exists("status", $_POST)) $status = $_POST["status"];
+        else die("Missing information (3).");
+        if ($status=="") $status="open";
+
+        // category: required
+        if (array_key_exists("category", $_POST))
+            $category = $_POST["category"];
+        else die("Missing information (4).");
+        if ($category=="") die("Incomplete information (4).");
+
+        // user_name: optional
+        if (array_key_exists("user_name", $_POST))
+            $user_name=$_POST["user_name"];
+
+        // user_email: optional
+        if (array_key_exists("user_email", $_POST))
+            $user_email=$_POST["user_email"];
+
+        // constituency: optional
+        if (array_key_exists("constituency", $_POST))
+            $constituency=$_POST["constituency"];
+
+        // state: optional
+        if (array_key_exists("state", $_POST))
+            $state=$_POST["state"];
+
+        $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
+        or die("Unable to connect to database.");
+
+        $now = Date("Y-m-d H:i:s");
+        $query = sprintf("
+            INSERT INTO incidents
+            (id, ip, status, state, category, user_name, user_email, 
+             constituency, created, creator, lastupdatedby, lastupdated )
+            VALUES
+            (nextval('incidentid_seq'), '%s', '%s', '%s', '%s', %s, %s, 
+                %s, '%s', %s, %s, '%s')",
+                $ip, 
+                $status, 
+                $state,
+                $category,
+                $user_name==""?"NULL":"'$user_name'",
+                $user_email==""?"NULL":"'$user_email'",
+                $constituency, 
+                $now, 
+                $_SESSION["userid"],
+                $_SESSION["userid"],
+                $now
+                );
+        $r = db_query($conn, $query)
+        or die("Unable to insert incident.");
+        db_close($conn);
+
+        Header(sprintf("Location: %s/%s?action=list",
+            BASEURL, $SELF));
+
         break;
 
     //--------------------------------------------------------------------
     case "update":
+        // incidentid: required
+        if (array_key_exists("id", $_POST)) $incidentid = $_REQUEST["id"];
+        else die("Missing information (1).");
+
+        // ip: required
+        if (array_key_exists("ip", $_POST)) $ip = $_POST["ip"];
+        else die("Missing information (2).");
+        $ip = gethostbyname($ip);
+
+        // status: required
+        if (array_key_exists("status", $_POST)) $status = $_POST["status"];
+        else die("Missing information (3).");
+
+        // category: required
+        if (array_key_exists("category", $_POST))
+            $category = $_POST["category"];
+        else die("Missing information (4).");
+        if ($category=="") die("Incomplete information (4).");
+
+        // user_name: optional
+        if (array_key_exists("user_name", $_POST))
+            $user_name=trim($_POST["user_name"]);
+
+        // user_email: optional
+        if (array_key_exists("user_email", $_POST))
+            $user_email=trim($_POST["user_email"]);
+
+        // fac: optional
+        if (array_key_exists("constituency", $_POST))
+            $constituency=$_POST["constituency"];
+
+        // state: optional
+        if (array_key_exists("state", $_POST))
+            $state=$_POST["state"];
+
+        $id = normalize_incidentid($id);
+
+        $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
+        or die("Unable to connect to database.");
+
+        session_start();
+        $query = sprintf("
+            UPDATE incidents
+            SET    ip = '%s',
+                   status = '%s',
+                   category = '%s',
+                   user_name = %s,
+                   user_email = %s,
+                   constituency = %s,
+                   lastupdatedby = '%s',
+                   lastupdated = '%s'
+            WHERE  id = '%s'",
+            $ip, 
+            $status, 
+            $category,
+            $user_name    == "" ? "NULL" : "'$user_name'",
+            $user_email   == "" ? "NULL" : "'$user_email'",
+            $constituency == "" ? "NULL" : $constituency,
+            $_SESSION["userid"],
+            Date("Y-m-d H:i:s"),
+            decode_incidentid($incidentid));
+        $r = db_query($conn, $query)
+        or die("Unable to update incident.");
+        db_close($conn);     
+        
+        Header(sprintf("Location: %s/%s?action=list",
+            BASEURL, $SELF));
+
         break;
 
     //--------------------------------------------------------------------
     case "list":
         pageHeader("Incident overview");
+        $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
+        or die("Unable to connect to database.");
+
+        $r = db_query($conn, "SELECT 
+            i.id, ip, status, category, c.name as constituency,
+            extract(epoch from i.created) 
+            FROM incidents i, constituencies c
+            WHERE status='open'
+            AND   i.constituency = c.id
+            order by id")
+        or die("Unable to query incidents.");
 
         echo "<table width='100%'>\n";
         echo "<tr>
@@ -96,60 +389,54 @@ switch ($action)
                 <td></td>
                 <td align='center'><small>Click to search</small></td>
             </tr>";
-
-        $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
-        or die("Unable to connect to database.");
-
-        $res = db_query($conn, "
-            SELECT   t.id, t.status, extract (epoch from t.created) as created
-            FROM     tickets t, queues q
-            WHERE    t.queue = q.id
-            AND      q.name  = '".LIBERTYQUEUE."'
-            AND      t.status in ('open', 'new')
-            ORDER BY t.created
-            ")
-        or die("Unable to query incidents.");
-
         $count = 0;
-        while ($row = db_fetch_next($res))
+        while ($row = pg_fetch_array($r))
         {
-            $status   = $row["status"];
-            $created  = Date("d-M-Y", $row["created"]);
-            $ticketid = $row["id"];
+            $id           = normalize_incidentid($row["id"]);
+            $ip           = $row["ip"];
+            $constituency = $row["constituency"];
+            $status       = $row["status"];
+            $category     = $row["category"];
+            $date_created = Date("d M Y", $row["date_part"]);
 
-            $res2 = db_query($conn, "
-                SELECT f.name, v.content
-                FROM   ticketcustomfieldvalues v, customfields f
-                WHERE  v.ticket = $ticketid
-                AND    f.id = v.customfield
-                ")
-            or die("Unable to retrieve field");
+            if ($count++%2==0) $bgcolor="#FFFFFF"; else $bgcolor="#DDDDDD";
 
-            $VALUES = array();
-            while ($row2 = db_fetch_next($res2))
-                $VALUES[$row2["name"]] = $row2["content"];
+            // check if incident is overdue
+            if ($state == "" && ((time() - $row["date_part"]) > WARN_UNACK))
+                $flags = "*";
+            else
+                $flags = "&nbsp;";
+                
+            printf("<tr bgcolor=$bgcolor>
+                    <td>%s</td>
+                    <td><a href=\"$SELF?action=edit&id=%s\">%s</a></td>
+                    <td>%s</td>
+                    <td><a href=\"search.php?action=search&hostname=%s\">%s</a></td>
+                    <td>%s</td>
+                    <td>%s</td>
+                    <td>%s</td>
+                    <td>%s</td>
+                    <td>%s</td>
+                </tr>\n",
+                $flags,
+                urlencode($id), $id, $constituency, $ip, 
+                gethostbyaddr($ip), $category, $state,
+                $date_created,
+                sprintf("<small><a 
+                    href=\"$SELF?action=history&id=%s\">history</a></small>", 
+                    urlencode($id)),
 
-            printf("
-                <tr bgcolor=\"%s\">
-                    <td>%s</td>
-                    <td>%s</td>
-                    <td>%s</td>
-                    <td>%s</td>
-                    <td>%s</td>
-                    <td>%s</td>
-                </tr>",
-                $count++%2 ? "#DDDDDD" : "#FFFFFF",
-                $VALUES["IncidentID"],
-                $VALUES["Constituency"],
-                $VALUES["IPAddress"],
-                $VALUES["Category"],
-                $status,
-                $created);
-            pg_free_result($res2);
-        } // while
-        echo "</table>";
+                sprintf("<small><a 
+                    href=\"$SELF?action=close&id=%s\">close</a></small>",
+                    urlencode($id))
+            );
+        }
         db_close($conn);
+        echo "</table>\n";
+        printf("<P><small><i>%s %s selected.</small><P>",
+            $count, $count==1?"record":"records");
 
+        pageFooter();
         break;
         
     //--------------------------------------------------------------------

@@ -23,6 +23,7 @@
  */
 
  require '../lib/liberty.plib';
+ require '../lib/database.plib';
  require '../lib/userfunctions.plib';
 
  if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
@@ -32,6 +33,25 @@
 
  switch ($action)
  {
+    case "none":
+        pageHeader("IP address search:");
+        echo <<<EOF
+<form action="$SELF" method="POST">
+<input type="hidden" name="action" value="search">
+<table width="100%" bgcolor="#DDDDDD" border=0 cellpadding=2>
+<tr>
+    <td>IP address:</td>
+    <td>
+        <input type="text" size="40" name="hostname">
+        <input type="submit" value="Search">
+    </td>
+</tr>
+</table>
+EOF;
+        pageFooter();
+        break;
+        
+    // ------------------------------------------------------------------
     case "search":
         if (array_key_exists("hostname", $_REQUEST)) 
             $hostname = $_REQUEST["hostname"];
@@ -47,12 +67,37 @@
         $constituency = categorize($ip, $hostname);
 
         pageHeader("Detailed information for host $hostname");
-        printf("Host belongs to constituency: <B>%s</B><P>", $constituency);
 
         // call user-defined search function. Must print in unformatted layout
         // additional info about hostname needed to make a decision.
         search_info($ip, $hostname, $constituency);
 
+
+        $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
+        or die("Unable to connect to database.");
+
+        $res = db_query($conn, "
+            SELECT *
+            FROM   constituencies
+            WHERE  name = '$constituency'")
+        or die("Unable to query database.");
+
+        echo "<h2>Constituency</h2>";
+        $row = db_fetch_next($res);
+        printf("
+        <pre>
+Constituency     %s
+Contact point    %s
+Email            <a href=\"mailto:%s\">%s</a>
+Telephone        %s
+        </pre>", 
+            $constituency,
+            $row["contact_name"],
+            $row["contact_email"],
+            $row["contact_email"],
+            $row["contact_phone"]);
+        db_close($conn);
+         
         printf("<P><a href=\"%s/incident.php?action=new&hostname=%s&".
                "constituency=%s\">Create new incident</a>",
             BASEURL, urlencode($hostname), urlencode($constituency));

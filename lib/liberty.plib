@@ -126,25 +126,19 @@ function pagefooter()
 <B>&gt;</B>
 &nbsp;
 
-<a href="search.php">IP Search</a>
+<a href="mail.php">Mail</a>
 
 &nbsp;
 <B>|</B>
 &nbsp;
 
-<a href="ports.php">Ports lookup</a>
+<a href="incident.php">Incidents</a>
 
 &nbsp;
 <B>|</B>
 &nbsp;
 
-<a href="incident.php">Incident management</a>
-
-&nbsp;
-<B>|</B>
-&nbsp;
-
-<a href="https://liberty.uvt.nl/rt/RTIR/">Request tracker</a>
+<a href="search.php">Search</a>
 
 &nbsp;
 <B>|</B>

@@ -59,7 +59,14 @@
 ?>
 
 
+<table width="100%">
+<tr>
+    <td><B>Common tasks</B></td>
+    <td><B>Maintenance tasks</B></td>
+</tr>
 
+<tr valign="top">
+    <td>
 <a href="mail.php">Incoming messages</a> (<?php echo $new; ?> new)
 
 <P>
@@ -86,8 +93,16 @@
 
 <a href="contactlijst.php">De UvT-CERT telefoonnummers</a>
 
-<P>
-&nbsp;
+</td>
+
+
+<td>
+
+<a href="constituencies.php">Edit constituencies</a>
+
+</td>
+
+</table>
 
 <P>
 
