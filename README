@@ -1,0 +1,18 @@
+README FOR LIBERTY
+$Id$
+
+LIBERTY is a program for incident response targetted at end-users.
+
+REQUIREMENTS
+============
+* Request Tracker 3
+    http://www.bestpractical.com
+
+* Apache Webserver
+    http://www.apache.org
+
+* PHP4 Scripting language
+    http://www.php.net
+
+* Postgresql Object Relational Database
+    http://www.postgresql.org
