@@ -1,0 +1,105 @@
+$Id$
+AIRT testing guide
+
+Introduction
+
+	This document describes the test framework for AIRT's beta testers. Please
+	use it as a guideline to experiment with AIRT and answer the questions
+	listed in the last paragraph when you feel that you are ready to do so.
+
+	The AIRT beta testing period has been decided to run from March 1, 2005
+	until March 31, 2005.
+
+	If you encounter any problems during the beta testing period, please use
+	AIRT's sourcerforge to communicate with the project members. The workspace
+	can be found at http://sourceforge.net/projects/airt/
+
+	Bug reports: please submit your bugs to the bug tracker. It can be found
+	at http://sourceforge.net/tracker/?group_id=110280&atid=656330
+
+	Feature requests: please submit your feature requests to 
+	http://sourceforge.net/tracker/?group_id=110280&atid=656336
+
+	Support requests: please submit your support requests to 
+	http://sourceforge.net/tracker/?group_id=110280&atid=656334
+
+	Please note that while we are strongly dedicated to making AIRT a product
+	of high quality, we cannot promise that feature requests will be
+	addressed, or that you will receive rapid responses to bug reports or
+	support requests. 
+
+	AIRT is available as a Debian GNU/Linux archive. Please add the following
+	apt-source to /etc/apt/sources.list: 
+	deb http://www.leune.org/debian/ unstable airt
+
+	If you prefer a tar release, please use the support tracker mentioned
+	above.
+
+Testing framework
+
+	AIRT testing is not meant as a hand-held click-by-click guide, but rather
+	as a useful excercise designed to help you get AIRT set up and running for
+	your organisation.
+
+	The beta test phase has been divided in three sub-parts: installation and
+	configuration, extensibility and additional functionality. Please use the
+	questions listed above as a guideline.
+
+Installation and configuration
+
+	For this section, please install the AIRT package by using the command 
+	apt-get install airt (given as root) and follow the instructions in the
+	README file, which can be found in /usr/share/doc/airt/. In that
+	directory, you will also find additional information and examples.
+
+	After AIRT has been set up, please refer to the AIRT tutorial (also
+	availabe in the documentation directory) to enter the initial networks and
+	incident information.
+
+	Question 1: Is the information provided with AIRT enough to install
+	and configure it?
+
+	Question 2: Were you able to configure AIRT in such a way that it is
+	useful in your organization?
+
+	Question 3: Did you encounter any problems or difficulties when
+	you were entering data 
+
+	Question 4: Did AIRT offer enough out-of-the-box functionality to be
+	useful?
+
+		4a) Is the IP search adequate and correct?
+		4b) Is the incident management module adequate and correct?
+		3c) Is the mail template module adequate and correct?
+
+
+Extensibility
+
+	AIRT has been built in an extensible fashion. An initial attempt to
+	document the extensibility features of AIRT is described in the files
+	HOWTO.txt (with reference in session-variables.txt and events.txt).
+
+	Question 5: Did you, or are you planning to use the AIRT extensibility
+	features?
+
+	Question 6: If applicable, were you able to use AIRT's custom search and
+	custom classification? Did it offer all functionality that you required?
+
+	Question 7: If applicable, were you able to use AIRT's event mechanism?
+	Did it offer all events that you were looking for?
+
+
+Extra functionality
+
+	This is really a catchall section. 
+
+	Question 8: What kind of extensions for AIRT would you be willing and able
+	to contribute to the project?
+
+	Question 9: What kind of extensions for AIRT would you like others to see
+	develop and contribute to the project?
+
+	Question 10: Do you have any other comments regarding AIRT ?
+
+
+EOF
