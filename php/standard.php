@@ -132,7 +132,9 @@ function list_standard_messages()
             <td><a href=\"%s/%s?action=show&filename=%s\">%s</a></td>
             <td>%s</td>
             <td><a href=\"%s/%s?action=edit&filename=%s\">edit</a></td>
-            <td><a href=\"%s/%s?action=delete&filename=%s\">delete</a></td>
+            <td><a onclick=\"return confirm('Are you sure that you want ".
+            "to delete this message?')\"
+            href=\"%s/%s?action=delete&filename=%s\">delete</a></td>
             </tr>",
             $count++%2==0?"#DDDDDD":"#FFFFFF",
             BASEURL, $SELF, urlencode($file), $file,
@@ -178,6 +180,39 @@ function save_standard_message($filename, $msg)
 } // save_standard_message
 
 
+function print_variables_info()
+{
+    echo <<<EOF
+<table cellpadding="2">
+<tr>
+    <td nowrap>@SUBJECT@ .. @ENDSUBJECT@</td>
+    <td>Delimits the subject line of the message</td>
+</tr>
+<tr>
+    <td>@HOSTNAME@</td>
+    <td>Will be replaced with the currently active hostname</td>
+</tr>
+<tr>
+    <td>@IPADDRESS@</td>
+    <td>Will be replaced with the currently active IP address</td>
+</tr>
+<tr>
+    <td>@USERNAME@</td>
+    <td>Will be replaced with the subject of the current incident</td>
+</tr>
+<tr>
+    <td>@YOURNAME@</td>
+    <td>Will be replaced with the full name of the logged in incident
+    handler</td>
+</tr>
+<tr>
+    <td>@ID@</td>
+    <td>Will be replaced with the current incident id</td>
+</tr>
+</table>
+EOF;
+}
+
 /*************************************************************************
  * BODY
  *************************************************************************/
@@ -220,35 +255,14 @@ line of the message will be used as the subject. You may use the following
 special variables in the template:
 
 <P>
-
-<table cellpadding="2">
-<tr>
-    <td>@SUBJECT@ .. @ENDSUBJECT</td>
-    <td>Delimits the subject line of the message</td>
-</tr>
-<tr>
-    <td>@HOSTNAME@</td>
-    <td>Will be replaced with the currently active hostname</td>
-</tr>
-<tr>
-    <td>@IPADDRESS@</td>
-    <td>Will be replaced with the currently active IP address</td>
-</tr>
-<tr>
-    <td>@USERNAME@</td>
-    <td>Will be replaced with the subject of the current incident</td>
-</tr>
-<tr>
-    <td>@YOURNAME@</td>
-    <td>Will be replaced with the full name of the logged in incident
-    handler</td>
-</tr>
-</table>
+EOF;
+    print_variables_info();
+    echo <<<EOF
 
 <P>
 
 <form action="$SELF" method="POST">
-<textarea wrap name="message" cols=75 rows=30>$msg</textarea>
+<textarea wrap name="message" cols=75 rows=20>$msg</textarea>
 <P>
 <input type="hidden" name="action" value="save">
 <input type="hidden" name="filename" value="$filename">
@@ -272,16 +286,49 @@ EOF;
             $message=$_REQUEST["message"];
         else die("Missing parameter.");
 
+        if (!ereg("^[a-zA-Z0-9.-_]+$", $filename))
+            die("Invalid file name");
+        if (ereg("\.\.", $filename))
+            die("Invalid file name");
+        if (strlen($filename)>30)
+            die("File name too long");
+
         save_standard_message($filename, $message);
         Header("Location: $BASEURL/$SELF");
         break;
 
     // -------------------------------------------------------------------
     case "new":
+        pageHeader("New standard message");
+        echo <<<EOF
+Enter your new message in the text field below. Use the following variables
+in your text body:
+<P>
+EOF;
+        print_variables_info();
+        echo <<<EOF
+<P>
+<form action="$SELF" method="POST">
+File name: <input type="text" size="40" name="filename">
+<P>
+Message:<BR>
+<textarea wrap name="message" cols=75 rows=20>$msg</textarea>
+<P>
+<input type="hidden" name="action" value="save">
+<input type="submit" value="Save!">
+<input type="reset" value="Cancel!">
+</form>
+EOF;
         break;
 
     // -------------------------------------------------------------------
     case "delete":
+        if (array_key_exists("filename", $_REQUEST))
+            $filename=$_REQUEST["filename"];
+        else die("Missing parameter.");
+
+        unlink(ETCDIR."/standard_messages/$filename");
+        Header("Location: ".BASEURL."/$SELF");
         break;
 
     // -------------------------------------------------------------------
@@ -299,7 +346,8 @@ EOF;
 &nbsp;|&nbsp;
 <a href="$BASEURL/$SELF?action=edit&filename=$filename">Edit</a>
 &nbsp;|&nbsp;
-<a href="$BASEURL/$SELF?action=delete&filename=$filename">Delete</a>
+<a onclick="return confirm('Are you sure that you delete this message?')"
+href="$BASEURL/$SELF?action=delete&filename=$filename">Delete</a>
 EOF;
         pageFooter();
         break;
