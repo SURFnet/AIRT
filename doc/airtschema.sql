@@ -20,6 +20,43 @@
 -- $Id$
 -- In CVS at $CVS$
 
+begin transaction;
+
+DROP SEQUENCE incident_types_sequence;
+DROP SEQUENCE incident_states_sequence;
+DROP SEQUENCE incident_status_sequence;
+DROP SEQUENCE constituencies_sequence;
+DROP SEQUENCE roles_sequence;
+DROP SEQUENCE users_sequence;
+DROP SEQUENCE incidents_sequence;
+DROP SEQUENCE ipaddresses_sequence;
+DROP SEQUENCE incident_addresses_sequence;
+DROP SEQUENCE role_assignments_sequence;
+DROP SEQUENCE constituency_contacts_sequence;
+DROP SEQUENCE networks_sequence;
+DROP SEQUENCE credentials_sequence;
+DROP SEQUENCE incident_comments_sequence;
+DROP SEQUENCE ip_comments_sequence;
+DROP SEQUENCE user_comments_sequence;
+
+DROP TABLE incident_types CASCADE; 
+DROP TABLE incident_states CASCADE;
+DROP TABLE incident_status CASCADE;
+DROP TABLE constituencies CASCADE;
+DROP TABLE roles CASCADE;
+DROP TABLE users CASCADE;
+DROP TABLE incidents CASCADE;
+DROP TABLE ipaddresses CASCADE;
+DROP TABLE incident_addresses CASCADE;
+DROP TABLE role_assignments CASCADE;
+DROP TABLE constituency_contacts CASCADE;
+DROP TABLE networks CASCADE;
+DROP TABLE credentials CASCADE;
+DROP TABLE incident_comments CASCADE; 
+DROP TABLE ip_comments CASCADE; 
+DROP TABLE user_comments CASCADE; 
+
+
 CREATE TABLE incident_types ( 
     id          integer,
     label       varchar(50),
@@ -72,10 +109,22 @@ CREATE TABLE incidents (
     primary key (id),
     foreign key (creator)   references users(id),
     foreign key (updatedby) references users(id),
-    foreign key (state)     references ticket_states(id),
+    foreign key (state)     references incident_states(id),
     foreign key (status)    references incident_status(id),
     foreign key (type)      references incident_types(id)
 );
+
+CREATE TABLE ipaddresses (
+    id          integer,
+    address     varchar(128),
+    hostname    varchar(128),
+    constituency integer,
+    client      integer,
+    primary key (id),
+    foreign key (constituency) references constituencies(id),
+    foreign key (client)       references users(id)
+);
+
 
 CREATE TABLE incident_addresses (
     id          integer,
@@ -92,36 +141,25 @@ CREATE TABLE incident_addresses (
 CREATE TABLE role_assignments (
     id          integer,
     role        integer,
-    user        integer,
+    userid      integer,
     primary key (id),
     foreign key (role) references roles(id),
-    foreign key (user) references users(id)
-);
-
-CREATE TABLE ipaddresses (
-    id          integer,
-    address     varchar(128),
-    hostname    varchar(128),
-    constituency integer,
-    client      integer,
-    primary key (id)
-    foreign key (constituency) references constituencies(id),
-    foreign key (client)       references users(id)
+    foreign key (userid) references users(id)
 );
 
 CREATE TABLE constituency_contacts (
-    id          integer,
+    id           integer,
     constituency integer,
-    user        integer,
+    userid       integer,
     primary key (id),
     foreign key (constituency) references constituencies(id),
-    foreign key (user)         references users(id)
+    foreign key (userid)       references users(id)
 );
 
 CREATE TABLE networks (
     id          integer,
     network     varchar(128),
-    netmask     varchar(128)
+    netmask     varchar(128),
     constituency integer,
     primary key (id),
     foreign key (constituency) references constituencies(id)
@@ -129,13 +167,13 @@ CREATE TABLE networks (
 
 CREATE TABLE credentials (
     id          integer,
-    user        integer,
+    userid      integer,
     login       varchar(64),
     password    varchar(64),
     ou          varchar(64),
     ca          varchar(64),
     primary key (id),
-    foreign key (user) references users(id)
+    foreign key (userid) references users(id)
 );
 
 CREATE TABLE incident_comments ( 
@@ -156,19 +194,37 @@ CREATE TABLE ip_comments (
     added       timestamp,
     addedby     integer,
     primary key (id),
-    foreign key (address) references ipaddress(id),
+    foreign key (address) references ipaddresses(id),
     foreign key (addedby) references users(id)
 );
 
 CREATE TABLE user_comments ( 
     id          integer,
-    user        integer,
+    userid      integer,
     comment     varchar(240),
     added       timestamp,
     addedby     integer,
     primary key (id),
-    foreign key (address) references users(id),
+    foreign key (userid) references users(id),
     foreign key (addedby) references users(id)
 );
 
--- EOF --
+
+CREATE SEQUENCE incident_types_sequence;
+CREATE SEQUENCE incident_states_sequence;
+CREATE SEQUENCE incident_status_sequence;
+CREATE SEQUENCE constituencies_sequence;
+CREATE SEQUENCE roles_sequence;
+CREATE SEQUENCE users_sequence;
+CREATE SEQUENCE incidents_sequence;
+CREATE SEQUENCE ipaddresses_sequence;
+CREATE SEQUENCE incident_addresses_sequence;
+CREATE SEQUENCE role_assignments_sequence;
+CREATE SEQUENCE constituency_contacts_sequence;
+CREATE SEQUENCE networks_sequence;
+CREATE SEQUENCE credentials_sequence;
+CREATE SEQUENCE incident_comments_sequence;
+CREATE SEQUENCE ip_comments_sequence;
+CREATE SEQUENCE user_comments_sequence;
+
+end transaction
