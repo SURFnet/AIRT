@@ -1,8 +1,9 @@
-2005-feb-xx  Kees Leune  <kees@uvt.nl>
+2005-feb-09  Kees Leune  <kees@uvt.nl>
 * php/login.php: Proper error messages when opening non-existing dirs
 * php/incident.php: Removed history and edit as sepeate options and
   implemented them as incident details
 * php/incident.php: Now possible to associate users with incidents
+* php/incident.php: Carry over email addresses
 
 2005-feb-08  Kees Leune  <kees@uvt.nl>
 * php/standard.php: MAIL_CC recipient is now also shown in smtp header

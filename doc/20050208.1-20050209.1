@@ -1,0 +1,5 @@
+begin transaction;
+alter table incident_users add column added timestamp;
+alter table incident_users add column addedby integer;
+alter table incident_users add foreign key (addedby) references users(id);
+end transaction;
