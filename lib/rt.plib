@@ -1,4 +1,3 @@
-#!/usr/bin/php4
 <?php
 /*
  * LIBERTY: INCIDENT RESPONSE SUPPORT FOR END-USERS
@@ -32,7 +31,7 @@ require_once 'liberty.plib';
 function RT_checkLogin($username, $password)
 {
     $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
-    or die("Unable to connect to database.".db_errormsg());
+    or die("Unable to connect to database.".db_errormessage());
 
     $query = sprintf("
         SELECT u.id
@@ -45,7 +44,7 @@ function RT_checkLogin($username, $password)
             CERTGROUP);
 
     $res = db_query($conn, $query)
-    or die("Unable to query database: ".db_errormsg());
+    or die("Unable to query database: ".db_errormessage());
 
     if (db_num_rows($res) == 0) return -1;
     $row = db_fetch_next($res);
@@ -55,20 +54,45 @@ function RT_checkLogin($username, $password)
 } // RT_checkLogin
 
 
+/* retrieve user info
+ * Returns an empty array if user does not exists; or an associative array on
+ * success.
+ */
+function RT_getUserById($id)
+{
+    $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
+    or die("Unable to connect to database.".db_errormessage());
+
+    $res = db_query($conn, sprintf("
+        SELECT *
+        FROM   users
+        WHERE  id=%s", $id))
+    or die("Unable to query database: ".db_errormessage());
+
+    if (db_num_rows($res) == -1)
+        $output = array();
+    else
+        $output = db_fetch_next($res);
+
+    db_close($conn);
+    return $output;
+} // RT_getUserById
+
+
 /* Find a request tracker queue by name
  * Returns -1 if the queue was not found; or the queue id on success
  */
 function RT_getQueueByName($name)
 {
     $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
-    or die("Unable to connect to database.".db_errormsg());
+    or die("Unable to connect to database.".db_errormessage());
 
     /* get correct queue id */
     $res = db_query($conn, "
         SELECT id
         FROM   queues
         WHERE  name = '$name'")
-    or die("Error retrieving queue id: ".db_errormsg());
+    or die("Error retrieving queue id: ".db_errormessage());
 
     if (db_num_rows($res) == 0) return -1;
     $row = db_fetch_next($res);
@@ -81,9 +105,8 @@ function RT_getQueueByName($name)
 /* Return an array of open messages in the provides queue
  * Each returned element is a message id
  */
-function RT_getNewMessageIds($queue)
+function RT_getNewTicketIds($queue)
 {
-
     $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
     or die("unable to connect to database: ".db_errormessage());
 
@@ -102,7 +125,7 @@ function RT_getNewMessageIds($queue)
     while ($row = db_fetch_next($res))
     {
         $id        = $row["id"];
-        $array[$count++] = $id;
+        $output[$count++] = $id;
     } // while
     
     return $output;
@@ -113,6 +136,22 @@ function RT_getNewMessageIds($queue)
  */
 function RT_getTicketById($id)
 {
+    $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
+    or die("Unable to connect to database: ".db_errormessage());
+
+    $res = db_query($conn,
+        "SELECT *
+         FROM   tickets
+         WHERE  id = $id")
+    or die("Unable to query database: ".db_errormessage());
+
+    if (db_num_rows($res) == 0) 
+        $row = array();
+    else
+        $row = db_fetch_next($res);
+
+    db_close($conn);
+    return $row;
 } // RT_getTicketById
 
 
@@ -132,3 +171,6 @@ function RT_setTicketField($field, $value)
 function RT_addTransaction($transaction)
 {
 } // RT_addTransaction
+
+/* EOF */
+?>

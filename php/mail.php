@@ -32,43 +32,27 @@
  {
     case "none":
         pageHeader("Incoming messages");
-
-        $conn = db_connect(RTNAME, RTUSER, RTPASSWD)
-        or die("unable to connect to database: ".db_errormessage());
-
-        $res = db_query($conn, 
-            "SELECT   t.id, u.emailaddress, t.subject, t.status,
-                       extract (epoch from t.created) as created
-             FROM     tickets t, users u, queues q
-             WHERE    t.creator = u.id
-             AND      t.queue = q.id
-             AND      q.name = '".LIBERTYQUEUE."'
-             AND      t.status = 'new'
-             ORDER BY t.created")
-        or die("Unable to query database: ".db_errormessage());
+        $msgs = RT_getNewTicketIds(LIBERTYQUEUE);
 
         printf("<TABLE WIDTH=\"100%%\" BORDER=\"1\">\n");
-        while ($row = db_fetch_next($res))
+        foreach ($msgs as $a => $index)
         {
-            $requestor = $row["emailaddress"];
-            $subject   = $row["subject"];
-            $created   = Date("D, d M Y, H:i:s", $row["created"]);
-            $id        = $row["id"];
-            $status    = $row["status"];
+            $msg       = RT_getTicketById($index);
+            $created   = $msg["created"];
+            $subject   = $msg["subject"];
+            $sender_id = $msg["creator"];
 
-            if (trim($subject) == "") $subject="(No subject)";
-
+            $sender    = RT_getUserById($sender_id);
+            $sender_name = $sender["realname"];
+            
             printf("<TR valign='top'>\n");
             printf("<TD><B><a href='%s?action=show&id=%s'>%s</a></B><BR>
                         <small>%s</small></TD>\n", 
-                $SELF, $id, $subject, $requestor);
+                $SELF, $index, $subject, $sender_name);
             printf("<TD NOWRAP>%s</TD>\n", $created);
             printf("</TR>");
-
-        } // while
+        }
         printf("</TABLE>\n");
-
-        db_close($conn);
 
         pageFooter();
         break;
