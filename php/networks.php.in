@@ -17,15 +17,16 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * incident_status.php -- manage incident_status
+ * netblocks.php -- manage net blocks
  * 
  * $Id$
  */
- require_once '/etc/airt/airt.cfg';
+ require_once '@ETCPATH@/airt.cfg';
  require_once LIBDIR.'/airt.plib';
  require_once LIBDIR.'/database.plib';
+ require_once LIBDIR.'/constituency.plib';
  
- $SELF = "incident_status.php";
+ $SELF = "networks.php";
 
  if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
  else $action = "list";
@@ -38,23 +39,17 @@
 
     if ($id != "")
     {
-        $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-        or die("Unable to connect to database.");
-
-        $res = db_query($conn, "
-        SELECT label
-        FROM   incident_status
-        WHERE  id = '$id'")
-        or die("Unable to query database.");
-
-        if (db_num_rows($res) > 0)
+        $networks = getNetworks();
+        if (array_key_exists($id, $networks))
         {
-            $row = db_fetch_next($res);
+            $row = $networks["$id"];
             $action = "update";
             $submit = "Update!";
-            $label = $row["label"];
+            $network = $row["network"];
+            $netmask = $row["netmask"];
+            $label   = $row["label"];
+            $constituency = $row["constituency"];
         }
-        db_close($conn);
     }
     echo <<<EOF
 <form action="$SELF" method="POST">
@@ -62,9 +57,23 @@
 <input type="hidden" name="id" value="$id">
 <table>
 <tr>
+    <td>Network Address</td>
+    <td><input type="text" size="30" name="network" value="$network"></td>
+</tr>
+<tr>
+    <td>Netmask</td>
+    <td><input type="text" size="30" name="netmask" value="$netmask"></td>
+</tr>
+<tr>
     <td>Label</td>
     <td><input type="text" size="30" name="label" value="$label"></td>
 </tr>
+<tr>
+    <td>Constituency</td>
+    <td>
+EOF;
+        showConstituencySelection("constituency", $constituency);
+    echo <<<EOF
 </table>
 <p>
 <input type="submit" value="$submit">
@@ -76,45 +85,48 @@ EOF;
  {
     // --------------------------------------------------------------
     case "list":
-        pageHeader("Incident status");
-        $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-        or die("Unable to connect to database.");
-
-        $res = db_query($conn,
-            "SELECT   id, label
-             FROM     incident_status
-             ORDER BY label")
-        or die("Unable to execute query 1");
+        pageHeader("Networks");
 
         echo <<<EOF
 <table cellpadding="3">
 <tr>
+    <td><B>Network</B></td>
+    <td><B>Netmask</B></td>
     <td><B>Label</B></td>
+    <td><B>Constituency</B></td>
     <td><B>Edit</B></td>
     <td><B>Delete</B></td>
     
 </tr>
 EOF;
+    
+        $networklist = getNetworks();
+        $constituencies = getConstituencies();
+
         $count=0;
-        while ($row = db_fetch_next($res))
+        foreach ($networklist as $id=>$data)
         {
-            $label = $row["label"];
-            $id    = $row["id"];
+            $network      = $data["network"];
+            $netmask      = $data["netmask"];
+            $label        = $data["label"];
+            $constituency = $data["constituency"];
+            $constituency_name  = $constituencies["$constituency"]["name"];
             $color = ($count++%2==0?"#FFFFFF":"#DDDDDD");
             echo <<<EOF
 <tr valign="top" bgcolor="$color">
+    <td>$network</td>
+    <td>$netmask</td>
     <td>$label</td>
-    <td><a href="$SELF?action=edit&id=$id">edit</a></td>
-    <td><a href="$SELF?action=delete&id=$id">delete</a></td>
+    <td><a href="constituencies.php?action=edit&cons=$constituency"
+        >$constituency_name</a></td>
+    <td><a href="$SELF?action=edit&id=$id"><small>edit</small></td>
+    <td><a href="$SELF?action=delete&id=$id"><small>delete</small></td>
 </tr>
 EOF;
         } // while $row
         echo "</table>";
 
-        db_free_result($res);
-        db_close($conn);
-
-        echo "<h3>New incident state</h3>";
+        echo "<h3>New network</h3>";
         show_form("");
 
         break;
@@ -124,7 +136,7 @@ EOF;
         if (array_key_exists("id", $_GET)) $id=$_GET["id"];
         else die("Missing information.");
 
-        pageHeader("Edit incident state");
+        pageHeader("Edit Network");
         show_form($id);
         pageFooter();
         break;
@@ -134,8 +146,15 @@ EOF;
     case "update":
         if (array_key_exists("id", $_POST)) $id=$_POST["id"];
         else $id="";
-        if (array_key_exists("label", $_POST)) $label=$_POST["label"];
+        if (array_key_exists("network", $_POST)) $network=$_POST["network"];
         else die("Missing information (1).");
+        if (array_key_exists("netmask", $_POST)) $netmask=$_POST["netmask"];
+        else die("Missing information (2).");
+        if (array_key_exists("label", $_POST)) $label=$_POST["label"];
+        else die("Missing information (3).");
+        if (array_key_exists("constituency", $_POST)) 
+            $constituency=$_POST["constituency"];
+        else die("Missing information (4).");
 
         if ($action=="add")
         {
@@ -143,12 +162,16 @@ EOF;
             or die("Unable to connect to database.");
 
             $res = db_query($conn, sprintf("
-                INSERT INTO incident_status
-                (id, label)
+                INSERT INTO networks
+                (id, network, netmask, label, constituency)
                 VALUES
-                (nextval('incident_status_sequence'), %s)",
-                    db_masq_null($label)))
-            or die("Unable to excute query.");
+                (nextval('networks_sequence'), %s, %s, %s, %s)",
+                    db_masq_null($network),
+                    db_masq_null($netmask),
+                    db_masq_null($label),
+                    $constituency
+                )
+            ) or die("Unable to excute query.");
 
             db_close($conn);
             Header("Location: $SELF");
@@ -156,19 +179,25 @@ EOF;
 
         else if ($action=="update")
         {
-            if ($id=="") die("Missing information (3).");
+            if ($id=="") die("Missing information (5).");
             $conn = db_connect(DBDB, DBUSER, DBPASSWD)
             or die("Unable to connect to database.");
 
             $res = db_query($conn, sprintf("
-                UPDATE incident_status
-                set  label=%s
+                UPDATE networks
+                SET    network=%s,
+                       netmask=%s,
+                       label=%s,
+                       constituency=%s
                 WHERE id=%s",
+                    db_masq_null($network),
+                    db_masq_null($netmask),
                     db_masq_null($label),
-                    $id))
-            or die("Unable to excute query.");
+                    $constituency,
+                    $id
+                )
+            ) or die("Unable to excute query.");
 
-            db_close($conn);
             Header("Location: $SELF");
         }
 
@@ -183,7 +212,7 @@ EOF;
         or die("Unable to connect to database.");
 
         $res = db_query($conn, "
-            DELETE FROM incident_status
+            DELETE FROM networks
             WHERE  id='$id'")
         or die("Unable to execute query.");
 

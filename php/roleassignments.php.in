@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * constituency_contacts.php -- manage constituency contacts
+ * roleassignments.php -- manage roles
  * 
  * $Id$
  */
- require_once '/usr/local/etc/airt/airt.cfg';
+ require_once '@ETCPATH@/airt.cfg';
  require_once LIBDIR.'/airt.plib';
  require_once LIBDIR.'/database.plib';
  
- $SELF = "constituency_contacts.php";
+ $SELF = "roleassignments.php";
 
  if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
  else $action = "list";
@@ -34,23 +34,22 @@
  {
     //-----------------------------------------------------------------
     case "list":
-        pageHeader("Constituency contacts");
+        pageHeader("Role assignments");
         $conn = db_connect(DBDB, DBUSER, DBPASSWD)
         or die("Unable to connect to database.");
 
         $res = db_query($conn,
-            "SELECT   id, label, name
-             FROM     constituencies
+            "SELECT   label, id
+             FROM     roles
              ORDER BY label")
         or die("Unable to execute query.");
 
-        echo "Please select a constituency to edit assign contacts:<P>";
+        echo "Please select a role to edit the assigned users:<P>";
         while($row=db_fetch_next($res))
         {
             $id = $row["id"];
             $label = $row["label"];
-            $name = $row["name"];
-            echo "<a href=\"$SELF?action=edit&consid=$id\">$label - $name</a><P>";
+            echo "<a href=\"$SELF?action=edit&roleid=$id\">$label</a><P>";
         }
         db_free_result($res);
 
@@ -60,38 +59,36 @@
         
     //-----------------------------------------------------------------
     case "edit":
-        if (array_key_exists("consid", $_GET)) $consid=$_GET["consid"];
+        if (array_key_exists("roleid", $_GET)) $roleid=$_GET["roleid"];
         else die("Missing information.");
 
-        pageHeader("Edit constituency assignments");
+        pageHeader("Edit role assignments");
 
         $conn = db_connect(DBDB, DBUSER, DBPASSWD)
         or die("Unable to connect to database.");
 
         $res = db_query($conn, 
-            "SELECT label, name
-             FROM   constituencies
-             WHERE  id=$consid")
+            "SELECT label
+             FROM   roles
+             WHERE  id=$roleid")
         or die("Unable to execute query 1.");
 
         if (db_num_rows($res) == 0)
         {
-            die("Invalid constituency.");
+            die("Invalid role.");
         }
 
         $row = db_fetch_next($res);
-        $label = $row["label"];
-        $name  = $row["name"];
+        $rolelabel = $row["label"];
         db_free_result($res);
         
-        echo "<h3>Current contacts of constituency $label</H3>";
+        echo "<h3>Users currently assigned to role $rolelabel</h3>";
         
         $res = db_query($conn,
             "SELECT u.id, login, lastname, firstname, email, phone
-             FROM   constituency_contacts cc, users u
-             WHERE  cc.constituency=$consid
-             AND    cc.userid = u.id
-             ")
+             FROM   role_assignments ra, users u
+             WHERE  ra.role=$roleid
+             AND    ra.userid = u.id")
         or die("Unable to execute query(2).");
 
         if (db_num_rows($res) == 0)
@@ -115,23 +112,23 @@
                             <td><a href=\"mailto:%s\">%s</a></td>
                             <td>%s</td>
                             <td><a
-                            href=\"$SELF?action=remove&cons=%s&user=%s\">Remove</a></td>
+                            href=\"$SELF?action=remove&role=%s&user=%s\">Remove</a></td>
                         </tr>",
                         $login, $lastname, $firstname,
                         $email, $email,
-                        $phone, $consid, $id);
+                        $phone, $roleid, $id);
             }
             echo "</table>";
         }
 
         db_free_result($res);
         $res = db_query($conn,
-            "SELECT  id, login, lastname, firstname
-             FROM    users
-             WHERE   NOT id IN (
+            "SELECT  u.id, login, lastname, firstname
+             FROM    users u
+             WHERE   NOT u.id IN (
                 SELECT userid
-                FROM   constituency_contacts
-                WHERE  constituency=$consid
+                FROM   role_assignments
+                WHERE  role=$roleid
              )")
         or die("Unable to execute query(3).");
 
@@ -149,14 +146,14 @@ EOF;
             $login     = $row["login"];
             $lastname  = $row["lastname"];
             $firstname = $row["firstname"];
-            $id    = $row["id"];
+            $id        = $row["id"];
 
             printf("<option value=\"$id\">$login ($lastname, ".
             "$firstname)</option>\n");
         }
         echo <<<EOF
 </SELECT>
-<input type="hidden" name="consid" value="$consid">
+<input type="hidden" name="roleid" value="$roleid">
 <input type="hidden" name="action" value="assignuser">
 <input type="submit" value="Assign">
 </FORM>
@@ -167,18 +164,12 @@ EOF;
             echo "<P><I>No unassigned users.</I>";
         }
         db_close($conn);
-
-        echo <<<EOF
-<P><HR>
-<a href="$SELF">Select another constituency</a> &nbsp;|&nbsp;
-<a href="maintenance.php">Settings</a>
-EOF;
         pageFooter();
         break;
 
     //-----------------------------------------------------------------
     case "assignuser":
-        if (array_key_exists("consid", $_POST)) $consid=$_POST["consid"];
+        if (array_key_exists("roleid", $_POST)) $roleid=$_POST["roleid"];
         else die("Missing information (1).");
         if (array_key_exists("userid", $_POST)) $userid=$_POST["userid"];
         else die("Missing information (2).");
@@ -189,33 +180,33 @@ EOF;
         foreach ($userid as $key=>$value)
         {
             $res=db_query($conn,"
-                INSERT INTO constituency_contacts
-                (id, constituency, userid)
+                INSERT INTO role_assignments
+                (id, role, userid)
                 VALUES
-                (nextval('role_assignments_sequence'), $consid, $value)")
+                (nextval('role_assignments_sequence'), $roleid, $value)")
             or die("Unable to execute query");
         }
         db_close($conn);
-        Header("Location: $SELF?action=edit&consid=$consid");
+        Header("Location: $SELF");
         break;
 
     //-----------------------------------------------------------------
     case "remove":
-        if (array_key_exists("cons", $_GET)) $cons=$_GET["cons"];
+        if (array_key_exists("role", $_GET)) $roleid=$_GET["role"];
         else die("Missing information (1).");
-        if (array_key_exists("user", $_GET)) $id=$_GET["user"];
+        if (array_key_exists("user", $_GET)) $userid=$_GET["user"];
         else die("Missing information (2).");
 
         $conn = db_connect(DBDB, DBUSER, DBPASSWD)
         or die("Unable to connect to database.");
 
         $res = db_query($conn,
-            "DELETE FROM constituency_contacts
-             WHERE  userid=$id
-             AND    constituency=$cons")
+            "DELETE FROM role_assignments
+             WHERE  userid=$userid
+             AND    role=$roleid")
         or die("Unable to execute query");
         db_close($conn);
-        Header("Location: $SELF?action=edit&consid=$cons");
+        Header("Location: $SELF");
 
         break;
     

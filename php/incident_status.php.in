@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * incident_types.php -- manage incident_types
+ * incident_status.php -- manage incident_status
  * 
  * $Id$
  */
- require_once '/etc/airt/airt.cfg';
+ require_once '@ETCPATH@/airt.cfg';
  require_once LIBDIR.'/airt.plib';
  require_once LIBDIR.'/database.plib';
  
- $SELF = "incident_types.php";
+ $SELF = "incident_status.php";
 
  if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
  else $action = "list";
@@ -43,7 +43,7 @@
 
         $res = db_query($conn, "
         SELECT label
-        FROM   incident_types
+        FROM   incident_status
         WHERE  id = '$id'")
         or die("Unable to query database.");
 
@@ -76,13 +76,13 @@ EOF;
  {
     // --------------------------------------------------------------
     case "list":
-        pageHeader("Incident types");
+        pageHeader("Incident status");
         $conn = db_connect(DBDB, DBUSER, DBPASSWD)
         or die("Unable to connect to database.");
 
         $res = db_query($conn,
             "SELECT   id, label
-             FROM     incident_types
+             FROM     incident_status
              ORDER BY label")
         or die("Unable to execute query 1");
 
@@ -143,10 +143,10 @@ EOF;
             or die("Unable to connect to database.");
 
             $res = db_query($conn, sprintf("
-                INSERT INTO incident_types
+                INSERT INTO incident_status
                 (id, label)
                 VALUES
-                (nextval('incident_types_sequence'), %s)",
+                (nextval('incident_status_sequence'), %s)",
                     db_masq_null($label)))
             or die("Unable to excute query.");
 
@@ -161,7 +161,7 @@ EOF;
             or die("Unable to connect to database.");
 
             $res = db_query($conn, sprintf("
-                UPDATE incident_types
+                UPDATE incident_status
                 set  label=%s
                 WHERE id=%s",
                     db_masq_null($label),
@@ -183,7 +183,7 @@ EOF;
         or die("Unable to connect to database.");
 
         $res = db_query($conn, "
-            DELETE FROM incident_types
+            DELETE FROM incident_status
             WHERE  id='$id'")
         or die("Unable to execute query.");
 

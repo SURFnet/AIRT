@@ -25,11 +25,34 @@ AC_COPYRIGHT([
 Copyright (C) 2004 Tilburg University, The Netherlands
 ])
 
+AC_DEFINE_DIR(ETCPATH, sysconfdir/airt)
+
 AM_INIT_AUTOMAKE()
 
 AC_OUTPUT([Makefile
-           doc/Makefile
-           lib/Makefile
-           php/Makefile
-           php/pic/Makefile
-         ])
+	doc/Makefile
+	lib/Makefile
+	php/Makefile
+	php/pic/Makefile
+
+	php/constituencies.php
+	php/constituency_contacts.php
+	php/export.php
+	php/incident.php
+	php/incident_states.php
+	php/incident_status.php
+	php/incident_types.php
+	php/index.php
+	php/license.php
+	php/links.php
+	php/login.php
+	php/logout.php
+	php/maintenance.php
+	php/networks.php
+	php/roleassignments.php
+	php/roles.php
+	php/search.php
+	php/standard.php
+	php/users.php
+
+])

@@ -21,7 +21,7 @@
  * mainentance.php - Maintenance page for AIRT
  * $Id$
  */
-require_once '/etc/airt/airt.cfg';
+require_once '@ETCPATH@/airt.cfg';
 require_once LIBDIR."/airt.plib";
 
 pageHeader("AIRT Maintenance Center");
