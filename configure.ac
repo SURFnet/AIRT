@@ -32,6 +32,7 @@ AC_DEFINE_DIR(DOCPATH, datadir/doc/@PACKAGE@)
 AM_INIT_AUTOMAKE()
 
 AC_OUTPUT([Makefile
+	INSTALL
 	doc/Makefile
 	lib/Makefile
 	php/Makefile
