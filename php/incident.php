@@ -33,14 +33,6 @@ else $action="list";
 
 $SELF="incident.php";
 
-function footer()
-{
-    printf("<P><a href=\"%s?action=new\">Create new incident</a>", $SELF);
-    printf("&nbsp;|&nbsp");
-    printf("<a href=\"%s?action=list\">List incidents</a>", $SELF);
-}
-
-
 function showBasicIncidentData($type, $state, $status) {
 	echo <<<EOF
 <hr>
@@ -395,6 +387,7 @@ EOF;
 					$user = getUserByEmail($email);
 					addUserToIncident($user["id"], $incidentid);
 				} else {
+					pageHeader("Unable to add user to incident.");
 					echo <<<EOF
 <p>The e-mail address specified in the incident data entry form is unknown
 and you chose not to add it to the database.</p>
@@ -404,7 +397,8 @@ it.</p>
 
 <p><a href="$SELF">Continue...</a>
 EOF;
-				exit();
+					pageFooter();
+					exit;
 				}
 			} else addUserToIncident($user["id"], $incidentid);
 		}

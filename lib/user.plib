@@ -1,5 +1,5 @@
 <?php
-/*
+/* vim: syntax=php
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
  * Copyright (C) 2004	Tilburg University, The Netherlands
 
@@ -31,6 +31,8 @@ function _getUser($criteria, $value) {
 		WHERE  %s=%s", $criteria, $value))
 	or die("Unable to query database.");
 
+	if (db_num_rows($res) == 0) return false;
+
 	$out = array();
 	while ($row = db_fetch_next($res)) 
 		array_push($out, $row);
@@ -41,4 +43,44 @@ function _getUser($criteria, $value) {
 function getUserByUserID($userid) {
 	$temp = _getUser("id", $userid);
 	return $temp[0];
+}
+
+function getUserByLogin($login) {
+	$temp = _getUser("login", db_masq_null($login));
+	return $temp[0];
+}
+
+function getUserByOrganizationalID($id) {
+	$temp = _getUser("userid", db_masq_null($id));
+	return $temp[0];
+}
+
+function getUserByEmail($email) {
+	$temp = _getUser("email", db_masq_null($email));
+	return $temp[0];
+}
+
+
+function addUser($user) {
+	$conn = @db_connect(DBDB, DBUSER, DBPASSWD)
+	or die("Unable to connect to database in addUser");
+
+	$query = sprintf("
+		INSERT INTO users
+		(id, lastname, firstname, email, phone, login, userid,
+		password)
+		VALUES
+		(nextval('users_sequence'), %s, %s, %s, %s, %s, %s, %s)",
+		db_masq_null($user['lastname']),
+		db_masq_null($user['firstname']),
+		db_masq_null($user['email']),
+		db_masq_null($user['phone']),
+		db_masq_null($user['login']),
+		db_masq_null($user['userid']),
+		db_masq_null($user['password'])
+	);
+	$res = @db_query($conn, $query)
+	or die("Unable to query database in addUser.");
+
+	db_close($conn);
 }

@@ -313,7 +313,7 @@ EOF;
             db_close($conn);
             Header("Location: $SELF");
         }
-        
+
         break;
 
     // --------------------------------------------------------------
@@ -323,11 +323,23 @@ EOF;
 
         $conn = db_connect(DBDB, DBUSER, DBPASSWD)
         or die("Unable to connect to database.");
-       
+
         $res = db_query($conn,
             "DELETE FROM users
-             WHERE  id = $id")
-        or die("Unable to execute query 1");
+             WHERE  id = $id");
+        if (!$res) {
+			pageHeader("Error removing user.");
+			echo <<<EOF
+<p>Unable to remove this user from the database.</p>
+
+<p>The most likely cause for this failure is that the user is associated with
+one or more incidents.</p>
+
+<p><a href="$SELF">continue...</a></p>
+EOF;
+			pageFooter();
+			exit;
+		}
 
         db_close($conn);
         Header("Location: $SELF");

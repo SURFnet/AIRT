@@ -138,9 +138,12 @@ create table incident_users (
     id          integer,
     incidentid  integer,
     userid      integer,
+    added       timestamp,
+    addedby     integer,
     primary key (id),
     foreign key (incidentid) references incidents(id),
-    foreign key (userid) references users(id)
+    foreign key (userid) references users(id),
+	foreign key (addedby) references users(id)
 );
 
 CREATE TABLE role_assignments (

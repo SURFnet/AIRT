@@ -23,8 +23,10 @@
  */
 require_once LIBDIR.'/database.plib';
 
-function getIncidentStates()
-{
+/* return an associative array with incident states. The key of the array is
+ * the incident state ID, the value is the state's label
+ */
+function getIncidentStates() {
     $conn = db_connect(DBDB, DBUSER, DBPASSWD)
     or die("Unable to connect to database.");
 
@@ -42,8 +44,7 @@ function getIncidentStates()
 }
 
 
-function showIncidentStateSelection($name, $default="")
-{
+function showIncidentStateSelection($name, $default="") {
     printf("<select name=\"%s\">\n",
         htmlentities($name));
     $states = getIncidentStates();
@@ -58,8 +59,7 @@ function showIncidentStateSelection($name, $default="")
 }
 
 
-function getIncidentStatus()
-{
+function getIncidentStatus() {
     $conn = db_connect(DBDB, DBUSER, DBPASSWD)
     or die("Unable to connect to database.");
 
@@ -77,13 +77,11 @@ function getIncidentStatus()
 }
 
 
-function showIncidentStatusSelection($name, $default="")
-{
+function showIncidentStatusSelection($name, $default="") {
     printf("<select name=\"%s\">\n",
         htmlentities($name));
     $status = getIncidentStatus();
-    foreach ($status as $i=>$l)
-    {
+    foreach ($status as $i=>$l) {
         printf("<option value='%s' %s>%s</option>\n",
             htmlentities($i),
 			($i == $default) ? "SELECTED" : "",
@@ -93,8 +91,7 @@ function showIncidentStatusSelection($name, $default="")
 }
 
 
-function getIncidentTypes()
-{
+function getIncidentTypes() {
     $conn = db_connect(DBDB, DBUSER, DBPASSWD)
     or die("Unable to connect to database.");
 
@@ -112,13 +109,11 @@ function getIncidentTypes()
 }
 
 
-function showIncidentTypeSelection($name, $default="")
-{
+function showIncidentTypeSelection($name, $default="") {
     printf("<select name=\"%s\">\n",
         htmlentities($name));
     $states = getIncidentTypes();
-    foreach ($states as $i=>$l)
-    {
+    foreach ($states as $i=>$l) {
         printf("<option value='%s' %s>%s</option>\n",
             htmlentities($i),
 			($i == $default) ? "SELECTED" : "",
@@ -127,8 +122,7 @@ function showIncidentTypeSelection($name, $default="")
     printf("</select>");
 }
 
-function getOpenIncidents()
-{
+function getOpenIncidents() {
     $conn = db_connect(DBDB, DBUSER, DBPASSWD)
     or die("Unable to connect to database.");
 
@@ -218,8 +212,7 @@ function getIncident($id) {
 	return $data;
 }
 
-function showOpenIncidentSelection($name)
-{
+function showOpenIncidentSelection($name) {
     $incidents = getOpenIncidents();
     $count = count($incidents);
     if ($count == 0) return 0;
@@ -254,9 +247,19 @@ function addIPtoIncident($ip, $incident) {
 		))
 	or die("Unable to execute query.");
 	db_close($conn);
+
+	generateEvent("incidentaddip", array(
+		"incidentid" => $incident,
+		"ip" => $ip
+	));
 }
 
 function removeIPfromIncident($ip, $incident) {
+	generateEvent("incidentdelip", array(
+		"incidentid" => $incident,
+		"ip" => $ip
+	));
+
 	$conn = db_connect(DBDB, DBUSER, DBPASSWD)
 	or die("unable to connect to database.");
 
@@ -333,4 +336,47 @@ function getIncidentTypeLabelByID($id) {
 
 	return $out;
 }	
+
+function addUsertoIncident($userid, $incident) {
+	$conn = db_connect(DBDB, DBUSER, DBPASSWD)
+	or die("unable to connect to database.");
+
+	$res = db_query($conn, sprintf("
+		INSERT INTO incident_users
+		(id, incidentid, userid, added, addedby)
+		VALUES
+		(nextval('incident_users_sequence'), %s, %s, CURRENT_TIMESTAMP, %s)",
+			db_masq_null($incident),
+			db_masq_null($userid),
+			db_masq_null($_SESSION["userid"])
+		))
+	or die("Unable to execute query.");
+	db_close($conn);
+
+	generateEvent("incidentadduser", array(
+		"incidentid" => $incident,
+		"userid" => $userid
+	));
+}
+
+/* Remove a user from an incdient id. Does not return any value */
+function removeUserfromIncident($userid, $incident) {
+	generateEvent("incidentdeluser", array(
+		"incidentid" => $incident,
+		"userid" => $userid
+	));
+
+	$conn = db_connect(DBDB, DBUSER, DBPASSWD)
+	or die("unable to connect to database.");
+
+	$res = db_query($conn, sprintf("
+		DELETE FROM incident_users
+		WHERE userid=%s
+		AND   incidentid=%s",
+			db_masq_null($userid),
+			db_masq_null($incident)
+		))
+	or die("Unable to execute query.");
+	db_close($conn);
+}
 ?>

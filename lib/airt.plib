@@ -31,13 +31,13 @@ if (!isset($public) || !$public)
         Header("Location: login.php");
         exit;
     }
-    
+
     if (!array_key_exists("userid", $_SESSION)) 
     {
         Header("Location: login.php");
         exit;
     }
-    
+
     if (!array_key_exists("ip", $_SESSION)) 
     {
         Header("Location: login.php");
@@ -177,27 +177,23 @@ function email($msg)
 
 /**
  */
-function encode_incidentid($id)
-{
+function encode_incidentid($id) {
     return sprintf("%s%06d", INCIDENTID_PREFIX, $id);
 }
 
-function decode_incidentid($id)
-{
+function decode_incidentid($id) {
     $x = ereg_replace(INCIDENTID_PREFIX, "", $id);
     $x = ereg_replace("^0*", "", $x);
     return $x;
 }
 
-function normalize_incidentid($id)
-{
+function normalize_incidentid($id) {
     $id = decode_incidentid($id);
     return encode_incidentid($id);
 }
 
 
-function choice($label, $value, $default)
-{
+function choice($label, $value, $default) {
     if ($value == $default)
         return sprintf("<OPTION value='%s' SELECTED>%s</OPTION>\n",
             $value, $label);
@@ -206,7 +202,7 @@ function choice($label, $value, $default)
             $value, $label);
 }
 
-// TODO: fix, test and extend
+
 function registerEventHandler($event, $function) {
 	global $glEventHandlers;
 
@@ -221,7 +217,8 @@ function registerEventHandler($event, $function) {
 function generateEvent($event, $data="") {
 	global $glEventHandlers;
 
-	if (array_key_exists($event, $glEventHandlers)) {
+	if (isset($glEventHandlers) &&
+		 array_key_exists($event, $glEventHandlers)) {
 		foreach ($glEventHandlers[$event] as $fun) 
 			call_user_func($fun, $data);
 	}
