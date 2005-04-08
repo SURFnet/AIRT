@@ -155,21 +155,16 @@ function list_standard_messages() {
 /**
  * Show a message, without processing it.
  */
-function show_message($name)
-{
-    if (($message = read_standard_message($name)) == false)
-    {
+function show_message($name) {
+    if (($message = read_standard_message($name)) == false) {
         printf("Unable to read message.");
         return false;
     }
-
     printf("%s", replace_vars($message));
-    
 } // show_message
 
 
-function save_standard_message($filename, $msg)
-{
+function save_standard_message($filename, $msg) {
     if ($filename == "" || $msg == "" || !valid_write($filename)) return false;
 
     $filename = STATEDIR."/templates/$filename";
@@ -476,7 +471,7 @@ EOF;
 		);
 		
 		/* get a new mime class instance and set it up */
-		$mime = new Mail_mime("\n");
+		$mime = new Mail_mime("\r\n");
 		$mime->setTxtBody($msg);
 		if ($attach == "on") {
 			$attachment = exportIncident(array($_SESSION["incidentid"]));

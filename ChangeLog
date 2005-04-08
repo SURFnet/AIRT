@@ -1,7 +1,8 @@
 2005-xxx-xx  Kees Leune  <kees@uvt.nl>
 * php/index.php: new event mainmenutop and mainmenubottom
 * php/search.php: Fixed bug 1172478 (dangling link in incident details)
-* php/standard: Fixed bug 1174006 (dont mail with no recipient)
+* php/standard: Fixed bug 1174006 (dont mail with no recipient),
+    Changed MIME delimiter to \r\n, since TEXTAREA's are DOS formatted
 
 2005-feb-28  Kees Leune  <kees@uvt.nl>
 * php/incident.php: Fixed incorrect check for uninitialsed variable in
