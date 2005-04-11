@@ -91,7 +91,7 @@ function showIncidentForm() {
     <td>
 eof;
         showconstituencyselection("constituency", $constituency);
-		$email = $_session['current_email'];
+		$email = $_SESSION['current_email'];
         echo <<<eof
     </td>
 </tr>
@@ -313,7 +313,10 @@ EOF;
         else $status="";
 		if (array_key_exists("sendmail", $_POST)) $sendmail=$_POST["sendmail"];
 		else $sendmail="off";
-		if (array_key_exists("email", $_POST)) $email=strtolower($_POST["email"]);
+		if (array_key_exists("email", $_POST)) {
+			$email=strtolower($_POST["email"]);
+			$_SESSION['current_email'] = $email;
+		}
 		else $email="";
 		if (array_key_exists("addifmissing", $_POST))
 			$addif=$_POST["addifmissing"];

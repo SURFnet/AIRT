@@ -296,11 +296,17 @@ function replace_vars($msg) {
 	$out = ereg_replace("@HOSTNAME@", 
 		@gethostbyaddr($_SESSION["active_ip"]), $out);
 
-	$out = ereg_replace("@USERNAME@", $_SESSION["current_name"], $out);
+	if (array_key_exists('current_name', $_SESSION)) {
+		$out = ereg_replace("@USERNAME@", $_SESSION["current_name"], $out);
+	}
 
-	$out = ereg_replace("@USEREMAIL@", $_SESSION["current_email"], $out);
+	if (array_key_exists('current_email', $_SESSION)) {
+		$out = ereg_replace("@USEREMAIL@", $_SESSION["current_email"], $out);
+	}
 	
-	$out = ereg_replace("@USERINFO@", $_SESSION["current_info"], $out);
+	if (array_key_exists('current_info', $_SESSION)) {
+		$out = ereg_replace("@USERINFO@", $_SESSION["current_info"], $out);
+	}
 
 	$u = getUserByUserId($_SESSION["userid"]);
 	$name = sprintf("%s %s", $u["firstname"], $u["lastname"]);
