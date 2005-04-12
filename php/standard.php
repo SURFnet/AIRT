@@ -258,11 +258,11 @@ function print_variables_info() {
 </tr>
 <tr>
     <td>@USERNAME@</td>
-    <td>Will be replaced with the subject of the current incident</td>
+    <td>Will be replaced with the name of the current user</td>
 </tr>
 <tr>
 	<td>@USEREMAIL@</td>
-	<td>Will be replaced with the email address of the user.</td>
+	<td>Will be replaced with the email address of the current user</td>
 </tr>
 <tr>
 	<td>@USERINFO@</td>

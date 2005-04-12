@@ -1,3 +1,6 @@
+2005-xx-yy   Kees Leune  <kees@uvt.nl>
+* php/standard.php: Fixed bug 1179244 (Textual inconsistency in interface)
+
 2005-apr-11  Kees Leune  <kees@uvt.nl>
 * php/index.php: new event mainmenutop and mainmenubottom
 * php/search.php: Fixed bug 1172478 (dangling link in incident details)
