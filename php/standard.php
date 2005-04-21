@@ -30,17 +30,14 @@ require_once LIBDIR."/export.plib";
 require_once 'Mail.php';
 require_once 'Mail/mime.php';
 
-if (array_key_exists("action", $_REQUEST)) {
-	$action=$_REQUEST["action"];
-} else {
-	$action = "list";
-}
-
-$FILES = array();
+define('GPG_BIN', '/usr/bin/gpg');
+define('GPG_HOMEDIR', '/usr/local/share/airt/key');
+define('GPG_OPTIONS', '--detach-sign --armor --batch');
+define('GPG_KEYID', '8830B66F');
 
 function loadAllowedFiles() {
 	$f = array();
-	$dh = @opendir(STATEDIR."/templates")
+	$dh = @opendir(STATEDIR.'/templates')
 	or die ("Unable to open directory with standard messages.");
 
 	while ($file = readdir($dh)) {
@@ -254,11 +251,24 @@ function prepare_message($filename) {
 </TABLE>
 <TEXTAREA name="msg" cols="80" rows="30">$msg</TEXTAREA>
 <P>
-<INPUT TYPE="hidden" name="action" value="send">
-<INPUT TYPE="reset"  value="Reset">
-<INPUT TYPE="submit" value="Send">
-<INPUT TYPE="checkbox" name="sendxml"> Check to attach incident data in AIRT
-format.
+<table>
+<tr valign="top">
+  <td><input type="hidden" name="action" value="send">
+<input type="reset"  value="Reset">
+<input type="submit" value="Send">
+
+<td><input type="checkbox" name="sendxml">
+    Attach incident data</br>
+EOF;
+			if (defined('GPG_KEYID')) {
+				echo <<<EOF
+		<input type="checkbox" name="sign">
+    Sign</td>
+EOF;
+			}
+			echo <<<EOF
+</tr>
+</table>
 </FORM>
 EOF;
 	pageFooter();
@@ -341,6 +351,11 @@ function replace_vars($msg) {
  * BODY
  *************************************************************************/
 $FILES = loadAllowedFiles();
+if (array_key_exists('action', $_REQUEST)) {
+	$action=$_REQUEST['action'];
+} else {
+	$action = "list";
+}
 
 switch ($action) {
 	// -------------------------------------------------------------------
@@ -502,7 +517,12 @@ EOF;
 		if (array_key_exists("sendxml", $_POST)) {
 			$attach=$_POST["sendxml"];
 		} else {
-			$attach="off";
+			$attach='off';
+		}
+		if (array_key_exists('sign', $_POST)) {
+			$sign = $_POST['sign'];
+		} else {
+			$sign = 'off';
 		}
 
 		/* prevent sending bogus stuff */
@@ -516,33 +536,67 @@ EOF;
 		/* clean off html and stuff (only unformatted mail) */
 		$msg = strip_tags($msg);
 		$msg = stripslashes($msg);
-
-		/* create the headers for the message */
-		$hdrs = array(
-			'From'     => $from,
-			'Subject'  => $subject,
-			'Reply-To' => $replyto,
-			'To'       => $to
-		);
 		
-		/* get a new mime class instance and set it up */
-		$mime = new Mail_mime("\r\n");
-		$mime->setTxtBody($msg);
+		/* assemble the msg */
+		$params = array();
+		$params['content_type'] = 'multipart/signed; micalg=pgp-sha1;protocol="application/pgp-signature"';
+		$params['disposition'] = 'inline';
+		$email = new Mail_mimePart('', $params);
+
+		/* message content */
+		$params = array();
+		$params['content_type'] = 'text/plain';
+		$params['disposition'] = 'inline';
+		$params['encoding'] = 'quoted-printable';
+		$email->addSubPart($msg, $params);
+
+		if ($sign == 'on') {
+			/* write msg to temp file */
+			$fname = tempnam('/tmp', 'airt_');
+			$f = fopen($fname, 'w');
+			fwrite($f, $msg, strlen($msg));
+			fclose($f);
+
+			/* invoke gpg */
+			$cmd = sprintf("%s %s --homedir %s --default-key %s %s",
+				GPG_BIN, GPG_OPTIONS, GPG_HOMEDIR, GPG_KEYID, $fname);
+			exec($cmd);
+			if (($sig = file_get_contents("$fname.asc")) == false) {
+				die('Unable to read signed message.');
+			}
+			/* clean up */
+			unlink($fname);
+			unlink("$fname.asc");
+
+			/* message signature */
+			$params = array();
+			$params['content_type'] = 'application/pgp-signature';
+			$params['disposition'] = 'inline';
+			$params['description'] = 'Digital signature';
+			$params['dfilename'] = 'signature.asc';
+			$email->addSubPart($sig, $params);
+		}
 		if ($attach == "on") {
 			$attachment = exportIncident(array($_SESSION["incidentid"]));
 			$mime->addAttachment($attachment, 'application/xml',
 				normalize_incidentid($_SESSION["incidentid"]).'.xml',
-				false);
+				FALSE);
 		}
-		$body = $mime->get();
-		$hdrs = $mime->headers($hdrs);
+		$m = $email->encode();
+
+		/* create the headers for the message */
+		$hdrs = array_merge($m['headers'], array(
+			'From'     => $from,
+			'Subject'  => $subject,
+			'Reply-To' => $replyto,
+			'To'       => $to
+		));
 
 		/* set up mail recipient */
 		if (defined('MAILCC')) {
 			$mailto = array($to, MAILCC);
 			$hdrs["Cc"] = MAILCC;
-		}
-		else {
+		} else {
 			$mailto = array($to);
 		}
 
@@ -554,7 +608,8 @@ EOF;
 			'sendmail_params' => $envfrom
 		);
 		$mail = &Mail::factory('sendmail', $params);
-		if (! $mail->send($mailto, $hdrs, $body)) {
+
+		if (! $mail->send($mailto, $hdrs, $m['body'])) {
 			die("Error sending message!");
 		}
 

@@ -1,7 +1,7 @@
-Indent using tabs; use your favorite editor's setting to represent how deep a
+- Indent using tabs; use your favorite editor's setting to represent how deep a
 tab is going to be.
 
-All functions must be preceded by a comment block which describes the purpose
+- All functions must be preceded by a comment block which describes the purpose
 of that function. Following the following structure:
 
 	/**
@@ -17,7 +17,7 @@ of that function. Following the following structure:
 		return array('return value'=>$value);
 	}
 
-Always uses braces to delimit a block, even if there is only one line or
+- Always uses braces to delimit a block, even if there is only one line or
 command. For example:
 
 	if ($a == $b) {
@@ -30,5 +30,7 @@ command. For example:
 		/* do something */
 	}
 
-Use single quotes ' to delimit strings wherever possible.
+- Use single quotes ' to delimit strings wherever possible.
+
+- Always initialise varables before using them.
 
