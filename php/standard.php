@@ -28,7 +28,7 @@ require_once LIBDIR."/history.plib";
 require_once LIBDIR."/incident.plib";
 require_once LIBDIR."/export.plib";
 require_once 'Mail.php';
-require_once 'Mail/mime.php';
+require_once 'Mail/mimePart.php';
 
 define('GPG_BIN', '/usr/bin/gpg');
 define('GPG_HOMEDIR', '/usr/local/share/airt/key');
@@ -227,7 +227,11 @@ function prepare_message($filename) {
 	$msg = implode("\n", $m);
 
 	// to
-	$to = $_SESSION["current_email"];
+	if (array_key_exists('current_email', $_SESSION)) {
+		$to = $_SESSION["current_email"];
+	} else {
+		$to = '';
+	}
 
 	echo <<<EOF
 <FORM action="$_SERVER[PHP_SELF]" method="POST">
@@ -341,8 +345,10 @@ function replace_vars($msg) {
 	$name = sprintf("%s %s", $u["firstname"], $u["lastname"]);
 	$out = ereg_replace("@YOURNAME@", $name, $out);
 	$out = ereg_replace("@YOURFIRSTNAME@", $u["firstname"], $out);
-	$out = ereg_replace("@INCIDENTID@",
-		normalize_incidentid($_SESSION["incidentid"]), $out);
+	if (array_key_exists('incidentid', $_SESSION)) {
+		$out = ereg_replace("@INCIDENTID@",
+			normalize_incidentid($_SESSION["incidentid"]), $out);
+	}
 
   return $out ;
 } // replace_vars
@@ -536,19 +542,50 @@ EOF;
 		/* clean off html and stuff (only unformatted mail) */
 		$msg = strip_tags($msg);
 		$msg = stripslashes($msg);
-		
-		/* assemble the msg */
-		$params = array();
-		$params['content_type'] = 'multipart/signed; micalg=pgp-sha1;protocol="application/pgp-signature"';
-		$params['disposition'] = 'inline';
-		$email = new Mail_mimePart('', $params);
 
-		/* message content */
-		$params = array();
-		$params['content_type'] = 'text/plain';
-		$params['disposition'] = 'inline';
-		$params['encoding'] = 'quoted-printable';
-		$email->addSubPart($msg, $params);
+		/* prepare the intial state of the message */
+		$hdrs = array(
+			'From'     => $from,
+			'Subject'  => $subject,
+			'Reply-To' => $replyto,
+			'To'       => $to
+		);
+
+		/* set up mail recipient */
+		if (defined('MAILCC')) {
+			$mailto = array($to, MAILCC);
+			$hdrs["Cc"] = MAILCC;
+		} else {
+			$mailto = array($to);
+		}
+
+		/* set up envelope sender */
+		$envfrom="-f".MAILENVFROM;
+		
+		/* will send via Mail class */
+		$mail_params = array(
+			'sendmail_params' => $envfrom
+		);
+		
+		$msg_params = array();
+		$msg_params['content_type'] = 'multipart/mixed';
+		$msg_params['disposition'] = 'inline';
+
+		$body_params = array();
+		$body_params['content_type'] = 'text/plain';
+		$body_params['disposition'] = 'inline';
+		$body_params['charset'] = 'us-ascii';
+		
+    $attachcount=0;
+		if ($attach == 'on') {
+			$attachment = exportIncident(array($_SESSION["incidentid"]));
+			$xml_params = array();
+			$xml_params['content_type'] = 'application/xml';
+			$xml_params['disposition'] = 'attachment';
+			$xml_params['description'] = 'AIRT incident data';
+			$xml_params['dfilename'] = 'airtdata.xml';
+			$attachcount++;
+		}
 
 		if ($sign == 'on') {
 			/* write msg to temp file */
@@ -569,46 +606,35 @@ EOF;
 			unlink("$fname.asc");
 
 			/* message signature */
-			$params = array();
-			$params['content_type'] = 'application/pgp-signature';
-			$params['disposition'] = 'inline';
-			$params['description'] = 'Digital signature';
-			$params['dfilename'] = 'signature.asc';
-			$email->addSubPart($sig, $params);
+			$msg_params['content_type'] = 'multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";';
+			$sig_params = array();
+			$sig_params['content_type'] = 'application/pgp-signature';
+			$sig_params['disposition'] = 'inline';
+			$sig_params['description'] = 'Digital signature';
+			$sig_params['dfilename'] = 'signature.asc';
+			$attachcount++;
 		}
-		if ($attach == "on") {
-			$attachment = exportIncident(array($_SESSION["incidentid"]));
-			$mime->addAttachment($attachment, 'application/xml',
-				normalize_incidentid($_SESSION["incidentid"]).'.xml',
-				FALSE);
-		}
-		$m = $email->encode();
 
-		/* create the headers for the message */
-		$hdrs = array_merge($m['headers'], array(
-			'From'     => $from,
-			'Subject'  => $subject,
-			'Reply-To' => $replyto,
-			'To'       => $to
-		));
-
-		/* set up mail recipient */
-		if (defined('MAILCC')) {
-			$mailto = array($to, MAILCC);
-			$hdrs["Cc"] = MAILCC;
+		if ($attachcount == 0) {
+			$msg_params = array();
+			$msg_params['content_type'] = 'text/plain';
+			unset($msg_params['disposition']);
+			$mime = new Mail_mimePart($msg, $msg_params);
 		} else {
-			$mailto = array($to);
-		}
-
-		/* set up envelope sender */
-		$envfrom="-f".MAILENVFROM;
+			$mime = new Mail_mimePart('', $msg_params);
+			$mime->addsubpart($msg, $body_params);
 		
-		/* send via Mail class */
-		$params = array(
-			'sendmail_params' => $envfrom
-		);
-		$mail = &Mail::factory('sendmail', $params);
-
+			if ($attach == 'on') {
+				$mime->addsubpart($attachment, $xml_params);
+			}
+			if ($sign == 'on') {
+				$mime->addsubpart($sig, $sig_params);
+			}
+		}
+		$m = $mime->encode();
+		
+		$mail = &Mail::factory('sendmail', $mail_params);
+		$hdrs = array_merge($hdrs, $m['headers']);
 		if (! $mail->send($mailto, $hdrs, $m['body'])) {
 			die("Error sending message!");
 		}
