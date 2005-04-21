@@ -30,20 +30,24 @@ require_once LIBDIR."/export.plib";
 require_once 'Mail.php';
 require_once 'Mail/mime.php';
 
-if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
-else $action = "list";
+if (array_key_exists("action", $_REQUEST)) {
+	$action=$_REQUEST["action"];
+} else {
+	$action = "list";
+}
 
 $FILES = array();
 
 function loadAllowedFiles() {
 	$f = array();
-    $dh = @opendir(STATEDIR."/templates")
-    or die ("Unable to open directory with standard messages.");
+	$dh = @opendir(STATEDIR."/templates")
+	or die ("Unable to open directory with standard messages.");
 
-    while ($file = readdir($dh))
-    {
-        // skip dot files
-        if (ereg("^[.]", $file)) continue;
+	while ($file = readdir($dh)) {
+		// skip dot files
+		if (ereg("^[.]", $file)) {
+			continue;
+		}
 		array_push($f, $file);
 	}
 	closedir($dh);
@@ -62,8 +66,12 @@ function loadAllowedFiles() {
 function valid_read($name) {
 	global $FILES;
 
-	if (!isset($FILES)) return false;
-	if (!in_array($name, $FILES)) return false;
+	if (!isset($FILES)) {
+		return false;
+	}
+	if (!in_array($name, $FILES)) {
+		return false;
+	}
 
 	return true;
 }
@@ -74,29 +82,34 @@ function valid_read($name) {
  * real OSses)
  */
 function valid_write($name) {
-	if (ereg('^[a-zA-Z0-9_-]+$', $name)) return true;
-	else return false;
+	if (ereg('^[a-zA-Z0-9_-]+$', $name)) {
+		return true;
+	} else {
+		return false;
+	}
 }
 
 
-/** 
+/**
  * Read a standard message from the filesystem
  * $str = the name of the file to be read
  * Returns the file as one large buffer on success, or false on failure.
  */
-function read_standard_message($str)
-{
-	if (!valid_read($str)) return false;
+function read_standard_message($str) {
+	if (!valid_read($str)) {
+		return false;
+	}
 
-    $filename = STATEDIR."/templates/$str";
-    if (($f = fopen($filename, "r")) == false) return false;
-    
+	$filename = STATEDIR."/templates/$str";
+	if (($f = fopen($filename, "r")) == false) {
+		return false;
+	}
 
 	set_magic_quotes_runtime(0);
-    $msg = fread($f, filesize($filename));
-    fclose($f);
+	$msg = fread($f, filesize($filename));
+	fclose($f);
 
-    return $msg;
+	return $msg;
 } // read_standard_message
 
 
@@ -107,7 +120,9 @@ function read_standard_message($str)
  */
 function get_subject($msg) {
     $match = ereg("@SUBJECT@(.*)@ENDSUBJECT@", $msg, $regs);
-    if (!$match) return false;
+    if (!$match) {
+			return false;
+		}
 
     return $regs[1];
 } // get_subject
@@ -123,27 +138,27 @@ function list_standard_messages() {
 
     echo "<table>";
     $count=0;
-    while ($file = readdir($dh))
-    {
-		if (!valid_read($file)) continue;
-
-        $msg = read_standard_message($file);
-        $subject = get_subject($msg);
-        printf("<tr bgcolor=%s>
-            <td><a href=\"%s?action=prepare&filename=%s\">prepare</a></td>
-            <td>%s</td>
-			<td>%s</td>
-            <td><a href=\"%s?action=edit&filename=%s\">edit</a></td>
-            <td><a onclick=\"return confirm('Are you sure that you want ".
+    while ($file = readdir($dh)) {
+			if (!valid_read($file)) {
+				continue;
+			}
+			$msg = read_standard_message($file);
+			$subject = get_subject($msg);
+			printf("<tr bgcolor=%s>
+				<td><a href=\"%s?action=prepare&filename=%s\">prepare</a></td>
+				<td>%s</td>
+				<td>%s</td>
+				<td><a href=\"%s?action=edit&filename=%s\">edit</a></td>
+				<td><a onclick=\"return confirm('Are you sure that you want ".
             "to delete this message?')\"
             href=\"%s?action=delete&filename=%s\">delete</a></td>
-            </tr>",
-            $count++%2==0?"#DDDDDD":"#FFFFFF",
-            $_SERVER['PHP_SELF'], urlencode($file),
-            $file, $subject,
-            $_SERVER['PHP_SELF'], urlencode($file),
-            $_SERVER['PHP_SELF'], urlencode($file)
-            );
+			</tr>",
+					$count++%2==0?"#DDDDDD":"#FFFFFF",
+					$_SERVER['PHP_SELF'], urlencode($file),
+					$file, $subject,
+					$_SERVER['PHP_SELF'], urlencode($file),
+					$_SERVER['PHP_SELF'], urlencode($file)
+				);
     }
     echo "</table>";
 
@@ -165,16 +180,20 @@ function show_message($name) {
 
 
 function save_standard_message($filename, $msg) {
-    if ($filename == "" || $msg == "" || !valid_write($filename)) return false;
+	if ($filename == "" || $msg == "" || !valid_write($filename)) {
+		return false;
+	}
 
-    $filename = STATEDIR."/templates/$filename";
-    if (($f = fopen($filename, "w")) == false) return false;
+	$filename = STATEDIR."/templates/$filename";
+	if (($f = fopen($filename, "w")) == false) {
+		return false;
+	}
 
 	set_magic_quotes_runtime(0);
-    fwrite($f, $msg);
-    fclose($f);
+	fwrite($f, $msg);
+	fclose($f);
 
-    return true;
+	return true;
 } // save_standard_message
 
 
@@ -187,11 +206,17 @@ function prepare_message($filename) {
 
 	// get vars
 	$cert = getUserByUserId($_SESSION["userid"]);
-	if (MAILFROM == '') $from = $cert["email"];
-	else $from = replace_vars(MAILFROM);
+	if (MAILFROM == '') {
+		$from = $cert["email"];
+	} else {
+		$from = replace_vars(MAILFROM);
+	}
 
-	if (REPLYTO == '') $replyto = $cert["email"];
-	else $replyto = replace_vars(REPLYTO);
+	if (REPLYTO == '') {
+		$replyto = $cert["email"];
+	} else {
+		$replyto = replace_vars(REPLYTO);
+	}
 
 	// load message and replace all standard variables
 	$msg = replace_vars(read_standard_message($filename));
@@ -206,7 +231,6 @@ function prepare_message($filename) {
 
 	// to
 	$to = $_SESSION["current_email"];
-
 
 	echo <<<EOF
 <FORM action="$_SERVER[PHP_SELF]" method="POST">
@@ -275,7 +299,7 @@ function print_variables_info() {
     handler</td>
 </tr>
 <tr>
-    <td>@YOURNFIRSTAME@</td>
+    <td>@YOURFIRSTAME@</td>
     <td>Will be replaced with the first name of the logged in incident
     handler</td>
 </tr>
@@ -287,36 +311,30 @@ function print_variables_info() {
 EOF;
 }
 
-
 function replace_vars($msg) {
-    $out = $msg;
-
-	$out = ereg_replace("@IPADDRESS@", $_SESSION["active_ip"], $out);
-
-	$out = ereg_replace("@HOSTNAME@", 
-		@gethostbyaddr($_SESSION["active_ip"]), $out);
-
+  $out = $msg;
+	if (array_key_exists('active_ip', $_SESSION)) {
+		$out = ereg_replace("@IPADDRESS@", $_SESSION["active_ip"], $out);
+		$out = ereg_replace("@HOSTNAME@",
+			@gethostbyaddr($_SESSION["active_ip"]), $out);
+	}
 	if (array_key_exists('current_name', $_SESSION)) {
 		$out = ereg_replace("@USERNAME@", $_SESSION["current_name"], $out);
 	}
-
 	if (array_key_exists('current_email', $_SESSION)) {
 		$out = ereg_replace("@USEREMAIL@", $_SESSION["current_email"], $out);
 	}
-	
 	if (array_key_exists('current_info', $_SESSION)) {
 		$out = ereg_replace("@USERINFO@", $_SESSION["current_info"], $out);
 	}
-
 	$u = getUserByUserId($_SESSION["userid"]);
 	$name = sprintf("%s %s", $u["firstname"], $u["lastname"]);
 	$out = ereg_replace("@YOURNAME@", $name, $out);
 	$out = ereg_replace("@YOURFIRSTNAME@", $u["firstname"], $out);
-
 	$out = ereg_replace("@INCIDENTID@",
 		normalize_incidentid($_SESSION["incidentid"]), $out);
 
-    return $out ;
+  return $out ;
 } // replace_vars
 
 /*************************************************************************
@@ -325,45 +343,45 @@ function replace_vars($msg) {
 $FILES = loadAllowedFiles();
 
 switch ($action) {
-    // -------------------------------------------------------------------
-    case "list":
-        pageHeader("Available standard messages");
+	// -------------------------------------------------------------------
+	case "list":
+  	pageHeader("Available standard messages");
 
-        echo "<h2>Messages</H2>";
-        if (list_standard_messages() == 0)
-            printf("<I>No standard messages available.</I>");
-        echo <<<EOF
+		echo "<h2>Messages</H2>";
+		if (list_standard_messages() == 0) {
+			printf("<I>No standard messages available.</I>");
+		}
+		echo <<<EOF
 <P>
 <a href="$_SERVER[PHP_SELF]?action=new">Create a new message</a>
 EOF;
 
-        pageFooter();
-        break;
+		pageFooter();
+		break;
 
-    // -------------------------------------------------------------------
-    case "edit":
+	// -------------------------------------------------------------------
+	case "edit":
 		$msg = '';
-        if (array_key_exists("filename", $_REQUEST))
-            $filename=$_REQUEST["filename"];
-        else die("Missing parameter.");
+		if (array_key_exists("filename", $_REQUEST)) {
+			$filename=$_REQUEST["filename"];
+		} else {
+			die("Missing parameter.");
+		}
 
+		pageHeader("Edit standard message");
 
-        pageHeader("Edit standard message");
-
-        if (($msg = read_standard_message($filename)) == false) {
-            printf("Message not available.");
-        }
-        else {
-            echo <<<EOF
+		if (($msg = read_standard_message($filename)) == false) {
+			printf("Message not available.");
+		} else {
+			echo <<<EOF
 Update the message and press the 'Save!' button to save the message. The first
 line of the message will be used as the subject. You may use the following
 special variables in the template:
 
 <P>
 EOF;
-    print_variables_info();
-    echo <<<EOF
-
+		print_variables_info();
+		echo <<<EOF
 <P>
 
 <form action="$_SERVER[PHP_SELF]" method="POST">
@@ -375,41 +393,45 @@ EOF;
 <input type="reset" value="Cancel!">
 </form>
 EOF;
-        }
+		}
+		pageFooter();
 
-        pageFooter();
+		break;
 
-        break;
-
-    // -------------------------------------------------------------------
-    case "save":
-        if (array_key_exists("filename", $_REQUEST))
-            $filename=$_REQUEST["filename"];
-        else die("Missing parameter.");
-
-        if (array_key_exists("message", $_REQUEST))
-            $message=$_REQUEST["message"];
-        else die("Missing parameter.");
+	// -------------------------------------------------------------------
+	case "save":
+		if (array_key_exists("filename", $_REQUEST)) {
+			$filename=$_REQUEST["filename"];
+		} else {
+			die("Missing parameter.");
+		}
+		if (array_key_exists("message", $_REQUEST)) {
+				$message=$_REQUEST["message"];
+		} else {
+			die("Missing parameter.");
+		}
 
 		$message = strip_tags($message);
 		$message = stripslashes($message);
-		
-		if (!valid_write($filename)) die ("Invalid filename.");
 
-        save_standard_message($filename, $message);
-        Header("Location: $_SERVER[PHP_SELF]");
-        break;
+		if (!valid_write($filename)) {
+			die ("Invalid filename.");
+		}
 
-    // -------------------------------------------------------------------
-    case "new":
-        pageHeader("New standard message");
-        echo <<<EOF
+		save_standard_message($filename, $message);
+		Header("Location: $_SERVER[PHP_SELF]");
+		break;
+
+	// -------------------------------------------------------------------
+	case "new":
+		pageHeader("New standard message");
+		echo <<<EOF
 Enter your new message in the text field below. Use the following variables
 in your text body:
 <P>
 EOF;
-        print_variables_info();
-        echo <<<EOF
+		print_variables_info();
+		echo <<<EOF
 <P>
 <form action="$_SERVER[PHP_SELF]" method="POST">
 File name: <input type="text" size="40" name="filename">
@@ -422,47 +444,74 @@ Message:<BR>
 <input type="reset" value="Cancel!">
 </form>
 EOF;
-        break;
+		break;
 
-    // -------------------------------------------------------------------
-    case "delete":
-        if (array_key_exists("filename", $_REQUEST))
-            $filename=$_REQUEST["filename"];
-        else die("Missing parameter.");
+	// -------------------------------------------------------------------
+  case "delete":
+		if (array_key_exists("filename", $_REQUEST)) {
+			$filename=$_REQUEST["filename"];
+		} else {
+			die("Missing parameter.");
+		}
 
-		if (valid_write($filename)) 
+		if (valid_write($filename)) {
 			unlink(STATEDIR."/templates/$filename");
-        Header("Location: $_SERVER[PHP_SELF]");
-        break;
+		}
+		Header("Location: $_SERVER[PHP_SELF]");
+		break;
 
-    // -------------------------------------------------------------------
-    case "prepare":
-        if (array_key_exists("filename", $_REQUEST))
-            $filename=$_REQUEST["filename"];
-        else die("Missing parameter.");
+	// -------------------------------------------------------------------
+	case "prepare":
+		if (array_key_exists("filename", $_REQUEST)) {
+			$filename=$_REQUEST["filename"];
+		} else {
+			die("Missing parameter.");
+		}
 
 		prepare_message($filename);
 		pageFooter();
-        break;
+		break;
 
-    // -------------------------------------------------------------------
+	// -------------------------------------------------------------------
 	case "send":
-		if (array_key_exists("from", $_POST)) $from=$_POST["from"];
-		else die("Missing parameter 1.");
-		if (array_key_exists("to", $_POST)) $to=$_POST["to"];
-		else die("Missing parameter 2.");
-		if (array_key_exists("replyto", $_POST)) $replyto=$_POST["replyto"];
-		else die("Missing parameter 3.");
-		if (array_key_exists("subject", $_POST)) $subject=$_POST["subject"];
-		else die("Missing parameter 4.");
-		if (array_key_exists("msg", $_POST)) $msg=$_POST["msg"];
-		else die("Missing parameter 5.");
-		if (array_key_exists("sendxml", $_POST)) $attach=$_POST["sendxml"];
-		else $attach="off";
+		if (array_key_exists("from", $_POST)) {
+			$from=$_POST["from"];
+		} else {
+			die("Missing parameter 1.");
+		}
+		if (array_key_exists("to", $_POST)) {
+			$to=$_POST["to"];
+		} else {
+			die("Missing parameter 2.");
+		}
+		if (array_key_exists("replyto", $_POST)) {
+			$replyto=$_POST["replyto"];
+		} else {
+			die("Missing parameter 3.");
+		}
+		if (array_key_exists("subject", $_POST)) {
+			$subject=$_POST["subject"];
+		} else {
+			die("Missing parameter 4.");
+		}
+		if (array_key_exists("msg", $_POST)) {
+			$msg=$_POST["msg"];
+		} else {
+			die("Missing parameter 5.");
+		}
+		if (array_key_exists("sendxml", $_POST)) {
+			$attach=$_POST["sendxml"];
+		} else {
+			$attach="off";
+		}
 
 		/* prevent sending bogus stuff */
-		if (trim($to) == '') die('Empty recipient?');
-		if (trim($msg) == '') die('Empty message body?');
+		if (trim($to) == '') {
+			die('Empty recipient?');
+		}
+		if (trim($msg) == '') {
+			die('Empty message body?');
+		}
 	
 		/* clean off html and stuff (only unformatted mail) */
 		$msg = strip_tags($msg);
@@ -488,13 +537,14 @@ EOF;
 		$body = $mime->get();
 		$hdrs = $mime->headers($hdrs);
 
-
 		/* set up mail recipient */
 		if (defined('MAILCC')) {
 			$mailto = array($to, MAILCC);
 			$hdrs["Cc"] = MAILCC;
 		}
-		else $mailto = array($to);
+		else {
+			$mailto = array($to);
+		}
 
 		/* set up envelope sender */
 		$envfrom="-f".MAILENVFROM;
@@ -504,8 +554,9 @@ EOF;
 			'sendmail_params' => $envfrom
 		);
 		$mail = &Mail::factory('sendmail', $params);
-		if (! $mail->send($mailto, $hdrs, $body)) 
+		if (! $mail->send($mailto, $hdrs, $body)) {
 			die("Error sending message!");
+		}
 
 		addIncidentComment(sprintf("Email sent to %s: %s",
 			$to, $subject));
@@ -513,8 +564,8 @@ EOF;
 		break;
 
 
-    // -------------------------------------------------------------------
-    default:
-        die("Unknown action: $action");
+	// -------------------------------------------------------------------
+	default:
+		die("Unknown action: $action");
 } // switch
 ?>
