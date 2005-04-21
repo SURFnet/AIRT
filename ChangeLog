@@ -1,5 +1,6 @@
-2005-xx-yy   Kees Leune  <kees@uvt.nl>
+2005-04-21   Kees Leune  <kees@uvt.nl>
 * php/standard.php: Fixed bug 1179244 (Textual inconsistency in interface)
+    Fixed bug 1186071 (@YOURNFIRSTAME@ N to many)
     Signed  message support
 
 2005-apr-11  Kees Leune  <kees@uvt.nl>

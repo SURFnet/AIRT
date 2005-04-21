@@ -64,12 +64,26 @@ define('DBUSER', 'airt');
 define('DBPASSWD', '**********');        // <--- CHANGE THIS
 
 
-// the session timeout in seconds
-define('SESSION_TIMEOUT', 600);
 
+
+/***** 4. GPG SETTINGS *****/
+/* To make this work, generate a gnupg key according to the instructions in
+ * section 4.14 of the GnuPG FAQ (http://www.gnupg.org) and copy it to a
+ * directory in which the web server has write access. Make sure that your key
+ * rings (pubkey.gpg and secring.gpg) are readable by the web server, but not
+ * writable. Also, keep the directory with the keys OUTSIDE YOUR DOCUMENT
+ * SPACE. The directory containing your keys will be referred to as the
+ * GPG_HOMEDIR.
+ */
+define('GPG_BIN', '/usr/bin/gpg');
+define('GPG_HOMEDIR', '/usr/local/share/airt/key');
+define('GPG_OPTIONS', '--detach-sign --armor --batch');
+// define('GPG_KEYID', '8830B66F');
 
 
 /***** 4. SITE CUSTOMIZATION *****/
+// the session timeout in seconds
+define('SESSION_TIMEOUT', 600);
 
 // Incident ID prefix
 define('INCIDENTID_PREFIX', 'Example-CERT#');

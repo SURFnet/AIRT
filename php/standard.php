@@ -30,11 +30,6 @@ require_once LIBDIR."/export.plib";
 require_once 'Mail.php';
 require_once 'Mail/mimePart.php';
 
-define('GPG_BIN', '/usr/bin/gpg');
-define('GPG_HOMEDIR', '/usr/local/share/airt/key');
-define('GPG_OPTIONS', '--detach-sign --armor --batch');
-define('GPG_KEYID', '8830B66F');
-
 function loadAllowedFiles() {
 	$f = array();
 	$dh = @opendir(STATEDIR.'/templates')
@@ -255,24 +250,14 @@ function prepare_message($filename) {
 </TABLE>
 <TEXTAREA name="msg" cols="80" rows="30">$msg</TEXTAREA>
 <P>
-<table>
-<tr valign="top">
-  <td><input type="hidden" name="action" value="send">
+<input type="hidden" name="action" value="send">
 <input type="reset"  value="Reset">
 <input type="submit" value="Send">
-
-<td><input type="checkbox" name="sendxml">
-    Attach incident data</br>
 EOF;
-			if (defined('GPG_KEYID')) {
-				echo <<<EOF
-		<input type="checkbox" name="sign">
-    Sign</td>
-EOF;
-			}
-			echo <<<EOF
-</tr>
-</table>
+		if (defined('GPG_KEYID')) {
+			echo '<input type="checkbox" name="sign"> Sign';
+		}
+		echo <<<EOF
 </FORM>
 EOF;
 	pageFooter();
@@ -575,8 +560,9 @@ EOF;
 		$body_params['content_type'] = 'text/plain';
 		$body_params['disposition'] = 'inline';
 		$body_params['charset'] = 'us-ascii';
-		
-    $attachcount=0;
+
+		$attachcount=0;
+/*
 		if ($attach == 'on') {
 			$attachment = exportIncident(array($_SESSION["incidentid"]));
 			$xml_params = array();
@@ -586,6 +572,7 @@ EOF;
 			$xml_params['dfilename'] = 'airtdata.xml';
 			$attachcount++;
 		}
+*/
 
 		if ($sign == 'on') {
 			/* write msg to temp file */
@@ -623,10 +610,12 @@ EOF;
 		} else {
 			$mime = new Mail_mimePart('', $msg_params);
 			$mime->addsubpart($msg, $body_params);
-		
+
+/*
 			if ($attach == 'on') {
 				$mime->addsubpart($attachment, $xml_params);
 			}
+*/
 			if ($sign == 'on') {
 				$mime->addsubpart($sig, $sig_params);
 			}
