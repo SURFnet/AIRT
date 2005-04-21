@@ -527,13 +527,16 @@ EOF;
 		/* clean off html and stuff (only unformatted mail) */
 		$msg = strip_tags($msg);
 		$msg = stripslashes($msg);
+		$msg = str_replace("
+", '', $msg);
 
 		/* prepare the intial state of the message */
 		$hdrs = array(
 			'From'     => $from,
 			'Subject'  => $subject,
 			'Reply-To' => $replyto,
-			'To'       => $to
+			'To'       => $to,
+			'X-Mailer' => 'AIRT'
 		);
 
 		/* set up mail recipient */
@@ -549,7 +552,7 @@ EOF;
 		
 		/* will send via Mail class */
 		$mail_params = array(
-			'sendmail_params' => $envfrom
+			'sendmail_args' => $envfrom
 		);
 		
 		$msg_params = array();
@@ -593,7 +596,7 @@ EOF;
 			unlink("$fname.asc");
 
 			/* message signature */
-			$msg_params['content_type'] = 'multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";';
+			$msg_params['content_type'] = 'multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"';
 			$sig_params = array();
 			$sig_params['content_type'] = 'application/pgp-signature';
 			$sig_params['disposition'] = 'inline';
