@@ -62,7 +62,7 @@ echo <<<EOF
 <BLOCKQUOTE><small>
     AIRT version @VERSION@, Copyright (C) 2004-2005 Tilburg University
     &lt;<a href="mailto:kees@uvt.nl">kees@uvt.nl</a>&gt;<BR>
-    AIR comes with ABSOLUTELY NO WARRANTY; for details 
+    AIRT comes with ABSOLUTELY NO WARRANTY; for details 
     <a href="license.php">click here</a>.<BR>
     This is free software, and you are welcome to redistribute it
     under certain conditions; See the license for more details.
