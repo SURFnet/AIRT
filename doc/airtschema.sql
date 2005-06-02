@@ -70,18 +70,21 @@ CREATE TABLE incident_types (
 CREATE TABLE incident_states (
     id          integer,
     label       varchar(50),
+		descr       varchar(80),
     primary key (id)
 );
 
 CREATE TABLE incident_status (
     id          integer,
     label       varchar(50),
+		descr       varchar(80),
     primary key (id)
 );
 
 CREATE TABLE constituencies (
     id          integer,
     label       varchar(50),
+		descr       varchar(80),
     name        varchar(100),
     primary key (id)
 );
@@ -98,9 +101,9 @@ CREATE TABLE users (
     firstname   varchar(100),
     email       varchar(100),
     phone       varchar(100),
-	login		varchar(100),
-	userid		varchar(100),
-	password	varchar(100),
+	  login		varchar(100),
+	  userid		varchar(100),
+	  password	varchar(100),
     primary key (id)
 );
 
