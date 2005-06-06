@@ -64,6 +64,7 @@ begin transaction;
 CREATE TABLE incident_types ( 
     id          integer,
     label       varchar(50),
+		descr       varchar(80),
     primary key (id)
 );
 
