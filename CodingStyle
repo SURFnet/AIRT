@@ -1,34 +1,37 @@
-- Indent using tabs; use your favorite editor's setting to represent how deep a
-tab is going to be.
+$Id$
+
+In CVS at $Source$
+
+- Indent using three spaces
 
 - All functions must be preceded by a comment block which describes the purpose
-of that function. Following the following structure:
+  of that function. Following the following structure:
 
-	/**
-	 * Short description of the function
-	 * 
-	 * Parameters:
-	 *   $a: demo one
-	 *
-	 * Returns:
-	 *   an associative array containing the following keuys, etc.
-	 */
-	function demoFunction($a) {
-		return array('return value'=>$value);
-	}
+   /**
+    * Short description of the function
+    * 
+    * Parameters:
+    *   $a: demo one
+    *
+    * Returns:
+    *   an associative array containing the following keuys, etc.
+    */
+   function demoFunction($a) {
+      return array('return value'=>$value);
+   }
 
 - Always uses braces to delimit a block, even if there is only one line or
 command. For example:
 
-	if ($a == $b) {
-		break;
-	} else {
-		continue;
-	}
+   if ($a == $b) {
+      break;
+   } else {
+      continue;
+   }
 
-	function demoFunction() {
-		/* do something */
-	}
+   function demoFunction() {
+      /* do something */
+   }
 
 - Use single quotes ' to delimit strings wherever possible.
 
