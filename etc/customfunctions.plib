@@ -1,0 +1,47 @@
+<?php
+/*
+  AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
+  Copyright (C) 2004	Kees Leune <kees@uvt.nl>
+
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  
+  customfunctions.plib - User defined functions. Most contain 
+  - function custom_categorize($ip, $defaultcategory); 
+        returns the category identifier
+  - function search_info($ip, $hostname, $consituency); prints additional
+    information about hostname
+  
+  $Id$
+ */
+
+registerEventHandler('pageheader', 'showheader');
+
+function showheader($data) {
+	$navbar = "<a href=\"$_SESSION[BASEURL]/index.php\">Home</a><br/>\n";
+	$navbar .= "<a href=\"$_SESSION[BASEURL]/incident.php\">Incidents</a><br/>\n";
+	$navbar .= "<a href=\"$_SESSION[BASEURL]/search.php\">Search</a><br/>\n";
+	$navbar .= "<a href=\"$_SESSION[BASEURL]/standard.php\">Mail templates</a><br/>\n";
+	$navbar .= "<a href=\"$_SESSION[BASEURL]/settings.php\">Settings</a><br/>\n";
+	$navbar .= "<a href=\"$_SESSION[BASEURL]/logout.php\">Logout</a><br/>\n";
+
+	echo <<<EOF
+<table width="100%">
+  <tr>
+	  <td width="200" nowrap>$navbar</td>
+		<td><h2>$data[title]</h2><p/><hr/></td>
+	</tr>
+EOF;
+}
+?>

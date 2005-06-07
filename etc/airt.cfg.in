@@ -90,5 +90,5 @@ define('INCIDENTID_PREFIX', 'Example-CERT#');
 
 // local customization can be found in this file. If undefined, no local
 // additions are done
-// define('CUSTOM_FUNCTIONS', '/usr/local/share/airt/customfunctions.plib');
+// define('CUSTOM_FUNCTIONS', '@ETCPATH@/customfunctions.plib');
 ?>

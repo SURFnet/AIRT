@@ -19,7 +19,7 @@
 
 # 
 configdir=$(sysconfdir)/$(PACKAGE)
-config_DATA = airt-apache.conf airt.cfg
+config_DATA = airt-apache.conf airt.cfg customfunctions.plib
 
 CLEANFILES = airt-apache.conf airt.cfg
 DISTCLEANFILES = $(CLEANFILES)
