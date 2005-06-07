@@ -1,3 +1,5 @@
+! changes for version 20050607.1
+
 alter table incident_types add column descr varchar(80);
 alter table incident_states add column descr varchar(80);
 alter table incident_status add column descr varchar(80);
