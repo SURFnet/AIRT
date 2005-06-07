@@ -37,3 +37,5 @@ command. For example:
 
 - Always initialise varables before using them.
 
+- Do not break lines in a single command; it is okay to let things wrap around a bit
+
