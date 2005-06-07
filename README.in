@@ -150,9 +150,6 @@ Installation manual for packages
     the main menu, click Edit settings > Edit users. Then, on the line with
     the admin user, click edit and set a (different) password.
 
-    NOTE: For the time being, passwords are stored in PLAIN TEXT in the
-    database. Make sure you keep that in mind when you choose a password, and
-    also inform your users about this fact.
 
 AIRT deinstallation manual for packages
 ---------------------------------------
