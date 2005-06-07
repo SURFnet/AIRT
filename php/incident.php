@@ -43,6 +43,9 @@ EOF;
         showIncidentTypeSelection("type", $type);
         echo <<<EOF
     </td>
+	 <td>
+	    <a target="airthelp" href="$_SERVER[PHP_SELF]?action=showtypes">Help</a>
+    </td>
 </tr>
 <tr>
     <td>Incident state</td>
@@ -51,6 +54,9 @@ EOF;
         showIncidentStateSelection("state", $state);
         echo <<<EOF
     </td>
+	 <td>
+	    <a target="airthelp" href="$_SERVER[PHP_SELF]?action=showstates">Help</a>
+    </td>
 </tr>
 <tr>
     <td>Incident status</td>
@@ -58,6 +64,9 @@ EOF;
 EOF;
         showIncidentStatusSelection("status", $status);
         echo <<<EOF
+    </td>
+	 <td>
+	    <a target="airthelp" href="$_SERVER[PHP_SELF]?action=showstatus">Help</a>
     </td>
 </tr>
 </table>
@@ -252,6 +261,18 @@ switch ($action) {
 
       $_SESSION["incidentid"] = $incidentid;
 
+		echo <<<EOF
+<script language="JavaScript">
+function showhelp(topic) {
+	if (topic == "types") 
+		window.open("$_SERVER[PHP_SELF]?action=showtypes", "AIRT Help", "location=0,directories=0,height=350");
+	else if (topic == "states")
+		window.open("$_SERVER[PHP_SELF]?action=showstates", "AIRT Help", "location=0,directories=0,height=350");
+	else if (topic == "status")
+		window.open("$_SERVER[PHP_SELF]?action=showstatus", "AIRT Help", "location=0,directories=0,height=350");
+}
+</script>
+EOF;
       pageHeader("Incident details: $norm_incidentid");
       showEditForm();
 
@@ -731,6 +752,79 @@ EOF;
       Header("Location: $_SERVER[PHP_SELF]");
       break;
 
+    //--------------------------------------------------------------------
+	 case "showstates":
+	   generateEvent('pageHeader', array('title' => 'Available incident states'));
+		// TODO: move all db_connets to libraries
+      $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+      or die("Unable to connect to database.");
+      $res = db_query($conn, sprintf("
+         SELECT label, descr
+			FROM   incident_states
+			ORDER BY label"))
+      or die("Unable to query incident states.");
+		$output = "<table>\n";
+		while ($row = db_fetch_next($res)) {
+			$output .= "<tr>\n";
+			$output .= "  <td>$row[label]</td>\n";
+			$output .= "  <td>$row[descr]</td>\n";
+			$output .= "</tr>\n";
+		}
+		$output .= "</table>\n";
+		print $output;
+      db_close($conn);
+	   break;
+	  
+	  //--------------------------------------------------------------------
+	 case "showtypes":
+	   generateEvent('pageHeader', array('title' => 'Available incident types'));
+		// TODO: move all db_connets to libraries
+      $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+      or die("Unable to connect to database.");
+      $res = db_query($conn, sprintf("
+         SELECT label, descr
+			FROM   incident_types
+			ORDER BY label"))
+      or die("Unable to query incident types.");
+		$output = "<script language=\"JavaScript\">\n";
+		$output .= "window.resizeTo(800,500);\n";
+		$output .= "</script>";
+
+		$output .= "<table>\n";
+		while ($row = db_fetch_next($res)) {
+			$output .= "<tr>\n";
+			$output .= "  <td>$row[label]</td>\n";
+			$output .= "  <td>$row[descr]</td>\n";
+			$output .= "</tr>\n";
+		}
+		$output .= "</table>\n";
+		print $output;
+      db_close($conn);
+	   break;
+
+	  //--------------------------------------------------------------------
+	 case "showstatus":
+	   generateEvent('pageHeader', array('title' => 'Available incident statuses'));
+		// TODO: move all db_connets to libraries
+      $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+      or die("Unable to connect to database.");
+      $res = db_query($conn, sprintf("
+         SELECT label, descr
+			FROM   incident_status
+			ORDER BY label"))
+      or die("Unable to query incident statuses.");
+		$output = "<table>\n";
+		while ($row = db_fetch_next($res)) {
+			$output .= "<tr>\n";
+			$output .= "  <td>$row[label]</td>\n";
+			$output .= "  <td>$row[descr]</td>\n";
+			$output .= "</tr>\n";
+		}
+		$output .= "</table>\n";
+		print $output;
+      db_close($conn);
+	   break;
+  break;
     //--------------------------------------------------------------------
     default:
         die("Unknown action");
