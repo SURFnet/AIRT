@@ -261,18 +261,6 @@ switch ($action) {
 
       $_SESSION["incidentid"] = $incidentid;
 
-		echo <<<EOF
-<script language="JavaScript">
-function showhelp(topic) {
-	if (topic == "types") 
-		window.open("$_SERVER[PHP_SELF]?action=showtypes", "AIRT Help", "location=0,directories=0,height=350");
-	else if (topic == "states")
-		window.open("$_SERVER[PHP_SELF]?action=showstates", "AIRT Help", "location=0,directories=0,height=350");
-	else if (topic == "status")
-		window.open("$_SERVER[PHP_SELF]?action=showstatus", "AIRT Help", "location=0,directories=0,height=350");
-}
-</script>
-EOF;
       pageHeader("Incident details: $norm_incidentid");
       showEditForm();
 
@@ -763,7 +751,10 @@ EOF;
 			FROM   incident_states
 			ORDER BY label"))
       or die("Unable to query incident states.");
-		$output = "<table>\n";
+		$output = "<script language=\"JavaScript\">\n";
+		$output .= "window.resizeTo(800,500);\n";
+		$output .= "</script>";
+		$output .= "<table>\n";
 		while ($row = db_fetch_next($res)) {
 			$output .= "<tr>\n";
 			$output .= "  <td>$row[label]</td>\n";
@@ -813,7 +804,10 @@ EOF;
 			FROM   incident_status
 			ORDER BY label"))
       or die("Unable to query incident statuses.");
-		$output = "<table>\n";
+		$output = "<script language=\"JavaScript\">\n";
+		$output .= "window.resizeTo(800,500);\n";
+		$output .= "</script>";
+		$output .= "<table>\n";
 		while ($row = db_fetch_next($res)) {
 			$output .= "<tr>\n";
 			$output .= "  <td>$row[label]</td>\n";
