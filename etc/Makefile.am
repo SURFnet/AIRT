@@ -24,4 +24,4 @@ config_DATA = airt-apache.conf airt.cfg customfunctions.plib
 CLEANFILES = airt-apache.conf airt.cfg
 DISTCLEANFILES = $(CLEANFILES)
 
-EXTRA_DIST = $(CONFIG_DATA)
+EXTRA_DIST = $(config_DATA)
