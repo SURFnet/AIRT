@@ -35,7 +35,7 @@ function showheader($data) {
   $navbar .= "<a href=\"$_SESSION[BASEURL]/incident.php\">Incidents</a><p/>\n";
   $navbar .= "<a href=\"$_SESSION[BASEURL]/search.php\">Search</a><p/>\n";
   $navbar .= "<a href=\"$_SESSION[BASEURL]/standard.php\">Mail templates</a><p/>\n";
-  $navbar .= "<a href=\"$_SESSION[BASEURL]/settings.php\">Settings</a><p/>\n";
+  $navbar .= "<a href=\"$_SESSION[BASEURL]/maintenance.php\">Settings</a><p/>\n";
   $navbar .= "<a href=\"$_SESSION[BASEURL]/logout.php\">Logout</a><p/>\n";
 
   echo <<<EOF
@@ -57,16 +57,29 @@ function showheader($data) {
 .content {
   border-top-width: 2px;
   border-top-style: solid;
-  padding-left: 2ex;
+  padding-left: 10px;
+  padding-top: 10px;
 }
 
+.title {
+  padding-left: 10px;
+}
+
+A {
+  color: #0000FF;
+  text-decoration: none;
+}
+
+A:hover {
+  text-decoration: underline;
+}
 </style>
 </head>
 
 <body>
 <table height="100%" cellspacing="0" border="0" width="100%">
   <tr>
-    <td width="200" nowrap class="nav logo">Application for incident response teams</td>
+    <td height="50" width="200" nowrap class="nav logo">Application for incident response teams</td>
     <td><h2 class="title">$data[title]</h2></td>
   </tr>
   <tr valign="top">
