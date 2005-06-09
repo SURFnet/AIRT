@@ -144,9 +144,11 @@ Installation manual for packages
         root:~# /etc/init.d/apache start
 
     Step 11. Change the admin password. Point your browser at the machine that
-    hosts the application and log in with user admin, password admin. On the
-    main menu, click Edit settings > Edit users. Then, on the line with the
-    admin user, click edit and set a (different) password.
+    hosts the application, typically:
+    http://your.host.com/airt/
+    (mind the trailing slash) and log in with user admin, password admin. On
+    the main menu, click Edit settings > Edit users. Then, on the line with
+    the admin user, click edit and set a (different) password.
 
     NOTE: For the time being, passwords are stored in PLAIN TEXT in the
     database. Make sure you keep that in mind when you choose a password, and
