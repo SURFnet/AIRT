@@ -298,7 +298,7 @@ function print_variables_info() {
     handler</td>
 </tr>
 <tr>
-    <td>@YOURFIRSTAME@</td>
+    <td>@YOURFIRSTNAME@</td>
     <td>Will be replaced with the first name of the logged in incident
     handler</td>
 </tr>

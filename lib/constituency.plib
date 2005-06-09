@@ -135,10 +135,10 @@ function showConstituencyContacts($constituencyid)
 </tr>
 EOF;
     $count=0;
-	$_SESSION["current_email"] = "";
+    $_SESSION["current_email"] = "";
     while ($row = db_fetch_next($res))
     {
-        printf("<tr>
+       printf("<tr>
             <td>%s, %s</td>
             <td><a href=\"%s\">%s</a></td>
             <td>%s</td>
@@ -146,12 +146,12 @@ EOF;
             $row["lastname"], $row["firstname"],
             $row["email"], $row["email"],
             $row["phone"]
-        );
-
-		if ($_SESSION["current_email"] == "") 
-			$_SESSION["current_email"] = $row["email"];
-		else
-			$_SESSION["current_email"] .= ','.$row["email"];
+       );
+       $_SESSION["current_name"] = $row["firstname"] . " " . $row["lastname"];
+       if ($_SESSION["current_email"] == "") 
+          $_SESSION["current_email"] = $row["email"];
+       else
+          $_SESSION["current_email"] .= ','.$row["email"];
     }
     echo "</table>";
     db_close($conn);

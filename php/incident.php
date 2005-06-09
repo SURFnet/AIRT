@@ -343,6 +343,7 @@ EOF;
         or die("Unable to execute query 2.");
         $row = db_fetch_next($res);
         $incidentid = $row["incidentid"];
+        $_SESSION["active_ip"] = $address;
         $_SESSION["incidentid"] = $incidentid;
         db_free_result($res);
 
@@ -471,6 +472,8 @@ EOF;
       echo choice("open", 1, $filter);
       echo choice("stalled", 2, $filter);
       echo choice("open or stalled", 3, $filter);
+      echo choice("closed", 4, $filter);
+      echo choice("all", 5, $filter);
       echo <<<EOF
 </SELECT>
 <INPUT TYPE="submit" VALUE="Ok">
@@ -487,6 +490,10 @@ EOF;
          case 2: $sqlfilter = "AND s2.label = 'stalled'";
             break;
          case 3: $sqlfilter = "AND s2.label IN ('open', 'stalled')";
+            break;
+         case 4: $sqlfilter = "AND s2.label = 'closed'";
+            break;
+         case 5: $sqlfilter = "AND s2.label IN ('open', 'stalled', 'closed')";
             break;
          default:
             $sqlfilter="";
