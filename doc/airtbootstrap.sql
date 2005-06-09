@@ -55,16 +55,25 @@ INSERT INTO networks
 		VALUES
 		( -1, '0.0.0.0', '0.0.0.0', 'Default network', -1);
 INSERT INTO incident_status
-		(id, label)
+		(id, label,descr,isdefault)
 		VALUES
-		(nextval('incident_status_sequence'), 'open');
+		  (nextval('incident_status_sequence'),
+		  'open',
+		  'Incident is being handled.',
+		  TRUE);
 INSERT INTO incident_status
-		(id, label)
+		(id, label,descr,isdefault)
 		VALUES
-		(nextval('incident_status_sequence'), 'closed');
+		  (nextval('incident_status_sequence'),
+		  'closed',
+		  'Incident handling has been terminated.',
+		  FALSE);
 INSERT INTO incident_status
-		(id, label)
+		(id, label,descr,isdefault)
 		VALUES
-		(nextval('incident_status_sequence'), 'stalled');
+		  (nextval('incident_status_sequence'),
+		  'stalled',
+		  'Incident handling has stalled.',
+		  FALSE);
 
 end transaction;
