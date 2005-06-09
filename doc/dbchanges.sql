@@ -9,6 +9,16 @@ alter table incident_types add column descr varchar(80);
 alter table incident_states add column descr varchar(80);
 alter table incident_status add column descr varchar(80);
 
+update incident_types
+  set descr='Incident is being handled.'
+  where label='open';
+update incident_types
+  set descr='Incident handling has been terminated.'
+  where label='closed';
+update incident_types
+  set descr='Incident handling has stalled.'
+  where label='stalled';
+
 alter table incident_types add column isdefault boolean;
 alter table incident_states add column isdefault boolean;
 alter table incident_status add column isdefault boolean;
