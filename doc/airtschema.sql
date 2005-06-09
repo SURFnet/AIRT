@@ -64,21 +64,24 @@ begin transaction;
 CREATE TABLE incident_types ( 
     id          integer,
     label       varchar(50),
-		descr       varchar(80),
+    descr       varchar(80),
+    isdefault   boolean,
     primary key (id)
 );
 
 CREATE TABLE incident_states (
     id          integer,
     label       varchar(50),
-		descr       varchar(80),
+    descr       varchar(80),
+    isdefault   boolean,
     primary key (id)
 );
 
 CREATE TABLE incident_status (
     id          integer,
     label       varchar(50),
-		descr       varchar(80),
+    descr       varchar(80),
+    isdefault   boolean,
     primary key (id)
 );
 
