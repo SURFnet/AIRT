@@ -1,3 +1,9 @@
+2005-jun-09 JH
+* php/incident.php: Jim's IP address fix, Jim's suggestion to include closed
+  tickets in the selection options.
+* php/standard.php: Jim's typo fix.
+* lib/constituency.plib: Jim's USERNAME template macro fix.
+
 2005-jun-07
 * php/standard.php: Double line spacing fixed
 * php/login.php: Typo fix
