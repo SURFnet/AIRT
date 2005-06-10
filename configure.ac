@@ -37,6 +37,7 @@ AC_OUTPUT([Makefile
     README
     doc/Makefile
     doc/examples/Makefile
+    doc/database/Makefile
     lib/Makefile
     php/Makefile
 	php/login.php
