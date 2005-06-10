@@ -100,7 +100,9 @@ function showIncidentForm() {
     <td>
 eof;
         showconstituencyselection("constituency", $constituency);
-      $email = $_SESSION['current_email'];
+        if (array_key_exists('current_email', $_SESSION)) {
+			  $email = $_SESSION['current_email'];
+		  }
         echo <<<eof
     </td>
 </tr>
