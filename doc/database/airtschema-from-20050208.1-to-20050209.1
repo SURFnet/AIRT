@@ -1,5 +1,8 @@
-begin transaction;
+! $Id$
+! In CVS at $Source$
+! Database structure changes for upgrades 
+! from version 20050208.1 to version 20050209.1
+
 alter table incident_users add column added timestamp;
 alter table incident_users add column addedby integer;
 alter table incident_users add foreign key (addedby) references users(id);
-end transaction;

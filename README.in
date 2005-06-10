@@ -110,14 +110,14 @@ Installation manual for packages
 
     Having psql and gunzip in your PATH, do:
 
-    postgres:~% gunzip -c @DOCPATH@/airtschema.sql.gz \
+    postgres:~% gunzip -c @DOCPATH@/database/airtschema.sql.gz \
             |psql airt airt
 
 
     Step 7. Bootstrap the database.
 
     postgres:~% psql airt airt < \
-        @DOCPATH@/airtbootstrap.sql 
+        @DOCPATH@/database/airtbootstrap.sql 
 
     Step 8. Configure your web server. If you are using Apache, the easiest
     way to do this is to add a symbolic link in your configuration directory
