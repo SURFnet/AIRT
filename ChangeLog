@@ -4,6 +4,7 @@
 * php/standard.php: Jim's typo fix.
 * lib/constituency.plib: Jim's USERNAME template macro fix.
 * php/incident_status.php: Added interface to default status.
+* doc/database/: Database changes to own dir
 
 2005-jun-07
 * php/standard.php: Double line spacing fixed
