@@ -29,7 +29,7 @@ INSERT INTO users
     (id, lastname, login, password) 
     VALUES
     (nextval('users_sequence'), 'Administrator', 'admin', 
-	'd033e22ae348aeb5660fc2140aec35850c4da997');
+    'd033e22ae348aeb5660fc2140aec35850c4da997');
 INSERT INTO roles
     (id, label)
     VALUES
@@ -47,33 +47,33 @@ INSERT INTO role_permissions
     VALUES
     (nextval('role_assignments_sequence'), 1, 1);
 INSERT INTO constituencies
-		(id,label,name) 
-		VALUES
-		(-1, 'default', 'default');
+    (id,label,name) 
+    VALUES
+    (-1, 'default', 'default');
 INSERT INTO networks
-		(id, network, netmask, label, constituency) 
-		VALUES
-		( -1, '0.0.0.0', '0.0.0.0', 'Default network', -1);
+    (id, network, netmask, label, constituency) 
+    VALUES
+    ( -1, '0.0.0.0', '0.0.0.0', 'Default network', -1);
 INSERT INTO incident_status
-		(id, label,descr,isdefault)
-		VALUES
-		  (nextval('incident_status_sequence'),
-		  'open',
-		  'Incident is being handled.',
-		  TRUE);
+    (id, label,descr,isdefault)
+    VALUES
+      (nextval('incident_status_sequence'),
+      'open',
+      'Incident is being handled.',
+      TRUE);
 INSERT INTO incident_status
-		(id, label,descr,isdefault)
-		VALUES
-		  (nextval('incident_status_sequence'),
-		  'closed',
-		  'Incident handling has been terminated.',
-		  FALSE);
+    (id, label,descr,isdefault)
+    VALUES
+      (nextval('incident_status_sequence'),
+      'closed',
+      'Incident handling has been terminated.',
+      FALSE);
 INSERT INTO incident_status
-		(id, label,descr,isdefault)
-		VALUES
-		  (nextval('incident_status_sequence'),
-		  'stalled',
-		  'Incident handling has stalled.',
-		  FALSE);
+    (id, label,descr,isdefault)
+    VALUES
+      (nextval('incident_status_sequence'),
+      'stalled',
+      'Incident handling has stalled.',
+      FALSE);
 
 end transaction;
