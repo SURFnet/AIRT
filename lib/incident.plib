@@ -59,6 +59,16 @@ function showIncidentStateSelection($name, $default="") {
     printf("</select>");
 }
 
+/* Return an HTML SELECT box containing valid choices for incident states */
+function getIncidentStateSelection($name, $default='') {
+	$output = sprintf("<select name=\"%s\">\n", htmlentities($name));
+	$states = getIncidentStates();
+	foreach ($states as $i=>$l) {
+		$output .= sprintf("<option value=\"%s\" %s>%s</option>\n", htmlentities($i), ($i == $default) ? "SELECTED" : "", htmlentities($l));
+	}
+	$output .= "</select>";
+	return $output;
+}
 
 function getIncidentStatus() {
     $conn = db_connect(DBDB, DBUSER, DBPASSWD)
@@ -77,7 +87,6 @@ function getIncidentStatus() {
     return $status;
 }
 
-
 function showIncidentStatusSelection($name, $default="") {
     printf("<select name=\"%s\">\n",
         htmlentities($name));
@@ -91,6 +100,16 @@ function showIncidentStatusSelection($name, $default="") {
     printf("</select>");
 }
 
+/* Return an HTML SELECT box containing valid choices for incident statuses */
+function getIncidentStatusSelection($name, $default='') {
+	$output = sprintf("<select name=\"%s\">\n", htmlentities($name));
+	$states = getIncidentStatus();
+	foreach ($states as $i=>$l) {
+		$output .= sprintf("<option value=\"%s\" %s>%s</option>\n", htmlentities($i), ($i == $default) ? "SELECTED" : "", htmlentities($l));
+	}
+	$output .= "</select>";
+	return $output;
+}
 
 function getIncidentTypes() {
     $conn = db_connect(DBDB, DBUSER, DBPASSWD)
@@ -109,7 +128,6 @@ function getIncidentTypes() {
     return $types;
 }
 
-
 function showIncidentTypeSelection($name, $default="") {
     printf("<select name=\"%s\">\n",
         htmlentities($name));
@@ -121,6 +139,17 @@ function showIncidentTypeSelection($name, $default="") {
             htmlentities($l));
     }
     printf("</select>");
+}
+
+/* Return an HTML SELECT box containing valid choices for incident types */
+function getIncidentTypeSelection($name, $default='') {
+	$output = sprintf("<select name=\"%s\">\n", htmlentities($name));
+	$states = getIncidentTypes();
+	foreach ($states as $i=>$l) {
+		$output .= sprintf("<option value=\"%s\" %s>%s</option>\n", htmlentities($i), ($i == $default) ? "SELECTED" : "", htmlentities($l));
+	}
+	$output .= "</select>";
+	return $output;
 }
 
 function getOpenIncidents() {
@@ -392,4 +421,30 @@ function removeUserfromIncident($userid, $incident) {
 	or die("Unable to execute query.");
 	db_close($conn);
 }
+
+/* Return an HTML formatted string containing the basic incident data (type,
+ * state and status
+ */
+function formatBasicIncidentData($type, $state, $status) {
+	$output = "<table>\n";
+	$output .= "  <tr>\n";
+	$output .= "    <td>Incident type</td>\n";
+	$output .= "    <td>".getIncidentTypeSelection("type", $type)."</td>\n";
+	$output .= "    <td><a target=\"airthelp\" href=\"$_SERVER[PHP_SELF]?action=showtypes\">Help</a></td>\n";
+	$output .= "  </tr>\n";
+	$output .= "  <tr>\n";
+	$output .= "    <td>Incident state</td>\n";
+	$output .= "    <td>".getIncidentStateSelection("state", $state)."</td>\n";
+	$output .= "    <td><a target=\"airthelp\" href=\"$_SERVER[PHP_SELF]?action=showstates\">Help</a></td>\n";
+   $output .= "  </tr>\n";
+	$output .= "  <tr>\n";
+   $output .= "    <td>Incident status</td>\n";
+	$output .= "    <td>".getIncidentStatusSelection("status", $status)."</td>\n";
+	$output .= "    <td><a target=\"airthelp\" href=\"$_SERVER[PHP_SELF]?action=showstatus\">Help</a></td>\n";
+	$output .= "  </tr>\n";
+	$output .= "</table>\n";
+
+	return $output;
+}
+
 ?>

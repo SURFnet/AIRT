@@ -1,7 +1,7 @@
 <?php
-/*
+/* vim:syntax=php
  * AIRT: Application for Incident Response Teams
- * Copyright (C) 2004	Kees Leune <kees@uvt.nl>
+ * Copyright (C) 2004  Kees Leune <kees@uvt.nl>
 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,8 +44,8 @@ function getConstituencies() {
 }
 
 
-function showConstituencySelection($name="constituency", $default=-1)
-{
+/* deprecated */
+function showConstituencySelection($name="constituency", $default=-1) {
     printf("<select name=\"%s\">\n",
         htmlentities($name));
     $constituencies = getConstituencies();
@@ -59,6 +59,17 @@ function showConstituencySelection($name="constituency", $default=-1)
         );
     }
     printf("</select>\n");
+}
+
+function getConstituencySelection($name="constituency", $default=-1) {
+  $output = sprintf("<select name=\"%s\">\n", htmlentities($name));
+  $constituencies = getConstituencies();
+  foreach ($constituencies as $id=>$data) {
+    $output .= sprintf("<option value=%s %s>%s (%s)</option>\n", htmlentities($id), ($id == $default)?"SELECTED":"", htmlentities($data["name"]), htmlentities($data["label"]));
+  }
+  $output .= "</select>\n";
+  
+  return $output;
 }
 
 
@@ -76,7 +87,7 @@ function getNetworks() {
     while ($row = db_fetch_next($res))
     {
         $networks[$row["id"]]=array(
-		    "id"          => $row["id"],
+        "id"          => $row["id"],
             "network"     => $row["network"],
             "netmask"     => $row["netmask"],
             "label"       => $row["label"],

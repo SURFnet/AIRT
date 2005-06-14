@@ -28,183 +28,113 @@ require_once LIBDIR.'/incident.plib';
 require_once LIBDIR.'/history.plib';
 require_once LIBDIR.'/user.plib';
 
-if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
-else $action="list";
+function formatIncidentForm() {
+  $constituency = $name = $email = $type = $state = $status = "";
 
-function showBasicIncidentData($type, $state, $status) {
-   echo <<<EOF
-<hr>
-<h3>Basic incident data</h3>
-<table>
-<tr>
-    <td>Incident type</td>
-    <td>
-EOF;
-        showIncidentTypeSelection("type", $type);
-        echo <<<EOF
-    </td>
-	 <td>
-	    <a target="airthelp" href="$_SERVER[PHP_SELF]?action=showtypes">Help</a>
-    </td>
-</tr>
-<tr>
-    <td>Incident state</td>
-    <td>
-EOF;
-        showIncidentStateSelection("state", $state);
-        echo <<<EOF
-    </td>
-	 <td>
-	    <a target="airthelp" href="$_SERVER[PHP_SELF]?action=showstates">Help</a>
-    </td>
-</tr>
-<tr>
-    <td>Incident status</td>
-    <td>
-EOF;
-        showIncidentStatusSelection("status", $status);
-        echo <<<EOF
-    </td>
-	 <td>
-	    <a target="airthelp" href="$_SERVER[PHP_SELF]?action=showstatus">Help</a>
-    </td>
-</tr>
-</table>
-EOF;
-}
+  if (array_key_exists("active_ip", $_SESSION)) {
+    $address = $_SESSION["active_ip"];
+  } else {
+    $address = "";
+  }
+  if (array_key_exists("constituency_id", $_SESSION)) {
+    $constituency = $_SESSION["constituency_id"];
+  }
+  if (array_key_exists("current_email", $_SESSION)) {
+    $email = $_SESSION["current_email"];
+  }
 
-function showIncidentForm() {
-    $constituency = $name = $email = $type = $state = $status = "";
+  $output =  formatBasicIncidentData($type, $state, $status);
+  $output .= "<hr/>\n";
+  $output .= "<h3>affected ip addresses</h3>\n";
+  $output .= "<table cellpadding=\"4\">\n";
+  $output .= "<tr>\n";
+  $output .= "  <td>hostname or ip address</td>\n";
+  $output .= "  <td><input type=\"text\" size=\"30\" name=\"address\" value=\"$address\"></td>\n";
+  $output .= "</tr>\n";
+  $output .= "<tr>\n";
+  $output .= "  <td>constituency</td>\n";
+  $output .= "  <td>".getConstituencySelection("constituency", $constituency)."</td>\n";
+  $output .= "</tr>\n";
+  $output .= "</table>\n";
 
-    if (array_key_exists("active_ip", $_SESSION))
-        $address = $_SESSION["active_ip"];
-   else $address = "";
+  $output .= "<hr/>\n";
+  $output .= "<h3>affected users</h3>\n";
+  $output .= "<table bgcolor=\"#dddddd\" cellpadding=\"2\" border=\"0\">";
+  $output .= "<tr>\n";
+  $output .= "  <td>email address of user:</td>\n";
+  $output .= "  <td><input type=\"text\" size=\"40\" name=\"email\" value=\"$email\"></td>\n";
+  $output .= "  <td><a href=\"help.php?topic=incident-adduser\">help</td>\n";
+  $output .= "</tr>\n";
+  $output .= "</table>\n";
 
-    if (array_key_exists("constituency_id", $_SESSION))
-        $constituency = $_SESSION["constituency_id"];
-      
-    if (array_key_exists("current_email", $_SESSION))
-        $email = $_SESSION["current_email"];
+  $output .= "<input type=\"checkbox\" name=\"addifmissing\">";
+  $output .= "  if checked, create user if email address unknown\n";
 
-   showbasicincidentdata($type, $state, $status);
-   echo <<<eof
-<hr>
-<h3>affected ip addresses</h3>
-<table cellpadding="4">
-<tr>
-    <td>hostname or ip address</td>
-    <td><input type="text" size="30" name="address" value="$address"></td>
-</tr>
-<tr>
-    <td>constituency</td>
-    <td>
-eof;
-        showconstituencyselection("constituency", $constituency);
-        if (array_key_exists('current_email', $_SESSION)) {
-			  $email = $_SESSION['current_email'];
-		  }
-        echo <<<eof
-    </td>
-</tr>
-</table>
+  $output .= "<p/>\n";
+  $output .= "<hr/>\n";
 
-<hr>
-<h3>affected users</h3>
-
-<table bgcolor="#dddddd" cellpadding="2" border="0">
-<tr>
-   <td>email address of user:</td>
-   <td><input type="text" size="40" name="email" value="$email"></td>
-   <td><a href="help.php?topic=incident-adduser">help</td>
-</tr>
-</table>
-<input type="checkbox" name="addifmissing">
-   if checked, create user if email address unknown
-<p>
-<hr>
-eof;
+  return $output;
 } // showincidentform
 
-
-
-function showeditform() {
+/* return a formatted string representing an HTML form for editing incident
+ * details 
+ */
+function formatEditForm() {
    $incident = getincident($_SESSION["incidentid"]);
    $type = $incident["type"];
    $state = $incident["state"];
    $status = $incident["status"];
 
-    if (array_key_exists("active_ip", $_SESSION))
-        $address = $_SESSION["active_ip"];
-    if (array_key_exists("constituency_id", $_SESSION))
-        $constituency = $_SESSION["constituency_id"];
-   
-   echo <<<EOF
-<form action="$_SERVER[PHP_SELF]" method="post">
-EOF;
-   showBasicIncidentData($type, $state, $status);
+    if (array_key_exists("active_ip", $_SESSION)) {
+      $address = $_SESSION["active_ip"];
+    }
+    if (array_key_exists("constituency_id", $_SESSION)) {
+      $constituency = $_SESSION["constituency_id"];
+    }
 
-   echo <<<EOF
-<input type="submit" name="action" value="update">
-</form>
-<HR>
-<h3>Affected IP addresses</h3>
-<table cellpadding="4">
-EOF;
+   $output = "<form action=\"$_SERVER[PHP_SELF]\" method=\"post\">\n";
+   $output .= "<hr/>\n";
+   $output .= "<h3>Basic incident data</h3>\n";
+   $output .= formatBasicIncidentData($type, $state, $status);
+   $output .= "<input type=\"submit\" name=\"action\" value=\"update\">\n";
+   $output .= "</form>";
+
+   $output .= "<hr/>\n";
+   $output .= "<h3>Affected IP addresses</h3>\n";
+   $output .= "<table cellpadding=\"4\">\n";
    foreach ($incident['ips'] as $address) {
-      printf("
-<tr>
-   <td><a href=\"search.php?action=search&hostname=%s\">%s</a></td>
-   <td>%s</td>
-   <td><a href=\"$_SERVER[PHP_SELF]?action=deleteip&ip=%s\">remove</a></td>
-</tr>
-   ",
-      urlencode($address),
-      $address,
-      $address==""?"Unknown":@gethostbyaddr(@gethostbyname($address)),
-      urlencode($address)
-      );
+     $output .= "<tr>\n";
+     $output .= sprintf("  <td><a href=\"search.php?action=search&hostname=%s\">%s</a></td>\n", urlencode($address), $address);
+     $output .= sprintf("  <td>%s</td>\n", $address==""?"Unknown":@gethostbyaddr(@gethostbyname($address)));
+     $output .= sprintf("  <td><a href=\"$_SERVER[PHP_SELF]?action=deleteip&ip=%s\">remove</a></td>\n", urlencode($address));
+     $output .= "</tr>\n";
    }
+   $output .= "</table>\n";
+   $output .= "<p/>";
+   $output .= "<form action=\"$_SERVER[PHP_SELF]\" method=\"POST\">\n";
+   $output .= "<input type=\"hidden\" name=\"action\" value=\"addip\">\n";
+   $output .= "<table bgColor=\"#DDDDDD\" cellpadding=\"2\">\n";
+   $output .= "<tr>\n";
+   $output .= "  <td>IP Address</td>\n";
+   $output .= "  <td><input type=\"text\" name=\"ip\" size=\"40\"></td>\n";
+   $output .= "  <td><input type=\"submit\" value=\"Add\"></td>\n";
+   $output .= "</tr>\n";
+   $output .= "</form>\n";
 
-   echo <<<EOF
-</table>
-<p/>
-
-<P/>
-<form action="$_SERVER[PHP_SELF]" method="POST">
-<input type="hidden" name="action" value="addip">
-<table bgColor="#DDDDDD" cellpadding="2">
-<tr>
-   <td>IP Address</td>
-   <td><input type="text" name="ip" size="40"></td>
-   <td><input type="submit" value="Add">
-   </td>
-</tr>
-</table>
-</form>
-EOF;
-
-   echo <<<EOF
-<HR>
-<h3>Affected users</h3>
-<table cellpadding="4">
-EOF;
+   $output .= "<hr/>\n";
+   $output .= "<h3>Affected users</h3>\n";
+   $output .= "<table cellpadding=\"4\">\n";
    foreach ($incident["users"] as $user) {
       $u = getUserByUserId($user);
-      printf("
-<tr>
-   <td>%s</td>
-   <td><a href=\"mailto:%s\">%s</a></td>
-   <td>%s, %s</td>
-   <td><a href=\"$_SERVER[PHP_SELF]?action=deluser&userid=%s\">remove</a></td>
-</tr>
-      ", $u["userid"],
-          $u["email"],
-         $u["email"],
-         $u["lastname"],
-         $u["firstname"],
-         urlencode($u["id"])
-      );
+      $output .= "<tr>\n";
+      $output .= "  <td>$u[userid]</td>\n";
+      $output .= "  <td><a href=\"mailto:$u[email]\">$u[email]</a></td>\n";
+      $output .= "  <td>$u[lastname], $u[firstname]</td>\n";
+      $output .= sprintf("  <td><a href=\"$_SERVER[PHP_SELF]?action=deluser&userid=%s\">remove</a></td>\n", urlencode($u["id"]));
+      $output .= "</tr>\n";
    }
+   $output .= "</table>\n";
+   $output .= "<p/>\n";
 
    if (array_key_exists("current_userid", $_SESSION)) {
       $userid = $_SESSION["current_userid"];
@@ -212,144 +142,148 @@ EOF;
       if (sizeof($u) > 0) {
          $lastname = $u[0]["lastname"];
          $email = $u[0]["email"];
-      } else $userid = "";
-   } else $userid = ""; 
-
-   if (array_key_exists('current_email', $_SESSION))
+      } else {
+        $userid = "";
+      }
+   } else {
+     $userid = "";
+   }
+   if (array_key_exists('current_email', $_SESSION)) {
       $email = $_SESSION['current_email'];
-   else $email='';
+   } else {
+     $email='';
+   }
 
-   echo <<<EOF
-</table>
-<p/>
+   $output .= "<form action=\"$_SERVER[PHP_SELF]\" method=\"POST\">\n";
+   $output .= "  <input type=\"hidden\" name=\"action\" value=\"adduser\">\n";
+   $output .= "  <table bgColor=\"#DDDDDD\" cellpadding=\"2\" border=\"0\">\n";
+   $output .= "  <tr>\n";
+   $output .= "    <td>Email address of user:</td>\n";
+   $output .= "    <td><input type=\"text\" size=\"40\" name=\"email\" value=\"$email\"></td>\n";
+   $output .= "    <td><input type=\"submit\" value=\"Add\"></td>\n";
+   $output .= "    <td><a href=\"help.php?topic=incident-adduser\">help</td>\n";
+   $output .= "  </tr>\n";
+   $output .= "  </table>\n";
+   $output .= "  <input type=\"checkbox\" name=\"addifmissing\">\n";
+   $output .= "  If checked, create user if email address unknown\n";
+   $output .= "</form>\n";
 
-<form action="$_SERVER[PHP_SELF]" method="POST">
-<input type="hidden" name="action" value="adduser">
+   return $output;
+} // formatEditForm
 
-<table bgColor="#DDDDDD" cellpadding="2" border="0">
-<tr>
-   <td>Email address of user:</td>
-   <td><input type="text" size="40" name="email" value="$email"></td>
-   <td><input type="submit" value="Add"></td>
-   <td><a href="help.php?topic=incident-adduser">help</td>
-</tr>
-</table>
-<input type="checkbox" name="addifmissing">
-If checked, create user if email address unknown
-</form>
-EOF;
-         
-} // showeditform
-
-
+if (array_key_exists("action", $_REQUEST)) {
+  $action=$_REQUEST["action"];
+} else {
+  $action="list";
+}
 
 switch ($action) {
-    //--------------------------------------------------------------------
-    case "details":
-        if (array_key_exists("incidentid", $_REQUEST))
-         $incidentid=$_REQUEST["incidentid"];
-        else die("Missing information(1).");
+  //--------------------------------------------------------------------
+  case "details":
+    if (array_key_exists("incidentid", $_REQUEST)) {
+      $incidentid=$_REQUEST["incidentid"];
+    } else {
+      die("Missing information(1).");
+    }
 
-      $norm_incidentid = normalize_incidentid($incidentid);
-      $incidentid = decode_incidentid($norm_incidentid);
+    $norm_incidentid = normalize_incidentid($incidentid);
+    $incidentid = decode_incidentid($norm_incidentid);
 
-      if (!getIncident($incidentid)) {
-         pageHeader("Invalid incident");
-         printf("Requested incident ($norm_incidentid) does not exist.",
-            $norm_incidentid);
-         pageFooter();
-         exit;
-      }
+    if (!getIncident($incidentid)) {
+      pageHeader("Invalid incident");
+      printf("Requested incident ($norm_incidentid) does not exist.", $norm_incidentid);
+      pageFooter();
+      exit;
+    }
+    $_SESSION["incidentid"] = $incidentid;
 
-      $_SESSION["incidentid"] = $incidentid;
+    pageHeader("Incident details: $norm_incidentid");
+    $output = formatEditForm();
+    $output .= "<hr/>\n";
+    $output .= "<h3>History</h3>\n";
 
-      pageHeader("Incident details: $norm_incidentid");
-      showEditForm();
+    generateEvent("historyshowpre", array("incidentid"=>$incidentid));
+    $output .= formatIncidentHistory($incidentid);
+    generateEvent("historyshowpost", array("incidentid"=>$incidentid));
 
-      echo <<<EOF
-<hr>
-<h3>History</h3>
-EOF;
-      generateEvent("historyshowpre", array("incidentid"=>$incidentid));
-      showIncidentHistory($incidentid);
-      generateEvent("historyshowpost", array("incidentid"=>$incidentid));
+    $output .= "<p/>\n";
+    $output .= "<form action=\"$_SERVER[PHP_SELF]\" method=\"post\">\n";
+    $output .= "<input type=\"hidden\" name=\"action\" value=\"addcomment\">\n";
+    $output .= "<table bgcolor=\"#DDDDDD\" border=\"0\" cellpadding=\"2\">\n";
+    $output .= "<tr>\n";
+    $output .= "  <td>New comment: </td>\n";
+    $output .= "  <td><input type=\"text\" size=\"45\" name=\"comment\"></td>\n";
+    $output .= "  <td><input type=\"submit\" value=\"Add\"></td>\n";
+    $output .= "</tr>\n";
+    $output .= "</table>\n";
+    $output .= "</form>\n";
 
-      echo <<<EOF
-<p>
-<form action="$_SERVER[PHP_SELF]" method="post">
-<input type="hidden" name="action" value="addcomment">
-<table bgcolor="#DDDDDD" border=0 cellpadding=2>
-<tr>
-    <td>New comment: </td>
-   <td><input type="text" size="45" name="comment"></td>
-   <td><input type="submit" value="Add"></td>
-</tr>
-</table>
-</form>
-EOF;
-
-      break;
+    print $output;
+    break;
 
     //---------------------------------------------------------------
     case "New incident":
     case "new":
-        PageHeader("New Incident");
-        echo <<<EOF
-<form action="$_SERVER[PHP_SELF]" method="POST">
-EOF;
-        showIncidentForm();
-        echo <<<EOF
-<input type="submit" name="action" value="Add">
-      <input type="checkbox" name="sendmail">
-      Check to prepare mail.
-</form>
-EOF;
-        break;
+      PageHeader("New Incident");
+      $output = "<form action=\"$_SERVER[PHP_SELF]\" method=\"POST\">\n";
+      $output .= formatIncidentForm();
+      $output .= "<input type=\"submit\" name=\"action\" value=\"Add\">\n";
+      $output .= "<input type=\"checkbox\" name=\"sendmail\">\n";
+      $output .= "Check to prepare mail.\n";
+      $output .= "</form>\n";
+      print $output;
+      break;
 
     //--------------------------------------------------------------------
     case "Add":
-        if (array_key_exists("address", $_POST)) $address=$_POST["address"];
-        else $address="";
+      $address = $constituency = $type = $state = $status = $email = '';
+      $addifmissing = $sendmail = 'off';
+      if (array_key_exists("address", $_POST)) {
+        $address=$_POST["address"];
+      }
       // make sure we have an IP address here
       $address = @gethostbyname($address);
-        if (array_key_exists("constituency", $_POST)) 
-            $constituency=$_POST["constituency"];
-        else $constituency="";
-        if (array_key_exists("type", $_POST)) $type=$_POST["type"];
-        else $type="";
-        if (array_key_exists("state", $_POST)) $state=$_POST["state"];
-        else $state="";
-        if (array_key_exists("status", $_POST)) $status=$_POST["status"];
-        else $status="";
-      if (array_key_exists("sendmail", $_POST)) $sendmail=$_POST["sendmail"];
-      else $sendmail="off";
+      if (array_key_exists("constituency", $_POST)) {
+        $constituency=$_POST["constituency"];
+      }
+      if (array_key_exists("type", $_POST)) {
+        $type=$_POST["type"];
+      }
+      if (array_key_exists("state", $_POST)) {
+        $state=$_POST["state"];
+      }
+      if (array_key_exists("status", $_POST)) {
+        $status=$_POST["status"];
+      }
+      if (array_key_exists("sendmail", $_POST)) {
+        $sendmail=$_POST["sendmail"];
+      }
       if (array_key_exists("email", $_POST)) {
          $email=strtolower($_POST["email"]);
          $_SESSION['current_email'] = $email;
       }
-      else $email="";
-      if (array_key_exists("addifmissing", $_POST))
+      if (array_key_exists("addifmissing", $_POST)) {
          $addif=$_POST["addifmissing"];
-      else $addif="off";
+      }
 
-		// TODO: move all db_connets to libraries
+      // TODO: move all db_connets to libraries
       $conn = db_connect(DBDB, DBUSER, DBPASSWD)
       or die("Unable to connect to database.");
 
-        $res = db_query($conn, "begin transaction")
-        or die("Unable to execute query 1.");
-        db_free_result($res);
+      $res = db_query($conn, "begin transaction")
+      or die("Unable to execute query 1.");
+      db_free_result($res);
 
-        $res = db_query($conn, 
+      $res = db_query($conn, 
             "select nextval('incidents_sequence') as incidentid")
-        or die("Unable to execute query 2.");
-        $row = db_fetch_next($res);
-        $incidentid = $row["incidentid"];
-        $_SESSION["active_ip"] = $address;
-        $_SESSION["incidentid"] = $incidentid;
-        db_free_result($res);
+      or die("Unable to execute query 2.");
+      $row = db_fetch_next($res);
+      $incidentid = $row["incidentid"];
+      $_SESSION["active_ip"] = $address;
+      $_SESSION["incidentid"] = $incidentid;
+      db_free_result($res);
 
-        $res = db_query($conn, sprintf(
+      $res = db_query($conn, sprintf(
             "insert into incidents
              (id, created, creator, updated, updatedby, state, status, type)
              values
@@ -361,23 +295,23 @@ EOF;
                 $status == "" ? 'NULL' : $status ,
                 $type == "" ? 'NULL' : $type
             )
-        ) or die("Unable to execute query 3.");
-        db_free_result($res);
-        addIncidentComment("Incident created", "", "", $conn);
-        addIncidentComment(sprintf("state=%s, status=%s, type=%s",
+      ) or die("Unable to execute query 3.");
+      db_free_result($res);
+      addIncidentComment("Incident created", "", "", $conn);
+      addIncidentComment(sprintf("state=%s, status=%s, type=%s",
            getIncidentStateLabelByID($state),
            getIncidentStatusLabelByID($status),
            getIncidentTypeLabelById($type)), "", "", $conn);
 
-        $res = db_query($conn,
+      $res = db_query($conn,
             "select nextval('incident_addresses_sequence') as iaid")
-        or die("Unable to execute query 4.");
-        $row = db_fetch_next($res);
-        $iaid = $row["iaid"];
-        db_free_result($res);
+      or die("Unable to execute query 4.");
+      $row = db_fetch_next($res);
+      $iaid = $row["iaid"];
+      db_free_result($res);
 
       $hostname = @gethostbyaddr($address);
-        $res = db_query($conn, sprintf(
+      $res = db_query($conn, sprintf(
             "insert into incident_addresses
              (id, incident, ip, hostname, constituency, added, addedby)
              values
@@ -389,13 +323,13 @@ EOF;
             db_masq_null($constituency),
                 $_SESSION["userid"]
             )
-        ) or die("Unable to execute query 5.");
-        db_free_result($res);
+      ) or die("Unable to execute query 5.");
+      db_free_result($res);
       addIncidentComment(sprintf("IP address %s added to incident.",
          $address), "", "", $conn);
 
-        $res = db_query($conn, "end transaction");
-        db_close($conn);
+      $res = db_query($conn, "end transaction");
+      db_close($conn);
 
       generateEvent("newincident", array(
          "incidentid" => $incidentid,
@@ -405,7 +339,6 @@ EOF;
          "status"     => $status,
          "type"       => $type
       ));
-
 
       if ($email != "") {
          $user = getUserByEmail($email);
@@ -439,7 +372,7 @@ EOF;
     //--------------------------------------------------------------------
     case "list":
         pageHeader("Incident overview");
-		  // TODO: move all db_connets to libraries
+      // TODO: move all db_connets to libraries
         $conn = db_connect(DBDB, DBUSER, DBPASSWD)
         or die("Unable to connect to database.");
 
@@ -528,12 +461,9 @@ EOF;
              ORDER BY i.id")
         or die("Unable to execute query (1)");
 
-        if (db_num_rows($res) == 0)
-        {
+        if (db_num_rows($res) == 0) {
             echo "<I>No incidents.</I>";
-        }
-        else
-        {
+        } else {
             echo <<<EOF
 <table width='100%'>
 <tr>
@@ -660,15 +590,15 @@ EOF;
             exit();
          }
       }
-      
+
       $user = getUserByUserID($id["id"]);
       addUserToIncident($id["id"], $incidentid);
       addIncidentComment(sprintf("User %s added to incident.",
          $user["email"]));
-      
+
       Header(sprintf("Location: $_SERVER[PHP_SELF]?action=details&incidentid=%s",
          urlencode($incidentid)));
-      
+
       break;
     //--------------------------------------------------------------------
    case "deluser":
@@ -704,7 +634,7 @@ EOF;
 
     //--------------------------------------------------------------------
    case "Update":
-    case "update":
+   case "update":
       if (array_key_exists("incidentid", $_SESSION)) 
          $incidentid = $_SESSION["incidentid"];
       else die("Missing information.");
@@ -725,7 +655,7 @@ EOF;
          "type" => $type
       ));
 
-		// TODO: move all db_connets to libraries
+    // TODO: move all db_connets to libraries
       $conn = db_connect(DBDB, DBUSER, DBPASSWD)
       or die("Unable to connect to database.");
       $res = db_query($conn, sprintf("
@@ -750,87 +680,86 @@ EOF;
       break;
 
     //--------------------------------------------------------------------
-	 case "showstates":
-	   generateEvent('pageHeader', array('title' => 'Available incident states'));
-		// TODO: move all db_connets to libraries
+   case "showstates":
+     generateEvent('pageHeader', array('title' => 'Available incident states'));
+    // TODO: move all db_connets to libraries
       $conn = db_connect(DBDB, DBUSER, DBPASSWD)
       or die("Unable to connect to database.");
       $res = db_query($conn, sprintf("
          SELECT label, descr
-			FROM   incident_states
-			ORDER BY label"))
+      FROM   incident_states
+      ORDER BY label"))
       or die("Unable to query incident states.");
-		$output = "<script language=\"JavaScript\">\n";
-		$output .= "window.resizeTo(800,500);\n";
-		$output .= "</script>";
-		$output .= "<table>\n";
-		while ($row = db_fetch_next($res)) {
-			$output .= "<tr>\n";
-			$output .= "  <td>$row[label]</td>\n";
-			$output .= "  <td>$row[descr]</td>\n";
-			$output .= "</tr>\n";
-		}
-		$output .= "</table>\n";
-		print $output;
+    $output = "<script language=\"JavaScript\">\n";
+    $output .= "window.resizeTo(800,500);\n";
+    $output .= "</script>";
+    $output .= "<table>\n";
+    while ($row = db_fetch_next($res)) {
+      $output .= "<tr>\n";
+      $output .= "  <td>$row[label]</td>\n";
+      $output .= "  <td>$row[descr]</td>\n";
+      $output .= "</tr>\n";
+    }
+    $output .= "</table>\n";
+    print $output;
       db_close($conn);
-	   break;
-	  
-	  //--------------------------------------------------------------------
-	 case "showtypes":
-	   generateEvent('pageHeader', array('title' => 'Available incident types'));
-		// TODO: move all db_connets to libraries
+     break;
+
+    //--------------------------------------------------------------------
+   case "showtypes":
+     generateEvent('pageHeader', array('title' => 'Available incident types'));
+    // TODO: move all db_connets to libraries
       $conn = db_connect(DBDB, DBUSER, DBPASSWD)
       or die("Unable to connect to database.");
       $res = db_query($conn, sprintf("
          SELECT label, descr
-			FROM   incident_types
-			ORDER BY label"))
+      FROM   incident_types
+      ORDER BY label"))
       or die("Unable to query incident types.");
-		$output = "<script language=\"JavaScript\">\n";
-		$output .= "window.resizeTo(800,500);\n";
-		$output .= "</script>";
+    $output = "<script language=\"JavaScript\">\n";
+    $output .= "window.resizeTo(800,500);\n";
+    $output .= "</script>";
 
-		$output .= "<table>\n";
-		while ($row = db_fetch_next($res)) {
-			$output .= "<tr>\n";
-			$output .= "  <td>$row[label]</td>\n";
-			$output .= "  <td>$row[descr]</td>\n";
-			$output .= "</tr>\n";
-		}
-		$output .= "</table>\n";
-		print $output;
+    $output .= "<table>\n";
+    while ($row = db_fetch_next($res)) {
+      $output .= "<tr>\n";
+      $output .= "  <td>$row[label]</td>\n";
+      $output .= "  <td>$row[descr]</td>\n";
+      $output .= "</tr>\n";
+    }
+    $output .= "</table>\n";
+    print $output;
       db_close($conn);
-	   break;
+     break;
 
-	  //--------------------------------------------------------------------
-	 case "showstatus":
-	   generateEvent('pageHeader', array('title' => 'Available incident statuses'));
-		// TODO: move all db_connets to libraries
+    //--------------------------------------------------------------------
+   case "showstatus":
+     generateEvent('pageHeader', array('title' => 'Available incident statuses'));
+    // TODO: move all db_connets to libraries
       $conn = db_connect(DBDB, DBUSER, DBPASSWD)
       or die("Unable to connect to database.");
       $res = db_query($conn, sprintf("
          SELECT label, descr
-			FROM   incident_status
-			ORDER BY label"))
+      FROM   incident_status
+      ORDER BY label"))
       or die("Unable to query incident statuses.");
-		$output = "<script language=\"JavaScript\">\n";
-		$output .= "window.resizeTo(800,500);\n";
-		$output .= "</script>";
-		$output .= "<table>\n";
-		while ($row = db_fetch_next($res)) {
-			$output .= "<tr>\n";
-			$output .= "  <td>$row[label]</td>\n";
-			$output .= "  <td>$row[descr]</td>\n";
-			$output .= "</tr>\n";
-		}
-		$output .= "</table>\n";
-		print $output;
+    $output = "<script language=\"JavaScript\">\n";
+    $output .= "window.resizeTo(800,500);\n";
+    $output .= "</script>";
+    $output .= "<table>\n";
+    while ($row = db_fetch_next($res)) {
+      $output .= "<tr>\n";
+      $output .= "  <td>$row[label]</td>\n";
+      $output .= "  <td>$row[descr]</td>\n";
+      $output .= "</tr>\n";
+    }
+    $output .= "</table>\n";
+    print $output;
       db_close($conn);
-	   break;
+     break;
   break;
     //--------------------------------------------------------------------
     default:
         die("Unknown action");
 }
-
 ?>
