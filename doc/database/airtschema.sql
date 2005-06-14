@@ -1,6 +1,5 @@
-
 -- AIRT: APPLICATION FOR INCIDENT RESPONSE
--- Copyright (C) 2004   Tilburg University, The Netherlands
+-- Copyright (C) 2005   Tilburg University, The Netherlands
 
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -63,63 +62,62 @@ begin transaction;
 
 CREATE TABLE incident_types ( 
     id          integer,
-    label       varchar(50),
+    label       varchar(50) not null,  -- with unique index
     descr       varchar(80),
-    isdefault   boolean,
+    isdefault   boolean not null,
     primary key (id)
 );
 
 CREATE TABLE incident_states (
     id          integer,
-    label       varchar(50),
+    label       varchar(50) not null,  -- with unique index
     descr       varchar(80),
-    isdefault   boolean,
+    isdefault   boolean not null,
     primary key (id)
 );
 
 CREATE TABLE incident_status (
     id          integer,
-    label       varchar(50),
+    label       varchar(50) not null,  -- with unique index
     descr       varchar(80),
-    isdefault   boolean,
+    isdefault   boolean not null,
     primary key (id)
 );
 
 CREATE TABLE constituencies (
     id          integer,
-    label       varchar(50),
-		descr       varchar(80),
+    label       varchar(50) not null,  -- with unique index
     name        varchar(100),
     primary key (id)
 );
 
 CREATE TABLE roles (
     id          integer,
-    label       varchar(50),
+    label       varchar(50) not null,  -- with unique index
     primary key (id)
 );
 
-CREATE TABLE users (
+CREATE TABLE users (  -- also contains external people linked to incidents
     id          integer,
     lastname    varchar(100),
     firstname   varchar(100),
-    email       varchar(100),
+    email       varchar(100) not null,  -- with unique index
     phone       varchar(100),
-	  login		varchar(100),
-	  userid		varchar(100),
-	  password	varchar(100),
+    login       varchar(100),  -- AIRT login
+    userid      varchar(100),  -- external identifier
+    password    varchar(100),  -- only for AIRT users
     primary key (id)
 );
 
 CREATE TABLE incidents (
     id          integer,
-    created     timestamp,
-    creator     integer,
+    created     timestamp not null,
+    creator     integer not null,
     updated     timestamp,
     updatedby   integer,
-    state       integer,
-    status      integer,
-    type        integer,
+    state       integer not null,
+    status      integer not null,
+    type        integer not null,
     primary key (id),
     foreign key (creator)   references users(id),
     foreign key (updatedby) references users(id),
@@ -130,33 +128,34 @@ CREATE TABLE incidents (
 
 CREATE TABLE incident_addresses (
     id           integer,
-    incident     integer,
-    ip           varchar(128),
-	hostname     varchar(128),
-	constituency integer,
-    added        timestamp,
-    addedby      integer,
+    incident     integer not null,
+    ip           varchar(128) not null,
+    hostname     varchar(128) not null,
+    constituency integer not null,
+    added        timestamp not null,
+    addedby      integer not null,
     primary key  (id),
     foreign key  (incident) references incidents(id),
-    foreign key  (addedby)  references users(id)
+    foreign key  (constituency) references constituencies(id),
+    foreign key  (addedby) references users(id)
 );
 
 create table incident_users (
     id          integer,
-    incidentid  integer,
-    userid      integer,
-    added       timestamp,
-    addedby     integer,
+    incidentid  integer not null,
+    userid      integer not null,
+    added       timestamp not null,
+    addedby     integer notnull,
     primary key (id),
     foreign key (incidentid) references incidents(id),
     foreign key (userid) references users(id),
-	foreign key (addedby) references users(id)
+    foreign key (addedby) references users(id)
 );
 
 CREATE TABLE role_assignments (
     id          integer,
-    role        integer,
-    userid      integer,
+    role        integer not null,
+    userid      integer not null,
     primary key (id),
     foreign key (role) references roles(id),
     foreign key (userid) references users(id)
@@ -164,29 +163,29 @@ CREATE TABLE role_assignments (
 
 CREATE TABLE constituency_contacts (
     id           integer,
-    constituency integer,
-    userid       integer,
+    constituency integer not null,
+    userid       integer not null,
     primary key (id),
     foreign key (constituency) references constituencies(id),
     foreign key (userid)       references users(id)
 );
 
 CREATE TABLE networks (
-    id          integer,
-    network     varchar(128),
-    netmask     varchar(128),
-    label       varchar(50),
-    constituency integer,
+    id           integer,
+    network      varchar(128) not null,
+    netmask      varchar(128),
+    label        varchar(50) not null,
+    constituency integer not null,
     primary key (id),
     foreign key (constituency) references constituencies(id)
 );
 
 CREATE TABLE incident_comments ( 
     id          integer,
-    incident    integer,
-    comment     varchar(240),
-    added       timestamp,
-    addedby     integer,
+    incident    integer not null,
+    comment     varchar(240) not null,
+    added       timestamp not null,
+    addedby     integer not null,
     primary key (id),
     foreign key (incident) references incidents(id),
     foreign key (addedby) references users(id)
@@ -194,10 +193,10 @@ CREATE TABLE incident_comments (
 
 CREATE TABLE user_comments ( 
     id          integer,
-    userid      integer,
-    comment     varchar(240),
-    added       timestamp,
-    addedby     integer,
+    userid      integer not null,
+    comment     varchar(240) not null,
+    added       timestamp not null,
+    addedby     integer not null,
     primary key (id),
     foreign key (userid) references users(id),
     foreign key (addedby) references users(id)
@@ -205,24 +204,24 @@ CREATE TABLE user_comments (
 
 CREATE TABLE urls (
     id          integer,
-    url         varchar(255),
-    label       varchar(255),
-    createdby   integer,
-    created     timestamp,
+    url         varchar(255) not null,
+    label       varchar(255) not null,  -- with unique index
+    createdby   integer not null,
+    created     timestamp not null,
     primary key (id),
     foreign key (createdby) references users(id)
 );
 
 CREATE TABLE permissions (
     id          integer,
-    label       varchar(128),
+    label       varchar(128) not null,  -- with unique index
     primary key (id)
 );
 
 CREATE TABLE role_permissions (
     id          integer,
-    role        integer,
-    permission  integer,
+    role        integer not null,
+    permission  integer not null,
     primary key (id),
     foreign key (role) references roles(id),
     foreign key (permission) references permissions(id)
@@ -230,12 +229,12 @@ CREATE TABLE role_permissions (
 
 CREATE TABLE blocks (
     id            integer,
-    ip            varchar(128),
+    ip            varchar(128) not null,
     block_start   timestamp,
     block_end     timestamp,
-    lastupdated   timestamp,
-    lastupdatedby integer,
-    incident      integer,
+    lastupdated   timestamp not null,
+    lastupdatedby integer not null,
+    incident      integer not null,
     primary key (id),
     foreign key (lastupdatedby) references users(id),
     foreign key (incident) references incidents(id)
@@ -260,5 +259,14 @@ CREATE SEQUENCE permissions_sequence;
 CREATE SEQUENCE role_permissions_sequence;
 CREATE SEQUENCE blocks_sequence;
 CREATE SEQUENCE incident_users_sequence;
+
+CREATE UNIQUE INDEX incident_types_label on incident_types(upper(label));
+CREATE UNIQUE INDEX incident_states_label on incident_states(upper(label));
+CREATE UNIQUE INDEX incident_status_label on incident_status(upper(label));
+CREATE UNIQUE INDEX constituencies_label on constituencies(upper(label));
+CREATE UNIQUE INDEX roles_label on roles(upper(label));
+CREATE UNIQUE INDEX users_email on users(upper(email));
+CREATE UNIQUE INDEX urls_label on urls(upper(label));
+CREATE UNIQUE INDEX permissions_label on permissions(upper(label));
 
 end transaction;
