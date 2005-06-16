@@ -44,30 +44,42 @@ function getIncidentStates() {
     return $states;
 }
 
+/* Return the current incident state ID system default. If there is no
+ * explicit default set, return an empty string. */
+function getIncidentStateDefault() {
+    $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+    or die("Unable to connect to database.");
 
-function showIncidentStateSelection($name, $default="") {
-    printf("<select name=\"%s\">\n",
-        htmlentities($name));
-    $states = getIncidentStates();
-    foreach ($states as $i=>$l)
-    {
-        printf("<option value='%s' %s>%s</option>\n",
-            htmlentities($i),
-			($i == $default) ? "SELECTED" : "",
-            htmlentities($l));
+    $res = db_query($conn,
+        'SELECT   id
+         FROM     incident_states
+         WHERE    isdefault')
+    or die('Unable to execute query.');
+
+    if (db_num_rows($res)==1) {
+      // Exactly one row == exactly one default, perfect.
+      $row = db_fetch_next($res);
+      $default = $row['id'];
+    } else {
+      // Unsure.
+      $default = '';
     }
-    printf("</select>");
+    db_close($conn);
+    return $default;
 }
 
 /* Return an HTML SELECT box containing valid choices for incident states */
 function getIncidentStateSelection($name, $default='') {
-	$output = sprintf("<select name=\"%s\">\n", htmlentities($name));
-	$states = getIncidentStates();
-	foreach ($states as $i=>$l) {
-		$output .= sprintf("<option value=\"%s\" %s>%s</option>\n", htmlentities($i), ($i == $default) ? "SELECTED" : "", htmlentities($l));
-	}
-	$output .= "</select>";
-	return $output;
+   $output = sprintf("<select name=\"%s\">\n", htmlentities($name));
+   $states = getIncidentStates();
+   if ($default=='') {
+      $default = getIncidentStateDefault();
+   }
+   foreach ($states as $i=>$l) {
+      $output .= sprintf("<option value=\"%s\" %s>%s</option>\n", htmlentities($i), ($i == $default) ? "SELECTED" : "", htmlentities($l));
+   }
+   $output .= "</select>";
+   return $output;
 }
 
 function getIncidentStatus() {
@@ -87,28 +99,42 @@ function getIncidentStatus() {
     return $status;
 }
 
-function showIncidentStatusSelection($name, $default="") {
-    printf("<select name=\"%s\">\n",
-        htmlentities($name));
-    $status = getIncidentStatus();
-    foreach ($status as $i=>$l) {
-        printf("<option value='%s' %s>%s</option>\n",
-            htmlentities($i),
-			($i == $default) ? "SELECTED" : "",
-            htmlentities($l));
+/* Return the current incident status ID system default. If there is no
+ * explicit default set, return an empty string. */
+function getIncidentStatusDefault() {
+    $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+    or die("Unable to connect to database.");
+
+    $res = db_query($conn,
+        'SELECT   id
+         FROM     incident_status
+         WHERE    isdefault')
+    or die('Unable to execute query.');
+
+    if (db_num_rows($res)==1) {
+      // Exactly one row == exactly one default, perfect.
+      $row = db_fetch_next($res);
+      $default = $row['id'];
+    } else {
+      // Unsure.
+      $default = '';
     }
-    printf("</select>");
+    db_close($conn);
+    return $default;
 }
 
 /* Return an HTML SELECT box containing valid choices for incident statuses */
 function getIncidentStatusSelection($name, $default='') {
-	$output = sprintf("<select name=\"%s\">\n", htmlentities($name));
-	$states = getIncidentStatus();
-	foreach ($states as $i=>$l) {
-		$output .= sprintf("<option value=\"%s\" %s>%s</option>\n", htmlentities($i), ($i == $default) ? "SELECTED" : "", htmlentities($l));
-	}
-	$output .= "</select>";
-	return $output;
+   $output = sprintf("<select name=\"%s\">\n", htmlentities($name));
+   $states = getIncidentStatus();
+   if ($default=='') {
+      $default = getIncidentStatusDefault();
+   }
+   foreach ($states as $i=>$l) {
+      $output .= sprintf("<option value=\"%s\" %s>%s</option>\n", htmlentities($i), ($i == $default) ? "SELECTED" : "", htmlentities($l));
+   }
+   $output .= "</select>";
+   return $output;
 }
 
 function getIncidentTypes() {
@@ -128,28 +154,43 @@ function getIncidentTypes() {
     return $types;
 }
 
-function showIncidentTypeSelection($name, $default="") {
-    printf("<select name=\"%s\">\n",
-        htmlentities($name));
-    $states = getIncidentTypes();
-    foreach ($states as $i=>$l) {
-        printf("<option value='%s' %s>%s</option>\n",
-            htmlentities($i),
-			($i == $default) ? "SELECTED" : "",
-            htmlentities($l));
+/* Return the current incident type ID system default. If there is no
+ * explicit default set, return an empty string. */
+function getIncidentTypeDefault() {
+    $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+    or die("Unable to connect to database.");
+
+    $res = db_query($conn,
+        'SELECT   id
+         FROM     incident_types
+         WHERE    isdefault')
+    or die('Unable to execute query.');
+
+    if (db_num_rows($res)==1) {
+      // Exactly one row == exactly one default, perfect.
+      $row = db_fetch_next($res);
+      $default = $row['id'];
+    } else {
+      // Unsure.
+      $default = '';
     }
-    printf("</select>");
+    db_close($conn);
+    return $default;
 }
 
-/* Return an HTML SELECT box containing valid choices for incident types */
+/* Return an HTML SELECT box containing valid choices for incident types.
+   When a default choice is not given (""), fetch system default.*/
 function getIncidentTypeSelection($name, $default='') {
-	$output = sprintf("<select name=\"%s\">\n", htmlentities($name));
-	$states = getIncidentTypes();
-	foreach ($states as $i=>$l) {
-		$output .= sprintf("<option value=\"%s\" %s>%s</option>\n", htmlentities($i), ($i == $default) ? "SELECTED" : "", htmlentities($l));
-	}
-	$output .= "</select>";
-	return $output;
+   $output = sprintf("<select name=\"%s\">\n", htmlentities($name));
+   $states = getIncidentTypes();
+   if ($default=='') {
+      $default = getIncidentTypeDefault();
+   }
+   foreach ($states as $i=>$l) {
+      $output .= sprintf("<option value=\"%s\" %s>%s</option>\n", htmlentities($i), ($i == $default) ? "SELECTED" : "", htmlentities($l));
+   }
+   $output .= "</select>";
+   return $output;
 }
 
 function getOpenIncidents() {
@@ -189,7 +230,6 @@ function getOpenIncidents() {
     db_close($conn);
     return $incidents;
 }
-
 
 function getIncident($id) {
     $conn = db_connect(DBDB, DBUSER, DBPASSWD)
@@ -423,7 +463,8 @@ function removeUserfromIncident($userid, $incident) {
 }
 
 /* Return an HTML formatted string containing the basic incident data (type,
- * state and status
+ * state and status. All input variables may be "", which leads to a system
+ * default selection.
  */
 function formatBasicIncidentData($type, $state, $status) {
 	$output = "<table>\n";
