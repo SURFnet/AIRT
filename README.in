@@ -222,4 +222,16 @@ Should you see any warnings or errors, please review them carefully. In
 many cases, there is no real problem, but for consistency reasons you should
 try to fix the offending issues.
 
+
+Digitally signing outgoing mail with GPG
+----------------------------------------
+
+AIRT is able to digitally sign messages using GPG. To enable the feature, edit
+the configuration file and uncomment the line which defined the GPG_KEYID.
+Replace the keyID with your own key, and set the GPG_HOMEDIR to a directory in
+which a keyring can be found containing the key that must be used to signed
+messages.
+
+The GPG_HOMEDIR should point to a directory which is owned by www-data.www-data and has permission mode 700. The pubring.gpg and the secring.gpg files which must be present in that directory must be mode 500.
+
 # EOF
