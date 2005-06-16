@@ -176,7 +176,7 @@ EOF;
                 INSERT INTO incident_states
                 (id, label, descr, isdefault)
                 VALUES
-                (nextval('incident_states_sequence'), %s, %s)",
+                (nextval('incident_states_sequence'), %s, %s, %s)",
                     db_masq_null($label),
                     db_masq_null($desc),
                     db_masq_null($isdefault)))
