@@ -27,6 +27,7 @@ DROP SEQUENCE constituencies_sequence;
 DROP SEQUENCE roles_sequence;
 DROP SEQUENCE users_sequence;
 DROP SEQUENCE incidents_sequence;
+DROP SEQUENCE ipaddresses_sequence;
 DROP SEQUENCE incident_users_sequence;
 DROP SEQUENCE incident_addresses_sequence;
 DROP SEQUENCE role_assignments_sequence;
@@ -145,7 +146,7 @@ create table incident_users (
     incidentid  integer not null,
     userid      integer not null,
     added       timestamp not null,
-    addedby     integer notnull,
+    addedby     integer not null,
     primary key (id),
     foreign key (incidentid) references incidents(id),
     foreign key (userid) references users(id),

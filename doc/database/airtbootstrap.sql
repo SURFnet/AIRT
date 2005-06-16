@@ -26,9 +26,9 @@
 begin transaction;
 
 INSERT INTO users
-    (id, lastname, login, password) 
+    (id, lastname, email, login, password) 
     VALUES
-    (nextval('users_sequence'), 'Administrator', 'admin', 
+    (nextval('users_sequence'), 'Administrator', 'airt@example.com', 'admin', 
     'd033e22ae348aeb5660fc2140aec35850c4da997');
 INSERT INTO roles
     (id, label)
