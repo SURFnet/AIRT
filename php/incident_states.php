@@ -165,12 +165,12 @@ EOF;
 
         if ($isdefault=='t') {
           // The new/updated record is default, so all others are not.
-          $q = "UPDATE incident_status
+          $q = "UPDATE incident_states
                 SET isdefault = 'f'";
           $res = db_query($conn, $q) or die("Unable to execute query 4.");
         }
 
-        // Insert or update the current status record.
+        // Insert or update the current state record.
         if ($action=="add") {
             $res = db_query($conn, sprintf("
                 INSERT INTO incident_states
