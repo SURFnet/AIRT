@@ -29,29 +29,36 @@
  else $action = "list";
 
  function show_form($id="") {
-    $label = '';
-		$desc = '';
-    $action = 'add';
-    $submit = 'Add!';
+    $label     = '';
+    $desc      = '';
+    $isdefault = 'f';
+    $action    = 'add';
+    $submit    = 'Add!';
 
     if ($id != '') {
         $conn = db_connect(DBDB, DBUSER, DBPASSWD)
         or die("Unable to connect to database.");
 
         $res = db_query($conn, "
-        SELECT label, descr
+        SELECT label, descr, isdefault
         FROM   incident_types
         WHERE  id = '$id'")
         or die("Unable to query database.");
 
         if (db_num_rows($res) > 0) {
             $row = db_fetch_next($res);
-            $action = 'update';
-            $submit = 'Update!';
-            $label = $row['label'];
-						$desc = $row['descr'];
+            $action    = 'update';
+            $submit    = 'Update!';
+            $label     = $row['label'];
+            $desc      = $row['descr'];
+            $isdefault = $row['isdefault'];
         }
         db_close($conn);
+    }
+    if ($isdefault=='t') {
+       $isdefault = 'CHECKED';
+    } else {
+       $isdefault = '';
     }
     echo <<<EOF
 <form action="$_SERVER[PHP_SELF]" method="POST">
@@ -65,6 +72,10 @@
 <tr>
     <td>Description</td>
     <td><input type="text" size="50" name="desc" value="$desc"></td>
+</tr>
+<tr>
+    <td>Entry is default</td>
+    <td><input type="checkbox" name="isdefault" value="1" $isdefault></td>
 </tr>
 </table>
 <p>
@@ -81,7 +92,7 @@ EOF;
         or die("Unable to connect to database.");
 
         $res = db_query($conn,
-            "SELECT   id, label, descr
+            "SELECT   id, label, descr, isdefault
              FROM     incident_types
              ORDER BY label")
         or die("Unable to execute query 1");
@@ -90,21 +101,24 @@ EOF;
 <table cellpadding="3">
 <tr>
     <td><B>Label</B></td>
-		<td><B>Description</B></td>
+    <td><B>Description</B></td>
+    <td><B>Is default</B></td>
     <td><B>Edit</B></td>
     <td><B>Delete</B></td>
 </tr>
 EOF;
         $count=0;
         while ($row = db_fetch_next($res)) {
-            $label = $row['label'];
-            $id    = $row['id'];
-						$desc  = $row['descr'];
+            $label     = $row['label'];
+            $id        = $row['id'];
+            $desc      = $row['descr'];
+            $isdefault = $row['isdefault']=='t'? 'Yes':'';
             $color = ($count++%2==0?"#FFFFFF":"#DDDDDD");
             echo <<<EOF
 <tr valign="top" bgcolor="$color">
     <td>$label</td>
-		<td>$desc</td>
+    <td>$desc</td>
+    <td>$isdefault</td>
     <td><a href="$_SERVER[PHP_SELF]?action=edit&id=$id">edit</a></td>
     <td><a href="$_SERVER[PHP_SELF]?action=delete&id=$id">delete</a></td>
 </tr>
@@ -139,18 +153,32 @@ EOF;
         else die("Missing information (1).");
         if (array_key_exists("desc", $_POST)) $desc=$_POST["desc"];
         else die("Missing information (2).");
+        if (array_key_exists("isdefault", $_POST)) {
+          $isdefault = 't';
+        } else {
+          $isdefault = 'f';
+        }
 
+        $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+           or die("Unable to connect to database.");
+
+        if ($isdefault=='t') {
+          // The new/updated record is default, so all others are not.
+          $q = "UPDATE incident_types
+                SET isdefault = 'f'";
+          $res = db_query($conn, $q) or die("Unable to execute query 4.");
+        }
+
+        // Insert or update the current type record.
         if ($action=="add") {
-            $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-            or die("Unable to connect to database.");
-
             $res = db_query($conn, sprintf("
                 INSERT INTO incident_types
-                (id, label, descr)
+                (id, label, descr, isdefault)
                 VALUES
-                (nextval('incident_types_sequence'), %s, %s)",
+                (nextval('incident_types_sequence'), %s, %s, %s)",
                     db_masq_null($label),
-										db_masq_null($desc)))
+                    db_masq_null($desc),
+                    db_masq_null($isdefault)))
             or die("Unable to excute query.");
 
             db_close($conn);
@@ -163,10 +191,12 @@ EOF;
             $res = db_query($conn, sprintf("
                 UPDATE incident_types
                 set  label=%s,
-								     descr=%s
+                     descr=%s,
+                     isdefault=%s
                 WHERE id=%s",
                     db_masq_null($label),
                     db_masq_null($desc),
+                    db_masq_null($isdefault),
                     $id))
             or die("Unable to excute query.");
 
