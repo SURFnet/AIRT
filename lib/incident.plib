@@ -23,6 +23,7 @@
  */
 require_once LIBDIR.'/database.plib';
 require_once LIBDIR.'/search.plib';
+require_once LIBDIR.'/constituency.plib';
 
 /* return an associative array with incident states. The key of the array is
  * the incident state ID, the value is the state's label
@@ -486,6 +487,126 @@ function formatBasicIncidentData($type, $state, $status) {
 	$output .= "</table>\n";
 
 	return $output;
+}
+
+
+/* Produces a simple HTML edit form to edit an IP address' data.
+ * Will be expanded in the future.
+ * Requires an incident ID and an IP address in dot notation (could
+ * also have been a single incident_address ID, would be better).
+ * Returns a HTML formatted string.
+ */
+function editIPform($incidentid,$ip) {
+
+  // Retrieve the full address assignment data.
+  $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+    or die('Unable to connect to database.');
+  $q = sprintf("SELECT incident_addresses.id as id,
+                       ip,hostname,constituency,
+                       to_char(added,'YYYY-MM-DD HH24:MI') as added,
+                       u1.email as addedby,
+                       to_char(updated,'YYYY-MM-DD HH24:MI') as updated,
+                       u2.email as updatedby
+                FROM incident_addresses, users as u1, users as u2
+                WHERE incident=%d AND ip=%s
+                  AND u1.id=addedby
+                  AND u2.id=updatedby
+               ",
+         $incidentid,
+         db_masq_null($ip)
+       );
+  $res = db_query($conn, $q)
+    or die('Unable to execute query.');
+  if (db_num_rows($res)>0) {
+    $row = db_fetch_next($res);
+    $id           = $row['id'];
+    $ip           = $row['ip'];
+    $hostname     = $row['hostname'];
+    $constituency = $row['constituency'];
+    $added        = $row['added'];
+    $addedby      = $row['addedby'];
+    $updated      = $row['updated'];
+    $updatedby    = $row['updatedby'];
+    db_close($conn);
+  } else {
+    db_close($conn);
+    die('Could not find assigned IP address.');
+  }
+
+  $o .= sprintf("<form method=\"POST\" action=\"%s\">\n",
+    $_SERVER['PHP_SELF']);
+  $o .= sprintf("<input type=\"HIDDEN\" name=\"action\" value=\"updateip\">\n");
+  $o .= sprintf("<input type=\"HIDDEN\" name=\"id\" value=\"%d\">\n",
+    $id);
+  $o .= sprintf("<input type=\"HIDDEN\" name=\"ip\" value=\"%s\">\n",
+    $ip);
+  $o .= sprintf("<input type=\"HIDDEN\" name=\"incidentid\" value=\"%d\">\n",
+    $incidentid);
+  $o .= "<table>\n";
+  $o .= "  <tr>\n";
+  $o .= "    <td>IP address</td>\n";
+  $o .= sprintf("    <td>%s</td>\n",
+    $ip);
+  $o .= "  </tr>\n";
+  $o .= "  <tr>\n";
+  $o .= "    <td>Host name</td>\n";
+  $o .= sprintf("    <td>%s</td>\n",
+    $hostname);
+  $o .= "  </tr>\n";
+  $o .= "  <tr>\n";
+  $o .= "    <td>Constituency</td>\n";
+  $o .= sprintf("    <td>%s</td>\n",
+    getConstituencySelection('constituency',$constituency));
+  $o .= "  </tr>\n";
+  $o .= "  <tr>\n";
+  $o .= "    <td>Added</td>\n";
+  $o .= sprintf("    <td>%s</td>\n",
+    $added);
+  $o .= "  </tr>\n";
+  $o .= "  <tr>\n";
+  $o .= "    <td>Added by</td>\n";
+  $o .= sprintf("    <td>%s</td>\n",
+    $addedby);
+  $o .= "  </tr>\n";
+  $o .= "  <tr>\n";
+  $o .= "    <td>Updated</td>\n";
+  $o .= sprintf("    <td>%s</td>\n",
+    $updated);
+  $o .= "  </tr>\n";
+  $o .= "  <tr>\n";
+  $o .= "    <td>Updated by</td>\n";
+  $o .= sprintf("    <td>%s</td>\n",
+    $updatedby);
+  $o .= "  </tr>\n";
+  $o .= "  <tr>\n";
+  $o .= "    <td>&nbsp;</td>\n";
+  $o .= "    <td><input type=\"submit\" value=\"Update\"></td>\n";
+  $o .= "  </tr>\n";
+  $o .= "</table>\n";
+  $o .= "</form>\n";
+
+  return $o;
+}
+
+
+/* Attempts to update the incident_addresses table with new data.
+ * Works on a unique ID for the combination (incident,ipadress).
+ * Returns void.
+ */
+function updateIPofIncident($id,$constituency) {
+  $q = sprintf("UPDATE incident_addresses
+                SET constituency=%d,
+                updated=CURRENT_TIMESTAMP,
+                updatedby=%d
+                WHERE id=%d",
+               $constituency,
+               $_SESSION['userid'],
+               $id);
+  $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+    or die("Unable to connect to database.");
+  $res = db_query($conn, $q)
+    or die("Unable to execute query.");
+  db_close($conn);
 }
 
 ?>

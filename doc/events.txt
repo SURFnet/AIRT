@@ -48,9 +48,13 @@ Event: addiptoincident
 data:  array with keys: incidentid, ip
 Note:  Generated after adding address to incident
 
-event: removeipfrom
+event: removeipfromincident
 data:  array with keys: incidentid, ip
 Note:  Generated after removing address from incident
+
+event: updateipdetails
+data:  array with keys: incidentid, ip
+Note:  Generated after updating an address linked to an incident
 
 event: historyshowpre
 data:  array with key: incidentid

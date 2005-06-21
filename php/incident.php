@@ -104,9 +104,14 @@ function formatEditForm() {
    $output .= "<table cellpadding=\"4\">\n";
    foreach ($incident['ips'] as $address) {
      $output .= "<tr>\n";
-     $output .= sprintf("  <td><a href=\"search.php?action=search&hostname=%s\">%s</a></td>\n", urlencode($address), $address);
-     $output .= sprintf("  <td>%s</td>\n", $address==""?"Unknown":@gethostbyaddr(@gethostbyname($address)));
-     $output .= sprintf("  <td><a href=\"$_SERVER[PHP_SELF]?action=deleteip&ip=%s\">remove</a></td>\n", urlencode($address));
+     $output .= sprintf("  <td><a href=\"search.php?action=search&hostname=%s\">%s</a></td>\n",
+        urlencode($address), $address);
+     $output .= sprintf("  <td>%s</td>\n",
+        $address==""?"Unknown":@gethostbyaddr(@gethostbyname($address)));
+     $output .= sprintf("  <td><a href=\"$_SERVER[PHP_SELF]?action=editip&ip=%s\">edit</a></td>\n",
+        urlencode($address));
+     $output .= sprintf("  <td><a href=\"$_SERVER[PHP_SELF]?action=deleteip&ip=%s\">remove</a></td>\n",
+        urlencode($address));
      $output .= "</tr>\n";
    }
    $output .= "</table>\n";
@@ -548,6 +553,63 @@ EOF;
       break;
 
     //--------------------------------------------------------------------
+   case "editip":
+        if (array_key_exists("incidentid", $_SESSION))
+         $incidentid = $_SESSION["incidentid"];
+      else die("Missing information (1).");
+        if (array_key_exists("ip", $_GET)) $ip = $_GET["ip"];
+      else die("Missing information (2).");
+      
+      pageHeader("IP address details");
+      printf(editIPform($incidentid,$ip));
+      pageFooter();
+      break;
+
+    //--------------------------------------------------------------------
+   case 'updateip':
+      // Rough sanity check of data.
+      if (array_key_exists('id', $_POST)) {
+        $id = $_POST['id'];
+      } else {
+        die('Missing information (1).');
+      }
+      if (array_key_exists('constituency', $_POST)) {
+        $constituency = $_POST['constituency'];
+      } else {
+        die('Missing information (2).');
+      }
+      if (array_key_exists('ip', $_POST)) {
+        $ip = $_POST['ip'];
+      } else {
+        die('Missing information (3).');
+      }
+      if (array_key_exists('incidentid', $_POST)) {
+        $incidentid = $_POST['incidentid'];
+      } else {
+        die('Missing information (4).');
+      }
+      // Update the IP details.
+      updateIPofIncident($id,$constituency);
+
+      // Fetch all constituencies for name lookup.
+      $constituencies = getConstituencies();
+      $constLabel = $constituencies[$constituency]['label'];
+
+      // Generate comment and event.
+      addIncidentComment(sprintf('Details of IP address %s updated; const=%s',
+        $ip,
+        $constLabel));
+      generateEvent('updateipdetails', array(
+         'incidentid' => $incidentid,
+         'ip'         => $ip
+      ));
+
+      Header(sprintf('Location: %s?action=details&incidentid=%s',
+         $_SERVER['PHP_SELF'],
+         urlencode($incidentid)));
+      break;
+
+    //--------------------------------------------------------------------
    case "deleteip":
         if (array_key_exists("incidentid", $_SESSION))
          $incidentid = $_SESSION["incidentid"];
@@ -559,14 +621,13 @@ EOF;
       addIncidentComment(sprintf("IP address %s removed from incident.", 
          $ip));
 
-      generateEvent("remoteipfromincident", array(
+      generateEvent("removeipfromincident", array(
          "incidentid" => $incidentid,
          "ip"         => $ip
       ));
       Header(sprintf("Location: $_SERVER[PHP_SELF]?action=details&incidentid=%s",
          urlencode($incidentid)));
       break;
-
 
     //--------------------------------------------------------------------
    case "adduser":

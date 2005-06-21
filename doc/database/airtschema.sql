@@ -135,10 +135,13 @@ CREATE TABLE incident_addresses (
     constituency integer not null,
     added        timestamp not null,
     addedby      integer not null,
+    updated      timestamp,
+    updatedby    integer,
     primary key  (id),
     foreign key  (incident) references incidents(id),
     foreign key  (constituency) references constituencies(id),
-    foreign key  (addedby) references users(id)
+    foreign key  (addedby) references users(id),
+    foreign key  (updatedby) references users(id)
 );
 
 create table incident_users (

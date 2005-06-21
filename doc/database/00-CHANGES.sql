@@ -105,3 +105,11 @@ ALTER TABLE blocks ALTER COLUMN lastupdated SET NOT NULL;
 ALTER TABLE blocks ALTER COLUMN lastupdatedby SET NOT NULL;
 ALTER TABLE blocks ALTER COLUMN incident SET NOT NULL;
 
+-- Add updated[by] fields to incident_addresses.
+ALTER TABLE incident_addresses
+  ADD COLUMN updated timestamp;
+ALTER TABLE incident_addresses
+  ADD COLUMN updatedby integer;
+ALTER TABLE incident_addresses
+  ADD FOREIGN KEY (updatedby) REFERENCES users(id);
+
