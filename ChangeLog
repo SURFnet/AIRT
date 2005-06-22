@@ -2,6 +2,8 @@
 * Fixed compatibility bug in IP address details editor.
 * Fixed misplaced "Add new IP address" box.
 * Added Updated[By] data to new IP address (copy of Added[By]).
+* Fixed bug in search.php that was unveiled by adding "Updated[by]" to
+  incident_addresses.
 
 2005-jun-21
 * Added edit feature for IP addresses associated with an incident. For now,
