@@ -1,3 +1,8 @@
+2005-jun-21
+* Added edit feature for IP addresses associated with an incident. For now,
+  only the constituency of the IP address can be edited, but the infra-
+  structure for a full edit is available.
+
 2005-jun-10
 * php/incident.php: Jim's IP address fix, Jim's suggestion to include closed
   tickets in the selection options.
