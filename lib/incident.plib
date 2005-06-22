@@ -507,10 +507,10 @@ function editIPform($incidentid,$ip) {
                        u1.email as addedby,
                        to_char(updated,'YYYY-MM-DD HH24:MI') as updated,
                        u2.email as updatedby
-                FROM incident_addresses, users as u1, users as u2
+                FROM incident_addresses
+                FULL JOIN users u1 ON u1.id=addedby
+                LEFT JOIN users u2 ON u2.id=updatedby
                 WHERE incident=%d AND ip=%s
-                  AND u1.id=addedby
-                  AND u2.id=updatedby
                ",
          $incidentid,
          db_masq_null($ip)
