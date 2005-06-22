@@ -151,7 +151,7 @@ EOF;
     {
        printf("<tr>
             <td>%s, %s</td>
-            <td><a href=\"%s\">%s</a></td>
+            <td><a href=\"mailto:%s\">%s</a></td>
             <td>%s</td>
             </tr>",
             $row["lastname"], $row["firstname"],

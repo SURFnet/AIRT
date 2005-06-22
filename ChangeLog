@@ -4,6 +4,7 @@
 * Added Updated[By] data to new IP address (copy of Added[By]).
 * Fixed bug in search.php that was unveiled by adding "Updated[by]" to
   incident_addresses.
+* Fixed bug in constituency.plib that omitted "mailto:" in an E-mail URL.
 
 2005-jun-21
 * Added edit feature for IP addresses associated with an incident. For now,
