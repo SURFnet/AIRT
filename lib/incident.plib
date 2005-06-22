@@ -316,14 +316,16 @@ function addIPtoIncident($ip, $incident) {
 
 	$res = db_query($conn, sprintf("
 		INSERT INTO incident_addresses
-		(id, incident, ip, hostname, constituency, added, addedby)
+		(id, incident, ip, hostname, constituency,
+		  added, addedby, updated, updatedby)
 		VALUES
 		(nextval('incident_addresses_sequence'), %s, %s, %s, %s,
-		 CURRENT_TIMESTAMP, %s)",
+		 CURRENT_TIMESTAMP, %s, CURRENT_TIMESTAMP, %s)",
 			db_masq_null($incident),
 			db_masq_null($ip),
 			db_masq_null($hostname),
 			$networkid,
+			db_masq_null($_SESSION["userid"]),
 			db_masq_null($_SESSION["userid"])
 		))
 	or die("Unable to execute query.");

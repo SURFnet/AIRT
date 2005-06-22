@@ -124,6 +124,7 @@ function formatEditForm() {
    $output .= "  <td><input type=\"text\" name=\"ip\" size=\"40\"></td>\n";
    $output .= "  <td><input type=\"submit\" value=\"Add\"></td>\n";
    $output .= "</tr>\n";
+   $output .= "</table>\n";
    $output .= "</form>\n";
 
    $output .= "<hr/>\n";
