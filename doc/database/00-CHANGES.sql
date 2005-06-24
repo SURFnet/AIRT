@@ -113,3 +113,6 @@ ALTER TABLE incident_addresses
 ALTER TABLE incident_addresses
   ADD FOREIGN KEY (updatedby) REFERENCES users(id);
 
+-- Add last and hostnamelast to users
+ALTER TABLE users ADD COLUMN last timestamp;
+ALTER TABLE users ADD COLUMN hostnamelast varchar(128);

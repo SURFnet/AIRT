@@ -107,6 +107,8 @@ CREATE TABLE users (  -- also contains external people linked to incidents
     login       varchar(100),  -- AIRT login
     userid      varchar(100),  -- external identifier
     password    varchar(100),  -- only for AIRT users
+    last	timestamp,
+    hostnamelast varchar(128),
     primary key (id)
 );
 
