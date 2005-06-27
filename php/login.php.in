@@ -61,7 +61,7 @@ echo <<<EOF
 <P>
 <BLOCKQUOTE><small>
     AIRT version @VERSION@, Copyright (C) 2004-2005 Tilburg University
-    &lt;<a href="mailto:kees@uvt.nl">kees@uvt.nl</a>&gt;<BR>
+    &lt;<a href="mailto:airt-dev@uvt.nl">airt-dev@uvt.nl</a>&gt;<BR>
     AIRT comes with ABSOLUTELY NO WARRANTY; for details 
     <a href="license.php">click here</a>.<BR>
     This is free software, and you are welcome to redistribute it
