@@ -25,10 +25,14 @@ require_once LIBDIR.'/database.plib';
 require_once LIBDIR.'/search.plib';
 require_once LIBDIR.'/constituency.plib';
 
-/* return an associative array with incident states. The key of the array is
- * the incident state ID, the value is the state's label
+/* Return an associative array with incident states.
+ * Input: optionally, an array with extra incident states that are not from
+ * the database. Typically, "Please select a state"-like inert selections.
+ * Array format: array[extra_id]=extra_label. The extra states are prefixed
+ * before the states from the database.
+ * Output: array[id]=label.
  */
-function getIncidentStates() {
+function getIncidentStates($extras=array()) {
     $conn = db_connect(DBDB, DBUSER, DBPASSWD)
     or die("Unable to connect to database.");
 
@@ -38,7 +42,7 @@ function getIncidentStates() {
          ORDER BY id")
     or die("Unable to connect to database.");
 
-    $states=array();
+    $states=$extras;
     while ($row = db_fetch_next($res))
         $states[$row["id"]]=$row["label"];
     db_close($conn);
@@ -69,10 +73,19 @@ function getIncidentStateDefault() {
     return $default;
 }
 
-/* Return an HTML SELECT box containing valid choices for incident states */
-function getIncidentStateSelection($name, $default='') {
+/* Return an HTML SELECT box containing valid choices for incident states.
+ * Input: name = The HTML name of the selection box.
+ *        default = Optionally, the ID of the default selection. If not
+ *                  given, the database default state is used as selection
+ *                  default.
+ *        extras = Optionally, an array [id]=>label with extra states that
+ *                 do not come from the database, and that are prefixed
+ *                 before the database states (typically "Select State").
+ * Output: HTML string with full <select> block.
+ */
+function getIncidentStateSelection($name, $default='', $extras=array()) {
    $output = sprintf("<select name=\"%s\">\n", htmlentities($name));
-   $states = getIncidentStates();
+   $states = getIncidentStates($extras);
    if ($default=='') {
       $default = getIncidentStateDefault();
    }
@@ -83,7 +96,14 @@ function getIncidentStateSelection($name, $default='') {
    return $output;
 }
 
-function getIncidentStatus() {
+/* Return an associative array with incident statuses.
+ * Input: optionally, an array with extra incident statuses that are not from
+ * the database. Typically, "Please select a status"-like inert selections.
+ * Array format: array[extra_id]=extra_label. The extra statuses are prefixed
+ * before the statuses from the database.
+ * Output: array[id]=label.
+ */
+function getIncidentStatus($extras=array()) {
     $conn = db_connect(DBDB, DBUSER, DBPASSWD)
     or die("Unable to connect to database.");
 
@@ -93,11 +113,11 @@ function getIncidentStatus() {
          ORDER BY id")
     or die("Unable to connect to database.");
 
-    $status=array();
+    $statuses=$extras;
     while ($row = db_fetch_next($res))
-        $status[$row["id"]]=$row["label"];
+        $statuses[$row["id"]]=$row["label"];
     db_close($conn);
-    return $status;
+    return $statuses;
 }
 
 /* Return the current incident status ID system default. If there is no
@@ -124,14 +144,23 @@ function getIncidentStatusDefault() {
     return $default;
 }
 
-/* Return an HTML SELECT box containing valid choices for incident statuses */
-function getIncidentStatusSelection($name, $default='') {
+/* Return an HTML SELECT box containing valid choices for incident statuses.
+ * Input: name = The HTML name of the selection box.
+ *        default = Optionally, the ID of the default selection. If not
+ *                  given, the database default status is used as selection
+ *                  default.
+ *        extras = Optionally, an array [id]=>label with extra statuses that
+ *                 do not come from the database, and that are prefixed
+ *                 before the database statuses (typically "Select Status").
+ * Output: HTML string with full <select> block.
+ */
+function getIncidentStatusSelection($name, $default='', $extras=array()) {
    $output = sprintf("<select name=\"%s\">\n", htmlentities($name));
-   $states = getIncidentStatus();
+   $statuses = getIncidentStatus($extras);
    if ($default=='') {
       $default = getIncidentStatusDefault();
    }
-   foreach ($states as $i=>$l) {
+   foreach ($statuses as $i=>$l) {
       $output .= sprintf("<option value=\"%s\" %s>%s</option>\n", htmlentities($i), ($i == $default) ? "SELECTED" : "", htmlentities($l));
    }
    $output .= "</select>";
@@ -609,6 +638,65 @@ function updateIPofIncident($id,$constituency) {
   $res = db_query($conn, $q)
     or die("Unable to execute query.");
   db_close($conn);
+}
+
+
+/* Update basic incident data. For convenience reasons, all data fields
+ * except the ID may be left unspecified (== ""), in which case they will
+ * not be touched. If all fields are "", no update is done at all.
+ * Relevant automatic fields will be generated accordingly.
+ * Returns void.
+ */
+function updateIncident($id,$state,$status,$type) {
+  // Problem case: no ID given.
+  if ($id=='') {
+    die('No ID given to update request.');
+  }
+
+  // Special case: no work to be done.
+  if ($state=='' && $status=='' && $type=='') {
+    return;
+  }
+
+  // Compile the variable part of the SET clause.
+  $set = '';
+  if ($state!='') {
+    $set .= sprintf('state=%d,',$state);
+  }
+  if ($status!='') {
+    $set .= sprintf('status=%d,',$status);
+  }
+  if ($type!='') {
+    $set .= sprintf('type=%d,',$type);
+  }
+
+  // Add the fixed part (we know for sure there is at least one variable
+  // part).
+  $set .= sprintf('updated=CURRENT_TIMESTAMP,updatedBy=%d',
+                  $_SESSION['userid']);
+
+  // Create the whole query.
+  $q = sprintf('UPDATE incidents SET %s WHERE id=%d',
+               $set,
+               $id);
+  // Get DB connection and do the work.
+  $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+     or die('Unable to connect to database.');
+  db_query($conn,$q);
+  db_close($conn);
+
+  return;
+}
+
+/* Mass update a list of incidents. Only status and state can be given and
+ * will be set to each incident ID in the list.
+ * Returns void.
+ */
+function updateIncidentList($incidentList,$state,$status) {
+  foreach ($incidentList as $id) {
+    updateIncident($id,$state,$status,'');
+  }
+  return;
 }
 
 ?>

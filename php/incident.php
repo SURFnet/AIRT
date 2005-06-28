@@ -422,9 +422,15 @@ EOF;
    </td>
 </tr>
 </table>
-
-
 EOF;
+
+        echo <<<EOF
+<p>
+<form action="$_SERVER[PHP_SELF]" method="POST">
+<input type="submit" name="action" value="New incident">
+</form>
+EOF;
+
       switch ($filter) {
          case 1: $sqlfilter = "AND s2.label = 'open'";
             break;
@@ -471,11 +477,14 @@ EOF;
             echo "<I>No incidents.</I>";
         } else {
             echo <<<EOF
+<form action="$_SERVER[PHP_SELF]" method="POST">
+<INPUT TYPE="hidden" name="action" value="massupdate">
 <table width='100%'>
 <tr>
-   <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
     <th>Incident ID</th>
-   <th>Consituency</th>
+    <th>Consituency</th>
     <th>Hostname</th>
     <th>Status</th>
     <th>State</th>
@@ -504,6 +513,7 @@ EOF;
             $color = ($count++%2 == 1) ? '#FFFFFF' : '#DDDDDD';
                 echo <<<EOF
 <tr bgcolor='$color'>
+   <td><input type="checkbox" name="massincidents[]" value="$id"></td>
    <td><a href="$_SERVER[PHP_SELF]?action=details&incidentid=$id">details</a></td>
     <td>$incidentid</td>
    <td>$constituency</td>
@@ -515,18 +525,33 @@ EOF;
 </tr>
 EOF;
             } // while
-            echo "</table>";
+
+         echo "</table><p>\n";
+         // Create block below the incident list that allows mass updates.
+         echo "<table>\n";
+         echo "<tr><td>New State</td><td>";
+         echo getIncidentStateSelection(
+                 'massstate',
+                 'null',
+                 array('null'=>'Leave Unchanged'));
+         echo "</td></tr>\n";
+         echo "<tr><td>New Status</td><td>";
+         echo getIncidentStatusSelection(
+                 'massstatus',
+                 'null',
+                 array('null'=>'Leave Unchanged'));
+         echo "</td></tr>\n";
+         echo "<tr><td>&nbsp;</td><td>";
+         echo "<input type=\"submit\" value=\"Update All Selected\">";
+         echo "</td></tr>\n";
+         echo "</table>\n";
+
+         echo "</form>";
          printf("<P><I>$count incidents displayed.</I><P>");
             db_free_result($res);
             db_close($conn);
         } // else
 
-        echo <<<EOF
-<p>
-<form action="$_SERVER[PHP_SELF]" method="POST">
-<input type="submit" name="action" value="New incident">
-</form>
-EOF;
       generateEvent("incidentlistpost");
         pageFooter();
         break;
@@ -717,20 +742,7 @@ EOF;
          "type" => $type
       ));
 
-    // TODO: move all db_connets to libraries
-      $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-      or die("Unable to connect to database.");
-      $res = db_query($conn, sprintf("
-         UPDATE incidents
-         SET    state=%s,
-               status=%s,
-               type=%s,
-               updated=CURRENT_TIMESTAMP,
-               updatedby=%s
-         WHERE  id = %s",
-         $state, $status, $type, $_SESSION["userid"], $incidentid))
-      or die("Unable to update incident.");
-      db_close($conn);
+      updateIncident($incidentid,$state,$status,$type);
 
       addIncidentComment(sprintf("Incident updated: state=%s, ".
          "status=%s type=%s", 
@@ -820,8 +832,39 @@ EOF;
       db_close($conn);
      break;
   break;
-    //--------------------------------------------------------------------
-    default:
-        die("Unknown action");
+  //--------------------------------------------------------------------
+  case "massupdate":
+    // massincidents may be absent, this is how HTML checkboxes work.
+    if (array_key_exists('massincidents', $_POST)) {
+       $massIncidents = $_POST['massincidents'];
+    } else {
+      // Nothing checked, nothing to do; disregard command.
+      Header("Location: $_SERVER[PHP_SELF]");
+    }
+    if (array_key_exists('massstate', $_POST)) {
+       $massState = $_POST['massstate'];
+       if ($massState=='null') {
+         $massState = '';
+       }
+    } else {
+       $massState = '';
+    }
+    if (array_key_exists('massstatus', $_POST)) {
+       $massStatus = $_POST['massstatus'];
+       if ($massStatus=='null') {
+         $massStatus = '';
+       }
+    } else {
+       $massStatus = '';
+    }
+
+    updateIncidentList($massIncidents,$massState,$massStatus);
+
+    Header("Location: $_SERVER[PHP_SELF]");
+  break;
+  //--------------------------------------------------------------------
+  default:
+      die("Unknown action");
 }
+
 ?>
