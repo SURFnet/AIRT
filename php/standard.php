@@ -228,6 +228,13 @@ function prepare_message($filename) {
       $to = '';
    }
 
+   generateEvent('premailtemplate', array(
+    'to'=>$to, 
+    'subject'=>$subject, 
+    'from'=>$from, 
+    'replyto'=>$replyto, 
+    'message'=>$msg));
+
    echo <<<EOF
 <FORM action="$_SERVER[PHP_SELF]" method="POST">
 <TABLE WIDTH="80">
@@ -260,6 +267,12 @@ EOF;
       echo <<<EOF
 </FORM>
 EOF;
+   generateEvent('postmailtemplate', array(
+    'to'=>$to, 
+    'subject'=>$subject, 
+    'from'=>$from, 
+    'replyto'=>$replyto, 
+    'message'=>$msg));
    pageFooter();
 } // prepare_message
 
