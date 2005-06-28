@@ -134,7 +134,7 @@
             echo <<<EOF
 <P>
 <FORM action="$_SERVER[PHP_SELF]" method="POST">
-Add user(s) to role: 
+Assing user(s) to constituency: 
 <SELECT MULTIPLE name="userid[]">
 
 EOF;

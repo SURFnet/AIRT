@@ -1,3 +1,6 @@
+2005-jun-28
+* Typo fixes
+
 2005-jun-24
 * Added last-login and hostnamelast to the users-table, and removed the
 fopen-functions for the welcome-message.
