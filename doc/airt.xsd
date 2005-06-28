@@ -17,7 +17,7 @@
 		<xs:sequence>
 			<xs:element name="identification" 
 				type="airt:identificationType" minOccurs="1"
-				maxOccurs="inbounced"/>
+				maxOccurs="unbounded"/>
 			<xs:element name="state" type="xs:string"
 				minOccurs="0" maxOccurs="1"/>
 			<xs:element name="status" type="xs:string"
