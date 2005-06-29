@@ -30,7 +30,7 @@ function getConstituencies() {
     $res = db_query($conn,
         "SELECT   id, label, name
          FROM     constituencies
-         ORDER BY id")
+         ORDER BY label")
     or die("Unable to connect to database.");
 
     $constituencies=array();
@@ -65,7 +65,7 @@ function getConstituencySelection($name="constituency", $default=-1) {
   $output = sprintf("<select name=\"%s\">\n", htmlentities($name));
   $constituencies = getConstituencies();
   foreach ($constituencies as $id=>$data) {
-    $output .= sprintf("<option value=%s %s>%s (%s)</option>\n", htmlentities($id), ($id == $default)?"SELECTED":"", htmlentities($data["name"]), htmlentities($data["label"]));
+    $output .= sprintf("<option value=%s %s>%s (%s)</option>\n", htmlentities($id), ($id == $default)?"SELECTED":"", htmlentities($data["label"]), htmlentities($data["name"]));
   }
   $output .= "</select>\n";
   
