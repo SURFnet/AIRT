@@ -32,7 +32,7 @@ $conn 	= db_connect(DBDB, DBUSER, DBPASSWD)
     	or die("Unable to connect to database.");
 $query  = "SELECT to_char(last,'YYYY-MM-DD HH24:MI') as last,hostnamelast
              FROM users
-            WHERE id='".$_SESSION[userid]."'";
+            WHERE id='$_SESSION[userid]'";
 $res	= db_query($conn,$query)
 	or die("Unable to query database.");
 
@@ -40,7 +40,7 @@ while($row = db_fetch_next($res))
 {
   $last         = $row["last"];
   $hostnamelast = $row["hostnamelast"];
-  printf("<small>Welcome ".$_SESSION["username"].". Your last login was
+  printf("<small>Welcome $_SESSION[username]. Your last login was
   at $last from $hostnamelast.</small>");
 }
 db_free_result($res);
