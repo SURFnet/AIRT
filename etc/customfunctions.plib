@@ -79,11 +79,11 @@ A:hover {
 <body>
 <table height="100%" cellspacing="0" border="0" width="100%">
   <tr>
-    <td height="50" width="200" nowrap class="nav logo">Application for incident response teams</td>
+    <td height="50" width="135" nowrap class="nav logo">Application for incident response teams</td>
     <td><h2 class="title">$data[title]</h2></td>
   </tr>
   <tr valign="top">
-    <td width="200" nowrap class="nav navbar">$navbar</td>
+    <td width="135" nowrap class="nav navbar">$navbar</td>
     <td class="content"><p/>
 EOF;
 }
