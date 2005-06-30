@@ -482,7 +482,6 @@ EOF;
 <table width='100%'>
 <tr>
     <td>&nbsp;</td>
-    <td>&nbsp;</td>
     <th>Incident ID</th>
     <th>Consituency</th>
     <th>Hostname</th>
@@ -514,8 +513,7 @@ EOF;
                 echo <<<EOF
 <tr bgcolor='$color'>
    <td><input type="checkbox" name="massincidents[]" value="$id"></td>
-   <td><a href="$_SERVER[PHP_SELF]?action=details&incidentid=$id">details</a></td>
-    <td>$incidentid</td>
+   <td><a href="$_SERVER[PHP_SELF]?action=details&incidentid=$id">$incidentid</a></td>
    <td>$constituency</td>
     <td>$hostline</td>
     <td>$status</td>

@@ -1,3 +1,7 @@
+2005-jun-30
+* in incidents.php; removed "details" column and added functionality to a
+  clickable incident id
+
 2005-jun-28
 * Typo fixes.
 * Mass incident update added.
