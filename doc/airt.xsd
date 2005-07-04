@@ -4,46 +4,134 @@
    xmlns:airt="http://infolab.uvt.nl/airt"
    targetNamespace="http://infolab.uvt.nl/airt">
 
-	<xs:element name="airt" type="airt:airtType"/>
+	<xs:element name="airt" type="airt:airtType" />
 
-	<xs:complexType name="airtType">
-		<xs:sequence>
-			<xs:element name="incident" type="airt:incidentType"
-						minOccurs="0" maxOccurs="unbounded"/>
-		</xs:sequence>
-	</xs:complexType>
+        <xs:complexType name="airtType">
+                <xs:sequence>
+                        <xs:element name="incident" type="airt:incidentType"
+                                                minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+        </xs:complexType>
 
 	<xs:complexType name="incidentType">
 		<xs:sequence>
-			<xs:element name="identification" 
-				type="airt:identificationType" minOccurs="1"
-				maxOccurs="unbounded"/>
-			<xs:element name="state" type="xs:string"
-				minOccurs="0" maxOccurs="1"/>
-			<xs:element name="status" type="xs:string"
-				minOccurs="0" maxOccurs="1"/>
-			<xs:element name="type" type="xs:string"
-				minOccurs="0" maxOccurs="1"/>
-			<xs:element name="created" type="xs:dateTime"
-				minOccurs="0" maxOccurs="1"/>
-			<xs:element name="updated" type="xs:dateTime"
-				minOccurs="0" maxOccurs="1"/>
-			<xs:element name="address" type="airt:ipaddress"
-				minOccurs="0" maxOccurs="1"/>
+			<xs:element name="messageIdentification"
+				type="airt:messageIdentificationType" 
+				minOccurs="1" maxOccurs="1" />
+			<xs:element name="ticketInformation" 
+				type="airt:ticketInformationType" 
+				minOccurs="1" maxOccurs="1" />
+			<xs:element name="technicalInformation" 
+				type="airt:ticketInformationType" 
+				minOccurs="1" maxOccurs="1" />
+			<xs:element name="computerInformation" 
+				type="airt:computerInformationType" 
+				minOccurs="1" maxOccurs="1" />
 		</xs:sequence>
 	</xs:complexType>
 
-	<xs:simpleType name="ipaddress">
-		<xs:restriction base="xs:string"/>
-	</xs:simpleType>
-
-	<xs:complexType name="identificationType">
+	<xs:complexType name="messageIdentificationType">
+		<xs:element name="message_time" type="xs:dateTime" 
+			minOccurs="1" maxOccurs="1" />
+		<xs:complexType name="sender_details">
+			<xs:sequence>
+				<xs:element name="webservice_location" type="xs:anyURI" 
+					minOccurs="1" maxOccurs="1" />
+				<xs:element name="sender_name" type="xs:string" 
+					minOccurs="0" maxOccurs="1" />
+				<xs:element name="constituency" type="xs:string" 
+					minOccurs="0" maxOccurs="1" />
+				<xs:element name="email" type="xs:string" 
+					minOccurs="0" maxOccurs="unbounded" />
+				<xs:element name="telephone" type="xs:string" 
+					minOccurs="0" maxOccurs="unbounded" />
+				<xs:element name="version" type="xs:string" 
+					minOccurs="1" maxOccurs="1" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="ticketInformationType">
 		<xs:sequence>
-			<xs:element name="prefix" type="xs:string" 
-				minOccurs="1" maxOccurs="1"/>
-			<xs:element name="reference" type="xs:string" 
-				minOccurs="1" maxOccurs="1"/>
+			<xs:element name="constituency" type="xs:string"
+				minOccurs="0" maxOccurs="1" />
+			<xs:complexType name="ticket_number">
+				<xs:sequence>
+					<xs:element name="prefix" type="xs:string" 
+						minOccurs="1" maxOccurs="1"/>
+					<xs:element name="reference" type="xs:string" 
+						minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:complexType>
+			<xs:element name="ticket_creator" type="xs:string" 
+				minOccurs="1" maxOccurs="1" />
+			<xs:element name="ticket_creation_time" type="xs:dateTime" 
+				minOccurs="1" maxOccurs="1" />
+			<xs:complexType name="history">
+				<xs:sequence>
+					<xs:element name="ticket_updater" type="xs:string" 
+						minOccurs="0" maxOccurs="1" />
+					<xs:element name="ticket_update_time" type="xs:dateTime" 
+						minOccurs="0" maxOccurs="1" />
+					<xs:element name="update_action" type="xs:string" 
+						minOccurs="0" maxOccurs="1" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:element name="incident_status" type="xs:string" 
+				minOccurs="1" maxOccurs="1" />
+			<xs:element name="incident_type" type="xs:string" 
+				minOccurs="0" maxOccurs="1" />
+			<xs:element name="comment" type="xs:string" 
+				minOccurs="0" maxOccurs="1" />
 		</xs:sequence>
 	</xs:complexType>
 
+	<xs:complexType name="technicalInformationType">
+		<xs:sequence>
+			<xs:element name="dest_ip" type="xs:string" 
+				minOccurs="0" maxOccurs="1" />
+			<xs:element name="dest_port" type="xs:unsignedShort" 
+				minOccurs="0" maxOccurs="1" />
+			<xs:element name="dest_hostname" type="xs:string" 
+				minOccurs="0" maxOccurs="1" />
+			<xs:element name="source_ip" type="xs:string" 
+				minOccurs="0" maxOccurs="1" />
+			<xs:element name="source_port" type="xs:unsignedShort" 
+				minOccurs="0" maxOccurs="1" />
+			<xs:element name="source_hostname" type="xs:string" 
+				minOccurs="0" maxOccurs="1" />
+			<xs:element name="number_attempts" type="xs:unsignedInt" 
+				minOccurs="0" maxOccurs="1" />
+			<xs:element name="protocol" type="xs:string" 
+				minOccurs="0" maxOccurs="1" />
+			<xs:element name="incident_time" type="xs:dateTime" 
+				minOccurs="0" maxOccurs="1" />
+			<xs:element name="time_dns_resolving" type="xs:string" 
+				minOccurs="0" maxOccurs="1" />
+			<xs:element name="logging" type="xs:string" 
+				minOccurs="0" maxOccurs="1" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="computerInformationType">
+		<xs:sequence>
+			<xs:element name="mac_address" type="xs:string" 
+				minOccurs="0" maxOccurs="1"/>
+			<xs:complexType name="owner">
+				<xs:sequence>
+					<xs:element name="employee_number" type="xs:string"
+						minOccurs="0" maxOccurs="1"/>		
+					<xs:element name="email_address" type="xs:string"
+						minOccurs="0" maxOccurs="1"/>		
+					<xs:element name="name" type="xs:string"
+						minOccurs="0" maxOccurs="1"/>		
+					<xs:element name="region" type="xs:string"
+						minOccurs="0" maxOccurs="1"/>		
+					<xs:element name="role" type="xs:string"
+						minOccurs="0" maxOccurs="1"/>		
+				</xs:sequence>
+			</xs:complexType>
+		</xs:sequence>
+	</xs:complexType>
 </xs:schema>
