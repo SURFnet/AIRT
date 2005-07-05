@@ -7,25 +7,21 @@
 	<xs:element name="airt" type="airt:airtType" />
 
         <xs:complexType name="airtType">
+		<xs:element name="messageIdentification" type="airt:messageIdentificationType" 
+			minOccurs="1" maxOccurs="1" />
                 <xs:sequence>
                         <xs:element name="incident" type="airt:incidentType"
-                                                minOccurs="0" maxOccurs="unbounded"/>
+                            minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
         </xs:complexType>
 
 	<xs:complexType name="incidentType">
 		<xs:sequence>
-			<xs:element name="messageIdentification"
-				type="airt:messageIdentificationType" 
+			<xs:element name="ticketInformation" type="airt:ticketInformationType" 
 				minOccurs="1" maxOccurs="1" />
-			<xs:element name="ticketInformation" 
-				type="airt:ticketInformationType" 
+			<xs:element name="technicalInformation" type="airt:technicalInformationType" 
 				minOccurs="1" maxOccurs="1" />
-			<xs:element name="technicalInformation" 
-				type="airt:ticketInformationType" 
-				minOccurs="1" maxOccurs="1" />
-			<xs:element name="computerInformation" 
-				type="airt:computerInformationType" 
+			<xs:element name="computerInformation" type="airt:computerInformationType" 
 				minOccurs="1" maxOccurs="1" />
 		</xs:sequence>
 	</xs:complexType>
