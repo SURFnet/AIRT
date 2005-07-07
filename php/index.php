@@ -28,31 +28,9 @@ require_once LIBDIR."/database.plib";
 
 pageHeader("AIRT Control Center");
 
-$conn 	= db_connect(DBDB, DBUSER, DBPASSWD)
-    	or die("Unable to connect to database.");
-$query  = "SELECT to_char(last,'YYYY-MM-DD HH24:MI') as last,hostnamelast
-             FROM users
-            WHERE id='$_SESSION[userid]'";
-$res	= db_query($conn,$query)
-	or die("Unable to query database.");
+printf("<small>Welcome $_SESSION[username]. Your last login was at
+$_SESSION[lastdb] from $_SESSION[hostnamelast].</small>");
 
-while($row = db_fetch_next($res)) 
-{
-  $last         = $row["last"];
-  $hostnamelast = $row["hostnamelast"];
-  printf("<small>Welcome $_SESSION[username]. Your last login was
-  at $last from $hostnamelast.</small>");
-}
-db_free_result($res);
-db_close($conn);
-
-#$filename=sprintf(STATEDIR."/last_%s.txt", $_SESSION["username"]);
-#if (file_exists($filename)) {
-#  $f = fopen($filename, "r");
-#  $lastlogin = fgets($f, 255);
-#  fclose($f);
-#  printf("<small>$lastlogin</small>");
-#}
 echo "<HR>";
 generateEvent('mainmenutop');
 ?>
