@@ -63,21 +63,13 @@ function airt_initsession($userid='') {
 	$user = getUserByUserID($userid);
 	if (!$user) die("Incorrect login!");
 
-#	$f = fopen(STATEDIR."/last_$user[login].txt","w");
-#	fputs($f, sprintf(
-#		"Welcome %s. Your last login was at %s from %s.\n",
-#		$user['login'], 
-#		Date("r"), 
-#		@gethostbyaddr($_SERVER["REMOTE_ADDR"])));
-#	fclose($f);
-	
 	generateEvent("goodlogin", array(
 		"login" => $user['login'],
 		"remoteip" => $_SERVER['REMOTE_ADDR']
 	));
 
 	// session_start();
-	foreach (array("username", "userid", "ip", "last") as $key => $value)
+	foreach (array("username", "userid", "ip", "last", "lastdb", "hostnamelast") as $key => $value)
 		session_register($value);
 
 	$_SESSION["username"] = $user['login'];
@@ -85,6 +77,26 @@ function airt_initsession($userid='') {
 	$_SESSION["ip"]       = $_SERVER["REMOTE_ADDR"];
 	$_SESSION["last"]     = time();
 
+        #select vars for welcome message
+        $conn   = db_connect(DBDB, DBUSER, DBPASSWD)
+            or die("Unable to connect to database.");
+        $query  = "SELECT to_char(last,'YYYY-MM-DD HH24:MI') as last,
+                          hostnamelast
+                     FROM users
+                    WHERE id='$_SESSION[userid]'";
+        $res    = db_query($conn,$query)
+            or die("Unable to query database.");
+
+        while($row = db_fetch_next($res))
+        {
+            $_SESSION[lastdb]       = $row["last"];
+            $_SESSION[hostnamelast] = $row["hostnamelast"];
+        }
+        db_free_result($res);
+        db_close($conn);
+        
+
+        #update db for future welcome message
         $conn = db_connect(DBDB, DBUSER, DBPASSWD)
         or die("Unable to connect to database.");
         $query  = "UPDATE users 
@@ -95,8 +107,6 @@ function airt_initsession($userid='') {
         or die("Unable to query database.");
         db_free_result($res);
         db_close($conn);
-
-        
 
 	Header("Location: $_SESSION[BASEURL]/index.php");
 }
