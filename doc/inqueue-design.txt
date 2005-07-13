@@ -15,13 +15,51 @@ button click.
 Intakers
 --------
 At first we implement the command line intaker. This one likely will be the
-work horse of the subsequent intakers anyway.
+work horse of the SMTP and HTTP(S) intakers anyway.
+
+Proposed file name and typical command line:
+  <AIRT>/bin/inqueue [--verbose] [--noqueue] [--filter filter] < importfile
+
+Returns 0 on successful import, 1 when rejected. If rejected, stderr will
+contain a reasonable message why. The intaker is totally silent on stdout
+when everything goes OK (return code 0), unless --verbose is given. The
+--noqueue switch inhibits actual processing of the import file, but runs all
+sanity checks.
+
+The PHP external execution command proc_open() allows for explicit
+connection to the stdin, stdout, and stderr file descriptors, so this should
+not be any problem to implement from the PHP caller's side (assuming that
+the HTTP(S) dropper will be implemented in PHP and should call the CLI
+command "inqueue").
+
+The inqueue command itself likely will be implemented in PHP (using the
+/usr/bin/php command line interpreter). We need to see whether this use of
+PHP would conflict with any standard installation; this is not very likely.
+Doing it in Perl, Bash or Tcl might be slightly easier on the installer, but
+has no real advantages.
+
+Main task of the inqueue command is to roughly validate the input (is there
+any), find out the correct input filter (use the command line switch if
+available, do an educated guess otherwise using magic cookies), pass the
+input through the correct filter using a piped command, and deliver the
+resulting XML stream to the PostgreSQL database. Any problem during the
+process will be reported back to the caller using return code 1 and a proper
+string output on stdout, as described above.
+
+Some knowledge of the AIRT installation is required for inqueue operation.
+The program should therefore read the <AIRT>/etc/airt.cfg configuration
+file, and use the exact same parameters as the AIRT core. The same Autoconf
+mechanism as for the core should be used to prepare the inqueue program for
+this.
 
 
 Input filters
 -------------
 First implementation is a plain passthrough filter, which assumes to get XML
 input.
+
+Proposed file name and typical command line:
+  <AIRT>/bin/
 
 
 Import Queue
