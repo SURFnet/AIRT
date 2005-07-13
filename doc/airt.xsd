@@ -21,8 +21,6 @@
 				minOccurs="1" maxOccurs="1" />
 			<xs:element name="technicalInformation" type="airt:technicalInformationType" 
 				minOccurs="1" maxOccurs="unbounded" />
-			<xs:element name="computerInformation" type="airt:computerInformationType" 
-				minOccurs="1" maxOccurs="1" />
 		</xs:sequence>
 	</xs:complexType>
 
@@ -58,10 +56,6 @@
 						minOccurs="1" maxOccurs="1"/>
 				</xs:sequence>
 			</xs:complexType>
-			<xs:element name="ticket_creator" type="xs:string" 
-				minOccurs="1" maxOccurs="1" />
-			<xs:element name="ticket_creation_time" type="xs:dateTime" 
-				minOccurs="1" maxOccurs="1" />
 			<xs:complexType name="history">
 				<xs:sequence>
 					<xs:element name="ticket_updater" type="xs:string" 
@@ -72,6 +66,10 @@
 						minOccurs="0" maxOccurs="1" />
 				</xs:sequence>
 			</xs:complexType>
+			<xs:element name="ticket_creator" type="xs:string" 
+				minOccurs="1" maxOccurs="1" />
+			<xs:element name="ticket_created" type="xs:dateTime" 
+				minOccurs="1" maxOccurs="1" />
 			<xs:element name="incident_status" type="xs:string" 
 				minOccurs="1" maxOccurs="1" />
 			<xs:element name="incident_type" type="xs:string" 
@@ -83,6 +81,8 @@
 
 	<xs:complexType name="technicalInformationType">
 		<xs:sequence>
+                        <xs:element name="technical_id" type="xs:string"
+                                minOccurs="1" maxOccurs="1" />
                         <xs:element name="constituency" type="xs:string"
                                 minOccurs="0" maxOccurs="1" />
 			<xs:element name="dest_ip" type="xs:string" 
@@ -97,7 +97,24 @@
 				minOccurs="0" maxOccurs="1" />
 			<xs:element name="source_hostname" type="xs:string" 
 				minOccurs="0" maxOccurs="1" />
-			<xs:element name="number_attempts" type="xs:unsignedInt" 
+			<xs:element name="source_macaddress" type="xs:string" 
+				minOccurs="0" maxOccurs="1" />
+			<xs:complexType name="owner">
+				<xs:sequence>
+					<xs:element name="employee_number" type="xs:string"
+						minOccurs="0" maxOccurs="1"/>		
+					<xs:element name="email_address" type="xs:string"
+						minOccurs="0" maxOccurs="1"/>		
+					<xs:element name="name" type="xs:string"
+						minOccurs="0" maxOccurs="1"/>		
+					<xs:element name="region" type="xs:string"
+						minOccurs="0" maxOccurs="1"/>		
+					<xs:element name="role" type="xs:string"
+						minOccurs="0" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:complexType>
+                                
+			<xs:element name="number_attempts" type="xs:unsignedInt"
 				minOccurs="0" maxOccurs="1" />
 			<xs:element name="protocol" type="xs:string" 
 				minOccurs="0" maxOccurs="1" />
@@ -118,20 +135,6 @@
 		<xs:sequence>
 			<xs:element name="mac_address" type="xs:string" 
 				minOccurs="0" maxOccurs="1"/>
-			<xs:complexType name="owner">
-				<xs:sequence>
-					<xs:element name="employee_number" type="xs:string"
-						minOccurs="0" maxOccurs="1"/>		
-					<xs:element name="email_address" type="xs:string"
-						minOccurs="0" maxOccurs="1"/>		
-					<xs:element name="name" type="xs:string"
-						minOccurs="0" maxOccurs="1"/>		
-					<xs:element name="region" type="xs:string"
-						minOccurs="0" maxOccurs="1"/>		
-					<xs:element name="role" type="xs:string"
-						minOccurs="0" maxOccurs="1"/>		
-				</xs:sequence>
-			</xs:complexType>
 		</xs:sequence>
 	</xs:complexType>
 </xs:schema>
