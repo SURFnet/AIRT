@@ -23,7 +23,7 @@
 require_once LIBDIR."/airt.plib";
 require_once LIBDIR."/database.plib";
 
-define("AIRTURL", "http://debra.uvt.nl/airt");
+define("AIRTURL", "http://infolab.uvt.nl/airt");
 define("AIRTPREFIX","airt");
 
 /* Export the incident id's listed in the array $ids in XML format.
@@ -184,7 +184,7 @@ function BuildTree(&$doc, $res_array) {
     $root = $tles[0];
 
     $context = $doc->xpath_new_context();
-    $context->xpath_register_ns("airt", "http://debra.uvt.nl/airt");
+    $context->xpath_register_ns("airt", "http://infolab.uvt.nl/airt");
     $res = $context->xpath_eval("//airt:airt/airt:incident");
     
     #messageIdentification
