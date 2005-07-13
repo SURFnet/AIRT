@@ -1,0 +1,17 @@
+$Id$
+In CVS at $Source$
+
+EXAMPLE (FICTIONAL)
+
+-- begin example --
+Based on multiple reports from myNetWatchman users, we believe that the
+following host is compromised or infected:
+
+Source IP: 137.56.244.8
+Time Zone: UTC
+
+Event Date Time, Destination IP, IP Protocol, Target Port, Issue Description, Source Port, Event Count
+EventRecord: 13 Jul 2005 13:24:41, 137.56.x.x, 6, 1025, Lsass Vulnerability, 4241, 3
+
+Click here to get further details regarding this incident:
+-- end example--
