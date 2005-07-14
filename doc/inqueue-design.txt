@@ -56,6 +56,9 @@ file, and use the exact same parameters as the AIRT core. The same Autoconf
 mechanism as for the core should be used to prepare the import program for
 this.
 
+The SMTP gateway will be based on maildrop or procmail, and essentially call
+"import" with the mail body.
+
 
 Input filters
 -------------
@@ -77,6 +80,12 @@ failure dumped to stderr. Their naming allows the intaker to be called as:
 The import program should be able to find the filters via the AIRT
 configuration settings.
 
+Another option to be discussed is the possibility to chain filters,
+typically a format filter and a type filter:
+  <AIRT>/bin/import --filter smtp --filter cymru
+This way we can implement a generic filter from SMTP or HTTP(S) format to
+something more generic, followed by the actual data parsing to XML.
+
 
 Import Queue
 ------------
@@ -86,11 +95,13 @@ XML is stored without any preprocessing.
 
 The metadata part can be implemented as a straightforward PostgreSQL table:
 
-CREATE TABLE import_queue (      *** PRELIMINARY ***
+CREATE TABLE import_queue (
   id        integer,
-  created   timestamp not null,
-  sender    varchar(50) not null,
-  type      varchar(50) not null,
+  created   timestamp    not null,
+  status    varchar(16)  not null default 'open',
+  sender    varchar(50)  not null,
+  type      varchar(50)  not null,
+  summary   varchar(100) not null,
   primary key (id)
 )
 
@@ -99,30 +110,71 @@ not yet been semantically validated (that is the task of the AIRT core,
 later on, when creating a new incident). All fields in this table are
 mandatory and if a metadata element misses, the queue entry is rejected.
 
+"Id", "created" and "status" are administrative information for the queue
+manager, and do not come from the import file. They are discussed below.
+
+"Sender" is the entity (not necessarily a machine) sending the import
+request. Typical names here could be "SURFnet", "Yogibear", etc.
+
+"Type" is the broad category of the request, typically chosen from a small
+set of common types that are shared by the AIRT community. However, there is
+no type validation, the field is treated as a pure string and only used for
+ordering and display.
+
+"Summary" is a free text string which allows for a brief statement of what
+the request is about. Although the maximum length is 100 characters, the
+interface may truncate this string for display space reasons, so the string
+should be as brief as possible and contain the important stuff at the
+beginning.
+
+Nearly all fields are provided by the import file. The actual import queue
+mechanism only adds the unique queue ID, the time stamp, and the status
+('open', 'rejected', 'accepted'). The rest is extracted out of the XML. It
+is possible that the input filter adds some elements by means of hard
+coding, e.g., a specific filter for the Yogibear honeypot log reports might
+be hard-coded to set the sender field to "Yogibear" and the type field to
+"Honeypot log". But the intention is to write generic filters, so it is
+preferable to have these data in the actual input file (not necessarily XML
+yet).
+
 The data part could be implemented in PostgreSQL as well, as the database
 engine can accomodate fields of up to a Gigabyte in length. A tighter limit
 might be imposed by the SQL parser buffer. Experience taught us that it is
 nearly impossible to manually test or review tables with this type of long
-text entries though, reasons why prefer to keep the flat XML in the file
+text entries though, reasons why we prefer to keep the flat XML in the file
 system and not put it in the SQL database. The file naming policy is simple:
   <AIRT>/var/import/<ID>.xml
 where the actual directory typically will end up in /var/lib/airt/import.
 
-The input filters are responsible for providing the correct XML elements
-which contain this metadata, as there is no metadata information passed from
-the import program via the filter to the database, just XML.
-
 
 Import Queue Manager
 --------------------
-PHP/HTML implementation of a viewer and limited commander for the Queue.
+The Queue Manager or Queue Viewer is a plain PHP/HTML implementation of a
+viewer and limited commander for the Queue. It provides a simple overview of
+all open queue entries, and offers the operator direct selections to accept
+the entry, reject it, or view its detailed contents.
+
+We expect the queue length to remain small, about 20 open entries at most.
+This means that we do not need to implement elaborate sorting and selection
+options, at least not at this moment. The available metadata fields should
+be sufficient for the operator to do a quick scan, and when in doubt (s)he
+can look directly at the XML file for more information.
+
+Entries which have been accepted or rejected are marked as such, and
+disappear from the standard queue viewer. They can be recalled with a
+selection option. Retention of accepted or rejected entries is left to the
+operator policy, AIRT does not yet offer a built-in mechanism to purge
+expired entries (operational experience has to be gathered to decide what
+kind of policy needs to be implemented). However, the nature of the import
+queue offers plenty of possibilities to manually or mechanically purge
+entries without disturbing any queue mechanism.
 
 
 Form Injector
 -------------
 Bit of code to extract required and optional data from the standard XML and
 present this to the already existing Incident Form. We need only a few items
-here:
+here, derived from the New Incident form:
 
 Incident type  (installation-dependent)
 Incident state (installation-dependent)
@@ -135,5 +187,14 @@ more detail.
 
 File to inject to (with POST or GET) likely will be incident.php, the GET
 option might need to be added.
+
+With so many installation-dependent things, this starts smelling of
+extensive pre-installation configuration. We might be better off putting
+some default type and state entries in the AIRT bootstrap, so that the
+standard filters can successfully add these fields. On the other hand, we
+might simply select the operator's default choice here, or inject our choice
+which if not available falls back to operator's default, or assume that any
+filter will be customised anyway. This needs some discussion and/or policy
+specification.
 
 [EOF]
