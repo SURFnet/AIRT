@@ -1,5 +1,7 @@
 <?php
 /*
+ * vim: syntax=php shiftwidth=3 tabstop=3
+ * 
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
  * Copyright (C) 2004	Tilburg University, The Netherlands
 
@@ -21,89 +23,91 @@
  * 
  * $Id$
  */
- require_once 'config.plib';
- require_once LIBDIR.'/airt.plib';
- require_once LIBDIR.'/database.plib';
- 
- if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
- else $action = "list";
+require_once 'config.plib';
+require_once LIBDIR.'/airt.plib';
+require_once LIBDIR.'/database.plib';
 
- switch ($action)
- {
-    //-----------------------------------------------------------------
-    case "list":
-        pageHeader("Constituency contacts");
-        $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-        or die("Unable to connect to database.");
+if (array_key_exists("action", $_REQUEST)) {
+   $action=$_REQUEST["action"];
+} else {
+   $action = "list";
+}
 
-        $res = db_query($conn,
-            "SELECT   id, label, name
+switch ($action) {
+   //-----------------------------------------------------------------
+   case "list":
+      pageHeader("Constituency contacts");
+      # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+      # or die("Unable to connect to database.");
+
+      $res = db_query("SELECT   id, label, name
              FROM     constituencies
              ORDER BY label")
-        or die("Unable to execute query.");
+      or die("Unable to execute query.");
 
-        echo "Please select a constituency to edit assign contacts:<P>";
-        while($row=db_fetch_next($res)) {
+      echo "Please select a constituency to edit assign contacts:<P>";
+      while($row=db_fetch_next($res)) {
+         $id = $row["id"];
+         $label = $row["label"];
+         $name = $row["name"];
+         echo "<a href=\"$_SERVER[PHP_SELF]?action=edit&consid=$id\">$label - $name</a><P>";
+      }
+      db_free_result($res);
+
+      # db_close($conn);
+      pageFooter();
+      break;
+
+   //-----------------------------------------------------------------
+   case "edit":
+      if (array_key_exists("consid", $_GET)) {
+         $consid=$_GET["consid"];
+      } else {
+         die("Missing information.");
+      }
+
+      pageHeader("Edit constituency assignments");
+
+      # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+      # or die("Unable to connect to database.");
+
+      $res = db_query(
+         "SELECT label, name
+          FROM   constituencies
+          WHERE  id=$consid")
+      or die("Unable to execute query 1.");
+
+      if (db_num_rows($res) == 0) {
+         die("Invalid constituency.");
+      }
+
+      $row = db_fetch_next($res);
+      $label = $row["label"];
+      $name  = $row["name"];
+      db_free_result($res);
+
+      echo "<h3>Current contacts of constituency $label</H3>";
+
+      $res = db_query(
+         "SELECT u.id, login, lastname, firstname, email, phone
+          FROM   constituency_contacts cc, users u
+          WHERE  cc.constituency=$consid
+          AND    cc.userid = u.id")
+      or die("Unable to execute query(2).");
+
+      if (db_num_rows($res) == 0) {
+         echo "<I>No assigned users.</I>";
+      } else {
+         echo "<table border=1 cellpadding=4>";
+         while ($row = db_fetch_next($res)) {
+            $login = $row["login"];
+            $lastname = $row["lastname"];
+            $firstname = $row["firstname"];
+            $email = $row["email"];
+            $phone = $row["phone"];
             $id = $row["id"];
-            $label = $row["label"];
-            $name = $row["name"];
-            echo "<a href=\"$_SERVER[PHP_SELF]?action=edit&consid=$id\">$label - $name</a><P>";
-        }
-        db_free_result($res);
 
-        db_close($conn);
-        pageFooter();
-        break;
-
-    //-----------------------------------------------------------------
-    case "edit":
-        if (array_key_exists("consid", $_GET)) $consid=$_GET["consid"];
-        else die("Missing information.");
-
-        pageHeader("Edit constituency assignments");
-
-        $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-        or die("Unable to connect to database.");
-
-        $res = db_query($conn, 
-            "SELECT label, name
-             FROM   constituencies
-             WHERE  id=$consid")
-        or die("Unable to execute query 1.");
-
-        if (db_num_rows($res) == 0) {
-            die("Invalid constituency.");
-        }
-
-        $row = db_fetch_next($res);
-        $label = $row["label"];
-        $name  = $row["name"];
-        db_free_result($res);
-
-        echo "<h3>Current contacts of constituency $label</H3>";
-
-        $res = db_query($conn,
-            "SELECT u.id, login, lastname, firstname, email, phone
-             FROM   constituency_contacts cc, users u
-             WHERE  cc.constituency=$consid
-             AND    cc.userid = u.id
-             ")
-        or die("Unable to execute query(2).");
-
-        if (db_num_rows($res) == 0) {
-            echo "<I>No assigned users.</I>";
-        }
-        else {
-            echo "<table border=1 cellpadding=4>";
-            while ($row = db_fetch_next($res)) {
-                $login = $row["login"];
-                $lastname = $row["lastname"];
-                $firstname = $row["firstname"];
-                $email = $row["email"];
-                $phone = $row["phone"];
-                $id = $row["id"];
-
-                printf("
+            printf("
 <tr>
     <td>%s (%s, %s)</td>
     <td><a href=\"mailto:%s\">%s</a></td>
@@ -111,34 +115,33 @@
     <td><a href=\"$_SERVER[PHP_SELF]?action=remove&cons=%s&user=%s\">Remove</a>
 	</td>
 </tr>",
-                        $login, $lastname, $firstname,
-                        $email, $email,
-                        $phone, $consid, $id);
-            }
-            echo "</table>";
-        }
+            $login, $lastname, $firstname,
+            $email, $email,
+            $phone, $consid, $id);
+         }
+         echo "</table>";
+      }
 
-        db_free_result($res);
-        $res = db_query($conn,
-            "SELECT  id, login, lastname, firstname
-             FROM    users
-             WHERE   NOT id IN (
-                SELECT userid
-                FROM   constituency_contacts
-                WHERE  constituency=$consid
-             )")
-        or die("Unable to execute query(3).");
+      db_free_result($res);
+      $res = db_query(
+         "SELECT  id, login, lastname, firstname
+          FROM    users
+          WHERE   NOT id IN (
+             SELECT userid
+             FROM   constituency_contacts
+             WHERE  constituency=$consid
+          )")
+      or die("Unable to execute query(3).");
 
-        if (db_num_rows($res) > 0)
-        {
-            echo <<<EOF
+      if (db_num_rows($res) > 0) {
+         echo <<<EOF
 <P>
 <FORM action="$_SERVER[PHP_SELF]" method="POST">
 Assing user(s) to constituency: 
 <SELECT MULTIPLE name="userid[]">
 
 EOF;
-        while ($row = db_fetch_next($res)) {
+         while ($row = db_fetch_next($res)) {
             $login     = $row["login"];
             $lastname  = $row["lastname"];
             $firstname = $row["firstname"];
@@ -146,73 +149,84 @@ EOF;
 
             printf("<option value=\"$id\">$login ($lastname, ".
             "$firstname)</option>\n");
-        }
-        echo <<<EOF
+         }
+         echo <<<EOF
 </SELECT>
 <input type="hidden" name="consid" value="$consid">
 <input type="hidden" name="action" value="assignuser">
 <input type="submit" value="Assign">
 </FORM>
 EOF;
-        } else {
+         } else {
             echo "<P><I>No unassigned users.</I>";
-        }
-        db_close($conn);
+         }
+         # db_close($conn);
 
-        echo <<<EOF
+         echo <<<EOF
 <P><HR>
 <a href="$_SERVER[PHP_SELF]">Select another constituency</a> &nbsp;|&nbsp;
 <a href="maintenance.php">Settings</a>
 EOF;
-        pageFooter();
-        break;
+         pageFooter();
+         break;
 
-    //-----------------------------------------------------------------
-    case "assignuser":
-        if (array_key_exists("consid", $_POST)) $consid=$_POST["consid"];
-        else die("Missing information (1).");
-        if (array_key_exists("userid", $_POST)) $userid=$_POST["userid"];
-        else die("Missing information (2).");
+   //-----------------------------------------------------------------
+   case "assignuser":
+      if (array_key_exists("consid", $_POST)) {
+         $consid=$_POST["consid"];
+      } else {
+         die("Missing information (1).");
+      }
+      if (array_key_exists("userid", $_POST)) {
+         $userid=$_POST["userid"];
+      } else {
+         die("Missing information (2).");
+      }
 
-        $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-        or die("Unable to connect to database.");
+      #  $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+      # or die("Unable to connect to database.");
 
-        foreach ($userid as $key=>$value) {
-            $res=db_query($conn,"
-                INSERT INTO constituency_contacts
-                (id, constituency, userid)
-                VALUES
-                (nextval('role_assignments_sequence'), $consid, $value)")
-            or die("Unable to execute query");
-        }
-        db_close($conn);
-        Header("Location: $_SERVER[PHP_SELF]?action=edit&consid=$consid");
-        break;
+      foreach ($userid as $key=>$value) {
+         $res=db_query("
+            INSERT INTO constituency_contacts
+            (id, constituency, userid)
+            VALUES
+            (nextval('role_assignments_sequence'), $consid, $value)")
+         or die("Unable to execute query");
+      }
+      # db_close($conn);
+      Header("Location: $_SERVER[PHP_SELF]?action=edit&consid=$consid");
+      break;
 
-    //-----------------------------------------------------------------
-    case "remove":
-        if (array_key_exists("cons", $_GET)) $cons=$_GET["cons"];
-        else die("Missing information (1).");
-        if (array_key_exists("user", $_GET)) $id=$_GET["user"];
-        else die("Missing information (2).");
+   //-----------------------------------------------------------------
+   case "remove":
+      if (array_key_exists("cons", $_GET)) {
+         $cons=$_GET["cons"];
+      } else {
+         die("Missing information (1).");
+      }
+      if (array_key_exists("user", $_GET)) {
+         $id=$_GET["user"];
+      } else {
+         die("Missing information (2).");
+      }
 
-        $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-        or die("Unable to connect to database.");
+      # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+      # or die("Unable to connect to database.");
 
-        $res = db_query($conn,
+      $res = db_query(
             "DELETE FROM constituency_contacts
              WHERE  userid=$id
              AND    constituency=$cons")
-        or die("Unable to execute query");
-        db_close($conn);
-        Header("Location: $_SERVER[PHP_SELF]?action=edit&consid=$cons");
+      or die("Unable to execute query");
+      # db_close($conn);
+      Header("Location: $_SERVER[PHP_SELF]?action=edit&consid=$cons");
 
-        break;
+      break;
 
-    //-----------------------------------------------------------------
-    default:
-        die("Unknown action: $action");
- } // switch
+   //-----------------------------------------------------------------
+   default:
+      die("Unknown action: $action");
+} // switch
 
 ?>
- 

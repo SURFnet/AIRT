@@ -1,7 +1,8 @@
 <?php
-/*
+/* vim: syntax=php tabstop=3 shiftwidth=3
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
- * Copyright (C) 2004	Tilburg University, The Netherlands
+ * Copyright (C) 2004,2005	Tilburg University, The Netherlands
+ * TODO: Codingstyle
 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -122,10 +123,10 @@ EOF;
         echo <<<EOF
 <h2>Previous incidents</h2>
 EOF;
-		$conn = db_connect(DBDB, DBUSER, DBPASSWD)
-		or die("Unable to connect to database.");
+		# $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+		# or die("Unable to connect to database.");
 
-		$res = db_query($conn, "
+		$res = db_query("
 			SELECT  i.id as incidentid,
 					extract (epoch from a.added) as created,
 					t.label as type,

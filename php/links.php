@@ -1,7 +1,9 @@
 <?php
-/*
+/* vim: syntax=php tabstop=3 shiftwidth=3
+ * TODO: Codingstyle
+ *
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
- * Copyright (C) 2004	Tilburg University, The Netherlands
+ * Copyright (C) 2004,2005	Tilburg University, The Netherlands
 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,10 +34,10 @@
     // --------------------------------------------------------------
     case "list":
         pageHeader("Links");
-        $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-        or die("Unable to connect to database.");
+        # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+        # or die("Unable to connect to database.");
 
-        $res = db_query($conn, "
+        $res = db_query("
             SELECT *
             FROM   urls
             ORDER BY created")
@@ -85,7 +87,7 @@
 <input type="submit" value="Add">
 </form>
 EOF;
-        db_close($conn);
+        # db_close($conn);
         pageFooter();
         break;
 
@@ -98,11 +100,11 @@ EOF;
             $description = $_REQUEST["description"]
         or die("Missing information (2).");
 
-        $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-        or die("Unable to connect to database.");
+        # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+        # or die("Unable to connect to database.");
 
         $now = Date("Y-m-d H:i:s");
-        $res = db_query($conn, sprintf("
+        $res = db_query(sprintf("
             INSERT INTO urls
             (id, url, label, created, createdby)
             VALUES
@@ -113,7 +115,7 @@ EOF;
             $_SESSION["userid"]))
         or die("Unable to insert URL");
 
-        db_close($conn);
+        # db_close($conn);
         Header("Location: $_SERVER[PHP_SELF]");
         break;
 
@@ -123,15 +125,15 @@ EOF;
         or die("Missing information (1).");
 
 
-        $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-        or die("Unable to connect to database.");
+        # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+        # or die("Unable to connect to database.");
 
-        $res = db_query($conn, sprintf("
+        $res = db_query(sprintf("
             DELETE FROM urls
             WHERE ID=%s", $id))
         or die("Unable to delete URL");
 
-        db_close($conn);
+        # db_close($conn);
         Header("Location: $_SERVER[PHP_SELF]");
         break;
 
@@ -141,10 +143,10 @@ EOF;
             $id = $_REQUEST["id"]
         or die("Missing information (3).");
 
-        $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-        or die("Unable to connect to database.");
+        # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+        # or die("Unable to connect to database.");
 
-        $res = db_query($conn, sprintf("
+        $res = db_query(sprintf("
             SELECT url, label
             FROM   urls
             WHERE  id=%s", $id))
@@ -154,7 +156,7 @@ EOF;
 
         pageHeader("Edit link");
         $row = db_fetch_next($res);
-        db_close($conn);
+        # db_close($conn);
 
         $url = $row["url"];
         $description = $row["label"];
@@ -192,10 +194,10 @@ EOF;
             $id = $_REQUEST["id"]
         or die("Missing information (3).");
 
-        $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-        or die("Unable to connect to database.");
+        # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+        # or die("Unable to connect to database.");
 
-        $res = db_query($conn, sprintf("
+        $res = db_query(sprintf("
             UPDATE URLs
             SET    label=%s,
                    url=%s
@@ -204,7 +206,7 @@ EOF;
             db_masq_null($url),
             $id))
         or die("Unable to update URL");
-        db_close($conn);
+        # db_close($conn);
 
         Header("Location: $_SERVER[PHP_SELF]");
         break;

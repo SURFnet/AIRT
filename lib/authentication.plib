@@ -1,5 +1,5 @@
 <?php
-/* vim: syntax=php
+/* vim: syntax=php shiftwidth=3 tabstop=3
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
  * Copyright (C) 2004	Tilburg University, The Netherlands
 
@@ -25,43 +25,43 @@ require_once LIBDIR."/database.plib";
 require_once LIBDIR."/user.plib";
 
 function airt_authenticate($username, $password) {
-    $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-    or die("Unable to connect to database.");
+   # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+   # or die("Unable to connect to database.");
 
-    $query = sprintf("
-        SELECT id as userid
-        FROM   users
-        WHERE  login = '%s'
-        AND    password = '%s'",
-        $username,
-        sha1($password)
-    );
+   $query = sprintf("
+      SELECT id as userid
+      FROM   users
+      WHERE  login = '%s'
+      AND    password = '%s'",
+         $username,
+         sha1($password)
+   );
 
-    $res = db_query($conn, $query) 
-    or die("Unable to query database.");
+   $res = db_query($query) or die("Unable to query database.");
 
-    if (db_num_rows($res) > 0) {
-        $row = db_fetch_next($res);
-        $userid = $row["userid"];
-        db_free_result($res);
-        db_close($conn);
+   if (db_num_rows($res) > 0) {
+      $row = db_fetch_next($res);
+      $userid = $row["userid"];
+      db_free_result($res);
+      # db_close($conn);
 
-        return $userid;
-    }
-    else {
-        db_free_result($res);
-        db_close($conn);
-
-        return -1;
+      return $userid;
+    } else {
+      db_free_result($res);
+      # db_close($conn);
+      return -1;
     }
 } // airt_authenticate
 
 
 function airt_initsession($userid='') {
-	if ($userid == '') die("Invalid login!");
-
+   if ($userid == '') {
+      die("Invalid login!");
+   }
 	$user = getUserByUserID($userid);
-	if (!$user) die("Incorrect login!");
+	if (!$user) {
+      die("Incorrect login!");
+   }
 
 	generateEvent("goodlogin", array(
 		"login" => $user['login'],
@@ -69,46 +69,40 @@ function airt_initsession($userid='') {
 	));
 
 	// session_start();
-	foreach (array("username", "userid", "ip", "last", "lastdb", "hostnamelast") as $key => $value)
+	foreach (array("username", "userid", "ip", "last", "lastdb", "hostnamelast") as $key => $value) {
 		session_register($value);
+  }
 
 	$_SESSION["username"] = $user['login'];
 	$_SESSION["userid"]   = $user['id'];
 	$_SESSION["ip"]       = $_SERVER["REMOTE_ADDR"];
 	$_SESSION["last"]     = time();
 
-        #select vars for welcome message
-        $conn   = db_connect(DBDB, DBUSER, DBPASSWD)
-            or die("Unable to connect to database.");
-        $query  = "SELECT to_char(last,'YYYY-MM-DD HH24:MI') as last,
-                          hostnamelast
-                     FROM users
-                    WHERE id='$_SESSION[userid]'";
-        $res    = db_query($conn,$query)
-            or die("Unable to query database.");
+  #select vars for welcome message
+  # $conn   = db_connect(DBDB, DBUSER, DBPASSWD)
+  # or die("Unable to connect to database.");
+  $query  = "SELECT to_char(last,'YYYY-MM-DD HH24:MI') as last, hostnamelast FROM users WHERE id='$_SESSION[userid]'";
+  $res    = db_query($query) or die("Unable to query database.");
 
-        while($row = db_fetch_next($res))
-        {
-            $_SESSION[lastdb]       = $row["last"];
-            $_SESSION[hostnamelast] = $row["hostnamelast"];
-        }
-        db_free_result($res);
-        db_close($conn);
-        
+   while($row = db_fetch_next($res)) {
+    $_SESSION['lastdb']       = $row["last"];
+    $_SESSION['hostnamelast'] = $row["hostnamelast"];
+   }
+   db_free_result($res);
+   # db_close($conn);
 
-        #update db for future welcome message
-        $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-        or die("Unable to connect to database.");
-        $query  = "UPDATE users 
-                      SET last = CURRENT_TIMESTAMP,
-                          hostnamelast = '".$_SERVER["REMOTE_ADDR"]."' 
-                    WHERE id = '".$_SESSION["userid"]."'";
-        $res    = db_query($conn,$query)
-        or die("Unable to query database.");
-        db_free_result($res);
-        db_close($conn);
-
-	Header("Location: $_SESSION[BASEURL]/index.php");
+   #update db for future welcome message
+   # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+   # or die("Unable to connect to database.");
+   $query  = "UPDATE users
+           SET last = CURRENT_TIMESTAMP,
+           hostnamelast = '$_SERVER[REMOTE_ADDR]'
+           WHERE id = '$_SESSION[userid]'";
+   $res    = db_query($query)
+   or die("Unable to query database.");
+   db_free_result($res);
+   # db_close($conn);
+   Header("Location: $_SESSION[BASEURL]/index.php");
 }
 
 function airt_invalidCredentials($login = '') {

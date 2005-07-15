@@ -1,5 +1,5 @@
 <?php
-/* vim: syntax=php
+/* vim: syntax=php shiftwidth=3 tabstop=3
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
  * Copyright (C) 2004  Kees Leune <kees@uvt.nl>
 
@@ -24,58 +24,54 @@
 require_once LIBDIR.'/database.plib';
 
 function addIncidentComment($comment, $incidentid="", $userid="", $conn="") {
-  if ($incidentid=="") $incidentid=$_SESSION["incidentid"];
-  if ($userid=="") $userid=$_SESSION["userid"];
-  $c = false;
+   if ($incidentid=="") {
+       $incidentid=$_SESSION["incidentid"];
+   }
+   if ($userid=="") {
+       $userid=$_SESSION["userid"];
+   }
 
-  if ($conn=="") {
-    $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-    or die("unable to connect to database.");
-    $c = true;
-  }
-
-  $res = db_query($conn, sprintf("
-    INSERT INTO incident_comments
-    (id, incident, comment, added, addedby)
-    VALUES
-    (nextval('incident_comments_sequence'), %s, %s, CURRENT_TIMESTAMP, %s)",
-      $incidentid,
-      db_masq_null($comment),
-      $userid
-    ))
+   $res = db_query(sprintf("
+      INSERT INTO incident_comments
+      (id, incident, comment, added, addedby)
+      VALUES
+      (nextval('incident_comments_sequence'), %s, %s, CURRENT_TIMESTAMP, %s)",
+         $incidentid,
+         db_masq_null($comment),
+         $userid))
   or die("Unable to execute query.");
-  if ($c) db_close($conn);
 }
 
 /* deprecated */
 function showIncidentHistory($incidentid="") {
-  if ($incidentid=="") $incidentid=$_SESSION["incidentid"];
+   if ($incidentid=="") {
+      $incidentid=$_SESSION["incidentid"];
+   }
 
-  $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-  or die ("Unable to connect to database.");
+   # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+   # or die ("Unable to connect to database.");
 
-  $res = db_query($conn, sprintf("
-    SELECT comment, extract(epoch from added) as added, login
-    FROM   incident_comments i, users u
-    WHERE  incident = %s
-    AND    i.addedby = u.id
-    ORDER BY added",
-      $_SESSION["incidentid"]
-    ))
-  or die ("Unable to query database.");
+   $res = db_query(sprintf("
+      SELECT comment, extract(epoch from added) as added, login
+      FROM   incident_comments i, users u
+      WHERE  incident = %s
+      AND    i.addedby = u.id
+      ORDER BY added",
+         $_SESSION["incidentid"]))
+   or die ("Unable to query database.");
 
-  echo "<table cellpadding=3>";
-  $count = 0;
-  while ($row = db_fetch_next($res)) 
-    printf("<tr bgcolor=%s><td>%s</td><td>%s</td><td>%s</td></tr>",
-      ($count++%2==1) ? "#FFFFFF" : "#DDDDDD",
-      Date("d-M-Y H:i:s", $row["added"]),
-      $row["login"],
-      $row["comment"]
-    );
-
-  echo "</table>";
-  db_close($conn);
+   echo "<table cellpadding=3>";
+   $count = 0;
+   while ($row = db_fetch_next($res)) {
+      printf("<tr bgcolor=%s><td>%s</td><td>%s</td><td>%s</td></tr>",
+         ($count++%2==1) ? "#FFFFFF" : "#DDDDDD",
+         Date("d-M-Y H:i:s", $row["added"]),
+         $row["login"],
+         $row["comment"]
+       );
+   }
+   echo "</table>";
+   # db_close($conn);
 }
 
 /* retrieve the history of an incidentid as an array of associative arrays.
@@ -83,42 +79,41 @@ function showIncidentHistory($incidentid="") {
  * associative array contains the following keys: comment, added, login
  */
 function getIncidentHistory($incidentid) {
-  $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-  or die ("Unable to connect to database.");
+   # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+   # or die ("Unable to connect to database.");
 
-  $res = db_query($conn, sprintf("
-    SELECT comment, extract(epoch from added) as added, login
-    FROM   incident_comments i, users u
-    WHERE  incident = %s
-    AND    i.addedby = u.id
-    ORDER BY added", $incidentid
-    ))
+   $res = db_query(sprintf("
+      SELECT comment, extract(epoch from added) as added, login
+      FROM   incident_comments i, users u
+      WHERE  incident = %s
+      AND    i.addedby = u.id
+      ORDER BY added", $incidentid))
   or die ("Unable to query database.");
 
-  $output = array();
-  while ($row = db_fetch_next($res)) {
-    array_push($output, $row);
-  }
-  db_close($conn);
-  return $output;
+   $output = array();
+   while ($row = db_fetch_next($res)) {
+      array_push($output, $row);
+   }
+   # db_close($conn);
+   return $output;
 }
 
 /* return an HTML formatted history of an incident */
 function formatIncidentHistory($incidentid="") {
-  if ($incidentid=="") {
-    $incidentid=$_SESSION["incidentid"];
-  }
+   if ($incidentid=="") {
+      $incidentid=$_SESSION["incidentid"];
+   }
 
-  $history = getIncidentHistory($incidentid);
+   $history = getIncidentHistory($incidentid);
 
-  $output = "<table cellpadding=\"3\">\n";
-  $count = 0;
-  foreach ($history as $i=>$data) {
-    $output .= sprintf("<tr bgcolor=\"%s\">\n", ($count++%2==1) ? "#FFFFFF" : "#DDDDDD");
-    $output .= sprintf("  <td>%s</td>\n", Date("d-M-Y H:i:s", $data["added"]));
-    $output .= "  <td>$data[login]</td>\n";
-    $output .= "  <td>$data[comment]</td>\n";
-    $output .= "</tr>\n";
+   $output = "<table cellpadding=\"3\">\n";
+   $count = 0;
+   foreach ($history as $i=>$data) {
+      $output .= sprintf("<tr bgcolor=\"%s\">\n", ($count++%2==1) ? "#FFFFFF" : "#DDDDDD");
+      $output .= sprintf("  <td>%s</td>\n", Date("d-M-Y H:i:s", $data["added"]));
+      $output .= "  <td>$data[login]</td>\n";
+      $output .= "  <td>$data[comment]</td>\n";
+      $output .= "</tr>\n";
   }
   $output .= "</table>\n";
 

@@ -1,7 +1,7 @@
 <?php
-/* vim: syntax=php
+/* vim: syntax=php tabstop=3 shiftwidth=3
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
- * Copyright (C) 2004	Tilburg University, The Netherlands
+ * Copyright (C) 2004   Tilburg University, The Netherlands
 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,80 +22,106 @@
 require_once LIBDIR."/database.plib";
 
 function _getUser($criteria, $value) {
-	$conn = db_connect(DBDB, DBUSER, DBPASSWD)
-	or die("Unable to connect to database.");
+  # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+  # or die("Unable to connect to database.");
 
-	$res = db_query($conn, sprintf("
-		SELECT id, lastname, firstname, email, phone, userid, login
-		FROM   users
-		WHERE  %s=%s", $criteria, $value))
-	or die("Unable to query database.");
+   $res = db_query(sprintf("
+      SELECT id, lastname, firstname, email, phone, userid, login
+      FROM   users
+      WHERE  %s=%s", $criteria, $value))
+   or die("Unable to query database.");
 
-	if (db_num_rows($res) == 0) return false;
+   if (db_num_rows($res) == 0) {
+      return false;
+   }
 
-	$out = array();
-	while ($row = db_fetch_next($res)) 
-		array_push($out, $row);
-	db_close($conn);
-	return $out;
+   $out = array();
+   while ($row = db_fetch_next($res)) {
+      array_push($out, $row);
+   }
+   # db_close($conn);
+   return $out;
 }
 
 function getUserByUserID($userid) {
-	$temp = _getUser("id", $userid);
-	return $temp[0];
+   $temp = _getUser("id", $userid);
+   return $temp[0];
 }
 
 function getUserByLogin($login) {
-	$temp = _getUser("login", db_masq_null($login));
-	return $temp[0];
+   $temp = _getUser("login", db_masq_null($login));
+   return $temp[0];
 }
 
 function getUserByOrganizationalID($id) {
-	$temp = _getUser("userid", db_masq_null($id));
-	return $temp[0];
+   $temp = _getUser("userid", db_masq_null($id));
+   return $temp[0];
 }
 
 function getUserByEmail($email) {
-	$temp = _getUser("email", db_masq_null($email));
-	return $temp[0];
+   $temp = _getUser("email", db_masq_null($email));
+   return $temp[0];
 }
 
 
 function addUser($user) {
-	$conn = @db_connect(DBDB, DBUSER, DBPASSWD)
-	or die("Unable to connect to database in addUser");
+   # $conn = @db_connect(DBDB, DBUSER, DBPASSWD)
+   # or die("Unable to connect to database in addUser");
 
-	if (array_key_exists('lastname', $user)) $lastname=$user['lastname'];
-	else $lastname = '';
-	if (array_key_exists('firstname', $user)) $firstname=$user['firstname'];
-	else $firstname = '';
-	if (array_key_exists('email', $user)) $email=$user['email'];
-	else $email = '';
-	if (array_key_exists('phone', $user)) $phone=$user['phone'];
-	else $phone = '';
-	if (array_key_exists('login', $user)) $login=$user['login'];
-	else $login = '';
-	if (array_key_exists('userid', $user)) $userid=$user['userid'];
-	else $userid = '';
-	if (array_key_exists('password', $user)) $password=$user['password'];
-	else $password = '';
+   if (array_key_exists('lastname', $user)) {
+      $lastname=$user['lastname'];
+   } else {
+      $lastname = '';
+   }
+   if (array_key_exists('firstname', $user)) {
+      $firstname=$user['firstname'];
+   } else {
+      $firstname = '';
+   }
+   if (array_key_exists('email', $user)) {
+      $email=$user['email'];
+   } else {
+      $email = '';
+   }
+   if (array_key_exists('phone', $user)) {
+      $phone=$user['phone'];
+   } else {
+      $phone = '';
+   }
+   if (array_key_exists('login', $user)) {
+      $login=$user['login'];
+   } else {
+      $login = '';
+   }
+   if (array_key_exists('userid', $user)) {
+      $userid=$user['userid'];
+   } else {
+      $userid = '';
+   }
+   if (array_key_exists('password', $user)) {
+      $password=$user['password'];
+   } else {
+      $password = '';
+   }
 
-	$query = sprintf("
-		INSERT INTO users
-		(id, lastname, firstname, email, phone, login, userid,
-		password)
-		VALUES
-		(nextval('users_sequence'), %s, %s, %s, %s, %s, %s, %s)",
-		db_masq_null($lastname),
-		db_masq_null($firstname),
-		db_masq_null($email),
-		db_masq_null($phone),
-		db_masq_null($login),
-		db_masq_null($userid),
-		db_masq_null(sha1($password))
-	);
-	$res = @db_query($conn, $query)
-	or die("Unable to query database in addUser.");
+   $query = sprintf("
+      INSERT INTO users
+      (id, lastname, firstname, email, phone, login, userid,
+      password)
+      VALUES
+      (nextval('users_sequence'), %s, %s, %s, %s, %s, %s, %s)",
+      db_masq_null($lastname),
+      db_masq_null($firstname),
+      db_masq_null($email),
+      db_masq_null($phone),
+      db_masq_null($login),
+      db_masq_null($userid),
+      db_masq_null(sha1($password))
+   );
+   $res = @db_query($query) or die("Unable to query database in addUser.");
 
-	db_close($conn);
+   # db_close($conn);
 }
+
+/* EOF */
+?>

@@ -1,7 +1,7 @@
 <?php
-/*
+/* vim: syntax=php tabstop=3 shiftwidth=3
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
- * Copyright (C) 2004	Tilburg University, The Netherlands
+ * Copyright (C) 2004,2005	Tilburg University, The Netherlands
 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -186,10 +186,10 @@ EOF;
 
         if ($action=="add")
         {
-            $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-            or die("Unable to connect to database.");
+            # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+            # or die("Unable to connect to database.");
 
-            $res = db_query($conn, sprintf("
+            $res = db_query(sprintf("
                 INSERT INTO networks
                 (id, network, netmask, label, constituency)
                 VALUES
@@ -201,17 +201,17 @@ EOF;
                 )
             ) or die("Unable to excute query.");
 
-            db_close($conn);
+            # db_close($conn);
             Header("Location: $_SERVER[PHP_SELF]");
         }
 
         else if ($action=="update")
         {
             if ($id=="") die("Missing information (5).");
-            $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-            or die("Unable to connect to database.");
+            # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+            # or die("Unable to connect to database.");
 
-            $res = db_query($conn, sprintf("
+            $res = db_query(sprintf("
                 UPDATE networks
                 SET    network=%s,
                        netmask=%s,
@@ -236,17 +236,17 @@ EOF;
         if (array_key_exists("id", $_GET)) $id=$_GET["id"];
         else die("Missing information.");
 
-        $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-        or die("Unable to connect to database.");
+        # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+        # or die("Unable to connect to database.");
 
-        $res = db_query($conn, "
+        $res = db_query("
             DELETE FROM networks
             WHERE  id='$id'")
         or die("Unable to execute query.");
 
-        db_close($conn);
+        # db_close($conn);
         Header("Location: $_SERVER[PHP_SELF]");
-        
+
         break;
     //-----------------------------------------------------------------
     default:
@@ -254,4 +254,3 @@ EOF;
  } // switch
 
 ?>
- 

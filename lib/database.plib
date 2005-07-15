@@ -21,11 +21,20 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+/* connect to the database on page load and remain connected.
+ */
+global $db;
+$db = db_connect(DBDB, DBUSER, DBPASSWD);
+
+/* return the latest error message */
 function db_errormessage() {
     return pg_errormessage();
 } // db_error
 
 
+/* connect to the database server using the given database name, user name
+ * and password, and return a connection resource.
+ */
 function db_connect($database, $username, $password) {
     $connectstring = sprintf("dbname=%s user=%s password=%s",
         $database, $username, $password);
@@ -35,25 +44,45 @@ function db_connect($database, $username, $password) {
 } // db_connect
 
 
-function db_query($conn, $query) {
-    if (defined('DEBUG') && DEBUG)
-		printf("<PRE>$query</PRE>");
-    $res = @pg_query($conn, $query);
+/* Execute $query on the database. Use default connection if none
+ * is provided in $conn.
+ */
+function db_query($query, $conn=NULL) {
+  global $db;
 
-    return $res;
+  if ($conn == NULL) {
+    $conn = $db;
+  }
+  if (defined('DEBUG') && DEBUG) {
+		printf("<PRE>$query</PRE>");
+  }
+  $res = @pg_query($conn, $query);
+
+  return $res;
 } // pg_query
 
 
+/* Fetch the next result from a query output, using a result resource 
+ * obtained by db_query
+ */
 function db_fetch_next($res) {
     return pg_fetch_assoc($res);
 } // pg_fetch_next
 
 
-function db_close($conn) {
-    return pg_close($conn);
+/* Close specified database connection, or default when none
+ * is provided
+ */
+function db_close($conn=NULL) {
+  global $db;
+
+  if ($conn == NULL) {
+    $conn = $db;
+  }
+  return pg_close($conn);
 }
 
-
+/* Count the number of rows in the result set. */
 function db_num_rows($res) {
     return pg_num_rows($res);
 }

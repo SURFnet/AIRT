@@ -1,5 +1,5 @@
 <?php
-/* vim:syntax=php
+/* vim:syntax=php shiftwidth=3 tabstop=3
  * AIRT: Application for Incident Response Teams
  * Copyright (C) 2004  Kees Leune <kees@uvt.nl>
 
@@ -24,27 +24,28 @@
 require_once LIBDIR.'/database.plib';
 
 function getConstituencies() {
-    $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-    or die("Unable to connect to database.");
+   # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+   # or die("Unable to connect to database.");
 
-    $res = db_query($conn,
-        "SELECT   id, label, name
-         FROM     constituencies
-         ORDER BY label")
-    or die("Unable to connect to database.");
+   $res = db_query(
+      'SELECT   id, label, name
+       FROM     constituencies
+       ORDER BY label')
+   or die("Unable to connect to database.");
 
-    $constituencies=array();
-    while ($row = db_fetch_next($res))
-        $constituencies[$row["id"]]=array(
-            "label" => $row["label"],
-            "name"  => $row["name"]
-        );
-    db_close($conn);
-    return $constituencies;
+   $constituencies=array();
+   while ($row = db_fetch_next($res)) {
+      $constituencies[$row["id"]]=array(
+         "label" => $row["label"],
+         "name"  => $row["name"]
+      );
+  }
+  # db_close($conn);
+  return $constituencies;
 }
 
 
-/* deprecated */
+/*
 function showConstituencySelection($name="constituency", $default=-1) {
     printf("<select name=\"%s\">\n",
         htmlentities($name));
@@ -60,84 +61,80 @@ function showConstituencySelection($name="constituency", $default=-1) {
     }
     printf("</select>\n");
 }
+*/
+
 
 function getConstituencySelection($name="constituency", $default=-1) {
-  $output = sprintf("<select name=\"%s\">\n", htmlentities($name));
-  $constituencies = getConstituencies();
-  foreach ($constituencies as $id=>$data) {
-    $output .= sprintf("<option value=%s %s>%s (%s)</option>\n", htmlentities($id), ($id == $default)?"SELECTED":"", htmlentities($data["label"]), htmlentities($data["name"]));
-  }
-  $output .= "</select>\n";
-  
-  return $output;
+   $output = sprintf("<select name=\"%s\">\n", htmlentities($name));
+   $constituencies = getConstituencies();
+   foreach ($constituencies as $id=>$data) {
+      $output .= sprintf("<option value=%s %s>%s (%s)</option>\n", htmlentities($id), ($id == $default)?"SELECTED":"", htmlentities($data["label"]), htmlentities($data["name"]));
+   }
+   $output .= "</select>\n";
+   return $output;
 }
 
 
 function getNetworks() {
+   /*
     $conn = db_connect(DBDB, DBUSER, DBPASSWD)
     or die("Unable to connect to database.");
+    */
 
-    $res = db_query($conn,
-        "SELECT   id, network, netmask, label, constituency
-         FROM     networks
-         ORDER BY network,netmask")
-    or die("Unable to connect to database.");
+   $res = db_query(
+      "SELECT   id, network, netmask, label, constituency
+       FROM     networks
+       ORDER BY network,netmask")
+   or die("Unable to connect to database.");
 
-    $networks=array();
-    while ($row = db_fetch_next($res))
-    {
-        $networks[$row["id"]]=array(
-        "id"          => $row["id"],
-            "network"     => $row["network"],
-            "netmask"     => $row["netmask"],
-            "label"       => $row["label"],
-            "constituency"=> $row["constituency"]
-        );
-    }
-    db_close($conn);
-    return $networks;
+   $networks=array();
+   while ($row = db_fetch_next($res)) {
+      $networks[$row["id"]]=array(
+         "id"          => $row["id"],
+         "network"     => $row["network"],
+         "netmask"     => $row["netmask"],
+         "label"       => $row["label"],
+         "constituency"=> $row["constituency"]
+      );
+   }
+   # db_close($conn);
+   return $networks;
 }
 
+function showNetworksSelection($name="network", $default=-1) {
+   printf("<select name=\"%s\">\n", htmlentities($name));
+   $networks = getNetworks();
+   foreach ($networks as $id => $data) {
+      printf("<!-- %s, %s, %s, %s -->\n", $id, $data[0], $data[1], $data[2]);
+      $network = $data["network"];
+      $netmask = $data["netmask"];
+      $label   = $data["label  "];
 
-function showNetworksSelection($name="network", $default=-1)
-{
-    printf("<select name=\"%s\">\n",
-        htmlentities($name));
-    $networks = getNetworks();
-    foreach ($networks as $id => $data)
-    {
-        printf("<!-- %s, %s, %s, %s -->\n",
-            $id, $data[0], $data[1], $data[2]);
-        $network = $data["network"];
-        $netmask = $data["netmask"];
-        $label   = $data["label  "];
-
-        printf("<option value=%s %s>%s/%s</option>\n",
-            htmlentities($id),
-            ($id == $default)?"SELECTED":"",
-            htmlentities($network),
-            htmlentities($netmask),
-            htmlentities($label)
-        );
-    }
-    printf("</select>\n");
+      printf("<option value=%s %s>%s/%s</option>\n",
+         htmlentities($id),
+         ($id == $default)?"SELECTED":"",
+         htmlentities($network),
+         htmlentities($netmask),
+         htmlentities($label)
+      );
+   }
+   printf("</select>\n");
 }
 
-function showConstituencyContacts($constituencyid)
-{
-    $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-    or die("Unable to connect to database.");
+function showConstituencyContacts($constituencyid) {
+   # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+   # or die("Unable to connect to database.");
 
-    $res = db_query($conn,
-        "SELECT  u.lastname, u.firstname, u.email, u.phone, c.name
-         FROM    constituencies c, constituency_contacts c2, users u
-         WHERE   c2.constituency = c.id
-         AND     c2.userid = u.id
-         AND     c.id = $constituencyid
-         ")
-    or die("Unable to execute query.");
+   $res = db_query(
+      "SELECT  u.lastname, u.firstname, u.email, u.phone, c.name
+       FROM    constituencies c, constituency_contacts c2, users u
+       WHERE   c2.constituency = c.id
+       AND     c2.userid = u.id
+       AND     c.id = $constituencyid
+       ")
+   or die("Unable to execute query.");
 
-    echo <<<EOF
+   echo <<<EOF
 <table cellpadding=3>
 <tr>
     <td>Name</td>
@@ -145,27 +142,27 @@ function showConstituencyContacts($constituencyid)
     <td>Phone</td>
 </tr>
 EOF;
-    $count=0;
-    $_SESSION["current_email"] = "";
-    while ($row = db_fetch_next($res))
-    {
-       printf("<tr>
-            <td>%s, %s</td>
-            <td><a href=\"mailto:%s\">%s</a></td>
-            <td>%s</td>
-            </tr>",
-            $row["lastname"], $row["firstname"],
-            $row["email"], $row["email"],
-            $row["phone"]
+   $count=0;
+   $_SESSION["current_email"] = "";
+   while ($row = db_fetch_next($res)) {
+      printf("<tr>
+   <td>%s, %s</td>
+   <td><a href=\"mailto:%s\">%s</a></td>
+   <td>%s</td>
+</tr>",
+         $row["lastname"], $row["firstname"],
+         $row["email"], $row["email"],
+         $row["phone"]
        );
        $_SESSION["current_name"] = $row["firstname"] . " " . $row["lastname"];
-       if ($_SESSION["current_email"] == "") 
+       if ($_SESSION["current_email"] == "") {
           $_SESSION["current_email"] = $row["email"];
-       else
+       } else {
           $_SESSION["current_email"] .= ','.$row["email"];
+       }
     }
     echo "</table>";
-    db_close($conn);
+    # db_close($conn);
 }
 
 ?>

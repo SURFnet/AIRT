@@ -1,7 +1,7 @@
 <?php
-/*
+/* vim: syntax=php tabstop=3 shiftwidth=3
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
- * Copyright (C) 2004	Tilburg University, The Netherlands
+ * Copyright (C) 2004,2005	Tilburg University, The Netherlands
 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,10 +35,10 @@
     $submit = "Add!";
 
     if ($id != "") {
-        $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-        or die("Unable to connect to database.");
+        # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+        # or die("Unable to connect to database.");
 
-        $res = db_query($conn, "
+        $res = db_query("
         SELECT lastname, firstname, email, phone, login, userid, password
         FROM   users
         WHERE  id = '$id'")
@@ -62,7 +62,7 @@
             $action = "update";
             $submit = "Update!";
         }
-        db_close($conn);
+        # db_close($conn);
     }
     echo <<<EOF
 <form action="$_SERVER[PHP_SELF]" method="POST">
@@ -112,10 +112,10 @@ EOF;
     // --------------------------------------------------------------
     case "list":
         pageHeader("AIRT users");
-        $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-        or die ("Unable to connect to database.");
+        # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+        # or die ("Unable to connect to database.");
 
-        $res = db_query($conn, "
+        $res = db_query("
             SELECT id, login, lastname, firstname, email, phone,
                    userid
             FROM   users
@@ -161,7 +161,7 @@ EOF;
             $id, $login, $id);
         }
         db_free_result($res);
-        db_close($conn);
+        # db_close($conn);
         echo <<<EOF
 </table>
 
@@ -217,10 +217,10 @@ EOF;
                 pageFooter();
                 exit;
             }
-            $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-            or die("Unable to connect to database.");
+            # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+            # or die("Unable to connect to database.");
 
-            $res = db_query($conn,
+            $res = db_query(
                 "SELECT id
                  FROM   users
                  WHERE  login='$login'")
@@ -249,7 +249,7 @@ EOF;
 				"password" => $password
 			));
 
-            db_close($conn);
+            # db_close($conn);
             Header("Location: $_SERVER[PHP_SELF]");
         }
 
@@ -301,13 +301,13 @@ EOF;
                     $query,
                     $id);
 
-            $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-            or die("Unable to connect to database.");
+            # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+            # or die("Unable to connect to database.");
 
-            $res = db_query($conn, $query)
+            $res = db_query($query)
             or die("Unable to execute query 1");
 
-            db_close($conn);
+            # db_close($conn);
             Header("Location: $_SERVER[PHP_SELF]");
         }
 
@@ -318,10 +318,10 @@ EOF;
         if (array_key_exists("id", $_GET)) $id=$_GET["id"];
         else $id="";
 
-        $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-        or die("Unable to connect to database.");
+        # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+        # or die("Unable to connect to database.");
 
-        $res = db_query($conn,
+        $res = db_query(
             "DELETE FROM users
              WHERE  id = $id");
         if (!$res) {
@@ -338,7 +338,7 @@ EOF;
 			exit;
 		}
 
-        db_close($conn);
+        # db_close($conn);
         Header("Location: $_SERVER[PHP_SELF]");
 
         break;

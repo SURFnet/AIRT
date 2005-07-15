@@ -1,9 +1,10 @@
 <?php
-/* $Id$ 
+/* vim: syntax=php tabstop=3 shiftwidth=3
+ * $Id$ 
  * index.php - Index page for UvT-CERT
  *
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
- * Copyright (C) 2004	Tilburg University, The Netherlands
+ * Copyright (C) 2004,2005	Tilburg University, The Netherlands
 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,8 +29,7 @@ require_once LIBDIR."/database.plib";
 
 pageHeader("AIRT Control Center");
 
-printf("<small>Welcome $_SESSION[username]. Your last login was at
-$_SESSION[lastdb] from $_SESSION[hostnamelast].</small>");
+printf("<small>Welcome $_SESSION[username]. Your last login was at $_SESSION[lastdb] from $_SESSION[hostnamelast].</small>");
 
 echo "<HR>";
 generateEvent('mainmenutop');
@@ -57,23 +57,22 @@ generateEvent('mainmenutop');
 <P>
 
 <?php
-    $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-    or die("Unable to connect to database.");
+  # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+  # or die("Unable to connect to database.");
 
-    $res = db_query($conn, "
-        SELECT *
-        FROM   urls
-        ORDER BY created")
-    or die("Unable to query database.");
+  $res = db_query("
+      SELECT url, label
+      FROM   urls
+      ORDER BY created")
+  or die("Unable to query database.");
 
-    while ($row = db_fetch_next($res))
-    {
-        $url = $row["url"];
-        $description = $row["label"];
-        printf("<a href=\"%s\">%s</a><p>",
-            $url, $description);
-    }
-    db_close($conn);
+  while ($row = db_fetch_next($res)) {
+      $url = $row['url'];
+      $description = $row['label'];
+      printf("<a href=\"%s\">%s</a><p>",
+          $url, $description);
+  }
+  # db_close($conn);
 ?>
 
 <P>
@@ -83,5 +82,5 @@ generateEvent('mainmenutop');
 
 <?php
 	generateEvent('mainmenubottom');
-    pageFooter();
+  pageFooter();
 ?>

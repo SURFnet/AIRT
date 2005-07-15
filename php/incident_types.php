@@ -1,7 +1,9 @@
 <?php
-/*
+/* vim: syntax=php tabstop=3 shiftwidth=3
+   TODO: codingstyle
+
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
- * Copyright (C) 2004	Tilburg University, The Netherlands
+ * Copyright (C) 2004,2005	Tilburg University, The Netherlands
 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,10 +38,10 @@
     $submit    = 'Add!';
 
     if ($id != '') {
-        $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-        or die("Unable to connect to database.");
+        # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+        # or die("Unable to connect to database.");
 
-        $res = db_query($conn, "
+        $res = db_query("
         SELECT label, descr, isdefault
         FROM   incident_types
         WHERE  id = '$id'")
@@ -53,7 +55,7 @@
             $desc      = $row['descr'];
             $isdefault = $row['isdefault'];
         }
-        db_close($conn);
+        # db_close($conn);
     }
     if ($isdefault=='t') {
        $isdefault = 'CHECKED';
@@ -88,10 +90,10 @@ EOF;
     // --------------------------------------------------------------
     case "list":
         pageHeader("Incident types");
-        $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-        or die("Unable to connect to database.");
+        # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+        # or die("Unable to connect to database.");
 
-        $res = db_query($conn,
+        $res = db_query(
             "SELECT   id, label, descr, isdefault
              FROM     incident_types
              ORDER BY label")
@@ -127,7 +129,7 @@ EOF;
         echo "</table>";
 
         db_free_result($res);
-        db_close($conn);
+        # db_close($conn);
 
         echo "<h3>New incident state</h3>";
         show_form("");
@@ -159,19 +161,19 @@ EOF;
           $isdefault = 'f';
         }
 
-        $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-           or die("Unable to connect to database.");
+        # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+        # or die("Unable to connect to database.");
 
         if ($isdefault=='t') {
           // The new/updated record is default, so all others are not.
           $q = "UPDATE incident_types
                 SET isdefault = 'f'";
-          $res = db_query($conn, $q) or die("Unable to execute query 4.");
+          $res = db_query($q) or die("Unable to execute query 4.");
         }
 
         // Insert or update the current type record.
         if ($action=="add") {
-            $res = db_query($conn, sprintf("
+            $res = db_query(sprintf("
                 INSERT INTO incident_types
                 (id, label, descr, isdefault)
                 VALUES
@@ -181,14 +183,14 @@ EOF;
                     db_masq_null($isdefault)))
             or die("Unable to excute query.");
 
-            db_close($conn);
+            # db_close($conn);
             Header("Location: $_SERVER[PHP_SELF]");
         } else if ($action=="update") {
             if ($id=="") die("Missing information (3).");
-            $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-            or die("Unable to connect to database.");
+            #$conn = db_connect(DBDB, DBUSER, DBPASSWD)
+            #or die("Unable to connect to database.");
 
-            $res = db_query($conn, sprintf("
+            $res = db_query(sprintf("
                 UPDATE incident_types
                 set  label=%s,
                      descr=%s,
@@ -200,7 +202,7 @@ EOF;
                     $id))
             or die("Unable to excute query.");
 
-            db_close($conn);
+            #db_close($conn);
             Header("Location: $_SERVER[PHP_SELF]");
         }
 
@@ -211,15 +213,15 @@ EOF;
         if (array_key_exists("id", $_GET)) $id=$_GET["id"];
         else die("Missing information.");
 
-        $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-        or die("Unable to connect to database.");
+        # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
+        # or die("Unable to connect to database.");
 
-        $res = db_query($conn, "
+        $res = db_query("
             DELETE FROM incident_types
             WHERE  id='$id'")
         or die("Unable to execute query.");
 
-        db_close($conn);
+        # db_close($conn);
         Header("Location: $_SERVER[PHP_SELF]");
 
         break;

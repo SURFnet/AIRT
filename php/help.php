@@ -1,9 +1,9 @@
 <?php
-/* vim:syntax=php
+/* vim:syntax=php shiftwidth=3 tabstop=3
  * $Id$ 
 
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
- * Copyright (C) 2004	Kees Leune <kees@uvt.nl>
+ * Copyright (C) 2004   Kees Leune <kees@uvt.nl>
 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,14 +22,17 @@
 require_once 'config.plib';
 require_once LIBDIR.'/airt.plib';
 
-if (array_key_exists('topic', $_GET)) $topic = $_GET['topic'];
-else die('Missing topic.');
+if (array_key_exists('topic', $_GET)) {
+  $topic = $_GET['topic'];
+} else {
+  die('Missing topic.');
+}
 
 pageHeader("Help information");
 switch ($topic) {
-	// --------------------------------------------------------------
-	case 'search-search':
-		echo <<<EOF
+   // --------------------------------------------------------------
+   case 'search-search':
+      echo <<<EOF
 <a name="search-search">
 <h3>Help information for IP address search.</h3>
 
@@ -39,18 +42,18 @@ information on.</p>
 <p>Use hotkey <b>ctrl-a</b> to focus the cursor in the input field.</p>
 </a>
 EOF;
-		break;
-	
-	// --------------------------------------------------------------
-	case 'search-info':
-		echo <<<EOF
+      break;
+
+   // --------------------------------------------------------------
+   case 'search-info':
+      echo <<<EOF
 Help information for IP address search results.
 EOF;
-		break;
+      break;
 
-	// --------------------------------------------------------------
-	case 'incident-adduser':
-		echo <<<EOF
+   // --------------------------------------------------------------
+   case 'incident-adduser':
+      echo <<<EOF
 <p>Enter user details in this field. AIRT processing logic will attempt to match
 this information by a user by trying the following tests.</p>
 
@@ -63,15 +66,15 @@ this information by a user by trying the following tests.</p>
 <p>The results of the first test that returns a match will be used. If no
 match is found, you will be redirected to the edit users page.</p>
 EOF;
-		break;
-	// --------------------------------------------------------------
-	default:
-		echo 'Unknown help topic';
+      break;
+   // --------------------------------------------------------------
+   default:
+      echo 'Unknown help topic';
 }
 
-	$r = $_SERVER["HTTP_REFERER"];
-	echo <<<EOF
-	<a href="$r">Back...</a>
+   $r = $_SERVER["HTTP_REFERER"];
+   echo <<<EOF
+   <a href="$r">Back...</a>
 EOF;
 
 pageFooter();
