@@ -579,7 +579,7 @@ function editIPform($incidentid,$ip) {
       die('Could not find assigned IP address.');
    }
 
-   $o .= sprintf("<form method=\"POST\" action=\"%s\">\n", $_SERVER['PHP_SELF']);
+   $o = sprintf("<form method=\"POST\" action=\"%s\">\n", $_SERVER['PHP_SELF']);
    $o .= sprintf("<input type=\"HIDDEN\" name=\"action\" value=\"updateip\">\n");
    $o .= sprintf("<input type=\"HIDDEN\" name=\"id\" value=\"%d\">\n", $id);
    $o .= sprintf("<input type=\"HIDDEN\" name=\"ip\" value=\"%s\">\n", $ip);
