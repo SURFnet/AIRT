@@ -205,9 +205,7 @@ function prepare_message($filename) {
       $from = replace_vars(MAILFROM);
    }
 
-   if (REPLYTO == '') {
-      $replyto = $cert["email"];
-   } else {
+   if (issed(REPLYTO) && REPLYTO != '') {
       $replyto = replace_vars(REPLYTO);
    }
 
@@ -550,7 +548,7 @@ EOF;
          'Subject'  => $subject,
          'Reply-To' => $replyto,
          'To'       => $to,
-         'X-Mailer' => 'AIRT'
+         'X-Mailer' => 'AIRT $Revision$ http://www.sourceforge.net/projects/airt'
       );
 
       /* set up mail recipient */
