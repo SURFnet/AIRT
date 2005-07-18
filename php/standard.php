@@ -537,7 +537,7 @@ EOF;
       if (trim($msg) == '') {
          die('Empty message body?');
       }
-   
+
       /* clean off html and stuff (only unformatted mail) */
       $msg = strip_tags($msg);
       $msg = stripslashes($msg);
@@ -563,12 +563,12 @@ EOF;
 
       /* set up envelope sender */
       $envfrom="-f".MAILENVFROM;
-      
+
       /* will send via Mail class */
       $mail_params = array(
          'sendmail_args' => $envfrom
       );
-      
+
       $msg_params = array();
       $msg_params['content_type'] = 'multipart/mixed';
       $msg_params['disposition'] = 'inline';
@@ -579,23 +579,34 @@ EOF;
       $body_params['charset'] = 'us-ascii';
 
       $attachcount=0;
-/*
-      if ($attach == 'on') {
-         $attachment = exportIncident(array($_SESSION["incidentid"]));
-         $xml_params = array();
-         $xml_params['content_type'] = 'application/xml';
-         $xml_params['disposition'] = 'attachment';
-         $xml_params['description'] = 'AIRT incident data';
-         $xml_params['dfilename'] = 'airtdata.xml';
-         $attachcount++;
-      }
-*/
 
-      if ($sign == 'on') {
+      if ($sign == 'off') {
+         $msg_params['content_type'] = 'text/plain';
+         unset($msg_params['disposition']);
+         $mime = new Mail_mimePart($msg, $msg_params);
+      } else  {
+         // pgp signed messages are described in RFC 2015
+         $msg_params['content_type'] = 'multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"';
+         $mime = new Mail_mimePart('', $msg_params);
+
+         // MIME encoding requires CR/LF
+         $msg = explode("\n",$msg);
+         $msg = implode("\r\n",$msg);
+         $mime->addsubpart($msg, $body_params);
+
+         // create mime-body and remove delimiting lines. RFC 2015 requires
+         // that the message is signed, including its MIME headers
+         $tmpmime=$mime;
+         $m = $tmpmime->encode();
+         unset($tmpmime);
+         $m = explode("\r\n", $m['body']);
+         $m = array_slice($m, 1, -2);
+         $m = implode("\r\n", $m);
+
          /* write msg to temp file */
          $fname = tempnam('/tmp', 'airt_');
          $f = fopen($fname, 'w');
-         fwrite($f, $msg, strlen($msg));
+         fwrite($f, $m, strlen($m));
          fclose($f);
 
          /* invoke gpg */
@@ -605,41 +616,22 @@ EOF;
          if (($sig = file_get_contents("$fname.asc")) == false) {
             die('Unable to read signed message.');
          }
+
          /* clean up */
          unlink($fname);
          unlink("$fname.asc");
 
          /* message signature */
-         $msg_params['content_type'] = 'multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"';
          $sig_params = array();
          $sig_params['content_type'] = 'application/pgp-signature';
          $sig_params['disposition'] = 'inline';
          $sig_params['description'] = 'Digital signature';
          $sig_params['dfilename'] = 'signature.asc';
-         $attachcount++;
-      }
-
-      if ($attachcount == 0) {
-         $msg_params = array();
-         $msg_params['content_type'] = 'text/plain';
-         unset($msg_params['disposition']);
-         $mime = new Mail_mimePart($msg, $msg_params);
-      } else {
-         $mime = new Mail_mimePart('', $msg_params);
-         $mime->addsubpart($msg, $body_params);
-
-/*
-         if ($attach == 'on') {
-            $mime->addsubpart($attachment, $xml_params);
-         }
-*/
-         if ($sign == 'on') {
-            $mime->addsubpart($sig, $sig_params);
-         }
+         $mime->addsubpart($sig, $sig_params);
       }
       $m = $mime->encode();
-      
-      $mail = &Mail::factory('sendmail', $mail_params);
+
+      $mail = &Mail::factory('smtp', $mail_params);
       $hdrs = array_merge($hdrs, $m['headers']);
       if (! $mail->send($mailto, $hdrs, $m['body'])) {
          die("Error sending message!");
