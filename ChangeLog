@@ -1,4 +1,6 @@
-2005-xx-xx
+2005-07-18
+* In database.plib, and all files that depend on it, fixed connection
+  handling. Hopefully I didn't break too much
 * In standard.php, fixed MIME handling of PGP signed messages
 
 2005-jun-30
