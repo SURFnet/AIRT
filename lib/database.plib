@@ -38,7 +38,7 @@ function db_errormessage() {
 function db_connect($database, $username, $password) {
     $connectstring = sprintf("dbname=%s user=%s password=%s",
         $database, $username, $password);
-    $conn = @pg_connect($connectstring, PGSQL_CONNECT_FORCE_NEW);
+    $conn = @pg_pconnect($connectstring, PGSQL_CONNECT_FORCE_NEW);
 
     return $conn;
 } // db_connect
