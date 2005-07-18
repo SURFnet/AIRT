@@ -205,8 +205,10 @@ function prepare_message($filename) {
       $from = replace_vars(MAILFROM);
    }
 
-   if (issed(REPLYTO) && REPLYTO != '') {
+   if (defined(REPLYTO) && REPLYTO != '') {
       $replyto = replace_vars(REPLYTO);
+   } else {
+      $replyto = '';
    }
 
    // load message and replace all standard variables
@@ -546,10 +548,12 @@ EOF;
       $hdrs = array(
          'From'     => $from,
          'Subject'  => $subject,
-         'Reply-To' => $replyto,
          'To'       => $to,
          'X-Mailer' => 'AIRT $Revision$ http://www.sourceforge.net/projects/airt'
       );
+      if ($replyto != '') {
+          $hdrs['Reply-To'] = $replyto;
+      }
 
       /* set up mail recipient */
       if (defined('MAILCC')) {
