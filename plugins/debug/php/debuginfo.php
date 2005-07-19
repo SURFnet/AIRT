@@ -1,5 +1,6 @@
 <?php
-    require '../lib/airt.plib';
+    require_once '/etc/airt/airt.cfg';
+    require_once LIBDIR.'/airt.plib';
 
     pageHeader("Debug info");
 
@@ -15,7 +16,7 @@
 echo <<<EOF
 <PRE>
 Session data:
-    
+
     User name   : $uname
     User id     : $uid
     Session IP  : $sip
