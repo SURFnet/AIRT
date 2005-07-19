@@ -1,0 +1,13 @@
+$Id$
+In CVS at $Source$
+
+rss.php is a simple script that functions as an RSS aggregator. It depends on
+the PEAR class XML-RSS, which may be installed on your system by giving the
+command
+
+pear install XML-RSS
+
+To install the plugin, simple copy it to a location which can be accessed by
+your web server and add a URL to it using the AIRT main menu URL link option.
+The feeds that will be syndicated can be configured in the file itself and are
+listed near the top of the file.
