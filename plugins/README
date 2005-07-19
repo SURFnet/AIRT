@@ -1,0 +1,17 @@
+$Id$
+In CVS at $Source$
+
+This directory contains AIRT plugins. Each plugin MUST reside in its own
+subdirectory. Each plugin directory MUST have the following structure
+
+pluginname/doc/   -- plugin documentation
+  COPYING            Copyright of the plugin
+  README             Documentation of the plugin
+  AUTHORS            Information regarding the author of the plugin
+pluginname/php/   -- PHP scripts meant to be called directly by the web server
+pluginname/lib/   -- PHP scripts meant to NEVER be called directly by the
+                     web server.
+pluginname/bin/   -- Command line scripts
+
+Directory may be absent if they do not contain any files. The files in the doc
+subdirectory (COPYING, README and AUTHORS) are mandatory and MUST be present.
