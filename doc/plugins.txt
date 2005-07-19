@@ -1,0 +1,11 @@
+$Id$
+In CVS at $Source$
+
+AIRT knows two kinds of plugins. First, the event mechanism can be used
+to modify the behaviour of AIRT-Core. Second, the add-in mechanism can be used
+to add functionality to AIRT-Core.
+
+All plugins can be found in the source distribution in the plugins/ directory.
+The structure of that directory, including the required directory tree and some
+required files, can be found in the README file on the top level of the plugin
+tree.
