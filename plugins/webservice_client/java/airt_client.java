@@ -1,4 +1,3 @@
-<?php
 /* vim: syntax=java tabstop=3 shiftwidth=3
  * $Id$ 
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
@@ -30,7 +29,7 @@ import org.apache.axis.encoding.XMLType;
 import javax.xml.namespace.QName;
 import javax.xml.rpc.ParameterMode;
 
-public class airtclient {
+public class airt_client {
   public static void main(String args[]){
     try {
       org.apache.axis.client.Service service= new Service();
