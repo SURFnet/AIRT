@@ -27,10 +27,16 @@ require('SOAP/Client.php');
 $endpoint     = 'https://similarius.uvt.nl/~sebas/airt/server.php';
 
 $airt_client  = new SOAP_Client($endpoint);
-$method       = 'GetIncidentData';
+if($_GET[method]==null) {
+   $method  = 'getXMLIncidentData';
+} else { 
+   $method  = $_GET[method];
+}
+
 $params       = array('action' => 'getAll');
 $ans          = $airt_client->call($method, $params);
 
+Header("Content-Type: application/xml");
 print_r($ans);
 
 ?>
