@@ -1,24 +1,31 @@
-/* $Id$ 
+<?php
+/* vim: syntax=java tabstop=3 shiftwidth=3
+ * $Id$ 
+ * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
+ * Copyright (C) 2004,2005	Tilburg University, The Netherlands
+
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ * index.php - AIR console
+ * $Id$
  */
 package airt.client;
 
-import java.awt.*;
-import java.net.*;
-import java.io.*;
-import java.awt.event.*;
-import java.applet.*;
-import javax.swing.*;
-import javax.swing.tree.*;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.event.TreeSelectionEvent;
-
-import org.apache.axis.AxisFault;
 import org.apache.axis.client.Call;
 import org.apache.axis.client.Service;
-import org.apache.axis.utils.Options;
-import org.apache.axis.encoding.ser.*;
 import org.apache.axis.encoding.XMLType;
-import org.apache.axis.types.*;
 
 import javax.xml.namespace.QName;
 import javax.xml.rpc.ParameterMode;
@@ -42,3 +49,4 @@ public class airtclient {
       }
     }
   }
+
