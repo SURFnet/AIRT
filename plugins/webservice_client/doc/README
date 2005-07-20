@@ -2,3 +2,8 @@ $Id$
 In CVS at $Source$
 
 TODO: sebas
+
+java/
+  The java client requires the following .jar files
+  jaxrpc.jar -- http://java.sun.com/xml/jaxrpc/index.jsp
+  axis.jar   -- http://ws.apache.org/axis/
