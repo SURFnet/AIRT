@@ -23,7 +23,9 @@
         returns the category identifier
   - function search_info($ip, $hostname, $consituency); prints additional
     information about hostname
-  
+  - function custom_default_addressrole($ip); returns a default addressrole 
+    for the given ip address
+
   $Id$
  */
 

@@ -30,7 +30,7 @@ require_once LIBDIR.'/history.plib';
 require_once LIBDIR.'/user.plib';
 
 function formatIncidentForm() {
-   $constituency = $name = $email = $type = $state = $status = "";
+   $constituency = $name = $email = $type = $state = $status = $addressrole = "";
 
    if (array_key_exists("active_ip", $_SESSION)) {
       $address = $_SESSION["active_ip"];
@@ -43,14 +43,23 @@ function formatIncidentForm() {
    if (array_key_exists("current_email", $_SESSION)) {
       $email = $_SESSION["current_email"];
    }
+   if (array_key_exists("current_email", $_SESSION)) {
+      $email = $_SESSION["current_email"];
+   }
 
+   if (defined('CUSTOM_FUNCTIONS') && function_exists('custom_default_addressrole')) {
+      $addressrole = custom_default_addressrole($address);
+   }
    $output =  formatBasicIncidentData($type, $state, $status);
    $output .= "<hr/>\n";
    $output .= "<h3>affected ip addresses</h3>\n";
    $output .= "<table cellpadding=\"4\">\n";
    $output .= "<tr>\n";
    $output .= "  <td>hostname or ip address</td>\n";
-   $output .= "  <td><input type=\"text\" size=\"30\" name=\"address\" value=\"$address\"></td>\n";
+   $output .= t("  <td><input type=\"text\" size=\"30\" name=\"address\" value=\"%address\">%addressrole</td>\n", array(
+      '%address'=>$address,
+      '%addressrole'=>getAddressRolesSelection('addressrole', $addressrole)
+   ));
    $output .= "</tr>\n";
    $output .= "<tr>\n";
    $output .= "  <td>constituency</td>\n";
