@@ -10,18 +10,18 @@ class IncidentHandling {
       // Define the signature of the dispatch map on the Web services method
 
       // Necessary for WSDL creation
-      $this->__dispatch_map['getXMLIncidentData'] = array('in' =>
-      array('action' => 'string' ), 'out' => array('airtXML' =>
-      'string'), );
+      $this->__dispatch_map['getXMLIncidentData'] = array('in' => array('action' => 'string'), 
+         'out' => array('airtXML' => 'string'), );
+      $this->__dispatch_map['importIncidentData'] = array('in' => array('importXML' => 'string'), 
+         'out' => array('confirmation' => 'string'), );
+
+      
    }
 
    function getXMLIncidentData($action)  {
       if ($action == 'getAll') {
-         # this XML-document isn't generated automatically yet
-#         DEFINE('DEBUG',true);
          $public  = 1;
          require_once('export.php');
-#         return "BLA";
          return(exportOpenIncidents());
       }
    }
