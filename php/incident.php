@@ -106,13 +106,16 @@ function formatEditForm() {
    foreach ($incident['ips'] as $address) {
       $output .= "<tr>\n";
       $output .= sprintf("  <td><a href=\"search.php?action=search&hostname=%s\">%s</a></td>\n",
-         urlencode($address), $address);
+         urlencode($address['ip']), $address['ip']);
       $output .= sprintf("  <td>%s</td>\n",
-         $address==""?"Unknown":@gethostbyaddr(@gethostbyname($address)));
+         $address['hostname']==""?"Unknown":@gethostbyaddr(@gethostbyname($address['ip'])));
+      $output .= t("  <td>%addressrole</td>\n", array(
+         '%addressrole'=>getAddressRoleByID($address['addressrole'])));
       $output .= sprintf("  <td><a href=\"$_SERVER[PHP_SELF]?action=editip&ip=%s\">edit</a></td>\n",
-         urlencode($address));
-      $output .= sprintf("  <td><a href=\"$_SERVER[PHP_SELF]?action=deleteip&ip=%s\">remove</a></td>\n",
-         urlencode($address));
+         urlencode($address['ip']));
+      $output .= t("  <td><a href=\"$_SERVER[PHP_SELF]?action=deleteip&ip=%ip&addressrole=%addressrole\">remove</a></td>\n", array(
+         '%ip'=>urlencode($address['ip']),
+         '%addressrole'=>urlencode($address['addressrole'])));
       $output .= "</tr>\n";
    }
    $output .= "</table>\n";
@@ -123,6 +126,9 @@ function formatEditForm() {
    $output .= "<tr>\n";
    $output .= "  <td>IP Address</td>\n";
    $output .= "  <td><input type=\"text\" name=\"ip\" size=\"40\"></td>\n";
+   $output .= t('<td>%addressrole</td>', array(
+      '%addressrole' => getAddressRolesSelection('addressrole')
+   ));
    $output .= "  <td><input type=\"submit\" value=\"Add\"></td>\n";
    $output .= "</tr>\n";
    $output .= "</table>\n";
@@ -193,6 +199,7 @@ switch ($action) {
       die("Missing information(1).");
     }
 
+    /* prevent cross site scripting in incidentid */
     $norm_incidentid = normalize_incidentid($incidentid);
     $incidentid = decode_incidentid($norm_incidentid);
 
@@ -559,23 +566,36 @@ EOF;
       if (array_key_exists("incidentid", $_SESSION)) {
          $incidentid = $_SESSION["incidentid"];
       } else {
-         die("Missing information (1).");
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
+         Header("Location: $_SERVER[PHP_SELF]");
+         return;
       }
       if (array_key_exists("ip", $_POST)) {
          $ip = gethostbyname($_POST["ip"]);
       } else {
-         die("Missing information (2).");
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
+         Header("Location: $_SERVER[PHP_SELF]");
+         return;
       }
-      if (trim($ip) != "") {
-         addIpToIncident(trim($ip), $incidentid);
-         addIncidentComment(sprintf("IP address %s added to incident.",
-         $ip));
+      if (array_key_exists("addressrole", $_POST)) {
+         $addressrole = $_POST['addressrole'];
+      } else {
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
+         Header("Location: $_SERVER[PHP_SELF]");
+         return;
       }
-
       generateEvent("addiptoincident", array(
          "incidentid" => $incidentid,
-         "ip"         => $ip
+         "ip"         => $ip,
+         "addressrole"=> $addressrole
       ));
+      if (trim($ip) != "") {
+         addIpToIncident(trim($ip), $incidentid, $addressrole);
+         addIncidentComment(t('IP address %ip added to incident with role %role', array(
+            '%ip'=>$ip,
+            '%role'=>getAddressRoleByID($addressrole))));
+      }
+
       Header(sprintf("Location: $_SERVER[PHP_SELF]?action=details&incidentid=%s",
          urlencode($incidentid)));
       break;
@@ -604,37 +624,55 @@ EOF;
       if (array_key_exists('id', $_POST)) {
          $id = $_POST['id'];
       } else {
-         die('Missing information (1).');
+         airt_error('102', '__FILE__:__LINE__');
+         return;
       }
       if (array_key_exists('constituency', $_POST)) {
          $constituency = $_POST['constituency'];
       } else {
-         die('Missing information (2).');
+         airt_error('102', '__FILE__:__LINE__');
+         return;
       }
       if (array_key_exists('ip', $_POST)) {
          $ip = $_POST['ip'];
       } else {
-         die('Missing information (3).');
+         airt_error('102', '__FILE__:__LINE__');
+         return;
       }
       if (array_key_exists('incidentid', $_POST)) {
          $incidentid = $_POST['incidentid'];
       } else {
-         die('Missing information (4).');
+         airt_error('102', '__FILE__:__LINE__');
+         return;
       }
-      // Update the IP details.
-      updateIPofIncident($id,$constituency);
+      if (array_key_exists('addressrole', $_POST)) {
+         $addressrole = $_POST['addressrole'];
+      } else {
+         airt_error('102', '__FILE__:__LINE__');
+         return;
+      }
 
-      // Fetch all constituencies for name lookup.
+      // Update the IP details.
+      updateIPofIncident($id, $constituency, $addressrole);
+
+      // Fetch all constituencies and address roles for name lookup.
       $constituencies = getConstituencies();
       $constLabel = $constituencies[$constituency]['label'];
 
+      $addressroles = getAddressRoles();
+      $addressRoleLabel = $addressroles[$addressrole];
+
       // Generate comment and event.
-      addIncidentComment(sprintf('Details of IP address %s updated; const=%s',
-        $ip,
-        $constLabel));
+      addIncidentComment(t('Details of IP address %ip updated; const=%const, addressrole=%role', array(
+         '%ip'=>$ip,
+         '%const'=>$constLabel,
+         '%role'=>$addressRoleLabel)
+      ));
       generateEvent('updateipdetails', array(
          'incidentid' => $incidentid,
-         'ip'         => $ip
+         'ip'         => $ip,
+         'constituency' => $constituency,
+         'addressrole' => $addressrole
       ));
 
       Header(sprintf('Location: %s?action=details&incidentid=%s',
@@ -647,21 +685,34 @@ EOF;
       if (array_key_exists("incidentid", $_SESSION)) {
          $incidentid = $_SESSION["incidentid"];
       } else {
-         die("Missing information (1).");
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
+         Header("Location: $_SERVER[PHP_SELF]");
+         return;
       }
       if (array_key_exists("ip", $_GET)) {
          $ip = $_GET["ip"];
       } else {
-         die("Missing information (2).");
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
+         Header("Location: $_SERVER[PHP_SELF]");
+         return;
+      }
+      if (array_key_exists("addressrole", $_GET)) {
+         $addressrole = $_GET["addressrole"];
+      } else {
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
+         Header("Location: $_SERVER[PHP_SELF]");
+         return;
       }
 
-      removeIpFromIncident($ip, $incidentid);
-      addIncidentComment(sprintf("IP address %s removed from incident.", 
-         $ip));
+      removeIpFromIncident($ip, $incidentid, $addressrole);
+      addIncidentComment(t('IP address %address (%role) removed from incident.', array(
+         '%address'=>$ip,
+         '%role'=>getAddressRolebyID($addressrole))));
 
       generateEvent("removeipfromincident", array(
          "incidentid" => $incidentid,
-         "ip"         => $ip
+         "ip"         => $ip,
+         "addressrole"=> $addressrole
       ));
       Header(sprintf("Location: $_SERVER[PHP_SELF]?action=details&incidentid=%s",
          urlencode($incidentid)));

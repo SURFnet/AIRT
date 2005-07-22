@@ -20,6 +20,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 require_once LIBDIR.'/database.plib';
+require_once LIBDIR.'/error.plib';
+
 if (defined('CUSTOM_FUNCTIONS')) {
   require_once CUSTOM_FUNCTIONS;
 }
@@ -77,6 +79,10 @@ if (!isset($public) || !$public) {
 function pageheader($title="", $helptopic="") {
 	global $public;
 
+   if (isset($_SESSION['msg'])) {
+      printf(t('<I>%msg</I><P/>', array('%msg'=>$_SESSION['msg'])));
+      unset($_SESSION['msg']);
+   }
 	generateEvent("pageHeader", array(
 		"title"     => $title,
 		"helptopic" => $helptopic
@@ -111,9 +117,8 @@ EOF;
 /**
  * Format an email addres
  */
-function email($msg)
-{
-    printf("<a href=\"%s\">%s</a>", $msg, $msg);
+function email($msg) {
+   printf("<a href=\"%s\">%s</a>", $msg, $msg);
 }
 
 /**
@@ -133,7 +138,6 @@ function normalize_incidentid($id) {
     return encode_incidentid($id);
 }
 
-
 function choice($label, $value, $default) {
     if ($value == $default)
         return sprintf("<OPTION value='%s' SELECTED>%s</OPTION>\n",
@@ -142,7 +146,6 @@ function choice($label, $value, $default) {
         return sprintf("<OPTION value='%s'>%s</OPTION>\n",
             $value, $label);
 }
-
 
 function registerEventHandler($event, $function) {
 	global $glEventHandlers;
@@ -163,5 +166,47 @@ function generateEvent($event, $data=array()) {
 		foreach ($glEventHandlers[$event] as $fun) 
 			call_user_func($fun, $data);
 	}
+}
+
+/* based on Drupal code; format the given string for output, making pattern
+ * replacesments when required. This will be the place to implement locale
+ * support.  $string A string containing the English string to translate.
+ *
+ *   $args An associative array of replacements to make after translation.
+ *   Incidences of any key in this array are replaced with the corresponding
+ *   value.
+ */
+function t($string, $args = 0) { global $locale;
+   if (!$args) {
+      return $string;
+   } else {
+       return strtr($string, $args);
+   }
+}
+
+/* based on Drupal code; replace patterns in sql string
+ *   $string A string containing the English string to translate.
+ *
+ *   $args An associative array of replacements to make after translation.
+ *   Incidences of any key in this array are replaced with the corresponding
+ *   value.
+ */
+function q($string, $args = 0) {
+   if (!$args) {
+      return $string;
+   } else {
+      return strtr($string, $args);
+   }
+}
+
+/* schedule a message to be printed the next time a page is loaded. The
+ * optional priority will be used to specify a feedback level
+ */
+function airt_msg($msg, $prio=0) {
+   if (isset($_SESSION['msg'])) {
+      $_SESSION['msg'] .= $msg;
+   } else {
+      $_SESSION['msg'] = $msg;
+   }
 }
 ?>

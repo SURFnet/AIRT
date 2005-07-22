@@ -33,32 +33,20 @@ require_once LIBDIR.'/constituency.plib';
  * Output: array[id]=label.
  */
 function getIncidentStates($extras=array()) {
-   # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-   # or die("Unable to connect to database.");
-
-   $res = db_query('SELECT   id, label
-      FROM     incident_states
-      ORDER BY id')
+   $res = db_query('SELECT  id, label FROM incident_states ORDER BY id')
    or die('Unable to connect to database.');
 
    $states=$extras;
    while ($row = db_fetch_next($res)) {
       $states[$row["id"]]=$row["label"];
    }
-   # db_close($conn);
    return $states;
 }
 
 /* Return the current incident state ID system default. If there is no
  * explicit default set, return an empty string. */
 function getIncidentStateDefault() {
-   # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-   # or die("Unable to connect to database.");
-
-   $res = db_query(
-      'SELECT   id
-       FROM     incident_states
-       WHERE    isdefault')
+   $res = db_query('SELECT id FROM incident_states WHERE isdefault')
    or die('Unable to execute query.');
 
    if (db_num_rows($res)==1) {
@@ -69,7 +57,6 @@ function getIncidentStateDefault() {
       // Unsure.
       $default = '';
    }
-   # db_close($conn);
    return $default;
 }
 
@@ -104,33 +91,20 @@ function getIncidentStateSelection($name, $default='', $extras=array()) {
  * Output: array[id]=label.
  */
 function getIncidentStatus($extras=array()) {
-   # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-   # or die("Unable to connect to database.");
-
-   $res = db_query(
-      'SELECT   id, label
-       FROM     incident_status
-       ORDER BY id')
+   $res = db_query('SELECT id, label FROM incident_status ORDER BY id')
    or die("Unable to connect to database.");
 
    $statuses=$extras;
    while ($row = db_fetch_next($res)) {
       $statuses[$row["id"]]=$row["label"];
    }
-   # db_close($conn);
    return $statuses;
 }
 
 /* Return the current incident status ID system default. If there is no
  * explicit default set, return an empty string. */
 function getIncidentStatusDefault() {
-   # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-   # or die("Unable to connect to database.");
-
-   $res = db_query(
-      'SELECT   id
-       FROM     incident_status
-       WHERE    isdefault')
+   $res = db_query('SELECT id FROM incident_status WHERE isdefault')
    or die('Unable to execute query.');
 
    if (db_num_rows($res)==1) {
@@ -141,7 +115,6 @@ function getIncidentStatusDefault() {
       // Unsure.
       $default = '';
     }
-    # db_close($conn);
     return $default;
 }
 
@@ -169,33 +142,20 @@ function getIncidentStatusSelection($name, $default='', $extras=array()) {
 }
 
 function getIncidentTypes() {
-   # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-   # or die("Unable to connect to database.");
-
-   $res = db_query(
-      'SELECT   id, label
-       FROM     incident_types
-       ORDER BY id')
+   $res = db_query('SELECT id, label FROM incident_types ORDER BY id')
    or die('Unable to connect to database.');
 
    $types=array();
    while ($row = db_fetch_next($res)) {
       $types[$row["id"]]=$row["label"];
    }
-   # db_close($conn);
    return $types;
 }
 
 /* Return the current incident type ID system default. If there is no
  * explicit default set, return an empty string. */
 function getIncidentTypeDefault() {
-   # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-   # or die("Unable to connect to database.");
-
-   $res = db_query(
-      'SELECT   id
-       FROM     incident_types
-       WHERE    isdefault')
+   $res = db_query('SELECT id FROM incident_types WHERE isdefault')
    or die('Unable to execute query.');
 
    if (db_num_rows($res)==1) {
@@ -206,7 +166,6 @@ function getIncidentTypeDefault() {
       // Unsure.
       $default = '';
    }
-   # db_close($conn);
    return $default;
 }
 
@@ -226,9 +185,6 @@ function getIncidentTypeSelection($name, $default='') {
 }
 
 function getOpenIncidents() {
-   # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-   # or die("Unable to connect to database.");
-
    $res = db_query(
       "SELECT   i.id as incidentid,
                 extract(epoch from created), 
@@ -260,26 +216,21 @@ function getOpenIncidents() {
    while ($row = db_fetch_next($res)) {
       $incidents[$row["incidentid"]]=$row;
    }
-   # db_close($conn);
    return $incidents;
 }
 
 function getIncident($id) {
-   # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-   # or die("Unable to connect to database.");
-
    // get basic info
-   $res = db_query(
-      "SELECT   id as incidentid,
-                extract(epoch from created) as created, 
+   $res = db_query(q('SELECT   id as incidentid,
+                extract(epoch from created) as created,
                 creator,
-                  extract(epoch from updated) as updated,
+                extract(epoch from updated) as updated,
                 updatedby,
                 state,
                 status,
                 type
       FROM incidents
-      WHERE id=$id")
+      WHERE id=%id', array('%id'=>$id)))
    or die("Unable to execute query 1.");
 
    if (db_num_rows($res) == 0) {
@@ -291,24 +242,22 @@ function getIncident($id) {
 
    // get ip addresses
    pg_free_result($res);
-   $res = db_query(
-      "SELECT  ip
-       FROM    incident_addresses
-       WHERE   incident = '$id'")
+   $res = db_query(q('SELECT ip,hostname,constituency,addressrole FROM incident_addresses WHERE incident = %id', array('%id'=>$id)))
    or die("Unable to execute query 2.");
 
    $ips = array();
    while ($row = db_fetch_next($res)) {
-      array_push($ips, $row["ip"]);
+      array_push($ips, array(
+         'ip'=>$row["ip"],
+         'hostname'=>$row['hostname'],
+         'constituency'=>$row['constituency'],
+         'addressrole'=>$row['addressrole']));
    }
    $data["ips"] = $ips;
 
    // get users
    db_free_result($res);
-   $res = db_query(
-      "SELECT  userid
-       FROM    incident_users
-       WHERE   incidentid = '$id'")
+   $res = db_query(q("SELECT userid FROM incident_users WHERE incidentid = '%id'", array('%id'=>$id)))
    or die("Unable to execute query 3.");
 
    $users = array();
@@ -317,10 +266,8 @@ function getIncident($id) {
    }
    $data["users"] = $users;
 
-   # db_close($conn);
    return $data;
 }
-
 
 function showOpenIncidentSelection($name) {
    $incidents = getOpenIncidents();
@@ -342,59 +289,60 @@ function showOpenIncidentSelection($name) {
     return $count;
 }
 
-function addIPtoIncident($ip, $incident) {
+function addIPtoIncident($ip, $incident,$role=0) {
    $networkid = categorize($ip);
    if (defined('CUSTOM_FUNCTIONS') && function_exists("custom_categorize")) {
       $networkid = custom_categorize($ip, $networkid);
    }
    $hostname = @gethostbyaddr($ip);
 
-   # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-   # or die("unable to connect to database.");
-
-   $res = db_query(sprintf("
+   $res = db_query(q('
       INSERT INTO incident_addresses
-      (id, incident, ip, hostname, constituency,
+      (id, incident, ip, addressrole, hostname, constituency,
         added, addedby, updated, updatedby)
       VALUES
-      (nextval('incident_addresses_sequence'), %s, %s, %s, %s,
-       CURRENT_TIMESTAMP, %s, CURRENT_TIMESTAMP, %s)",
-         db_masq_null($incident),
-         db_masq_null($ip),
-         db_masq_null($hostname),
-         $networkid,
-         db_masq_null($_SESSION["userid"]),
-         db_masq_null($_SESSION["userid"])
-      ))
-   or die("Unable to execute query.");
-   # db_close($conn);
+      (nextval(\'incident_addresses_sequence\'), %incidentid, %ip,
+       %addressrole, %hostname, %constituency, CURRENT_TIMESTAMP, %userid, 
+       CURRENT_TIMESTAMP, %userid)', array(
+         '%incidentid'=>db_masq_null($incident),
+         '%ip'=>db_masq_null($ip),
+         '%hostname'=>db_masq_null($hostname),
+         '%constituency'=>$networkid,
+         '%addressrole'=>$role,
+         '%userid'=>db_masq_null($_SESSION["userid"]))
+   ));
+   if (!$res) {
+      airt_error('DB_QUERY', 'incident.plib:'.__LINE__);
+      Header("Location: $_SERVER[PHP_SELF]");
+      return;
+   }
 
    generateEvent("incidentaddip", array(
       "incidentid" => $incident,
       "constituency" => $networkid,
+      "addressrole" => $role,
       "hostname" => $hostname,
       "ip" => $ip
    ));
 }
 
-function removeIPfromIncident($ip, $incident) {
+function removeIPfromIncident($ip, $incident, $role) {
    generateEvent("incidentdelip", array(
       "incidentid" => $incident,
-      "ip" => $ip
+      "ip" => $ip,
+      "addressrole" => $role
    ));
 
-   # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-   # or die("unable to connect to database.");
-
-   $res = db_query(sprintf("
+   $res = db_query(q('
       DELETE FROM incident_addresses
-      WHERE ip=%s
-      AND   incident=%s",
-      db_masq_null($ip),
-      db_masq_null($incident)
+      WHERE ip=%ip
+      AND   incident=%incidentid
+      AND   addressrole=%addressrole', array(
+      '%ip'=>db_masq_null($ip),
+      '%incidentid'=>db_masq_null($incident),
+      '%addressrole'=>db_masq_null($role))
    ))
    or die("Unable to execute query.");
-   # db_close($conn);
 }
 
 /* Fetch the label of an incident state by ID */
@@ -543,39 +491,31 @@ function formatBasicIncidentData($type, $state, $status) {
  * Returns a HTML formatted string.
  */
 function editIPform($incidentid,$ip) {
-
    // Retrieve the full address assignment data.
-   # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-   # or die('Unable to connect to database.');
-   $q = sprintf("SELECT incident_addresses.id as id,
-                ip,hostname,constituency,
-                to_char(added,'YYYY-MM-DD HH24:MI') as added,
+   $res = db_query(q('SELECT incident_addresses.id as id,
+                ip,hostname,constituency,addressrole,
+                to_char(added,\'YYYY-MM-DD HH24:MI\') as added,
                 u1.email as addedby,
-                to_char(updated,'YYYY-MM-DD HH24:MI') as updated,
+                to_char(updated,\'YYYY-MM-DD HH24:MI\') as updated,
                 u2.email as updatedby
       FROM      incident_addresses
       FULL JOIN users u1 ON u1.id=addedby
       LEFT JOIN users u2 ON u2.id=updatedby
-      WHERE     incident=%d AND ip=%s
-      ",
-         $incidentid,
-         db_masq_null($ip)
-       );
-   $res = db_query($q)
-   or die('Unable to execute query.');
+      WHERE     incident=%incidentid AND ip=%ip
+      ', array('%incidentid'=>$incidentid, '%ip'=>db_masq_null($ip))))
+   or airt_error(101, '__FILE__:__LINE__');
    if (db_num_rows($res)>0) {
       $row = db_fetch_next($res);
       $id           = $row['id'];
       $ip           = $row['ip'];
+      $addressrole  = $row['addressrole'];
       $hostname     = $row['hostname'];
       $constituency = $row['constituency'];
       $added        = $row['added'];
       $addedby      = $row['addedby'];
       $updated      = $row['updated'];
       $updatedby    = $row['updatedby'];
-      # db_close($conn);
    } else {
-      # db_close($conn);
       die('Could not find assigned IP address.');
    }
 
@@ -583,6 +523,7 @@ function editIPform($incidentid,$ip) {
    $o .= sprintf("<input type=\"HIDDEN\" name=\"action\" value=\"updateip\">\n");
    $o .= sprintf("<input type=\"HIDDEN\" name=\"id\" value=\"%d\">\n", $id);
    $o .= sprintf("<input type=\"HIDDEN\" name=\"ip\" value=\"%s\">\n", $ip);
+   $o .= sprintf("<input type=\"HIDDEN\" name=\"addressrole\" value=\"%s\">\n", $addressrole);
    $o .= sprintf("<input type=\"HIDDEN\" name=\"incidentid\" value=\"%d\">\n",
       $incidentid);
    $o .= "<table>\n";
@@ -593,6 +534,10 @@ function editIPform($incidentid,$ip) {
    $o .= "  <tr>\n";
    $o .= "    <td>Host name</td>\n";
    $o .= sprintf("    <td>%s</td>\n", $hostname);
+   $o .= "  </tr>\n";
+   $o .= "  <tr>\n";
+   $o .= "    <td>Role in incident</td>\n";
+   $o .= sprintf("    <td>%s</td>\n", getAddressRolesSelection('addressrole',$addressrole, array(''=>'Not set')));
    $o .= "  </tr>\n";
    $o .= "  <tr>\n";
    $o .= "    <td>Constituency</td>\n";
@@ -629,20 +574,19 @@ function editIPform($incidentid,$ip) {
  * Works on a unique ID for the combination (incident,ipadress).
  * Returns void.
  */
-function updateIPofIncident($id,$constituency) {
-   $q = sprintf("UPDATE incident_addresses
-      SET constituency=%d,
+function updateIPofIncident($id,$constituency,$addressrole) {
+   $q = q('UPDATE incident_addresses
+      SET constituency=%constituency,
+          addressrole=%addressrole,
           updated=CURRENT_TIMESTAMP,
-          updatedby=%d
-      WHERE id=%d",
-         $constituency,
-         $_SESSION['userid'],
-         $id);
-   # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-   # or die("Unable to connect to database.");
+          updatedby=%updatedby
+      WHERE id=%id', array(
+         '%constituency'=>$constituency,
+         '%addressrole'=>$addressrole,
+         '%updatedby'=>$_SESSION['userid'],
+         '%id'=>$id));
    $res = db_query($q)
-   or die("Unable to execute query.");
-   # db_close($conn);
+   or airt_error('101', 'incident.plib:'. __LINE__);
 }
 
 
@@ -680,13 +624,7 @@ function updateIncident($id,$state,$status,$type) {
    $set .= sprintf('updated=CURRENT_TIMESTAMP,updatedBy=%d', $_SESSION['userid']);
 
    // Create the whole query.
-   $q = sprintf('UPDATE incidents SET %s WHERE id=%d',
-               $set, $id);
-   // Get DB connection and do the work.
-   # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-   # or die('Unable to connect to database.');
-   db_query($q);
-   # db_close($conn);
+   db_query(q('UPDATE incidents SET %set WHERE id=%id', array('%set'=>$set, '%id'=>$id)));
 
   return;
 }
@@ -702,4 +640,57 @@ function updateIncidentList($incidentList,$state,$status) {
    return;
 }
 
+/* Return an associative array with address roles.
+ * Input: optionally, an array with extra address roles that are not from
+ * the database. Typically, "Please select a role"-like inert selections.
+ * Array format: array[extra_id]=extra_label. The extra states are prefixed
+ * before the states from the database.
+ * Output: array[id]=label.
+ */
+function getAddressRoles($extras=array()) {
+   $res = db_query('SELECT id, label FROM address_roles ORDER BY id')
+   or airt_error(101, '__FILE__:__LINE__');
+
+   $out=$extras;
+   while ($row = db_fetch_next($res)) {
+      $out[$row["id"]]=$row["label"];
+   }
+   return $out;
+}
+
+/* Return an HTML SELECT box containing valid choices for address roles.
+ * Input: name = The HTML name of the selection box.
+ *        default = Optionally, the ID of the default selection. 
+ *        extras = Optionally, an array [id]=>label with extra states that
+ *                 do not come from the database, and that are prefixed
+ *                 before the database states (typically "Select State").
+ * Output: HTML string with full <select> block.
+ */
+function getAddressRolesSelection($name, $default='', $extras=array()) {
+   $output = t('<select name="%name">\n', array(
+      '%name'=>htmlentities($name)
+   ));
+   $roles = getAddressRoles($extras);
+   foreach ($roles as $i=>$l) {
+      $output .= t('<option value="%id" %selected>%label</option>\n', array(
+          '%id'=>htmlentities($i), 
+          '%selected'=>($i == $default) ? "SELECTED" : '', 
+          '%label'=>htmlentities($l)
+      ));
+   }
+   $output .= "</select>";
+   return $output;
+}
+
+/* Returns the label associated with an address role id, or an empty string if
+ * no such role exists.
+ */
+function getAddressRoleByID($id) {
+   $addressroles = getAddressRoles();
+   if (array_key_exists($id, $addressroles)) {
+      return $addressroles[$id];
+   } else {
+      return "";
+   }
+}
 ?>

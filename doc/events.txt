@@ -49,7 +49,7 @@ data:  array with keys: incidentid, ip
 Note:  Generated after adding address to incident
 
 event: removeipfromincident
-data:  array with keys: incidentid, ip
+data:  array with keys: incidentid, ip, addressrole
 Note:  Generated after removing address from incident
 
 event: updateipdetails

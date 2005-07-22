@@ -1,0 +1,46 @@
+<?php
+/* vim:syntax=php shiftwidth=3 tabstop=3
+ * $Id$ 
+
+ * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
+ * Copyright (C) 2004,2005	Kees Leune <kees@uvt.nl>
+
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+$airt_errors = array(
+  'DB_CONN' => 'Unable to connect to database',
+  'DB_QUERY' => 'Unable to execute query',
+  'PARAM_MISSING' => 'Missing parameter'
+);
+
+
+function airt_error($errno, $scope, $info='') {
+  global $airt_errors;
+
+  if (array_key_exists($errno, $airt_errors)) {
+    airt_msg(t('<div style="text-align:center; border-color:red; border-width:1px; border-style:solid; color:red">AIRT ERROR: %msg%info in scope %scope</div>', array(
+      '%msg'=>$airt_errors[$errno], 
+      '%scope'=>$scope,
+      '%info'=>($info == '' ? '' : "($info)")
+    )));
+  } else {
+    airt_msg(t('AIRT Unknown error %errno: %info in scope %scope', array(
+      '%errno'=>$errno, 
+      '%scope'=>$scope,
+      '%info'=>($info == '' ? '' : "($info)")
+   )));
+  }
+}
+?>
