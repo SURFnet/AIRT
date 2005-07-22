@@ -18,10 +18,8 @@ alter table incident_addresses
    add foreign key (addressrole) references address_roles(id);
 create sequence address_roles_sequence;
 create unique index address_roles_label on address_roles(upper(label));
-insert into address_roles (id, label) 
-values
-(nextval('address_roles_sequence'), 'Victim');
-insert into address_roles (id, label) 
-values
-(nextval('address_roles_sequence'), 'Target');
+
+insert into address_roles (id, label, isdefault) values (0, 'Unknown', true);
+insert into address_roles (id, label, isdefault) values (nextval('address_roles_sequence'), 'Victim', false);
+insert into address_roles (id, label, isdefault) values (nextval('address_roles_sequence'), 'Target', false);
 end transaction

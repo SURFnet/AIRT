@@ -78,6 +78,10 @@ INSERT INTO incident_status
 INSERT INTO address_roles
    (id, label)
    VALUES
+   (0, 'Unknown');
+INSERT INTO address_roles
+   (id, label)
+   VALUES
    (nextval('address_roles_sequence'), 'Victim');
 INSERT INTO address_roles (id, label)
    VALUES
