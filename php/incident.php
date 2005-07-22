@@ -259,10 +259,13 @@ switch ($action) {
 
     //--------------------------------------------------------------------
     case "Add":
-      $address = $constituency = $type = $state = $status = $email = '';
+      $address = $constituency = $type = $state = $status = $email = $addressrole = '';
       $addifmissing = $sendmail = 'off';
       if (array_key_exists("address", $_POST)) {
         $address=$_POST["address"];
+      }
+      if (array_key_exists("addressrole", $_POST)) {
+         $addressrole=$_POST["addressrole"];
       }
       // make sure we have an IP address here
       $address = @gethostbyname($address);
@@ -288,9 +291,6 @@ switch ($action) {
       if (array_key_exists("addifmissing", $_POST)) {
          $addif=$_POST["addifmissing"];
       }
-
-      # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-      # or die("Unable to connect to database.");
 
       $res = db_query("begin transaction")
       or die("Unable to execute query 1.");
@@ -333,14 +333,15 @@ switch ($action) {
       $hostname = @gethostbyaddr($address);
       $res = db_query(sprintf(
             "insert into incident_addresses
-             (id, incident, ip, hostname, constituency, added, addedby)
+             (id, incident, ip, hostname, addressrole, constituency, added, addedby)
              values
-             (%s, %s, %s, %s, %s, CURRENT_TIMESTAMP, %s)",
+             (%s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP, %s)",
                 $iaid,
                 $incidentid,
                 db_masq_null($address),
                 db_masq_null($hostname),
-            db_masq_null($constituency),
+                $addressrole,
+                db_masq_null($constituency),
                 $_SESSION["userid"]
             )
       ) or die("Unable to execute query 5.");
