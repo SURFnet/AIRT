@@ -22,21 +22,45 @@
  * index.php - AIR console
  * $Id$
  */
-require('SOAP/Client.php');
 
-$endpoint     = 'https://similarius.uvt.nl/~sebas/airt/server.php';
+switch($_POST[method]) {
+   case null:
+      ShowClientForm();
+   break;
 
-$airt_client  = new SOAP_Client($endpoint);
-if($_GET[method]==null) {
-   $method  = 'getXMLIncidentData';
-} else { 
-   $method  = $_GET[method];
+   case 'getData':
+      require('SOAP/Client.php');
+      $endpoint      = 'https://similarius.uvt.nl/~sebas/airt/server.php';
+      $airt_client   = new SOAP_Client($endpoint);
+      $method        = 'getXMLIncidentData';
+      $params        = array('action' => 'getAll');
+      $ans           = $airt_client->call($method, $params);
+      Header("Content-Type: application/xml");
+      print_r($ans);
+   break;
+
+   case 'import':
+      require('SOAP/Client.php');
+      $endpoint      = 'https://similarius.uvt.nl/~sebas/airt/server.php';
+      $airt_client   = new SOAP_Client($endpoint);
+      $method        = 'importIncidentData';
+      $params        = array('importXML' => $import_array);
+   break;
 }
 
-$params       = array('action' => 'getAll');
-$ans          = $airt_client->call($method, $params);
+function ShowClientForm() {
+   echo "<TABLE>";
+   echo "<FORM METHOD='POST'>";
+   echo "<TR><TD>Export all open incidents</TD><TD><INPUT TYPE='submit' VALUE='export'></TD>";
+   echo "<INPUT TYPE='hidden' NAME='method' VALUE='getData'>";
+   echo "</FORM>";
 
-Header("Content-Type: application/xml");
-print_r($ans);
+   echo "<FORM METHOD='POST'>";
+   echo "<TR><TD>Import incident</TD><TD><INPUT TYPE='submit' VALUE='import'></TD></TR>";
+   echo "<INPUT TYPE='hidden' NAME='method' VALUE='import'>";
+   echo "</FORM>";
+   echo "</TABLE>";
+}
+
 
 ?>
