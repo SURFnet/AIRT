@@ -75,5 +75,11 @@ INSERT INTO incident_status
       'stalled',
       'Incident handling has stalled.',
       FALSE);
-
+INSERT INTO address_roles
+   (id, label)
+   VALUES
+   (nextval('address_roles_sequence'), 'Victim');
+INSERT INTO address_roles (id, label)
+   VALUES
+   (nextval('address_roles_sequence'), 'Target');
 end transaction;

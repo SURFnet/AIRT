@@ -19,7 +19,6 @@
 -- $Id$
 -- In CVS at $Source$
 
-
 DROP SEQUENCE incident_types_sequence;
 DROP SEQUENCE incident_states_sequence;
 DROP SEQUENCE incident_status_sequence;
@@ -129,10 +128,19 @@ CREATE TABLE incidents (
     foreign key (type)      references incident_types(id)
 );
 
+CREATE TABLE address_roles (
+   id          integer,
+   label       varchar(50) not null,
+   descr       varchar(80),
+   isdefault   boolean not null,
+   primary key (id)
+);
+
 CREATE TABLE incident_addresses (
     id           integer,
     incident     integer not null,
     ip           varchar(128) not null,
+    addressrole  integer,
     hostname     varchar(128) not null,
     constituency integer not null,
     added        timestamp not null,
@@ -143,7 +151,8 @@ CREATE TABLE incident_addresses (
     foreign key  (incident) references incidents(id),
     foreign key  (constituency) references constituencies(id),
     foreign key  (addedby) references users(id),
-    foreign key  (updatedby) references users(id)
+    foreign key  (updatedby) references users(id),
+    foreign key  (addressrole) references address_roles(id)
 );
 
 create table incident_users (
@@ -265,6 +274,7 @@ CREATE SEQUENCE permissions_sequence;
 CREATE SEQUENCE role_permissions_sequence;
 CREATE SEQUENCE blocks_sequence;
 CREATE SEQUENCE incident_users_sequence;
+CREATE SEQUENCE address_roles_sequence;
 
 CREATE UNIQUE INDEX incident_types_label on incident_types(upper(label));
 CREATE UNIQUE INDEX incident_states_label on incident_states(upper(label));
@@ -274,5 +284,6 @@ CREATE UNIQUE INDEX roles_label on roles(upper(label));
 CREATE UNIQUE INDEX users_email on users(upper(email));
 CREATE UNIQUE INDEX urls_label on urls(upper(label));
 CREATE UNIQUE INDEX permissions_label on permissions(upper(label));
+CREATE UNIQUE index address_roles_label on address_roles(upper(label));
 
 end transaction;

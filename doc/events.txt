@@ -53,7 +53,7 @@ data:  array with keys: incidentid, ip
 Note:  Generated after removing address from incident
 
 event: updateipdetails
-data:  array with keys: incidentid, ip
+data:  array with keys: incidentid, ip, cosntituency, addressrole
 Note:  Generated after updating an address linked to an incident
 
 event: historyshowpre
@@ -85,7 +85,7 @@ data:  array with keys: incidentid, userid
 Note:  Generated prior to removing a user from an incident
 
 event: incidentaddip
-data:  array with keys: incidentid, ip
+data:  array with keys: incidentid, ip, hostname, addressrole, constituency
 Note:  Generated after adding an IP address to an incident
 
 event: incidentdelip
