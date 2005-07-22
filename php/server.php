@@ -1,4 +1,24 @@
 <?php
+/* vim:syntax=php shiftwidth=3 tabstop=3
+ *
+ * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
+ * Copyright (C) 2004   Tilburg University, The Netherlands
+
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
 require_once('SOAP/Server.php');
 require_once('SOAP/Disco.php');
 
@@ -14,8 +34,6 @@ class IncidentHandling {
          'out' => array('airtXML' => 'string'), );
       $this->__dispatch_map['importIncidentData'] = array('in' => array('importXML' => 'string'), 
          'out' => array('confirmation' => 'string'), );
-
-      
    }
 
    function getXMLIncidentData($action)  {
@@ -23,6 +41,14 @@ class IncidentHandling {
          $public  = 1;
          require_once('export.php');
          return(exportOpenIncidents());
+      }
+   }
+
+   function importIncidentData($importXML) {
+      $doc                 = domxml_open_mem($importXML,DOMXML_LOAD_PARSING,$error);
+      $ws_location_array   = $doc->get_elements_by_tagname("webservice_location");
+      foreach($ws_location_array as $ws_location) {
+         return $ws_location->get_content();
       }
    }
 }

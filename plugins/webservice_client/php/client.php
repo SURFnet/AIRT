@@ -44,7 +44,25 @@ switch($_POST[method]) {
       $endpoint      = 'https://similarius.uvt.nl/~sebas/airt/server.php';
       $airt_client   = new SOAP_Client($endpoint);
       $method        = 'importIncidentData';
-      $params        = array('importXML' => $import_array);
+      $xml_incident  = '
+      <airt>
+	<messageIdentification>
+	 <message_time>1122033423</message_time>
+	 <sender_details>
+	    <webservice_location>/home/sebas/local/share/airt/lib/export.plib</webservice_location>
+	    <sender_name></sender_name>
+	    <constituency></constituency>
+	    <email></email>
+	    <telephone></telephone>
+	    <version></version>
+         </sender_details>
+      </messageIdentification>
+      </airt>
+      ';
+      $params        = array('importXML' => $xml_incident);
+      $ans           = $airt_client->call($method, $params);
+#      Header("Content-Type: application/xml");
+      print_r($ans);
    break;
 }
 
