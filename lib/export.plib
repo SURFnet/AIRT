@@ -256,6 +256,9 @@ function BuildTree(&$doc, $res_array) {
          $incident_status_element        = $doc->create_element_ns(AIRTURL, "incident_status");
          $incident_status_element->set_content($res_array[$key]["ticketInformation"]["status"]);
          $ticketInformation_element->append_child($incident_status_element);
+         $incident_state_element         = $doc->create_element_ns(AIRTURL, "incident_state");
+         $incident_state_element->set_content($res_array[$key]["ticketInformation"]["state"]);
+         $ticketInformation_element->append_child($incident_state_element);
          $incident_type_element          = $doc->create_element_ns(AIRTURL, "incident_type");
          $incident_type_element->set_content($res_array[$key]["ticketInformation"]["type"]);
          $ticketInformation_element->append_child($incident_type_element);
