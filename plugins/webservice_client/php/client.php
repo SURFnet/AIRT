@@ -45,20 +45,78 @@ switch($_POST[method]) {
       $airt_client   = new SOAP_Client($endpoint);
       $method        = 'importIncidentData';
       $xml_incident  = '
-      <airt>
-	<messageIdentification>
-	 <message_time>1122033423</message_time>
+<airt>
+   <messageIdentification>
+      <message_time>1122033423</message_time>
 	 <sender_details>
 	    <webservice_location>/home/sebas/local/share/airt/lib/export.plib</webservice_location>
-	    <sender_name></sender_name>
-	    <constituency></constituency>
-	    <email></email>
-	    <telephone></telephone>
-	    <version></version>
+	    <sender_name>Henk</sender_name>
+	    <constituency>UvT-CERT</constituency>
+	    <email>sebas@uvt.nl</email>
+	    <telephone>2432</telephone>
+	    <version>1.4</version>
          </sender_details>
-      </messageIdentification>
-      </airt>
-      ';
+    </messageIdentification>
+      <incident>
+         <ticketInformation>
+	    <ticket_number>
+               <prefix>Example-CERT#</prefix>
+               <reference>1</reference>
+            </ticket_number>
+            <history>
+	       <history_item>
+                  <history_id>1</history_id>
+                  <ticket_updater>The Administrator</ticket_updater>
+                  <ticket_update_time>2005-06-22 13:50:23.820154</ticket_update_time>
+                  <update_action>Incident created</update_action>
+                  </history_item>
+	       <history_item>
+                  <history_id>2</history_id>
+                  <ticket_updater>The Administrator</ticket_updater>
+                  <ticket_update_time>2005-06-22 13:50:23.820154</ticket_update_time>
+	          <update_action>state=Request for inspection, status=open, type=Active hacking</update_action>
+               </history_item>
+	       <history_item>
+                  <history_id>4</history_id>
+                  <ticket_updater>The Administrator</ticket_updater>
+                  <ticket_update_time>2005-06-24 13:52:31.574577</ticket_update_time>
+	          <update_action>Details of IP address 137.56.0.67 updated; const=default</update_action>
+               </history_item>
+            </history>
+            <creator>The Administrator</creator>
+            <created>2005-06-22 13:50:23.820154</created>
+            <incident_status>1</incident_status>
+            <incident_state>1</incident_state>
+            <incident_type>1</incident_type>
+            <comment></comment>
+         </ticketInformation>
+	 <technicalInformation>
+	    <technical_item>
+               <technical_id>1</technical_id>
+               <constituency>1</constituency>
+               <ip>137.56.0.67</ip>
+               <port>12</port>
+               <hostname>bla.bla.nl</hostname>
+               <mac_address>hex</mac_address>
+               <addressrole>1</addressrole>
+	       <source_owner>
+                  <employee_number></employee_number>
+                  <email_address></email_address>
+                  <name></name>
+                  <region></region>
+                  <role></role>
+               </source_owner>
+               <number_attempts></number_attempts>
+               <protocol></protocol>
+               <incident_time></incident_time>
+               <time_dns_resolving></time_dns_resolving>
+               <logging></logging>
+               <added>2005-06-22 13:50:23.820154</added>
+               <addedby>The Administrator</addedby>
+            </technical_item>
+         </technicalInformation>
+      </incident>
+</airt>';
       $params        = array('importXML' => $xml_incident);
       $ans           = $airt_client->call($method, $params);
 #      Header("Content-Type: application/xml");
