@@ -111,6 +111,7 @@ function exportIncident($ids) {
       $query  = "
          SELECT id,
                 incident,
+                addressrole,
                 ip,
                 hostname,
                 added,
@@ -129,9 +130,10 @@ function exportIncident($ids) {
       or die ("Unable to query database. error 800");
 
    while ($row = db_fetch_next($res)) {
-      $res_array[$row["incident"]]["technicalInformation"][$row["id"]]["source_ip"]       = $row["ip"];
-      $res_array[$row["incident"]]["technicalInformation"][$row["id"]]["source_hostname"] = $row["hostname"];
-      $res_array[$row["incident"]]["technicalInformation"][$row["id"]]["added"]   = $row["added"];
+      $res_array[$row["incident"]]["technicalInformation"][$row["id"]]["ip"]              = $row["ip"];
+      $res_array[$row["incident"]]["technicalInformation"][$row["id"]]["addressrole"]     = $row["addressrole"];
+      $res_array[$row["incident"]]["technicalInformation"][$row["id"]]["hostname"]        = $row["hostname"];
+      $res_array[$row["incident"]]["technicalInformation"][$row["id"]]["added"]           = $row["added"];
       $res_array[$row["incident"]]["technicalInformation"][$row["id"]]["addedby"]         = $row["firstname"]." ".$row["lastname"];
       $res_array[$row["incident"]]["technicalInformation"][$row["id"]]["constituency"]    = $row["constituency"];
    }
@@ -279,56 +281,48 @@ function BuildTree(&$doc, $res_array) {
             $technical_constituency_element->set_content($res_array[$key]["technicalInformation"][$key2]["constituency"]);
             $technical_item_element->append_child($technical_constituency_element);
          
-            $dest_ip_element                = $doc->create_element_ns(AIRTURL, "dest_ip");
-            $dest_ip_element->set_content($res_array[$key]["technicalInformation"][$key2]["dest_ip"]);
-            $technical_item_element->append_child($dest_ip_element);
+            $ip_element                      = $doc->create_element_ns(AIRTURL, "ip");
+            $ip_element->set_content($res_array[$key]["technicalInformation"][$key2]["ip"]);
+            $technical_item_element->append_child($ip_element);
           
-            $dest_port_element              = $doc->create_element_ns(AIRTURL, "dest_port");
-            $dest_port_element->set_content($res_array[$key]["technicalInformation"][$key2]["dest_port"]);
-            $technical_item_element->append_child($dest_port_element);
+            $port_element                    = $doc->create_element_ns(AIRTURL, "port");
+            $port_element->set_content($res_array[$key]["technicalInformation"][$key2]["port"]);
+            $technical_item_element->append_child($port_element);
           
-            $dest_hostname_element          = $doc->create_element_ns(AIRTURL, "dest_hostname");
-            $dest_hostname_element->set_content($res_array[$key]["technicalInformation"][$key2]["dest_hostname"]);
-            $technical_item_element->append_child($dest_hostname_element);
+            $hostname_element                = $doc->create_element_ns(AIRTURL, "hostname");
+            $hostname_element->set_content($res_array[$key]["technicalInformation"][$key2]["hostname"]);
+            $technical_item_element->append_child($hostname_element);
             
-            $source_ip_element              = $doc->create_element_ns(AIRTURL, "source_ip");
-            $source_ip_element->set_content($res_array[$key]["technicalInformation"][$key2]["source_ip"]);
-            $technical_item_element->append_child($source_ip_element);
+            $addressrole_element             = $doc->create_element_ns(AIRTURL, "addressrole");
+            $addressrole_element->set_content($res_array[$key]["technicalInformation"][$key2]["addressrole"]);
+            $technical_item_element->append_child($addressrole_element);
 
-            $source_port_element            = $doc->create_element_ns(AIRTURL, "source_port");
-            $source_port_element->set_content($res_array[$key]["technicalInformation"][$key2]["source_port"]);
-            $technical_item_element->append_child($source_port_element);
-          
-            $source_hostname_element        = $doc->create_element_ns(AIRTURL, "source_hostname");
-            $source_hostname_element->set_content($res_array[$key]["technicalInformation"][$key2]["source_hostname"]);
-            $technical_item_element->append_child($source_hostname_element);
-         
-            $source_mac_address_element     = $doc->create_element_ns(AIRTURL, "source_mac_address");
-            $source_mac_address_element->set_content($res_array[$key]["technicalInformation"][$key2]["source_mac_address"]);
-            $technical_item_element->append_child($source_mac_address_element);
+            $mac_address_element             = $doc->create_element_ns(AIRTURL, "mac_address");
+            $mac_address_element->set_content($res_array[$key]["technicalInformation"][$key2]["mac_address"]);
+            $technical_item_element->append_child($mac_address_element);
 
-            $source_owner_element           = $doc->create_element_ns(AIRTURL, "source_owner");
-            $technical_item_element->append_child($source_owner_element);
+            $owner_element                   = $doc->create_element_ns(AIRTURL, "owner");
+            $technical_item_element->append_child($owner_element);
               
             $employee_number_element        = $doc->create_element_ns(AIRTURL, "employee_number");
             $employee_number_element->set_content($res_array[$key]["technicalInformation"][$key2]["employee_number"]);
-            $source_owner_element->append_child($employee_number_element);
+            $owner_element->append_child($employee_number_element);
 
             $email_address_element          = $doc->create_element_ns(AIRTURL, "email_address");
             $employee_number_element->set_content($res_array[$key]["technicalInformation"][$key2]["email_address"]);
-            $source_owner_element->append_child($email_address_element);
+            $owner_element->append_child($email_address_element);
 
             $name_element                   = $doc->create_element_ns(AIRTURL, "name");
             $name_element->set_content($res_array[$key]["technicalInformation"][$key2]["name"]);
-            $source_owner_element->append_child($name_element);
+            $owner_element->append_child($name_element);
                 
             $region_element                 = $doc->create_element_ns(AIRTURL, "region");
             $region_element->set_content($res_array[$key]["technicalInformation"][$key2]["region"]);
-            $source_owner_element->append_child($region_element);
+            $owner_element->append_child($region_element);
                
             $role_element                   = $doc->create_element_ns(AIRTURL, "role");
             $role_element->set_content($res_array[$key]["technicalInformation"][$key2]["role"]);
-            $source_owner_element->append_child($role_element);
+            $owner_element->append_child($role_element);
               
             $number_attempts_element        = $doc->create_element_ns(AIRTURL, "number_attempts");
             $number_attempts_element->set_content($res_array[$key]["technicalInformation"][$key2]["number_attempts"]);
