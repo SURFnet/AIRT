@@ -45,10 +45,49 @@ class IncidentHandling {
    }
 
    function importIncidentData($importXML) {
-      $doc                 = domxml_open_mem($importXML,DOMXML_LOAD_PARSING,$error);
-      $ws_location_array   = $doc->get_elements_by_tagname("webservice_location");
-      foreach($ws_location_array as $ws_location) {
-         return $ws_location->get_content();
+      $doc                             = domxml_open_mem($importXML,DOMXML_LOAD_PARSING,$error);
+      $message_time_array              = $doc->get_elements_by_tagname('message_time');
+      foreach($message_time_array as $message_time) {
+         $message_time                 = $message_time->get_content();
+      }
+      #TODO: temporarily unknown howto get user_id
+      $user_id                         = 1;
+
+      $incident_nodes                  = $doc->get_elements_by_tagname('incident');
+      foreach($incident_nodes as $incident_node) {
+         $incident_id_array            = $incident_node->get_elements_by_tagname('reference');
+         $insert_array['incident_id']  = $incident_id_array[0]->get_content();
+
+         $incident_status_array        = $incident_node->get_elements_by_tagname('incident_status');
+         $insert_array['status']       = $incident_status_array[0]->get_content();
+
+         $incident_state_array         = $incident_node->get_elements_by_tagname('incident_state');
+         $insert_array['state']        = $incident_state_array[0]->get_content();
+
+         $incident_type_array          = $incident_node->get_elements_by_tagname('incident_type');
+         $insert_array['type']         = $incident_type_array[0]->get_content();
+
+         $incident_id                  = insertIncident($message_time,$user_id,$insert_array);
+         
+         $incident_addresses_nodes     = $incident_node->get_elements_by_tagname('technicalInformation');
+         foreach($incident_addresses_nodes as $incident_address_node) {
+            $ip_array                           = $incident_address_node->get_elements_by_tagname('ip');
+            $insert_address_array['ip']         = $ip_array[0]->get_content();
+
+            $hostname_array                     = $incident_address_node->get_elements_by_tagname('hostname');
+            $insert_address_array['hostname']   = $hostname_array[0]->get_content();
+            
+            $constituency_array                 = $incident_address_node->get_elements_by_tagname('constituency');
+            $insert_address_array['constituency'] = $constituency_array[0]->get_content();
+
+            $addressrole_array                  = $incident_address_node->get_elements_by_tagname('addressrole');
+            $insert_address_array['addressrole'] = $addressrole_array[0]->get_content();
+            
+            $incident_address_id                = insertIncidentAddresses($incident_id,$message_time,$user_id,$insert_address_array);
+            unset($insert_address_array);
+         }
+
+         unset($insert_array);
       }
    }
 }
@@ -71,6 +110,71 @@ else {
       echo $disco->getDISCO();
    }
 }
+
+function insertIncident($message_time,$user_id,$insert_array) {
+   #TODO: translations of type, status and state from int to text
+   $public     = 1;
+   require_once 'config.plib';
+   require_once LIBDIR.'/airt.plib';
+   require_once LIBDIR.'/database.plib';
+
+   #get incidentid. necessary for several db instructions
+   $res        = db_query("select nextval('incidents_sequence') as incidentid")
+                     or die("Unable to execute query 2.");
+   $row        = db_fetch_next($res);
+   $incidentid = $row["incidentid"];
+   db_free_result($res);
+
+   #insert incident
+   $query      = sprintf(
+      "insert into incidents
+       (id, created, creator, updated, updatedby, state, status, type)
+       values (%s, CURRENT_TIMESTAMP, %s, CURRENT_TIMESTAMP, %s, '%s', '%s', '%s')",
+                $incidentid,
+                $user_id,
+                $user_id,
+                $insert_array[state]  == "" ? 'NULL' : $insert_array['state'],
+                $insert_array[status] == "" ? 'NULL' : $insert_array['status'],
+                $insert_array[type]   == "" ? 'NULL' : $insert_array['type']);
+
+   $res        = db_query($query) or die ("Unable to execute query");
+   db_free_result($res);
+   
+   return($incidentid);
+}
+
+function insertIncidentAddresses($incidentid,$message_time,$user_id,$insert_address_array) {
+   #TODO: $message_time is unused at the moment
+   $public     = 1;
+   require_once 'config.plib';
+   require_once LIBDIR.'/airt.plib';
+   require_once LIBDIR.'/database.plib';
+
+   $res = db_query("select nextval('incident_addresses_sequence') as iaid")
+            or die("Unable to execute query 4.");
+   $row = db_fetch_next($res);
+   $iaid = $row["iaid"];
+   db_free_result($res);
+
+   $query = sprintf(
+         "insert into incident_addresses
+         (id, incident, ip, hostname, addressrole, constituency, added, addedby)
+         values
+         (%s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP, %s)",
+             $iaid,
+             $incidentid,
+             db_masq_null($insert_address_array['ip']),
+             db_masq_null($insert_address_array['hostname']),
+             $insert_address_array['addressrole'],
+             db_masq_null($insert_address_array['constituency']),
+             $user_id);
+   $res  = db_query($query) or die("Unable to execute query");
+   db_free_result($res);
+   
+   return($iaid);
+}
+
+
 
 exit;
 
