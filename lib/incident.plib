@@ -24,6 +24,7 @@
 require_once LIBDIR.'/database.plib';
 require_once LIBDIR.'/search.plib';
 require_once LIBDIR.'/constituency.plib';
+require_once LIBDIR.'/history.plib';
 
 /* Return an associative array with incident states.
  * Input: optionally, an array with extra incident states that are not from
@@ -316,14 +317,38 @@ function addIPtoIncident($ip, $incident,$role=0) {
       Header("Location: $_SERVER[PHP_SELF]");
       return;
    }
+}
 
-   generateEvent("incidentaddip", array(
-      "incidentid" => $incident,
-      "constituency" => $networkid,
-      "addressrole" => $role,
-      "hostname" => $hostname,
-      "ip" => $ip
-   ));
+function createIncident($user_id="",$state,$status,$type) {
+   $res        = db_query("select nextval('incidents_sequence') as incidentid")
+                  or die("Unable to execute query 2.");
+   $row        = db_fetch_next($res);
+   $incidentid = $row["incidentid"];
+   $_SESSION['incidentid'] = $incidentid;
+   db_free_result($res);
+
+   $res = db_query(sprintf(
+      "insert into incidents
+      (id, created, creator, updated, updatedby, state, status, type)
+      values
+      (%s, CURRENT_TIMESTAMP, %s, CURRENT_TIMESTAMP, %s, %s, %s, %s)",
+         $incidentid,
+         $_SESSION["userid"],
+         $_SESSION["userid"],
+         $state == "" ? 'NULL' : $state ,
+         $status == "" ? 'NULL' : $status ,
+         $type == "" ? 'NULL' : $type
+      )
+   ) or die("Unable to execute query 3.");
+   db_free_result($res);
+
+   addIncidentComment("Incident created", "", "");
+   addIncidentComment(sprintf("state=%s, status=%s, type=%s",
+      getIncidentStateLabelByID($state),
+      getIncidentStatusLabelByID($status),
+      getIncidentTypeLabelById($type)), "", "");
+
+   return $incidentid;
 }
 
 function removeIPfromIncident($ip, $incident, $role) {
