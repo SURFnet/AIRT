@@ -292,65 +292,16 @@ switch ($action) {
          $addif=$_POST["addifmissing"];
       }
 
-      $res = db_query("begin transaction")
-      or die("Unable to execute query 1.");
-      db_free_result($res);
+      $incidentid   = createIncident($user_id,$state,$status,$type);
+      addIPtoIncident($address,$incidentid,$addressrole);
 
-      $res = db_query("select nextval('incidents_sequence') as incidentid")
-      or die("Unable to execute query 2.");
-      $row = db_fetch_next($res);
-      $incidentid = $row["incidentid"];
-      $_SESSION["active_ip"] = $address;
-      $_SESSION["incidentid"] = $incidentid;
-      db_free_result($res);
-
-      $res = db_query(sprintf(
-            "insert into incidents
-             (id, created, creator, updated, updatedby, state, status, type)
-             values
-             (%s, CURRENT_TIMESTAMP, %s, CURRENT_TIMESTAMP, %s, %s, %s, %s)",
-                $incidentid,
-                $_SESSION["userid"],
-                $_SESSION["userid"],
-                $state == "" ? 'NULL' : $state ,
-                $status == "" ? 'NULL' : $status ,
-                $type == "" ? 'NULL' : $type
-            )
-      ) or die("Unable to execute query 3.");
-      db_free_result($res);
-      addIncidentComment("Incident created", "", "");
-      addIncidentComment(sprintf("state=%s, status=%s, type=%s",
-           getIncidentStateLabelByID($state),
-           getIncidentStatusLabelByID($status),
-           getIncidentTypeLabelById($type)), "", "");
-
-      $res = db_query("select nextval('incident_addresses_sequence') as iaid")
-      or die("Unable to execute query 4.");
-      $row = db_fetch_next($res);
-      $iaid = $row["iaid"];
-      db_free_result($res);
-
-      $hostname = @gethostbyaddr($address);
-      $res = db_query(sprintf(
-            "insert into incident_addresses
-             (id, incident, ip, hostname, addressrole, constituency, added, addedby)
-             values
-             (%s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP, %s)",
-                $iaid,
-                $incidentid,
-                db_masq_null($address),
-                db_masq_null($hostname),
-                $addressrole,
-                db_masq_null($constituency),
-                $_SESSION["userid"]
-            )
-      ) or die("Unable to execute query 5.");
-      db_free_result($res);
-      addIncidentComment(sprintf("IP address %s added to incident.",
-         $address), "", "");
-
-      $res = db_query("end transaction");
-      #db_close($conn);
+      generateEvent("incidentaddip", array(
+         "incidentid" => $incidentid,
+         "constituency" => $networkid,
+         "addressrole" => $addressrole,
+         "hostname" => $hostname,
+         "ip" => $ip
+   ));
 
       generateEvent("newincident", array(
          "incidentid" => $incidentid,
@@ -382,7 +333,7 @@ EOF;
                pageFooter();
                exit;
             }
-         } else addUserToIncident($user["id"], $incidentid);
+        } else addUserToIncident($user["id"], $incidentid);
       }
 
       if ($sendmail == "on") Header("Location: standard.php");
