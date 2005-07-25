@@ -3,6 +3,7 @@
 * Introduced new (hopefully better) functions for output and error reporting
 * Added support for roles of addresses in incidents (e.g. attacker, victim)
 * Bug fix in networks.php (used showConstituencies)
+* Added createIncident function to incident-functions
 
 2005-07-18
 * In database.plib, and all files that depend on it, fixed connection
