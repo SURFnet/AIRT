@@ -45,18 +45,23 @@ class IncidentHandling {
    }
 
    function importIncidentData($importXML) {
+      $public  = 1;
+      require_once 'config.plib';
+      require_once LIBDIR.'/incident.plib';
+      
       $doc                             = domxml_open_mem($importXML,DOMXML_LOAD_PARSING,$error);
       $message_time_array              = $doc->get_elements_by_tagname('message_time');
       foreach($message_time_array as $message_time) {
          $message_time                 = $message_time->get_content();
       }
-      #TODO: temporarily unknown howto get user_id
-      $user_id                         = 1;
+      #TODO: temporarily unknown howto get userid
+      $userid                          = 1;
+      $_SESSION[userid]                = $userid;
 
       $incident_nodes                  = $doc->get_elements_by_tagname('incident');
       foreach($incident_nodes as $incident_node) {
          $incident_id_array            = $incident_node->get_elements_by_tagname('reference');
-         $insert_array['incident_id']  = $incident_id_array[0]->get_content();
+         $insert_array['incidentid']   = $incident_id_array[0]->get_content();
 
          $incident_status_array        = $incident_node->get_elements_by_tagname('incident_status');
          $insert_array['status']       = $incident_status_array[0]->get_content();
@@ -67,7 +72,7 @@ class IncidentHandling {
          $incident_type_array          = $incident_node->get_elements_by_tagname('incident_type');
          $insert_array['type']         = $incident_type_array[0]->get_content();
 
-         $incident_id                  = insertIncident($message_time,$user_id,$insert_array);
+         $incidentid                   = createIncident($userid,$insert_array['state'],$insert_array['status'],$insert_array['type']);
          
          $incident_addresses_nodes     = $incident_node->get_elements_by_tagname('technicalInformation');
          foreach($incident_addresses_nodes as $incident_address_node) {
@@ -83,7 +88,7 @@ class IncidentHandling {
             $addressrole_array                  = $incident_address_node->get_elements_by_tagname('addressrole');
             $insert_address_array['addressrole'] = $addressrole_array[0]->get_content();
             
-            $incident_address_id                = insertIncidentAddresses($incident_id,$message_time,$user_id,$insert_address_array);
+            addIPtoIncident($insert_address_array['ip'],$incidentid,$insert_address_array['addressrole']=0);
             unset($insert_address_array);
          }
 
@@ -110,7 +115,7 @@ else {
       echo $disco->getDISCO();
    }
 }
-
+/*
 function insertIncident($message_time,$user_id,$insert_array) {
    #TODO: translations of type, status and state from int to text
    $public     = 1;
@@ -155,7 +160,6 @@ function insertIncident($message_time,$user_id,$insert_array) {
 }
 
 function insertIncidentAddresses($incidentid,$message_time,$user_id,$insert_address_array) {
-   #TODO: $message_time is unused at the moment
    $public     = 1;
    require_once 'config.plib';
    require_once LIBDIR.'/airt.plib';
@@ -194,7 +198,7 @@ function insertIncidentAddresses($incidentid,$message_time,$user_id,$insert_addr
    return($iaid);
 }
 
-
+*/
 
 exit;
 
