@@ -1,7 +1,32 @@
 $Id$
 In CVS at $Source$
 
-TODO: sebas
+php/
+  The php-client depends on several PHP PEAR packages. On Debian systems,
+  PEAR is installed using:
+   apt-get install php4-pear
+  Details on installation for other systems is available on:
+   http://pear.php.net/manual/en/installation.getting.php
+  
+  After the installation of the PEAR package manager above, the
+  following PEAR packages will be needed:
+   SOAP-beta 
+   Net_Socket 
+   Net_URL
+   HTTP_Request
+
+  These can be installed using the commands:
+   pear upgrade-all
+   pear install SOAP-beta Net_Socket Net_URL
+   pear upgrade Net_Socket
+   pear install HTTP_Request
+
+  When using HTTPS-support to connect to the SOAP-server, php4-curl is
+  needed. This can be installed using:
+   apt-get install php4-curl
+  or follow the instructions available on http://curl.haxx.se/ for other Operating
+  Systems.
+
 
 java/
   The java client requires the following .jar files
