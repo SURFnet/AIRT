@@ -71,7 +71,7 @@
     <td>Constituency</td>
     <td>
 EOF;
-        showConstituencySelection("constituency", $constituency);
+        print getConstituencySelection("constituency", $constituency);
     echo <<<EOF
 </table>
 <p>
