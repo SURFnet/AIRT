@@ -117,6 +117,8 @@ function insertIncident($message_time,$user_id,$insert_array) {
    require_once 'config.plib';
    require_once LIBDIR.'/airt.plib';
    require_once LIBDIR.'/database.plib';
+   require_once LIBDIR.'/history.plib';
+   require_once LIBDIR.'/incident.plib';
 
    #get incidentid. necessary for several db instructions
    $res        = db_query("select nextval('incidents_sequence') as incidentid")
@@ -139,6 +141,15 @@ function insertIncident($message_time,$user_id,$insert_array) {
 
    $res        = db_query($query) or die ("Unable to execute query");
    db_free_result($res);
+
+   $_SESSION['incidentid'] = $incidentid;
+   $_SESSION['userid']     = $user_id;
+
+   addIncidentComment("Incident created", "", "");
+   addIncidentComment(sprintf("state=%s, status=%s, type=%s",
+      getIncidentStateLabelByID($insert_array['state']),
+      getIncidentStatusLabelByID($insert_array['status']),
+      getIncidentTypeLabelById($insert_array['type'])), "", "");
    
    return($incidentid);
 }
@@ -149,6 +160,9 @@ function insertIncidentAddresses($incidentid,$message_time,$user_id,$insert_addr
    require_once 'config.plib';
    require_once LIBDIR.'/airt.plib';
    require_once LIBDIR.'/database.plib';
+   require_once LIBDIR.'/history.plib';
+   require_once LIBDIR.'/incident.plib';
+         
 
    $res = db_query("select nextval('incident_addresses_sequence') as iaid")
             or die("Unable to execute query 4.");
@@ -170,6 +184,12 @@ function insertIncidentAddresses($incidentid,$message_time,$user_id,$insert_addr
              $user_id);
    $res  = db_query($query) or die("Unable to execute query");
    db_free_result($res);
+
+   $_SESSION['incidentid'] = $incidentid;
+   $_SESSION['userid']     = $user_id;
+   
+   addIncidentComment(sprintf("IP address %s added to
+      incident.",$insert_address_array['ip']), "", "");
    
    return($iaid);
 }
