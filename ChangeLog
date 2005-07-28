@@ -1,4 +1,7 @@
 2005-xx-xx
+* Interface enhancements (more sensible defaults)
+
+2005-07-26
 * Plugins directory completely restructured.
 * Introduced new (hopefully better) functions for output and error reporting
 * Added support for roles of addresses in incidents (e.g. attacker, victim)
