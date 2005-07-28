@@ -64,7 +64,8 @@ while ($file = readdir($libdir)) {
    $filter_name = basename($file,'.plib');
    if (substr($filter_name,0,7)=='filter_') {
       // Found a filter library file, source it. Failures to read it or parse
-      // it are not handled gracefully (yet).
+      // it are not handled gracefully, but cause a proper abort with a
+      // meaningful message.
       require_once LIBDIR.'/importqueue/'.$filter_name.'.plib';
       // Proper function installed?
       if (function_exists($filter_name)) {
