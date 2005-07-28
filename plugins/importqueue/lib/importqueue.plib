@@ -23,9 +23,21 @@
  * $Id$
  */
 
+/* Produce output on stdout when user asked for --help. */
 function printUsage() {
-   echo "Usage: import [--filter filter] [--help] [--noqueue] [--verbose].\n";
+   global $FILTERS;
+   
+   echo "Usage: import [--filter <filter>] [--help] [--noqueue] [--verbose].\n";
    echo "The program reads the import data from stdin.\n";
+   
+   // Run over all registered filters.
+   if (count($FILTERS)>0) {
+      echo "Available filters:";
+      foreach ($FILTERS as $filter) {
+         echo " $filter";
+      }
+      echo ".\n";
+   }
 }
 
 ?>

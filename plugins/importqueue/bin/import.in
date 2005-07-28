@@ -56,6 +56,30 @@ foreach ($argv as $option) {
    }
 }
 
+// Retrieve all filters installed in LIBDIR. We need this list for --help,
+// so we build it even when no actual filtering might take place.
+$FILTERS = array();
+$libdir = opendir(LIBDIR.'/importqueue');
+while ($file = readdir($libdir)) {
+   $filter_name = basename($file,'.plib');
+   if (substr($filter_name,0,7)=='filter_') {
+      // Found a filter library file, source it. Failures to read it or parse
+      // it are not handled gracefully (yet).
+      require_once LIBDIR.'/importqueue/'.$filter_name.'.plib';
+      // Proper function installed?
+      if (function_exists($filter_name)) {
+         // OK, register the filter.
+         $FILTERS[] = substr($filter_name,7);
+      } else {
+         // Bad filter, complain and quit.
+         fwrite(STDERR,"Bad filter definition file $filter_name.\n");
+         exit(1);
+      }
+   }
+}
+closedir($libdir);
+
+// Help requested?
 if ($OPTIONS['--help']) {
    printUsage();
    exit(0);
