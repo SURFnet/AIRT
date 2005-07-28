@@ -7,8 +7,8 @@ AIRT - Application for Incident Response Teams
 
 =head1 DESCRIPTION
 
-AIRT is a web application without command-line components. Information on how
-to set up the initial database for AIRT can be found in 
+AIRT is a web application with some command-line components. Information on
+how to set up the initial database for AIRT can be found in
 F<@DOCPATH@/README>.
 
 More information about AIRT can be found on its website, at
