@@ -18,7 +18,7 @@
 # $Id$
 m4_include([VERSION.m4])dnl
 
-AC_INIT([import], [IMPORT_VERSION], [kees@leune.org])
+AC_INIT([importqueue], [IMPORT_VERSION], [airt-dev@uvt.nl])
 
 AC_PREREQ(2.59)
 AC_COPYRIGHT([
