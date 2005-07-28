@@ -263,7 +263,7 @@ function prepare_message($filename) {
 <input type="submit" value="Send">
 EOF;
       if (defined('GPG_KEYID')) {
-         echo '<input type="checkbox" name="sign"> Sign';
+         echo '<input type="checkbox" name="sign" checked> Sign';
       }
       echo <<<EOF
 </FORM>
