@@ -1,8 +1,8 @@
-Design of the AIRT-2 Import Queue
+Design of the AIRT Import Queue
 ===============================================================================
 $Id$
 
-The AIRT-2 Import Queue is a mechanism to send machine-generated notices to
+The AIRT Import Queue is a mechanism to send machine-generated notices to
 AIRT. The notices are presented to AIRT via one of several intake mechanisms
 (SMTP mailbox, HTTP(S) POST drop, command line, ...), filtered down to one
 generic, robust XML format using the correct input filter, and stored in the
