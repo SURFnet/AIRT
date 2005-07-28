@@ -18,7 +18,7 @@ At first we implement the command line intaker. This one likely will be the
 work horse of the SMTP and HTTP(S) intakers anyway.
 
 Proposed file name and typical command line:
-  <AIRT>/bin/import [--verbose] [--noqueue] [--filter filter] < importfile
+  <AIRT>/plugins/importqueue//bin/import [--verbose] [--noqueue] [--filter filter] < importfile
 
 Returns 0 on successful import, 1 when rejected. If rejected, stderr will
 contain a reasonable message why. The intaker is totally silent on stdout
