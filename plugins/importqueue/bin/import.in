@@ -26,7 +26,7 @@
 
 // Pick up standard AIRT config and other required libraries.
 require_once '@AIRTPATH@/airt.cfg';
-require_once LIBDIR.'/import.plib';
+require_once LIBDIR.'/importqueue/importqueue.plib';
 # require_once LIBDIR.'/airt.plib';
 # require_once LIBDIR.'/database.plib';
 
