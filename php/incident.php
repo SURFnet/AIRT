@@ -29,6 +29,20 @@ require_once LIBDIR.'/incident.plib';
 require_once LIBDIR.'/history.plib';
 require_once LIBDIR.'/user.plib';
 
+function updateCheckboxes() {
+   $output = "<SCRIPT Language=\"JavaScript\">\n";
+   $output .= "function updateCheckboxes() {\n";
+   $output .= "   if (!(document.jsform.email.value == '')) {\n";
+   $output .= "      document.jsform.addifmissing.checked = true;\n";
+   $output .= "      if (typeof document.jsform.sendmail != \"undefined\") document.jsform.sendmail.checked = true;\n";
+   $output .= "   } else {\n";
+   $output .= "      document.jsform.addifmissing.checked = false;\n";
+   $output .= "   }\n";
+   $output .= "}\n";
+   $output .= "</SCRIPT>\n";
+   return $output;
+}
+
 function formatIncidentForm() {
    $constituency = $name = $email = $type = $state = $status = $addressrole = "";
 
@@ -72,7 +86,7 @@ function formatIncidentForm() {
    $output .= "<table bgcolor=\"#dddddd\" cellpadding=\"2\" border=\"0\">";
    $output .= "<tr>\n";
    $output .= "  <td>email address of user:</td>\n";
-   $output .= "  <td><input type=\"text\" size=\"40\" name=\"email\" value=\"$email\"></td>\n";
+   $output .= "  <td><input onChange=\"updateCheckboxes()\" type=\"text\" size=\"40\" name=\"email\" value=\"$email\"></td>\n";
    $output .= "  <td><a href=\"help.php?topic=incident-adduser\">help</td>\n";
    $output .= "</tr>\n";
    $output .= "</table>\n";
@@ -95,12 +109,12 @@ function formatEditForm() {
    $state = $incident["state"];
    $status = $incident["status"];
 
-    if (array_key_exists("active_ip", $_SESSION)) {
-       $address = $_SESSION["active_ip"];
-    }
-    if (array_key_exists("constituency_id", $_SESSION)) {
-       $constituency = $_SESSION["constituency_id"];
-    }
+   if (array_key_exists("active_ip", $_SESSION)) {
+      $address = $_SESSION["active_ip"];
+   }
+   if (array_key_exists("constituency_id", $_SESSION)) {
+      $constituency = $_SESSION["constituency_id"];
+   }
 
    $output = "<form action=\"$_SERVER[PHP_SELF]\" method=\"post\">\n";
    $output .= "<hr/>\n";
@@ -176,17 +190,17 @@ function formatEditForm() {
      $email='';
    }
 
-   $output .= "<form action=\"$_SERVER[PHP_SELF]\" method=\"POST\">\n";
+   $output .= "<form name=\"jsform\" action=\"$_SERVER[PHP_SELF]\" method=\"POST\">\n";
    $output .= "  <input type=\"hidden\" name=\"action\" value=\"adduser\">\n";
    $output .= "  <table bgColor=\"#DDDDDD\" cellpadding=\"2\" border=\"0\">\n";
    $output .= "  <tr>\n";
    $output .= "    <td>Email address of user:</td>\n";
-   $output .= "    <td><input type=\"text\" size=\"40\" name=\"email\" value=\"$email\"></td>\n";
+   $output .= "    <td><input onChange=\"updateCheckboxes()\" type=\"text\" size=\"40\" name=\"email\" value=\"$email\"></td>\n";
    $output .= "    <td><input type=\"submit\" value=\"Add\"></td>\n";
    $output .= "    <td><a href=\"help.php?topic=incident-adduser\">help</td>\n";
    $output .= "  </tr>\n";
    $output .= "  </table>\n";
-   $output .= "  <input type=\"checkbox\" name=\"addifmissing\">\n";
+   $output .= "  <input onChange=\"updateCheckboxes()\" type=\"checkbox\" name=\"addifmissing\">\n";
    $output .= "  If checked, create user if email address unknown\n";
    $output .= "</form>\n";
 
@@ -207,6 +221,8 @@ switch ($action) {
     } else {
       die("Missing information(1).");
     }
+
+    print updateCheckboxes();
 
     /* prevent cross site scripting in incidentid */
     $norm_incidentid = normalize_incidentid($incidentid);
@@ -248,7 +264,8 @@ switch ($action) {
     case "New incident":
     case "new":
       PageHeader("New Incident");
-      $output = "<form action=\"$_SERVER[PHP_SELF]\" method=\"POST\">\n";
+      $output = updateCheckboxes();
+      $output .= "<form name=\"jsform\" action=\"$_SERVER[PHP_SELF]\" method=\"POST\">\n";
       $output .= formatIncidentForm();
       $output .= "<input type=\"submit\" name=\"action\" value=\"Add\">\n";
       $output .= "<input type=\"checkbox\" name=\"sendmail\">\n";
