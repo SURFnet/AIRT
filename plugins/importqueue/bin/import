@@ -24,10 +24,44 @@
  * $Id$
  */
 
+// Pick up standard AIRT config and other required libraries.
 require_once '/etc/airt/airt.cfg';
+require_once LIBDIR.'/import.plib';
 # require_once LIBDIR.'/airt.plib';
 # require_once LIBDIR.'/database.plib';
 
-echo "Hello, World!\n";
+// Set up all default command line options.
+// Options are either Boolean (--option) or scalar (--option=value).
+$OPTIONS = array();
+$OPTIONS['--filter']  = 'none';
+$OPTIONS['--help']    = false;
+$OPTIONS['--noqueue'] = false;
+$OPTIONS['--verbose'] = false;
+
+array_shift($argv);               // get rid of argument 0, the command itself.
+foreach ($argv as $option) {
+   list($option,$value) = split('=',$option);
+   if (isset($OPTIONS[$option])) {
+      // Known option, get new value of the correct type.
+      if (is_bool($OPTIONS[$option])) {
+         $OPTIONS[$option] = true;
+      } else {
+         $OPTIONS[$option] = $value;
+      }
+   } else {
+      // Unknown option, quit.
+      fwrite(STDERR,"Unknown option $option.\n");
+      exit(1);
+   }
+}
+
+if ($OPTIONS['--help']) {
+   printUsage();
+   exit(0);
+}
+
+
+// Successful completion.
+return 0;
 
 ?>
