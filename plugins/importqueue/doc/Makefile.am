@@ -17,6 +17,6 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # $Id$
-docdir =  $(datadir)/doc/airt/$(PACKAGE)
+docdir =  $(DOCPATH)
 doc_DATA =  inqueue-design.txt
 EXTRA_DIST = $(doc_DATA)

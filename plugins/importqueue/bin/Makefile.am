@@ -17,8 +17,9 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # $Id$
-scriptdir=$(pkgdatadir)/php
-script_BIN = import
+bin_SCRIPTS = import
+
 EXTRA_DIST= import.in
+
 CLEANFILES=import
 DISTCLEANFILES=$(CLEANFILES)

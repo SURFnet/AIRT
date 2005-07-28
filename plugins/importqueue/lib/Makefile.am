@@ -17,7 +17,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # $Id$
-scriptdir=$(pkgdatadir)/airt/lib/$(PACKAGE)
+scriptdir=$(PHPLIBPATH)
 script_DATA = importqueue.plib
+
 EXTRA_DIST = $(script_DATA)
 
