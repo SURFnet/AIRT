@@ -25,7 +25,7 @@
 
 function printUsage() {
    echo "Usage: import [--filter filter] [--help] [--noqueue] [--verbose].\n";
-   echo "The program reads the import data from stdin."
+   echo "The program reads the import data from stdin.\n"
 }
 
 ?>
