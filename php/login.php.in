@@ -2,7 +2,6 @@
 /* $Id$
  * login.php - allows users to log in to this site. 
  * vim: syntax=php tabstop=3 shiftwidth=3
- * TODO: Codingstyle
 
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
  * Copyright (C) 2004,2005	Tilburg University, The Netherlands
@@ -26,73 +25,75 @@ require_once 'config.plib';
 require_once LIBDIR."/authentication.plib";
 require_once LIBDIR."/airt.plib";
 
-if (array_key_exists('action', $_REQUEST)) $action=$_REQUEST['action'];
-else $action = "none";
+if (array_key_exists('action', $_REQUEST)) {
+   $action=$_REQUEST['action'];
+} else {
+   $action = "none";
+}
 
 switch ($action) {
-    case "none":
-        pageHeader("AIRT login page");
-
-
-        echo <<<EOF
-<P>
-<form action="$_SERVER[PHP_SELF]" method="POST">
-<table>
-<tr>
-    <td>Login</td>
-    <td><input type="text"  name="login" size="25"></td>
-</tr>
-
-<tr>
-    <td>Password</td>
-    <td><input type="password"  name="password" size="25"></td>
-</tr>
-</table>
-EOF;
+   case "none":
+      pageHeader("AIRT login page");
+      $out = t("<form method=\"POST\">\n");
+      $out .= t("<table>\n");
+      $out .= t("<tr>\n");
+      $out .= t("   <td>Login</td>\n");
+      $out .= t("    <td><input type=\"text\" name=\"login\" size=\"25\"></td>\n");
+      $out .= t("</tr>\n");
+      $out .= t("<tr>\n");
+      $out .= t("   <td>Password</td>\n");
+      $out .= t("   <td><input type=\"password\"  name=\"password\" size=\"25\"></td>\n");
+      $out .= t("</tr>\n");
+      $out .= t("</table>\n");
+      print $out;
 
 		generateEvent('loginscreen');
 
-echo <<<EOF
-<P>
-<input type="hidden" name="action" value="check">
-<input type="submit" value="Login">
-</form>
+      $out = t("<p><input type=\"hidden\" name=\"action\" value=\"check\">\n");
+      $out .= t("<input type=\"submit\" value=\"Login\">");
+      $out .= t("</form></p>\n");
+      
+      $out .= t("<HR/>");
+      $out .= t("<BLOCKQUOTE><small>");
+      $out .= t("AIRT version @VERSION@, Copyright (C) 2004-2005 Tilburg University ");
+      $out .= t("&lt;<a href=\"mailto:airt-dev@uvt.nl\">airt-dev@uvt.nl</a>&gt;<BR/>\n");
+      $out .= t("AIRT comes with ABSOLUTELY NO WARRANTY; for details ");
+      $out .= t("<a href=\"license.php\">click here</a>.<BR/>\n");
+      $out .= t("This is free software, and you are welcome to redistribute it");
+      $out .= t("under certain conditions; See the license for more details.\n");
+      $out .= t("</small></BLOCKQUOTE>");
 
-<P>
-<HR>
-<P>
-<BLOCKQUOTE><small>
-    AIRT version @VERSION@, Copyright (C) 2004-2005 Tilburg University
-    &lt;<a href="mailto:airt-dev@uvt.nl">airt-dev@uvt.nl</a>&gt;<BR>
-    AIRT comes with ABSOLUTELY NO WARRANTY; for details 
-    <a href="license.php">click here</a>.<BR>
-    This is free software, and you are welcome to redistribute it
-    under certain conditions; See the license for more details.
-</small></BLOCKQUOTE>
-EOF;
-        break;
-
+      print $out;
+    break;
 
     case "check":
-        if (array_key_exists("login", $_REQUEST))
-            $login = $_REQUEST["login"];
-        else die("Missing required field.");
+       if (array_key_exists("login", $_REQUEST)) {
+          $login = $_REQUEST["login"];
+       } else {
+          airt_error("PARAM_MISSING", "login.php:".__LINE__);
+          Header("Location: .");
+          break;
+       }
 
         // password must be HTTP post
-        if (array_key_exists("password", $_POST))
+        if (array_key_exists("password", $_POST)) {
             $password = $_POST["password"];
-        else die("Missing required field.");
+        } else {
+          airt_error("PARAM_MISSING", "login.php:".__LINE__);
+          Header("Location: .");
+          break;
+        }
 
         $userid = airt_authenticate($login, $password);
         if ($userid == -1) {
             pageHeader("Permission denied.");
-            printf("Username and/or password incorrect.");
-			airt_invalidCredentials();
+            print t("Username and/or password incorrect.");
+			   airt_invalidCredentials();
             pageFooter();
-			exit();
-		}
+			   exit();
+		  }
 
-		airt_initSession($userid);
+		  airt_initSession($userid);
         break;
 
     default:

@@ -29,58 +29,38 @@ require_once LIBDIR."/database.plib";
 
 pageHeader("AIRT Control Center");
 
-printf("<small>Welcome $_SESSION[username]. Your last login was at $_SESSION[lastdb] from $_SESSION[hostnamelast].</small>");
+$out = t('<small>Welcome %username. Your last login was at %lastdb from %hostname.</small>', array(
+   '%username'=>$_SESSION['username'],
+   '%lastdb'=>$_SESSION['lastdb'],
+   '%hostname'=>$_SESSION['hostnamelast']));
 
-echo "<HR>";
+$out .= "<HR/>\n";
+print $out;
 generateEvent('mainmenutop');
-?>
 
+$out  = t("<strong>Main tasks</strong>\n");
+$out .= t("<p><a href=\"incident.php\">Incident management</a></p>\n");
+$out .= t("<p><a href=\"search.php\">IP Address lookup</a></p>\n");
+$out .= t("<a href=\"standard.php\">Mail templates</a></p>\n");
+$out .= t("<a href=\"maintenance.php\">Edit settings</a></p>\n");
 
-<B>Main tasks</B>
-
-<P>
-
-<a href="incident.php">Incident management</a>
-
-<P>
-
-<a href="search.php">IP Address lookup</a>
-
-<P>
-
-<a href="standard.php">Mail templates</a>
-
-<P>
-
-<a href="maintenance.php">Edit settings</a>
-
-<P>
-
-<?php
-  # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-  # or die("Unable to connect to database.");
-
-  $res = db_query("
+$res = db_query(q("
       SELECT url, label
       FROM   urls
-      ORDER BY created")
-  or die("Unable to query database.");
+      ORDER BY created"))
+or die("Unable to query database.");
 
-  while ($row = db_fetch_next($res)) {
-      $url = $row['url'];
-      $description = $row['label'];
-      printf("<a href=\"%s\">%s</a><p>",
-          $url, $description);
-  }
-  # db_close($conn);
-?>
+while ($row = db_fetch_next($res)) {
+   $url = $row['url'];
+   $description = $row['label'];
+   $out .= t("<p><a href=\"%url\">%description</a></p>", array(
+      '%url'=>$url, 
+      '%description'=>$description));
+}
 
-<P>
+$out .= t("<a onclick=\"return confirm('Are you sure that you want to log out?')\" href=\"logout.php\">Logout</a>");
 
-<a onclick="return confirm('Are you sure that you want to log out?')" 
-   href="logout.php">Logout</a>
-
-<?php
-	generateEvent('mainmenubottom');
-  pageFooter();
+print $out;
+generateEvent('mainmenubottom');
+pageFooter();
 ?>
