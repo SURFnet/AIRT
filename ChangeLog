@@ -1,5 +1,6 @@
 2005-xx-xx
 * Interface enhancements (more sensible defaults)
+* Improve UTF-8 handling
 * Added framework of the import queue plugin and a default (inert) filter.
 
 2005-07-26
