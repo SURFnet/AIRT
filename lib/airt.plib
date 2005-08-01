@@ -178,9 +178,9 @@ function generateEvent($event, $data=array()) {
  */
 function t($string, $args = 0) { global $locale;
    if (!$args) {
-      return $string;
+      return utf8_encode($string);
    } else {
-       return strtr($string, $args);
+       return utf8_encode(strtr($string, $args));
    }
 }
 
