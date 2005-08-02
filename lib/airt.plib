@@ -170,13 +170,16 @@ function generateEvent($event, $data=array()) {
 
 /* based on Drupal code; format the given string for output, making pattern
  * replacesments when required. This will be the place to implement locale
- * support.  $string A string containing the English string to translate.
+ * support.
+ *
+ *   $string A string containing the English string to translate.
  *
  *   $args An associative array of replacements to make after translation.
  *   Incidences of any key in this array are replaced with the corresponding
  *   value.
  */
-function t($string, $args = 0) { global $locale;
+function t($string, $args = 0) {
+   global $locale;
    if (!$args) {
       return utf8_encode($string);
    } else {
