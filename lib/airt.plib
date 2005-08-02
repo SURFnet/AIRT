@@ -19,58 +19,76 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
+///// Init code, executed once at library load time. ////////////////////////
+
 require_once LIBDIR.'/database.plib';
 require_once LIBDIR.'/error.plib';
 
+// Find out whether we run as web server module or as CLI interpreter.
+if (array_key_exists('argv',$GLOBALS)) {
+   // We run as CLI.
+   define('AIRT_RUN_MODE','CLI');
+} else {
+   // We run as Apache module.
+   define('AIRT_RUN_MODE','HTTP');
+}
+
+// Include custom functions if requested.
 if (defined('CUSTOM_FUNCTIONS')) {
   require_once CUSTOM_FUNCTIONS;
 }
 
-@session_start();
-if (!array_key_exists('BASEURL', $_SESSION))
-	$_SESSION['BASEURL'] = dirname($_SERVER['PHP_SELF']);
+// The next code block is only meant for HTTP runtime enviroments.
+if (AIRT_RUN_MODE=='HTTP') {
+   @session_start();
+   if (!array_key_exists('BASEURL', $_SESSION))
+      $_SESSION['BASEURL'] = dirname($_SERVER['PHP_SELF']);
 
-if (!isset($public) || !$public) {
-    if (!array_key_exists("username", $_SESSION)) {
-        Header("Location: login.php");
-        exit;
-    }
+   if (!isset($public) || !$public) {
+       if (!array_key_exists("username", $_SESSION)) {
+           Header("Location: login.php");
+           exit;
+       }
 
-    if (!array_key_exists("userid", $_SESSION)) {
-        Header("Location: login.php");
-        exit;
-    }
+       if (!array_key_exists("userid", $_SESSION)) {
+           Header("Location: login.php");
+           exit;
+       }
 
-    if (!array_key_exists("ip", $_SESSION)) {
-        Header("Location: login.php");
-        exit;
-    }
+       if (!array_key_exists("ip", $_SESSION)) {
+           Header("Location: login.php");
+           exit;
+       }
 
-    if (!array_key_exists("last", $_SESSION)) {
-        Header("Location: login.php");
-        exit;
-    }
+       if (!array_key_exists("last", $_SESSION)) {
+           Header("Location: login.php");
+           exit;
+       }
 
-    // check session ip
-    if ($_SERVER["REMOTE_ADDR"] != $_SESSION["ip"]) {
-        Header("Location: login.php");
-        exit;
-    }
+       // check session ip
+       if ($_SERVER["REMOTE_ADDR"] != $_SESSION["ip"]) {
+           Header("Location: login.php");
+           exit;
+       }
 
-    // check expiration
-    $last = $_SESSION["last"];
-    $now = time();
+       // check expiration
+       $last = $_SESSION["last"];
+       $now = time();
 
-    if ($now - $last > SESSION_TIMEOUT) {
-		printf("Your session has expired. Please ".
-			"<a href=\"login.php\">log in again</a>.");
-        exit;
-    }
+       if ($now - $last > SESSION_TIMEOUT) {
+         printf("Your session has expired. Please ".
+            "<a href=\"login.php\">log in again</a>.");
+           exit;
+       }
 
-    // update session timestamp
-    $_SESSION["last"] = $now;
-}
+       // update session timestamp
+       $_SESSION["last"] = $now;
+   }
+} // HTTP runtime environment
 
+///// End init code; remaining file contains only function definitions, ////
+///// but these are partially conditional. /////////////////////////////////
 
 /**
  * Display the page header
