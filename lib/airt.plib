@@ -39,7 +39,7 @@ if (defined('CUSTOM_FUNCTIONS')) {
   require_once CUSTOM_FUNCTIONS;
 }
 
-// The next code block is only meant for HTTP runtime enviroments.
+// The next code block is only meant for HTTP runtime environments.
 if (AIRT_RUN_MODE=='HTTP') {
    @session_start();
    if (!array_key_exists('BASEURL', $_SESSION))
@@ -201,7 +201,7 @@ function t($string, $args = 0) {
    if (!$args) {
       return utf8_encode($string);
    } else {
-       return utf8_encode(strtr($string, $args));
+      return utf8_encode(strtr($string, $args));
    }
 }
 
