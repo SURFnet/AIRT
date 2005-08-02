@@ -1,0 +1,95 @@
+PRELIMINARY                  AIRT logging design                    PRELIMINARY
+===============================================================================
+$Id$
+
+AIRT will eventually need a well-designed logging system, both to end users
+(via the web and via the command line) and to a system logging service,
+typically syslog(1). PHP offers enough features to create a proper logging
+API from within AIRT.
+
+
+Purpose
+-------
+It is not the intention to force all AIRT output through the logging
+mechanism. Only specific messages that might need attention of somebody are
+sent via the logger. HTML output typically is not sent via the logger,
+although certain messages might be converted to HTML after having been
+logged. Typical command line output, such as the response to --help, is also
+not sent via the logger. Only messages that under certain circumstances
+might be interesting to archive in a log file should be sent through the
+logger. They may or may not show up in CLI output or on web pages, in
+between other non-logging output or separately. Likewise, they may or may
+not show up in the system log file. This is all sysman-configurable in
+/etc/airt/airt.cfg.
+
+
+Approach
+--------
+We should aim for an integrated approach between web server-based AIRT
+modules and CLI-based modules.
+
+It seems the best to let the lowest-level module do the logging, so that we
+do not get stuck in endless message streams that get passed up the chain.
+For example, the import queue itself should do logging, not the caller of
+the "import" command (which might be a human). The "import" command itself
+knows best what deserves logging and what not; the higher level (AIRT
+configuration file) sets the visibility limits. If the caller should be
+notified of something, the logger mechanism is not sufficient, but proper
+other mechanisms such as return codes should be used. This implies that
+existing code does not need to be rewritten for logging; although it might
+be interesting to do so (and the existing event mechanism might be an ideal
+place to hook into).
+
+We already have airt.plib:airt_msg($msg,$prio=0) and this function is simple
+enough to be converted into something that cooperates with the generic
+logger. airt_msg() is specifically programmed for a web server environment,
+as it uses $_SESSION and relies on page-oriented programming.
+
+
+Log priorities
+--------------
+Typical CLI programs tend to have two log levels: quiet and verbose. They
+might sport a debug level, and sometimes warning and error levels,
+implicitly coded via stdout/stderr. Typical web programs have user notice,
+user warning, and user error messages that should not be relayed to a log
+file, plus some system messages at again notice, warning, and error levels.
+
+The existing syslog(1) facility sums up a set of log levels (priorities)
+which might be of interest to copy, since they are well-established and well
+thought out over the years:
+
+LOG_EMERG       system is unusable
+LOG_ALERT       action must be taken immediately
+LOG_CRIT        critical conditions
+LOG_ERR         error conditions
+LOG_WARNING     warning conditions
+LOG_NOTICE      normal, but significant, condition
+LOG_INFO        informational message
+LOG_DEBUG       debug-level message
+
+Typically, end users see NOTICE and above, and the system log sees ERR and
+above. Both filters need to be separately tunable (by /etc/airt/airt.cfg
+settings) but should come with these defaults. Note that we are now talking
+about explicit AIRT application logs; the PHP errors and warnings are not
+integrated with this log system!
+
+Experience with other systems suggests that DEBUG level messages should not
+be left in code that goes into CVS (i.e., any DEBUG message in production
+code is itself an error), and that levels CRIT and higher are useless in an
+application of this type. Typical messages could be:
+
+ERR     Database connection not established.
+WARNING Login failure for user PETER.
+NOTICE  Incident 5524 successfully added.
+INFO    Successful LDAP lookup for PETER's phone and room number.
+DEBUG   $SESSIONID = 33232.
+
+Implementation
+--------------
+The lowest API call for the logger could become msg($prio,$msg) and be a
+copycat interface of syslog() for consistency. Two defines could specify
+the visibility limit for end users (either web or CLI) and the true syslog
+facility. A global variable could specify an overriding visibility limit for
+CLI programs, related to the --verbose switch.
+
+[EOF]
