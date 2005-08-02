@@ -23,21 +23,59 @@
  * $Id$
  */
 
-/* Produce output on stdout when user asked for --help. */
+// Pull in the standard AIRT library.
+require_once LIBDIR.'/airt.plib';
+
+/* Output function. Adds the given string to the output buffer, with no
+ * trailing line feed.
+ */
+function o($str) {
+   global $OUTPUT_BUFFER;
+   if (!isset($OUTPUT_BUFFER)) {
+      $OUTPUT_BUFFER = '';
+   }
+   $OUTPUT_BUFFER .= t($str);
+}
+
+/* Output function. Adds the given string to the output buffer with a
+ * trailing line feed. May also be called without parameter, produces a
+ * line feed only.
+ */
+function l($str='') {
+   o($str);
+   o("\n");
+}
+
+/* Output function. Flushes the output buffer to stdout. 
+ * Default output stream is STDOUT.
+ */
+function flush_output($stream=STDOUT) {
+   global $OUTPUT_BUFFER;
+   if (isset($OUTPUT_BUFFER)) {
+      fwrite($stream,$OUTPUT_BUFFER);
+      $OUTPUT_BUFFER = '';
+   }
+}
+
+/* Produce info on stdout (when user asked for --help). */
 function printUsage() {
    global $FILTERS;
-   
-   echo "Usage: import [--filter <filter>] [--help] [--noqueue] [--verbose].\n";
-   echo "The program reads the import data from stdin.\n";
+
+   l('Incidence import program, part of the AIRT suite.');
+   l('Copyright (C) 2005   Tilburg University, The Netherlands.');
+   l('Usage: import [--filter <filter>] [--help] [--noqueue] [--verbose]');
+   l('The program reads the import data from stdin.');
    
    // Run over all registered filters.
    if (count($FILTERS)>0) {
-      echo "Available filters:";
+      o('Available filters:');
       foreach ($FILTERS as $filter) {
-         echo " $filter";
+         o(' '.$filter);
       }
-      echo ".\n";
+      l('');
    }
+
+   flush_output();
 }
 
 ?>

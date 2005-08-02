@@ -24,12 +24,10 @@
  * $Id$
  */
 
-// Pick up standard AIRT config and other required libraries.
+// Pick up standard AIRT config and required library (which sources in the
+// other required libraries).
 require_once '@AIRTPATH@/airt.cfg';
 require_once LIBDIR.'/importqueue/importqueue.plib';
-# require_once LIBDIR.'/airt.plib';
-# require_once LIBDIR.'/database.plib';
-
 
 // Set up all default command line options.
 // Options are either Boolean (--option) or scalar (--option=value).
@@ -39,6 +37,7 @@ $OPTIONS['--help']    = false;
 $OPTIONS['--noqueue'] = false;
 $OPTIONS['--verbose'] = false;
 
+// Run over command line options.
 array_shift($argv);               // get rid of argument 0, the command itself.
 foreach ($argv as $option) {
    list($option,$value) = split('=',$option);
@@ -51,7 +50,8 @@ foreach ($argv as $option) {
       }
    } else {
       // Unknown option, quit.
-      fwrite(STDERR,"Unknown option $option.\n");
+      l("Unknown option $option.");
+      flush_output(STDERR);
       exit(1);
    }
 }
@@ -73,7 +73,8 @@ while ($file = readdir($libdir)) {
          $FILTERS[] = substr($filter_name,7);
       } else {
          // Bad filter, complain and quit.
-         fwrite(STDERR,"Bad filter definition file $filter_name.\n");
+         l("Bad filter definition file $filter_name.");
+         flush_output(STDERR);
          exit(1);
       }
    }
