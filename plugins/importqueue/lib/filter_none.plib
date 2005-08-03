@@ -26,16 +26,14 @@
 /* Template filter function, does not do much but conforms to all standards.
  * Great to copy and create your own, functional function.
  *
- * Parameters:
  * $input     = A string to process.
  * $output    = String variable to write the result to (pass by reference).
- * $verbosity = Optionally, log verbosity (to stdout, see LOG_VERBOSITY_*
- *              constants in airt.plib).
+ * $verbosity = TRUE when verbose output is requested on stdout.
  * Returns:
  * 0 when successful.
  * 1 when not successful ($output contains readable error message).
  */
-function filter_none($input, &$output, $verbosity=0) {
+function filter_none($input, &$output, $verbosity=FALSE) {
   // Temporarily implemented without any regard for $verbosity.
   $output = $input;
   return 0;

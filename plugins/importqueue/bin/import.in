@@ -130,13 +130,10 @@ fclose($in);
 
 // Send the file through the filter.
 $output = '';
-$filter_function($input,$output,$prio);
-o($output);
+$filter_function($input,$output,$OPTIONS['--verbose']);
 
 // Present the filtered XML to the importer.
-import($output,$prio);
-
-flush_output();
+import($output,$OPTIONS['--verbose']);
 
 // Successful completion.
 return 0;

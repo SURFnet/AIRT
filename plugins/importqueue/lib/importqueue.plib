@@ -52,3 +52,15 @@ function printUsage() {
 }// printUsage
 
 
+/* Actual import function.
+ * $input      = XML string to import.
+ * $error      = String variable to write possible error msg to (pass by ref.).
+ * $verbosity  = TRUE when verbose output is requested on stdout.
+ * Returns 0 on success, 1 on failure ($error contains error message).
+ */
+function import($input,&$error,$verbosity=FALSE) {
+  fwrite(STDOUT,$input);
+  return 0;
+}// import
+
+?>
