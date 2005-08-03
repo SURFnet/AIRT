@@ -39,9 +39,9 @@ operandi.
 
 It seems the best to let the lowest-level module do the logging, so that we
 do not get stuck in endless message streams that get passed up the chain.
-For example, the import queue itself should do logging, not the caller of
-the "import" command (which might be a human). The "import" command itself
-knows best what deserves logging and what not; the higher level (i.e., AIRT
+For example, the import command itself should do logging, not the caller of
+the import command (which might be a human). The import command itself knows
+best what deserves logging and what not; the higher level (i.e., AIRT
 configuration file) sets the visibility limits. If the caller should be
 notified of something, the logger mechanism is not sufficient, but proper
 other mechanisms such as return codes should be used. This implies that
@@ -95,6 +95,7 @@ WARNING Login failure for user PETER.
 NOTICE  Incident 5524 successfully added.
 INFO    Successful LDAP lookup for PETER's phone and room number.
 DEBUG   $SESSIONID = 33232.
+
 
 Implementation
 --------------
