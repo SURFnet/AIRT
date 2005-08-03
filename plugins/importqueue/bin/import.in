@@ -37,22 +37,38 @@ $OPTIONS['--help']    = false;
 $OPTIONS['--noqueue'] = false;
 $OPTIONS['--verbose'] = false;
 
-// Run over command line options.
+$FILENAME = '';
+
+// Run over command line arguments. All arguments not starting with -- are
+// assumed to be file parameters, but only one file can be read at a time
+// for return code reasons.
 array_shift($argv);               // get rid of argument 0, the command itself.
-foreach ($argv as $option) {
-   list($option,$value) = split('=',$option);
-   if (isset($OPTIONS[$option])) {
-      // Known option, get new value of the correct type.
-      if (is_bool($OPTIONS[$option])) {
-         $OPTIONS[$option] = true;
+foreach ($argv as $param) {
+   if (substr($param,0,2)=='--') {
+      // Option parameter.
+      list($option,$value) = split('=',$param);
+      if (isset($OPTIONS[$option])) {
+         // Known option, get new value of the correct type.
+         if (is_bool($OPTIONS[$option])) {
+            $OPTIONS[$option] = true;
+         } else {
+            $OPTIONS[$option] = $value;
+         }
       } else {
-         $OPTIONS[$option] = $value;
+         // Unknown option, quit.
+         l("ERROR: Unknown option \"$option\".");
+         flush_output(STDERR);
+         exit(1);
       }
    } else {
-      // Unknown option, quit.
-      l("Unknown option $option.");
-      flush_output(STDERR);
-      exit(1);
+      // File parameter.
+      if ($FILENAME!='') {
+         // Cannot process more than one file, quit.
+         l('ERROR: More than one file name given.');
+         flush_output(STDERR);
+         exit(1);
+      }
+      $FILENAME = $param;
    }
 }
 
@@ -73,7 +89,7 @@ while ($file = readdir($libdir)) {
          $FILTERS[] = substr($filter_name,7);
       } else {
          // Bad filter, complain and quit.
-         l("Bad filter definition file $filter_name.");
+         l("ERROR: Bad filter definition file \"$filter_name\".");
          flush_output(STDERR);
          exit(1);
       }
@@ -81,12 +97,44 @@ while ($file = readdir($libdir)) {
 }
 closedir($libdir);
 
+// Check whether the requested filter function exists at all.
+$filter_function = 'filter_'.$OPTIONS['--filter'];
+if (!function_exists($filter_function)) {
+   // Bad filter, complain and quit.
+   l('ERROR: No filter "'.$OPTIONS['--filter'].'" present.');
+   flush_output(STDERR);
+   exit(1);
+}
+
 // Help requested?
 if ($OPTIONS['--help']) {
    printUsage();
    exit(0);
 }
 
+// If no file name given, process from stdin, otherwise open the file.
+if ($FILENAME=='') {
+   $in = STDIN;
+} else {
+   $in = fopen($FILENAME,'r');
+}
+
+// Pull the file into main memory.
+$input = '';
+while ($line = fgets($in)) {
+   $input .= $line;
+}
+fclose($in);
+
+// Send the file through the filter.
+$output = '';
+# TODO: add verbosity parameter to the next function call.
+$filter_function($input,$output);
+o($output);
+
+# TODO: here actual queue should be fed with XML in $output.
+
+flush_output();
 
 // Successful completion.
 return 0;
