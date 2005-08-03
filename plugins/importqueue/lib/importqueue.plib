@@ -27,77 +27,28 @@
 require_once LIBDIR.'/airt.plib';
 
 
-/* Output function. Adds the given string to the output buffer, with no
- * trailing line feed.
- */
-function o($str) {
-   global $OUTPUT_BUFFER;
-   if (!isset($OUTPUT_BUFFER)) {
-      $OUTPUT_BUFFER = '';
-   }
-   $OUTPUT_BUFFER .= t($str);
-}
-
-
-/* Output function. Adds the given string to the output buffer with a
- * trailing line feed. May also be called without parameter, produces a
- * line feed only.
- */
-function l($str='') {
-   o($str);
-   o("\n");
-}
-
-
-/* Output function. Flushes the output buffer to stdout. 
- * Default output stream is STDOUT.
- */
-function flush_output($stream=STDOUT) {
-   global $OUTPUT_BUFFER;
-   if (isset($OUTPUT_BUFFER)) {
-      fwrite($stream,$OUTPUT_BUFFER);
-      $OUTPUT_BUFFER = '';
-   }
-}
-
-
 /* Produce info on stdout (when user asked for --help). */
 function printUsage() {
    global $FILTERS;
 
-   l('Incidence import program, part of the AIRT suite.');
-   l('Copyright (C) 2005   Tilburg University, The Netherlands.');
-   o('Usage: import [--filter <filter>] [--help] [--noqueue] [--verbose] ');
-   l('[filename]');
-   l('The program reads the import data from stdin if no filename is given.');
+   echo t('Incidence import program, part of the AIRT suite.')."\n";
+   echo t('Copyright (C) 2005   Tilburg University, The Netherlands.')."\n";
+   echo t(
+'Usage: import [--filter <filter>] [--help] [--noqueue] [--verbose] [filename]'
+     )."\n";
+   echo t(
+     'The program reads the import data from stdin if no filename is given.'
+     )."\n";
    
    // Run over all registered filters.
    if (count($FILTERS)>0) {
-      o('Available filters:');
+      echo t('Available filters:');
       foreach ($FILTERS as $filter) {
-         o(' '.$filter);
+         echo ' '.$filter;
       }
-      l('');
+      echo "\n";
    }
 
-   flush_output();
 }// printUsage
 
 
-/* Produce log message. Depends on verbosity level, uses syslog()
- * standard LOG_* constants. May be extended with two squelches, one for the
- * end user (typically blocks messages below LOG_WARNING) and one for the
- * actual syslog (typically blocks below LOG_EMERG, i.e., does not allow
- * anything through to the syslog until explicitly enabled).
- * Messages above and including LOG_ERR go to stderr, others to stdout. This
- * may also be implemented with a constant later.
- * Time stamp is not added, the syslog() facility should do that.
- *
- * $priority = One of the LOG_* syslog() constants.
- * $string = Message to log.
- */
-function msg($priority,$string) {
-   echo t("LOG: $string\n");
-}
-
-?>

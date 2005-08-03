@@ -24,7 +24,7 @@
  * $Id$
  */
 
-// Pick up standard AIRT config and required library (which sources in the
+// Pick up standard AIRT config and required library (which pulls in the
 // other required libraries).
 require_once '@AIRTPATH@/airt.cfg';
 require_once LIBDIR.'/importqueue/importqueue.plib';
@@ -46,7 +46,7 @@ array_shift($argv);               // get rid of argument 0, the command itself.
 foreach ($argv as $param) {
    if (substr($param,0,2)=='--') {
       // Option parameter.
-      list($option,$value) = split('=',$param);
+      @list($option,$value) = split('=',$param);
       if (isset($OPTIONS[$option])) {
          // Known option, get new value of the correct type.
          if (is_bool($OPTIONS[$option])) {
@@ -56,21 +56,21 @@ foreach ($argv as $param) {
          }
       } else {
          // Unknown option, quit.
-         l("ERROR: Unknown option \"$option\".");
-         flush_output(STDERR);
+         fwrite(STDERR, t('ERROR: Unknown option "%s".',
+                          array('%s'=>$option)).
+                        "\n");
          exit(1);
       }
    } else {
       // File parameter.
       if ($FILENAME!='') {
          // Cannot process more than one file, quit.
-         l('ERROR: More than one file name given.');
-         flush_output(STDERR);
+         fwrite(STDERR, t('ERROR: More than one file name given.')."\n");
          exit(1);
       }
       $FILENAME = $param;
    }
-}
+}// foreach parameter
 
 // Retrieve all filters installed in LIBDIR. We need this list for --help,
 // so we build it even when no actual filtering might take place.
@@ -89,20 +89,22 @@ while ($file = readdir($libdir)) {
          $FILTERS[] = substr($filter_name,7);
       } else {
          // Bad filter, complain and quit.
-         l("ERROR: Bad filter definition file \"$filter_name\".");
-         flush_output(STDERR);
+         fwrite(STDERR, t('ERROR: Bad filter definition file "%s".',
+                          array('%s'=>$filter_name)).
+                        "\n");
          exit(1);
       }
    }
-}
+}// for each file name
 closedir($libdir);
 
 // Check whether the requested filter function exists at all.
 $filter_function = 'filter_'.$OPTIONS['--filter'];
 if (!function_exists($filter_function)) {
-   // Bad filter, complain and quit.
-   l('ERROR: No filter "'.$OPTIONS['--filter'].'" present.');
-   flush_output(STDERR);
+   // Bad filter selection, complain and quit.
+   fwrite(STDERR, t('ERROR: No filter "%s" present.',
+                    array('%s'=>$OPTIONS['--filter'])).
+                    "\n");
    exit(1);
 }
 
@@ -128,11 +130,11 @@ fclose($in);
 
 // Send the file through the filter.
 $output = '';
-# TODO: add verbosity parameter to the next function call.
-$filter_function($input,$output);
+$filter_function($input,$output,$prio);
 o($output);
 
-# TODO: here actual queue should be fed with XML in $output.
+// Present the filtered XML to the importer.
+import($output,$prio);
 
 flush_output();
 
