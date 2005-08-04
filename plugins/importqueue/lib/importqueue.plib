@@ -40,7 +40,7 @@ function printUsage() {
      'The program reads the import data from stdin if no filename is given.'
      )."\n";
    
-   // Run over all registered filters.
+   // Enumerate all registered filters.
    if (count($FILTERS)>0) {
       echo t('Available filters:');
       foreach ($FILTERS as $filter) {
@@ -52,15 +52,17 @@ function printUsage() {
 }// printUsage
 
 
-/* Actual import function.
- * $input      = XML string to import.
+/* Actual import function, which presents the standardised XML to the AIRT
+ * core.
+ * $input      = Standard XML string to import.
  * $error      = String variable to write possible error msg to (pass by ref.).
  * $verbosity  = TRUE when verbose output is requested on stdout.
  * Returns 0 on success, 1 on failure ($error contains error message).
  */
 function import($input,&$error,$verbosity=FALSE) {
   fwrite(STDOUT,$input);
-  return 0;
+  $error = t('Import not yet implemented.');
+  return 1;
 }// import
 
 ?>
