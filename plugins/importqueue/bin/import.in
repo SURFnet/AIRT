@@ -141,18 +141,30 @@ if ($OPTIONS['--verbose']) {
 
 
 // Send the file through the filter.
-$output = '';
 if ($OPTIONS['--verbose']) {
    echo t('Filtering through "%s"...',
           array('%s'=>$OPTIONS['--filter']))."\n";
 }
-$filter_function($input,$output,$OPTIONS['--verbose']);
+$filter_output = '';
+if ($filter_function($input,$filter_output,$OPTIONS['--verbose'])) {
+   // Problem with filtering.
+   fwrite(STDERR,t('ERROR: %s',
+                   array('%s'=>$filter_output))."\n");
+   exit(1);
+};
 
 // Present the filtered XML to the importer.
 if ($OPTIONS['--verbose']) {
    echo t('Importing...')."\n";
 }
-import($output,$OPTIONS['--verbose']);
+$error = '';
+
+if (import($filter_output,$error,$OPTIONS['--verbose'])) {
+   // Problem with import.
+   fwrite(STDERR,t('ERROR: %s',
+                   array('%s'=>$error))."\n");
+   exit(1);
+};
 
 // Successful completion.
 if ($OPTIONS['--verbose']) {
