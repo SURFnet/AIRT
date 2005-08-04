@@ -117,8 +117,15 @@ if ($OPTIONS['--help']) {
 // If no file name given, process from stdin, otherwise open the file.
 if ($FILENAME=='') {
    $in = STDIN;
+   if ($OPTIONS['--verbose']) {
+      echo t('Reading from standard input...')."\n";
+   }
 } else {
    $in = fopen($FILENAME,'r');
+   if ($OPTIONS['--verbose']) {
+      echo t('Reading from file "%s"...',
+             array('%s'=>$FILENAME))."\n";
+   }
 }
 
 // Pull the file into main memory.
@@ -127,15 +134,30 @@ while ($line = fgets($in)) {
    $input .= $line;
 }
 fclose($in);
+if ($OPTIONS['--verbose']) {
+   echo t('Read %d bytes.',
+          array('%d'=>strlen($input)))."\n";
+}
+
 
 // Send the file through the filter.
 $output = '';
+if ($OPTIONS['--verbose']) {
+   echo t('Filtering through "%s"...',
+          array('%s'=>$OPTIONS['--filter']))."\n";
+}
 $filter_function($input,$output,$OPTIONS['--verbose']);
 
 // Present the filtered XML to the importer.
+if ($OPTIONS['--verbose']) {
+   echo t('Importing...')."\n";
+}
 import($output,$OPTIONS['--verbose']);
 
 // Successful completion.
+if ($OPTIONS['--verbose']) {
+   echo t('Done.')."\n";
+}
 return 0;
 
 ?>
