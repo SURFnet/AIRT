@@ -60,9 +60,32 @@ function printUsage() {
  * Returns 0 on success, 1 on failure ($error contains error message).
  */
 function import($input,&$error,$verbosity=FALSE) {
-  fwrite(STDOUT,$input);
-  $error = t('Import not yet implemented.');
-  return 1;
+   global $OPTIONS;
+
+   ##### TODO: some XML sanity checking needs to be performed here. #######
+   # At least the standard queue data items should be extracted, as the AIRT
+   # import routine likely will want this meta-data presented separately
+   # from the incident. Discussion must take place to determine the exact
+   # boundary between the plugin and the AIRT core.
+   fwrite(STDOUT,$input);
+
+   // Everything except the presentation of the incident to the AIRT core
+   // database should have been done by now. The rest is optional.
+   if ($OPTIONS['--noqueue']) {
+      // Just kidding.
+      if ($OPTIONS['--verbose']) {
+         echo t('Not actually queueing the incident.')."\n";
+      }
+      return 0;
+   }
+
+   ##### TODO: call AIRT import functions here. ###########################
+   # We need the AIRT import API defined before this code can be written.
+   # Refer to the discussion mentioned above. System boundaries must be
+   # drafted first.
+
+   $error = t('AIRT import API not yet implemented.');
+   return 1;
 }// import
 
 ?>
