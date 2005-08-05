@@ -23,17 +23,21 @@
  * $Id$
  */
  
- require_once 'config.plib';
- require_once LIBDIR.'/airt.plib';
- require_once LIBDIR.'/search.plib';
- require_once LIBDIR.'/incident.plib';
- require_once LIBDIR.'/constituency.plib';
+require_once 'config.plib';
+require_once LIBDIR.'/airt.plib';
+require_once LIBDIR.'/search.plib';
+require_once LIBDIR.'/incident.plib';
+require_once LIBDIR.'/constituency.plib';
+require_once LIBDIR.'/network.plib';
 
- if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
- else $action = "none";
+if (array_key_exists("action", $_REQUEST)) {
+   $action=$_REQUEST["action"];
+} else {
+   $action = "none";
+}
 
- function ShowSearch() {
-        echo <<<EOF
+function ShowSearch() {
+    echo <<<EOF
 <form action="$_SERVER[PHP_SELF]" method="POST">
 <input type="hidden" name="action" value="search">
 <table width="100%" bgcolor="#DDDDDD" border=0 cellpadding=2>
@@ -47,60 +51,60 @@
 </tr>
 </table>
 EOF;
- }
+}
 
- switch ($action)
- {
-    case "none":
-        pageHeader("IP address search", "search-search");
-        showSearch();
-        pageFooter();
-        break;
-        
-    // ------------------------------------------------------------------
-    case "search":
+switch ($action) {
+   case "none":
+      pageHeader("IP address search", "search-search");
+      showSearch();
+      pageFooter();
+      break;
+   // ------------------------------------------------------------------
+   case "search":
 		unset($_SESSION["current_name"]);
 		unset($_SESSION["current_name"]);
 		unset($_SESSION["current_name"]);
 		unset($_SESSION["current_name"]);
 
-        if (array_key_exists("hostname", $_REQUEST)) 
-            $hostname = $_REQUEST["hostname"];
-        else die("Missing information.");
+      if (array_key_exists("hostname", $_REQUEST)) {
+         $hostname = $_REQUEST["hostname"];
+      } else {
+         die("Missing information.");
+      }
 
-        // normalize to IP address
-        $ip = @gethostbyname(trim($hostname));
+      // normalize to IP address
+      $ip = @gethostbyname(trim($hostname));
 
-        // get FQDN
-        $hostname = @gethostbyaddr($ip);
+      // get FQDN
+      $hostname = @gethostbyaddr($ip);
 
-        // call user-supplied categorization routine. Returns the id of the
-        // constituency
-        $networkid = categorize($ip);
-		if (defined('CUSTOM_FUNCTIONS') && function_exists("custom_categorize"))
+      // call user-supplied categorization routine. Returns the id of the
+      // constituency
+      $networkid = categorize($ip);
+		if (defined('CUSTOM_FUNCTIONS') && function_exists("custom_categorize")) {
 			$networkid = custom_categorize($ip, $networkid);
+      }
 
-        // get addl info
-        $networks = getNetworks();
-        $constituencies = getConstituencies();
+      // get addl info
+      $networks = getNetworks();
+      $constituencies = getConstituencies();
 		
-        $network = $networks[$networkid]["network"];
-        $netmask = $networks[$networkid]["netmask"];
-        $netname = $networks[$networkid]["label"];
-        $consid  = $networks[$networkid]["constituency"];
-        $conslabel = $constituencies[$consid]["label"];
-        $consname  = $constituencies[$consid]["name"];
+      $network = $networks[$networkid]["network"];
+      $netmask = netmask2cidr($networks[$networkid]["netmask"]);
+      $netname = $networks[$networkid]["label"];
+      $consid  = $networks[$networkid]["constituency"];
+      $conslabel = $constituencies[$consid]["label"];
+      $consname  = $constituencies[$consid]["name"];
 
-        // update active IP address
-        $_SESSION["active_ip"] = $ip;
-        $_SESSION["constituency_id"] = $consid;
+      // update active IP address
+      $_SESSION["active_ip"] = $ip;
+      $_SESSION["constituency_id"] = $consid;
 
-        pageHeader("Detailed information for host $hostname", "search-info");
+      pageHeader("Detailed information for host $hostname", "search-info");
 
-        echo <<<EOF
+      echo <<<EOF
 Search results for the following host:
 <PRE>
-
     IP Address          : $ip
     Hostname            : $hostname
     Network             : $netname ($network/$netmask)
@@ -109,36 +113,31 @@ Search results for the following host:
 
 <H2>Constituency Contacts</H2>
 EOF;
-    showConstituencyContacts($consid);
+      showConstituencyContacts($consid);
 
-        // call user-defined search function. Must print in unformatted layout
-        // additional info about hostname needed to make a decision.
-        echo "<HR>";
+      // call user-defined search function. Must print in unformatted layout
+      // additional info about hostname needed to make a decision.
+      echo "<HR>";
 		if (defined('CUSTOM_FUNCTIONS') && function_exists("search_info")) {
 			search_info($ip, $networkid);
 			echo "<HR>";
 		}
 
-        // include previous incidents
-        echo <<<EOF
+      // include previous incidents
+      echo <<<EOF
 <h2>Previous incidents</h2>
 EOF;
-		# $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-		# or die("Unable to connect to database.");
-
 		$res = db_query("
 			SELECT  i.id as incidentid,
 					extract (epoch from a.added) as created,
 					t.label as type,
 					s.label as state,
 					s2.label as status
-
-			FROM    incidents i, 
-			        incident_addresses a,
+			FROM  incidents i, 
+			      incident_addresses a,
 					incident_types t,
 					incident_status s2,
 					incident_states s
-
 			WHERE   i.id = a.incident
 			AND     i.status = s2.id
 			AND     i.state = s.id
@@ -188,32 +187,31 @@ EOF;
 <h2>Link address to incident</h2>
 EOF;
 		
-        // create new incident
-        $count = showOpenIncidentSelection("incidentid");
-        if ($count == 0) echo "<I>No previous incidents</I><P>";
+      // create new incident
+      $count = showOpenIncidentSelection("incidentid");
+      if ($count == 0) echo "<I>No previous incidents</I><P>";
 
-        echo <<<EOF
+      echo <<<EOF
 <form action="incident.php" method="POST">
 <input type="hidden" name="ip" value="ip">
 EOF;
-        if ($count>0)
-        {
-            echo <<<EOF
+      if ($count>0) {
+         echo <<<EOF
 <input type="submit" name="action" value="Link to incident">
 EOF;
-        }
-        echo <<<EOF
+      }
+      echo <<<EOF
 <input type="submit" name="action" value="New incident">
 </form>
 <P>
 <HR>
 <H2>New Search</H2>
 EOF;
-        showSearch();
-        pageFooter();
+      showSearch();
+      pageFooter();
 
-        break;
-    default:
-        die("Unknown action.");
- } // switch
+      break;
+   default:
+      die("Unknown action.");
+} // switch
 ?>
