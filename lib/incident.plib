@@ -313,7 +313,8 @@ function addIPtoIncident($ip, $incident,$role=0) {
          '%userid'=>db_masq_null($_SESSION["userid"]))
    ));
    if (!$res) {
-      airt_error('DB_QUERY', 'incident.plib:'.__LINE__);
+      airt_error('DB_QUERY', 'incident.plib:'.__LINE__,
+                 t('Could not add IP to incident'));
       Header("Location: $_SERVER[PHP_SELF]");
       return;
    }
@@ -528,7 +529,8 @@ function editIPform($incidentid,$ip) {
       LEFT JOIN users u2 ON u2.id=updatedby
       WHERE     incident=%incidentid AND ip=%ip
       ', array('%incidentid'=>$incidentid, '%ip'=>db_masq_null($ip))))
-   or airt_error(101, '__FILE__:__LINE__');
+   or airt_error('DB_QUERY', __FILE__.':'.__LINE__,
+                 t('Could not fetch IP address details'));
    if (db_num_rows($res)>0) {
       $row = db_fetch_next($res);
       $id           = $row['id'];
@@ -611,7 +613,8 @@ function updateIPofIncident($id,$constituency,$addressrole) {
          '%updatedby'=>$_SESSION['userid'],
          '%id'=>$id));
    $res = db_query($q)
-   or airt_error('101', 'incident.plib:'. __LINE__);
+   or airt_error('DB_QUERY', __FILE__.':'.__LINE__,
+                 t('Could not update IP with incident'));
 }
 
 
@@ -674,7 +677,8 @@ function updateIncidentList($incidentList,$state,$status) {
  */
 function getAddressRoles($extras=array()) {
    $res = db_query('SELECT id, label FROM address_roles ORDER BY id')
-   or airt_error('DB_QUERY', __FILE__, __LINE__);
+   or airt_error('DB_QUERY', __FILE__.':'.__LINE__,
+                 t('Could not get address roles'));
 
    $out=$extras;
    while ($row = db_fetch_next($res)) {

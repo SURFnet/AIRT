@@ -19,28 +19,41 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-$airt_errors = array(
-  'DB_CONN' => 'Unable to connect to database',
-  'DB_QUERY' => 'Unable to execute query',
-  'PARAM_MISSING' => 'Missing parameter'
+
+// List of all AIRT error classes. The meaningful message strings are
+// candidates to be translated using the t() function.
+$AIRT_ERRORS = array(
+   'DB_CONN'       => 'Unable to connect to database',
+   'DB_QUERY'      => 'Unable to execute query',
+   'PARAM_MISSING' => 'Missing parameter'
 );
 
 
-function airt_error($errno, $scope, $info='') {
-  global $airt_errors;
+// Central API to report error conditions.
+// errClass  = Error class from the AIRT_ERRORS array.
+// scope     = Place in the code where the error occurred, typically file
+//             name and line number.
+// user_info = Message to be shown to end user, should be meaningful for a
+//             user but typically not contain information that is sensitive
+//             or only of use to developers. Optional.
+// sys_info  = Detailed information that will not be shown to the end user,
+//             but may be very interesting for a developer (query text,
+//             etc.). Optional. Should be sent to log file or such (TODO).
+function airt_error($errClass, $scope, $user_info='', $sys_info='') {
+   global $AIRT_ERRORS;
 
-  if (array_key_exists($errno, $airt_errors)) {
-    airt_msg(t('<div style="text-align:center; border-color:red; border-width:1px; border-style:solid; color:red">AIRT ERROR: %msg%info in scope %scope</div>', array(
-      '%msg'=>$airt_errors[$errno], 
-      '%scope'=>$scope,
-      '%info'=>($info == '' ? '' : "($info)")
-    )));
-  } else {
-    airt_msg(t('AIRT Unknown error %errno: %info in scope %scope', array(
-      '%errno'=>$errno, 
-      '%scope'=>$scope,
-      '%info'=>($info == '' ? '' : "($info)")
-   )));
-  }
+   if (array_key_exists($errClass, $AIRT_ERRORS)) {
+      airt_msg(t('<div style="text-align:center; border-color:red; border-width:1px; border-style:solid; color:red">AIRT ERROR: %msg%info in scope %scope</div>', array(
+                 '%msg'=>$AIRT_ERRORS[$errClass], 
+                 '%scope'=>$scope,
+                 '%info'=>($user_info=='' ? '' : "($user_info)")
+      )));
+   } else {
+      airt_msg(t('AIRT Unknown error %errno: %info in scope %scope', array(
+                 '%errno'=>$errClass, 
+                 '%scope'=>$scope,
+                 '%info'=>($user_info=='' ? '' : "($user_info)")
+      )));
+   }
 }
 ?>
