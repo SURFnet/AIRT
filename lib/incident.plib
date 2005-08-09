@@ -674,7 +674,7 @@ function updateIncidentList($incidentList,$state,$status) {
  */
 function getAddressRoles($extras=array()) {
    $res = db_query('SELECT id, label FROM address_roles ORDER BY id')
-   or airt_error(101, '__FILE__:__LINE__');
+   or airt_error('DB_QUERY', __FILE__, __LINE__);
 
    $out=$extras;
    while ($row = db_fetch_next($res)) {
