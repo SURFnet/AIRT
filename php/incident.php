@@ -602,31 +602,31 @@ EOF;
       if (array_key_exists('id', $_POST)) {
          $id = $_POST['id'];
       } else {
-         airt_error('102', '__FILE__:__LINE__');
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          return;
       }
       if (array_key_exists('constituency', $_POST)) {
          $constituency = $_POST['constituency'];
       } else {
-         airt_error('102', '__FILE__:__LINE__');
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          return;
       }
       if (array_key_exists('ip', $_POST)) {
          $ip = $_POST['ip'];
       } else {
-         airt_error('102', '__FILE__:__LINE__');
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          return;
       }
       if (array_key_exists('incidentid', $_POST)) {
          $incidentid = $_POST['incidentid'];
       } else {
-         airt_error('102', '__FILE__:__LINE__');
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          return;
       }
       if (array_key_exists('addressrole', $_POST)) {
          $addressrole = $_POST['addressrole'];
       } else {
-         airt_error('102', '__FILE__:__LINE__');
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          return;
       }
 
