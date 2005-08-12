@@ -1,0 +1,28 @@
+$Id$
+In CVS at $Source$
+
+This document describes how to prepare a release of AIRT
+
+Creating the source tarball
+===========================
+* update source/VERSION.m4 with the new version number
+* update source/ChangeLog to relect the same version number
+* check if doc/database/00-CHANGES.sql contains changes. If so, rename 
+  the file appropriately and update doc/database/Makefile.am
+* make clean && make distcheck
+
+You now have a tarball.
+
+Creating the Debian package
+===========================
+
+* in package/, give the command "dch --newversion=VERSION-REVISION" and edit
+  the changelog. Be terse in the changes, but summarize them well. The point of
+  changelog is to allow other admins to decide if they want the upgrade, or
+  not.
+* Check that the email address is correct
+* copy the source tarball to /usr/src/airt/ (or anywhere else, for that
+  matter), rename it to airt_version.orig.tar.gz, and unpack it
+* cd into the new directory and mkdir debian
+* cp $AIRT/package/debian/* debian
+* debuild
