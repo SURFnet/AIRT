@@ -26,3 +26,12 @@ Creating the Debian package
 * cd into the new directory and mkdir debian
 * cp $AIRT/package/debian/* debian
 * debuild
+
+Testing
+=======
+* Grab the new package and install it on a clean installation
+  somewhere. I use a Debian Sarge VMWare Virtual Machine which I
+  revert to its pristine state every time I do it.
+* Create the database and populate it according to the install manual
+* Log in, search for IP and create incident
+
