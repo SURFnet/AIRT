@@ -1,7 +1,6 @@
 <?php
 /* vim: syntax=php
  * $Id$ 
- * pgsql.plib - UvT-CERT postgres frontend
 
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
  * Copyright (C) 2004	Kees Leune <kees@uvt.nl>
