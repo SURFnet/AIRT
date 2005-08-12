@@ -5,10 +5,10 @@ This document describes how to prepare a release of AIRT
 
 Creating the source tarball
 ===========================
-* update source/VERSION.m4 with the new version number
-* update source/ChangeLog to relect the same version number
-* check if doc/database/00-CHANGES.sql contains changes. If so, rename 
-  the file appropriately and update doc/database/Makefile.am
+* update $AIRT/source/VERSION.m4 with the new version number
+* update $AIRT/source/ChangeLog to relect the same version number
+* check if $AIRT/doc/database/00-CHANGES.sql contains changes. If so, rename 
+  the file appropriately and update $AIRT/doc/database/Makefile.am
 * make clean && make distcheck
 
 You now have a tarball.
@@ -25,7 +25,7 @@ Creating the Debian package
   matter), rename it to airt_version.orig.tar.gz, and unpack it
 * cd into the new directory and mkdir debian
 * cp $AIRT/package/debian/* debian
-* debuild
+* run 'debuild' and make sure that lintian does not complain about anything
 
 Testing
 =======
@@ -35,3 +35,7 @@ Testing
 * Create the database and populate it according to the install manual
 * Log in, search for IP and create incident
 
+Releasing
+=========
+* If all tests were passed, cd to $AIRT and cvs tag 'rel-version', e.g.
+  cvs tag rel-20050812-1 (note; cvs tags cannot contain periods)
