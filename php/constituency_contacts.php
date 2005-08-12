@@ -183,18 +183,14 @@ EOF;
          die("Missing information (2).");
       }
 
-      #  $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-      # or die("Unable to connect to database.");
-
       foreach ($userid as $key=>$value) {
          $res=db_query("
             INSERT INTO constituency_contacts
             (id, constituency, userid)
             VALUES
-            (nextval('role_assignments_sequence'), $consid, $value)")
+            (nextval('constituency_contacts_sequence'), $consid, $value)")
          or die("Unable to execute query");
       }
-      # db_close($conn);
       Header("Location: $_SERVER[PHP_SELF]?action=edit&consid=$consid");
       break;
 
