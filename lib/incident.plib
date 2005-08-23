@@ -295,6 +295,7 @@ function addIPtoIncident($ip, $incident,$role=0) {
    if (defined('CUSTOM_FUNCTIONS') && function_exists("custom_categorize")) {
       $networkid = custom_categorize($ip, $networkid);
    }
+   $constituencyID = getConstituencyIDbyNetworkID($networkid);
    $hostname = @gethostbyaddr($ip);
 
    $res = db_query(q('
@@ -308,7 +309,7 @@ function addIPtoIncident($ip, $incident,$role=0) {
          '%incidentid'=>db_masq_null($incident),
          '%ip'=>db_masq_null($ip),
          '%hostname'=>db_masq_null($hostname),
-         '%constituency'=>$networkid,
+         '%constituency'=>$constituencyID,
          '%addressrole'=>$role,
          '%userid'=>db_masq_null($_SESSION["userid"]))
    ));

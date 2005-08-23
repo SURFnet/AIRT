@@ -165,4 +165,21 @@ EOF;
     # db_close($conn);
 }
 
+/* Convert a networkID to a constituencyID. Returns FALSE when no match. */
+function getConstituencyIDbyNetworkID($networkID) {
+   // Simple lookup function.
+   $q = sprintf('SELECT constituency
+                 FROM   networks
+                 WHERE  id=%d',
+                $networkID);
+   $res = db_query($q);
+   if ($res===FALSE) {
+      return FALSE;
+   } else {
+      $row = db_fetch_next($res);
+      $constituencyID = $row['constituency'];
+      return $constituencyID;
+   }
+}// getConstituencyIDbyNetworkID
+
 ?>
