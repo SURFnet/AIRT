@@ -312,23 +312,6 @@ switch ($action) {
       $incidentid   = createIncident($state,$status,$type);
       addIPtoIncident($address,$incidentid,$addressrole);
 
-      generateEvent("incidentaddip", array(
-         "incidentid" => $incidentid,
-         "constituency" => $networkid,
-         "addressrole" => $addressrole,
-         "hostname" => $hostname,
-         "ip" => $ip
-   ));
-
-      generateEvent("newincident", array(
-         "incidentid" => $incidentid,
-         "ip"         => $address,
-         "hostname"   => $hostname,
-         "state"      => $state,
-         "status"     => $status,
-         "type"       => $type
-      ));
-
       if ($email != "") {
          $user = getUserByEmail($email);
          if (!$user) {
