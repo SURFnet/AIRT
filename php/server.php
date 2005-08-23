@@ -72,7 +72,7 @@ class IncidentHandling {
          $incident_type_array          = $incident_node->get_elements_by_tagname('incident_type');
          $insert_array['type']         = $incident_type_array[0]->get_content();
 
-         $incidentid                   = createIncident($userid,$insert_array['state'],$insert_array['status'],$insert_array['type']);
+         $incidentid                   = createIncident($insert_array['state'],$insert_array['status'],$insert_array['type']);
          
          $incident_addresses_nodes     = $incident_node->get_elements_by_tagname('technicalInformation');
          foreach($incident_addresses_nodes as $incident_address_node) {

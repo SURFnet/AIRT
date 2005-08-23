@@ -320,7 +320,7 @@ function addIPtoIncident($ip, $incident,$role=0) {
    }
 }
 
-function createIncident($user_id="",$state,$status,$type) {
+function createIncident($state,$status,$type) {
    $res        = db_query("select nextval('incidents_sequence') as incidentid")
                   or die("Unable to execute query 2.");
    $row        = db_fetch_next($res);

@@ -309,7 +309,7 @@ switch ($action) {
          $addif=$_POST["addifmissing"];
       }
 
-      $incidentid   = createIncident($user_id,$state,$status,$type);
+      $incidentid   = createIncident($state,$status,$type);
       addIPtoIncident($address,$incidentid,$addressrole);
 
       generateEvent("incidentaddip", array(
