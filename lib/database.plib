@@ -52,10 +52,15 @@ function db_query($query, $conn=NULL) {
   if ($conn == NULL) {
     $conn = $db;
   }
-  if (defined('DEBUG') && DEBUG) {
-		printf("<PRE>$query</PRE>");
-  }
   $res = @pg_query($conn, $query);
+  if (defined('DEBUG') && DEBUG && $res===FALSE) {
+    // PostgreSQL error in debug mode; get verbose.
+    printf("<hr><b><font color=\"red\">PostgreSQL problem</font></b><br>\n".
+           "<PRE>QUERY: %s\n".
+           "%s</PRE><hr>\n",
+           $query,
+           db_errormessage());
+  }
 
   return $res;
 } // pg_query
