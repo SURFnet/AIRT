@@ -1,0 +1,65 @@
+<?php
+/* vim: syntax=php tabstop=3 shiftwidth=3
+ *
+ * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
+ * Copyright (C) 2005   Tilburg University, The Netherlands
+
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ * filter_surfnet.plib -- filter function for surfnet reports
+ * 
+ * $Id$
+ */
+
+function filter_surfnet($input, &$output, $verbosity=FALSE) {
+   if (preg_match('/Subject:.*SURFnet-CERT#([0-9]+)/', $input, $matches) == 1) {
+      $id = $matches[1];
+   } else {
+      $id = 'unknown';
+   }
+   if (preg_match('/De DNS resolving heeft plaatsgevonden rond ([^,]+),/', $input, $matches) == 1) {
+      $resolved = $matches[1];
+   } else {
+      $resolved = 'unknown';
+   }
+
+   $data = explode("\n", $input);
+   $matches = array();
+   $output = '<airt:airt xmlns:airt="http://infolab.uvt.nl/airt">'."\n";
+   foreach ($data as $in) {
+      if (preg_match('/^uvt, (\S+), ([0-9.]+), ([0-9-]+) ([0-9:]+), (\S+)/i', $in, $matches) > 0) {
+         $output .= "  <airt:incident>\n";
+         $output .="    <airt:ticketInformation>\n";
+         $output .="      <airt:prefix>SURFnet</airt:prefix>\n";
+         $output .="      <airt:reference>$id</airt:reference>\n";
+         $output .="    </airt:ticketInformation>\n";
+         $output .="    <airt:technicalInformation>\n";
+         $output .="      <airt:ip>$matches[2]</airt:ip>\n";
+         $output .="      <airt:hostname>$matches[1]</airt:hostname>\n";
+         $output .="      <airt:time_dns_resolving>$resolved</airt:time_dns_resolving>\n";
+         $output .="      <airt:incident_time>$matches[3] $matches[4]</airt:incident_time>\n";
+         $output .="      <airt:logging>$matches[0]</airt:logging>\n";
+         $output .="   </airt:technicalInformation>\n";
+         $output .="  </airt:incident>\n";
+      }
+   }
+   $output .= "</airt:airt>\n";
+
+   if ($verbose == true) {
+      print "$output";
+   }
+   return 0;
+}
+
