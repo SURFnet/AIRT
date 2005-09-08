@@ -1,0 +1,60 @@
+<?php
+/* vim: syntax=php tabstop=3 shiftwidth=3
+ *
+ * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
+ * Copyright (C) 2005   Tilburg University, The Netherlands
+
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ * filter_mynetwatchman.plib -- filter function for mynetwatchman reports
+ * 
+ * $Id$
+ */
+
+
+/*
+Event Date Time, Destination IP, IP Protocol, Target Port, Issue Description, So
+urce Port, Event Count
+
+EventRecord: 13 Jul 2005 13:24:41, 137.56.x.x, 6, 1025, Lsass Vulnerability, 424
+1, 3
+*/
+
+function filter_mynetwatchman($input, &$output, $verbosity=FALSE) {
+   $data = split("\n", $input);
+   $output = '<airt:airt xmlns:airt="http://infolab.uvt.nl/airt">'."\n";
+   foreach ($data as $in) {
+      if (preg_match('/^EventRecord: (\d+ \S+ \d+ [\d:]+), ([0-9x.]+), ([0-9]+), ([0-9]+), ([^,]+), ([0-9]+), ([0-9]+)$/', $in, $matches) > 0) {
+         $output .= "  <airt:incident>\n";
+         $output .="    <airt:ticketInformation>\n";
+         $output .="      <airt:prefix>MyNetwatchman</airt:prefix>\n";
+         $output .="    </airt:ticketInformation>\n";
+         $output .="    <airt:technicalInformation>\n";
+         $output .="      <airt:ip>$matches[2]</airt:ip>\n";
+         $output .="      <airt:port>$matches[4]</airt:port>\n";
+         $output .="      <airt:incident_time>$matches[3]</airt:incident_time>\n";
+         $output .="      <airt:logging>$matches[0]</airt:logging>\n";
+         $output .="   </airt:technicalInformation>\n";
+         $output .="  </airt:incident>\n";
+      }
+   }
+   $output .= "</airt:airt>\n";
+
+   if ($verbose == true) {
+      print "$output";
+   }
+   return 0;
+}
+
