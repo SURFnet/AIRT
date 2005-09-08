@@ -18,7 +18,7 @@
 #
 # $Id$
 scriptdir=$(PHPLIBPATH)
-script_DATA = importqueue.plib filter_none.plib filter_surfnet.plib
+script_DATA = importqueue.plib filter_none.plib filter_surfnet.plib filter_cymru.plib
 
 EXTRA_DIST = $(script_DATA)
 
