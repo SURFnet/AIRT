@@ -130,6 +130,14 @@ function formatEditForm() {
    $output .= "<hr/>\n";
    $output .= "<h3>Affected IP addresses</h3>\n";
    $output .= "<table cellpadding=\"4\">\n";
+   $output .= "<tr>";
+   $output .= "   <td>IP Address</td>";
+   $output .= "   <td>Hostname</td>";
+   $output .= "   <td>Role in incident</td>";
+   $output .= "   <td>Edit</td>";
+   $output .= "   <td>Remove</td>";
+   $output .= "</tr>";
+
    foreach ($incident['ips'] as $address) {
       $output .= "<tr>\n";
       $output .= sprintf("  <td><a href=\"search.php?action=search&hostname=%s\">%s</a></td>\n",
@@ -173,8 +181,7 @@ function formatEditForm() {
    $count = 0;
    foreach ($incident["users"] as $user) {
       $u = getUserByUserId($user);
-      $output .= t('<tr bgcolor="%color">'."\n", array(
-         '%color'=>($count++ %2 == 0) ? '#DDDDDD' : '#FFFFFF'));
+      $output .= t('<tr >'."\n");
       $output .= t('  <td>%email</td>', array('%email'=>$u['email']))."\n";
       $output .= '  <td><a href="standard.php">Select template</a></td>';
       $output .= t('  <td><a href="%url">Remove</a></td>', array(
