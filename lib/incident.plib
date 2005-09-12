@@ -297,6 +297,7 @@ function addIPtoIncident($ip, $incident,$role=0) {
    }
    $constituencyID = getConstituencyIDbyNetworkID($networkid);
    $hostname = @gethostbyaddr($ip);
+   $_SESSION['active_ip'] = $ip;
 
    $res = db_query(q('
       INSERT INTO incident_addresses

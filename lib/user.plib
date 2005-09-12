@@ -22,9 +22,6 @@
 require_once LIBDIR."/database.plib";
 
 function _getUser($criteria, $value) {
-  # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-  # or die("Unable to connect to database.");
-
    $res = db_query(sprintf("
       SELECT id, lastname, firstname, email, phone, userid, login
       FROM   users
@@ -39,7 +36,6 @@ function _getUser($criteria, $value) {
    while ($row = db_fetch_next($res)) {
       array_push($out, $row);
    }
-   # db_close($conn);
    return $out;
 }
 
@@ -65,9 +61,6 @@ function getUserByEmail($email) {
 
 
 function addUser($user) {
-   # $conn = @db_connect(DBDB, DBUSER, DBPASSWD)
-   # or die("Unable to connect to database in addUser");
-
    if (array_key_exists('lastname', $user)) {
       $lastname=$user['lastname'];
    } else {
@@ -119,8 +112,6 @@ function addUser($user) {
       db_masq_null(sha1($password))
    );
    $res = @db_query($query) or die("Unable to query database in addUser.");
-
-   # db_close($conn);
 }
 
 /* EOF */

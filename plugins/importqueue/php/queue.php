@@ -31,44 +31,64 @@ if (array_key_exists('action', $_REQUEST)) {
    $action = 'list';
 }
 
+function showQueue() {
+   pageHeader('AIRT Import queue');
+   $out = "<form method=\"post\">";
+   $out .= formatQueueOverview();
+   $out .= "<p><input type=\"submit\" name=\"action\" value=\"Update queue\"></p>\n";
+   $out .= "</form>\n";
+   print $out;
+}
+
 switch ($action) {
-   case 'list':
-      pageHeader('AIRT Import queue');
-      $res = db_query(q('SELECT id, created, status, sender, type, summary 
-         FROM import_queue
-         WHERE status = \'open\'
-         ORDER BY created DESC'));
-      if ($res == false) {
-         airt_error('DB_QUERY', 'queue.php'.__LINE__);
+   #----------------------------------------------------------------
+   case 'Update queue':
+      $error = '';
+      if (!array_key_exists('decision', $_POST)) {
+         airt_error('PARAM_MISSING', 'queue.php:'.__LINE__);
          Header("Location: $_SERVER[PHP_SELF]");
-         return;
+         exit;
       }
-      $count = 0;
-      $out = "<form method=\"post\">";
-      $out .= "<table cellpadding=\"4\" class=\"queue\">\n";
-      $out .= "<tr><th>Sender</th><th>Type</th><th>Created</th><th>Details</th><th>Decision</th></tr>\n";
-      while ($row = db_fetch_next($res)) {
-         $out .= t("<tr bgcolor=\"%color\">\n", array('%color'=>($count++ % 2 == 0) ? '#DDDDDD' : '#FFFFFF'));
-         $out .= t("  <td>%sender</td>\n", array('%sender'=>$row['sender']));
-         $out .= t("  <td>%type</td>\n", array('%type'=>$row['type']));
-         $out .= t("  <td>%created</td>\n", array('%created'=>$row['created']));
-         $out .= "  <td><a href=\"\">details</a></td>\n";
-         $out .= "  <td><select name=\"decision[]\">\n";
-         $out .= choice('Leave unchanged', 'leave', 'leave');
-         $out .= choice('Accept', 'accept', 'leave');
-         $out .= choice('Reject', 'reject', 'leave');
-         $out .= "  </select>\n";
-         $out .= "</td>\n";
-         $out .= "</tr>\n";
+
+      # interpret all decision and take action if accept or reject
+      foreach ($_POST['decision'] as $id=>$value) {
+         $update = false;
+         switch ($value) {
+            case 'accept':
+               $value = 'accepted';
+               $update = true;
+               if (queueToAIRT($id, $error)) {
+                  $update = false;
+                  airt_error('ERR_FUNC', 'queue.php:'.__LINE__, $error);
+                  break;
+               }
+               break;
+            case 'reject':
+               $value = 'rejected';
+               $update = true;
+               break;
+         }
+         if ($update) {
+            if (updateQueueItem($id, 'status', $value, $error)) {
+               airt_error('ERR_QUERY', 'queue.php:'.__LINE__, $error);
+               Header("Location: $_SERVER[PHP_SELF]");
+               return;
+            }
+         }
       }
-      $out .= "</table>\n";
-      $out .= "<p><input type=\"submit\" name=\"action\" value=\"Update queue\"></p>\n";
-      $out .= "</form>\n";
-      $out .= t("<div class=\"queue_summary\">%count open incidents in queue.</div>", array('%count'=>$count));
-      print $out;
+
+      # show updated queue;
+      showQueue();
       break;
+
+   #----------------------------------------------------------------
+   case 'list':
+      showQueue();
+      break;
+
+   #----------------------------------------------------------------
    default:
-      airt_error('PARAM_INVALID', 'queue.php');
+      airt_error('PARAM_INVALID', 'queue.php:'.__LINE__);
       Header("Location: $_SERVER[PHP_SELF]");
 }
 ?>

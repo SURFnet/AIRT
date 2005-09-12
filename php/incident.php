@@ -43,7 +43,7 @@ function updateCheckboxes() {
    return $output;
 }
 
-function formatIncidentForm() {
+function formatIncidentForm(&$check) {
    $constituency = $name = $email = $type = $state = $status = $addressrole = "";
 
    if (array_key_exists("active_ip", $_SESSION)) {
@@ -90,8 +90,12 @@ function formatIncidentForm() {
    $output .= "  <td><a href=\"help.php?topic=incident-adduser\">help</td>\n";
    $output .= "</tr>\n";
    $output .= "</table>\n";
-
-   $output .= "<input type=\"checkbox\" name=\"addifmissing\">";
+   
+   if ($email != '') {
+      $check = true;
+   }
+   $output .= t("<input type=\"checkbox\" name=\"addifmissing\" %checked>",
+      array('%checked'=>($check == false) ? '' : 'checked'));
    $output .= "  if checked, create user if email address unknown\n";
 
    $output .= "<p/>\n";
@@ -130,6 +134,7 @@ function formatEditForm() {
       $output .= "<tr>\n";
       $output .= sprintf("  <td><a href=\"search.php?action=search&hostname=%s\">%s</a></td>\n",
          urlencode($address['ip']), $address['ip']);
+      $_SESSION['active_ip'] = $address['ip'];
       $output .= sprintf("  <td>%s</td>\n",
          $address['hostname']==""?"Unknown":@gethostbyaddr(@gethostbyname($address['ip'])));
       $output .= t("  <td>%addressrole</td>\n", array(
@@ -160,13 +165,21 @@ function formatEditForm() {
    $output .= "<hr/>\n";
    $output .= "<h3>Affected users</h3>\n";
    $output .= "<table cellpadding=\"4\">\n";
+   $output .= "<tr>\n";
+   $output .= "   <td>Email address</td>\n";
+   $output .= "   <td>Mail from template</td>\n";
+   $output .= "   <td>Remove from incident</td>\n";
+   $output .= "</tr>\n";
+   $count = 0;
    foreach ($incident["users"] as $user) {
       $u = getUserByUserId($user);
-      $output .= "<tr>\n";
-      $output .= "  <td>$u[userid]</td>\n";
-      $output .= "  <td><a href=\"mailto:$u[email]\">$u[email]</a></td>\n";
-      $output .= "  <td>$u[lastname], $u[firstname]</td>\n";
-      $output .= sprintf("  <td><a href=\"$_SERVER[PHP_SELF]?action=deluser&userid=%s\">remove</a></td>\n", urlencode($u["id"]));
+      $output .= t('<tr bgcolor="%color">'."\n", array(
+         '%color'=>($count++ %2 == 0) ? '#DDDDDD' : '#FFFFFF'));
+      $output .= t('  <td>%email</td>', array('%email'=>$u['email']))."\n";
+      $output .= '  <td><a href="standard.php">Select template</a></td>';
+      $output .= t('  <td><a href="%url">Remove</a></td>', array(
+         '%url'=>"$_SERVER[PHP_SELF]?action=deluser&userid=".urlencode($u['id'])
+      ));
       $output .= "</tr>\n";
    }
    $output .= "</table>\n";
@@ -200,7 +213,8 @@ function formatEditForm() {
    $output .= "    <td><a href=\"help.php?topic=incident-adduser\">help</td>\n";
    $output .= "  </tr>\n";
    $output .= "  </table>\n";
-   $output .= "  <input onChange=\"updateCheckboxes()\" type=\"checkbox\" name=\"addifmissing\">\n";
+   $output .= t('  <input onChange="updateCheckboxes()" type="checkbox" name="addifmissing" %checked>', array(
+      '%checked'=>($email=='')?'':'CHECKED'))."\n";
    $output .= "  If checked, create user if email address unknown\n";
    $output .= "</form>\n";
 
@@ -264,11 +278,13 @@ switch ($action) {
     case "New incident":
     case "new":
       PageHeader("New Incident");
+      $check = false;
       $output = updateCheckboxes();
       $output .= "<form name=\"jsform\" action=\"$_SERVER[PHP_SELF]\" method=\"POST\">\n";
-      $output .= formatIncidentForm();
+      $output .= formatIncidentForm($check);
       $output .= "<input type=\"submit\" name=\"action\" value=\"Add\">\n";
-      $output .= "<input type=\"checkbox\" name=\"sendmail\">\n";
+      $output .= t("<input type=\"checkbox\" name=\"sendmail\" %checked>\n",
+         array('%checked'=>($check==false)?'':'CHECKED'));
       $output .= "Check to prepare mail.\n";
       $output .= "</form>\n";
       print $output;

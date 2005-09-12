@@ -103,5 +103,7 @@ function db_masq_null($str) {
     return ($str == "" ? "NULL": "'$str'");
 }
 
-
+function db_escape_string($string) {
+  return pg_escape_string($string);
+}
 ?>

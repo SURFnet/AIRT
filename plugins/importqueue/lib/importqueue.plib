@@ -88,4 +88,101 @@ function import($input,&$error,$verbosity=FALSE) {
    return 1;
 }// import
 
+/* Update item in queue.
+ * $id  = queue item identifier
+ * $field = field to update
+ * $value = new value of field
+ * Returns 0 on success, 1 on failure. Error will contain an error msg
+ */
+function updateQueueItem($id, $field, $value, &$error) {
+   $error = '';
+   if (!is_numeric($id)) {
+      $error = 'Invalid parameter \"id\"';
+      return 1;
+   }
+   $query = q('update import_queue set %field = \'%value\' where id=\'%id\'', 
+      array('%id'=>$id,
+      '%field' => db_escape_string($field),
+      '%value' => db_escape_string($value)
+   ));
+   $res = db_query($query);
+   if ($res == false) {
+      $error = 'Unable to query database in importqueue.plib:'.__LINE__;
+      return 1;
+   }
+
+   return 0;
+}
+
+/* retrieve open elements from database.
+ *
+ * Parameters
+ * $elements will contain an associative array of the open queue elements, 
+ *           keyed by id.
+ * $error will contain an error message, if any
+ *
+ * Returns 0 on success, 1 on failure
+ */
+function getQueueOverview(&$elements, &$error) {
+   $error = '';
+   $res = db_query(q('SELECT id, created, status, sender, type, summary 
+      FROM import_queue
+      WHERE status = \'open\'
+      ORDER BY created DESC'));
+   if ($res == false) {
+      $error = 'Unable to query database in importqueue.plib:'.__LINE__;
+      return 1;
+   }
+   $elements = array();
+   while ($row = db_fetch_next($res)) {
+      $elements[$row['id']] = $row;
+   }
+   return 0;
+}
+
+/* show a formatted overview of the incident queue 
+ * Returns 0 on success, 1 on failure
+ */
+function formatQueueOverview() {
+   $error = '';
+   $elements = array();
+   if (getQueueOverview($elements, $error)) {
+      return;
+   }
+   $count = 0;
+   $out = "<table cellpadding=\"4\" class=\"queue\">\n";
+   $out .= "<tr><th>Sender</th><th>Type</th><th>Created</th><th>Details</th><th>Decision</th></tr>\n";
+   foreach ($elements as $id=>$element) {
+      $out .= t("<tr bgcolor=\"%color\">\n", array('%color'=>($count++ % 2 == 0) ? '#DDDDDD' : '#FFFFFF'));
+      $out .= t("  <td>%sender</td>\n", array('%sender'=>$element['sender']));
+      $out .= t("  <td>%type</td>\n", array('%type'=>$element['type']));
+      $out .= t("  <td>%created</td>\n", array('%created'=>$element['created']));
+      $out .= "  <td><a href=\"\">details</a></td>\n";
+      $out .= "  <td><select name=\"decision[$element[id]]\">\n";
+      $out .= choice('Leave unchanged', 'leave', 'leave');
+      $out .= choice('Accept', 'accept', 'leave');
+      $out .= choice('Reject', 'reject', 'leave');
+      $out .= "  </select>\n";
+      $out .= "</td>\n";
+      $out .= "</tr>\n";
+   }
+   $out .= "</table>\n";
+   return $out;
+}
+
+/* import queue element into AIRT
+ * Paramters
+ *   $id - queue element to import
+ *   $error - Error message (if any)
+ * Returns
+ *   0 on success, 1 on failure
+ */
+function queueToAIRT($id, &$error) {
+   if ($id == '') {
+      $error = 'Missing parameter id';
+      return 1;
+   }
+   $error = 'queueToAIRT function not yet implemented.';
+   return 1;
+}
 ?>

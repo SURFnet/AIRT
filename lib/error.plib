@@ -25,7 +25,8 @@
 $AIRT_ERRORS = array(
    'DB_CONN'       => 'Unable to connect to database',
    'DB_QUERY'      => 'Unable to execute query',
-   'PARAM_MISSING' => 'Missing parameter'
+   'PARAM_MISSING' => 'Missing parameter',
+   'ERR_FUNC'      => 'Error in function call'
 );
 
 
