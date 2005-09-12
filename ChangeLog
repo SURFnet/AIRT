@@ -3,6 +3,7 @@
   now also set in the session. (closes: Infolab-RT#36)
 * php/incident.php: Direct link to mail templates from incident details page
   (closes: Infolab-RT#37).
+* plugins/importqueue/: First step for import queue visualiser
 
 2005-08-30
 * Various bug fixes
