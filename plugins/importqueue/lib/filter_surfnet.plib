@@ -113,8 +113,8 @@ function filter_surfnet($input, &$output, $verbosity=FALSE) {
    $output .= "  <airt:importqueue>\n";
    for ($i=1; $i<$id; $i++) {
       $output .= $queue[$i];
-   $output .= "  </airt:importqueue>\n";
    }
+   $output .= "  </airt:importqueue>\n";
    for ($i=1; $i<$id; $i++) {
       $output .= $incid[$i];
    }
