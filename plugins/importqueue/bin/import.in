@@ -121,7 +121,12 @@ if ($FILENAME=='') {
       echo t('Reading from standard input...')."\n";
    }
 } else {
-   $in = fopen($FILENAME,'r');
+   $in = @fopen($FILENAME,'r');
+   if (!$in) {
+      fwrite(STDERR, t('ERROR: no file "%s" present.',
+                       array('%s'=>$FILENAME))."\n");
+      exit(1);
+   }
    if ($OPTIONS['--verbose']) {
       echo t('Reading from file "%s"...',
              array('%s'=>$FILENAME))."\n";
@@ -130,10 +135,10 @@ if ($FILENAME=='') {
 
 // Pull the file into main memory.
 $input = '';
-while ($line = fgets($in)) {
+while ($line = @fgets($in)) {
    $input .= $line;
 }
-fclose($in);
+@fclose($in);
 if ($OPTIONS['--verbose']) {
    echo t('Read %d bytes.',
           array('%d'=>strlen($input)))."\n";
