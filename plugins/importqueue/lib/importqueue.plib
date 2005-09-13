@@ -78,7 +78,6 @@ function import($input,&$error,$verbosity=FALSE) {
    // from the <queuedata> chunk plus the <incident> chunk, call the
    // queueInsertItem() function.
 
-
    $error = 'Not yet implemented';
    return 1;
 }// import
@@ -230,7 +229,7 @@ function queueInsertItem($status,$sender,$type,$summary,$content,&$error) {
    $fileName = STATEDIR."/importqueue/$newID.xml";
    $xmlFile = @fopen($fileName,'w');
    if (!$xmlFile) {
-      $error = 'Could not open $fileName for writing';
+      $error = "Could not open $fileName for writing";
       return FALSE;
    }
    if (!@fwrite($xmlFile,$content)) {
@@ -241,13 +240,10 @@ function queueInsertItem($status,$sender,$type,$summary,$content,&$error) {
    @fclose($xmlFile);
 
    // Insert the record. Strings have already been escaped.
-   $q = "INSERT INTO importqueue
-         SET id=$newID,
-             created=CURRENT_TIMESTAMP,
-             status='$status',
-             sender='$sender',
-             type='$type',
-             summary='$summary')";
+   $q = "INSERT INTO import_queue
+           (id,created,status,sender,type,summary)
+         VALUES
+           ($newID,CURRENT_TIMESTAMP,'$status','$sender','$type','$summary')";
    if (!db_query($q)) {
       // Oops! Remove the XML file from the file system.
       @unlink($fileName);
