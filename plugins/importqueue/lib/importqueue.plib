@@ -133,7 +133,15 @@ function import($input,&$error,$verbosity=FALSE) {
       $content = $content_xml->dump_mem();
 
       # insert
-      queueInsertItem($status, $sender, $type, $summary, $content, $error);
+      $newID = queueInsertItem($status,$sender,$type,$summary,$content,$error);
+      if (!$newID) {
+         return 1;
+      }
+
+      # progress
+      if ($verbosity) {
+         echo t("Queued incident, ID=$newID")."\n";
+      }
    } // foreach
 
    return 0;
