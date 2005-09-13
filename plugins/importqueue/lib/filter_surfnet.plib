@@ -23,43 +23,107 @@
  * $Id$
  */
 
+/* Import queue filter function for SURFnet reports.
+ * Parameters:
+ *    input     = The SURFnet report email, headers and everything.
+ *    output    = The string variable to write the XML output to.
+ *    verbosity = Optionally, boolean; TRUE = verbose output to STDOUT.
+ * Returns:
+ *    0 on success (can not yet fail).
+ */
 function filter_surfnet($input, &$output, $verbosity=FALSE) {
-   if (preg_match('/Subject:.*SURFnet-CERT#([0-9]+)/', $input, $matches) == 1) {
-      $id = $matches[1];
+
+   // Try to find the reference ID of this incident, given by SURFnet.
+   if (preg_match('/Subject:.*SURFnet-CERT#([0-9]+)/', $input, $matches)==1) {
+      $reference = $matches[1];
    } else {
-      $id = 'unknown';
+      $reference = 'unknown';
    }
-   if (preg_match('/De DNS resolving heeft plaatsgevonden rond ([^,]+),/', $input, $matches) == 1) {
+
+   // Try to find the time of the DNS resolving.
+   if (preg_match('/De DNS resolving heeft plaatsgevonden rond ([^,]+),/',
+          $input, $matches)==1) {
       $resolved = $matches[1];
    } else {
       $resolved = 'unknown';
    }
 
+   // Try to find the sender.
+   if (preg_match('/^From: (.+)/m', $input, $matches)==1) {
+      $sender = htmlSpecialChars($matches[1]);
+   } else {
+      $sender = 'unknown';
+   }
+
+   // Try to find the summary.
+   if (preg_match('/^Subject: (.+)/m', $input, $matches)==1) {
+      $summary = htmlSpecialChars($matches[1]);
+   } else {
+      $summary = 'unknown';
+   }
+
+   // Set the fixed status.
+   $status = 'open';
+
+   // Set the fixed type.
+   $type = 'SURFnet report';
+
+   // Scan the rest of the mail for data lines. Each data line will lead to
+   // a separate XML queue chunk and incident chunk. These chunks are
+   // collected in $queue[] and $incid[] arrays, and added to the output
+   // later on. $id is used as the chunk ID counter, starting from 1.
    $data = explode("\n", $input);
-   $matches = array();
-   $output = '<airt:airt xmlns:airt="http://infolab.uvt.nl/airt">'."\n";
+   $id = 1;
    foreach ($data as $in) {
-      if (preg_match('/^uvt, (\S+), ([0-9.]+), ([0-9-]+) ([0-9:]+), (\S+)/i', $in, $matches) > 0) {
-         $output .= "  <airt:incident>\n";
-         $output .="    <airt:ticketInformation>\n";
-         $output .="      <airt:prefix>SURFnet</airt:prefix>\n";
-         $output .="      <airt:reference>$id</airt:reference>\n";
-         $output .="    </airt:ticketInformation>\n";
-         $output .="    <airt:technicalInformation>\n";
-         $output .="      <airt:ip>$matches[2]</airt:ip>\n";
-         $output .="      <airt:hostname>$matches[1]</airt:hostname>\n";
-         $output .="      <airt:time_dns_resolving>$resolved</airt:time_dns_resolving>\n";
-         $output .="      <airt:incident_time>$matches[3] $matches[4]</airt:incident_time>\n";
-         $output .="      <airt:logging>$matches[0]</airt:logging>\n";
-         $output .="   </airt:technicalInformation>\n";
-         $output .="  </airt:incident>\n";
+      if (preg_match('/^uvt, (\S+), ([0-9.]+), ([0-9-]+) ([0-9:]+), (\S+)/i',
+             $in, $matches) > 0) {
+         $logging   = $matches[0];
+         $hostname  = $matches[1];
+         $ip        = $matches[2];
+         $date      = $matches[3];
+         $time      = $matches[4];
+
+         $queue[$id]  = "    <airt:queuedata ref=\"#$id\">\n";
+         $queue[$id] .= "      <airt:status>$status</airt:status>\n";
+         $queue[$id] .= "      <airt:sender>$sender</airt:sender>\n";
+         $queue[$id] .= "      <airt:type>$type</airt:type>\n";
+         $queue[$id] .= "      <airt:summary>$summary</airt:summary>\n";
+         $queue[$id] .= "    </airt:queuedata>\n";
+
+         $incid[$id]  = "  <airt:incident id=\"$id\">\n";
+         $incid[$id] .="    <airt:ticketInformation>\n";
+         $incid[$id] .="      <airt:prefix>SURFnet</airt:prefix>\n";
+         $incid[$id] .="      <airt:reference>$reference</airt:reference>\n";
+         $incid[$id] .="    </airt:ticketInformation>\n";
+         $incid[$id] .="    <airt:technicalInformation>\n";
+         $incid[$id] .="      <airt:ip>$ip</airt:ip>\n";
+         $incid[$id] .="      <airt:hostname>$hostname</airt:hostname>\n";
+         $incid[$id] .="      <airt:time_dns_resolving>$resolved</airt:time_dns_resolving>\n";
+         $incid[$id] .="      <airt:incident_time>$date $time</airt:incident_time>\n";
+         $incid[$id] .="      <airt:logging>$logging</airt:logging>\n";
+         $incid[$id] .="   </airt:technicalInformation>\n";
+         $incid[$id] .="  </airt:incident>\n";
+
+         $id++;
       }
    }
-   $output .= "</airt:airt>\n";
 
-   if ($verbose == true) {
+   // Assemble the XML output.
+   $output  = '<airt:airt xmlns:airt="http://infolab.uvt.nl/airt">'."\n";
+   $output .= "  <airt:importqueue>\n";
+   for ($i=1; $i<$id; $i++) {
+      $output .= $queue[$i];
+   $output .= "  </airt:importqueue>\n";
+   }
+   for ($i=1; $i<$id; $i++) {
+      $output .= $incid[$i];
+   }
+   $output .= "</airt:airt>\n";
+   
+   if ($verbosity) {
       print "$output";
    }
+
    return 0;
 }
 
