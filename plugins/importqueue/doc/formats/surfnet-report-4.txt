@@ -1,0 +1,63 @@
+Return-Path: <cert@surfnet.nl>
+X-Original-To: kees@maximus.uvt.nl
+Delivered-To: kees@maximus.uvt.nl
+Received: from agnes.uvt.nl (agnes.uvt.nl [137.56.247.33])
+	by maximus.uvt.nl (Postfix) with ESMTP id F2E3825353
+	for <kees@maximus.uvt.nl>; Wed,  7 Sep 2005 11:34:14 +0200 (CEST)
+Received: from localhost (localhost [127.0.0.1])
+	by agnes.uvt.nl (Postfix) with ESMTP id 954963E3;
+	Wed,  7 Sep 2005 11:34:14 +0200 (CEST)
+Received: from agnes.uvt.nl ([127.0.0.1])
+	by localhost (agnes [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 29931-06; Wed, 7 Sep 2005 11:34:14 +0200 (CEST)
+Received: from weetmuts.surfnet.nl (weetmuts.surfnet.nl [192.87.5.135])
+	by agnes.uvt.nl (Postfix) with ESMTP id 6F2CE362
+	for <abuse@uvt.nl>; Wed,  7 Sep 2005 11:34:14 +0200 (CEST)
+Received: from weetmuts.surfnet.nl by weetmuts.surfnet.nl (PMDF V6.0-24 #47457)
+ id <0IMF00I01X92H7@weetmuts.surfnet.nl> for abuse@uvt.nl; Wed,
+ 07 Sep 2005 11:34:14 +0200 (MEST)
+Date: Wed, 07 Sep 2005 11:34:14 +0200 (MEST)
+From: SURFnet-CERT - Jacques <cert@surfnet.nl>
+Subject: [SURFnet-CERT#006445]: Gecompromitteerde host
+Sender: cert@surfnet.nl
+To: abuse@uvt.nl
+Cc: SURFnet-CERT <cert@surfnet.nl>
+Message-id: <0IMF00I03X92H7@weetmuts.surfnet.nl>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; CHARSET=us-ascii
+X-Virus-Scanned: by amavisd-new-20030616-p10 (Debian) at uvt.nl
+X-Spam-Cookie: b3d481596ee4c128e2ba7d21f41ee5689a8ed5a7
+X-Spam-Status: No, hits=-2.6, required=6.3 tests=BAYES_00
+X-Spam-Level: -
+X-Spam-Flag: No
+
+
+
+Hierbij (van betrouwbare bron verkregen) een probleemgeval voor 
+nader onderzoek. In de laatste kolom staat de reden van opname
+op de lijst.  Nadere uitleg over deze redenen is te vinden op
+
+  http://cert.surfnet.nl/malware.html
+
+Alle tijden zijn in GMT. Voor lokale tijden dus 2
+uur er bij optellen.
+
+De DNS resolving heeft plaatsgevonden rond Wed Sep  7 11:18:53 2005, het kan
+dus zijn dat de hostnaam niet mapped op het ip-adres.
+
+UVT, beholder.uvt.nl, 137.56.127.213, 2005-09-05 21:31:51, phatbot
+UVT, fuga.uvt.nl, 137.56.127.214, 2005-09-05 22:01:31, phatbot
+UVT, daintree.uvt.nl, 137.56.127.230, 2005-09-05 22:05:50, msn32
+UVT, beholder.uvt.nl, 137.56.127.213, 2005-09-05 23:22:53, win32worm
+
+Graag aktie  en terugmelding.
+Deze lijst is automatisch verwerkt op Wed Sep  7 11:18:53 2005
+
+
+Met vriendelijke groet,
+
+Jacques Schuurman, SURFnet-CERT officer on duty
+
+-- 
+cert@surfnet.nl                                http://cert.surfnet.nl/
+office-hours: +31 302 305 305        emergency (24/7): +31 622 923 564
