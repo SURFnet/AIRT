@@ -32,6 +32,7 @@ X-Spam-Level: -
 X-Spam-Flag: No
 
 
+AIRT-importer: surfnet
 
 Hierbij (van betrouwbare bron verkregen) een probleemgeval voor 
 nader onderzoek. In de laatste kolom staat de reden van opname
