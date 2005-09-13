@@ -255,6 +255,16 @@ CREATE TABLE blocks (
     foreign key (incident) references incidents(id)
 );
 
+CREATE TABLE import_queue (
+  id        integer,
+  created   timestamp    not null,
+  status    varchar(16)  not null default 'open',
+  sender    varchar(50)  not null,
+  type      varchar(50)  not null,
+  summary   varchar(100) not null,
+  primary key (id)
+)
+
 CREATE SEQUENCE incident_types_sequence;
 CREATE SEQUENCE incident_states_sequence;
 CREATE SEQUENCE incident_status_sequence;
@@ -275,6 +285,7 @@ CREATE SEQUENCE role_permissions_sequence;
 CREATE SEQUENCE blocks_sequence;
 CREATE SEQUENCE incident_users_sequence;
 CREATE SEQUENCE address_roles_sequence;
+CREATE SEQUENCE importqueue_sequence;
 
 CREATE UNIQUE INDEX incident_types_label on incident_types(upper(label));
 CREATE UNIQUE INDEX incident_states_label on incident_states(upper(label));
