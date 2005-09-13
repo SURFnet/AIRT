@@ -34,7 +34,7 @@ function printUsage() {
    echo t('Incidence import program, part of the AIRT suite.')."\n";
    echo t('Copyright (C) 2005   Tilburg University, The Netherlands.')."\n";
    echo t(
-'Usage: import [--filter <filter>] [--help] [--noqueue] [--verbose] [filename]'
+'Usage: import [--filter=<filter>] [--help] [--noqueue] [--verbose] [filename]'
      )."\n";
    echo t(
      'The program reads the import data from stdin if no filename is given.'
@@ -62,13 +62,6 @@ function printUsage() {
 function import($input,&$error,$verbosity=FALSE) {
    global $OPTIONS;
 
-   ##### TODO: some XML sanity checking needs to be performed here. #######
-   # At least the standard queue data items should be extracted, as the AIRT
-   # import routine likely will want this meta-data presented separately
-   # from the incident. Discussion must take place to determine the exact
-   # boundary between the plugin and the AIRT core.
-   fwrite(STDOUT,$input);
-
    // Everything except the presentation of the incident to the AIRT core
    // database should have been done by now. The rest is optional.
    if ($OPTIONS['--noqueue']) {
@@ -79,15 +72,20 @@ function import($input,&$error,$verbosity=FALSE) {
       return 0;
    }
 
-   ##### TODO: call AIRT import functions here. ###########################
-   # We need the AIRT import API defined before this code can be written.
-   # Refer to the discussion mentioned above. System boundaries must be
-   # drafted first.
+   // Collect all <queuedata> chunks. They represent the individual incidents
+   // that we are going to queue. Then for each found <queuedata> chunk,
+   // retrieve the associated <incident> chunk. With the four data elements
+   // from the <queuedata> chunk plus the <incident> chunk, call the
+   // queueInsertItem() function.
 
-   $error = t('AIRT import API not yet implemented.');
+
+   $error = 'Not yet implemented';
    return 1;
 }// import
 
+
+# TODO: replace this function by "queueItemSetAccepted()" and
+# queueItemSetRejected().
 /* Update item in queue.
  * $id  = queue item identifier
  * $field = field to update
@@ -114,6 +112,7 @@ function updateQueueItem($id, $field, $value, &$error) {
    return 0;
 }
 
+# TODO: consider renaming to queueGetItems().
 /* retrieve open elements from database.
  *
  * Parameters
@@ -140,6 +139,7 @@ function getQueueOverview(&$elements, &$error) {
    return 0;
 }
 
+# TODO: consider renaming to queueFormatItems().
 /* show a formatted overview of the incident queue 
  * Returns 0 on success, 1 on failure
  */
@@ -171,7 +171,7 @@ function formatQueueOverview() {
 }
 
 /* import queue element into AIRT
- * Paramters
+ * Parameters
  *   $id - queue element to import
  *   $error - Error message (if any)
  * Returns
@@ -185,4 +185,108 @@ function queueToAIRT($id, &$error) {
    $error = 'queueToAIRT function not yet implemented.';
    return 1;
 }
+
+
+/* Add a new element to the queue. This function both inserts into the
+ * database and writes to the file system.
+ * Parameters:
+ *   status  = new queue item status, typically 'open'.
+ *   sender  = string with queue item sender.
+ *   type    = string with queue item type.
+ *   summary = string with queue item summary.
+ *   content = formatted string with XML item content.
+ *   error   = variable to write the error string to, if any.
+ * All parameters are passed on to the database without any change except
+ * for trimming leading and trailing white space. Empty strings (after
+ * trimming white space) are not allowed.
+ * Returns:
+ *   The queue ID of the newly added item, or FALSE in case of failure.
+ *   If FALSE, the error parameter will contain an error message.
+ */
+function queueInsertItem($status,$sender,$type,$summary,$content,&$error) {
+   // Superficial sanity check of the parameters.
+   $status  = trim(db_escape_string($status));
+   $sender  = trim(db_escape_string($sender));
+   $type    = trim(db_escape_string($type));
+   $summary = trim(db_escape_string($summary));
+   $content = trim($content);
+   if ($status=='' || $sender=='' || $type=='' || $summary=='' ||
+       $content=='') {
+      $error = 'Empty parameter';
+      return FALSE;
+   }
+
+   // Fetch a fresh queue item ID from the database.
+   $q = "select nextval('importqueue_sequence') as id";
+   $res = db_query($q);
+   if (!$res) {
+      $error = 'Cannot get next queue item ID';
+      return FALSE;
+   }
+   $row = db_fetch_next($res);
+   $newID = sprintf('%08d',$row['id']);
+
+   // Write the XML file to the file system.
+   $fileName = STATEDIR."/importqueue/$newID.xml";
+   $xmlFile = @fopen($fileName,'w');
+   if (!$xmlFile) {
+      $error = 'Could not open $fileName for writing';
+      return FALSE;
+   }
+   if (!@fwrite($xmlFile,$content)) {
+      $error = 'Could not write to $fileName';
+      @fclose($xmlFile);
+      return FALSE;
+   }
+   @fclose($xmlFile);
+
+   // Insert the record. Strings have already been escaped.
+   $q = "INSERT INTO importqueue
+         SET id=$newID,
+             created=CURRENT_TIMESTAMP,
+             status='$status',
+             sender='$sender',
+             type='$type',
+             summary='$summary')";
+   if (!db_query($q)) {
+      // Oops! Remove the XML file from the file system.
+      @unlink($fileName);
+      $error = 'Could not insert new queue item';
+      return FALSE;
+   }
+
+   return $newID;
+}// queueInsertItem
+
+
+/* Retrieve an element from the queue. This function both queries the
+ * database and reads the file system. The element is not touched, to remove
+ * it from the queue it needs to be queueRemove()d.
+ * Parameters:
+ *   id    = The queue item ID to be retrieved.
+ *   error = variable to write the error string to, if any.
+ * Returns:
+ *   An array with all fields of the queue item, indexed 'status', 'sender',
+ *   'type', 'summary', and 'content'. In case of retrieval failure, FALSE.
+ */
+function queuePeekItem($id,&$error) {
+   $error = 'Not yet implemented';
+   return FALSE;
+}// queuePeekItem
+
+
+/* Remove an element from the queue. This function both deleted from the
+ * database and deletes from the file system.
+ * Parameters:
+ *   id    = The queue item ID to be removed.
+ *   error = variable to write the error string to, if any.
+ * Returns:
+ *   0 in case of successful removal, 1 in case of a problem.
+ */
+function queueRemoveItem($id,&$error) {
+   $error = 'Not yet implemented';
+   return 1;
+}// queueRemoveItem
+
+
 ?>
