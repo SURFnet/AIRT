@@ -42,7 +42,7 @@ function filter_cymru($input, &$output, $verbosity=FALSE) {
    }
    $output .= "</airt:airt>\n";
 
-   if ($verbose == true) {
+   if ($verbosity == true) {
       print "$output";
    }
    return 0;
