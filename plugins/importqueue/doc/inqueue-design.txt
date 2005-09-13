@@ -12,6 +12,35 @@ AIRT "New Incident" form, ready to be added to the AIRT system with a single
 button click.
 
 
+Import queue XML input
+----------------------
+All filters are expected to deliver one standard XML format, described as an
+XML schema in .../source/doc/airt.xsd . An example is:
+
+<airt:airt xmlns:airt="http://infolab.uvt.nl/airt">
+  <airt:importqueue>
+    <airt:queuedata ref="#1">
+      <airt:status>open</airt:status>
+      <airt:sender>SURFNET-NL</airt:sender>
+      <airt:type>Cymru</airt:type>
+      <airt:summary>Phatbot found</airt:summary>
+    </airt:queuedata>
+  </airt:importqueue>
+  <airt:incident id="1">
+    <airt:ticketInformation>
+      <airt:prefix>Cymru</airt:prefix>
+    </airt:ticketInformation>
+    <airt:technicalInformation>
+      <airt:ip>137.56.244.8</airt:ip>
+      <airt:incident_time>2005-07-13 13:17:01</airt:incident_time>
+      <airt:logging>1103 | 137.56.244.8 | 2005-07-13 13:17:01 | Phatbot | SURFNET-NL</airt:logging>
+   </airt:technicalInformation>
+  </airt:incident>
+</airt:airt>
+
+The <airt:importqueue> and <airt:incident> chunks may repeat, and the
+attributes of both are matched to pair the chunks.
+
 Intakers
 --------
 At first we implement the command line intaker. This one likely will be the
@@ -155,8 +184,8 @@ might be imposed by the SQL parser buffer. Experience taught us that it is
 nearly impossible to manually test or review tables with this type of long
 text entries though, reasons why we prefer to keep the flat XML in the file
 system and not put it in the SQL database. The file naming policy is simple:
-  <AIRT>/var/import/<ID>.xml
-where the actual directory typically will end up in /var/lib/airt/import.
+  STATEDIR."/importqueue/$id.xml"
+where the actual directory typically will end up in /var/lib/airt.
 
 
 Import Queue Manager
