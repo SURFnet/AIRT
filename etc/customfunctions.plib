@@ -28,17 +28,27 @@
 
   $Id$
  */
+require_once LIBDIR.'/database.plib';
 
 registerEventHandler('pageHeader', 'showheader');
 registerEventHandler('pageFooter', 'showfooter');
 
 function showheader($data) {
-  $navbar = "<a href=\"$_SESSION[BASEURL]/index.php\">Home</a><p/>\n";
-  $navbar .= "<a href=\"$_SESSION[BASEURL]/incident.php\">Incidents</a><p/>\n";
-  $navbar .= "<a href=\"$_SESSION[BASEURL]/search.php\">Search</a><p/>\n";
-  $navbar .= "<a href=\"$_SESSION[BASEURL]/standard.php\">Mail templates</a><p/>\n";
-  $navbar .= "<a href=\"$_SESSION[BASEURL]/maintenance.php\">Settings</a><p/>\n";
-  $navbar .= "<a href=\"$_SESSION[BASEURL]/logout.php\">Logout</a><p/>\n";
+  $navbar='';
+  $res = db_query(q("
+      SELECT url, label
+      FROM   urls
+      WHERE  NOT navbar_position IS NULL
+      ORDER BY navbar_position"))
+  or die("Unable to query database.");
+
+  while ($row = db_fetch_next($res)) {
+    $url = $row['url'];
+    $description = $row['label'];
+    $navbar .= t("<p><a href=\"%url\">%description</a></p>", array(
+      '%url'=>$url, 
+      '%description'=>$description));
+  }
 
   echo <<<EOF
 <html>

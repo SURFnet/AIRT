@@ -221,6 +221,8 @@ CREATE TABLE urls (
     id          integer,
     url         varchar(255) not null,
     label       varchar(255) not null,  -- with unique index
+    menu_position      integer,
+    navbar_position    integer,
     createdby   integer not null,
     created     timestamp not null,
     primary key (id),

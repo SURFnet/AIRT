@@ -38,16 +38,20 @@ $out .= "<HR/>\n";
 print $out;
 generateEvent('mainmenutop');
 
+/*
 $out  = t("<strong>Main tasks</strong>\n");
 $out .= t("<p><a href=\"incident.php\">Incident management</a></p>\n");
 $out .= t("<p><a href=\"search.php\">IP Address lookup</a></p>\n");
 $out .= t("<a href=\"standard.php\">Mail templates</a></p>\n");
 $out .= t("<a href=\"maintenance.php\">Edit settings</a></p>\n");
+*/
 
+$out='';
 $res = db_query(q("
       SELECT url, label
       FROM   urls
-      ORDER BY created"))
+      WHERE  NOT menu_position IS NULL
+      ORDER BY menu_position"))
 or die("Unable to query database.");
 
 while ($row = db_fetch_next($res)) {
@@ -57,8 +61,6 @@ while ($row = db_fetch_next($res)) {
       '%url'=>$url, 
       '%description'=>$description));
 }
-
-$out .= t("<a onclick=\"return confirm('Are you sure that you want to log out?')\" href=\"logout.php\">Logout</a>");
 
 print $out;
 generateEvent('mainmenubottom');

@@ -3,7 +3,7 @@
  * TODO: Codingstyle
  *
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
- * Copyright (C) 2004,2005	Tilburg University, The Netherlands
+ * Copyright (C) 2004,2005   Tilburg University, The Netherlands
 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,76 +23,148 @@
  * 
  * $Id$
  */
- require_once 'config.plib';
- require_once LIBDIR.'/airt.plib';
- require_once LIBDIR.'/database.plib';
+require_once 'config.plib';
+require_once LIBDIR.'/airt.plib';
+require_once LIBDIR.'/database.plib';
 
- if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
- else $action = "list";
+if (array_key_exists("action", $_REQUEST)) {
+   $action=$_REQUEST["action"];
+} else {
+   $action = "list";
+}
 
- switch ($action) {
-    // --------------------------------------------------------------
-    case "list":
-        pageHeader("Links");
-        # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-        # or die("Unable to connect to database.");
+function format_position_select($current_value, $max) {
+   $out = choice("Do not display", '', $current_value);
+   for ($i=1; $i <= $max; $i++) {
+      $out .= choice($i, $i, $current_value);
+   }
+   return $out;
+}
 
-        $res = db_query("
-            SELECT *
-            FROM   urls
-            ORDER BY created")
-        or die("Unable to reqtrieve URLs");
+switch ($action) {
+   // --------------------------------------------------------------
+   case "list":
+      $res = db_query(q(" SELECT count(id) FROM urls"));
+      $row = db_fetch_next($res);
+      $n = $row['count'];
+      db_free_result($res);
 
-        if (db_num_rows($res) == 0)
-        {
-            echo "<I>No links defined.</I>";
-        }
-        else
-        {   
-            echo "<table width=\"100%\">";
-            $count=0;
-            while ($row = db_fetch_next($res))
-            {
-                printf("<tr bgcolor='%s'>\n",
-                    $count++%2==0 ? "#DDDDDD" : "#FFFFFF");
-                printf("<td>\n");
-                printf("<a href=\"%s\">%s</a>", 
-                    $row["url"], $row["label"]);
-                printf("</td>\n");
-                printf("<td><a href=\"%s?action=edit&id=%s\">edit</a></td>",
-                    $_SERVER['PHP_SELF'], urlencode($row["id"]));
-                printf("<td><a href=\"%s?action=delete&id=%s\">delete</a>
-                        </td>",
-                    $_SERVER['PHP_SELF'], urlencode($row["id"]));
-                printf("</tr>\n");
-            }
-            printf("</table>");
-        }
+      $res = db_query(q("
+         SELECT id, url, label, navbar_position, menu_position
+         FROM   urls
+         ORDER BY menu_position"));
+      if (!$res) {
+         airt_error('DB_QUERY', 'links.php:'.__LINE__);
+         Header("Location: index.php");
+         return;
+      }
+      $out = t("<p><strong>Main menu links</strong></p>\n");
+      $out .= t('<form method="POST">');
+      $out .= t("<table width=\"100%\">");
+      $out .= "<tr>\n";
+      $out .= "  <td><strong>Menu item</strong></td>\n";
+      $out .= "  <td><strong>Position</strong></td>\n";
+      $out .= "  <td colspan=\"2\">&nbsp;</td>\n";
+      $out .= "</tr>\n";
 
-        echo <<<EOF
-<HR>
-<BR><B>Add new URL</B><BR>
-<form action="$_SERVER[PHP_SELF]" method="POST">
-<input type="hidden" name="action" value="add">
-<table>
-<tr>
-    <td>URL</td>
-    <td><input type="text" name="url" size="50"></td>
-</tr>
-<tr>
-    <td>Description</td>
-    <td><input type="text" name="description" size="50"></td>
-</tr>
-</table>
-<input type="submit" value="Add">
-</form>
-EOF;
-        # db_close($conn);
-        pageFooter();
-        break;
+      $count=0;
+      while ($row = db_fetch_next($res)) {
+         $out .= t("<tr bgcolor=\"%color\">\n", array(
+            '%color' => ($count++%2==0) ? "#DDDDDD" : "#FFFFFF"));
+         $out .= "<td>\n";
+         $out .= t(   '<a href="%url\">%label</a>', array(
+            '%url'=>$row["url"], '%label'=>$row["label"]));
+         $out .= t("</td>\n");
+         $out .= "<td>\n";
+         $out .= t("  <select name=\"menu_pos[%id]\">\n", array(
+            '%id'=>$row['id']));
+         $out .= format_position_select($row['menu_position'], $n);
+         $out .= "  </select>\n";
+         $out .= "</td>\n";
+         $out .= t('<td><a href="%url?action=edit&id=%id">edit</a></td>',
+            array('%url'=>$_SERVER['PHP_SELF'],
+                  '%id'=>urlencode($row["id"])));
+         $out .= t('<td><a href="%url?action=delete&id=%id">delete</a></td>',
+            array('%url'=>$_SERVER['PHP_SELF'],
+                  '%id'=>urlencode($row["id"])));
+         $out .= "</tr>\n";
+      }
+      $out .= "</table>\n";
+      $out .= "<p><input type=\"submit\" name=\"action\" value=\"Update main menu\"></p>";
+      $out .= "</form>\n";
+      $out .= "<hr/><br/>\n";
 
-    // --------------------------------------------------------------
-    case "add":
+      db_free_result($res);
+      $out .= "<p/>";
+      $res = db_query(q("
+         SELECT id, url, label, navbar_position, menu_position
+         FROM   urls
+         ORDER BY navbar_position"));
+      if (!$res) {
+         airt_error('DB_QUERY', 'links.php:'.__LINE__);
+         Header("Location: index.php");
+         return;
+      }
+      $out .= t("<p><strong>Navbar links</strong></p>\n");
+      $out .= t('<form method="POST">');
+      $out .= t("<table width=\"100%\">");
+      $out .= "<tr>\n";
+      $out .= "  <td><strong>Menu item</strong></td>\n";
+      $out .= "  <td><strong>Position</strong></td>\n";
+      $out .= "  <td colspan=\"2\">&nbsp;</td>\n";
+      $out .= "</tr>\n";
+
+      $count=0;
+      while ($row = db_fetch_next($res)) {
+         $out .= t("<tr bgcolor=\"%color\">\n", array(
+            '%color' => ($count++%2==0) ? "#DDDDDD" : "#FFFFFF"));
+         $out .= "<td>\n";
+         $out .= t(   '<a href="%url\">%label</a>', array(
+            '%url'=>$row["url"], '%label'=>$row["label"]));
+         $out .= t("</td>\n");
+         $out .= "<td>\n";
+         $out .= t("  <select name=\"menu_pos[%id]\">\n", array(
+            '%id'=>$row['id']));
+         $out .= format_position_select($row['navbar_position'], $n);
+         $out .= "  </select>\n";
+         $out .= "</td>\n";
+         $out .= t('<td><a href="%url?action=edit&id=%id">edit</a></td>',
+            array('%url'=>$_SERVER['PHP_SELF'],
+                  '%id'=>urlencode($row["id"])));
+         $out .= t('<td><a href="%url?action=delete&id=%id">delete</a></td>',
+            array('%url'=>$_SERVER['PHP_SELF'],
+                  '%id'=>urlencode($row["id"])));
+         $out .= "</tr>\n";
+      }
+      $out .= "</table>\n";
+      $out .= "<p><input type=\"submit\" name=\"action\" value=\"Update navigation bar\"></p>";
+      $out .= "</form>\n";
+      $out .= "<hr/><br/>\n";
+
+
+      $out .= "<strong>Add new menu item</strong><BR/>\n";
+      $out .= "<form method=\"POST\">\n";
+      $out .= "<input type=\"hidden\" name=\"action\" value=\"add\">\n";
+      $out .= "<table>\n";
+      $out .= "<tr>\n";
+      $out .= "   <td>URL</td>\n";
+      $out .= "   <td><input type=\"text\" name=\"url\" size=\"50\"></td>\n";
+      $out .= "</tr>\n";
+      $out .= "<tr>\n";
+      $out .= "   <td>Description</td>\n";
+      $out .= "   <td><input type=\"text\" name=\"description\" size=\"50\"></td>\n";
+      $out .= "</tr>\n";
+      $out .= "</table>\n";
+      $out .= "<input type=\"submit\" value=\"Add\">\n";
+      $out .= "</form>\n";
+
+      pageHeader("Links");
+      print $out;
+      pageFooter();
+      break;
+
+   // --------------------------------------------------------------
+   case "add":
         if (array_key_exists("url", $_REQUEST)) $url = $_REQUEST["url"]
         or die("Missing information (1).");
 
@@ -210,7 +282,49 @@ EOF;
 
         Header("Location: $_SERVER[PHP_SELF]");
         break;
+
     // --------------------------------------------------------------
+    case "Update main menu":
+      if (!array_key_exists('menu_pos', $_POST)) {
+         airt_error('PARAM_MISSING', 'links.php:'.__LINE__);
+         Header("Location: $_SERVER[PHP_SELF]");
+         break;
+      }
+      define('DEBUG', true);
+      foreach ($_POST['menu_pos'] as $id=>$pos) {
+         $res = db_query(q("UPDATE urls SET menu_position=%pos WHERE id=%id", 
+            array('%pos'=>($pos=='')?'NULL':$pos, '%id'=>$id)));
+         if (!$res) {
+            airt_error('DB_QUERY', 'links.php:'.__LINE__);
+            Header("Location: $_SERVER[PHP_SELF]");
+            break;
+         }
+      }
+      airt_msg("Menu updated.");
+      Header("Location: $_SERVER[PHP_SELF]");
+      break;
+
+    // --------------------------------------------------------------
+    case "Update navigation bar":
+      if (!array_key_exists('menu_pos', $_POST)) {
+         airt_error('PARAM_MISSING', 'links.php:'.__LINE__);
+         Header("Location: $_SERVER[PHP_SELF]");
+         break;
+      }
+      define('DEBUG', true);
+      foreach ($_POST['menu_pos'] as $id=>$pos) {
+         $res = db_query(q("UPDATE urls SET navbar_position=%pos WHERE id=%id", 
+            array('%pos'=>($pos=='')?'NULL':$pos, '%id'=>$id)));
+         if (!$res) {
+            airt_error('DB_QUERY', 'links.php:'.__LINE__);
+            Header("Location: $_SERVER[PHP_SELF]");
+            break;
+         }
+      }
+      airt_msg("Navigation bar updated.");
+      Header("Location: $_SERVER[PHP_SELF]");
+      break;
+   // --------------------------------------------------------------
     default:
         die("Unknown action: $action");
 } // switch

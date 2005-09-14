@@ -86,4 +86,14 @@ INSERT INTO address_roles
 INSERT INTO address_roles (id, label, isdefault)
    VALUES
    (nextval('address_roles_sequence'), 'Target', false);
+INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position) VALUES (8, 'index.php', 'Main menu', 2, '2005-09-14 09:11:28', NULL, 1);
+INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position) VALUES (5, 'search.php', 'IP Address lookup', 2, '2005-09-14 08:18:13', 3, NULL);
+INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position) VALUES (6, 'standard.php', 'Mail templates', 2, '2005-09-14 08:18:22', 4, 5);
+INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position) VALUES (9, 'logout.php', 'Logout', 2, '2005-09-14 09:11:36', 6, 6);
+INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position) VALUES (4, 'incident.php', 'Incident management', 2, '2005-09-14 08:18:04', 2, NULL);
+INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position) VALUES (7, 'maintenance.php', 'Edit settings', 2, '2005-09-14 08:18:31', 5, NULL);
+INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position) VALUES (10, 'incident.php', 'Incidents', 2, '2005-09-14 09:18:30', NULL, 4);
+INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position) VALUES (11, 'search.php', 'Search', 2, '2005-09-14 09:18:38', NULL, 3);
+
+
 end transaction;
