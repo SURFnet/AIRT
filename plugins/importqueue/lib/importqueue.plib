@@ -246,7 +246,31 @@ function queueToAIRT($id, &$error) {
       $error = 'Missing parameter id';
       return 1;
    }
-   $error = 'queueToAIRT function not yet implemented.';
+   $data = queuePeekItem($id, $error);
+   if ($data == NULL) {
+      return 1;
+   }
+
+   $error = "queueToAIRT not yet completed.";
+   return 1;
+
+   $content_xml = domxml_open_mem($data['content']);
+   $content_root = $content_xml->document_element();
+
+   $xml = domxml_new_doc('1.0');
+   $xml->add_root('airt');
+   $xml_root = $xml->document_element();
+   $xml_root->replace_node($content_root);
+   $content = $xml->dump_mem();
+
+   require_once 'SOAP/Client.php';
+   $endpoint = "http://beholder.uvt.nl/airt/server.php";
+   $airt_client = new SOAP_Client($endpoint);
+   $method = "importIncidentData";
+   $params = array('importXML'=>$content);
+   $ans = $airt_client->call($method, $params);
+   echo "<PRE>";
+   print_r($ans);
    return 1;
 }
 
@@ -331,8 +355,24 @@ function queueInsertItem($status,$sender,$type,$summary,$content,&$error) {
  *   'type', 'summary', and 'content'. In case of retrieval failure, FALSE.
  */
 function queuePeekItem($id,&$error) {
-   $error = 'Not yet implemented';
-   return FALSE;
+   $res = db_query(q('SELECT status, sender, type, summary
+      FROM import_queue
+      WHERE id=%id', array('%id'=>$id)));
+   if ($res == false) {
+      $error = "Unable to query database in importqueue.plib:".__LINE__;
+      return NULL;
+   }
+   if (db_num_rows($res) == 0) {
+      $error = "Request for invalid queue item";
+      return NULL;
+   }
+   $out = db_fetch_next($res);
+   $file = file_get_contents(sprintf("%s/importqueue/%08d.xml", STATEDIR, $id));
+   /* need to strip first line of file (it contains <?xml .. ?> */
+   $out['content'] = trim(preg_replace('/^\<\?xml.*$/m', '', $file));
+
+   db_free_result($res);
+   return $out;
 }// queuePeekItem
 
 
