@@ -4,6 +4,16 @@
 -- database schema that results from applying all changes below.
 -- When we release, this 00-CHANGES.sql file will be copied to a new file
 -- "airtschema-from-prevRel-to-newRel.sql" and emptied.
+CREATE TABLE import_queue (
+  id        integer,
+  created   timestamp    not null,
+  status    varchar(16)  not null default 'open',
+  sender    varchar(50)  not null,
+  type      varchar(50)  not null, 
+  summary   varchar(100) not null, 
+  primary key (id)
+)
+CREATE SEQUENCE importqueue_sequence;
 ALTER TABLE urls ADD COLUMN navbar_position INTEGER;
 ALTER TABLE urls ADD COLUMN menu_position INTEGER;
 INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position) VALUES (8, 'index.php', 'Main menu', 2, '2005-09-14 09:11:28', NULL, 1);

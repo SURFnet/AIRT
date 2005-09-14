@@ -38,6 +38,7 @@ DROP SEQUENCE urls_sequence;
 DROP SEQUENCE permissions_sequence;
 DROP SEQUENCE role_permissions_sequence;
 DROP SEQUENCE blocks_sequence;
+DROP SEQUENCE importqueue_sequence;
 
 DROP TABLE incident_types CASCADE; 
 DROP TABLE incident_states CASCADE;
@@ -57,6 +58,7 @@ DROP TABLE permissions CASCADE;
 DROP TABLE role_permissions CASCADE;
 DROP TABLE blocks CASCADE;
 DROP TABLE incident_users CASCADE;
+DROP TABLE import_queue CASCADE;
 
 begin transaction;
 
