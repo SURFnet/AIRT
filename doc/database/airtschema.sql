@@ -267,7 +267,7 @@ CREATE TABLE import_queue (
   type      varchar(50)  not null,
   summary   varchar(100) not null,
   primary key (id)
-)
+);
 
 CREATE SEQUENCE incident_types_sequence;
 CREATE SEQUENCE incident_states_sequence;
