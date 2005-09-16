@@ -12,7 +12,7 @@ CREATE TABLE import_queue (
   type      varchar(50)  not null, 
   summary   varchar(100) not null, 
   primary key (id)
-)
+);
 CREATE SEQUENCE importqueue_sequence;
 ALTER TABLE urls ADD COLUMN navbar_position INTEGER;
 ALTER TABLE urls ADD COLUMN menu_position INTEGER;
