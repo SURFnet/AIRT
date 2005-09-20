@@ -81,7 +81,7 @@ function import($input,&$error,$verbosity=FALSE) {
    // from the <queuedata> chunk plus the <incident> chunk, call the
    // queueInsertItem() function.
 
-   # make sure we do have have namespaces. Somehow DOM XML chokes on that
+   # make sure we do not have namespaces. Somehow DOM XML chokes on that
    $xml=preg_replace('/airt:/','',$input);
    $dom = domxml_open_mem($xml);
    if ($dom == false) {
