@@ -221,7 +221,7 @@ function formatQueueOverview() {
       $out .= t("  <td>%sender</td>\n", array('%sender'=>$element['sender']));
       $out .= t("  <td>%type</td>\n", array('%type'=>$element['type']));
       $out .= t("  <td>%created</td>\n", array('%created'=>$element['created']));
-      $out .= "  <td><a href=\"\">details</a></td>\n";
+      $out .= t("  <td><a target=\"airt_queue\" title=\"Show incident details in new browser window\" href=\"%url?action=showdetails&id=%id\">details</a></td>\n", array('%url'=>$_SERVER['PHP_SELF'], '%id'=>$id));;
       $out .= "  <td><select name=\"decision[$element[id]]\">\n";
       $out .= choice('Leave unchanged', 'leave', 'leave');
       $out .= choice('Accept', 'accept', 'leave');

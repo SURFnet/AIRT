@@ -82,6 +82,54 @@ switch ($action) {
       break;
 
    #----------------------------------------------------------------
+   case "showdetails":
+      if (!array_key_exists('id', $_GET)) {
+         airt_error('PARAM_MISSING', 'queue.php:'.__LINE__);
+         Header("Location: $_SERVER[PHP_SELF]");
+         exit;
+      }
+      if (!is_numeric($_GET['id'])) {
+         airt_error('PARAM_MISSING', 'queue.php:'.__LINE__);
+         Header("Location: $_SERVER[PHP_SELF]");
+         exit;
+      }
+      $item = queuePeekItem($_GET['id'], $error);
+      if ($item == NULL) {
+         airt_error('', 'queue.php:'.__LINE__, 'Error fetching queue item');
+         Header("Location: $_SERVER[PHP_SELF]");
+         exit;
+      }
+      pageHeader("Queue details for item $_GET[id]");
+      $out = "<table>\n";
+      $out .= "<tr>\n";
+      $out .= "  <td>Status</td>\n";
+      $out .= "  <td>$item[status]</td>\n";
+      $out .= "</tr>\n";
+      $out .= "<tr>\n";
+      $out .= "  <td>Sender</td>\n";
+      $out .= "  <td>$item[status]</td>\n";
+      $out .= "</tr>\n";
+      $out .= "<tr>\n";
+      $out .= "  <td>Type</td>\n";
+      $out .= "  <td>$item[type]</td>\n";
+      $out .= "</tr>\n";
+      $out .= "<tr>\n";
+      $out .= "  <td>Summary</td>\n";
+      $out .= "  <td>$item[summary]</td>\n";
+      $out .= "</tr>\n";
+      $out .= "<tr>\n";
+      $out .= "  <td colspan=\"2\" align=\"left\" nowrap>Input queue data</td>\n";
+      $out .= "</tr>\n";
+      $out .= "<tr valign=\"top\">\n";
+      $out .= t("  <td colspan=\"2\" align=\"left\"><pre>%xml</pre></td>",
+         array('%xml'=>htmlentities($item['content'])));
+      $out .= "</tr>\n";
+      $out .= "</table>\n";
+
+      print $out;
+      pageFooter();
+      break;
+   #----------------------------------------------------------------
    case 'list':
       showQueue();
       break;
