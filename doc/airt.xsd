@@ -7,21 +7,38 @@
    <xs:element name="airt" type="airt:airtType" />
 
    <xs:complexType name="airtType">
+      <xs:element name="queuedata" type="airt:queuedataType" 
+         minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="messageIdentification" type="airt:messageIdentificationType" 
-	    minOccurs="1" maxOccurs="1" />
+	    minOccurs="0" maxOccurs="unbounded" />
       <xs:sequence>
          <xs:element name="incident" type="airt:incidentType"
                             minOccurs="0" maxOccurs="unbounded"/>
       </xs:sequence>
    </xs:complexType>
 
+   <xs:complexType name="queueDataType">
+      <xs:sequence>
+         <xs:element name="status" type="xs:string"
+            minOccurs="1" maxOccurs="1"/>
+         <xs:element name="sender" type="xs:string"
+            minOccurs="1" maxOccurs="1"/>
+         <xs:element name="type" type="xs:string"
+            minOccurs="1" maxOccurs="1"/>
+         <xs:element name="summary" type="xs:string"
+            minOccurs="1" maxOccurs="1"/>
+      </xs:sequence>
+      <xs:attribute name="ref" type="xs:ncname"/>
+   </xs:complexType>
+
    <xs:complexType name="incidentType">
       <xs:sequence>
-	 <xs:element name="ticketInformation" type="airt:ticketInformationType" 
-	       minOccurs="1" maxOccurs="1" />
-	 <xs:element name="technicalInformation" type="airt:technicalInformationType" 
-	       minOccurs="1" maxOccurs="unbounded" />
+	       <xs:element name="ticketInformation" type="airt:ticketInformationType" 
+	          minOccurs="1" maxOccurs="1" />
+	       <xs:element name="technicalInformation" type="airt:technicalInformationType" 
+	          minOccurs="1" maxOccurs="unbounded" />
       </xs:sequence>
+      <xs:attribute name="id" type="xs:string"/>
    </xs:complexType>
 
    <xs:complexType name="messageIdentificationType">
