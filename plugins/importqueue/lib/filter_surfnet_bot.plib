@@ -1,0 +1,131 @@
+<?php
+/* vim: syntax=php tabstop=3 shiftwidth=3
+ *
+ * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
+ * Copyright (C) 2005   Tilburg University, The Netherlands
+
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ * filter_surfnet.plib -- filter function for surfnet reports
+ * 
+ * $Id$
+ */
+
+/* Import queue filter function for SURFnet reports.
+ * Parameters:
+ *    input     = The SURFnet report email, headers and everything.
+ *    output    = The string variable to write the XML output to.
+ *    verbosity = Optionally, boolean; TRUE = verbose output to STDOUT.
+ * Returns:
+ *    0 on success (can not yet fail).
+ */
+function filter_surfnet_bot($input, &$output, $verbosity=FALSE) {
+
+   // Try to find the reference ID of this incident, given by SURFnet.
+   if (preg_match('/Subject:.*SURFnet-CERT#([0-9]+)/', $input, $matches)==1) {
+      $reference = $matches[1];
+   } else {
+      $reference = 'unknown';
+   }
+
+   // Try to find the time of the DNS resolving.
+   if (preg_match('/De DNS resolving heeft plaatsgevonden rond ([^,]+),/',
+          $input, $matches)==1) {
+      $resolved = $matches[1];
+   } else {
+      $resolved = 'unknown';
+   }
+
+   // Try to find the sender.
+   if (preg_match('/^From: (.+)/m', $input, $matches)==1) {
+      $sender = htmlSpecialChars($matches[1]);
+   } else {
+      $sender = 'unknown';
+   }
+
+   // Try to find the summary.
+   if (preg_match('/^Subject: (.+)/m', $input, $matches)==1) {
+      $summary = htmlSpecialChars($matches[1]);
+   } else {
+      $summary = 'unknown';
+   }
+
+   // Set the fixed status.
+   $status = 'open';
+
+   // Set the fixed type.
+   $type = 'SURFnet report DDoS bot';
+
+   // Scan the rest of the mail for data lines. Each data line will lead to
+   // a separate XML queue chunk and incident chunk. These chunks are
+   // collected in $queue[] and $incid[] arrays, and added to the output
+   // later on. $id is used as the chunk ID counter, starting from 1.
+   $data = explode("\n", $input);
+   $id = 1;
+   foreach ($data as $in) {
+      if (preg_match('/^START \| UVT \| ([0-9.]+) \| (\S+) \| ([0-9-]+) ([0-9:]+) \| ([0-9-]+) ([0-9:]+) \| (\d+) \| ([A-Z]+) \| (\d+)$/', $in, $matches) > 0) {
+         $logging   = $matches[0];
+         $ip        = $matches[1];
+         $hostname  = $matches[2];
+         $date      = $matches[3];
+         $time      = $matches[4];
+         $port      = $matches[7];
+
+print "XX\n";
+         $queue[$id]  = "    <airt:queuedata ref=\"#$id\">\n";
+         $queue[$id] .= "      <airt:status>$status</airt:status>\n";
+         $queue[$id] .= "      <airt:sender>$sender</airt:sender>\n";
+         $queue[$id] .= "      <airt:type>$type</airt:type>\n";
+         $queue[$id] .= "      <airt:summary>$summary</airt:summary>\n";
+         $queue[$id] .= "    </airt:queuedata>\n";
+
+         $incid[$id]  = "  <airt:incident id=\"$id\">\n";
+         $incid[$id] .="    <airt:ticketInformation>\n";
+         $incid[$id] .="      <airt:prefix>SURFnet</airt:prefix>\n";
+         $incid[$id] .="      <airt:reference>$reference</airt:reference>\n";
+         $incid[$id] .="    </airt:ticketInformation>\n";
+         $incid[$id] .="    <airt:technicalInformation>\n";
+         $incid[$id] .="      <airt:ip>$ip</airt:ip>\n";
+         $incid[$id] .="      <airt:hostname>$hostname</airt:hostname>\n";
+         $incid[$id] .="      <airt:port>$port</airt:port>\n";
+         $incid[$id] .="      <airt:time_dns_resolving>$resolved</airt:time_dns_resolving>\n";
+         $incid[$id] .="      <airt:incident_time>$date $time</airt:incident_time>\n";
+         $incid[$id] .="      <airt:logging>$logging</airt:logging>\n";
+         $incid[$id] .="   </airt:technicalInformation>\n";
+         $incid[$id] .="  </airt:incident>\n";
+
+         $id++;
+      }
+   }
+
+   // Assemble the XML output.
+   $output  = '<airt:airt xmlns:airt="http://infolab.uvt.nl/airt">'."\n";
+   $output .= "  <airt:importqueue>\n";
+   for ($i=1; $i<$id; $i++) {
+      $output .= $queue[$i];
+   }
+   $output .= "  </airt:importqueue>\n";
+   for ($i=1; $i<$id; $i++) {
+      $output .= $incid[$i];
+   }
+   $output .= "</airt:airt>\n";
+
+   if ($verbosity) {
+      print "$output";
+   }
+
+   return 0;
+}
+# EOF
