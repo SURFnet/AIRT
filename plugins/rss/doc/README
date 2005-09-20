@@ -11,3 +11,6 @@ To install the plugin, simple copy it to a location which can be accessed by
 your web server and add a URL to it using the AIRT main menu URL link option.
 The feeds that will be syndicated can be configured in the file itself and are
 listed near the top of the file.
+
+Please keep in mind that XML-RSS needs to have the option allow_url_fopen to be
+on. If used improperly, doing so may introduce a security risk.
