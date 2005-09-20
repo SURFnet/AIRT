@@ -23,6 +23,9 @@
  * $Id$
  */
 
+# TODO: make configurable
+$endpoint = "http://beholder.uvt.nl/airt/server.php";
+
 // Pull in the standard AIRT library.
 require_once LIBDIR.'/airt.plib';
 
@@ -242,6 +245,8 @@ function formatQueueOverview() {
  *   0 on success, 1 on failure
  */
 function queueToAIRT($id, &$error) {
+   global $endpoint;
+
    if ($id == '') {
       $error = 'Missing parameter id';
       return 1;
@@ -254,21 +259,26 @@ function queueToAIRT($id, &$error) {
    $error = "queueToAIRT not yet completed.";
    return 1;
 
+   # fetch content from disk and clone root element;
    $content_xml = domxml_open_mem($data['content']);
    $content_root = $content_xml->document_element();
+   $incident_data = $content_root->clone_node(true);
 
+   # create new xml document to pass to web service
    $xml = domxml_new_doc('1.0');
    $xml->add_root('airt');
    $xml_root = $xml->document_element();
-   $xml_root->replace_node($content_root);
+   $xml_root->append_child($incident_data);
    $content = $xml->dump_mem();
 
+   # call web service
    require_once 'SOAP/Client.php';
-   $endpoint = "http://beholder.uvt.nl/airt/server.php";
    $airt_client = new SOAP_Client($endpoint);
    $method = "importIncidentData";
    $params = array('importXML'=>$content);
    $ans = $airt_client->call($method, $params);
+
+   # print output; TODO do something useful
    echo "<PRE>";
    print_r($ans);
    return 1;
