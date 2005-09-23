@@ -2,7 +2,7 @@
 /* vim:syntax=php shiftwidth=3 tabstop=3
  *
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
- * Copyright (C) 2004   Tilburg University, The Netherlands
+ * Copyright (C) 2004,2005   Tilburg University, The Netherlands
 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,13 +22,14 @@
 require_once('SOAP/Server.php');
 require_once('SOAP/Disco.php');
 
+# TODO: bring all require_onces to the top of the file. You might include
+# unnessarry files, but it is more clear what the depedencies are.
 
 class IncidentHandling {
    var $__dispatch_map = array();
 
    function IncidentHandling () {
       // Define the signature of the dispatch map on the Web services method
-
       // Necessary for WSDL creation
       $this->__dispatch_map['getXMLIncidentData'] = array('in' => array('action' => 'string'), 
          'out' => array('airtXML' => 'string'), );
@@ -40,10 +41,12 @@ class IncidentHandling {
       if ($action == 'getAll') {
          $public  = 1;
          require_once('export.php');
+         # TODO: return is an operator, not a function. You do not need the ()
          return(exportOpenIncidents());
       }
    }
 
+   # TODO: implement sensible error handling; exit or return are not sufficient
    function importIncidentData($importXML) {
       // FIXME temporary hack to use userid
       // temporarily set userid to 1 if necessary
@@ -61,14 +64,14 @@ class IncidentHandling {
          exit;
       }
       $root = $dom->document_element();
-      
+
       if (sizeof($root) == 0) {
          exit;
       }
       foreach($root->get_elements_by_tagname('incident') as $incident_element) {
          if (sizeof($incident_element) > 0) {
 
-            # set default state, status, type
+            # TODO: set default state, status, type
             $state = getIncidentStateDefault();
             if($state == null) {
                return 1;
@@ -87,6 +90,8 @@ class IncidentHandling {
             # generate an incident id
             $incidentid = createIncident($state,$status,$type);
 
+            # TODO: defaults for prefix, reference ; if they are not part of
+            # the XML. they will be uninitialised in the current code
             foreach($incident_element->get_elements_by_tagname('ticketInformation') as $ticketInformation) {
                if (sizeof($ticketInformation) > 0) {
                   $prefix_element = $ticketInformation->get_elements_by_tagname('prefix');
@@ -99,6 +104,7 @@ class IncidentHandling {
                   }
                }
             }
+            # TODO: defaults for $ip, $hostname, etc.
             foreach($incident_element->get_elements_by_tagname('technicalInformation') as $technicalInformation) {
                if (sizeof($technicalInformation) > 0) {
                   $ip_element = $technicalInformation->get_elements_by_tagname('ip');
@@ -124,8 +130,11 @@ class IncidentHandling {
                }
                $address = $ip;
                $addressrole = '0';
-               addIPtoIncident($address,$incidentid,$addressrole);
 
+               # TODO: make sure you db_escape_string these things before you
+               # shoot them into the database (to prevent XSS). Probably better
+               # to do that in addIPtoIncident than here though.
+               addIPtoIncident($address,$incidentid,$addressrole);
             }
          }
       }
@@ -134,6 +143,8 @@ class IncidentHandling {
          unset($_SESSION['userid']);
       }
    }
+
+   # TODO: sensible return output?
 }
 
 $server       = new SOAP_Server();
