@@ -45,54 +45,93 @@ class IncidentHandling {
    }
 
    function importIncidentData($importXML) {
+      // FIXME temporary hack to use userid
+      // temporarily set userid to 1 if necessary
+      session_register('user_id');
+      if($_SESSION['userid'] == null) {
+         $_SESSION['userid'] = '1';
+         $set_userid_tmp = true;
+      }
       $public  = 1;
       require_once 'config.plib';
       require_once LIBDIR.'/incident.plib';
-      
-      $doc                             = domxml_open_mem($importXML,DOMXML_LOAD_PARSING,$error);
-      $message_time_array              = $doc->get_elements_by_tagname('message_time');
-      foreach($message_time_array as $message_time) {
-         $message_time                 = $message_time->get_content();
+
+      if (!$dom = domxml_open_mem($importXML,DOMXML_LOAD_PARSING + DOMXML_LOAD_DONT_KEEP_BLANKS,$error)) {
+         return 1;
+         exit;
       }
-      #TODO: temporarily unknown howto get userid
-      $userid                          = 1;
-      $_SESSION[userid]                = $userid;
+      $root = $dom->document_element();
+      
+      if (sizeof($root) == 0) {
+         exit;
+      }
+      foreach($root->get_elements_by_tagname('incident') as $incident_element) {
+         if (sizeof($incident_element) > 0) {
 
-      $incident_nodes                  = $doc->get_elements_by_tagname('incident');
-      foreach($incident_nodes as $incident_node) {
-         $incident_id_array            = $incident_node->get_elements_by_tagname('reference');
-         $insert_array['incidentid']   = $incident_id_array[0]->get_content();
+            # set default state, status, type
+            $state = getIncidentStateDefault();
+            if($state == null) {
+               return 1;
+               exit;
+            }
+            $status = getIncidentStatusDefault();
+            if($status == null) {
+               return 1;
+               exit;
+            }
+            $type = getIncidentTypeDefault();
+            if($type == null) {
+               return 1;
+               exit;
+            }
+            # generate an incident id
+            $incidentid = createIncident($state,$status,$type);
 
-         $incident_status_array        = $incident_node->get_elements_by_tagname('incident_status');
-         $insert_array['status']       = $incident_status_array[0]->get_content();
+            foreach($incident_element->get_elements_by_tagname('ticketInformation') as $ticketInformation) {
+               if (sizeof($ticketInformation) > 0) {
+                  $prefix_element = $ticketInformation->get_elements_by_tagname('prefix');
+                  if (sizeof($prefix_element) > 0) {
+                     $prefix = $prefix_element[0]->get_content();
+                  }
+                  $reference_element = $ticketInformation->get_elements_by_tagname('reference');
+                  if (sizeof($reference_element) > 0) {
+                     $reference = $reference_element[0]->get_content();
+                  }
+               }
+            }
+            foreach($incident_element->get_elements_by_tagname('technicalInformation') as $technicalInformation) {
+               if (sizeof($technicalInformation) > 0) {
+                  $ip_element = $technicalInformation->get_elements_by_tagname('ip');
+                  if (sizeof($ip_element) > 0) {
+                     $ip = $ip_element[0]->get_content();
+                  }
+                  $hostname_element = $technicalInformation->get_elements_by_tagname('hostname');
+                  if (sizeof($hostname_element) > 0) {
+                     $hostname = $hostname_element[0]->get_content();
+                  }
+                  $time_dns_resolving_element = $technicalInformation->get_elements_by_tagname('time_dns_resolving');
+                  if (sizeof($time_dns_resolving_element) > 0) {
+                     $time_dns_resolving = $time_dns_resolving_element[0]->get_content();
+                  }
+                  $incident_time_element = $technicalInformation->get_elements_by_tagname('incident_time');
+                  if (sizeof($incident_time_element) > 0) {
+                     $incident_time = $incident_time_element[0]->get_content();
+                  }
+                  $logging_element = $technicalInformation->get_elements_by_tagname('logging');
+                  if (sizeof($logging_element) > 0) {
+                     $logging = $logging_element[0]->get_content();
+                  }
+               }
+               $address = $ip;
+               $addressrole = '0';
+               addIPtoIncident($address,$incidentid,$addressrole);
 
-         $incident_state_array         = $incident_node->get_elements_by_tagname('incident_state');
-         $insert_array['state']        = $incident_state_array[0]->get_content();
-
-         $incident_type_array          = $incident_node->get_elements_by_tagname('incident_type');
-         $insert_array['type']         = $incident_type_array[0]->get_content();
-
-         $incidentid                   = createIncident($insert_array['state'],$insert_array['status'],$insert_array['type']);
-         
-         $incident_addresses_nodes     = $incident_node->get_elements_by_tagname('technicalInformation');
-         foreach($incident_addresses_nodes as $incident_address_node) {
-            $ip_array                           = $incident_address_node->get_elements_by_tagname('ip');
-            $insert_address_array['ip']         = $ip_array[0]->get_content();
-
-            $hostname_array                     = $incident_address_node->get_elements_by_tagname('hostname');
-            $insert_address_array['hostname']   = $hostname_array[0]->get_content();
-            
-            $constituency_array                 = $incident_address_node->get_elements_by_tagname('constituency');
-            $insert_address_array['constituency'] = $constituency_array[0]->get_content();
-
-            $addressrole_array                  = $incident_address_node->get_elements_by_tagname('addressrole');
-            $insert_address_array['addressrole'] = $addressrole_array[0]->get_content();
-            
-            addIPtoIncident($insert_address_array['ip'],$incidentid,$insert_address_array['addressrole']=0);
-            unset($insert_address_array);
+            }
          }
-
-         unset($insert_array);
+      }
+      // FIXME temporary hack to use userid
+      if($set_userid_tmp == true) {
+         unset($_SESSION['userid']);
       }
    }
 }
