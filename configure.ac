@@ -40,11 +40,18 @@ AC_OUTPUT([Makefile
     doc/database/Makefile
     lib/Makefile
     php/Makefile
-	php/login.php
+    php/login.php
     etc/Makefile
     etc/airt-apache.conf
     etc/airt.cfg
     man/Makefile
     php/config.plib
     man/airt.pod
+    plugins/Makefile
+    plugins/importqueue/Makefile
+    plugins/importqueue/bin/Makefile
+    plugins/importqueue/bin/import
+    plugins/importqueue/lib/Makefile
+    plugins/importqueue/php/Makefile
+    plugins/importqueue/doc/Makefile
 ])

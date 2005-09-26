@@ -1,6 +1,6 @@
-# Makefile for AIRT import plugin
+# Makefile for liberty
 # AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
-# Copyright (C) 2004,2005	Tilburg University, The Netherlands <airt-dev@uvt.nl>
+# Copyright (C) 2004	Tilburg University, The Netherlands
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,6 +17,5 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # $Id$
-scriptdir=$(PHPPATH)
-script_DATA = queue.php
-EXTRA_DIST = $(script_DATA)
+
+SUBDIRS = importqueue .

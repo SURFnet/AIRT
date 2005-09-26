@@ -1,4 +1,4 @@
-2005-x-x
+2005-09-26
 * lib/incident.plib: When creating a new incident directly, the IP address is
   now also set in the session. (closes: Infolab-RT#36)
 * php/incident.php: Direct link to mail templates from incident details page
