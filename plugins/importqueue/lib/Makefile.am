@@ -17,7 +17,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # $Id$
-scriptdir=$(PHPLIBPATH)
+scriptdir=$(PHPLIBPATH)/importqueue
 script_DATA = importqueue.plib filter_none.plib filter_surfnet.plib filter_surfnet_bot.plib filter_cymru.plib filter_mynetwatchman.plib
 
 EXTRA_DIST = $(script_DATA)
