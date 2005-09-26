@@ -25,6 +25,7 @@ require_once LIBDIR.'/database.plib';
 require_once LIBDIR.'/search.plib';
 require_once LIBDIR.'/constituency.plib';
 require_once LIBDIR.'/history.plib';
+require_once LIBDIR.'/airt.plib';
 
 /* Return an associative array with incident states.
  * Input: optionally, an array with extra incident states that are not from

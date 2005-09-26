@@ -31,6 +31,8 @@ define('LIBDIR', '@PHPLIBPATH@');
 // location of the persistant state files, writable by www-server
 define('STATEDIR', '@STATEPATH@');
 
+// location of configuration files
+define('ETCDIR', '@ETCPATH@');
 
 
 

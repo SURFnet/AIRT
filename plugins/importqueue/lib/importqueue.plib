@@ -23,12 +23,12 @@
  * $Id$
  */
 
-# TODO: make configurable
-$endpoint = "http://beholder.uvt.nl/airt/server.php";
-
-// Pull in the standard AIRT library.
+if (!defined('ETCDIR') || !file_exists(ETCDIR.'/webservice.cfg')) {
+   print("Import queue depends on web service. Missing configuration file.\n");
+   return;
+}
 require_once LIBDIR.'/airt.plib';
-
+require_once ETCDIR.'/webservice.cfg';
 
 /* Produce info on stdout (when user asked for --help). */
 function printUsage() {
@@ -42,7 +42,7 @@ function printUsage() {
    echo t(
      'The program reads the import data from stdin if no filename is given.'
      )."\n";
-   
+
    // Enumerate all registered filters.
    if (count($FILTERS)>0) {
       echo t('Available filters:');
@@ -245,8 +245,6 @@ function formatQueueOverview() {
  *   0 on success, 1 on failure
  */
 function queueToAIRT($id, &$error) {
-   global $endpoint;
-
    if ($id == '') {
       $error = 'Missing parameter id';
       return 1;
@@ -255,9 +253,13 @@ function queueToAIRT($id, &$error) {
    if ($data == NULL) {
       return 1;
    }
-
-   $error = "queueToAIRT not yet completed.";
-   return 1;
+   $matches = array();
+   $name = $email = 'Unknown';
+   # poor man's RFC2822 filter
+   if (preg_match('/^([^<]+)<([^>]+)>$/', $data['sender'], $matches) > 0) {
+      $name = trim($matches[1]);
+      $email = trim($matches[2]);
+   }
 
    # fetch content from disk and clone root element;
    $content_xml = domxml_open_mem($data['content']);
@@ -267,21 +269,28 @@ function queueToAIRT($id, &$error) {
    # create new xml document to pass to web service
    $xml = domxml_new_doc('1.0');
    $xml->add_root('airt');
+   $ident = $xml->create_element('messageIdentification');
+   $email_el = $xml->create_element('email');
+   $email_el->set_content($email);
+   $name_el = $xml->create_element('name');
+   $name_el->set_content($name);
+
+   # build structure
    $xml_root = $xml->document_element();
+   $xml_root->append_child($ident);
+   $ident->append_child($email_el);
+   $ident->append_child($name_el);
    $xml_root->append_child($incident_data);
    $content = $xml->dump_mem();
 
    # call web service
    require_once 'SOAP/Client.php';
-   $airt_client = new SOAP_Client($endpoint);
+   $airt_client = new SOAP_Client(WS_ENDPOINT);
    $method = "importIncidentData";
    $params = array('importXML'=>$content);
    $ans = $airt_client->call($method, $params);
 
-   # print output; TODO do something useful
-   echo "<PRE>";
-   print_r($ans);
-   return 1;
+   return 0;
 }
 
 

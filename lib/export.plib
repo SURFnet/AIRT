@@ -34,7 +34,7 @@ function exportIncident($ids) {
    foreach ($ids as $incident)
       $expr .= "$incident,";
       $expr = rtrim($expr, ",").")";
-      
+
       ####
       #messageIdentification
       ####
@@ -43,8 +43,8 @@ function exportIncident($ids) {
       if($_SESSION["userid"]!=null) {
          $res = db_query($query)
             or die ("Unable to query database. error 200");
-      
-            
+
+
          while ($row = db_fetch_next($res)) {
             $res_array["messageIdentification"]["sender_name"]  = $row["firstname"]." ".$row["lastname"];
             $res_array["messageIdentification"]["email"]        = $row["email"];

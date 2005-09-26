@@ -18,9 +18,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
+$public=1;
 require_once('SOAP/Server.php');
 require_once('SOAP/Disco.php');
+require_once 'config.plib';
+require_once LIBDIR.'/history.plib';
+require_once LIBDIR.'/user.plib';
+require_once LIBDIR.'/incident.plib';
 
 # TODO: bring all require_onces to the top of the file. You might include
 # unnessarry files, but it is more clear what the depedencies are.
@@ -31,20 +35,23 @@ class IncidentHandling {
    function IncidentHandling () {
       // Define the signature of the dispatch map on the Web services method
       // Necessary for WSDL creation
+      /*
       $this->__dispatch_map['getXMLIncidentData'] = array('in' => array('action' => 'string'), 
          'out' => array('airtXML' => 'string'), );
+      */
       $this->__dispatch_map['importIncidentData'] = array('in' => array('importXML' => 'string'), 
          'out' => array('confirmation' => 'string'), );
    }
 
+/*
    function getXMLIncidentData($action)  {
       if ($action == 'getAll') {
          $public  = 1;
-         require_once('export.php');
          # TODO: return is an operator, not a function. You do not need the ()
          return(exportOpenIncidents());
       }
    }
+*/
 
    # TODO: implement sensible error handling; exit or return are not sufficient
    function importIncidentData($importXML) {
@@ -56,8 +63,6 @@ class IncidentHandling {
          $set_userid_tmp = true;
       }
       $public  = 1;
-      require_once 'config.plib';
-      require_once LIBDIR.'/incident.plib';
 
       if (!$dom = domxml_open_mem($importXML,DOMXML_LOAD_PARSING + DOMXML_LOAD_DONT_KEEP_BLANKS,$error)) {
          return 1;
@@ -68,27 +73,58 @@ class IncidentHandling {
       if (sizeof($root) == 0) {
          exit;
       }
+
+      # fetch email address and name of sender from message identification
+      $name = $email = 'Unknown';
+      $ident = $root->get_elements_by_tagname('messageIdentification');
+      if (sizeof($ident) > 0) {
+         $email_el = $ident[0]->get_elements_by_tagname('email');
+         $name_el = $ident[0]->get_elements_by_tagname('name');
+         if (sizeof($email_el) > 0) {
+            $email = strtolower($email_el[0]->get_content());
+         }
+         if (sizeof($name_el) > 0) {
+            $name = $name_el[0]->get_content();
+         }
+      }
+
       foreach($root->get_elements_by_tagname('incident') as $incident_element) {
          if (sizeof($incident_element) > 0) {
 
             # TODO: set default state, status, type
             $state = getIncidentStateDefault();
             if($state == null) {
+               print "Missing required parameter: state";
                return 1;
                exit;
             }
             $status = getIncidentStatusDefault();
             if($status == null) {
+               print "Missing required parameter: status";
                return 1;
                exit;
             }
             $type = getIncidentTypeDefault();
             if($type == null) {
+               print "Missing required parameter: type";
                return 1;
                exit;
             }
             # generate an incident id
             $incidentid = createIncident($state,$status,$type);
+            addIncidentComment('New incident from importqueue', $incidentid);
+
+            if ($email != 'Unknown') {
+               $user = getUserByEmail($email);
+               if ($user == false) {
+                  addUser(array(
+                     'email'=>$email,
+                     'lastname'=>$name));
+                  $user = getUserByEmail($email);
+               }
+               addUsertoIncident($user['id'], $incidentid);
+               addIncidentComment("Added user $email ($name) to incident", $incidentid);
+            }
 
             # TODO: defaults for prefix, reference ; if they are not part of
             # the XML. they will be uninitialised in the current code
