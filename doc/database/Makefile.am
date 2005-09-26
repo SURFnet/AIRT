@@ -5,7 +5,8 @@ doc_DATA = 00-CHANGES.sql airtbootstrap.sql airtschema.sql \
 	airtschema-from-20050421.1-to-20050607.1.sql \
 	airtschema-from-20050607.1-to-20050610.1.sql \
 	airtschema-from-20050610.1-to-20050627.1.sql \
-	airtschema-from-20050718.1-to-20050726.1.sql
+	airtschema-from-20050718.1-to-20050726.1.sql \
+	airtschema-from-20050830.1-to-20050926.1.sql
 
 
 EXTRA_DIST = $(doc_DATA)
