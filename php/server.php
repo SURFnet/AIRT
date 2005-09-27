@@ -44,9 +44,8 @@ class IncidentHandling {
       }
    }
 
-   # TODO: implement sensible error handling; exit or return are not sufficient
    function importIncidentData($importXML) {
-      $dom = $state = $status = $type = $incident_id = $address = $ip = $addressrole ='';
+      $dom = $state = $status = $type = $incidentid = $address = $ip = $addressrole ='';
       
       session_register('user_id');
       $public  = 1;
@@ -66,7 +65,7 @@ class IncidentHandling {
       $root = $dom->document_element();
 
       if (sizeof($root) == 0) {
-         $error = 'XML does not contain data';
+         $error = 'XML does not contain any elements';
          return $error;
          exit;
       }
@@ -160,9 +159,6 @@ class IncidentHandling {
                $address = $ip;
                $addressrole = '0';
 
-               # TODO: make sure you db_escape_string these things before you
-               # shoot them into the database (to prevent XSS). Probably better
-               # to do that in addIPtoIncident than here though.
                addIPtoIncident($address,$incidentid[$i],$addressrole);
             }
          }
