@@ -11,51 +11,51 @@ a nmap/Nessus run, which could take hours to complete.
 It has always been possible to interface AIRT to an external program by
 means of a simple link inclusion and an implementation of the external
 program on a web server. This poor man's integration is still possible and
-will remain untouched.
+will remain untouched, so existing installations will not break.
 
 
 AIRT Interfacing
 ----------------
-The Export Queue is a refined mechanism which provides a single, clean
-access point to external programs from within AIRT, together with a basic
-set of data which might be of interest to the external program.
+The Export Queue is a mechanism which provides a single, clean access point
+to external programs from within AIRT, together with a basic option for data
+passthrough which might be of interest to the external program.
 
 The actual queue is not part of AIRT, unlike the import queue. External
 programs that have been called (started) run free, and there is no
 administration inside AIRT about this fact (note: see the remarks about
-incident context later on). It can be said that the queue exists by virtue of
-the underlaying operating system, which runs several queued programs in
-parallel.
+incident context later on). The queue exists by virtue of the underlaying
+operating system, which runs several queued programs in parallel. AIRT uses
+the operating system to manage the "queue."
 
 External programs can receive input from AIRT, and output from the external
 program can be sent back to AIRT via the existing import queue mechanism.
 These are not requirements. Programs which do not get any dynamic input from
 AIRT (such as a fully pre-scripted campus-wide nmap scan) are perfectly
 okay, and programs which report their results by any other means (such as
-mail to a person) are no problem either. However, typically the export queue
-uses some AIRT data to parametrize the called external program and reports
-back to AIRT via the import queue.
+direct mail to a person) are no problem either. However, typically the
+export queue uses some AIRT data to parametrize the called external program
+and reports back to AIRT via the import queue.
 
 External programs can be called up from the AIRT interface from basically
-two places: outside a incident (side menu or main menu) and inside a
-incident
-(incident details page). The difference is that the former never has any
-context, while the latter could provide some context from the incident. This
-enables a relationship between an export command and a specific incident, so that the import queue has the option to attach the results to the
-incident. However, whether this option is actually used depends on the
-capabilities of the external program. It might need a bit of shell scripting
-to get this right.
+two places: outside an incident (side menu or main menu) and inside an
+incident (incident details page). The difference is that the former never
+has any context, while the latter could provide some context data from the
+incident. This enables a relationship between an external command and a
+specific incident, so that the import queue has the option to attach the
+results to the incident. However, whether this option is actually used
+depends on the capabilities of the external program -- it needs to remember
+the incident ID and pass this on to the import queue.
 
 External programs can be dynamically parametrized from AIRT. This can be
-done in a purely algorithmic way, reducing the start of the program to one
-single mouse click in the browser, or by means of a form with default data
-which can/should be changed by the AIRT user before firing it off. The
+done both in a purely algorithmic way, reducing the start of the program to
+one single mouse click in the browser, and by means of a form with default
+data which can/should be changed by the AIRT user before firing it off. The
 construction of this form page is part of the export queue mechanism.
 
 Combinations of all mechanisms can be made, so that the same external
 program can be called via a form for generic cases and directly from within
-an incident for specific cases, where AIRT fills in the form in the background.
-Flexibility is the key here.
+an incident for specific cases, where AIRT fills in the form in the
+background. Flexibility is the key here.
 
 
 Incident Context
@@ -76,5 +76,79 @@ AIRT Interface Design
 - Predefined format for such scripts, using start-stop-daemon for the
   actual queue work.
 
+
+Operating System Interface
+--------------------------
+Several important issues need to be adressed by the OS interface.
+
+The straightforward implementation to fork off an external program from
+within the AIRT application has a significant drawback. The web server which
+runs AIRT usually cannot change the user of the forked processes, and this
+would cause all forks to run as user "www" or "www-data," clearly an
+undesired situation. Some programs, such as nmap, require to be run as the
+"root" user, which is impossible from within a web server process. A
+makeshift solution would be to allow a "setuid" setup, but this is not
+trivial to do properly and securely, and certainly not possible with PHP or
+other scripting languages only.
+
+A much more flexible approach uses the existing job queue mechanism of Unix,
+the cron system. With asynchronous tasks, a slight delay until execution
+start is no problem. AIRT can submit background tasks to the system's cron
+facility, and a cron job run by a dedicated user (possibly "root") then
+takes care of the usual administration associated with background tasks.
+Obviously security will always remain a prime issue, but securing cron jobs
+is a well-known process.
+
+The AIRT export queue in this way reduces to a list of command lines to be
+executed, where a cron job regularly checks the list and forks off the
+commands as the intended user. For security and administration reasons, the
+cron job running does not allow full command lines to be exported. Only
+indications which export program needs to be run with which parameters are
+accepted, and the export programs themselves all need shell wrappers in a
+specific directory. These shell wrappers handle the program-specific parts,
+while the cron job handles the generic part of the process.
+
+[START BRAINSTORM]
+
+We can implement two basic ways to get the execution request to the cron
+job. One is that we build a true export queue in PostgreSQL, which gets
+queried by the cron job. The other is that the AIRT core writes the
+execution request to a directory which gets read later on by the cron job.
+
+An advantage of the PostgreSQL approach is the orthogonality. Disadvantage
+is that the cron job must access the database, which means configuration
+problems and other issues related to the wish to separate the users.
+
+Another advantage of the PostgreSQL approach is that the same table can also
+be used to see an overview of scheduled jobs, running jobs, and completed
+jobs, with the (stdout/stderr) results available for review. An
+implementation of this functionality in terms of files in directories is
+possible, but a bit less straightforward.
+
+Although it was no design aim to have a real export queue visible in AIRT,
+it now turns out that this would be quite cheap to build. The difference
+between a list of jobs to be picked up by the cron task with their results
+possibly sent to the AIRT import queue, versus also keeping a list of
+currently running jobs and a list with raw job output, is very small.
+
+The cron task should always set up some log files for stderr and stdout,
+which logically contain the task number (pid) of the process in their name.
+It is trivial to change this approach to an AIRT-export-queue-driven ID, so
+that we get an interface to the queueing system. In the end, having the
+actual list of scheduled and running jobs available at all times might be
+worth the few extra hours of implementation.
+
+What data do we need to start up a background/export process?
+
+- Which user we want to run the actual process.
+- Which ID this process has, so that we can refer to it, or send the results
+  to the correct incident later on via the import queue.
+- Which main program we need (nmap, Nessus, router control...). Not a true
+  executable name, but a wrapper script name in the export bin directory.
+- Parameters for the wrapper script, such as IP address and scan type.
+- Optionally a delayed start time for advanced scheduling (cheap). Default
+  should be "as soon as possible", i.e., the next whole minute.
+
+[END BRAINSTORM]
 
 [EOF]
