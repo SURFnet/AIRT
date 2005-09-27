@@ -1,0 +1,80 @@
+Design of the AIRT Export Queue
+===============================================================================
+$Id$
+
+The AIRT Export Queue is a mechanism to asynchronously call external
+programs from within the AIRT interface. Async calls are interesting when
+the external program takes longer than a few seconds to execute, and a
+synchronous call would be impractical. Typical external async calls are for
+a nmap/Nessus run, which could take hours to complete.
+
+It has always been possible to interface AIRT to an external program by
+means of a simple link inclusion and an implementation of the external
+program on a web server. This poor man's integration is still possible and
+will remain untouched.
+
+
+AIRT Interfacing
+----------------
+The Export Queue is a refined mechanism which provides a single, clean
+access point to external programs from within AIRT, together with a basic
+set of data which might be of interest to the external program.
+
+The actual queue is not part of AIRT, unlike the import queue. External
+programs that have been called (started) run free, and there is no
+administration inside AIRT about this fact (note: see the remarks about
+incident context later on). It can be said that the queue exists by virtue of
+the underlaying operating system, which runs several queued programs in
+parallel.
+
+External programs can receive input from AIRT, and output from the external
+program can be sent back to AIRT via the existing import queue mechanism.
+These are not requirements. Programs which do not get any dynamic input from
+AIRT (such as a fully pre-scripted campus-wide nmap scan) are perfectly
+okay, and programs which report their results by any other means (such as
+mail to a person) are no problem either. However, typically the export queue
+uses some AIRT data to parametrize the called external program and reports
+back to AIRT via the import queue.
+
+External programs can be called up from the AIRT interface from basically
+two places: outside a incident (side menu or main menu) and inside a
+incident
+(incident details page). The difference is that the former never has any
+context, while the latter could provide some context from the incident. This
+enables a relationship between an export command and a specific incident, so that the import queue has the option to attach the results to the
+incident. However, whether this option is actually used depends on the
+capabilities of the external program. It might need a bit of shell scripting
+to get this right.
+
+External programs can be dynamically parametrized from AIRT. This can be
+done in a purely algorithmic way, reducing the start of the program to one
+single mouse click in the browser, or by means of a form with default data
+which can/should be changed by the AIRT user before firing it off. The
+construction of this form page is part of the export queue mechanism.
+
+Combinations of all mechanisms can be made, so that the same external
+program can be called via a form for generic cases and directly from within
+an incident for specific cases, where AIRT fills in the form in the background.
+Flexibility is the key here.
+
+
+Incident Context
+----------------
+- Some basic incident data.
+- Entry in the indicent history.
+- AIRT event handling?
+- Possibly, list of pending tasks per incident.
+- Expiration/warning mechanism.
+
+
+AIRT Interface Design
+---------------------
+- Mechanism to dynamically compile a parametrized URL.
+- Mechanism to securely catch parametrized URLs.
+- Narrow call channel for external program scripts.
+- Single list (directory) with callable scripts.
+- Predefined format for such scripts, using start-stop-daemon for the
+  actual queue work.
+
+
+[EOF]
