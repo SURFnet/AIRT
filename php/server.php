@@ -18,16 +18,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-$public=1;
+
 require_once('SOAP/Server.php');
 require_once('SOAP/Disco.php');
+require_once('export.php');
 require_once 'config.plib';
-require_once LIBDIR.'/history.plib';
-require_once LIBDIR.'/user.plib';
 require_once LIBDIR.'/incident.plib';
-
-# TODO: bring all require_onces to the top of the file. You might include
-# unnessarry files, but it is more clear what the depedencies are.
 
 class IncidentHandling {
    var $__dispatch_map = array();
@@ -35,129 +31,126 @@ class IncidentHandling {
    function IncidentHandling () {
       // Define the signature of the dispatch map on the Web services method
       // Necessary for WSDL creation
-      /*
       $this->__dispatch_map['getXMLIncidentData'] = array('in' => array('action' => 'string'), 
          'out' => array('airtXML' => 'string'), );
-      */
       $this->__dispatch_map['importIncidentData'] = array('in' => array('importXML' => 'string'), 
          'out' => array('confirmation' => 'string'), );
    }
 
-/*
    function getXMLIncidentData($action)  {
       if ($action == 'getAll') {
          $public  = 1;
-         # TODO: return is an operator, not a function. You do not need the ()
-         return(exportOpenIncidents());
+         return exportOpenIncidents();
       }
    }
-*/
 
    # TODO: implement sensible error handling; exit or return are not sufficient
    function importIncidentData($importXML) {
+      $dom = $state = $status = $type = $incident_id = $address = $ip = $addressrole ='';
+      
+      session_register('user_id');
+      $public  = 1;
+      
       // FIXME temporary hack to use userid
       // temporarily set userid to 1 if necessary
-      session_register('user_id');
       if($_SESSION['userid'] == null) {
          $_SESSION['userid'] = '1';
          $set_userid_tmp = true;
       }
-      $public  = 1;
 
       if (!$dom = domxml_open_mem($importXML,DOMXML_LOAD_PARSING + DOMXML_LOAD_DONT_KEEP_BLANKS,$error)) {
-         return 1;
+         $error = 'Could not parse XML document';
+         return $error;
          exit;
       }
       $root = $dom->document_element();
 
       if (sizeof($root) == 0) {
+         $error = 'XML does not contain data';
+         return $error;
          exit;
       }
-
-      # fetch email address and name of sender from message identification
-      $name = $email = 'Unknown';
-      $ident = $root->get_elements_by_tagname('messageIdentification');
-      if (sizeof($ident) > 0) {
-         $email_el = $ident[0]->get_elements_by_tagname('email');
-         $name_el = $ident[0]->get_elements_by_tagname('name');
-         if (sizeof($email_el) > 0) {
-            $email = strtolower($email_el[0]->get_content());
-         }
-         if (sizeof($name_el) > 0) {
-            $name = $name_el[0]->get_content();
-         }
-      }
-
       foreach($root->get_elements_by_tagname('incident') as $incident_element) {
+         $i = 0;
+
          if (sizeof($incident_element) > 0) {
 
-            # TODO: set default state, status, type
             $state = getIncidentStateDefault();
             if($state == null) {
-               print "Missing required parameter: state";
-               return 1;
-               exit;
+               # set the lowest id to the default state
+               # fetch the lowest result
+               $res = db_query(q("UPDATE incident_states SET
+                  isdefault=true where id in (SELECT min(id) FROM
+                  incident_states)"));
+               db_free_result($res);
+               $state = getIncidentStateDefault();
             }
             $status = getIncidentStatusDefault();
             if($status == null) {
-               print "Missing required parameter: status";
-               return 1;
-               exit;
+               # set default status
+               $res  = db_query(q("UPDATE incident_status SET
+                  isdefault=true where id in (SELECT min(id) FROM
+                  incident_status)"));
+               db_free_result($res);
+               $status = getIncidentStatusDefault();
             }
             $type = getIncidentTypeDefault();
             if($type == null) {
-               print "Missing required parameter: type";
-               return 1;
-               exit;
+               # set default type
+               $res  = db_query(q("UPDATE incident_types SET
+                  isdefault=true where id in (SELECT min(id) FROM
+                  incident_types)"));
+               db_free_result($res);
+               $type = getIncidentTypeDefault();
             }
             # generate an incident id
-            $incidentid = createIncident($state,$status,$type);
-            addIncidentComment('New incident from importqueue', $incidentid);
+            $incidentid[$i] = createIncident($state,$status,$type);
 
-            if ($email != 'Unknown') {
-               $user = getUserByEmail($email);
-               if ($user == false) {
-                  addUser(array(
-                     'email'=>$email,
-                     'lastname'=>$name));
-                  $user = getUserByEmail($email);
-               }
-               addUsertoIncident($user['id'], $incidentid);
-               addIncidentComment("Added user $email ($name) to incident", $incidentid);
-            }
-
-            # TODO: defaults for prefix, reference ; if they are not part of
-            # the XML. they will be uninitialised in the current code
             foreach($incident_element->get_elements_by_tagname('ticketInformation') as $ticketInformation) {
                if (sizeof($ticketInformation) > 0) {
                   $prefix_element = $ticketInformation->get_elements_by_tagname('prefix');
                   if (sizeof($prefix_element) > 0) {
                      $prefix = $prefix_element[0]->get_content();
+                     if ($prefix == null) 
+                        $prefix = '#UNKNOWN';
                   }
                   $reference_element = $ticketInformation->get_elements_by_tagname('reference');
                   if (sizeof($reference_element) > 0) {
                      $reference = $reference_element[0]->get_content();
+                     if ($reference == null)
+                        $reference = '0';
                   }
                }
             }
-            # TODO: defaults for $ip, $hostname, etc.
             foreach($incident_element->get_elements_by_tagname('technicalInformation') as $technicalInformation) {
                if (sizeof($technicalInformation) > 0) {
                   $ip_element = $technicalInformation->get_elements_by_tagname('ip');
                   if (sizeof($ip_element) > 0) {
                      $ip = $ip_element[0]->get_content();
+                     # default ip
+                     if ($ip == null) 
+                        $ip = '127.0.0.1';
                   }
                   $hostname_element = $technicalInformation->get_elements_by_tagname('hostname');
                   if (sizeof($hostname_element) > 0) {
                      $hostname = $hostname_element[0]->get_content();
+                     # default hostname
+                     if ($hostname == null) 
+                        $hostname = 'localhost';
                   }
                   $time_dns_resolving_element = $technicalInformation->get_elements_by_tagname('time_dns_resolving');
                   if (sizeof($time_dns_resolving_element) > 0) {
                      $time_dns_resolving = $time_dns_resolving_element[0]->get_content();
+                     # default time_dns_resolving
+                     if ($time_dns_resolving == null) 
+                        $time_dns_resolving = time();
                   }
                   $incident_time_element = $technicalInformation->get_elements_by_tagname('incident_time');
                   if (sizeof($incident_time_element) > 0) {
                      $incident_time = $incident_time_element[0]->get_content();
+                     # default incident_timea
+                     if ($incident_time == null)
+                        $incident_time = time();
                   }
                   $logging_element = $technicalInformation->get_elements_by_tagname('logging');
                   if (sizeof($logging_element) > 0) {
@@ -170,7 +163,7 @@ class IncidentHandling {
                # TODO: make sure you db_escape_string these things before you
                # shoot them into the database (to prevent XSS). Probably better
                # to do that in addIPtoIncident than here though.
-               addIPtoIncident($address,$incidentid,$addressrole);
+               addIPtoIncident($address,$incidentid[$i],$addressrole);
             }
          }
       }
@@ -180,7 +173,15 @@ class IncidentHandling {
       }
    }
 
-   # TODO: sensible return output?
+   if ($error == null) {
+      $mesg = 'Import successful. Imported incident with id ';
+      foreach($incidentid as $i => $id) {
+         $id_list .= "$id, ";
+      }
+      $id_list = rtrim($id_list,', ');
+      $mesg .= $id_list.'.';
+      return $mesg;
+   }
 }
 
 $server       = new SOAP_Server();
@@ -201,90 +202,6 @@ else {
       echo $disco->getDISCO();
    }
 }
-/*
-function insertIncident($message_time,$user_id,$insert_array) {
-   #TODO: translations of type, status and state from int to text
-   $public     = 1;
-   require_once 'config.plib';
-   require_once LIBDIR.'/airt.plib';
-   require_once LIBDIR.'/database.plib';
-   require_once LIBDIR.'/history.plib';
-   require_once LIBDIR.'/incident.plib';
-
-   #get incidentid. necessary for several db instructions
-   $res        = db_query("select nextval('incidents_sequence') as incidentid")
-                     or die("Unable to execute query 2.");
-   $row        = db_fetch_next($res);
-   $incidentid = $row["incidentid"];
-   db_free_result($res);
-
-   #insert incident
-   $query      = sprintf(
-      "insert into incidents
-       (id, created, creator, updated, updatedby, state, status, type)
-       values (%s, CURRENT_TIMESTAMP, %s, CURRENT_TIMESTAMP, %s, '%s', '%s', '%s')",
-                $incidentid,
-                $user_id,
-                $user_id,
-                $insert_array[state]  == "" ? 'NULL' : $insert_array['state'],
-                $insert_array[status] == "" ? 'NULL' : $insert_array['status'],
-                $insert_array[type]   == "" ? 'NULL' : $insert_array['type']);
-
-   $res        = db_query($query) or die ("Unable to execute query");
-   db_free_result($res);
-
-   $_SESSION['incidentid'] = $incidentid;
-   $_SESSION['userid']     = $user_id;
-
-   addIncidentComment("Incident created", "", "");
-   addIncidentComment(sprintf("state=%s, status=%s, type=%s",
-      getIncidentStateLabelByID($insert_array['state']),
-      getIncidentStatusLabelByID($insert_array['status']),
-      getIncidentTypeLabelById($insert_array['type'])), "", "");
-   
-   return($incidentid);
-}
-
-function insertIncidentAddresses($incidentid,$message_time,$user_id,$insert_address_array) {
-   $public     = 1;
-   require_once 'config.plib';
-   require_once LIBDIR.'/airt.plib';
-   require_once LIBDIR.'/database.plib';
-   require_once LIBDIR.'/history.plib';
-   require_once LIBDIR.'/incident.plib';
-         
-
-   $res = db_query("select nextval('incident_addresses_sequence') as iaid")
-            or die("Unable to execute query 4.");
-   $row = db_fetch_next($res);
-   $iaid = $row["iaid"];
-   db_free_result($res);
-
-   $query = sprintf(
-         "insert into incident_addresses
-         (id, incident, ip, hostname, addressrole, constituency, added, addedby)
-         values
-         (%s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP, %s)",
-             $iaid,
-             $incidentid,
-             db_masq_null($insert_address_array['ip']),
-             db_masq_null($insert_address_array['hostname']),
-             $insert_address_array['addressrole'],
-             db_masq_null($insert_address_array['constituency']),
-             $user_id);
-   $res  = db_query($query) or die("Unable to execute query");
-   db_free_result($res);
-
-   $_SESSION['incidentid'] = $incidentid;
-   $_SESSION['userid']     = $user_id;
-   
-   addIncidentComment(sprintf("IP address %s added to
-      incident.",$insert_address_array['ip']), "", "");
-   
-   return($iaid);
-}
-
-*/
 
 exit;
 
