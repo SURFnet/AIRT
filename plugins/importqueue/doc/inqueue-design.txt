@@ -12,41 +12,11 @@ AIRT "New Incident" form, ready to be added to the AIRT system with a single
 button click.
 
 
-Import queue XML input
-----------------------
-All filters are expected to deliver one standard XML format, described as an
-XML schema in .../source/doc/airt.xsd . An example is:
-
-<airt:airt xmlns:airt="http://infolab.uvt.nl/airt">
-  <airt:importqueue>
-    <airt:queuedata ref="#1">
-      <airt:status>open</airt:status>
-      <airt:sender>SURFNET-NL</airt:sender>
-      <airt:type>Cymru</airt:type>
-      <airt:summary>Phatbot found</airt:summary>
-    </airt:queuedata>
-  </airt:importqueue>
-  <airt:incident id="1">
-    <airt:ticketInformation>
-      <airt:prefix>Cymru</airt:prefix>
-    </airt:ticketInformation>
-    <airt:technicalInformation>
-      <airt:ip>137.56.244.8</airt:ip>
-      <airt:incident_time>2005-07-13 13:17:01</airt:incident_time>
-      <airt:logging>1103 | 137.56.244.8 | 2005-07-13 13:17:01 | Phatbot | SURFNET-NL</airt:logging>
-   </airt:technicalInformation>
-  </airt:incident>
-</airt:airt>
-
-The <airt:importqueue> and <airt:incident> chunks may repeat, and the
-attributes of both are matched to pair the chunks.
-
 Intakers
 --------
-At first we implement the command line intaker. This one likely will be the
-work horse of the SMTP and HTTP(S) intakers anyway.
+The intaker is a command which should be used to interface from outside AIRT
+to the import queue. All import mechanisms eventually draw on this command.
 
-Proposed file name and typical command line:
   <AIRT>/plugins/importqueue/bin/import [--verbose] [--noqueue] \
         [--filter filter] < importfile
 
@@ -60,14 +30,8 @@ sanity checks.
 Since the AIRT importer will not often be called as a plain command which
 relies on $PATH to be found, this is not considered a problem.
 
-The PHP external execution command proc_open() allows for explicit
-connection to the stdin, stdout, and stderr file descriptors, so this should
-not be any problem to implement from the PHP caller's side (assuming that
-the HTTP(S) dropper will be implemented in PHP and should call the CLI
-command "import").
-
-The import command itself will be implemented in PHP (using the /usr/bin/php
-command line interpreter).
+The import command itself has been implemented in PHP (using the
+/usr/bin/php command line interpreter).
 
 Main task of the import command is to roughly validate the input (is there
 any), find out the correct input filter (use the command line switch if
@@ -184,7 +148,7 @@ might be imposed by the SQL parser buffer. Experience taught us that it is
 nearly impossible to manually test or review tables with this type of long
 text entries though, reasons why we prefer to keep the flat XML in the file
 system and not put it in the SQL database. The file naming policy is simple:
-  STATEDIR."/importqueue/$id.xml"
+  STATEDIR."/importqueue/<id>.xml"
 where the actual directory typically will end up in /var/lib/airt.
 
 
@@ -242,6 +206,36 @@ specification.
 Web Service
 -----------
 [needs to be written]
+
+
+Import queue XML input
+----------------------
+All filters are expected to deliver one standard XML format, described as an
+XML schema in .../source/doc/airt.xsd . An example is:
+
+<airt:airt xmlns:airt="http://infolab.uvt.nl/airt">
+  <airt:importqueue>
+    <airt:queuedata ref="#1">
+      <airt:status>open</airt:status>
+      <airt:sender>SURFNET-NL</airt:sender>
+      <airt:type>Cymru</airt:type>
+      <airt:summary>Phatbot found</airt:summary>
+    </airt:queuedata>
+  </airt:importqueue>
+  <airt:incident id="1">
+    <airt:ticketInformation>
+      <airt:prefix>Cymru</airt:prefix>
+    </airt:ticketInformation>
+    <airt:technicalInformation>
+      <airt:ip>137.56.244.8</airt:ip>
+      <airt:incident_time>2005-07-13 13:17:01</airt:incident_time>
+      <airt:logging>1103 | 137.56.244.8 | 2005-07-13 13:17:01 | Phatbot | SURFNET-NL</airt:logging>
+   </airt:technicalInformation>
+  </airt:incident>
+</airt:airt>
+
+The <airt:importqueue> and <airt:incident> chunks may repeat, and the
+attributes of both are matched to pair the chunks.
 
 
 [EOF]
