@@ -2,9 +2,12 @@ Design of the AIRT Export Queue
 ===============================================================================
 $Id$
 
+BLOCKS BETWEEN *** STILL NEED TO BE REFINED
+
+
 The AIRT Export Queue is a mechanism to asynchronously call external
 programs from within the AIRT interface. Async calls are interesting when
-the external program takes longer than a few seconds to execute, and a
+the external program takes longer than a few seconds to execute, and thus a
 synchronous call would be impractical. Typical external async calls are for
 a nmap/Nessus run, which could take hours to complete. An additional feature
 is that the export queue can run external programs as a different user than
@@ -13,23 +16,18 @@ the web server user (typically "www-data").
 
 AIRT User Interface
 -------------------
-External programs can be called up from the AIRT interface from two places:
+External programs can be called up in the AIRT interface from two places:
 outside an incident (side menu or main menu) and inside an incident
 (incident details page). The difference is that the former never has any
 context, while the latter can provide some context data from the incident
-and a limited option to feed the results of the external program back to the
-incident record.
+record and a limited option to feed the results of the external program back
+to the incident record.
 
-External programs can be dynamically parametrized from AIRT. This can be
-done both in a purely algorithmic way, reducing the start of the program to
-one single mouse click in the browser, and by means of a form with default
-data which can/should be changed by the AIRT user before firing it off. The
-construction of this form page is part of the export queue mechanism.
-
-Combinations of all mechanisms can be made, so that the same external
-program can be called via a form for generic cases and directly from within
-an incident for specific cases, where AIRT fills in the form in the
-background. Flexibility is the key here.
+External programs can be dynamically parametrized from AIRT. A simple
+mechanism is provided to generate a parameter string with limited variable
+expansion from the AIRT incident record data. For the moment, more extensive
+mechanisms including full HTML entry forms are not implemented, but these
+can be added later without much fuss.
 
 
 AIRT System Interface
@@ -65,21 +63,35 @@ offers.
 
 Incident Context
 ----------------
+***
 - Some basic incident data.
 - Entry in the incident history.
 - AIRT event handling?
 - Possibly, list of pending tasks per incident.
 - Expiration/warning mechanism.
 
+A function should be available which can produce a parameter string using
+standard %x expansion. Hm. Inside AIRT, this won't do, as nobody except the
+AIRT developers is supposed to touch this code. A better solution seems to
+be to define what parameter string is fed to the external program (wrapper
+script), and keep this string extensible. The database and whole export
+queue mechanism should already be built with this in mind. In other words,
+the AIRT core function export_Foepie() should produce a string which is
+passed on to the wrapper script unparsed by anything. Only the queue itself
+might add the queue item ID.
+***
+
 
 AIRT Interface Design
 ---------------------
+***
 - Mechanism to dynamically compile a parametrized URL.
 - Mechanism to securely catch parametrized URLs.
 - Narrow call channel for external program scripts.
 - Single list (directory) with callable scripts.
 - Predefined format for such scripts, using start-stop-daemon for the
   actual queue work.
+***
 
 
 Operating System Interface
@@ -127,6 +139,7 @@ remain flagged as "started at ..." until the export queue is purged. AIRT
 is robust against this, but does not take actions to determine why the
 process crashed.
 
+***
 What data do we need to start up a background/export process?
 
 - Which user we want to run the actual process. This is determined fully by
@@ -139,6 +152,7 @@ What data do we need to start up a background/export process?
   dependent on the wrapper script.
 - Optionally a delayed start time for advanced scheduling (cheap). Default
   should be "as soon as possible", i.e., the next whole minute.
+***
 
 
 FILE SYSTEM STRUCTURES AND FHS
@@ -179,10 +193,12 @@ specific to the exportqueue plugin, such as site-specific extensions
 
 AIRT CONTEXT
 
+***
 - Firing off an external program might lead to an event registration for the
   associated incident. This adds a history line, nothing more. A returned
   answer may also lead to a history line. There are no other options to add
   a result to an incident.
+***
 
 
 USER INTERACTION BEFORE FIRING OFF
@@ -192,13 +208,12 @@ administrator must provide this form. It does not seem a good idea at this
 moment to allow a full HTML/PHP page for a form, with the associated data
 catcher and all fuss. We might get away with a simple list of variable names
 that gets expanded into a simple form, and leads to a parameter line with a
-'--variable=value --variable=value --variable=value' structure.
+'--variable=value --variable=value --variable=value' structure. Later.
 
 
-TYPICAL EXTERNAL PROGRAM CALL
-
-Suppose we want to run a nmap scan over a specific IP adress. AIRT must have
-a script available, typically something like.
-/usr/local/share/airt/lib/exportqueue/full_nmap_scan .
+Useful PHP man page:
+http://nl2.php.net/manual/en/function.shell-exec.php
+Look for the contribution by jesuse dot gonzalez at venalum dot com dot ve.
+Alternatively look at http://nl2.php.net/manual/en/function.pcntl-fork.php
 
 [EOF]
