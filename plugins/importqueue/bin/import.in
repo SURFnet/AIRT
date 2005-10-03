@@ -26,7 +26,7 @@
 
 // Pick up standard AIRT config and required library (which pulls in the
 // other required libraries).
-require_once '@AIRTPATH@/airt.cfg';
+require_once '@ETCPATH@/airt.cfg';
 require_once LIBDIR.'/importqueue/importqueue.plib';
 
 // Set up all default command line options.
