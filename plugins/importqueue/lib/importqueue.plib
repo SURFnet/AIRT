@@ -288,7 +288,11 @@ function queueToAIRT($id, &$error) {
    $airt_client = new SOAP_Client(WS_ENDPOINT);
    $method = "importIncidentData";
    $params = array('importXML'=>$content);
+   if (defined('AIRT_CAPATH')) {
+      $airt_client->setOpt('curl', CURLOPT_CAPATH, AIRT_CAPATH);
+   }
    $ans = $airt_client->call($method, $params);
+   print_r($ans);
 
    return 0;
 }
