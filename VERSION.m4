@@ -1,1 +1,1 @@
-m4_define([AIRT_VERSION],[20050926.1])
+m4_define([AIRT_VERSION],[20051003.1])
