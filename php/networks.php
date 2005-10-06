@@ -159,7 +159,7 @@ switch ($action) {
       if (array_key_exists("netmask", $_POST)) {
          $netmask=$_POST["netmask"];
          $res = array();
-         if (sscanf($netmask, "/%s", &$res) == 1) {
+         if (sscanf($netmask, "/%s", $res) == 1) {
             $netmask = cidr2netmask(substr($netmask, 1));
          }
       } else {
