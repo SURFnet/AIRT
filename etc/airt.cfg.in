@@ -1,7 +1,7 @@
 <?php
 /*
  * AIR: Application for Incident Response
- * Copyright (C) 2004   Kees Leune <kees@uvt.nl>
+ * Copyright (C) 2004,2005   Tilburg University, Infolab <airt-dev@uvt.nl>
 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 
 // location of the .plib files
 define('LIBDIR', '@PHPLIBPATH@');
-    
+
 // location of the persistant state files, writable by www-server
 define('STATEDIR', '@STATEPATH@');
 
@@ -40,21 +40,20 @@ define('ETCDIR', '@ETCPATH@');
 // sender-from in standard emails. 
 // If left empty, the email address of the currently logged in AIRT 
 // use will be used. 
-define('MAILFROM', 'Example-CERT - @YOURFIRSTNAME@ <user@host.com>');
+define('MAILFROM', 'Example-CERT - @YOURFIRSTNAME@ <user@example.com>');
 
 // Any mail sent from this sysstem will have the following envelope sender.
 // Note: dont leave this empty, or you will get the userid of the owner of
 // your web server process. Only use an email address here, dont add a name.
-define('MAILENVFROM', 'user@host.com');
+define('MAILENVFROM', 'user@example.com');
 
 // this email address will always be cc'ed on outgoing messages. 
 // If left empty, no cc's of standard messages will be sent.
-define('MAILCC', 'user@host.com');
+define('MAILCC', 'user@example.com');
 
 // reply-to used in standard emails. 
-// If left empty, the email address of the currently logged in AIRT 
-// use will be used. 
-define('REPLYTO', 'Example-CERT - @YOURFIRSTNAME@ <user@host.com>');
+// If left empty, no replyto header will be set.
+define('REPLYTO', 'Example-CERT - @YOURFIRSTNAME@ <user@example.com>');
 
 
 
@@ -79,7 +78,7 @@ define('DBPASSWD', '**********');        // <--- CHANGE THIS
  */
 define('GPG_BIN', '/usr/bin/gpg');
 define('GPG_HOMEDIR', '/usr/local/share/airt/key');
-define('GPG_OPTIONS', '--detach-sign --armor --batch');
+define('GPG_OPTIONS', '--detach-sign -t --armor --batch');
 // define('GPG_KEYID', '8830B66F');
 
 
