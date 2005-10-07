@@ -72,13 +72,6 @@ function filter_xml($input, &$output, $verbosity=FALSE) {
       $sender = 'unknown';
    }
 
-   /* Try to find the summary (aka message subject) */
-   if (preg_match('/^Subject: (.+)/m', $input, $matches)==1) {
-      $summary = htmlSpecialChars($matches[1]);
-   } else {
-      $summary = 'unknown';
-   }
-
    /* create output DOM tree */
    $out = domxml_new_doc('1.0');
    $airt = $out->add_root('airt');
@@ -92,11 +85,12 @@ function filter_xml($input, &$output, $verbosity=FALSE) {
       $type_el    = $out->create_element('type');
       $summary_el = $out->create_element('summary');
 
+      $hostname = gethostbyaddr($ip);
       $queuedata->set_attribute('ref', "#$id");
       $status_el->set_content('open');
       $sender_el->set_content($sender);
       $type_el->set_content('honeyd logging');
-      $summary_el->set_content($summary);
+      $summary_el->set_content("Honeyd logging $hostname [$ip] ");
 
       $queuedata->append_child($status_el);
       $queuedata->append_child($sender_el);
@@ -107,11 +101,13 @@ function filter_xml($input, &$output, $verbosity=FALSE) {
       $incident_el = $out->create_element('incident');
       $techinfo_el = $out->create_element('technicalInformation');
       $ip_el       = $out->create_element('ip');
+      $host_el     = $out->create_element('hostname');
       $num_el      = $out->create_element('number_attempts');
       $logging_el  = $out->create_element('logging');
 
       $incident_el->set_attribute('id', $id++);
       $ip_el->set_content($ip);
+      $host_el->set_content($hostname);
       $num_el->set_content($count);
 
       /* fetch corresponding nodes from import DOM tree*/
@@ -130,14 +126,15 @@ function filter_xml($input, &$output, $verbosity=FALSE) {
          $dstports = $targets[0]->get_elements_by_tagname('port');
 
          $logging .= sprintf("%s (%s): %s: From %s:%s to %s:%s\n",
-            $times[0]->get_content(), $times[0]->get_attribute('zone'),
-            $protos[0]->get_content(), $srcips[0]->get_content(),
-            $srcports[0]->get_content(), $dstips[0]->get_content(),
-            $dstports[0]->get_content());
+         $times[0]->get_content(), $times[0]->get_attribute('zone'),
+         $protos[0]->get_content(), $srcips[0]->get_content(),
+         $srcports[0]->get_content(), $dstips[0]->get_content(),
+         $dstports[0]->get_content());
       }
       $logging_el->set_content($logging);
 
       $techinfo_el->append_child($ip_el);
+      $techinfo_el->append_child($host_el);
       $techinfo_el->append_child($num_el);
       $techinfo_el->append_child($logging_el);
       $incident_el->append_child($techinfo_el);
