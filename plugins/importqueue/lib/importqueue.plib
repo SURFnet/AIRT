@@ -411,6 +411,4 @@ function queueRemoveItem($id,&$error) {
    $error = 'Not yet implemented';
    return 1;
 }// queueRemoveItem
-
-
 ?>

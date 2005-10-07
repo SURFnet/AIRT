@@ -47,4 +47,4 @@ function filter_cymru($input, &$output, $verbosity=FALSE) {
    }
    return 0;
 }
-
+?>

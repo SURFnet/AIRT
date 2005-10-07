@@ -24,7 +24,7 @@
  */
 
 define('CUTOFF', 5);
-/* Import queue filter function for SURFnet reports.
+/* Import queue filter function for Honeyd reports.
  * Parameters:
  *    input     = The SURFnet report email, headers and everything.
  *    output    = The string variable to write the XML output to.
@@ -41,7 +41,7 @@ function filter_xml($input, &$output, $verbosity=FALSE) {
       return 0;
    }
 
-   /* build DOM tree */
+   /* build DOM tree from input*/
    $error = array();
    $dom = domxml_open_mem($matches[1], DOMXML_LOAD_PARSING, $error);
 
@@ -65,22 +65,21 @@ function filter_xml($input, &$output, $verbosity=FALSE) {
       }
    }
 
-   /* Try to find the sender. */
+   /* Try to find the sender of the message */
    if (preg_match('/^From: (.+)/m', $input, $matches)==1) {
       $sender = htmlSpecialChars($matches[1]);
    } else {
       $sender = 'unknown';
    }
 
-   /* Try to find the summary. */
+   /* Try to find the summary (aka message subject) */
    if (preg_match('/^Subject: (.+)/m', $input, $matches)==1) {
       $summary = htmlSpecialChars($matches[1]);
    } else {
       $summary = 'unknown';
    }
 
-
-   /* create output */
+   /* create output DOM tree */
    $out = domxml_new_doc('1.0');
    $airt = $out->add_root('airt');
 
@@ -105,7 +104,6 @@ function filter_xml($input, &$output, $verbosity=FALSE) {
       $queuedata->append_child($summary_el);
 
       /* create incident element and its children */
-
       $incident_el = $out->create_element('incident');
       $techinfo_el = $out->create_element('technicalInformation');
       $ip_el       = $out->create_element('ip');
@@ -116,7 +114,7 @@ function filter_xml($input, &$output, $verbosity=FALSE) {
       $ip_el->set_content($ip);
       $num_el->set_content($count);
 
-      /* fetch corresponding nodes */
+      /* fetch corresponding nodes from import DOM tree*/
       $xpath = $dom->xpath_new_context();
       $obj = $xpath->xpath_eval_expression("contact[source[ip='$ip']]");
       $logging = '';
@@ -155,4 +153,4 @@ function filter_xml($input, &$output, $verbosity=FALSE) {
    }
    return 0;
 }
-
+?>

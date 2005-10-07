@@ -57,4 +57,4 @@ function filter_mynetwatchman($input, &$output, $verbosity=FALSE) {
    }
    return 0;
 }
-
+?>
