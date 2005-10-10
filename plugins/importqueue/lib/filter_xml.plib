@@ -23,7 +23,7 @@
  * $Id$
  */
 
-define('CUTOFF', 5);
+
 /* Import queue filter function for Honeyd reports.
  * Parameters:
  *    input     = The SURFnet report email, headers and everything.
@@ -31,8 +31,21 @@ define('CUTOFF', 5);
  *    verbosity = Optionally, boolean; TRUE = verbose output to STDOUT.
  * Returns:
  *    0 on success (can not yet fail).
+ *
+ * This filter will accept honeyd logging which meets the following criteria:
+ * - host name must occur at least $CUTOFF (default:five) times as a source
+ * - reverse DNS of IP must return a host name
+ * - domain must be on accept list
+ *
  */
+define('CUTOFF', 5);
+$ACCEPT = array(
+   '/\.nl/'
+);
+
 function filter_xml($input, &$output, $verbosity=FALSE) {
+   global $ACCEPT;
+
    /* fetch XML from message */
    $matches=array();
    preg_match('/(<airt>.*<\/airt>)/s', $input, $matches);
@@ -86,11 +99,33 @@ function filter_xml($input, &$output, $verbosity=FALSE) {
       $summary_el = $out->create_element('summary');
 
       $hostname = gethostbyaddr($ip);
+      if ($hostname == $ip) {
+         if ($verbosity) {
+            print "Skipping IP address $ip (does not resolv)\n";
+         }
+         continue;
+      }
+      $process = false;
+      foreach ($ACCEPT as $regex) {
+         if (preg_match($regex, $hostname) > 0) {
+            $process = true;
+         }
+      }
+      if ($process == false) {
+         if ($verbosity) {
+            print "Skipping hostname $hostname (not on accept list)\n";
+         }
+         continue;
+      }
       $queuedata->set_attribute('ref', "#$id");
       $status_el->set_content('open');
       $sender_el->set_content($sender);
-      $type_el->set_content('honeyd logging');
-      $summary_el->set_content("Honeyd logging $hostname [$ip] ");
+      $type = "honeyd $hostname [$ip]";
+      if (strlen($type) > 50) {
+         $type = substr($type, 0, 47).'...';
+      }
+      $type_el->set_content($type);
+      $summary_el->set_content("Honeyd $hostname [$ip]");
 
       $queuedata->append_child($status_el);
       $queuedata->append_child($sender_el);
