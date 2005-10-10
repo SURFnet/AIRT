@@ -50,8 +50,9 @@ AC_OUTPUT([Makefile
     plugins/Makefile
     plugins/importqueue/Makefile
     plugins/importqueue/bin/Makefile
-    plugins/importqueue/bin/import
+    plugins/importqueue/bin/airt_import
     plugins/importqueue/lib/Makefile
     plugins/importqueue/php/Makefile
     plugins/importqueue/doc/Makefile
+    plugins/importqueue/etc/Makefile
 ])

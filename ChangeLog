@@ -1,3 +1,11 @@
+2005-10-10
+* Import queue now no longer uses hard-coded directories for the filters, but
+  makes them user configurable.
+
+2005-10-03
+* First version of import queue module is now available. Minor bugfixes
+  throughout the code.
+
 2005-09-26
 * lib/incident.plib: When creating a new incident directly, the IP address is
   now also set in the session. (closes: Infolab-RT#36)
