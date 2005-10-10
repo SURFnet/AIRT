@@ -101,6 +101,9 @@ define('WS_ENDPOINT', 'https://localhost/airt/server.php');
 define('AIRT_CAPATH', '/etc/ssl/certs');
 ----- end webservice.cfg -----
 
+Note that the hostname used in the WS_ENDPOINT must match with the hostname on
+the certificate! Only in very rare situations, localhost will be appropriate.
+
 Note: the second options is currently not yet available on ferguson. The
 current version of AIRT has it hard-coded in
 /usr/share/airt/lib/importqueue/importqueue.plib. The next version of the

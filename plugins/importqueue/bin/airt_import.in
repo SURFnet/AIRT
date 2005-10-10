@@ -27,6 +27,7 @@
 // Pick up standard AIRT config and required library (which pulls in the
 // other required libraries).
 require_once '@ETCPATH@/airt.cfg';
+require_once ETCDIR.'/importqueue.cfg';
 require_once LIBDIR.'/importqueue/importqueue.plib';
 
 // Set up all default command line options.
@@ -75,28 +76,30 @@ foreach ($argv as $param) {
 // Retrieve all filters installed in LIBDIR. We need this list for --help,
 // so we build it even when no actual filtering might take place.
 $FILTERS = array();
-$libdir = opendir(LIBDIR.'/importqueue');
-while ($file = readdir($libdir)) {
-   $filter_name = basename($file,'.plib');
-   if (substr($filter_name,0,7)=='filter_') {
-      // Found a filter library file, source it. Failures to read it or parse
-      // it are not handled gracefully, but cause a proper abort with a
-      // meaningful message.
-      require_once LIBDIR.'/importqueue/'.$filter_name.'.plib';
-      // Proper function installed?
-      if (function_exists($filter_name)) {
-         // OK, register the filter.
-         $FILTERS[] = substr($filter_name,7);
-      } else {
-         // Bad filter, complain and quit.
-         fwrite(STDERR, t('ERROR: Bad filter definition file "%s".',
-                          array('%s'=>$filter_name)).
-                        "\n");
-         exit(1);
+foreach ($AIRT_IMPORTFILTER_DIRS as $dir) {
+   $libdir = opendir($dir);
+   while ($file = readdir($libdir)) {
+      $filter_name = basename($file,'.plib');
+      if (substr($filter_name,0,7)=='filter_') {
+         // Found a filter library file, source it. Failures to read it or parse
+         // it are not handled gracefully, but cause a proper abort with a
+         // meaningful message.
+         require_once $dir.'/'.$filter_name.'.plib';
+         // Proper function installed?
+         if (function_exists($filter_name)) {
+            // OK, register the filter.
+            $FILTERS[] = substr($filter_name,7);
+         } else {
+            // Bad filter, complain and quit.
+            fwrite(STDERR, t('ERROR: Bad filter definition file "%s".',
+                             array('%s'=>$filter_name)).
+                           "\n");
+            exit(1);
+         }
       }
-   }
-}// for each file name
-closedir($libdir);
+   }// for each file name
+   closedir($libdir);
+}
 
 // Check whether the requested filter function exists at all.
 $filter_function = 'filter_'.$OPTIONS['--filter'];

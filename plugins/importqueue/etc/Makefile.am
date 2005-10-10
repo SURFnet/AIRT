@@ -1,6 +1,5 @@
-# Makefile for AIRT import plugin
-# AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
-# Copyright (C) 2004,2005	Tilburg University, The Netherlands <airt-dev@uvt.nl>
+# AIR: APPLICATION FOR INCIDENT RESPONSE
+# Copyright (C) 2004-2005	 Tilburg University, The Netherlands <airt-dev@uvt.nl>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,9 +16,12 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # $Id$
-bin_SCRIPTS = airt_import
 
-EXTRA_DIST= airt_import.in
+# 
+configdir=$(sysconfdir)/$(PACKAGE)
+config_DATA = importqueue.cfg
 
-CLEANFILES=airt_import
-DISTCLEANFILES=$(CLEANFILES)
+CLEANFILES = importqueue.cfg
+DISTCLEANFILES = $(CLEANFILES)
+
+EXTRA_DIST = $(config_DATA)
