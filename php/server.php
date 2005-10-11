@@ -21,9 +21,30 @@
 
 require_once('SOAP/Server.php');
 require_once('SOAP/Disco.php');
-require_once('export.php');
 require_once 'config.plib';
 require_once LIBDIR.'/incident.plib';
+
+$server       = new SOAP_Server();
+$webservice   = new IncidentHandling();
+$server->addObjectMap($webservice,'http://schemas.xmlsoap.org/soap/envelope/');
+
+if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD']=='POST') {
+   $server->service($HTTP_RAW_POST_DATA);
+}
+
+else {
+   // Create the DISCO server
+   $disco = new SOAP_DISCO_Server($server,'Incident');
+   header("Content-type: text/xml");
+   if (isset($_SERVER['QUERY_STRING']) && strcasecmp($_SERVER['QUERY_STRING'],'wsdl') == 0) {
+      echo $disco->getWSDL();
+   } else {
+      echo $disco->getDISCO();
+   }
+}
+
+exit;
+
 
 class IncidentHandling {
    var $__dispatch_map = array();
@@ -39,7 +60,7 @@ class IncidentHandling {
 
    function getXMLIncidentData($action)  {
       if ($action == 'getAll') {
-         $public  = 1;
+         require_once('export.php');
          return exportOpenIncidents();
       }
    }
@@ -167,38 +188,16 @@ class IncidentHandling {
       if($set_userid_tmp == true) {
          unset($_SESSION['userid']);
       }
-   }
 
-   if ($error == null) {
-      $mesg = 'Import successful. Imported incident with id ';
-      foreach($incidentid as $i => $id) {
-         $id_list .= "$id, ";
+      if ($error == null) {
+         $mesg = 'Import successful. Imported incident with id ';
+         foreach ($incidentid as $i => $id)
+            $id_list .= "$id, ";
+         $id_list = rtrim($id_list,', ');
+         $mesg .= $id_list.'.';
+         return $mesg;
       }
-      $id_list = rtrim($id_list,', ');
-      $mesg .= $id_list.'.';
-      return $mesg;
    }
 }
-
-$server       = new SOAP_Server();
-$webservice   = new IncidentHandling();
-$server->addObjectMap($webservice,'http://schemas.xmlsoap.org/soap/envelope/');
-
-if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD']=='POST') {
-   $server->service($HTTP_RAW_POST_DATA);
-}
-
-else {
-   // Create the DISCO server
-   $disco = new SOAP_DISCO_Server($server,'Incident');
-   header("Content-type: text/xml");
-   if (isset($_SERVER['QUERY_STRING']) && strcasecmp($_SERVER['QUERY_STRING'],'wsdl') == 0) {
-      echo $disco->getWSDL();
-   } else {
-      echo $disco->getDISCO();
-   }
-}
-
-exit;
 
 ?>
