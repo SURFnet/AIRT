@@ -93,7 +93,7 @@ function import($input,&$error,$verbosity=FALSE) {
    $importqueue = $root->get_elements_by_tagname('queuedata');
    if (sizeof($importqueue) == 0) {
       $error = 'No importqueue element in XML';
-      return 1;
+      return 0;
    }
 
    foreach ($importqueue as $element) {
