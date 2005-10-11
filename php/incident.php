@@ -90,7 +90,7 @@ function formatIncidentForm(&$check) {
    $output .= "  <td><a href=\"help.php?topic=incident-adduser\">help</td>\n";
    $output .= "</tr>\n";
    $output .= "</table>\n";
-   
+
    if ($email != '') {
       $check = true;
    }
@@ -99,7 +99,6 @@ function formatIncidentForm(&$check) {
    $output .= "  if checked, create user if email address unknown\n";
 
    $output .= "<p/>\n";
-   $output .= "<hr/>\n";
 
    return $output;
 } // showincidentform
@@ -109,9 +108,10 @@ function formatIncidentForm(&$check) {
  */
 function formatEditForm() {
    $incident = getincident($_SESSION["incidentid"]);
-   $type = $incident["type"];
-   $state = $incident["state"];
-   $status = $incident["status"];
+   $type = $incident['type'];
+   $state = $incident['state'];
+   $status = $incident['status'];
+	$logging = $incident['logging'];
 
    if (array_key_exists("active_ip", $_SESSION)) {
       $address = $_SESSION["active_ip"];
@@ -123,7 +123,7 @@ function formatEditForm() {
    $output = "<form action=\"$_SERVER[PHP_SELF]\" method=\"post\">\n";
    $output .= "<hr/>\n";
    $output .= "<h3>Basic incident data</h3>\n";
-   $output .= formatBasicIncidentData($type, $state, $status);
+   $output .= formatBasicIncidentData($type, $state, $status, $logging);
    $output .= "<input type=\"submit\" name=\"action\" value=\"update\">\n";
    $output .= "</form>";
 
@@ -223,6 +223,8 @@ function formatEditForm() {
    $output .= t('  <input onChange="updateCheckboxes()" type="checkbox" name="addifmissing" %checked>', array(
       '%checked'=>($email=='')?'':'CHECKED'))."\n";
    $output .= "  If checked, create user if email address unknown\n";
+
+   $output .= "<hr/>\n";
    $output .= "</form>\n";
 
    return $output;
@@ -299,7 +301,8 @@ switch ($action) {
 
     //--------------------------------------------------------------------
     case "Add":
-      $address = $constituency = $type = $state = $status = $email = $addressrole = '';
+      $address = $constituency = $type = $state = $status = $email =
+		$addressrole = $logging = '';
       $addifmissing = $sendmail = 'off';
       if (array_key_exists("address", $_POST)) {
         $address=$_POST["address"];
@@ -325,14 +328,17 @@ switch ($action) {
         $sendmail=$_POST["sendmail"];
       }
       if (array_key_exists("email", $_POST)) {
-         $email=strtolower($_POST["email"]);
+         $email=trim(strtolower($_POST["email"]));
          $_SESSION['current_email'] = $email;
       }
       if (array_key_exists("addifmissing", $_POST)) {
          $addif=$_POST["addifmissing"];
       }
+      if (array_key_exists("logging", $_POST)) {
+         $logging=trim($_POST["logging"]);
+      }
 
-      $incidentid   = createIncident($state,$status,$type);
+      $incidentid   = createIncident($state,$status,$type,$logging);
       addIPtoIncident($address,$incidentid,$addressrole);
 
       if ($email != "") {
@@ -800,6 +806,11 @@ EOF;
       } else {
          die("Missing information (4).");
       }
+      if (array_key_exists("logging", $_POST)) {
+         $logging = trim($_POST["logging"]);
+      } else {
+         die("Missing information (5).");
+      }
 
       generateEvent("incidentupdate", array(
          "incidentid" => $incidentid,
@@ -808,7 +819,7 @@ EOF;
          "type" => $type
       ));
 
-      updateIncident($incidentid,$state,$status,$type);
+      updateIncident($incidentid,$state,$status,$type,$logging);
 
       addIncidentComment(sprintf("Incident updated: state=%s, ".
          "status=%s type=%s", 

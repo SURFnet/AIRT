@@ -122,6 +122,7 @@ CREATE TABLE incidents (
     state       integer not null,
     status      integer not null,
     type        integer not null,
+	logging     text,
     primary key (id),
     foreign key (creator)   references users(id),
     foreign key (updatedby) references users(id),

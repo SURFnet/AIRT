@@ -230,7 +230,8 @@ function getIncident($id) {
                 updatedby,
                 state,
                 status,
-                type
+                type,
+					 logging
       FROM incidents
       WHERE id=%id', array('%id'=>$id)))
    or die("Unable to execute query 1.");
@@ -323,7 +324,7 @@ function addIPtoIncident($ip, $incident,$role=0) {
    }
 }
 
-function createIncident($state,$status,$type) {
+function createIncident($state,$status,$type,$logging) {
    $res        = db_query("select nextval('incidents_sequence') as incidentid")
                   or die("Unable to execute query 2.");
    $row        = db_fetch_next($res);
@@ -333,15 +334,16 @@ function createIncident($state,$status,$type) {
 
    $res = db_query(sprintf(
       "insert into incidents
-      (id, created, creator, updated, updatedby, state, status, type)
+      (id, created, creator, updated, updatedby, state, status, type, logging)
       values
-      (%s, CURRENT_TIMESTAMP, %s, CURRENT_TIMESTAMP, %s, %s, %s, %s)",
+      (%s, CURRENT_TIMESTAMP, %s, CURRENT_TIMESTAMP, %s, %s, %s, %s, %s)",
          $incidentid,
          $_SESSION["userid"],
          $_SESSION["userid"],
          $state == "" ? 'NULL' : $state ,
          $status == "" ? 'NULL' : $status ,
-         $type == "" ? 'NULL' : $type
+         $type == "" ? 'NULL' : $type,
+			$logging == "" ? 'NULL' : "'$logging'"
       )
    ) or die("Unable to execute query 3.");
    db_free_result($res);
@@ -490,7 +492,7 @@ function removeUserfromIncident($userid, $incident) {
  * state and status. All input variables may be "", which leads to a system
  * default selection.
  */
-function formatBasicIncidentData($type, $state, $status) {
+function formatBasicIncidentData($type, $state, $status, $logging="") {
    $output = "<table>\n";
    $output .= "  <tr>\n";
    $output .= "    <td>Incident type</td>\n";
@@ -507,6 +509,10 @@ function formatBasicIncidentData($type, $state, $status) {
    $output .= "    <td>".getIncidentStatusSelection("status", $status)."</td>\n";
    $output .= "    <td><a target=\"airthelp\" href=\"$_SERVER[PHP_SELF]?action=showstatus\">Help</a></td>\n";
    $output .= "  </tr>\n";
+	$output .= "  <tr valign=\"top\">\n";
+	$output .= "    <td>Logging</td>\n";
+	$output .= "    <td colspan=\"2\"><textarea name=\"logging\" cols=\"80\" rows=\"5\">$logging</textarea></td>\n";
+	$output .= "  </tr>\n";
    $output .= "</table>\n";
 
    return $output;
@@ -627,14 +633,14 @@ function updateIPofIncident($id,$constituency,$addressrole) {
  * Relevant automatic fields will be generated accordingly.
  * Returns void.
  */
-function updateIncident($id,$state,$status,$type) {
+function updateIncident($id,$state,$status,$type,$logging) {
    // Problem case: no ID given.
    if ($id=='') {
       die('No ID given to update request.');
    }
 
    // Special case: no work to be done.
-   if ($state=='' && $status=='' && $type=='') {
+   if ($state=='' && $status=='' && $type=='' && $logging=='') {
       return;
    }
 
@@ -648,6 +654,9 @@ function updateIncident($id,$state,$status,$type) {
    }
    if ($type!='') {
       $set .= sprintf('type=%d,',$type);
+   }
+   if ($logging!='') {
+      $set .= sprintf('logging=\'%s\',',$logging);
    }
 
    // Add the fixed part (we know for sure there is at least one variable
@@ -666,7 +675,7 @@ function updateIncident($id,$state,$status,$type) {
  */
 function updateIncidentList($incidentList,$state,$status) {
    foreach ($incidentList as $id) {
-      updateIncident($id,$state,$status,'');
+      updateIncident($id,$state,$status,'','');
    }
    return;
 }

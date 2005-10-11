@@ -1,3 +1,6 @@
+2005-x-y
+* New field with incident: logging
+
 2005-10-10
 * Import queue now no longer uses hard-coded directories for the filters, but
   makes them user configurable.
