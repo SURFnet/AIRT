@@ -245,6 +245,9 @@ function formatQueueOverview() {
  *   0 on success, 1 on failure
  */
 function queueToAIRT($id, &$error) {
+   $authid = '';
+   $authid = getAuthenticationTicket();
+
    if ($id == '') {
       $error = 'Missing parameter id';
       return 1;
@@ -274,12 +277,15 @@ function queueToAIRT($id, &$error) {
    $email_el->set_content($email);
    $name_el = $xml->create_element('name');
    $name_el->set_content($name);
+   $authid_el = $xml->create_element('authid');
+   $authid_el->set_content($authid);
 
    # build structure
    $xml_root = $xml->document_element();
    $xml_root->append_child($ident);
    $ident->append_child($email_el);
    $ident->append_child($name_el);
+   $ident->append_child($authid_el);
    $xml_root->append_child($incident_data);
    $content = $xml->dump_mem();
 
@@ -292,9 +298,27 @@ function queueToAIRT($id, &$error) {
       $airt_client->setOpt('curl', CURLOPT_CAPATH, AIRT_CAPATH);
    }
    $ans = $airt_client->call($method, $params);
-   print_r($ans);
+   print_r($content);
+#   print_r($ans);
 
    return 0;
+}
+
+function getAuthenticationTicket() {
+   $rand = '';
+   
+   $fileName = STATEDIR."/importqueue/rid";
+   $ticketFile = @fopen($fileName,'r');
+   if (!$ticketFile) {
+      $error = 'Could not open '.$fileName.' for reading';
+      echo $error;
+      return FALSE;
+   }
+   else {
+      $rid  = fread($ticketFile,1024);
+      return $rid;
+   }
+   @fclose($ticketFile);
 }
 
 
@@ -345,7 +369,7 @@ function queueInsertItem($status,$sender,$type,$summary,$content,&$error) {
       return FALSE;
    }
    if (!@fwrite($xmlFile,$content)) {
-      $error = 'Could not write to $fileName';
+      $error = 'Could not write to '.$fileName;
       @fclose($xmlFile);
       return FALSE;
    }
