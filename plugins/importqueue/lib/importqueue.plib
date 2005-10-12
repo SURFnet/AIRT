@@ -298,14 +298,17 @@ function queueToAIRT($id, &$error) {
       $airt_client->setOpt('curl', CURLOPT_CAPATH, AIRT_CAPATH);
    }
    $ans = $airt_client->call($method, $params);
-   print_r($content);
-#   print_r($ans);
+   echo "<PRE>";
+   print_r($ans);
 
-   return 0;
+#   return 0;
 }
 
+/* Get the random id from the filesystem in order to authenticate, in
+ * order to append it to the XML later
+ */
 function getAuthenticationTicket() {
-   $rand = '';
+   $rid = '';
    
    $fileName = STATEDIR."/importqueue/rid";
    $ticketFile = @fopen($fileName,'r');
