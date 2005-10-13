@@ -104,7 +104,7 @@ AIRT explicitly does not try to shield itself from the external programs.
 This separation is fully in the hands of the OS, and therefore in the hands
 of the OS administrator, who does not need to trust any AIRT code.
 
-AIRT users the system batch job facility, known as cron. An AIRT-provided
+AIRT uses the system batch job facility, known as cron. An AIRT-provided
 PHP script in CLI mode is run every n minutes via a standard entry in
 /etc/cron.d/airt . The system administrator determines how often (typically
 once per minute) and as which user (typically "nobody") this script is run.
