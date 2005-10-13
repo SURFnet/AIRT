@@ -1,0 +1,102 @@
+#!/usr/bin/php
+<?php
+/* vim: syntax=php tabstop=3 shiftwidth=3
+ *
+ * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
+ * Copyright (C) 2005   Tilburg University, The Netherlands
+
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ * airt_export -- spawn off external tasks from the AIRT Export Queue.
+ * 
+ * $Id$
+ */
+
+// Pick up standard AIRT config and required library (which pulls in the
+// other required libraries).
+require_once '@ETCPATH@/airt.cfg';
+require_once ETCDIR.'/exportqueue.cfg';
+require_once LIBDIR.'/exportqueue/exportqueue.plib';
+
+// Set up all default command line options.
+// Options are either Boolean (--option) or scalar (--option=value).
+$OPTIONS = array();
+$OPTIONS['--help']    = false;
+$OPTIONS['--noqueue'] = false;
+$OPTIONS['--verbose'] = false;
+
+// Run over command line arguments.
+array_shift($argv);               // get rid of argument 0, the command itself.
+foreach ($argv as $param) {
+   if (substr($param,0,2)=='--') {
+      // Option parameter.
+      @list($option,$value) = split('=',$param);
+      if (isset($OPTIONS[$option])) {
+         // Known option, get new value of the correct type.
+         if (is_bool($OPTIONS[$option])) {
+            $OPTIONS[$option] = true;
+         } else {
+            $OPTIONS[$option] = $value;
+         }
+      } else {
+         // Unknown option, quit.
+         fwrite(STDERR, t('ERROR: Unknown option "%s".',
+                          array('%s'=>$option)).
+                        "\n");
+         exit(1);
+      }
+   }
+   // File parameters are not used, at least not yet. See importqueue for a
+   // good example on how to handle them.
+}// foreach parameter
+
+// Retrieve all wrappers installed in LIBDIR. We need this list for --help,
+// so we build it even when no actual task calling might take place.
+$WRAPPERS = array();
+foreach ($AIRT_EXPORTWRAPPER_DIRS as $dir) {
+   $libdir = opendir($dir);
+   while ($file = readdir($libdir)) {
+      $wrapper_name = basename($file);
+      if (substr($wrapper_name,0,8)=='wrapper_') {
+         // Found a wrapper file. Check whether it is executable.
+         if (!is_executable($dir.'/'.$wrapper_name)) {
+            // Bad wrapper, complain but do not quit.
+            fwrite(STDERR, t('WARNING: wrapper "%s" not executable.',
+                             array('%s'=>$wrapper_name)).
+                           "\n");
+         } else {
+            // Ok, register the wrapper.
+            $WRAPPERS[] = $wrapper_name;
+         }
+      }
+   }// for each file name
+   closedir($libdir);
+}
+
+// Help requested?
+if ($OPTIONS['--help']) {
+   printUsage();
+   exit(0);
+}
+
+// ACTUAL ACTIONS HERE.
+
+// Successful completion.
+if ($OPTIONS['--verbose']) {
+   echo t('Done.')."\n";
+}
+return 0;
+
+?>
