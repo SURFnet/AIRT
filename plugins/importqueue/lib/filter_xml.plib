@@ -42,9 +42,13 @@ define('CUTOFF', 5);
 $ACCEPT = array(
    '/\.nl/'
 );
+$WHITELIST = array(
+   '/^placebo\.uvt\.nl$/'
+);
 
 function filter_xml($input, &$output, $verbosity=FALSE) {
    global $ACCEPT;
+   global $WHITELIST;
 
    /* fetch XML from message */
    $matches=array();
@@ -114,6 +118,17 @@ function filter_xml($input, &$output, $verbosity=FALSE) {
       if ($process == false) {
          if ($verbosity) {
             print "Skipping hostname $hostname (not on accept list)\n";
+         }
+         continue;
+      }
+      foreach ($WHITELIST as $regex) {
+         if (preg_match($regex, $hostname) > 0) {
+            $process = false;
+         }
+      }
+      if ($process == false) {
+         if ($verbosity) {
+            print "Skipping hostname $hostname (on whitelist)\n";
          }
          continue;
       }
