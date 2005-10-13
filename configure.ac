@@ -56,4 +56,5 @@ AC_OUTPUT([Makefile
     plugins/importqueue/doc/Makefile
     plugins/importqueue/etc/Makefile
     plugins/importqueue/man/Makefile
+    plugins/importqueue/man/airt_import.pod
 ])
