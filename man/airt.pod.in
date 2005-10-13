@@ -1,3 +1,6 @@
+$Id$
+$URL$
+
 =pod
 
 =head1 NAME
@@ -11,12 +14,33 @@ AIRT is a web application with some command-line components. Information on
 how to set up the initial database for AIRT can be found in
 F<@DOCPATH@/README>.
 
-More information about AIRT can be found on its website, at
-http://www.leune.org/airt/.
-
 
 =head1 AUTHOR
 
-Kees Leune <kees@leune.org>
+Tilburg University/Infolab <airt-dev@uvt.nl>.
+
+
+=head1 REPORTING BUGS
+
+Please use the issue tracking system found at F<http://www.airt.nl/>.
+You will need to create an account on the web site to get access.
+
+
+=head1 COPYRIGHT
+
+Copyright © 2005 Tilburg University, The Netherlands.
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation; either version 2 of the License, or (at your option)
+any later version.
+
+
+=head1 SEE ALSO
+
+More information about AIRT can be found on its website, at
+F<http://www.airt.nl/>.
+
+Full documentation is available in F<@DOCPATH@>.
 
 =cut
