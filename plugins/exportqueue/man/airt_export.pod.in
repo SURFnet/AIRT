@@ -1,0 +1,94 @@
+$Id$
+$URL$
+vim: syntax=pod
+
+=pod
+
+=head1 NAME
+
+AIRT_EXPORT - CLI work horse for the AIRT export queue, typically called by
+B<cron>.
+
+
+=head1 SYNOPSIS
+
+B<airt_export> [--help] [--noqueue] [--verbose]
+
+
+=head1 DESCRIPTION
+
+The B<airt_export> command is used to start up an external task, requested
+via the AIRT export queue. Although the program is intended to be used from
+B<cron>, it may without problems be called manually, as long as it is from
+the correct user account. In normal operations, no command line parameters
+are required.
+
+=over 4
+
+=item B<--help>
+
+Shows the usage of the program on the command line.
+
+=item B<--noqueue>
+
+Picks up the item(s) ready to be run from the AIRT export queue, but does
+not flag them as having been started in the queue. Runs the external tasks
+as usual. After completion of the tasks, removes their result strings
+without putting them into the AIRT export queue. Use this option only when
+you are sure that this B<airt_export> is the only one running, i.e., make
+sure B<cron> does not spawn one at the same time. Option mostly useful for
+debugging.
+
+=item B<--verbose>
+
+Generates verbose output on stdout while processing. Useful for testing.
+
+=back
+
+Normally, airt_export is quiet on stdout. Output is returned on stdout only
+when requested via --verbose, and on stderr in case of problems. Exit code
+0 means everything went OK, 1 means there was some unrecoverable problem,
+which will have been reported on stderr.
+
+
+=head1 SECURITY
+
+B<airt_export> is built using the philosophy of upgrading privileges when
+required. Typically, the program is started as user B<nobody> (certainly not
+as user B<root>!), and upgrades to the required privilege level using
+B<sudo>. However, the actual B<sudo> commands are not used in the
+B<airt_export> executable script; they all are inside the user-provided
+wrapper scripts in F<@PHPLIBPATH@/exportqueue>. This means that all
+security-sensitive operations are fully controlled by the system
+administrator via the F<etc/sudoers> file and the wrappers.
+
+
+=head1 AUTHOR
+
+Tilburg University/Infolab <airt-dev@uvt.nl>.
+
+
+=head1 REPORTING BUGS
+
+Please use the issue tracking system found at F<http://www.airt.nl/>.
+You will need to create an account on the web site to get access.
+
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005 Tilburg University, The Netherlands.
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation; either version 2 of the License, or (at your option)
+any later version.
+
+
+=head1 SEE ALSO
+
+More information about AIRT can be found on its website, at
+F<http://www.airt.nl/>.
+
+Full documentation is available in F<@DOCPATH@>.
+
+=cut
