@@ -55,4 +55,5 @@ AC_OUTPUT([Makefile
     plugins/importqueue/php/Makefile
     plugins/importqueue/doc/Makefile
     plugins/importqueue/etc/Makefile
+    plugins/importqueue/man/Makefile
 ])
