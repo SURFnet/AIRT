@@ -18,6 +18,6 @@
 #
 # $Id$
 
-SUBDIRS = . bin php lib doc etc
+SUBDIRS = . bin php lib doc etc man
 
 docdir = $(datadir)/doc/airt/$(PACKAGE)
