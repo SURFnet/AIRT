@@ -24,3 +24,6 @@
 # Should do something with the --verbose switch, later.
 
 echo "Verbose: Hello World"
+sleep 5
+date > /tmp/wrapper_none
+echo "Done."
