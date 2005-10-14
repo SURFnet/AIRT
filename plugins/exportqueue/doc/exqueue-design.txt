@@ -211,6 +211,37 @@ that gets expanded into a simple form, and leads to a parameter line with a
 '--variable=value --variable=value --variable=value' structure. Later.
 
 
+AIRT DATABASE SCHEMA EXTENSION
+
+The export queue has a few database structures to manage and administer the
+starting and stopping/cleaning up of background tasks. Purpose of the table
+is to hold tasks to be started, tasks that have been started and are
+supposedly running now, tasks that have completed and returned results, and
+tasks that might have died without returning a result.
+
+CREATE TABLE export_queue (
+  id        integer;
+  task      varchar(32)   not null,
+  params    varchar(256),
+  created   timestamp     not null,
+  scheduled timestamp,
+  started   timestamp,
+  ended     timestamp,
+  result    varchar(256),
+  primary key (id)
+)
+
+The airt_export program queries the table and selects tasks with both a
+"scheduled" time that has passed and no "started" time. These are started by
+forking off the "task" wrapper script with the "-output <filename>"
+parameter and the "params" string broken up in pieces. Start time is also
+recorded. When a return string is found, ended time is recorded and the
+string is stored in the table. A purge thing should remove ended tasks of 24
+hours old, or so.
+
+
+LOOSE ENDS
+
 Useful PHP man page:
 http://nl2.php.net/manual/en/function.shell-exec.php
 Look for the contribution by jesuse dot gonzalez at venalum dot com dot ve.
