@@ -18,7 +18,8 @@
 #
 # $Id$
 scriptdir=$(PHPLIBPATH)/exportqueue
-script_DATA = exportqueue.plib wrapper_none
+script_DATA = exportqueue.plib
+script_SCRIPTS = wrapper_none
 
-EXTRA_DIST = $(script_DATA)
+EXTRA_DIST = $(script_DATA) $(script_SCRIPTS)
 
