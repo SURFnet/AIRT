@@ -95,7 +95,40 @@ if ($OPTIONS['--help']) {
    exit(0);
 }
 
-// ACTUAL ACTIONS HERE.
+// ACTUAL ACTIONS HERE. Should be completed in about 5 seconds or less.
+
+# Connect to database.
+
+# Purge all tasks that have an "ended" time stamp 24+ hours ago (setting).
+
+# For each task that has been spawned, do:
+#   Find out the output file.
+#   If file available, read it and save as "result".
+#   Fill in "ended" time stamp (ctime of file or current time?).
+
+# For each task to spawn, do:
+#   Find out wrapper to call.
+#   Find out output file to point wrapper at.
+#   Find out parameters for the wrapper.
+#   Fill in "started" time stamp.
+#   Fork and exec wrapper.
+
+# Disconnect from database.
+
+# Clean up and exit.
+
+################# PROTOTYPE TASK SPAWNER ####################
+
+echo "PHP startup\n";
+$child = pcntl_fork();
+if ($child==0) {
+   echo "kindje zegt: ";
+   pcntl_exec('/usr/local/share/airt/lib/exportqueue/wrapper_none');
+   echo "kindje zeurt!\n";
+}
+echo "PHP shutdown\n";
+
+################# END PROTOTYPE #############################
 
 // Successful completion.
 if ($OPTIONS['--verbose']) {
