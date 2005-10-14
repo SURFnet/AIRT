@@ -64,6 +64,8 @@ foreach ($argv as $param) {
 
 // Retrieve all wrappers installed in LIBDIR. We need this list for --help,
 // so we build it even when no actual task calling might take place.
+// Due to the possibility of double inclusion of the same directory, we
+// suppress second or third occurrences of the same wrapper.
 $WRAPPERS = array();
 foreach ($AIRT_EXPORTWRAPPER_DIRS as $dir) {
    $libdir = opendir($dir);
@@ -77,8 +79,10 @@ foreach ($AIRT_EXPORTWRAPPER_DIRS as $dir) {
                              array('%s'=>$wrapper_name)).
                            "\n");
          } else {
-            // Ok, register the wrapper.
-            $WRAPPERS[] = $wrapper_name;
+            // Ok, register the wrapper if we don't have it yet.
+            if (array_search(substr($wrapper_name,8),$WRAPPERS)===FALSE) {
+              $WRAPPERS[] = substr($wrapper_name,8);
+            }
          }
       }
    }// for each file name

@@ -75,6 +75,8 @@ foreach ($argv as $param) {
 
 // Retrieve all filters installed in LIBDIR. We need this list for --help,
 // so we build it even when no actual filtering might take place.
+// Due to the possibility of double inclusion of the same directory, we
+// suppress second or third occurrences of the same filter.
 $FILTERS = array();
 foreach ($AIRT_IMPORTFILTER_DIRS as $dir) {
    $libdir = opendir($dir);
@@ -87,8 +89,10 @@ foreach ($AIRT_IMPORTFILTER_DIRS as $dir) {
          require_once $dir.'/'.$filter_name.'.plib';
          // Proper function installed?
          if (function_exists($filter_name)) {
-            // OK, register the filter.
-            $FILTERS[] = substr($filter_name,7);
+            // OK, register the filter if we don't have it yet.
+            if (array_search(substr($filter_name,7),$FILTERS)===FALSE) {
+               $FILTERS[] = substr($filter_name,7);
+            }
          } else {
             // Bad filter, complain and quit.
             fwrite(STDERR, t('ERROR: Bad filter definition file "%s".',
