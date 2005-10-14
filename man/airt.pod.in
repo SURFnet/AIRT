@@ -1,5 +1,4 @@
 $Id$
-$URL$
 
 =pod
 
@@ -10,9 +9,13 @@ AIRT - Application for Incident Response Teams
 
 =head1 DESCRIPTION
 
-AIRT is a web application with some command-line components. Information on
-how to set up the initial database for AIRT can be found in
-F<@DOCPATH@/README>.
+Computer security incident response teams need to track incidents as they
+develop. AIRT is a web-based system to provide incident tracking
+capabilities to computer security incident response teams.
+
+AIRT is a PHP web application with some command-line components, built on
+top of a relational database. Information on how to set up the initial
+database for AIRT can be found in F<@DOCPATH@/README>.
 
 
 =head1 AUTHOR
@@ -26,14 +29,20 @@ Please use the issue tracking system found at F<http://www.airt.nl/>.
 You will need to create an account on the web site to get access.
 
 
-=head1 COPYRIGHT
+=head1 COPYRIGHT AND LICENSE
 
-Copyright © 2005 Tilburg University, The Netherlands.
+Copyright (C) 2005 Tilburg University, The Netherlands.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
 Software Foundation; either version 2 of the License, or (at your option)
 any later version.
+
+
+=head1 SPONSORS
+
+The AIRT development team is proud to be sponsored by SURFnet and Tilburg
+University.
 
 
 =head1 SEE ALSO
@@ -42,5 +51,7 @@ More information about AIRT can be found on its website, at
 F<http://www.airt.nl/>.
 
 Full documentation is available in F<@DOCPATH@>.
+
+AIRT man pages can be found by B<apropos airt>.
 
 =cut
