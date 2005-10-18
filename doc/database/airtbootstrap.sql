@@ -46,6 +46,20 @@ INSERT INTO role_permissions
     (id, role, permission)
     VALUES
     (nextval('role_assignments_sequence'), 1, 1);
+INSERT INTO users
+    (id, lastname, email, login, password)
+    VALUES
+    (nextval('users_sequence'), 'Webservice', 'airt-ws@example.com', 'webservice',
+    '62e91bc649621eed1004de8936987fc853df0eb7');
+INSERT INTO roles
+    (id, label)
+    VALUES
+    (nextval('roles_sequence'), 'Webservice');
+INSERT INTO role_assignments
+    (id, role, userid)
+    VALUES
+    (nextval('role_assignments_sequence'), currval('roles_sequence'),
+    currval('users_sequence'));
 INSERT INTO constituencies
     (id,label,name) 
     VALUES
