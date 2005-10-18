@@ -282,20 +282,28 @@ function print_variables_info() {
     echo <<<EOF
 <table cellpadding="2">
 <tr>
-    <td nowrap>@SUBJECT@ .. @ENDSUBJECT@</td>
-    <td>Delimits the subject line of the message</td>
-</tr>
-<tr>
     <td>@HOSTNAME@</td>
     <td>Will be replaced with the currently active hostname</td>
+</tr>
+<tr>
+    <td>@INCIDENTID@</td>
+    <td>Will be replaced with the current incident id</td>
 </tr>
 <tr>
     <td>@IPADDRESS@</td>
     <td>Will be replaced with the currently active IP address</td>
 </tr>
 <tr>
-    <td>@USERNAME@</td>
-    <td>Will be replaced with the name of the current user</td>
+    <td>@LOGGING@</td>
+    <td>Will be replaced with the available logging information</td>
+</tr>
+<tr>
+    <td>@PREVIOUS@</td>
+    <td>Will be replaced with previous incidents</td>
+</tr>
+<tr>
+    <td nowrap>@SUBJECT@ .. @ENDSUBJECT@</td>
+    <td>Delimits the subject line of the message</td>
 </tr>
 <tr>
    <td>@USEREMAIL@</td>
@@ -307,9 +315,12 @@ function print_variables_info() {
    information is available.</td>
 </tr>
 <tr>
-    <td>@YOURNAME@</td>
-    <td>Will be replaced with the full name of the logged in incident
-    handler</td>
+    <td>@USERNAME@</td>
+    <td>Will be replaced with the name of the current user</td>
+</tr>
+<tr>
+    <td>@XMLDATA@</td>
+    <td>Will be replaced with the incident data in XML format</td>
 </tr>
 <tr>
     <td>@YOURFIRSTNAME@</td>
@@ -317,8 +328,9 @@ function print_variables_info() {
     handler</td>
 </tr>
 <tr>
-    <td>@INCIDENTID@</td>
-    <td>Will be replaced with the current incident id</td>
+    <td>@YOURNAME@</td>
+    <td>Will be replaced with the full name of the logged in incident
+    handler</td>
 </tr>
 </table>
 EOF;
@@ -330,6 +342,15 @@ function replace_vars($msg) {
       $out = ereg_replace("@IPADDRESS@", $_SESSION["active_ip"], $out);
       $out = ereg_replace("@HOSTNAME@",
          @gethostbyaddr($_SESSION["active_ip"]), $out);
+      // Fetch previous incidents associated with this IP address.
+      $incidents = getIncidentsByIP($_SESSION['active_ip']);
+      if (count($incidents)>0) {
+         $previous = "Previous incidents with this IP address:";
+         foreach ($incidents as $incidentID=>$summary) {
+            $previous .= "\n$summary";
+         }
+         $out = ereg_replace('@PREVIOUS@',$previous,$out);
+      }
    }
    if (array_key_exists('current_name', $_SESSION)) {
       $out = ereg_replace("@USERNAME@", $_SESSION["current_name"], $out);
@@ -348,6 +369,11 @@ function replace_vars($msg) {
       $out = ereg_replace("@INCIDENTID@",
          normalize_incidentid($_SESSION["incidentid"]), $out);
    }
+
+# @LOGGING@
+
+# @XMLDATA@
+
 
   return $out ;
 } // replace_vars
