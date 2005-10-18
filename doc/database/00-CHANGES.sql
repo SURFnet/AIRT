@@ -22,3 +22,14 @@ INSERT INTO role_assignments
     (nextval('role_assignments_sequence'), currval('roles_sequence'),
     currval('users_sequence'));
 end transaction;
+
+CREATE TABLE authentication_tickets (
+    id integer not null,
+    userid varchar(100) not null,
+    created timestamp not null,
+    ticketid varchar(3000) not null,
+    primary key (id),
+    foreign key (userid)   references users(id)
+);
+
+CREATE SEQUENCE authentication_tickets_sequence;
