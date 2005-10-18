@@ -335,7 +335,9 @@ EOF;
 }
 
 function replace_vars($msg) {
-  $out = $msg;
+   $out = $msg;
+
+   // IP address stuff.
    if (array_key_exists('active_ip', $_SESSION)) {
       $out = ereg_replace("@IPADDRESS@", $_SESSION["active_ip"], $out);
       $out = ereg_replace("@HOSTNAME@",
@@ -350,30 +352,42 @@ function replace_vars($msg) {
                $previous .= "$summary\n";
             }
          }
+         $previous = trim($previous);
       } else {
-         $previous = "--\n";
+         $previous = '--';
       }
       $out = ereg_replace('@PREVIOUS@',$previous,$out);
    }
+   
    if (array_key_exists('current_name', $_SESSION)) {
       $out = ereg_replace("@USERNAME@", $_SESSION["current_name"], $out);
    }
+   
    if (array_key_exists('current_email', $_SESSION)) {
       $out = ereg_replace("@USEREMAIL@", $_SESSION["current_email"], $out);
    }
+   
    if (array_key_exists('current_info', $_SESSION)) {
       $out = ereg_replace("@USERINFO@", $_SESSION["current_info"], $out);
    }
+   
    $u = getUserByUserId($_SESSION["userid"]);
    $name = sprintf("%s %s", $u["firstname"], $u["lastname"]);
    $out = ereg_replace("@YOURNAME@", $name, $out);
    $out = ereg_replace("@YOURFIRSTNAME@", $u["firstname"], $out);
+   
+   // Incident stuff.
    if (array_key_exists('incidentid', $_SESSION)) {
       $out = ereg_replace("@INCIDENTID@",
-         normalize_incidentid($_SESSION["incidentid"]), $out);
+         normalize_incidentid($_SESSION['incidentid']), $out);
+     // Fetch basic incident data.
+     $incident = getIncident(decode_incidentid($_SESSION['incidentid']));
+     $logging = trim($incident['logging']);
+     if ($logging=='') {
+        $logging = '--';
+     }
+     $out = ereg_replace('@LOGGING@',$logging,$out);
    }
-
-# @LOGGING@
 
 # @XMLDATA@
 
