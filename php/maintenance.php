@@ -67,7 +67,7 @@ pageHeader("AIRT Maintenance Center");
 
 <P>
 
-<a href="standard.php">Edit standard messages</a>
+<a href="mailtemplates.php">Edit standard messages</a>
 
 
 <HR>

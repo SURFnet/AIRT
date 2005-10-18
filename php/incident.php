@@ -184,7 +184,7 @@ function formatEditForm() {
       $output .= t('<tr >'."\n");
       $output .= t('  <td>%email</td>', array('%email'=>$u['email']))."\n";
       $p = "current_email=".$u['email'];
-      $output .= "  <td><a href=\"standard.php?$p\">Select template</a></td>";
+      $output .= "  <td><a href=\"mailtemplates.php?$p\">Select template</a></td>";
       $output .= t('  <td><a href="%url">Remove</a></td>', array(
          '%url'=>"$_SERVER[PHP_SELF]?action=deluser&userid=".urlencode($u['id'])
       ));
@@ -366,7 +366,7 @@ EOF;
         } else addUserToIncident($user["id"], $incidentid);
       }
 
-      if ($sendmail == "on") Header("Location: standard.php");
+      if ($sendmail == "on") Header("Location: mailtemplates.php");
       else Header("Location: $_SERVER[PHP_SELF]");
         break;
 

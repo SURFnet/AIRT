@@ -42,7 +42,7 @@ generateEvent('mainmenutop');
 $out  = t("<strong>Main tasks</strong>\n");
 $out .= t("<p><a href=\"incident.php\">Incident management</a></p>\n");
 $out .= t("<p><a href=\"search.php\">IP Address lookup</a></p>\n");
-$out .= t("<a href=\"standard.php\">Mail templates</a></p>\n");
+$out .= t("<a href=\"mailtemplates.php\">Mail templates</a></p>\n");
 $out .= t("<a href=\"maintenance.php\">Edit settings</a></p>\n");
 */
 
