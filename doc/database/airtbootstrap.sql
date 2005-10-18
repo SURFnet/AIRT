@@ -75,6 +75,20 @@ INSERT INTO incident_status
       'open',
       'Incident is being handled.',
       TRUE);
+INSERT INTO incident_types
+    (id,label,descr,isdefault)
+    VALUES
+      (nextval('incident_types_sequence'),
+      'Compromised',
+      'Host has been comprimised.',
+      TRUE);
+INSERT INTO incident_states
+    (id,label,descr,isdefault)
+    VALUES
+      (nextval('incident_states_sequence'),
+      'Inspectionrequest',
+      'Inspection requested.',
+      TRUE);
 INSERT INTO incident_status
     (id, label,descr,isdefault)
     VALUES
