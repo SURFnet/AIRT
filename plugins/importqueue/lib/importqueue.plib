@@ -29,6 +29,7 @@ if (!defined('ETCDIR') || !file_exists(ETCDIR.'/webservice.cfg')) {
 }
 require_once LIBDIR.'/airt.plib';
 require_once ETCDIR.'/webservice.cfg';
+require_once 'SOAP/Client.php';
 
 /* Produce info on stdout (when user asked for --help). */
 function printUsage() {
@@ -245,8 +246,9 @@ function formatQueueOverview() {
  *   0 on success, 1 on failure
  */
 function queueToAIRT($id, &$error) {
-   $authid = '';
-   $authid = getAuthenticationTicket();
+   $saml_ticket = '';
+   $saml_ticket = getSAMLTicket();
+   print_r($saml_ticket);
 
    if ($id == '') {
       $error = 'Missing parameter id';
@@ -277,20 +279,16 @@ function queueToAIRT($id, &$error) {
    $email_el->set_content($email);
    $name_el = $xml->create_element('name');
    $name_el->set_content($name);
-   $authid_el = $xml->create_element('authid');
-   $authid_el->set_content($authid);
 
    # build structure
    $xml_root = $xml->document_element();
    $xml_root->append_child($ident);
    $ident->append_child($email_el);
    $ident->append_child($name_el);
-   $ident->append_child($authid_el);
    $xml_root->append_child($incident_data);
    $content = $xml->dump_mem();
-
+   
    # call web service
-   require_once 'SOAP/Client.php';
    $airt_client = new SOAP_Client(WS_ENDPOINT);
    $method = "importIncidentData";
    $params = array('importXML'=>$content);
@@ -298,30 +296,38 @@ function queueToAIRT($id, &$error) {
       $airt_client->setOpt('curl', CURLOPT_CAPATH, AIRT_CAPATH);
    }
    $ans = $airt_client->call($method, $params);
+
    echo "<PRE>";
    print_r($ans);
 
-#   return 0;
+   return 0;
 }
 
 /* Get the random id from the filesystem in order to authenticate, in
  * order to append it to the XML later
  */
-function getAuthenticationTicket() {
-   $rid = '';
-   
-   $fileName = STATEDIR."/importqueue/rid";
-   $ticketFile = @fopen($fileName,'r');
-   if (!$ticketFile) {
-      $error = 'Could not open '.$fileName.' for reading';
-      echo $error;
-      return FALSE;
+function getSAMLTicket() {
+   #build the XML-format for auth-request
+   $doc = domxml_new_doc('1.0');
+   $doc_root = $doc->add_root('authentication');
+
+   $username_el = $doc->create_element('username');
+   $username_el->set_content(WS_USERNAME);
+   $password_el = $doc->create_element('password');
+   $password_el->set_content(WS_PASSWORD);
+
+   $doc_root->append_child($username_el);
+   $doc_root->append_child($password_el);
+   $xml_auth = $doc->dump_mem();
+
+   $airt_client = new SOAP_Client(WS_ENDPOINT);
+   $method = 'RequestAuthentication';
+   $params = array('auth_request' => $xml_auth);
+   if (defined('AIRT_CAPATH')) {
+      $airt_client->setOpt('curl', CURLOPT_CAPATH, AIRT_CAPATH);
    }
-   else {
-      $rid  = fread($ticketFile,1024);
-      return $rid;
-   }
-   @fclose($ticketFile);
+   $ans = $airt_client->call($method, $params);
+
 }
 
 
