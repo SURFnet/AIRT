@@ -18,10 +18,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
-require_once('SOAP/Server.php');
-require_once('SOAP/Disco.php');
+$public = 1;
+require_once 'SOAP/Server.php';
+require_once 'SOAP/Disco.php';
 require_once 'config.plib';
+require_once LIBDIR.'/authentication.plib';
 require_once LIBDIR.'/incident.plib';
 
 $server       = new SOAP_Server();
@@ -45,17 +46,56 @@ else {
 
 exit;
 
-
 class IncidentHandling {
    var $__dispatch_map = array();
 
    function IncidentHandling () {
       // Define the signature of the dispatch map on the Web services method
       // Necessary for WSDL creation
+      $this->__dispatch_map['RequestAuthentication'] = array('in' =>
+         array('auth_request' => 'string'), 
+         'out' => array('AuthenticationTicket' => 'string'), );
       $this->__dispatch_map['getXMLIncidentData'] = array('in' => array('action' => 'string'), 
          'out' => array('airtXML' => 'string'), );
       $this->__dispatch_map['importIncidentData'] = array('in' => array('importXML' => 'string'), 
          'out' => array('confirmation' => 'string'), );
+   }
+
+   function RequestAuthentication($auth_request) {
+      $dom = '';
+
+      if (!$dom = domxml_open_mem($auth_request,DOMXML_LOAD_PARSING + DOMXML_LOAD_DONT_KEEP_BLANKS,$error)) {
+         $error = 'Could not parse XML document';
+         return $error;
+         exit;
+      }
+      $root = $dom->document_element();
+
+      if (sizeof($root) == 0) {
+         $error = 'XML does not contain any elements';
+         return $error;
+         exit;
+      }
+      
+      $username_element = $root->get_elements_by_tagname('username');
+      $password_element = $root->get_elements_by_tagname('password');
+      if (sizeof($username_element) == 0 || sizeof($password_element) == 0) {
+         $error = 'Username element or password element is empty';
+         return $error;
+         exit;
+      }
+      
+      $username = $username_element[0]->get_content();
+      $password = $password_element[0]->get_content();
+      
+      # now authenticate to db
+      $user_id = airt_authenticate($username,$password);
+      if ($user_id == -1) {
+         $error = "Permission denied";
+         return $error;
+         exit;
+      }
+      
    }
 
    function getXMLIncidentData($action)  {
@@ -68,16 +108,6 @@ class IncidentHandling {
    function importIncidentData($importXML) {
       $dom = $state = $status = $type = $incidentid = $address = $ip = $addressrole ='';
       
-      session_register('user_id');
-      $public  = 1;
-      
-      // FIXME temporary hack to use userid
-      // temporarily set userid to 1 if necessary
-      if($_SESSION['userid'] == null) {
-         $_SESSION['userid'] = '1';
-         $set_userid_tmp = true;
-      }
-
       if (!$dom = domxml_open_mem($importXML,DOMXML_LOAD_PARSING + DOMXML_LOAD_DONT_KEEP_BLANKS,$error)) {
          $error = 'Could not parse XML document';
          return $error;
@@ -90,6 +120,20 @@ class IncidentHandling {
          return $error;
          exit;
       }
+
+      $messageident_element = $root->get_elements_by_tagname('messageIdentification');
+      $rid_element = $messageident_element[0]->get_elements_by_tagname('rid');
+      $rid = $prefix_element[0]->get_content();
+      if($rid!=getAuthenticationTicket()) {
+         $error = 'Could not identify';
+         return $error;
+         exit;
+      }
+
+      $_SESSION['userid'] = 1;
+      $public = 1;
+      writeAuthenticationTicket();
+
       foreach($root->get_elements_by_tagname('incident') as $incident_element) {
          $i = 0;
 
@@ -142,6 +186,7 @@ class IncidentHandling {
                   }
                }
             }
+
             foreach($incident_element->get_elements_by_tagname('technicalInformation') as $technicalInformation) {
                if (sizeof($technicalInformation) > 0) {
                   $ip_element = $technicalInformation->get_elements_by_tagname('ip');
@@ -168,7 +213,7 @@ class IncidentHandling {
                   $incident_time_element = $technicalInformation->get_elements_by_tagname('incident_time');
                   if (sizeof($incident_time_element) > 0) {
                      $incident_time = $incident_time_element[0]->get_content();
-                     # default incident_timea
+                     # default incident_time
                      if ($incident_time == null)
                         $incident_time = time();
                   }
@@ -184,20 +229,60 @@ class IncidentHandling {
             }
          }
       }
-      // FIXME temporary hack to use userid
-      if($set_userid_tmp == true) {
-         unset($_SESSION['userid']);
-      }
 
       if ($error == null) {
-         $mesg = 'Import successful. Imported incident with id ';
+         $error = 'Import successful. Imported incident with id ';
          foreach ($incidentid as $i => $id)
             $id_list .= "$id, ";
          $id_list = rtrim($id_list,', ');
-         $mesg .= $id_list.'.';
-         return $mesg;
+         $error .= $id_list.'.';
+         return $error;
       }
    }
 }
 
+/*
+function getAuthenticationTicket() {
+   $rid = '';
+
+   $fileName = STATEDIR."/importqueue/rid";
+   $ticketFile = @fopen($fileName,'r');
+   if (!$ticketFile) {
+      $error = 'Could not open '.$fileName.' for reading';
+      echo $error;
+      return FALSE;
+   }
+   else {
+      $rid  = fread($ticketFile,1024);
+      return $rid;
+   }
+   @fclose($ticketFile);
+}
+
+function writeAuthenticationTicket() {
+   $rand = '';
+
+   $fileName = STATEDIR."/importqueue/rid";
+   $ticketFile = @fopen($fileName,'w');
+   if (!$ticketFile) {
+      $error = 'Could not open '.$fileName.' for writing';
+      echo $error;
+      return FALSE;
+      exit;
+   }
+   $rid = md5(mt_rand(48,50));
+   $content = $rid;
+   if (flock($ticketFile,LOCK_EX)) {
+      if (!@fwrite($ticketFile,$content)) {
+         $error = 'Could not write to '.$ticketFile;
+         @fclose($ticketFile);
+      }
+      flock($ticketFile,LOCK_UN);
+   }
+   else {
+      $error = 'Could not lock '.$ticketFile.' for writing';
+   }
+   @fclose($ticketFile);
+}
+*/
 ?>
