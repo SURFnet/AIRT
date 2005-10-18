@@ -270,6 +270,15 @@ CREATE TABLE import_queue (
   primary key (id)
 );
 
+CREATE TABLE authentication_tickets (
+    id integer not null,
+    userid varchar(100) not null,
+    created timestamp not null,
+    ticketid varchar(3000) not null,
+    primary key (id),
+    foreign key (userid)   references users(id)
+);
+
 CREATE SEQUENCE incident_types_sequence;
 CREATE SEQUENCE incident_states_sequence;
 CREATE SEQUENCE incident_status_sequence;
@@ -291,6 +300,7 @@ CREATE SEQUENCE blocks_sequence;
 CREATE SEQUENCE incident_users_sequence;
 CREATE SEQUENCE address_roles_sequence;
 CREATE SEQUENCE importqueue_sequence;
+CREATE SEQUENCE authentication_tickets_sequence;
 
 CREATE UNIQUE INDEX incident_types_label on incident_types(upper(label));
 CREATE UNIQUE INDEX incident_states_label on incident_states(upper(label));
