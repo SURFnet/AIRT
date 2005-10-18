@@ -121,18 +121,8 @@ class IncidentHandling {
          exit;
       }
 
-      $messageident_element = $root->get_elements_by_tagname('messageIdentification');
-      $rid_element = $messageident_element[0]->get_elements_by_tagname('rid');
-      $rid = $prefix_element[0]->get_content();
-      if($rid!=getAuthenticationTicket()) {
-         $error = 'Could not identify';
-         return $error;
-         exit;
-      }
-
       $_SESSION['userid'] = 1;
       $public = 1;
-      writeAuthenticationTicket();
 
       foreach($root->get_elements_by_tagname('incident') as $incident_element) {
          $i = 0;
