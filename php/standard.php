@@ -224,7 +224,7 @@ function prepare_message($filename) {
 
    // to
    if (array_key_exists('current_email', $_SESSION)) {
-      $to = $_SESSION["current_email"];
+      $to = $_SESSION['current_email'];
    } else {
       $to = '';
    }
@@ -406,6 +406,11 @@ switch ($action) {
 <P>
 <a href="$_SERVER[PHP_SELF]?action=new">Create a new message</a>
 EOF;
+      // If a current_email parameter has been passed along, put it in the
+      // session for later use by "prepare".
+      if (array_key_exists('current_email', $_REQUEST)) {
+         $_SESSION['current_email'] = $_REQUEST['current_email'];
+      }
 
       pageFooter();
       break;
