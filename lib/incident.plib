@@ -680,6 +680,40 @@ function updateIncidentList($incidentList,$state,$status) {
    return;
 }
 
+/* Return an associative array with incident IDs that are related to the
+ * given IP address.
+ * Input: an IP address in dotted-decimal notation.
+ * Output: array[id]='#000132  Compromised   2005-10-11 12:12'.
+ */
+function getIncidentsByIP($ip) {
+   // Fetch the relevant incidents and at the same time some basic incident
+   // data for the nice summary string.
+   $ip = db_escape_string($ip);
+   $q = "SELECT incident as incident,
+                incident_types.label as type,
+                to_char(incidents.created,'YYYY-MM-DD HH24:MI') as created
+         FROM incident_addresses,incidents,incident_types
+         WHERE ip='$ip'
+           AND incident_addresses.incident=incidents.id
+           AND incidents.type = incident_types.id
+         ORDER BY incident";
+   $res = db_query($q) or airt_error('DB_QUERY',__FILE__.':'.__LINE__,
+                             t('Could not get related incidents'));
+   $out = array();
+   while ($row = db_fetch_next($res)) {
+      $incidentID = $row['incident'];
+      $type       = $row['type'];
+      $created    = $row['created'];
+      // Create the site-specific incident ID notation.
+      $siteIncidentID = encode_incidentid($incidentID);
+      // Assume site-specific ID has fixed length.
+      $summary = sprintf('%s  %-15s  %s',$siteIncidentID,$type,$created);
+      $out[$row['incident']] = $summary;
+   }
+   return $out;
+}// getIncidentsByIP
+
+
 /* Return an associative array with address roles.
  * Input: optionally, an array with extra address roles that are not from
  * the database. Typically, "Please select a role"-like inert selections.
