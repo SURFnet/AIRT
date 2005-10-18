@@ -344,13 +344,18 @@ function replace_vars($msg) {
          @gethostbyaddr($_SESSION["active_ip"]), $out);
       // Fetch previous incidents associated with this IP address.
       $incidents = getIncidentsByIP($_SESSION['active_ip']);
-      if (count($incidents)>0) {
-         $previous = "Previous incidents with this IP address:";
+      // Notice that this list always includes the current incident!
+      if (count($incidents)>1) {
+         $previous = '';
          foreach ($incidents as $incidentID=>$summary) {
-            $previous .= "\n$summary";
+            if ($incidentID != $_SESSION['incidentid']) {
+               $previous .= "$summary\n";
+            }
          }
-         $out = ereg_replace('@PREVIOUS@',$previous,$out);
+      } else {
+         $previous = "--\n";
       }
+      $out = ereg_replace('@PREVIOUS@',$previous,$out);
    }
    if (array_key_exists('current_name', $_SESSION)) {
       $out = ereg_replace("@USERNAME@", $_SESSION["current_name"], $out);
