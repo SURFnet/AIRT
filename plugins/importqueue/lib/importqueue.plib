@@ -219,19 +219,16 @@ function formatQueueOverview() {
    }
    $count = 0;
    $out = "<table cellpadding=\"4\" class=\"queue\">\n";
-   $out .= "<tr><th>Sender</th><th>Type</th><th>Created</th><th>Details</th><th>Decision</th></tr>\n";
+   $out .= "<tr><th>Decision</th><th>Sender</th><th>Constituency</th><th>IP Address</th><th>Details</th></tr>\n";
    foreach ($elements as $id=>$element) {
       $out .= t("<tr bgcolor=\"%color\">\n", array('%color'=>($count++ % 2 == 0) ? '#DDDDDD' : '#FFFFFF'));
-      $out .= t("  <td>%sender</td>\n", array('%sender'=>$element['sender']));
+      $out .= t("  <td>Accept <input checked type=\"radio\" name=\"decision[$id] value=\"accept\">");
+      $out .= t("  Reject <input type=\"radio\" name=\"decision[$id] value=\"reject\">");
+      $out .= t("</td>\n");
       $out .= t("  <td>%type</td>\n", array('%type'=>$element['type']));
-      $out .= t("  <td>%created</td>\n", array('%created'=>$element['created']));
+      $out .= t("  <td>%cons</td>\n", array('%cons'=>$element['constiuency']));
+      $out .= t("  <td>%ip</td>\n", array('%ip'=>$element['ip']));
       $out .= t("  <td><a target=\"airt_queue\" title=\"Show incident details in new browser window\" href=\"%url?action=showdetails&id=%id\">details</a></td>\n", array('%url'=>$_SERVER['PHP_SELF'], '%id'=>$id));;
-      $out .= "  <td><select name=\"decision[$element[id]]\">\n";
-      $out .= choice('Leave unchanged', 'leave', 'leave');
-      $out .= choice('Accept', 'accept', 'leave');
-      $out .= choice('Reject', 'reject', 'leave');
-      $out .= "  </select>\n";
-      $out .= "</td>\n";
       $out .= "</tr>\n";
    }
    $out .= "</table>\n";

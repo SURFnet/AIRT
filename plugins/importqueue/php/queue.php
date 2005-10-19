@@ -106,10 +106,6 @@ switch ($action) {
       $out .= "  <td>$item[status]</td>\n";
       $out .= "</tr>\n";
       $out .= "<tr>\n";
-      $out .= "  <td>Sender</td>\n";
-      $out .= "  <td>$item[status]</td>\n";
-      $out .= "</tr>\n";
-      $out .= "<tr>\n";
       $out .= "  <td>Type</td>\n";
       $out .= "  <td>$item[type]</td>\n";
       $out .= "</tr>\n";

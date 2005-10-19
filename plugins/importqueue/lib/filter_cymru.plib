@@ -144,7 +144,7 @@ function filter_out($reports, &$output) {
          $status_el->set_content('open');
          $sender_el->set_content('Team Cymru');
          $type_el->set_content('Cymru report: '.$report['type']);
-         $summary_el->set_content('Cymru report: '.$report['type']);
+         $summary_el->set_content('Cymru report: '.$report['type'].' '.$incident['ip']);
 
          // create data structure
          $queuedata_el->append_child($status_el);
