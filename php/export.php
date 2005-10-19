@@ -23,15 +23,15 @@
  * $Id$
  */
 require_once 'config.plib';
-require_once LIBDIR."/airt.plib";
-require_once LIBDIR."/export.plib";
-require_once LIBDIR."/incident.plib";
+require_once LIBDIR.'/airt.plib';
+require_once LIBDIR.'/export.plib';
+require_once LIBDIR.'/incident.plib';
 
 $selection = array();
 foreach (getOpenIncidents() as $id=>$incident) 
-	array_push($selection, $id);
+   array_push($selection, $id);
 
-Header("Content-Type: application/xml");
+Header('Content-Type: application/xml');
 //Header("Content-Type: text/plain");
 print exportIncident($selection);
 ?>
