@@ -380,17 +380,20 @@ function replace_vars($msg) {
    if (array_key_exists('incidentid', $_SESSION)) {
       $out = ereg_replace("@INCIDENTID@",
          normalize_incidentid($_SESSION['incidentid']), $out);
-     // Fetch basic incident data.
+
+     // Fetch logging info from basic incident data.
      $incident = getIncident(decode_incidentid($_SESSION['incidentid']));
      $logging = trim($incident['logging']);
      if ($logging=='') {
         $logging = '--';
      }
      $out = ereg_replace('@LOGGING@',$logging,$out);
+
+     // Basic incident data in XML format.
+     $xmlData = trim(exportIncident(
+                   array(0=>decode_incidentid($_SESSION['incidentid']))));
+     $out = ereg_replace('@XMLDATA@',$xmlData,$out);
    }
-
-# @XMLDATA@
-
 
   return $out ;
 } // replace_vars
