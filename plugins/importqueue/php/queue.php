@@ -49,7 +49,7 @@ switch ($action) {
          Header("Location: $_SERVER[PHP_SELF]");
          exit;
       }
-
+print_r($_POST['decision']);
       # interpret all decision and take action if accept or reject
       foreach ($_POST['decision'] as $id=>$value) {
          $update = false;

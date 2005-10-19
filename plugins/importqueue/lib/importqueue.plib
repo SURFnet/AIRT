@@ -30,6 +30,8 @@ if (!defined('ETCDIR') || !file_exists(ETCDIR.'/webservice.cfg')) {
 require_once LIBDIR.'/airt.plib';
 require_once ETCDIR.'/webservice.cfg';
 require_once 'SOAP/Client.php';
+require_once LIBDIR.'/search.plib';
+require_once LIBDIR.'/constituency.plib';
 
 /* Produce info on stdout (when user asked for --help). */
 function printUsage() {
@@ -221,13 +223,30 @@ function formatQueueOverview() {
    $out = "<table cellpadding=\"4\" class=\"queue\">\n";
    $out .= "<tr><th>Decision</th><th>Sender</th><th>Constituency</th><th>IP Address</th><th>Details</th></tr>\n";
    foreach ($elements as $id=>$element) {
+		$item = queuePeekItem($id,$error);
+		if ($error != '') {
+			return;
+		}
+		$tree = domxml_open_mem($item['content']);
+		$ips = $tree->get_elements_by_tagname('ip');
+		if (sizeof($ips) > 0) {
+			$ip = $ips[0]->get_content();
+		} else {
+			$ip = 'Unknown';
+		}
+		$netid = categorize($ip);
+		$consid = getConstituencyIDByNetworkID($netid);
+		$conss = getConstituencies();
+		$cons = $conss[$consid]['label'];
+		
+
       $out .= t("<tr bgcolor=\"%color\">\n", array('%color'=>($count++ % 2 == 0) ? '#DDDDDD' : '#FFFFFF'));
-      $out .= t("  <td>Accept <input checked type=\"radio\" name=\"decision[$id] value=\"accept\">");
-      $out .= t("  Reject <input type=\"radio\" name=\"decision[$id] value=\"reject\">");
+      $out .= t("  <td>Accept <input checked type=\"radio\" name=\"decision[$id]\" value=\"accept\">");
+      $out .= t("  Reject <input type=\"radio\" name=\"decision[$id]\" value=\"reject\">");
       $out .= t("</td>\n");
       $out .= t("  <td>%type</td>\n", array('%type'=>$element['type']));
-      $out .= t("  <td>%cons</td>\n", array('%cons'=>$element['constiuency']));
-      $out .= t("  <td>%ip</td>\n", array('%ip'=>$element['ip']));
+      $out .= t("  <td>%cons</td>\n", array('%cons'=>$cons));
+      $out .= t("  <td>%ip</td>\n", array('%ip'=>$ip));
       $out .= t("  <td><a target=\"airt_queue\" title=\"Show incident details in new browser window\" href=\"%url?action=showdetails&id=%id\">details</a></td>\n", array('%url'=>$_SERVER['PHP_SELF'], '%id'=>$id));;
       $out .= "</tr>\n";
    }
