@@ -267,7 +267,7 @@ CREATE TABLE import_queue (
   sender    varchar(50)  not null,
   type      varchar(50)  not null,
   summary   varchar(100) not null,
-  data      text         not null,
+  content   text         not null,
   primary key (id)
 );
 
