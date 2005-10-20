@@ -29,6 +29,7 @@ if (!defined('ETCDIR') || !file_exists(ETCDIR.'/webservice.cfg')) {
 }
 require_once LIBDIR.'/airt.plib';
 require_once ETCDIR.'/webservice.cfg';
+require_once ETCDIR.'/importqueue.cfg';
 require_once 'SOAP/Client.php';
 require_once LIBDIR.'/search.plib';
 require_once LIBDIR.'/constituency.plib';
@@ -267,6 +268,8 @@ function formatQueueOverview() {
  *   0 on success, 1 on failure
  */
 function queueToAIRT($id, &$error) {
+   global $AIRT_CURL_OPTIONS;
+
    $saml_ticket = '';
    $saml_ticket = getSAMLTicket();
    print_r($saml_ticket);
@@ -308,13 +311,14 @@ function queueToAIRT($id, &$error) {
    $ident->append_child($name_el);
    $xml_root->append_child($incident_data);
    $content = $xml->dump_mem();
-   
    // Call web service
    $airt_client = new SOAP_Client(WS_ENDPOINT);
    $method = "importIncidentData";
    $params = array('importXML'=>$content);
-   if (defined('AIRT_CAPATH')) {
-      $airt_client->setOpt('curl', CURLOPT_CAPATH, AIRT_CAPATH);
+
+   # process CURL options
+   foreach ($AIRT_CURL_OPTIONS as $key=>$value) {
+      $airt_client->setOpt('curl', $key, $value);
    }
    $ans = $airt_client->call($method, $params);
 

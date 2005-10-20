@@ -158,7 +158,7 @@ class IncidentHandling {
                $type = getIncidentTypeDefault();
             }
             # generate an incident id
-            $incidentid[$i] = createIncident($state,$status,$type);
+            $incidentid[$i] = createIncident($state,$status,$type,'');
 
             foreach($incident_element->get_elements_by_tagname('ticketInformation') as $ticketInformation) {
                if (sizeof($ticketInformation) > 0) {
