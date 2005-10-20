@@ -85,7 +85,7 @@ function import($input,&$error,$verbosity=FALSE) {
    // database should have been done by now. The rest is optional.
    if ($OPTIONS['--noqueue']) {
       // Just kidding.
-      if ($OPTIONS['--verbose']) {
+      if ($verbosity) {
          echo t('Not actually queueing the incident.')."\n";
       }
       return 0;
