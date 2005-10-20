@@ -123,6 +123,9 @@ INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_posi
 INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position) VALUES (7, 'maintenance.php', 'Edit settings', 1, '2005-09-14 08:18:31', 5, NULL);
 INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position) VALUES (10, 'incident.php', 'Incidents', 1, '2005-09-14 09:18:30', NULL, 4);
 INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position) VALUES (11, 'search.php', 'Search', 1, '2005-09-14 09:18:38', NULL, 3);
+INSERT INTO urls (id, url, label, createdby, created, menu_position,
+navbar_position) VALUES (12, 'importqueue/queue.php', 'Import Queue', 1,
+'2005-10-20 13:18:38', NULL, 3);
 
 
 end transaction;
