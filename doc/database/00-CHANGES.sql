@@ -33,3 +33,6 @@ CREATE TABLE authentication_tickets (
 );
 
 CREATE SEQUENCE authentication_tickets_sequence;
+
+ALTER TABLE import_queue ADD COLUMN data text not null;
+
