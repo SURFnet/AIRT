@@ -18,7 +18,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * filter_cymru.plib -- filter function for cymru reports
+ * filter_darknet.plib -- filter function for darknet reports
  * 
  * $Id$
  */
@@ -32,19 +32,16 @@
  * of support Curl options, please visit the PHP documentation at
  * www.php.net/manual/en/function.curl-setopt.php.
  */
-require_once ETCDIR.'/cymru.cfg';
+require_once ETCDIR.'/darknet.cfg';
 
 /* Fetch a Cymru report from the specified URL and place it in the report
  * parameter.
  * Returns 0 on success, 1 on failure
  */
 
-function cymru_getReport($url, &$report) {
+function darknet_getReport($url, &$report) {
    global $CURLOPTS;
 
-   if ($verbosity) {
-      print "Attempting to retrieve $url\n";
-   }
    // initialise curl session and set username and password
    $ch = curl_init($url);
 
@@ -81,7 +78,7 @@ function cymru_getReport($url, &$report) {
 /* Translate the retrieved report into an associative array. 
  * Returns 0 on success, 1 on failure
  */
-function cymru_analyzeReport(&$report) {
+function darknet_analyzeReport(&$report) {
    $rmatch = array();
    $count = 0;
    preg_match_all('/^(.*)$/m', $report['body'], $rmatch);
@@ -191,7 +188,7 @@ function filter_out($reports, &$output) {
 }
 
 /* The actual filter */
-function filter_cymru($input, &$output, $verbosity=FALSE) {
+function filter_darknet($input, &$output, $verbosity=FALSE) {
    $report = array();
 
    /* make sure we have the required config */
@@ -205,15 +202,22 @@ function filter_cymru($input, &$output, $verbosity=FALSE) {
    $reports = array();
    if (preg_match_all('/^<(.*)>$/m', $input, $matches) > 0) {
       foreach ($matches[1] as $url) {
-         if (cymru_getReport($url, $report)) {
+         if ($verbosity) {
+            print "Attempting to retrieve $url\n";
+         }
+         if (darknet_getReport($url, $report)) {
             print "Error fetching Cymru report from $url\n";
             return 1;
          }
-         if (cymru_analyzeReport($report)) {
+         if (darknet_analyzeReport($report)) {
             print "Error analyzing Cymru report\n";
             return 1;
          }
          $reports[] = $report;
+      }
+   } else {
+      if ($verbosity) {
+         print "No reports found.\n";
       }
    }
 
