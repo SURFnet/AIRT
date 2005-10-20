@@ -14,8 +14,7 @@
     <airt:technicalInformation>
       <airt:ip>137.56.244.8</airt:ip>
       <airt:incident_time>2005-07-13 13:17:01</airt:incident_time>
-      <airt:logging>1103 | 137.56.244.8 | 2005-07-13 13:17:01 | Phatbot | SURFNE
-T-NL</airt:logging>
+      <airt:logging>1103 | 137.56.244.8 | 2005-07-13 13:17:01 | Phatbot | SURFNET-NL</airt:logging>
    </airt:technicalInformation>
   </airt:incident>
 </airt:airt>
