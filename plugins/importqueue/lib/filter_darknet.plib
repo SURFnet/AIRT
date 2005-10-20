@@ -200,7 +200,7 @@ function filter_darknet($input, &$output, $verbosity=FALSE) {
    /* start fetching */
    $matches = array();
    $reports = array();
-   if (preg_match_all('/^<(.*)>$/m', $input, $matches) > 0) {
+   if (preg_match_all('/^<(.*)>.$/m', $input, $matches) > 0) {
       foreach ($matches[1] as $url) {
          if ($verbosity) {
             print "Attempting to retrieve $url\n";
