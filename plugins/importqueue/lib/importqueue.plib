@@ -68,6 +68,10 @@ function printUsage() {
 function import($input,&$error,$verbosity=FALSE) {
    global $OPTIONS;
 
+   // Error message will only contain a string when an actual error occurred
+   // and the return code is 1.
+   $error = '';
+
    // Everything except the presentation of the incident to the AIRT core
    // database should have been done by now. The rest is optional.
    if ($OPTIONS['--noqueue']) {
@@ -84,7 +88,7 @@ function import($input,&$error,$verbosity=FALSE) {
    // from the <queuedata> chunk plus the <incident> chunk, call the
    // queueInsertItem() function.
 
-   # make sure we do not have namespaces. Somehow DOM XML chokes on that
+   // Make sure we do not have namespaces. Somehow DOM XML chokes on that
    $xml=preg_replace('/airt:/','',$input);
    $dom = domxml_open_mem($xml);
    if ($dom == false) {
@@ -95,7 +99,7 @@ function import($input,&$error,$verbosity=FALSE) {
    $root = $dom->document_element();
    $importqueue = $root->get_elements_by_tagname('queuedata');
    if (sizeof($importqueue) == 0) {
-      $error = 'No importqueue element in XML';
+      // This is not an error. There just is no work for us.
       return 0;
    }
 
@@ -126,25 +130,26 @@ function import($input,&$error,$verbosity=FALSE) {
          $summary = $e[0]->get_content();
       }
 
-      # fetch appropriate incident
+      // Fetch appropriate incident
       $xpath = $dom->xpath_new_context();
       $objs = $xpath->xpath_eval_expression("//incident[@id='$ref']");
       $incident = $objs->nodeset[0];
 
-      # create new XML doc of it (can this be done better?)
+      // Create new XML doc of it (can this be done better?)
       $content_xml = domxml_new_doc('1.0');
       $content_xml->add_root('airt');
       $content_root = $content_xml->document_element();
       $content_root->replace_node($incident);
       $content = $content_xml->dump_mem();
 
-      # insert
+      // Insert
       $newID = queueInsertItem($status,$sender,$type,$summary,$content,$error);
       if (!$newID) {
+         // $error has already been filled in by the call to queueInsertItem().
          return 1;
       }
 
-      # progress
+      // Progress
       if ($verbosity) {
          echo t("Queued incident, ID=$newID")."\n";
       }
@@ -276,18 +281,18 @@ function queueToAIRT($id, &$error) {
    }
    $matches = array();
    $name = $email = 'Unknown';
-   # poor man's RFC2822 filter
+   // Poor man's RFC2822 filter
    if (preg_match('/^([^<]+)<([^>]+)>$/', $data['sender'], $matches) > 0) {
       $name = trim($matches[1]);
       $email = trim($matches[2]);
    }
 
-   # fetch content from disk and clone root element;
+   // Fetch content from disk and clone root element;
    $content_xml = domxml_open_mem($data['content']);
    $content_root = $content_xml->document_element();
    $incident_data = $content_root->clone_node(true);
 
-   # create new xml document to pass to web service
+   // Create new xml document to pass to web service
    $xml = domxml_new_doc('1.0');
    $xml->add_root('airt');
    $ident = $xml->create_element('messageIdentification');
@@ -296,7 +301,7 @@ function queueToAIRT($id, &$error) {
    $name_el = $xml->create_element('name');
    $name_el->set_content($name);
 
-   # build structure
+   // Build structure
    $xml_root = $xml->document_element();
    $xml_root->append_child($ident);
    $ident->append_child($email_el);
@@ -304,7 +309,7 @@ function queueToAIRT($id, &$error) {
    $xml_root->append_child($incident_data);
    $content = $xml->dump_mem();
    
-   # call web service
+   // Call web service
    $airt_client = new SOAP_Client(WS_ENDPOINT);
    $method = "importIncidentData";
    $params = array('importXML'=>$content);
@@ -323,7 +328,7 @@ function queueToAIRT($id, &$error) {
  * order to append it to the XML later
  */
 function getSAMLTicket() {
-   #build the XML-format for auth-request
+   // Build the XML-format for auth-request
    $doc = domxml_new_doc('1.0');
    $doc_root = $doc->add_root('authentication');
 
