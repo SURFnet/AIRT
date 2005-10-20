@@ -23,10 +23,18 @@
  * $Id$
  */
 
+// Libraries for the import queue system. These libraries are shared between
+// many access points, such as Web pages, command line tools, and web
+// services.
+
+// In case the import queue configuration isn't in order, there is no
+// reasons to continue. End the attempt to load the libraries with a loud
+// bang.
 if (!defined('ETCDIR') || !file_exists(ETCDIR.'/webservice.cfg')) {
    print("Import queue depends on web service. Missing configuration file.\n");
-   return;
+   exit;
 }
+
 require_once LIBDIR.'/airt.plib';
 require_once ETCDIR.'/webservice.cfg';
 require_once ETCDIR.'/importqueue.cfg';
@@ -188,6 +196,7 @@ function updateQueueItem($id, $field, $value, &$error) {
    return 0;
 }
 
+
 # TODO: consider renaming to queueGetItems().
 /* retrieve open elements from database.
  *
@@ -214,6 +223,7 @@ function getQueueOverview(&$elements, &$error) {
    }
    return 0;
 }
+
 
 # TODO: consider renaming to queueFormatItems().
 /* show a formatted overview of the incident queue 
@@ -259,6 +269,7 @@ function formatQueueOverview() {
    $out .= "</table>\n";
    return $out;
 }
+
 
 /* import queue element into AIRT
  * Parameters
@@ -328,6 +339,7 @@ function queueToAIRT($id, &$error) {
    return 0;
 }
 
+
 /* Get the random id from the filesystem in order to authenticate, in
  * order to append it to the XML later
  */
@@ -378,7 +390,7 @@ function queueInsertItem($status,$sender,$type,$summary,$content,&$error) {
    $sender  = trim(db_escape_string($sender));
    $type    = trim(db_escape_string($type));
    $summary = trim(db_escape_string($summary));
-   $content = trim($content);
+   $content = trim(db_escape_string($content));
    if ($status=='' || $sender=='' || $type=='' || $summary=='' ||
        $content=='') {
       $error = 'Empty parameter';
@@ -395,28 +407,13 @@ function queueInsertItem($status,$sender,$type,$summary,$content,&$error) {
    $row = db_fetch_next($res);
    $newID = sprintf('%08d',$row['id']);
 
-   // Write the XML file to the file system.
-   $fileName = STATEDIR."/importqueue/$newID.xml";
-   $xmlFile = @fopen($fileName,'w');
-   if (!$xmlFile) {
-      $error = "Could not open $fileName for writing";
-      return FALSE;
-   }
-   if (!@fwrite($xmlFile,$content)) {
-      $error = 'Could not write to '.$fileName;
-      @fclose($xmlFile);
-      return FALSE;
-   }
-   @fclose($xmlFile);
-
    // Insert the record. Strings have already been escaped.
    $q = "INSERT INTO import_queue
-           (id,created,status,sender,type,summary)
+           (id,created,status,sender,type,summary,content)
          VALUES
-           ($newID,CURRENT_TIMESTAMP,'$status','$sender','$type','$summary')";
+           ($newID,CURRENT_TIMESTAMP,'$status','$sender','$type',
+            '$summary','$content')";
    if (!db_query($q)) {
-      // Oops! Remove the XML file from the file system.
-      @unlink($fileName);
       $error = 'Could not insert new queue item';
       return FALSE;
    }
@@ -436,7 +433,7 @@ function queueInsertItem($status,$sender,$type,$summary,$content,&$error) {
  *   'type', 'summary', and 'content'. In case of retrieval failure, FALSE.
  */
 function queuePeekItem($id,&$error) {
-   $res = db_query(q('SELECT status, sender, type, summary
+   $res = db_query(q('SELECT status, sender, type, summary, content
       FROM import_queue
       WHERE id=%id', array('%id'=>$id)));
    if ($res == false) {
@@ -448,9 +445,9 @@ function queuePeekItem($id,&$error) {
       return NULL;
    }
    $out = db_fetch_next($res);
-   $file = file_get_contents(sprintf("%s/importqueue/%08d.xml", STATEDIR, $id));
-   /* need to strip first line of file (it contains <?xml .. ?> */
-   $out['content'] = trim(preg_replace('/^\<\?xml.*$/m', '', $file));
+# NOTE: this is bad style, mangling the queue content here. If this is
+# required, do it in the calling function -- not here. JH, 2005-10-20.
+#   $out['content'] = trim(preg_replace('/^\<\?xml.*$/m', '',$out['content']));
 
    db_free_result($res);
    return $out;
@@ -469,4 +466,5 @@ function queueRemoveItem($id,&$error) {
    $error = 'Not yet implemented';
    return 1;
 }// queueRemoveItem
+
 ?>
