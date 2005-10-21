@@ -21,7 +21,4 @@
 configdir=$(sysconfdir)/$(PACKAGE)
 config_DATA = exportqueue.cfg
 
-CLEANFILES = exportqueue.cfg
-DISTCLEANFILES = $(CLEANFILES)
-
 EXTRA_DIST = $(config_DATA)
