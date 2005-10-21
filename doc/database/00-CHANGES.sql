@@ -34,5 +34,6 @@ CREATE TABLE authentication_tickets (
 
 CREATE SEQUENCE authentication_tickets_sequence;
 
-ALTER TABLE import_queue ADD COLUMN content text not null;
+ALTER TABLE import_queue ADD COLUMN content text;
+ALTER TABLE import_queue ALTER COLUMN content SET not null;
 
