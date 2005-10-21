@@ -79,6 +79,9 @@ foreach ($argv as $param) {
 // suppress second or third occurrences of the same filter.
 $FILTERS = array();
 foreach ($AIRT_IMPORTFILTER_DIRS as $dir) {
+   if (!file_exists($dir)) {
+      continue;
+   }
    $libdir = opendir($dir);
    while ($file = readdir($libdir)) {
       $filter_name = basename($file,'.plib');
