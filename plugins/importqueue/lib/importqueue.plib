@@ -327,7 +327,7 @@ function queueToAIRT($id, &$error) {
    $method = "importIncidentData";
    $params = array('importXML'=>$content);
 
-   # process CURL options
+   // process CURL options
    foreach ($AIRT_CURL_OPTIONS as $key=>$value) {
       $airt_client->setOpt('curl', $key, $value);
    }
@@ -344,6 +344,8 @@ function queueToAIRT($id, &$error) {
  * order to append it to the XML later
  */
 function getSAMLTicket() {
+   global $AIRT_CURL_OPTIONS;
+
    // Build the XML-format for auth-request
    $doc = domxml_new_doc('1.0');
    $doc_root = $doc->add_root('authentication');
@@ -360,8 +362,10 @@ function getSAMLTicket() {
    $airt_client = new SOAP_Client(WS_ENDPOINT);
    $method = 'RequestAuthentication';
    $params = array('auth_request' => $xml_auth);
-   if (defined('AIRT_CAPATH')) {
-      $airt_client->setOpt('curl', CURLOPT_CAPATH, AIRT_CAPATH);
+
+   // process CURL options
+   foreach ($AIRT_CURL_OPTIONS as $key=>$value) {
+      $airt_client->setOpt('curl', $key, $value);
    }
    $ans = $airt_client->call($method, $params);
 
