@@ -1,5 +1,8 @@
-2005-x-y
+2005-1021
 * New field with incident: logging
+* Import queue enhancements and interface changes
+* Import queue no longer depends on filesystem
+* CURL options in import queue and import filters
 
 2005-10-10
 * Import queue now no longer uses hard-coded directories for the filters, but
