@@ -26,33 +26,33 @@ installed schema to get the system working. This file is the logical place
 to include an extra INSERT:
 
 INSERT INTO versions (key, value) 
-  VALUES ('airtschema','@AIRT_SCHEMA_VERSION@');
+  VALUES ('airtversion','@VERSION@');
 
-The @AIRT_SCHEMA_VERSION@ variable will be replaced by the packaging
-procedure, which creates the airtbootstrap.sql file from
-airtbootstrap.sql.in . The packaging procedure reads variables from
-VERSION.m4 and distributes these over various *.in files in the AIRT source
-tree. One of these is the php/config.plib.in file, which governs the
-configuration setup before the application administrator gets involved. The
-database schema version is code-dependent and not administrator-dependent,
-so this belongs in the config.plib.in file for sure:
+The @VERSION@ variable will be replaced by the packaging procedure, which
+creates the airtbootstrap.sql file from airtbootstrap.sql.in . The packaging
+procedure reads variables from VERSION.m4 and distributes these over various
+*.in files in the AIRT source tree. One of these is the php/config.plib.in
+file, which governs the configuration setup before the application
+administrator gets involved. The database schema version is code-dependent
+and not administrator-dependent, so this belongs in the config.plib.in file
+for sure:
 
-define('AIRT_SCHEMA_VERSION','@AIRT_SCHEMA_VERSION@');
+define('AIRT_VERSION','@AIRT_VERSION@');
 
 In many cases, a schema will not be installed from scratch, but will be
 updated from a previous version. This is done via the
 airtschema-from-A-to-B.sql files. Each of these files therefore includes a
 line:
 
-UPDATE versions SET value='---schemastring---' WHERE key='airtschema';
+UPDATE versions SET value='---versionstring---' WHERE key='airtversion';
 
 The running (development) schema update file 00-CHANGES.sql permanently
 includes a line that functions as a reminder to the package builder:
 
-UPDATE versions SET value='---schemastring---' WHERE key='airtschema';
+UPDATE versions SET value='---versionstring---' WHERE key='airtversion';
 
-These files do not have a schema variable, but an absolute string that does
-not change in time.
+These files do not have a variable, but an absolute string that does not
+change in time.
 
 For reliability reasons, we try hard to avoid a manual procedure to keep the
 version identifiers in sync. The only manual action is to update VERSION.m4
