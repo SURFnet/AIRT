@@ -1,0 +1,66 @@
+Database version management in AIRT
+===============================================================================
+$Id$
+
+It has become clear that AIRT needs a mechanism to assure that code and
+database versions remain in sync. While it is not required to enforce this
+sync with elaborate automated update procedures, built-in checks should
+alert the users and administrator of an AIRT installation as soon as a
+discrepancy between code version and database version is detected.
+
+The version of a database can be encoded in the database in several ways.
+The most practical one, which fits in with other ideas that we might pursue,
+is to create a VERSIONS table in the schema and use a simple key-value
+organisation.
+
+CREATE TABLE versions (
+  key        varchar(16)   not null,
+  value      varchar(16)   not null,
+  primary key (key)
+)
+
+The airtschema.sql master schema file is considered to be the master source
+of the schema at all times. The associated airtbootstrap.sql.in file
+contains the SQL statements that /must/ be executed against the cleanly
+installed schema to get the system working. This file is the logical place
+to include an extra INSERT:
+
+INSERT INTO versions (key, value) 
+  VALUES ('airtschema','@AIRT_SCHEMA_VERSION@');
+
+The @AIRT_SCHEMA_VERSION@ variable will be replaced by the packaging
+procedure, which creates the airtbootstrap.sql file from
+airtbootstrap.sql.in . The packaging procedure reads variables from
+VERSION.m4 and distributes these over various *.in files in the AIRT source
+tree. One of these is the php/config.plib.in file, which governs the
+configuration setup before the application administrator gets involved. The
+database schema version is code-dependent and not administrator-dependent,
+so this belongs in the config.plib.in file for sure:
+
+define('AIRT_SCHEMA_VERSION','@AIRT_SCHEMA_VERSION@');
+
+In many cases, a schema will not be installed from scratch, but will be
+updated from a previous version. This is done via the
+airtschema-from-A-to-B.sql files. Each of these files therefore includes a
+line:
+
+UPDATE versions SET value='---schemastring---' WHERE key='airtschema';
+
+The running (development) schema update file 00-CHANGES.sql permanently
+includes a line that functions as a reminder to the package builder:
+
+UPDATE versions SET value='---schemastring---' WHERE key='airtschema';
+
+These files do not have a schema variable, but an absolute string that does
+not change in time.
+
+For reliability reasons, we try hard to avoid a manual procedure to keep the
+version identifiers in sync. The only manual action is to update VERSION.m4
+and this is a required part of the package release process.
+
+When the AIRT code detects that the database schema string in the code
+deviates from the string in the database itself, the code will flag a fatal
+error with enough data to identify the problem and the solution, and halt.
+AIRT is not usable with mismatches between code and database schema.
+
+[EOF]
