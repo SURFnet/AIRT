@@ -1,6 +1,7 @@
 2005-xx-xx
 * Update user interface import queue
 * Moved mail templates out of filesystem
+* Added version consistency check between code base and data base.
 
 2005-10-21
 * New field with incident: logging
