@@ -272,13 +272,19 @@ CREATE TABLE import_queue (
 );
 
 CREATE TABLE authentication_tickets (
-    id integer not null,
-    userid varchar(100) not null,
-    created timestamp not null,
+    id       integer       not null,
+    userid   varchar(100)  not null,
+    created  timestamp     not null,
     ticketid varchar(3000) not null,
     primary key (id),
-    foreign key (userid)   references users(id)
+    foreign key (userid) references users(id)
 );
+
+CREATE TABLE versions (
+  key   varchar(16) not null,
+  value varchar(16) not null,
+  primary key (key)
+)
 
 CREATE SEQUENCE incident_types_sequence;
 CREATE SEQUENCE incident_states_sequence;
