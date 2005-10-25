@@ -226,14 +226,16 @@ function getQueueOverview(&$elements, &$error) {
 
 
 # TODO: consider renaming to queueFormatItems().
-/* show a formatted overview of the incident queue 
- * Returns 0 on success, 1 on failure
+/* show a formatted overview of the incident queue
  */
 function formatQueueOverview() {
    $error = '';
    $elements = array();
    if (getQueueOverview($elements, $error)) {
       return;
+   }
+   if (sizeof($elements) == 0) {
+      return "No items pending.\n";
    }
    $count = 0;
    $out = "<table cellpadding=\"4\" class=\"queue\">\n";
@@ -257,9 +259,13 @@ function formatQueueOverview() {
 		
 
          $out .= t("<tr bgcolor=\"%color\">\n", array('%color'=>($count++ % 2 == 0) ? '#DDDDDD' : '#FFFFFF'));
-         $out .= t("  <td>Accept <input checked type=\"radio\" name=\"decision[$id]\" value=\"accept\">");
-         $out .= t("  Reject <input type=\"radio\" name=\"decision[$id]\" value=\"reject\">");
-         $out .= t("</td>\n");
+         $out .= t("  <td>\n");
+         $out .= t("  <select name=\"decision\">\n");
+         $out .= t("  <option value=\"accept\" SELECTED>Accept</option>\n");
+         $out .= t("  <option value=\"reject\">Reject</option>\n");
+         $out .= t("  <option value=\"donothing\">Do nothing</option>\n");
+         $out .= t("  </select>\n");
+         $out .= t("  </td>\n");
          $out .= t("  <td>%type</td>\n", array('%type'=>$element['type']));
          $out .= t("  <td>%cons</td>\n", array('%cons'=>$cons));
          $out .= t("  <td>%ip</td>\n", array('%ip'=>$ip));

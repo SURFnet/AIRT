@@ -35,22 +35,23 @@ function showQueue() {
    pageHeader('AIRT Import queue');
    $out = "<form method=\"post\">";
    $out .= formatQueueOverview();
-   $out .= "<p><input type=\"submit\" name=\"action\" value=\"Update queue\"></p>\n";
+   $out .= "<p><input type=\"submit\" label=\"Commit all incidents as accept or reject\" name=\"action\" value=\"Process\"> ";
+   $out .= "<input type=\"submit\" name=\"action\" label=\"Refresh the import queue. Any unprocessed changes will be lost.\" value=\"Refresh\"></p>\n";
    $out .= "</form>\n";
    print $out;
 }
 
 switch ($action) {
-   #----------------------------------------------------------------
-   case 'Update queue':
+   //----------------------------------------------------------------
+   case 'Process':
       $error = '';
+      // no decision received. Process button pushed from empty queue?
       if (!array_key_exists('decision', $_POST)) {
-         airt_error('PARAM_MISSING', 'queue.php:'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
-         exit;
+         showQueue();
+         break;
       }
-print_r($_POST['decision']);
-      # interpret all decision and take action if accept or reject
+
+      // interpret all decision and take action if accept or reject
       foreach ($_POST['decision'] as $id=>$value) {
          $update = false;
          switch ($value) {
@@ -77,11 +78,11 @@ print_r($_POST['decision']);
          }
       }
 
-      # show updated queue;
+      // show updated queue;
       showQueue();
       break;
 
-   #----------------------------------------------------------------
+   // ----------------------------------------------------------------
    case "showdetails":
       if (!array_key_exists('id', $_GET)) {
          airt_error('PARAM_MISSING', 'queue.php:'.__LINE__);
@@ -125,12 +126,13 @@ print_r($_POST['decision']);
       print $out;
       pageFooter();
       break;
-   #----------------------------------------------------------------
+   // ----------------------------------------------------------------
+   case 'Refresh':
    case 'list':
       showQueue();
       break;
 
-   #----------------------------------------------------------------
+   // ----------------------------------------------------------------
    default:
       airt_error('PARAM_INVALID', 'queue.php:'.__LINE__);
       Header("Location: $_SERVER[PHP_SELF]");
