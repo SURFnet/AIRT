@@ -127,5 +127,10 @@ INSERT INTO urls (id, url, label, createdby, created, menu_position,
 navbar_position) VALUES (12, 'importqueue/queue.php', 'Import Queue', 1,
 '2005-10-20 13:18:38', NULL, 3);
 
+--
+-- Create the database schema version record.
+--
+INSERT INTO versions (key, value) 
+    VALUES ('airtschema','@AIRT_SCHEMA_VERSION@');
 
 end transaction;
