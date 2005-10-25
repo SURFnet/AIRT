@@ -1,4 +1,8 @@
-2005-1021
+2005-xx-xx
+* Update user interface import queue
+* Moved mail templates out of filesystem
+
+2005-10-21
 * New field with incident: logging
 * Import queue enhancements and interface changes
 * Import queue no longer depends on filesystem

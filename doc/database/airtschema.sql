@@ -59,6 +59,7 @@ DROP TABLE role_permissions CASCADE;
 DROP TABLE blocks CASCADE;
 DROP TABLE incident_users CASCADE;
 DROP TABLE import_queue CASCADE;
+DROP TABLE mailtemplates CASCADE;
 
 begin transaction;
 
@@ -278,6 +279,18 @@ CREATE TABLE authentication_tickets (
     ticketid varchar(3000) not null,
     primary key (id),
     foreign key (userid) references users(id)
+);
+
+CREATE TABLE mailtemplates (
+   name varchar(80) not null,
+   body text not null,
+   createdby integer not null,
+   created timestamp not null,
+   updatedby integer,
+   updated timestamp,
+   primary key (name),
+   foreign key (createdby) references users(id),
+   foreign key (updatedby) references users(id)
 );
 
 CREATE TABLE versions (

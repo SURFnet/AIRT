@@ -24,52 +24,51 @@
 require_once 'config.plib';
 require_once LIBDIR."/mailtemplates.plib";
 
-
-$FILES = loadAllowedFiles();
 if (array_key_exists('action', $_REQUEST)) {
    $action=$_REQUEST['action'];
 } else {
    $action = "list";
 }
 
+function listTemplates() {
+  pageHeader("Available mail templates");
+
+   print format_templates();
+   print t("<P><a href=\"%url?action=new\">Create a new message</a></P>\n", 
+      array('%url'=>$_SERVER['PHP_SELF']));
+   // If a current_email parameter has been passed along, put it in the
+   // session for later use by "prepare".
+   if (array_key_exists('current_email', $_REQUEST)) {
+      $_SESSION['current_email'] = $_REQUEST['current_email'];
+   }
+
+   pageFooter();
+}
+
 switch ($action) {
    // -------------------------------------------------------------------
    case "list":
-     pageHeader("Available standard messages");
-
-      echo "<h2>Messages</H2>";
-      if (list_standard_messages() == 0) {
-         printf("<I>No standard messages available.</I>");
-      }
-      echo <<<EOF
-<P>
-<a href="$_SERVER[PHP_SELF]?action=new">Create a new message</a>
-EOF;
-      // If a current_email parameter has been passed along, put it in the
-      // session for later use by "prepare".
-      if (array_key_exists('current_email', $_REQUEST)) {
-         $_SESSION['current_email'] = $_REQUEST['current_email'];
-      }
-
-      pageFooter();
+      listTemplates();
       break;
 
    // -------------------------------------------------------------------
    case "edit":
       $msg = '';
-      if (array_key_exists("filename", $_REQUEST)) {
-         $filename=$_REQUEST["filename"];
+      if (array_key_exists("template", $_REQUEST)) {
+         $template=$_REQUEST["template"];
       } else {
-         die("Missing parameter.");
+         airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
+         Header("Location: $_SERVER[PHP_SELF]");
+         return;
       }
 
-      pageHeader("Edit standard message");
+      pageHeader("Edit mail template");
 
-      if (($msg = read_standard_message($filename)) == false) {
-         printf("Message not available.");
+      if (($msg = get_template($template)) == false) {
+         printf("Template not available.");
       } else {
          echo <<<EOF
-Update the message and press the 'Save!' button to save the message. The first
+Update the template and press the 'Save!' button to save it. The first
 line of the message will be used as the subject. You may use the following
 special variables in the template:
 
@@ -83,9 +82,9 @@ EOF;
 <textarea wrap name="message" cols=75 rows=20>$msg</textarea>
 <P>
 <input type="hidden" name="action" value="save">
-<input type="hidden" name="filename" value="$filename">
-<input type="submit" value="Save!">
-<input type="reset" value="Cancel!">
+<input type="hidden" name="template" value="$template">
+<input type="submit" value="Save">
+<input type="reset" value="Cancel">
 </form>
 EOF;
       }
@@ -95,33 +94,35 @@ EOF;
 
    // -------------------------------------------------------------------
    case "save":
-      if (array_key_exists("filename", $_REQUEST)) {
-         $filename=$_REQUEST["filename"];
+      if (array_key_exists("template", $_REQUEST)) {
+         $template=$_REQUEST["template"];
       } else {
-         die("Missing parameter.");
+         airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
+         Header("Location: $_SERVER[PHP_SELF]");
+         return;
       }
       if (array_key_exists("message", $_REQUEST)) {
             $message=$_REQUEST["message"];
       } else {
-         die("Missing parameter.");
+         airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
+         Header("Location: $_SERVER[PHP_SELF]");
+         return;
       }
 
       $message = strip_tags($message);
       $message = stripslashes($message);
 
-      if (!valid_write($filename)) {
-         die ("Invalid filename.");
+      if (save_template($template, $message)) {
+         airt_error('ERR_FUNC', 'mailtemplates.php:'.__LINE__);
       }
-
-      save_standard_message($filename, $message);
-      Header("Location: $_SERVER[PHP_SELF]");
+      listTemplates();
       break;
 
    // -------------------------------------------------------------------
    case "new":
-      pageHeader("New standard message");
+      pageHeader("New mail template");
       echo <<<EOF
-Enter your new message in the text field below. Use the following variables
+Enter your new template in the text field below. Use the following variables
 in your text body:
 <P>
 EOF;
@@ -129,7 +130,7 @@ EOF;
       echo <<<EOF
 <P>
 <form action="$_SERVER[PHP_SELF]" method="POST">
-File name: <input type="text" size="40" name="filename">
+File name: <input type="text" size="40" name="template">
 <P>
 Message:<BR>
 <textarea wrap name="message" cols=75 rows=20></textarea>
@@ -143,27 +144,30 @@ EOF;
 
    // -------------------------------------------------------------------
   case "delete":
-      if (array_key_exists("filename", $_REQUEST)) {
-         $filename=$_REQUEST["filename"];
+      if (array_key_exists("template", $_REQUEST)) {
+         $template=$_REQUEST["template"];
       } else {
-         die("Missing parameter.");
+         airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
+         Header("Location: $_SERVER[PHP_SELF]");
+         return;
       }
-
-      if (valid_write($filename)) {
-         unlink(STATEDIR."/templates/$filename");
+      if (delete_template($template)) {
+         airt_error('ERR_FUNC', 'mailtemplates.php'.__LINE__);
       }
-      Header("Location: $_SERVER[PHP_SELF]");
+      listTemplates();
       break;
 
    // -------------------------------------------------------------------
    case "prepare":
-      if (array_key_exists("filename", $_REQUEST)) {
-         $filename=$_REQUEST["filename"];
+      if (array_key_exists("template", $_REQUEST)) {
+         $template=$_REQUEST["template"];
       } else {
-         die("Missing parameter.");
+         airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
+         Header("Location: $_SERVER[PHP_SELF]");
+         return;
       }
 
-      prepare_message($filename);
+      prepare_message($template);
       pageFooter();
       break;
 
@@ -172,32 +176,37 @@ EOF;
       if (array_key_exists("from", $_POST)) {
          $from=$_POST["from"];
       } else {
-         die("Missing parameter 1.");
+         airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
+         Header("Location: $_SERVER[PHP_SELF]");
+         return;
       }
       if (array_key_exists("to", $_POST)) {
          $to=$_POST["to"];
       } else {
-         die("Missing parameter 2.");
+         airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
+         Header("Location: $_SERVER[PHP_SELF]");
+         return;
       }
       if (array_key_exists("replyto", $_POST)) {
          $replyto=$_POST["replyto"];
       } else {
-         die("Missing parameter 3.");
+         airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
+         Header("Location: $_SERVER[PHP_SELF]");
+         return;
       }
       if (array_key_exists("subject", $_POST)) {
          $subject=$_POST["subject"];
       } else {
-         die("Missing parameter 4.");
+         airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
+         Header("Location: $_SERVER[PHP_SELF]");
+         return;
       }
       if (array_key_exists("msg", $_POST)) {
          $msg=$_POST["msg"];
       } else {
-         die("Missing parameter 5.");
-      }
-      if (array_key_exists("sendxml", $_POST)) {
-         $attach=$_POST["sendxml"];
-      } else {
-         $attach='off';
+         airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
+         Header("Location: $_SERVER[PHP_SELF]");
+         return;
       }
       if (array_key_exists('sign', $_POST)) {
          $sign = $_POST['sign'];

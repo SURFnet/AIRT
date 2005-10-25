@@ -12,6 +12,18 @@ CREATE TABLE versions (
   primary key (key)
 )
 
+CREATE TABLE mailtemplates (
+   name varchar(80) not null,
+   body text not null,
+   createdby integer not null,
+   created timestamp not null,
+   updatedby integer,
+   updated timestamp,
+   primary key (name),
+   foreign key (createdby) references users(id),
+   foreign key (updatedby) references users(id)
+);
+
 -- First release: insert the record. Needs one-time manual tweaking.
 INSERT INTO versions (key, value) 
   VALUES ('airtschema','20051025.1');
