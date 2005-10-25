@@ -14,7 +14,7 @@ CREATE TABLE versions (
 
 -- First release: insert the record. Needs one-time manual tweaking.
 INSERT INTO versions (key, value) 
-  VALUES ('airtschema','---schemastring---');
+  VALUES ('airtschema','20051025.1');
 
 -- When table and record has been established (next release):
 UPDATE versions SET value='---schemastring---' WHERE key='airtschema';
