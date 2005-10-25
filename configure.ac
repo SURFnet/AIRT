@@ -18,11 +18,11 @@
 # $Id$
 m4_include([VERSION.m4])dnl
 
-AC_INIT([airt], [AIRT_VERSION], [kees@leune.org])
+AC_INIT([airt], [AIRT_VERSION], [airt-dev@uvt.nl])
 
 AC_PREREQ(2.59)
 AC_COPYRIGHT([
-Copyright (C) 2004 Tilburg University, The Netherlands
+Copyright (C) 2005 Tilburg University, The Netherlands
 ])
 
 AC_DEFINE_DIR(ETCPATH, sysconfdir/airt)
