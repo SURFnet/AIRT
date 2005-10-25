@@ -38,6 +38,7 @@ AC_OUTPUT([Makefile
     doc/Makefile
     doc/examples/Makefile
     doc/database/Makefile
+    doc/database/airtbootstrap.sql
     lib/Makefile
     php/Makefile
     php/login.php
