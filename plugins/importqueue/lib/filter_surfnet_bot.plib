@@ -31,21 +31,13 @@
  * Returns:
  *    0 on success (can not yet fail).
  */
-function filter_surfnet_bot($input, &$output, $verbosity=FALSE) {
+function filter_surfnet_bot2($input, &$output, $verbosity=FALSE) {
 
    // Try to find the reference ID of this incident, given by SURFnet.
    if (preg_match('/Subject:.*SURFnet-CERT#([0-9]+)/', $input, $matches)==1) {
       $reference = $matches[1];
    } else {
       $reference = 'unknown';
-   }
-
-   // Try to find the time of the DNS resolving.
-   if (preg_match('/De DNS resolving heeft plaatsgevonden rond ([^,]+),/',
-          $input, $matches)==1) {
-      $resolved = $matches[1];
-   } else {
-      $resolved = 'unknown';
    }
 
    // Try to find the sender.
@@ -65,8 +57,6 @@ function filter_surfnet_bot($input, &$output, $verbosity=FALSE) {
    // Set the fixed status.
    $status = 'open';
 
-   // Set the fixed type.
-   $type = 'SURFnet report DDoS bot';
 
    // Scan the rest of the mail for data lines. Each data line will lead to
    // a separate XML queue chunk and incident chunk. These chunks are
@@ -75,15 +65,22 @@ function filter_surfnet_bot($input, &$output, $verbosity=FALSE) {
    $data = explode("\n", $input);
    $id = 1;
    foreach ($data as $in) {
-      if (preg_match('/^START \| UVT \| ([0-9.]+) \| (\S+) \| ([0-9-]+) ([0-9:]+) \| ([0-9-]+) ([0-9:]+) \| (\d+) \| ([A-Z]+) \| (\d+)$/', $in, $matches) > 0) {
+      if (preg_match('/^START ([0-9]+) \| ([0-9.]+) \| ([0-9.]+) \| ([0-9]+) \| (\S+) \| ([0-9.]+) \| ([0-9.])+ \| ([0-9-]+ [0-9:]+) \| ([0-9-]+ [0-9:]+)/', $in, $matches) > 0) {
          $logging   = $matches[0];
-         $ip        = $matches[1];
-         $hostname  = $matches[2];
-         $date      = $matches[3];
-         $time      = $matches[4];
-         $port      = $matches[7];
+         $count     = $matches[1];
+         $srcip     = $matches[2];
+         $dstip     = $matches[3];
+         $dstport   = $matches[4];
+         $proto     = $matches[5];
+         $avgpckt   = $matches[6];
+         $avgbyte   = $matches[7];
+         $firstseen = $matches[8];
+         $lastseen  = $matches[9];
+         $srcname   = gethostbyaddr($srcip);
+         $dstname   = gethostbyaddr($dstip);
+         // Set the fixed type.
+         $type = "SURFnet report DDoS bot op $srcip";
 
-print "XX\n";
          $queue[$id]  = "    <airt:queuedata ref=\"#$id\">\n";
          $queue[$id] .= "      <airt:status>$status</airt:status>\n";
          $queue[$id] .= "      <airt:sender>$sender</airt:sender>\n";
@@ -97,11 +94,10 @@ print "XX\n";
          $incid[$id] .="      <airt:reference>$reference</airt:reference>\n";
          $incid[$id] .="    </airt:ticketInformation>\n";
          $incid[$id] .="    <airt:technicalInformation>\n";
-         $incid[$id] .="      <airt:ip>$ip</airt:ip>\n";
-         $incid[$id] .="      <airt:hostname>$hostname</airt:hostname>\n";
+         $incid[$id] .="      <airt:ip>$srcip</airt:ip>\n";
+         $incid[$id] .="      <airt:hostname>$srcname</airt:hostname>\n";
          $incid[$id] .="      <airt:port>$port</airt:port>\n";
-         $incid[$id] .="      <airt:time_dns_resolving>$resolved</airt:time_dns_resolving>\n";
-         $incid[$id] .="      <airt:incident_time>$date $time</airt:incident_time>\n";
+         $incid[$id] .="      <airt:incident_time>$lastseen</airt:incident_time>\n";
          $incid[$id] .="      <airt:logging>$logging</airt:logging>\n";
          $incid[$id] .="   </airt:technicalInformation>\n";
          $incid[$id] .="  </airt:incident>\n";
