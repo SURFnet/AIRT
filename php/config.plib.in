@@ -23,7 +23,7 @@
 
 // This file is part of the code; do not change it if you are an application
 // administrator.
-define('AIRT_SCHEMA_VERSION','@AIRT_SCHEMA_VERSION@');
+define('AIRT_VERSION','@VERSION@');
 require_once "@ETCPATH@/airt.cfg";
 
 ?>
