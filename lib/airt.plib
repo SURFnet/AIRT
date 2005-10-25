@@ -34,6 +34,20 @@ if ($_SERVER['DOCUMENT_ROOT']=='') {
    define('AIRT_RUN_MODE','HTTP');
 }
 
+// We already have a database connection here. Check for a match between
+// code and database AIRT version.
+$q = "SELECT value FROM VERSIONS where key='airtversion'";
+$res = db_query($q) or die('Unable to connect to database.');
+$row = db_fetch_next($res);
+$dbVersion = $row['value'];
+$br = (AIRT_RUN_MODE=='CLI') ? '' : '<br/>';
+if (AIRT_VERSION != $dbVersion) {
+   echo "Expected database version: ".AIRT_VERSION."$br\n";
+   echo "Actual database version:   $dbVersion$br\n";
+   echo "Cannot continue, needs database update first.\n";
+   exit;
+}
+
 // Include custom functions if requested.
 if (defined('CUSTOM_FUNCTIONS')) {
   require_once CUSTOM_FUNCTIONS;
