@@ -26,7 +26,7 @@ require_once LIBDIR.'/database.plib';
 require_once LIBDIR.'/error.plib';
 
 // Find out whether we run as web server module or as CLI interpreter.
-if (array_key_exists('argv',$GLOBALS)) {
+if ($_SERVER['DOCUMENT_ROOT']=='') {
    // We run as CLI.
    define('AIRT_RUN_MODE','CLI');
 } else {
