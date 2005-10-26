@@ -34,3 +34,7 @@ INSERT INTO versions (key, value) VALUES ('airtversion','20051025.1');
 UPDATE versions SET value='---versionstring---' WHERE key='airtversion';
 -- Needs manual update with the AIRT_VERSION string of the release.
 -- Cannot rely on .in expansion as it needs to stay fixed in history.
+
+ALTER TABLE authentication_tickets ADD expiration timestamp;
+
+ALTER table authentication_tickets ALTER COLUMN expiration SET NOT NULL;

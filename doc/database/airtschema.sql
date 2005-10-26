@@ -39,6 +39,7 @@ DROP SEQUENCE permissions_sequence;
 DROP SEQUENCE role_permissions_sequence;
 DROP SEQUENCE blocks_sequence;
 DROP SEQUENCE importqueue_sequence;
+DROP SEQUENCE authentication_tickets_sequence;
 
 DROP TABLE incident_types CASCADE; 
 DROP TABLE incident_states CASCADE;
@@ -59,6 +60,7 @@ DROP TABLE role_permissions CASCADE;
 DROP TABLE blocks CASCADE;
 DROP TABLE incident_users CASCADE;
 DROP TABLE import_queue CASCADE;
+DROP TABLE authentication_tickets CASCADE;
 DROP TABLE mailtemplates CASCADE;
 
 begin transaction;
@@ -273,12 +275,13 @@ CREATE TABLE import_queue (
 );
 
 CREATE TABLE authentication_tickets (
-    id       integer       not null,
-    userid   varchar(100)  not null,
-    created  timestamp     not null,
-    ticketid varchar(3000) not null,
-    primary key (id),
-    foreign key (userid) references users(id)
+  id        integer      not null,
+  userid    varchar(100) not null,
+  created   timestamp    not null,
+  expiration timestamp   not null,
+  ticketid  varchar(3000) not null,
+  primary key (id),
+  foreign key (userid)   references users(id)
 );
 
 CREATE TABLE mailtemplates (
