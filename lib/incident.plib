@@ -186,6 +186,10 @@ function getIncidentTypeSelection($name, $default='') {
    return $output;
 }
 
+/* retrieve incidents with status open or stalled.  Returns an associative
+ * array with the incident ID as key and an associative array with incident
+ * data as value.
+ */
 function getOpenIncidents() {
    $res = db_query(
       "SELECT   i.id as incidentid,

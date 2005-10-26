@@ -58,7 +58,10 @@ switch ($action) {
             case 'accept':
                $value = 'accepted';
                $update = true;
-               if (queueToAIRT($id, $error)) {
+               if (isset($_POST['add'][$id]) && $_POST['add'][$id] == 'on') {
+                  // TODO: add logging to existing incident
+                  $update = false;
+               } else if (queueToAIRT($id, $error)) {
                   $update = false;
                   airt_error('ERR_FUNC', 'queue.php:'.__LINE__, $error);
                   break;

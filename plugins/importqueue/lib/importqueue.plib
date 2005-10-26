@@ -39,6 +39,7 @@ require_once LIBDIR.'/airt.plib';
 require_once ETCDIR.'/webservice.cfg';
 require_once ETCDIR.'/importqueue.cfg';
 require_once 'SOAP/Client.php';
+require_once LIBDIR.'/incident.plib';
 require_once LIBDIR.'/search.plib';
 require_once LIBDIR.'/constituency.plib';
 
@@ -237,9 +238,12 @@ function formatQueueOverview() {
    if (sizeof($elements) == 0) {
       return "No items pending.\n";
    }
+   foreach (getOpenincidents() as $id=>$data) {
+      $openips[$data['ip']] = $id;
+   }
    $count = 0;
    $out = "<table cellpadding=\"4\" class=\"queue\">\n";
-   $out .= "<tr><th>Decision</th><th>Sender</th><th>Constituency</th><th>IP Address</th><th>Details</th></tr>\n";
+   $out .= "<tr><th>Decision</th><th>Sender</th><th>Constituency</th><th>IP Address</th><th>Details</th></tr><th></th>\n";
    foreach ($elements as $id=>$element) {
 		$item = queuePeekItem($id,$error);
 		if ($error != '') {
@@ -256,11 +260,10 @@ function formatQueueOverview() {
 	   	$consid = getConstituencyIDByNetworkID($netid);
 		   $conss = getConstituencies();
    		$cons = $conss[$consid]['label'];
-		
 
          $out .= t("<tr bgcolor=\"%color\">\n", array('%color'=>($count++ % 2 == 0) ? '#DDDDDD' : '#FFFFFF'));
          $out .= t("  <td>\n");
-         $out .= t("  <select name=\"decision\">\n");
+         $out .= t("  <select name=\"decision[$id]\">\n");
          $out .= t("  <option value=\"accept\" SELECTED>Accept</option>\n");
          $out .= t("  <option value=\"reject\">Reject</option>\n");
          $out .= t("  <option value=\"donothing\">Do nothing</option>\n");
@@ -270,8 +273,15 @@ function formatQueueOverview() {
          $out .= t("  <td>%cons</td>\n", array('%cons'=>$cons));
          $out .= t("  <td>%ip</td>\n", array('%ip'=>$ip));
          $out .= t("  <td><a target=\"airt_queue\" title=\"Show incident details in new browser window\" href=\"%url?action=showdetails&id=%id\">details</a></td>\n", array('%url'=>$_SERVER['PHP_SELF'], '%id'=>$id));;
+         $out .= t("  <td>");
+         if (array_key_exists($ip, $openips)) {
+            $out .= t("  <input type=\"checkbox\" checked name=\"add[$id]\">");
+            $out .= t("  Add to %id", array('%id'=>normalize_incidentid($openips[$ip])));
+         }
+         $out .= t("  </td>\n");
          $out .= "</tr>\n";
       }
+      $count++;
    }
    $out .= "</table>\n";
    return $out;
