@@ -357,14 +357,10 @@ function queueToAIRT($id, &$error) {
       $airt_client->setOpt('curl', $key, $value);
    }
    $ans = $airt_client->call($method, $params);
-   echo "<PRE>";
-   print_r($ans);
-   /*
    if (PEAR::isError($ans)) {
       echo "SOAP Error";
       exit;
    }
-   */
    return 0;
 }
 
