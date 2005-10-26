@@ -249,7 +249,7 @@ function formatQueueOverview() {
 		if ($error != '') {
 			return;
 		}
-		if($tree = domxml_open_mem($item['content'])) {
+		if($tree = @domxml_open_mem($item['content'])) {
    		$ips = $tree->get_elements_by_tagname('ip');
 	   	if (sizeof($ips) > 0) {
 		   	$ip = $ips[0]->get_content();
@@ -297,10 +297,20 @@ function formatQueueOverview() {
  */
 function queueToAIRT($id, &$error) {
    global $AIRT_CURL_OPTIONS;
-
    $saml_ticket = '';
    $saml_ticket = getSAMLTicket();
-   print_r($saml_ticket);
+   $saml_ticket = preg_replace('/xmlns:="urn:oasis:names:tc:SAML:1.0:assertion"/','',$saml_ticket);
+   $saml_ticket = preg_replace('/xmlns:ds="http:\/\/www.w3.org\/2000\/09\/xmldsig#"/','',$saml_ticket);
+   $saml_ticket = preg_replace('/ds:/','',$saml_ticket);
+   if($saml_xml = @domxml_open_mem($saml_ticket)) {
+      $content_saml = $saml_xml->document_element();
+      $ticket_element = $content_saml->get_elements_by_tagname('KeyValue');
+      $ticketid = $ticket_element[0]->get_content();
+   }
+   if(!isset($ticketid) || $ticketid == null) {
+      $error = 'Missing key for authentication';
+      return 1;
+   }
 
    if ($id == '') {
       $error = 'Missing parameter id';
@@ -327,18 +337,16 @@ function queueToAIRT($id, &$error) {
    $xml = domxml_new_doc('1.0');
    $xml->add_root('airt');
    $ident = $xml->create_element('messageIdentification');
-   $email_el = $xml->create_element('email');
-   $email_el->set_content($email);
-   $name_el = $xml->create_element('name');
-   $name_el->set_content($name);
+   $ticket_el = $xml->create_element('TicketID');
+   $ticket_el->set_content($ticketid);
 
    // Build structure
    $xml_root = $xml->document_element();
    $xml_root->append_child($ident);
-   $ident->append_child($email_el);
-   $ident->append_child($name_el);
+   $ident->append_child($ticket_el);
    $xml_root->append_child($incident_data);
    $content = $xml->dump_mem();
+
    // Call web service
    $airt_client = new SOAP_Client(WS_ENDPOINT);
    $method = "importIncidentData";
@@ -349,10 +357,14 @@ function queueToAIRT($id, &$error) {
       $airt_client->setOpt('curl', $key, $value);
    }
    $ans = $airt_client->call($method, $params);
-
    echo "<PRE>";
    print_r($ans);
-
+   /*
+   if (PEAR::isError($ans)) {
+      echo "SOAP Error";
+      exit;
+   }
+   */
    return 0;
 }
 
@@ -385,7 +397,13 @@ function getSAMLTicket() {
       $airt_client->setOpt('curl', $key, $value);
    }
    $ans = $airt_client->call($method, $params);
-
+   return($ans);
+   if (PEAR::isError($ans)) {
+      return "SOAP Error";
+   }
+   else {
+      return $ans;
+   }
 }
 
 
