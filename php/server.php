@@ -216,8 +216,6 @@ class IncidentHandling {
                db_free_result($res);
                $type = getIncidentTypeDefault();
             }
-            // generate an incident id
-            $incidentid[$i] = createIncident($state,$status,$type,$logging);
 
             foreach($incident_element->get_elements_by_tagname('ticketInformation') as $ticketInformation) {
                if (sizeof($ticketInformation) > 0) {
@@ -273,9 +271,11 @@ class IncidentHandling {
                }
                $address = $ip;
                $addressrole = '0';
-
-               addIPtoIncident($address,$incidentid[$i],$addressrole);
             }
+
+            // generate an incident id
+            $incidentid[$i] = createIncident($state,$status,$type,$logging);
+            addIPtoIncident($address,$incidentid[$i],$addressrole);
          }
       }
 
