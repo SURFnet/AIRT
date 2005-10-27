@@ -282,6 +282,10 @@ function formatListOverviewHeader() {
  * and the number of incidents per page as input
  */
 function formatPagerLine($page, $numincidents, $pagesize=PAGESIZE) {
+   global $sortkey;
+   global $statusfilter;
+
+   $urlprefix="&sortkey=$sortkey&statusfilter=$statusfilter";
    if ($numincidents < $pagesize) {
       return '';
    }
@@ -290,7 +294,7 @@ function formatPagerLine($page, $numincidents, $pagesize=PAGESIZE) {
    if ($page == 1) {
       $out .= '<strong>Previous</strong>&nbsp;';
    } else {
-      $out .= t("<a href=\"%url?page=%prev\">Previous</a>&nbsp;", array(
+      $out .= t("<a href=\"%url?page=%prev$urlprefix\">Previous</a>&nbsp;", array(
          '%url'=>$_SERVER['PHP_SELF'],
          '%prev'=>($page-1)));
    }
@@ -298,26 +302,35 @@ function formatPagerLine($page, $numincidents, $pagesize=PAGESIZE) {
       if ($i == $page) {
          $out .= "<strong>$i</strong>&nbsp;";
       } else {
-         $out .= t("<a href=\"%url?page=$i\">$i</a>&nbsp;", array(
+         $out .= t("<a href=\"%url?page=$i$urlprefix\">$i</a>&nbsp;", array(
             '%url' => $_SERVER['PHP_SELF']));
       }
    }
    if ($page == $numpages) {
       $out .= '<strong>Next</strong>&nbsp;';
    } else {
-      $out .= t("<a href=\"%url?page=%next\">Next</a>&nbsp;", array(
+      $out .= t("<a href=\"%url?page=%next$urlprefix\">Next</a>&nbsp;", array(
          '%url'=>$_SERVER['PHP_SELF'],
          '%next'=>($page+1)));
    }
    return $out;
 }
 
+/* return an HTML-formatted overview of open incidents */
 
 function formatListOverviewBody() {
+   global $sortkey;
+   global $statusfilter;
+
    if (array_key_exists('statusfilter', $_REQUEST)) {
       $statusfilter = $_REQUEST['statusfilter'];
    } else {
-      $statusfilter = '';
+      $statusfilter = '3';
+   }
+   if (array_key_exists('sortkey', $_REQUEST)) {
+      $sortkey = $_REQUEST['sortkey'];
+   } else {
+      $sortkey = 'incidentid';
    }
    if (array_key_exists('page', $_REQUEST)) {
       $page = $_REQUEST['page'];
@@ -326,15 +339,33 @@ function formatListOverviewBody() {
    }
 
    switch ($statusfilter) {
-      case 1: $sqlfilter = "AND status = 'open'";
+      case 1: $sqlfilter = "AND s1.label = 'open'";
          break;
-      case 2: $sqlfilter = "AND status = 'stalled'";
+      case 2: $sqlfilter = "AND s1.label = 'stalled'";
          break;
-      case 3: $sqlfilter = "AND status IN ('open', 'stalled')";
+      case 3: $sqlfilter = "AND s1.label IN ('open', 'stalled')";
          break;
       default:
          $sqlfilter="";
    }
+
+   switch ($sortkey) {
+      case 'incidentid': $sqlfilter .= " ORDER BY incidentid";
+         break;
+      case "constituency": $sqlfilter .= " ORDER BY constituency";
+         break;
+      case "hostname": $sqlfilter .= " ORDER BY hostname";
+         break;
+      case "status": $sqlfilter .= " ORDER BY status";
+         break;
+      case "state": $sqlfilter .= " ORDER BY state";
+         break;
+      case "type": $sqlfilter .= " ORDER BY type";
+         break;
+      case "lastupdated": $sqlfilter .= " ORDER BY updated";
+         break;
+   }
+
    $incidents = getOpenIncidents($sqlfilter);
    if (sizeof($incidents) == 0) {
         return "<I>No incidents.</I>";
@@ -344,15 +375,71 @@ function formatListOverviewBody() {
       "<INPUT TYPE=\"hidden\" name=\"action\" value=\"massupdate\">\n".
       "<table width=\"100%\">\n".
       "<tr>\n".
-      "   <td>&nbsp;</td>\n".
-      "   <th>Incident ID</th>\n".
-      "   <th>Consituency</th>\n".
-      "   <th>Hostname</th>\n".
-      "   <th>Status</th>\n".
-      "   <th>State</th>\n".
-      "   <th>Type</th>\n".
-      "   <th>Last updated</th>\n".
-      "</tr>\n", array('%url'=>$_SERVER['PHP_SELF']));
+      "   <td>&nbsp;</td>\n", array('%url'=>$_SERVER['PHP_SELF']));
+   $out .= t("   <th>Incident ID\n");
+   if ($sortkey == 'incidentid') {
+      $out .=  "";
+   } else {
+      $out .= t("<a href=\"%url?sortkey=incidentid&statusfilter=%sf&page=%p\">*</a>", 
+         array('%url'=>$_SERVER['PHP_SELF'], '%sf'=>$statusfilter,
+         '%p'=>$page));
+   }
+   $out .= t("</th>\n");
+   $out .= t("   <th>Consituency");
+   if ($sortkey == 'constituency') {
+      $out .=  "";
+   } else {
+      $out .= t("<a href=\"%url?sortkey=constituency&statusfilter=%sf&page=%p\">*</a>", 
+         array('%url'=>$_SERVER['PHP_SELF'], '%sf'=>$statusfilter,
+         '%p'=>$page));
+   }
+   $out .= t("</th>\n");
+   $out .= t("   <th>Hostname");
+   if ($sortkey == 'hostname') {
+      $out .=  "";
+   } else {
+      $out .= t("<a href=\"%url?sortkey=hostname&statusfilter=%sf&page=%p\">*</a>", 
+         array('%url'=>$_SERVER['PHP_SELF'], '%sf'=>$statusfilter,
+         '%p'=>$page));
+   }
+   $out .= t("</th>\n");
+   $out .= t("   <th>Status");
+   if ($sortkey == 'status') {
+      $out .=  "";
+   } else {
+      $out .= t("<a href=\"%url?sortkey=status&statusfilter=%sf&page=%p\">*</a>", 
+         array('%url'=>$_SERVER['PHP_SELF'], '%sf'=>$statusfilter,
+         '%p'=>$page));
+   }
+   $out .= t("</th>\n");
+   $out .= t("   <th>State");
+   if ($sortkey == 'state') {
+      $out .=  "";
+   } else {
+      $out .= t("<a href=\"%url?sortkey=state&statusfilter=%sf&page=%p\">*</a>", 
+         array('%url'=>$_SERVER['PHP_SELF'], '%sf'=>$statusfilter,
+         '%p'=>$page));
+   }
+   $out .= t("</th>\n");
+   $out .= t("   <th>Type");
+   if ($sortkey == 'type') {
+      $out .=  "";
+   } else {
+      $out .= t("<a href=\"%url?sortkey=type&statusfilter=%sf&page=%p\">*</a>", 
+         array('%url'=>$_SERVER['PHP_SELF'], '%sf'=>$statusfilter,
+         '%p'=>$page));
+   }
+   $out .= t("</th>\n");
+   $out .= t("   <th>Last updated");
+   if ($sortkey == 'lastupdate') {
+      $out .=  "";
+   } else {
+      $out .= t("<a href=\"%url?sortkey=lastupdate&statusfilter=%sf&page=%p\">*</a>", 
+         array('%url'=>$_SERVER['PHP_SELF'], '%sf'=>$statusfilter,
+         '%p'=>$page));
+   }
+   $out .= t("</th>\n");
+   $out .= t("</tr>\n");
 
    $count = 0;
    $conslist = getConstituencies();

@@ -1,5 +1,6 @@
 2005-xx-xx
 * Incidents overview now has a pager
+* Incidents overview now sortable by column
 * Update user interface import queue
 * Moved mail templates out of filesystem
 * Added version consistency check between code base and data base.
