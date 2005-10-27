@@ -5,10 +5,10 @@ This document describes how to prepare a release of AIRT
 
 Creating the source tarball
 ===========================
-* update $AIRT/source/VERSION.m4 with the new version number
-* update $AIRT/source/ChangeLog to relect the same version number
-* check if $AIRT/doc/database/00-CHANGES.sql contains changes. If so, rename 
-  the file appropriately and update $AIRT/doc/database/Makefile.am
+* Update $AIRT/source/VERSION.m4 with the new version number
+* Update 00-CHANGES with modify the database version with the same number
+* Copy the file appropriately and update $AIRT/doc/database/Makefile.am
+* Update $AIRT/source/ChangeLog to relect the same version number
 * make clean && make distcheck
 
 You now have a tarball.
