@@ -278,6 +278,40 @@ function formatListOverviewHeader() {
    return $out;
 }
 
+/* format a pager line. Take the total number of incidents, the current page,
+ * and the number of incidents per page as input
+ */
+function formatPagerLine($page, $numincidents, $pagesize=PAGESIZE) {
+   if ($numincidents < $pagesize) {
+      return '';
+   }
+   $out = '';
+   $numpages = (int) ceil($numincidents / $pagesize);
+   if ($page == 1) {
+      $out .= '<strong>Previous</strong>&nbsp;';
+   } else {
+      $out .= t("<a href=\"%url?page=%prev\">Previous</a>&nbsp;", array(
+         '%url'=>$_SERVER['PHP_SELF'],
+         '%prev'=>($page-1)));
+   }
+   for ($i = 1; $i <= $numpages; $i++) {
+      if ($i == $page) {
+         $out .= "<strong>$i</strong>&nbsp;";
+      } else {
+         $out .= t("<a href=\"%url?page=$i\">$i</a>&nbsp;", array(
+            '%url' => $_SERVER['PHP_SELF']));
+      }
+   }
+   if ($page == $numpages) {
+      $out .= '<strong>Next</strong>&nbsp;';
+   } else {
+      $out .= t("<a href=\"%url?page=%next\">Next</a>&nbsp;", array(
+         '%url'=>$_SERVER['PHP_SELF'],
+         '%next'=>($page+1)));
+   }
+   return $out;
+}
+
 
 function formatListOverviewBody() {
    if (array_key_exists('statusfilter', $_REQUEST)) {
@@ -323,6 +357,10 @@ function formatListOverviewBody() {
    $count = 0;
    $conslist = getConstituencies();
    foreach ($incidents as $id=>$data) {
+      if ($count < PAGESIZE*($page-1) || $count >= PAGESIZE*($page)) {
+         $count++;
+         continue;
+      }
       $hostname= $data['hostname'];
       $hostname2=@gethostbyaddr($data['ip']);
       $addresses = getAddressesForIncident($id);
@@ -369,6 +407,9 @@ EOF;
    } // foreach
 
    $out .= "</table><p>\n";
+   $out .= "<div align=\"center\">".
+           formatPagerLine($page, sizeof($incidents)).
+           "</div>";
    return $out;
 } // formatQueueOverviewBody
 

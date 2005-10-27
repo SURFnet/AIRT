@@ -31,7 +31,8 @@ define('LIBDIR', '@PHPLIBPATH@');
 // location of configuration files
 define('ETCDIR', '@ETCPATH@');
 
-
+// number of incidents to show on one page
+define('PAGESIZE', 20);
 
 /**** 2. EMAIL SETTINGS *****/
 // sender-from in standard emails. 
