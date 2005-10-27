@@ -237,6 +237,141 @@ if (array_key_exists("action", $_REQUEST)) {
   $action="list";
 }
 
+/* return a string containing the list overview header page
+ */
+function formatListOverviewHeader() {
+   $out = t("<table cellpadding='3'>\n".
+      "<tr>\n".
+      "   <td>\n".
+      "   Enter incident number\n".
+      "   </td>\n".
+      "   <td>\n".
+      "   <FORM action=\"%url\" method=\"POST\">\n".
+      "   <INPUT TYPE=\"hidden\" name=\"action\" value=\"details\">\n".
+      "   <INPUT TYPE=\"input\" name=\"incidentid\" size=\"14\">\n".
+      "   <INPUT TYPE=\"submit\" value=\"Details\">\n".
+      "   </FORM>\n".
+      "   </td>\n".
+      "</tr>\n".
+      "<tr>\n".
+      "   <td>\n".
+      "   Select incident status\n".
+      "   </td>\n".
+      "   <td>\n".
+      "      <FORM action=\"%url\" method=\"POST\">\n".
+      "      <INPUT TYPE=\"hidden\" name=\"action\" value=\"list\">\n".
+      "      <SELECT name=\"statusfilter\">\n".
+             choice("open", 1, $statusfilter).
+             choice("stalled", 2, $statusfilter).
+             choice("open or stalled", 3, $statusfilter).
+             choice("closed", 4, $statusfilter).
+             choice("all", 5, $statusfilter).
+      "      </SELECT>\n".
+      "      <INPUT TYPE=\"submit\" VALUE=\"Ok\">\n".
+      "      </FORM>\n".
+      "   </td>\n".
+      "</tr>\n".
+      "</table>\n".
+      "<p><form action=\"%url\" method=\"POST\">\n".
+      "<input type=\"submit\" name=\"action\" value=\"New incident\">\n".
+      "</form>\n", array('%url'=>$_SERVER['PHP_SELF']));
+   return $out;
+}
+
+
+function formatListOverviewBody() {
+   if (array_key_exists('statusfilter', $_REQUEST)) {
+      $statusfilter = $_REQUEST['statusfilter'];
+   } else {
+      $statusfilter = '';
+   }
+   if (array_key_exists('page', $_REQUEST)) {
+      $page = $_REQUEST['page'];
+   } else {
+      $page = 1;
+   }
+
+   switch ($statusfilter) {
+      case 1: $sqlfilter = "AND status = 'open'";
+         break;
+      case 2: $sqlfilter = "AND status = 'stalled'";
+         break;
+      case 3: $sqlfilter = "AND status IN ('open', 'stalled')";
+         break;
+      default:
+         $sqlfilter="";
+   }
+   $incidents = getOpenIncidents($sqlfilter);
+   if (sizeof($incidents) == 0) {
+        return "<I>No incidents.</I>";
+   }
+
+   $out = t("<form action=\"%url\" method=\"POST\">\n".
+      "<INPUT TYPE=\"hidden\" name=\"action\" value=\"massupdate\">\n".
+      "<table width=\"100%\">\n".
+      "<tr>\n".
+      "   <td>&nbsp;</td>\n".
+      "   <th>Incident ID</th>\n".
+      "   <th>Consituency</th>\n".
+      "   <th>Hostname</th>\n".
+      "   <th>Status</th>\n".
+      "   <th>State</th>\n".
+      "   <th>Type</th>\n".
+      "   <th>Last updated</th>\n".
+      "</tr>\n", array('%url'=>$_SERVER['PHP_SELF']));
+
+   $count = 0;
+   $conslist = getConstituencies();
+   foreach ($incidents as $id=>$data) {
+      $hostname= $data['hostname'];
+      $hostname2=@gethostbyaddr($data['ip']);
+      $addresses = getAddressesForIncident($id);
+      if (sizeof($addresses) == 0) {
+         $hostline = 'Not set.';
+         $constituency = '';
+      } else {
+         $ip = $addresses[0]['ip'];
+         $hostdb = $addresses[0]['hostname'];
+         $hostnow = gethostbyaddr($ip);
+         if ($hostdb == $hostnow) {
+            $hostline = $hostnow;
+         } else {
+            $hostline = "$hostnow **";
+         }
+         $constituency = $conslist[$addresses[0]['constituency']]['label'];
+      }
+
+      $out .= t("<tr bgcolor=\"%color\">\n".
+         "   <td>\n".
+         "   <input type=\"checkbox\" name=\"massincidents[]\" value=\"%id\"></td>\n".
+         "   </td>\n".
+         "   <td>\n".
+         "   <a href=\"%url?action=details&incidentid=%id\">%incidentid</a>\n".
+         "   </td>\n".
+         "   <td>%constituency</td>\n".
+         "   <td>%hostline</td>\n".
+         "   <td>%status</td>\n".
+         "   <td>%state</td>\n".
+         "   <td>%type</td>\n".
+         "   <td>%updated</td>\n".
+         "</tr>", array(
+            '%color'=> ($count++%2 == 1) ? '#FFFFFF' : '#DDDDDD',
+            '%url' => $_SERVER['PHP_SELF'],
+            '%id' => $id,
+            '%incidentid' => encode_incidentid($id),
+            '%constituency' => $constituency,
+            '%hostline' => $hostline,
+            '%status' => $data['status'],
+            '%state' => $data['state'],
+            '%type' => $data['type'],
+            '%updated' => Date("d M Y", $data["updated"])));
+EOF;
+   } // foreach
+
+   $out .= "</table><p>\n";
+   return $out;
+} // formatQueueOverviewBody
+
 switch ($action) {
   //--------------------------------------------------------------------
   case "details":
@@ -374,8 +509,12 @@ EOF;
     //--------------------------------------------------------------------
     case "list":
       pageHeader("Incident overview");
-      # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-      # or die("Unable to connect to database.");
+
+      if (array_key_exists('page', $_REQUEST)) {
+         $page = $_REQUEST['page'];
+      } else {
+         $page = 0;
+      }
 
       if (array_key_exists("filter", $_POST)) {
          $filter = $_POST["filter"];
@@ -384,173 +523,35 @@ EOF;
       }
 
       generateEvent("incidentlistpre");
-      echo <<<EOF
-<table cellpadding="3">
-<tr>
-   <td>
-Enter incident number
-   </td>
-   <td>
-<FORM action="$_SERVER[PHP_SELF]" method="POST">
-<INPUT TYPE="hidden" name="action" value="details">
-<INPUT TYPE="input" name="incidentid" size="14">
-<INPUT TYPE="submit" value="Details">
-</FORM>
-   </td>
-</tr>
+      print formatListOverviewHeader();
+      print formatListOverviewBody();
 
-<tr>
-   <td>
-Select incident status
-   </td>
-   <td>
-<FORM action="$_SERVER[PHP_SELF]" method="POST">
-<INPUT TYPE="hidden" name="action" value="list">
- <SELECT name="filter">
-EOF;
-      echo choice("open", 1, $filter);
-      echo choice("stalled", 2, $filter);
-      echo choice("open or stalled", 3, $filter);
-      echo choice("closed", 4, $filter);
-      echo choice("all", 5, $filter);
-      echo <<<EOF
-</SELECT>
-<INPUT TYPE="submit" VALUE="Ok">
-</FORM>
-   </td>
-</tr>
-</table>
-EOF;
+      // Create block below the incident list that allows mass updates.
+      echo "<table>\n";
+      echo "<tr><td>New State</td><td>";
+      echo getIncidentStateSelection(
+           'massstate',
+           'null',
+           array('null'=>'Leave Unchanged'));
+      echo "</td></tr>\n";
+      echo "<tr><td>New Status</td><td>";
+      echo getIncidentStatusSelection(
+           'massstatus',
+           'null',
+           array('null'=>'Leave Unchanged'));
+      echo "</td></tr>\n";
+      echo "<tr><td>&nbsp;</td><td>";
+      echo "<input type=\"submit\" value=\"Update All Selected\">";
+      echo "</td></tr>\n";
+      echo "</table>\n";
 
-        echo <<<EOF
-<p>
-<form action="$_SERVER[PHP_SELF]" method="POST">
-<input type="submit" name="action" value="New incident">
-</form>
-EOF;
+      echo "</form>";
+      printf("<P><I>$count incidents displayed.</I><P>");
+      db_free_result($res);
 
-      switch ($filter) {
-         case 1: $sqlfilter = "AND s2.label = 'open'";
-            break;
-         case 2: $sqlfilter = "AND s2.label = 'stalled'";
-            break;
-         case 3: $sqlfilter = "AND s2.label IN ('open', 'stalled')";
-            break;
-         case 4: $sqlfilter = "AND s2.label = 'closed'";
-            break;
-         case 5: $sqlfilter = "AND s2.label IN ('open', 'stalled', 'closed')";
-            break;
-         default:
-            $sqlfilter="";
-      }
-
-      $res = db_query(
-        "SELECT   i.id      as incidentid, 
-                  extract(epoch from i.created) as created,
-                  extract(epoch from i.updated) as updated,
-                  u1.login  as creator, 
-                  u2.login  as updater, 
-                  s1.label  as state, 
-                  s2.label  as status, 
-                  c3.label  as constituency,
-                  t.label   as type,
-                  a.ip      as ip,
-                  a.hostname as hostname
-         FROM     incidents i, users u1, users u2,
-                  incident_states s1, incident_status s2, 
-                  incident_types t, incident_addresses a, 
-                  constituencies c3
-         WHERE    i.creator = u1.id
-         AND      i.updatedby = u2.id
-         AND      a.constituency = c3.id
-         AND      i.state = s1.id
-         AND      i.status = s2.id
-         AND      i.type = t.id
-         AND      i.id = a.incident $sqlfilter
-         ORDER BY i.id")
-        or die("Unable to execute query (1)");
-
-        if (db_num_rows($res) == 0) {
-           echo "<I>No incidents.</I>";
-        } else {
-           echo <<<EOF
-<form action="$_SERVER[PHP_SELF]" method="POST">
-<INPUT TYPE="hidden" name="action" value="massupdate">
-<table width='100%'>
-<tr>
-    <td>&nbsp;</td>
-    <th>Incident ID</th>
-    <th>Consituency</th>
-    <th>Hostname</th>
-    <th>Status</th>
-    <th>State</th>
-    <th>Type</th>
-    <th>Last updated</th>
-</tr>
-EOF;
-           $count = 0;
-           while ($row = db_fetch_next($res)) {
-              $id      = $row["incidentid"];
-              $ip      = $row["ip"];
-              $hostname= $row["hostname"];
-              $hostname2=@gethostbyaddr($ip);
-              $updated = Date("d M Y", $row["updated"]);
-              $status  = $row["status"];
-              $state   = $row["state"];
-              $type    = $row["type"];
-              $constituency = $row["constituency"];
-              $incidentid = encode_incidentid($id);
-
-              if ($hostname == $hostname2) {
-                 $hostline = $hostname;
-              } else {
-                 $hostline = "$hostname **";
-              }
-
-              $color = ($count++%2 == 1) ? '#FFFFFF' : '#DDDDDD';
-              echo <<<EOF
-<tr bgcolor='$color'>
-   <td><input type="checkbox" name="massincidents[]" value="$id"></td>
-   <td><a href="$_SERVER[PHP_SELF]?action=details&incidentid=$id">$incidentid</a></td>
-   <td>$constituency</td>
-    <td>$hostline</td>
-    <td>$status</td>
-    <td>$state</td>
-    <td>$type</td>
-    <td>$updated</td>
-</tr>
-EOF;
-           } // while
-
-           echo "</table><p>\n";
-           // Create block below the incident list that allows mass updates.
-           echo "<table>\n";
-           echo "<tr><td>New State</td><td>";
-           echo getIncidentStateSelection(
-              'massstate',
-              'null',
-              array('null'=>'Leave Unchanged'));
-           echo "</td></tr>\n";
-           echo "<tr><td>New Status</td><td>";
-           echo getIncidentStatusSelection(
-              'massstatus',
-              'null',
-              array('null'=>'Leave Unchanged'));
-         echo "</td></tr>\n";
-         echo "<tr><td>&nbsp;</td><td>";
-         echo "<input type=\"submit\" value=\"Update All Selected\">";
-         echo "</td></tr>\n";
-         echo "</table>\n";
-
-         echo "</form>";
-         printf("<P><I>$count incidents displayed.</I><P>");
-         db_free_result($res);
-         # db_close($conn);
-        } // else
-
-        generateEvent("incidentlistpost");
-        pageFooter();
-        break;
+      generateEvent("incidentlistpost");
+      pageFooter();
+      break;
 
    //--------------------------------------------------------------------
    case "addip":

@@ -24,9 +24,6 @@
 require_once LIBDIR.'/database.plib';
 
 function getConstituencies() {
-   # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-   # or die("Unable to connect to database.");
-
    $res = db_query(
       'SELECT   id, label, name
        FROM     constituencies
@@ -40,28 +37,8 @@ function getConstituencies() {
          "name"  => $row["name"]
       );
   }
-  # db_close($conn);
   return $constituencies;
 }
-
-
-/*
-function showConstituencySelection($name="constituency", $default=-1) {
-    printf("<select name=\"%s\">\n",
-        htmlentities($name));
-    $constituencies = getConstituencies();
-    foreach ($constituencies as $id=>$data)
-    {
-        printf("<option value=%s %s>%s (%s)</option>\n",
-            htmlentities($id),
-            ($id == $default)?"SELECTED":"",
-            htmlentities($data["name"]),
-            htmlentities($data["label"])
-        );
-    }
-    printf("</select>\n");
-}
-*/
 
 
 function getConstituencySelection($name="constituency", $default=-1) {

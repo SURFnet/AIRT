@@ -188,23 +188,25 @@ function getIncidentTypeSelection($name, $default='') {
 
 /* retrieve incidents with status open or stalled.  Returns an associative
  * array with the incident ID as key and an associative array with incident
- * data as value.
+ * data as value. The optional variable $sqlfilter can be used to influence
+ * which incidents are returned. Without it, all open and stalled incidents
+ * are retrieved.
  */
-function getOpenIncidents() {
+function getOpenIncidents($sqlfilter = "AND s1.label IN ('open','stalled')") {
    $res = db_query(
       "SELECT   i.id as incidentid,
-                extract(epoch from created), 
+                extract(epoch from created),
                 u1.lastname as creator_lastname,
                 u1.firstname as creator_firstname,
                 u1.email as creator_email,
-                u1.phone as creator_phone, 
-                extract(epoch from i.updated), 
+                u1.phone as creator_phone,
+                extract(epoch from i.updated),
                 u2.lastname as updatedby_lastname,
                 u2.firstname as updatedby_firstname,
                 u2.email as updatedby_email,
                 u2.phone as updatedby_phone,
                 s2.label as state,
-                s1.label as status, 
+                s1.label as status,
                 t.label as type,
                 a.ip as ip
          FROM   incidents i, incident_status s1, incident_states s2,
@@ -215,14 +217,34 @@ function getOpenIncidents() {
          AND    i.creator = u1.id
          AND    i.updatedby = u2.id
          AND    i.id = a.incident
-         AND    s1.label IN ('open', 'stalled')")
-   or die("Unable to connect to database.");
+         $sqlfilter");
+   if (!$res) {
+      airt_error('DB_QUERY', 'incident.plib:'.__LINE__);
+      return array();
+   }
 
    $incidents=array();
    while ($row = db_fetch_next($res)) {
       $incidents[$row["incidentid"]]=$row;
    }
    return $incidents;
+}
+
+/* Return a list of IP address records that are associated with the given
+ * incident id.
+ */
+function getAddressesForIncident($id) {
+   $id = decode_incidentid($id);
+   $res = db_query(q('SELECT ip,hostname,constituency,addressrole FROM incident_addresses WHERE incident = %id', array('%id'=>$id)));
+   if (!$res) {
+      airt_error('DB_QUERY', 'incidnet.plib:'.__LINE__);
+      return array();
+   }
+   $out = array();
+   while ($row = db_fetch_next($res)) {
+       $out[] = $row;
+   }
+   return $out;
 }
 
 function getIncident($id) {
@@ -247,20 +269,7 @@ function getIncident($id) {
    $row = db_fetch_next($res);
    $data = $row;
 
-   // get ip addresses
-   pg_free_result($res);
-   $res = db_query(q('SELECT ip,hostname,constituency,addressrole FROM incident_addresses WHERE incident = %id', array('%id'=>$id)))
-   or die("Unable to execute query 2.");
-
-   $ips = array();
-   while ($row = db_fetch_next($res)) {
-      array_push($ips, array(
-         'ip'=>$row["ip"],
-         'hostname'=>$row['hostname'],
-         'constituency'=>$row['constituency'],
-         'addressrole'=>$row['addressrole']));
-   }
-   $data["ips"] = $ips;
+   $data["ips"] = getAddressesForIncident($id);
 
    // get users
    db_free_result($res);
