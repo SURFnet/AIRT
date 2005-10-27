@@ -413,6 +413,25 @@ EOF;
    return $out;
 } // formatQueueOverviewBody
 
+
+function formatListOverviewFooter() {
+   $out = t("<table>\n".
+      "<tr><td>New State</td><td>".
+      getIncidentStateSelection('massstate', 'null',
+         array('null'=>'Leave Unchanged')).
+      "</td></tr>\n".
+      "<tr><td>New Status</td><td>".
+      getIncidentStatusSelection('massstatus', 'null',
+         array('null'=>'Leave Unchanged')).
+      "</td></tr>\n".
+      "<tr><td>&nbsp;</td><td>".
+      "<input type=\"submit\" value=\"Update All Selected\">".
+      "</td></tr>\n".
+      "</table>\n".
+      "</form>");
+   return $out;
+}
+
 switch ($action) {
   //--------------------------------------------------------------------
   case "details":
@@ -565,29 +584,11 @@ EOF;
 
       generateEvent("incidentlistpre");
       print formatListOverviewHeader();
+      print "<hr/>";
       print formatListOverviewBody();
+      print formatListOverviewFooter();
 
       // Create block below the incident list that allows mass updates.
-      echo "<table>\n";
-      echo "<tr><td>New State</td><td>";
-      echo getIncidentStateSelection(
-           'massstate',
-           'null',
-           array('null'=>'Leave Unchanged'));
-      echo "</td></tr>\n";
-      echo "<tr><td>New Status</td><td>";
-      echo getIncidentStatusSelection(
-           'massstatus',
-           'null',
-           array('null'=>'Leave Unchanged'));
-      echo "</td></tr>\n";
-      echo "<tr><td>&nbsp;</td><td>";
-      echo "<input type=\"submit\" value=\"Update All Selected\">";
-      echo "</td></tr>\n";
-      echo "</table>\n";
-
-      echo "</form>";
-      printf("<P><I>$count incidents displayed.</I><P>");
       db_free_result($res);
 
       generateEvent("incidentlistpost");
@@ -876,8 +877,6 @@ EOF;
     //--------------------------------------------------------------------
    case "showstates":
       generateEvent('pageHeader', array('title' => 'Available incident states'));
-      # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-      # or die("Unable to connect to database.");
       $res = db_query("SELECT label, descr
          FROM   incident_states
          ORDER BY label")
@@ -894,14 +893,11 @@ EOF;
       }
       $output .= "</table>\n";
       print $output;
-      # db_close($conn);
       break;
 
    //--------------------------------------------------------------------
    case "showtypes":
       generateEvent('pageHeader', array('title' => 'Available incident types'));
-      # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-      # or die("Unable to connect to database.");
       $res = db_query("SELECT label, descr
          FROM   incident_types
          ORDER BY label")
@@ -919,15 +915,12 @@ EOF;
       }
       $output .= "</table>\n";
       print $output;
-      # db_close($conn);
       break;
 
     //--------------------------------------------------------------------
    case "showstatus":
       generateEvent('pageHeader', array('title' => 'Available incident statuses'));
 
-      # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-      # or die("Unable to connect to database.");
       $res = db_query('
          SELECT label, descr
          FROM   incident_status
@@ -945,7 +938,6 @@ EOF;
       }
       $output .= "</table>\n";
       print $output;
-      # db_close($conn);
       break;
 
    //--------------------------------------------------------------------
