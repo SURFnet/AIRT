@@ -83,7 +83,7 @@ foreach ($AIRT_EXPORTWRAPPER_DIRS as $dir) {
          } else {
             // Ok, register the wrapper if we don't have it yet.
             if (array_search(substr($wrapper_name,8),$WRAPPERS)===FALSE) {
-              $WRAPPERS[] = substr($wrapper_name,8);
+              $WRAPPERS[substr($wrapper_name,8)] = $dir.'/'.$file;
             }
          }
       }
@@ -99,8 +99,6 @@ if ($OPTIONS['--help']) {
 
 // ACTUAL ACTIONS HERE. Should be completed in about 5 seconds or less.
 
-# Connect to database.
-
 # Purge all tasks that have an "ended" time stamp 24+ hours ago (setting).
 
 # For each task that has previously been spawned, do:
@@ -108,24 +106,76 @@ if ($OPTIONS['--help']) {
 #   If file available, read it and save as "result".
 #   Fill in "ended" time stamp (ctime of file or current time?).
 
-# For each task to spawn, do:
-#   Find out wrapper to call.
-#   Find out output file to point wrapper at.
-#   Find out parameters for the wrapper.
-#   Fill in "started" time stamp.
-#   Fork and exec wrapper.
-$task = '/usr/local/share/airt/lib/exportqueue/wrapper_none';
-msg("Spawning background task '$task'...");
-$error = spawnTask($task);
-if ($error!='') {
-   // Oops. Signal the problem, but continue processing, as we are in a
-   // loop.
-   fwrite(STDERR, t('ERROR: ').$error."\n");
+// Find out all tasks to spawn, i.e., tasks with a 'scheduled' time that has
+// passed while they have no 'started' time yet.
+msg(t('Reading export queue...'));
+$q = q('select id,task,params
+        from export_queue
+        where scheduled<CURRENT_TIMESTAMP
+          and started IS NULL');
+$res = db_query($q);
+if ($res===FALSE) {
+   fwrite(STDERR,t('ERROR: Could not query database for tasks to run.')."\n");
+   exit(1);
+}
+if (db_num_rows($res)==0) {
+   msg(t('No tasks to spawn at this moment.'));
 }
 
-# Disconnect from database.
+// Run over all tasks that are ready to be spawned.
+while ($row = db_fetch_next($res)) {
+   $id     = $row['id'];
+   $task   = $row['task'];
+   $params = $row['params'];
+   msg(t('Want to start "%task".',
+         array('%task'=>$task)));
+   // Known wrapper?
+   if (!array_key_exists($task,$WRAPPERS)) {
+      // Non-critical error, continue, as we are in a loop.
+      fwrite(STDERR,t('ERROR: unknown task wrapper "%wrapper".',
+                      array('%wrapper'=>$task))."\n");
+      continue;
+   }
 
-# Clean up and exit.
+   if (!$OPTIONS['--noqueue']) {
+      // We fill in "started" time stamp before we call "spawnTask()", since a
+      // failed start won't be reattempted.
+      $q = q('UPDATE export_queue
+              SET    started=CURRENT_TIMESTAMP
+              WHERE  id=%id',
+              array('%id'=>$id));
+      $res = db_query($q);
+      if ($res===FALSE) {
+         // This is pretty critical, so quit, even while we are in a loop.
+         fwrite(STDERR,t('ERROR: Could not update database.')."\n");
+         exit(1);
+      }
+   }
+
+   // Compile the parameter array. The parameter string does not contain
+   // spaces as argument separator, but bang '!' signs, just as Nagios.
+   $paramArray = explode('!',$params);
+
+   // Compile the exact file path to spawn.
+   $execPath = $WRAPPERS[$task];
+
+   if ($OPTIONS['--noqueue']) {
+      // No actual queueing.
+      msg(t('Not actually queueing %exec.',
+            array('%exec'=>$execPath)));
+   } else {
+      // Execute the wrapper asynchronously.
+      msg(t('Spawning background task %exec...',
+            array('%exec'=>$execPath)));
+      $error = spawnTask($execPath,$paramArray);
+      if ($error!='') {
+         // Oops. Signal the problem, but continue processing, as we are in a
+         // loop.
+         fwrite(STDERR, t('ERROR: ').$error."\n");
+      }
+   }
+
+}// for each task to spawn
 
 // Successful completion.
 msg('airt_export done.');
