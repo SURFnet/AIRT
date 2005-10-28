@@ -23,7 +23,9 @@
 
 # Should do something with the --verbose switch, later.
 
-echo "This is wrapper_none. Sleeping five seconds..."
+echo "This is wrapper_none."
+echo "Parameters: $1, $2, $3."
+echo "Sleeping five seconds..."
 sleep 5
 date > /tmp/wrapper_none
 echo "wrapper_none done."
