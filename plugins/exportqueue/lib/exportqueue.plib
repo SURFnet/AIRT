@@ -37,7 +37,7 @@ function printUsage() {
    // Enumerate all registered wrappers.
    if (count($WRAPPERS)>0) {
       echo t('Available wrappers:');
-      foreach ($WRAPPERS as $wrapper) {
+      foreach ($WRAPPERS as $wrapper=>$execpath) {
          echo ' '.$wrapper;
       }
       echo "\n";
