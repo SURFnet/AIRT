@@ -103,7 +103,7 @@ if ($OPTIONS['--help']) {
 
 # Purge all tasks that have an "ended" time stamp 24+ hours ago (setting).
 
-# For each task that has been spawned, do:
+# For each task that has previously been spawned, do:
 #   Find out the output file.
 #   If file available, read it and save as "result".
 #   Fill in "ended" time stamp (ctime of file or current time?).
@@ -114,28 +114,21 @@ if ($OPTIONS['--help']) {
 #   Find out parameters for the wrapper.
 #   Fill in "started" time stamp.
 #   Fork and exec wrapper.
+$task = '/usr/local/share/airt/lib/exportqueue/rapper_none';
+msg("Spawning background task '$task'...");
+$error = spawnTask($task);
+if ($error!='') {
+   // Oops. Signal the problem, but continue processing, as we are in a
+   // loop.
+   fwrite(STDERR, t('ERROR: ').$error."\n");
+}
 
 # Disconnect from database.
 
 # Clean up and exit.
 
-################# PROTOTYPE TASK SPAWNER ####################
-
-echo "PHP startup\n";
-$child = pcntl_fork();
-if ($child==0) {
-   echo "kindje zegt: ";
-   pcntl_exec('/usr/local/share/airt/lib/exportqueue/wrapper_none');
-   echo "kindje zeurt!\n";
-}
-echo "PHP shutdown\n";
-
-################# END PROTOTYPE #############################
-
 // Successful completion.
-if ($OPTIONS['--verbose']) {
-   echo t('Done.')."\n";
-}
+msg('airt_export done.');
 return 0;
 
 ?>

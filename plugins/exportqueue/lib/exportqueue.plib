@@ -32,9 +32,7 @@ function printUsage() {
 
    echo t('Task export program, part of the AIRT suite.')."\n";
    echo t('Copyright (C) 2005   Tilburg University, The Netherlands.')."\n";
-   echo t(
-'Usage: airt_export [--help] [--noqueue] [--verbose]'
-     )."\n";
+   echo t('Usage: airt_export [--help] [--noqueue] [--verbose]')."\n";
 
    // Enumerate all registered wrappers.
    if (count($WRAPPERS)>0) {
@@ -46,5 +44,65 @@ function printUsage() {
    }
 
 }// printUsage
+
+
+/* Task spawner, the Unix way. Does the traditional fork() and exec() trick,
+ * and leaves the spawned task running as a child of the parent of
+ * airt_export, not as a child of airt_export itself.
+ * Input:  task = The fully qualified path name of the task to start.
+ *         params = Array with all CLI parameters to be provided to the task.
+ *                  See doc of pcntl_exec for exact specifications.
+ * Output: "" when task was spawned successfully, error string on failure.
+ *         It seems unnecessary to return the child PID, as we do not
+ *         foresee a "kill background task" option any time soon. If we need
+ *         one, start using pass-by-reference parameters.
+ */ 
+function spawnTask($task,$params=array()) {
+   // Check whether we have any chance of successfully executing the task.
+   if (!is_executable($task)) {
+      // Nope.
+      return t('%task is not executable.',
+               array('%task'=>$task));
+   }
+
+   // Divide & conquer.
+   $child = pcntl_fork();
+   if ($child==-1) {
+     // Could not fork!?
+     return t('Could not fork.');
+   } else if ($child>0) {
+     // Forked successfully and we are the parent.
+     return '';
+   }
+
+   // We are the child. Hello, world!
+   // Detach from the controlling terminal, we run as a daemon.
+   if (!posix_setsid()) {
+     fwrite(STDERR, "ERROR: Could not detach from terminal.\n");
+     exit(1);
+   }
+
+   // Replace ourselves with the target task. Notice that we cannot signal
+   // any problem back to the parent here.
+   pcntl_exec($task,$params);
+   // and we'll never ever should get here.
+   fwrite(STDERR, "ERROR: Entered the twilight zone!?");
+   exit(1);
+
+}// spawnTask
+
+
+/* Message to user, is silent when no --verbose switch was given.
+ * Input: message = The string to display when --verbose, without line feed.
+ * Output: void.
+ */
+function msg($message) {
+   global $OPTIONS;
+   if (!$OPTIONS['--verbose']) {
+      return;
+   } else {
+      echo "$message\n";
+   }
+}
 
 ?>
