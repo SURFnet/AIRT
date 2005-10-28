@@ -24,8 +24,10 @@
 # Should do something with the --verbose switch, later.
 
 echo "This is wrapper_none."
+resultfile=$1
+shift
 echo "Parameters: $1, $2, $3."
 echo "Sleeping five seconds..."
 sleep 5
-date > /tmp/wrapper_none
+date > $resultfile
 echo "wrapper_none done."
