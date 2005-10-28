@@ -23,7 +23,7 @@
 
 # Should do something with the --verbose switch, later.
 
-echo "Verbose: Hello World"
+echo "This is wrapper_none. Sleeping five seconds..."
 sleep 5
 date > /tmp/wrapper_none
-echo "Done."
+echo "wrapper_none done."
