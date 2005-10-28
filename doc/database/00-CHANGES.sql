@@ -12,7 +12,7 @@ CREATE TABLE versions (
    key   varchar(16) not null,
    value varchar(16) not null,
    primary key (key)
-)
+);
 
 -- MAILTEMPLATES table contains, eh, the, eh, mail templates.
 CREATE TABLE mailtemplates (
@@ -38,3 +38,18 @@ UPDATE versions SET value='---versionstring---' WHERE key='airtversion';
 ALTER TABLE authentication_tickets ADD expiration timestamp;
 
 ALTER table authentication_tickets ALTER COLUMN expiration SET NOT NULL;
+
+-- export queue does not need to be initialised, just created.
+CREATE TABLE export_queue (
+  id        integer,
+  task      varchar(32)   not null,
+  params    varchar(256),
+  created   timestamp     not null,
+  scheduled timestamp,
+  started   timestamp,
+  ended     timestamp,
+  result    varchar(256),
+  primary key (id)
+);
+CREATE SEQUENCE exportqueue_sequence;
+

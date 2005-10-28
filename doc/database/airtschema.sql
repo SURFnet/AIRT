@@ -40,6 +40,7 @@ DROP SEQUENCE role_permissions_sequence;
 DROP SEQUENCE blocks_sequence;
 DROP SEQUENCE importqueue_sequence;
 DROP SEQUENCE authentication_tickets_sequence;
+DROP SEQUENCE exportqueue_sequence;
 
 DROP TABLE incident_types CASCADE; 
 DROP TABLE incident_states CASCADE;
@@ -61,7 +62,9 @@ DROP TABLE blocks CASCADE;
 DROP TABLE incident_users CASCADE;
 DROP TABLE import_queue CASCADE;
 DROP TABLE authentication_tickets CASCADE;
+DROP TABLE versions CASCADE;
 DROP TABLE mailtemplates CASCADE;
+DROP TABLE export_queue CASCADE;
 
 begin transaction;
 
@@ -300,7 +303,19 @@ CREATE TABLE versions (
   key   varchar(16) not null,
   value varchar(16) not null,
   primary key (key)
-)
+);
+
+CREATE TABLE export_queue (
+  id        integer,
+  task      varchar(32)   not null,
+  params    varchar(256),
+  created   timestamp     not null,
+  scheduled timestamp,
+  started   timestamp,
+  ended     timestamp,
+  result    varchar(256),
+  primary key (id)
+);
 
 CREATE SEQUENCE incident_types_sequence;
 CREATE SEQUENCE incident_states_sequence;
@@ -324,6 +339,7 @@ CREATE SEQUENCE incident_users_sequence;
 CREATE SEQUENCE address_roles_sequence;
 CREATE SEQUENCE importqueue_sequence;
 CREATE SEQUENCE authentication_tickets_sequence;
+CREATE SEQUENCE exportqueue_sequence;
 
 CREATE UNIQUE INDEX incident_types_label on incident_types(upper(label));
 CREATE UNIQUE INDEX incident_states_label on incident_states(upper(label));
@@ -333,6 +349,6 @@ CREATE UNIQUE INDEX roles_label on roles(upper(label));
 CREATE UNIQUE INDEX users_email on users(upper(email));
 CREATE UNIQUE INDEX urls_label on urls(upper(label));
 CREATE UNIQUE INDEX permissions_label on permissions(upper(label));
-CREATE UNIQUE index address_roles_label on address_roles(upper(label));
+CREATE UNIQUE INDEX address_roles_label on address_roles(upper(label));
 
 end transaction;
