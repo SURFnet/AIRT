@@ -30,13 +30,12 @@
 // In case the import queue configuration isn't in order, there is no
 // reasons to continue. End the attempt to load the libraries with a loud
 // bang.
-if (!defined('ETCDIR') || !file_exists(ETCDIR.'/webservice.cfg')) {
+if (!defined('ETCDIR') || !file_exists(ETCDIR.'/importqueue.cfg')) {
    print("Import queue depends on web service. Missing configuration file.\n");
    exit;
 }
 
 require_once LIBDIR.'/airt.plib';
-require_once ETCDIR.'/webservice.cfg';
 require_once ETCDIR.'/importqueue.cfg';
 require_once 'SOAP/Client.php';
 require_once LIBDIR.'/incident.plib';
@@ -247,6 +246,7 @@ function formatQueueOverview() {
    foreach ($elements as $id=>$element) {
 		$item = queuePeekItem($id,$error);
 		if ($error != '') {
+         airt_error('ERR_FUNC', 'importqueue.plib:'.__LINE__);
 			return;
 		}
 		if($tree = @domxml_open_mem($item['content'])) {
