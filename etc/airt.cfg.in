@@ -34,6 +34,10 @@ define('ETCDIR', '@ETCPATH@');
 // number of incidents to show on one page
 define('PAGESIZE', 20);
 
+// directory for short-lived temporary files
+define('TMPDIR','/tmp');
+
+
 /**** 2. EMAIL SETTINGS *****/
 // sender-from in standard emails. 
 // If left empty, the email address of the currently logged in AIRT 
@@ -54,15 +58,11 @@ define('MAILCC', 'user@example.com');
 define('REPLYTO', 'Example-CERT - @YOURFIRSTNAME@ <user@example.com>');
 
 
-
-
 /***** 3. DATABASE SETTINGS *****/
 // connect string for the database
 define('DBDB', 'airt');
 define('DBUSER', 'airt');
 define('DBPASSWD', '**********');        // <--- CHANGE THIS
-
-
 
 
 /***** 4. GPG SETTINGS *****/
@@ -80,7 +80,7 @@ define('GPG_OPTIONS', '--detach-sign -t --armor --batch');
 // define('GPG_KEYID', '8830B66F');
 
 
-/***** 4. SITE CUSTOMIZATION *****/
+/***** 5. SITE CUSTOMIZATION *****/
 // the session timeout in seconds
 define('SESSION_TIMEOUT', 600);
 
@@ -90,4 +90,5 @@ define('INCIDENTID_PREFIX', 'Example-CERT#');
 // local customization can be found in this file. If undefined, no local
 // additions are done
 define('CUSTOM_FUNCTIONS', '@ETCPATH@/customfunctions.plib');
+
 ?>

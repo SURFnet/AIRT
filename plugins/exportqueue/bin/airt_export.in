@@ -154,6 +154,9 @@ while ($row = db_fetch_next($res)) {
 
    // Compile the parameter array. The parameter string does not contain
    // spaces as argument separator, but bang '!' signs, just as Nagios.
+   // The first parameter is always added and is always the full path
+   // specification of the result file.
+   $params = TMPDIR."/export-queue-$id!$params";
    $paramArray = explode('!',$params);
 
    // Compile the exact file path to spawn.
