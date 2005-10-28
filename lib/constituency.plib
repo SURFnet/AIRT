@@ -53,11 +53,6 @@ function getConstituencySelection($name="constituency", $default=-1) {
 
 
 function getNetworks() {
-   /*
-    $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-    or die("Unable to connect to database.");
-    */
-
    $res = db_query(
       "SELECT   id, network, netmask, label, constituency
        FROM     networks
@@ -74,7 +69,6 @@ function getNetworks() {
          "constituency"=> $row["constituency"]
       );
    }
-   # db_close($conn);
    return $networks;
 }
 
@@ -98,20 +92,39 @@ function showNetworksSelection($name="network", $default=-1) {
    printf("</select>\n");
 }
 
-function showConstituencyContacts($constituencyid) {
-   # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-   # or die("Unable to connect to database.");
-
+function getConstituencyContacts($constituencyid) {
+   if (!is_numeric($constituencyid)) {
+      return;
+   }
    $res = db_query(
-      "SELECT  u.lastname, u.firstname, u.email, u.phone, c.name
+      "SELECT  c.id, u.id as userid, u.lastname, u.firstname, u.email, 
+               u.phone, c.name
        FROM    constituencies c, constituency_contacts c2, users u
        WHERE   c2.constituency = c.id
        AND     c2.userid = u.id
        AND     c.id = $constituencyid
-       ")
-   or die("Unable to execute query.");
+       ");
+   if (!$res) {
+      airt_error('DB_QUERY', 'constituency.plib:'.__LINE__);
+      return;
+   }
+   if (db_num_rows($res) == 0) {
+      return array();
+   }
+   $out = array();
+   while ($row = db_fetch_next($res)) {
+      $out[$row['id']] = $row;
+   }
+   return $out;
+} // getConstituencyContacts()
 
-   echo <<<EOF
+
+function showConstituencyContacts($constituencyid) {
+   $contacts = getConstituencyContacts($constituencyid);
+   if (sizeof($contacts) == 0) {
+      print "No contacts.";
+   } else {
+      echo <<<EOF
 <table cellpadding=3>
 <tr>
     <td>Name</td>
@@ -119,27 +132,28 @@ function showConstituencyContacts($constituencyid) {
     <td>Phone</td>
 </tr>
 EOF;
-   $count=0;
-   $_SESSION["current_email"] = "";
-   while ($row = db_fetch_next($res)) {
-      printf("<tr>
+     $count=0;
+     $_SESSION["current_email"] = "";
+     foreach ($contacts as $id=>$data) {
+         printf("<tr>
    <td>%s, %s</td>
    <td><a href=\"mailto:%s\">%s</a></td>
    <td>%s</td>
 </tr>",
-         $row["lastname"], $row["firstname"],
-         $row["email"], $row["email"],
-         $row["phone"]
+        $data["lastname"], $data["firstname"],
+        $data["email"], $data["email"],
+        $data["phone"]
        );
-       $_SESSION["current_name"] = $row["firstname"] . " " . $row["lastname"];
-       if ($_SESSION["current_email"] == "") {
-          $_SESSION["current_email"] = $row["email"];
-       } else {
-          $_SESSION["current_email"] .= ','.$row["email"];
-       }
-    }
-    echo "</table>";
-    # db_close($conn);
+         $_SESSION["current_name"] = $data["firstname"] . " " . 
+            $data["lastname"];
+         if ($_SESSION["current_email"] == "") {
+            $_SESSION["current_email"] = $data["email"];
+         } else {
+            $_SESSION["current_email"] .= ','.$data["email"];
+         }
+      }
+      echo "</table>";
+   }
 }
 
 /* Convert a networkID to a constituencyID. Returns FALSE when no match. */

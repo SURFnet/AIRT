@@ -25,6 +25,8 @@ require_once 'config.plib';
 require_once ETCDIR.'/webservice.cfg';
 require_once LIBDIR.'/authentication.plib';
 require_once LIBDIR.'/incident.plib';
+require_once LIBDIR.'/constituency.plib';
+require_once LIBDIR.'/search.plib';
 
 $server       = new SOAP_Server();
 $webservice   = new IncidentHandling();
@@ -276,6 +278,13 @@ class IncidentHandling {
             // generate an incident id
             $incidentid[$i] = createIncident($state,$status,$type,$logging);
             addIPtoIncident($address,$incidentid[$i],$addressrole);
+
+            $networkid = categorize($address);
+            $constituencyID = getConstituencyIDbyNetworkID($networkid);
+            $contacts = getConstituencyContacts($constituencyID);
+            foreach ($contacts as $id=>$data) {
+               addUserToIncident($data['userid'], $incidentid[$i]);
+            }
          }
       }
 
