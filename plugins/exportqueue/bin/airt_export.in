@@ -114,7 +114,7 @@ if ($OPTIONS['--help']) {
 #   Find out parameters for the wrapper.
 #   Fill in "started" time stamp.
 #   Fork and exec wrapper.
-$task = '/usr/local/share/airt/lib/exportqueue/rapper_none';
+$task = '/usr/local/share/airt/lib/exportqueue/wrapper_none';
 msg("Spawning background task '$task'...");
 $error = spawnTask($task);
 if ($error!='') {
