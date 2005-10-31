@@ -104,40 +104,36 @@ AIRT explicitly does not try to shield itself from the external programs.
 This separation is fully in the hands of the OS, and therefore in the hands
 of the OS administrator, who does not need to trust any AIRT code.
 
-AIRT uses the system batch job facility, known as cron. An AIRT-provided
-PHP script in CLI mode is run every n minutes via a standard entry in
+AIRT uses the system batch job facility, known as cron. An AIRT-provided PHP
+script in CLI mode is run every n minutes via a standard entry in
 /etc/cron.d/airt . The system administrator determines how often (typically
-once per minute) and as which user (typically "nobody") this script is run.
+once per minute) and as which user (typically "airtexport") this script is
+run.
 
 The cron script accesses the AIRT core database and picks up exported tasks
 that are ready to be run. These tasks must be available as an executable in
 a predefined directory, usually /usr/local/share/airt/lib/exportqueue, as
 they are site-specific. If the correct executable can be found, it is forked
 off with the parameter string from the database, and the cron script logs
-this event back to the AIRT core database.
-
-Subsequently the cron script checks a predetermined directory for output
-files left there by previously started external programs after they run to
-completion. If such a file is found, its contents are put back into the AIRT
-core database and the job flagged as completed.
-
-The cron script then terminates and will run again when cron fires.
+this event back to the AIRT core database. The cron script then terminates
+and will run again when cron fires.
 
 The site-specific executables in /usr/local/share/airt/lib/exportqueue are
 usually wrappers around standard programs such as nmap. The wrapper sets up
 a working environment for the actual work horse, including a sudo statement
 if required. All output by the work horse needs to be channeled into files,
 typically in /tmp or /var/tmp, and the wrapper needs to take care of proper
-housekeeping. If results are to be sent to AIRT, the wrapper needs to call
-the airt_import program with the proper filter. After everything is said and
-done, the wrapper is expected to leave one short file behind that contains a
-status message for the AIRT queue administration.
+housekeeping. If extensive results are to be sent to AIRT, the wrapper needs
+to call the airt_import program with the proper filter. After everything is
+said and done, the wrapper is expected to call airt_export again with the
+--done parameter, sending its task ID, exit status, and a plain text message
+back to the AIRT export queue.
 
-If an external program crashes and is not able to write the status report
-file to the file system, AIRT will not detect this event, and the job will
-remain flagged as "started at ..." until the export queue is purged. AIRT
-is robust against this, but does not take actions to determine why the
-process crashed.
+If an external program crashes and is not able to send the exit status back
+to the export queue, AIRT will not detect this event, and the job will
+remain flagged as "started at ..." until the export queue is purged. AIRT is
+robust against this, but does not take actions to determine why the process
+crashed.
 
 ***
 What data do we need to start up a background/export process?
