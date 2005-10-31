@@ -35,9 +35,12 @@ require_once LIBDIR.'/exportqueue/exportqueue.plib';
 // Set up all default command line options.
 // Options are either Boolean (--option) or scalar (--option=value).
 $OPTIONS = array();
-$OPTIONS['--help']    = false;
-$OPTIONS['--noqueue'] = false;
-$OPTIONS['--verbose'] = false;
+$OPTIONS['--help']        = false;
+$OPTIONS['--noqueue']     = false;
+$OPTIONS['--result-id']   = '';
+$OPTIONS['--result-code'] = 'UNKNOWN';
+$OPTIONS['--result-msg']  = '';
+$OPTIONS['--verbose']     = false;
 
 // Run over command line arguments.
 array_shift($argv);               // get rid of argument 0, the command itself.
@@ -91,20 +94,91 @@ foreach ($AIRT_EXPORTWRAPPER_DIRS as $dir) {
    closedir($libdir);
 }
 
+
 // Help requested?
 if ($OPTIONS['--help']) {
    printUsage();
    exit(0);
 }
 
-// ACTUAL ACTIONS HERE. Should be completed in about 5 seconds or less.
 
-# Purge all tasks that have an "ended" time stamp 24+ hours ago (setting).
+// Purge all tasks that have an "ended" time stamp 24+ hours ago (setting).
+// This action is always silently taken, unless --help is requested.
+$q = q('DELETE FROM export_queue
+        WHERE EXTRACT(EPOCH FROM CURRENT_TIMESTAMP-ended) > 24*60*60');
+if (db_query($q)==FALSE) {
+   fwrite(STDERR,t('ERROR: Could not purge export queue.')."\n");
+   exit(1);
+}
 
-# For each task that has previously been spawned, do:
-#   Find out the output file.
-#   If file available, read it and save as "result".
-#   Fill in "ended" time stamp (ctime of file or current time?).
+
+// Check whether a running task is being completed.
+if ($OPTIONS['--result-id']!='') {
+   // A finished task wants to post its result back. Sanitise taskid, the
+   // others are plain strings that will not be parsed.
+   $taskid = sprintf('%d',$OPTIONS['--result-id']);
+
+   if ($OPTIONS['--verbose']) {
+      // Output some diagnostics.
+      echo t("Task %id finished with result code %code:\n%msg\n",
+             array('%id'=>$taskid,
+                   '%code'=>$OPTIONS['--result-code'],
+                   '%msg'=>$OPTIONS['--result-msg']));
+   }
+
+   // See whether the identified task is still open. Be paranoid.
+   $q = q('SELECT started,ended
+           FROM export_queue
+           WHERE id=%id',
+           array('%id'=>$taskid));
+   $res = db_query($q);
+   if ($res==FALSE) {
+      fwrite(STDERR,t('ERROR: Could not query database.')."\n");
+      exit(1);
+   }
+   if (db_num_rows($res)==0) {
+      fwrite(STDERR,t('ERROR: Task %id unknown in export queue.',
+                      array('%id'=>$taskid))."\n");
+      exit(1);
+   }
+   $row = db_fetch_next($res);
+   if ($row['started']=='') {
+      fwrite(STDERR,t('ERROR: Task %id not started yet.',
+                      array('%id'=>$taskid))."\n");
+      exit(1);
+   }
+   if ($row['ended']!='') {
+      fwrite(STDERR,t('ERROR: Task %id has already completed.',
+                      array('%id'=>$taskid))."\n");
+      exit(1);
+   }
+
+   if ($OPTIONS['--noqueue']) {
+      msg(t('Task completion not actually being registered.'));
+   } else {
+      // Put the received return code and message in the queue and flag the
+      // 'ended' time. This formally ends the task. The result string is made
+      // by concatenating the result code and the message.
+      $result = db_escape_string(trim(
+         $OPTIONS['--result-code'].' '.$OPTIONS['--result-msg']));
+      $q = q("UPDATE export_queue
+              SET ended=CURRENT_TIMESTAMP,
+                  result='%result'
+              WHERE id=%id",
+              array('%result'=>$result,
+                    '%id'=>$taskid));
+      if (db_query($q)===FALSE) {
+         fwrite(STDERR,t('ERROR: Could not update database.')."\n");
+         exit(1);       
+      }
+      msg(t('Task completion has been registered.'));
+   }
+
+   exit(0);
+}; // If called to signal the end of a running external task.
+
+
+///// The remainder of the script is the regular queue dispatcher. /////
 
 // Find out all tasks to spawn, i.e., tasks with a 'scheduled' time that has
 // passed while they have no 'started' time yet.
@@ -140,9 +214,9 @@ while ($row = db_fetch_next($res)) {
    if (!$OPTIONS['--noqueue']) {
       // We fill in "started" time stamp before we call "spawnTask()", since a
       // failed start won't be reattempted.
-      $q = q('UPDATE export_queue
+      $q = q("UPDATE export_queue
               SET    started=CURRENT_TIMESTAMP
-              WHERE  id=%id',
+              WHERE  id=%id",
               array('%id'=>$id));
       $res = db_query($q);
       if ($res===FALSE) {
@@ -154,9 +228,9 @@ while ($row = db_fetch_next($res)) {
 
    // Compile the parameter array. The parameter string does not contain
    // spaces as argument separator, but bang '!' signs, just as Nagios.
-   // The first parameter is always added and is always the full path
-   // specification of the result file.
-   $params = TMPDIR."/export-queue-$id!$params";
+   // The first parameter is always added and is always the task ID, which
+   // is needed for the exit status return.
+   $params = "$id!$params";
    $paramArray = explode('!',$params);
 
    // Compile the exact file path to spawn.

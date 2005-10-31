@@ -33,6 +33,8 @@ function printUsage() {
    echo t('Task export program, part of the AIRT suite.')."\n";
    echo t('Copyright (C) 2005   Tilburg University, The Netherlands.')."\n";
    echo t('Usage: airt_export [--help] [--noqueue] [--verbose]')."\n";
+   echo   '         '.t('[--result-id=ID] [--result-code=CODE]')."\n";
+   echo   '         '.t('[--result-msg="message here"]')."\n";
 
    // Enumerate all registered wrappers.
    if (count($WRAPPERS)>0) {
