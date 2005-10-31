@@ -10,7 +10,8 @@ AIRT_EXPORT - CLI work horse for the AIRT export queue
 
 =head1 SYNOPSIS
 
-B<airt_export> [--help] [--noqueue] [--verbose]
+B<airt_export> [--help] [--noqueue] [--verbose] [--result-id=F<ID>]
+[--result-code=F<CODE>] [--result-msg=F<MESSAGE>]
 
 
 =head1 DESCRIPTION
@@ -18,8 +19,29 @@ B<airt_export> [--help] [--noqueue] [--verbose]
 The B<airt_export> command is used to start up an external task, requested
 via the AIRT export queue. Although the program is intended to be used from
 B<cron>, it may without problems be called manually, as long as it is from
-the correct user account. In normal operations, no command line parameters
-are required.
+the correct user account.
+
+The same command is used for two separate actions.
+
+=over 4
+
+=item B<To dispatch queued external tasks from the export queue>
+
+This is the normal default behaviour of the B<airt_export> command when run
+with no command line parameters. Only the presence of the B<--result-id>
+parameter will make the command behave differently. Typically the command is
+run from B<cron> in this mode.
+
+=item B<To signal the completion of an external task to the export queue>
+
+This is the alternate behaviour, triggered by the presence of the
+B<--result-id> parameter (only). Additionally, the B<--result-code> and the
+B<--result-msg> parameters may be present, but they have useful default
+values. Typically the task wrapper scripts will end by running the command
+in this mode.
+
+=back
+
 
 =over 4
 
@@ -29,13 +51,58 @@ Shows the usage of the program on the command line.
 
 =item B<--noqueue>
 
-Picks up the item(s) ready to be run from the AIRT export queue, but does
-not flag them as having been started in the queue. Runs the external tasks
-as usual. After completion of the tasks, removes their result strings
-without putting them into the AIRT export queue. Use this option only when
-you are sure that this B<airt_export> is the only one running, i.e., make
-sure B<cron> does not spawn one at the same time. Option mostly useful for
-debugging.
+This is mostly a debugging option. All possible sanity checks are performed
+as usual, but the AIRT database is never updated, and no background task is
+ever spawned. Typically used in combination with B<--verbose>. Take notice
+that you must have a runnable export queue entry before something will
+happen at all. B<--noqueue> can be used both for queue dispatch simulation
+and for task completion flagging simulation (with B<--result-id>).
+
+=item B<--result-id=ID>
+
+Attempts to signal to the export queue that task F<ID> has been ended. If
+this task is unknown to the queue, has not been started yet, or has already
+been completed, this leads to an error. The task ID was passed to the
+wrapper script as the first parameter and should be returned unchanged via
+the B<--result-id> option.
+
+=item B<--result-code=CODE>
+
+If B<--result-id> is given, the F<CODE> is assumed to be the formal result
+code of the wrapper script. Please use one of the following codes:
+
+=over 4
+
+=item OK
+
+Wrapper script ended successfully.
+
+=item WARNING
+
+Wrapper script ended successfully, but a special condition occurred and the
+result needs to be examined in detail.
+
+=item ERROR
+
+Wrapper script ended unsuccesfully, and the error condition needs to be
+examined.
+
+=back
+
+The AIRT export queue viewer may use these result codes for user interface
+flagging, e.g., by using different colours for different codes. There is no
+further semantic meaning attached to the codes.  If no result code is passed
+to the B<airt_export> command, UNKNOWN will be assumed and sent to the
+export queue.
+
+=item B<--result-msg=MSG>
+
+If B<--result-id> is given, the F<MSG> is assumed to be a brief (not more
+than 60-80 characters) statement in plain text about the results of the
+wrapper script. May be left out, but it is recommended in all cases,
+expecially if B<--result-code> is WARNING or ERROR. If you want to include
+spaces in the message, use B<--result-msg="this type of syntax">.
+
 
 =item B<--verbose>
 
@@ -44,32 +111,65 @@ Generates verbose output on stdout while processing. Useful for testing.
 =back
 
 Normally, airt_export is quiet on stdout. Output is returned on stdout only
-when requested via --verbose, and on stderr in case of problems. Exit code
-0 means everything went OK, 1 means there was some unrecoverable problem,
-which will have been reported on stderr.
+when requested via --verbose, and on stderr in case of problems. Exit code 0
+means everything went OK, 1 means there was some unrecoverable problem,
+which will have been reported on stderr. There are cases where exit code 0
+will come together with stderr output, for example when processing more than
+one export queue entry and one of them cannot be spawned. A standard B<cron>
+implementation will catch all these cases and mail them to the user account
+that is assigned to the export queue task.
 
 
 =head1 SECURITY
 
 B<airt_export> is built using the philosophy of upgrading privileges when
-required. Typically, the program is started as user B<nobody> (certainly not
-as user B<root>!), and upgrades to the required privilege level using
-B<sudo>. However, the actual B<sudo> commands are not used in the
-B<airt_export> executable script; they all are inside the user-provided
-wrapper scripts in F<@PHPLIBPATH@/exportqueue>. This means that all
-security-sensitive operations are fully controlled by the system
-administrator via the F<etc/sudoers> file and the wrappers.
+required. Typically, the program is started as user B<airt-export>
+(certainly not as user B<root> and neither as B<nobody>), and upgrades to
+the required privilege level using B<sudo(8)>. However, the actual B<sudo>
+commands are not used in the B<airt_export> executable script; they all are
+inside the user-provided wrapper scripts in F<@PHPLIBPATH@/exportqueue>.
+This means that all security-sensitive operations are fully controlled by
+the system administrator via the F<etc/sudoers> file and the wrappers.
+
+Wrappers run fully detached from any AIRT process (they are made a Posix
+session leader). Only F<@PHPLIBPATH@/exportqueue/wrapper_*> executables are
+eligible to be started from the export queue. The only interface between
+AIRT and the wrapper script is the command line string. The first parameter
+of the command line string is the task ID, assigned by AIRT, which the
+wrapper script must use when returning the result code to AIRT. If this ID
+is faked or hijacked, for which access to the B<airt-export> user is
+required, the AIRT export queue may be sent a fake result. However, this
+does not compromise the integrity of the rest of the queue or the running
+task, and the problem will be noticed when the original task attempts to
+register its result code.
+
+
+=head1 WRAPPERS
+
+Actual background tasks are under full control of the wrapper scripts in
+F<@PHPLIBPATH@/exportqueue>. A sample wrapper, F<wrapper_none>, is being
+provided as a framework and reference. Each wrapper represents a specific
+task, such as a network-wide B<nmap(1)> run. Wrappers are written and set up
+by the local system/application administrator, using site-specific
+approaches to management and security. This may involve B<sudo(8)> for
+privilege upgrades/shifts.
+
+Each wrapper is assumed to end with a call to B<airt_export> using the
+B<--result-id=ID> option. The actual task ID is passed as the first
+parameter to each wrapper script and needs to be passed to B<--result-id>
+unchanged. If this call is not executed, the export queue entry will not be
+formally terminated, and eventually gets purged.
 
 
 =head1 AUTHOR
 
-Tilburg University/Infolab <airt-dev@uvt.nl>.
+Tilburg University/Infolab <F<airt-dev@uvt.nl>>.
 
 
 =head1 REPORTING BUGS
 
-Please use the issue tracking system found at F<http://www.airt.nl/>.
-You will need to create an account on the web site to get access.
+Please use the issue tracking system found at F<http://www.airt.nl/>. You
+will need to create an account on the web site to get access.
 
 
 =head1 COPYRIGHT AND LICENSE
