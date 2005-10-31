@@ -18,16 +18,23 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # wrapper_none -- wrapper for the default, inert wrapper task.
+# See airt_export(1) for more details.
 # 
 # $Id$
 
-# Should do something with the --verbose switch, later.
-
+# Typically, wrappers are fully silent when everything goes right, but this
+# makes a bad demo.
 echo "This is wrapper_none."
-resultfile=$1
+taskid=$1
+if [ "$taskid" = "" ]; then
+  echo "ERROR: Task ID must be provided as first parameter."
+  exit 1
+fi
+echo "We run as export queue task $taskid."
 shift
 echo "Parameters: $1, $2, $3."
 echo "Sleeping five seconds..."
 sleep 5
-date > $resultfile
+echo "Waking up. Sending result to export queue..."
+airt_export --result-id=$taskid --result-code=OK --result-msg="Hello, world."
 echo "wrapper_none done."
