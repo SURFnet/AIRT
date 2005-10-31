@@ -23,6 +23,7 @@ require_once 'SOAP/Server.php';
 require_once 'SOAP/Disco.php';
 require_once 'config.plib';
 require_once ETCDIR.'/webservice.cfg';
+require_once LIBDIR.'/server.plib';
 require_once LIBDIR.'/authentication.plib';
 require_once LIBDIR.'/incident.plib';
 require_once LIBDIR.'/constituency.plib';
@@ -103,18 +104,8 @@ class IncidentHandling {
       
       // put it in the db
       $creationid = CreateTicket($userid,$ticketid);
+      $issuetime = getIssueTime($creationid);
       
-      // get the issue time
-      $res = db_query(sprintf("
-         SELECT  created
-         FROM    authentication_tickets
-         WHERE   id=%s",
-         db_masq_null($creationid)))
-      or die;
-
-      while ($row = db_fetch_next($res)) {
-         $issuetime = $row['created'];
-      }
       // format it to XML-standards
       $issuetime = substr($issuetime,0,10)."T".substr($issuetime,11,8);
       $exptime = date('Y-m-d\TH:i:s',mktime(substr($issuetime,11,2),
@@ -192,30 +183,17 @@ class IncidentHandling {
 
             $state = getIncidentStateDefault();
             if($state == null) {
-               // set the lowest id to the default state
-               // fetch the lowest result
-               $res = db_query(q("UPDATE incident_states SET
-                  isdefault=true where id in (SELECT min(id) FROM
-                  incident_states)"));
-               db_free_result($res);
+               setIncidentStateDefault();
                $state = getIncidentStateDefault();
             }
             $status = getIncidentStatusDefault();
             if($status == null) {
-               // set default status
-               $res  = db_query(q("UPDATE incident_status SET
-                  isdefault=true where id in (SELECT min(id) FROM
-                  incident_status)"));
-               db_free_result($res);
+               setIncidentStatusDefault();
                $status = getIncidentStatusDefault();
             }
             $type = getIncidentTypeDefault();
             if($type == null) {
-               // set default type
-               $res  = db_query(q("UPDATE incident_types SET
-                  isdefault=true where id in (SELECT min(id) FROM
-                  incident_types)"));
-               db_free_result($res);
+               setIncidentTypeDefault();
                $type = getIncidentTypeDefault();
             }
 
@@ -299,27 +277,6 @@ class IncidentHandling {
    }
 }
 
-function CreateTicket($userid,$ticketid) {
-   $res = db_query(
-      "SELECT  nextval('authentication_tickets_sequence') as creationid")
-      or die("Unable to execute query");
-
-   while ($row = db_fetch_next($res)) {
-      $creationid = $row['creationid'];
-   }
-      
-   $res = db_query(sprintf("insert into authentication_tickets (id,
-   userid, created, expiration, ticketid) VALUES
-   (%s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + interval
-   '".TICKET_EXP." seconds', %s)",
-      db_masq_null($creationid),
-      db_masq_null($userid),
-      db_masq_null($ticketid)))
-   or die('Unable to create ticket');
-
-   return $creationid;
-}
-
 function genRandom() {
    $ticketid = '';
 
@@ -390,21 +347,6 @@ function generateSAMLTicket($ticket_details) {
    $content = $doc->dump_mem();
    return $content;
 
-}
-
-function CheckCredentials($ticketid) {
-   $res = db_query(sprintf('
-      SELECT   userid 
-      FROM     authentication_tickets where ticketid=%s 
-      AND      CURRENT_TIMESTAMP > created
-      AND      CURRENT_TIMESTAMP < expiration', 
-         db_masq_null($ticketid)))
-   or die;
-
-   while ($row = db_fetch_next($res)) {
-      $userid = $row['userid'];
-   }
-   return $userid;
 }
 
 
