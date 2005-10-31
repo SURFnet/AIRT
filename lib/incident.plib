@@ -62,6 +62,15 @@ function getIncidentStateDefault() {
    return $default;
 }
 
+function setIncidentStateDefault() {
+   // set the lowest id to the default state
+   // fetch the lowest result
+   $res = db_query(q("UPDATE incident_states SET
+      isdefault=true where id in (SELECT min(id) FROM
+      incident_states)"));
+   db_free_result($res);
+}
+
 /* Return an HTML SELECT box containing valid choices for incident states.
  * Input: name = The HTML name of the selection box.
  *        default = Optionally, the ID of the default selection. If not
@@ -120,6 +129,13 @@ function getIncidentStatusDefault() {
     return $default;
 }
 
+function setIncidentStatusDefault() {
+   $res  = db_query(q("UPDATE incident_status SET
+      isdefault=true where id in (SELECT min(id) FROM
+      incident_status)"));
+   db_free_result($res);
+}
+
 /* Return an HTML SELECT box containing valid choices for incident statuses.
  * Input: name = The HTML name of the selection box.
  *        default = Optionally, the ID of the default selection. If not
@@ -169,6 +185,14 @@ function getIncidentTypeDefault() {
       $default = '';
    }
    return $default;
+}
+
+function setIncidentTypeDefault() {
+   // set default type
+   $res  = db_query(q("UPDATE incident_types SET
+      isdefault=true where id in (SELECT min(id) FROM
+      incident_types)"));
+   db_free_result($res);
 }
 
 /* Return an HTML SELECT box containing valid choices for incident types.
