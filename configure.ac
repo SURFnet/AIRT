@@ -33,6 +33,20 @@ AC_DEFINE_DIR(STATEPATH, localstatedir/@PACKAGE@)
 
 AM_INIT_AUTOMAKE()
 
+AC_ARG_WITH(phpdir, AC_HELP_STRING(--with-phpdir=DIR,Location of PHP files that are accessible by the web server [datadir/airt/php]), AIRT_PHPDIR="$withval")
+
+if test -z "$AIRT_PHPDIR"
+then
+    if test "x$prefix" = xNONE
+    then
+        AIRT_PHPDIR="$ac_default_prefix/share/airt/php"
+    else
+        AIRT_PHPDIR="$prefix/share/airt/php"
+    fi
+fi
+AC_SUBST(AIRT_PHPDIR)
+
+
 AC_OUTPUT([Makefile
     README
     doc/Makefile
