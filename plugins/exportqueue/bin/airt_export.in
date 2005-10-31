@@ -237,8 +237,8 @@ while ($row = db_fetch_next($res)) {
    $execPath = $WRAPPERS[$task];
 
    if ($OPTIONS['--noqueue']) {
-      // No actual queueing.
-      msg(t('Not actually queueing %exec.',
+      // No actual spawning of the task.
+      msg(t('Not actually spawning %exec.',
             array('%exec'=>$execPath)));
    } else {
       // Execute the wrapper asynchronously.
