@@ -1,0 +1,72 @@
+<?php
+/* vim:syntax=php shiftwidth=3 tabstop=3
+ *
+ * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
+ * Copyright (C) 2004,2005   Tilburg University, The Netherlands
+
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+function CheckCredentials($ticketid) {
+   $res = db_query(sprintf('
+      SELECT   userid 
+      FROM     authentication_tickets where ticketid=%s 
+      AND      CURRENT_TIMESTAMP > created
+      AND      CURRENT_TIMESTAMP < expiration',
+         db_masq_null($ticketid)))
+   or die;
+
+   while ($row = db_fetch_next($res)) {
+      $userid = $row['userid'];
+   }
+   return $userid;
+}
+
+function CreateTicket($userid,$ticketid) {
+   $res = db_query(
+      "SELECT  nextval('authentication_tickets_sequence') as creationid")
+      or die("Unable to execute query");
+
+   while ($row = db_fetch_next($res)) {
+      $creationid = $row['creationid'];
+   }
+
+   $res = db_query(sprintf("insert into authentication_tickets (id,
+   userid, created, expiration, ticketid) VALUES
+   (%s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + interval
+   '".TICKET_EXP." seconds', %s)",
+      db_masq_null($creationid),
+      db_masq_null($userid),
+      db_masq_null($ticketid)))
+   or die('Unable to create ticket');
+
+   return $creationid;
+}
+
+function getIssueTime($creationid) {
+   $res = db_query(sprintf("
+      SELECT  created
+      FROM    authentication_tickets
+      WHERE   id=%s",
+         db_masq_null($creationid)))
+   or die;
+
+   while ($row = db_fetch_next($res)) {
+      $issuetime = $row['created'];
+   }
+   return $issuetime;
+}
+
+?>
