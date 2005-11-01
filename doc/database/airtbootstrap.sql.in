@@ -175,6 +175,6 @@ INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_posi
 -- Create the database schema version record.
 --
 INSERT INTO versions (key, value) 
-    VALUES ('airtschema','@AIRT_SCHEMA_VERSION@');
+    VALUES ('airtschema','@VERSION@');
 
 end transaction;
