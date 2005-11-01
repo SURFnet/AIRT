@@ -24,6 +24,6 @@
 // This file is part of the code; do not change it if you are an application
 // administrator.
 define('AIRT_VERSION','@VERSION@');
-require_once '@ETCDIR@/airt/airt.cfg';
+require_once '@ETCDIR@/airt.cfg';
 
 ?>
