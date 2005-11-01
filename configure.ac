@@ -77,30 +77,24 @@ AC_OUTPUT([Makefile
     README
     bin/Makefile
     bin/airt_import
+    bin/airt_export
     doc/Makefile
     doc/examples/Makefile
     doc/database/Makefile
     doc/database/airtbootstrap.sql
     man/Makefile
-    man/airt_import.pod
     man/airt.pod
+    man/airt_import.pod
+    man/airt_export.pod
     etc/Makefile
     etc/airt-apache.conf
     etc/airt.cfg
     lib/Makefile
     lib/import_filters/Makefile
+    lib/export_wrappers/Makefile
     php/Makefile
     php/login.php
     php/config.plib
     plugins/Makefile
-    plugins/exportqueue/Makefile
-    plugins/exportqueue/bin/Makefile
-    plugins/exportqueue/bin/airt_export
-    plugins/exportqueue/lib/Makefile
-    plugins/exportqueue/php/Makefile
-    plugins/exportqueue/doc/Makefile
-    plugins/exportqueue/etc/Makefile
-    plugins/exportqueue/man/Makefile
-    plugins/exportqueue/man/airt_export.pod
 ])
 

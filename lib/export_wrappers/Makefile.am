@@ -20,6 +20,6 @@
 # 
 scriptdir=@AIRT_PHPLIBDIR@/export_wrappers
 
-script_DATA = wrapper_none.plib
+script_DATA = wrapper_none
 
 EXTRA_DIST = $(script_DATA)
