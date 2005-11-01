@@ -26,7 +26,7 @@
 /***** 1. GLOBAL SETTINGS *****/
 
 // location of the .plib files
-define('LIBDIR', '@AIRT_PHPDIR@');
+define('LIBDIR', '@AIRT_PHPLIBDIR@');
 
 // location of configuration files
 define('ETCDIR', '@ETCDIR@');
