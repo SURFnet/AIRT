@@ -25,16 +25,18 @@ AC_COPYRIGHT([
 Copyright (C) 2005 Tilburg University, The Netherlands
 ])
 
+AM_INIT_AUTOMAKE()
+
 AC_DEFINE_DIR(ETCPATH, sysconfdir/airt)
-AC_DEFINE_DIR(PHPPATH, datadir/@PACKAGE@/php)
+dnl AC_DEFINE_DIR(PHPPATH, datadir/@PACKAGE@/php)
 AC_DEFINE_DIR(PHPLIBPATH, datadir/@PACKAGE@/lib)
 AC_DEFINE_DIR(DOCPATH, datadir/doc/@PACKAGE@)
 AC_DEFINE_DIR(STATEPATH, localstatedir/@PACKAGE@)
 
-AM_INIT_AUTOMAKE()
 
-AC_ARG_WITH(phpdir, AC_HELP_STRING(--with-phpdir=DIR,Location of PHP files that are accessible by the web server [datadir/airt/php]), AIRT_PHPDIR="$withval")
-
+AC_ARG_WITH(phpdir, 
+    AC_HELP_STRING(--with-phpdir=DIR,Location of PHP files that may be accessed by the web server [datadir/airt/php]), 
+    AIRT_PHPDIR="$withval")
 if test -z "$AIRT_PHPDIR"
 then
     if test "x$prefix" = xNONE
@@ -46,6 +48,19 @@ then
 fi
 AC_SUBST(AIRT_PHPDIR)
 
+AC_ARG_WITH(phplibdir, 
+    AC_HELP_STRING(--with-phplibdir=DIR,Location of PHP files that may not be accessed by the web server [datadir/airt/plib]), 
+    AIRT_PHPLIBDIR="$withval")
+if test -z "$AIRT_PHPLIBDIR"
+then
+    if test "x$prefix" = xNONE
+    then
+        AIRT_PHPLIBDIR="$ac_default_prefix/share/airt/plib"
+    else
+        AIRT_PHPLIBDIR="$prefix/share/airt/plib"
+    fi
+fi
+AC_SUBST(AIRT_PHPLIBDIR)
 
 AC_OUTPUT([Makefile
     README
@@ -82,3 +97,4 @@ AC_OUTPUT([Makefile
     plugins/exportqueue/man/Makefile
     plugins/exportqueue/man/airt_export.pod
 ])
+
