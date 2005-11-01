@@ -25,8 +25,12 @@
 
 begin transaction;
 
+---
+--- default users, roles and role assignments
+---
+
 INSERT INTO users
-    (id, lastname, email, login, password) 
+    (id, lastname, email, login, password)
     VALUES
     (nextval('users_sequence'), 'Administrator', 'airt@example.com', 'admin', 
     'd033e22ae348aeb5660fc2140aec35850c4da997');
@@ -60,21 +64,23 @@ INSERT INTO role_assignments
     VALUES
     (nextval('role_assignments_sequence'), currval('roles_sequence'),
     currval('users_sequence'));
+---
+--- default constituency
+---
 INSERT INTO constituencies
     (id,label,name) 
     VALUES
     (-1, 'default', 'default');
+---
+--- default network
+---
 INSERT INTO networks
     (id, network, netmask, label, constituency) 
     VALUES
     ( -1, '0.0.0.0', '0.0.0.0', 'Default network', -1);
-INSERT INTO incident_status
-    (id, label,descr,isdefault)
-    VALUES
-      (nextval('incident_status_sequence'),
-      'open',
-      'Incident is being handled.',
-      TRUE);
+---
+--- Minimal set of predefined incident types
+---
 INSERT INTO incident_types
     (id,label,descr,isdefault)
     VALUES
@@ -82,12 +88,26 @@ INSERT INTO incident_types
       'Compromised',
       'Host has been comprimised.',
       TRUE);
+
+---
+--- Minimal set of predefined incident states
+---
 INSERT INTO incident_states
     (id,label,descr,isdefault)
     VALUES
       (nextval('incident_states_sequence'),
       'Inspectionrequest',
       'Inspection requested.',
+      TRUE);
+---
+--- Minimal set of predefined incident statuses
+---
+INSERT INTO incident_status
+    (id, label,descr,isdefault)
+    VALUES
+      (nextval('incident_status_sequence'),
+      'open',
+      'Incident is being handled.',
       TRUE);
 INSERT INTO incident_status
     (id, label,descr,isdefault)
@@ -103,6 +123,10 @@ INSERT INTO incident_status
       'stalled',
       'Incident handling has stalled.',
       FALSE);
+
+---
+--- Address roles for Target and Source
+---
 INSERT INTO address_roles
    (id, label, isdefault)
    VALUES
@@ -110,22 +134,42 @@ INSERT INTO address_roles
 INSERT INTO address_roles
    (id, label, isdefault)
    VALUES
-   (nextval('address_roles_sequence'), 'Victim', false);
+   (nextval('address_roles_sequence'), 'Target', false);
 INSERT INTO address_roles (id, label, isdefault)
    VALUES
-   (nextval('address_roles_sequence'), 'Target', false);
-INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position) VALUES (8, 'index.php', 'Main menu', 1, '2005-09-14 09:11:28', NULL, 1);
-INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position) VALUES (5, 'search.php', 'IP Address lookup', 1, '2005-09-14 08:18:13', 3, NULL);
+   (nextval('address_roles_sequence'), 'Source', false);
+
+---
+--- bootstrap the main menu and the navigation bar
+---
+INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position)
+  VALUES
+  (nextval('urls_sequence'), 'index.php', 'Main menu', 1, CURRENT_TIMESTAMP, NULL, 1);
+INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position)
+  VALUES
+  (nextval('urls_sequence'), 'search.php', 'IP Address lookup', 1, CURRENT_TIMESTAMP, 3, NULL);
 INSERT INTO urls (id, url, label, createdby, created, menu_position,
-navbar_position) VALUES (6, 'mailtemplates.php', 'Mail templates', 1, '2005-09-14 08:18:22', 4, 5);
-INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position) VALUES (9, 'logout.php', 'Logout', 1, '2005-09-14 09:11:36', 6, 6);
-INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position) VALUES (4, 'incident.php', 'Incident management', 1, '2005-09-14 08:18:04', 2, NULL);
-INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position) VALUES (7, 'maintenance.php', 'Edit settings', 1, '2005-09-14 08:18:31', 5, NULL);
-INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position) VALUES (10, 'incident.php', 'Incidents', 1, '2005-09-14 09:18:30', NULL, 4);
-INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position) VALUES (11, 'search.php', 'Search', 1, '2005-09-14 09:18:38', NULL, 3);
-INSERT INTO urls (id, url, label, createdby, created, menu_position,
-navbar_position) VALUES (12, 'importqueue/queue.php', 'Import Queue', 1,
-'2005-10-20 13:18:38', NULL, 3);
+navbar_position)
+  VALUES
+  (nextval('urls_sequence'), 'mailtemplates.php', 'Mail templates', 1, CURRENT_TIMESTAMP, 4, 5);
+INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position)
+  VALUES
+  (nextval('urls_sequence'), 'logout.php', 'Logout', 1, CURRENT_TIMESTAMP, 6, 6);
+INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position)
+  VALUES
+  (nextval('urls_sequence'), 'incident.php', 'Incident management', 1, CURRENT_TIMESTAMP, 2, NULL);
+INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position)
+  VALUES
+  (nextval('urls_sequence'), 'maintenance.php', 'Edit settings', 1, CURRENT_TIMESTAMP, 5, NULL);
+INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position)
+  VALUES
+  (nextval('urls_sequence'), 'incident.php', 'Incidents', 1, CURRENT_TIMESTAMP, NULL, 4);
+INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position)
+  VALUES
+  (nextval('urls_sequenec'), 'search.php', 'Search', 1, CURRENT_TIMESTAMP, NULL, 3);
+INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position)
+  VALUES
+  (nextval('urls_sequence'), 'importqueue.php', 'Import Queue', 1, CURRENT_TIMESTAMP , NULL, 3);
 
 --
 -- Create the database schema version record.
