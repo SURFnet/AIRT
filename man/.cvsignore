@@ -2,3 +2,8 @@ airt.pod
 airt.1
 Makefile.in
 Makefile
+airt_import.pod
+airt_import.1
+airt_export.pod
+airt_export.1
+
