@@ -2,7 +2,7 @@
 # $Id$
 SUBDIRS = . examples database
 
-docdir =  $(datadir)/doc/$(PACKAGE)
+docdir =  @AIRT_DOCDIR@
 doc_DATA = events.txt session-variables.txt \
 	HOWTO.txt airt_tutorial.pdf testing-guide.txt
 

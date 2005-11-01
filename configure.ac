@@ -59,6 +59,20 @@ then
 fi
 AC_SUBST(AIRT_PHPLIBDIR)
 
+AC_ARG_WITH(docdir,
+    AC_HELP_STRING(--with-docdir=DIR,Location of AIRT documentation [datadir/doc/airt]),
+    AIRT_DOCDIR="$withval")
+if test -z "$AIRT_DOCDIR"
+then
+    if test "x$prefix" = xNONE
+    then
+        AIRT_DOCDIR="$ac_default_prefix/share/doc/@PACKAGE@"
+    else
+        AIRT_DOCDIR="$prefix/share/doc/@PACKAGE@"
+    fi
+fi
+AC_SUBST(AIRT_DOCDIR)
+
 AC_OUTPUT([Makefile
     README
     doc/Makefile
