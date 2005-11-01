@@ -28,7 +28,7 @@ define('AIRT_VERSION','@VERSION@');
 
 // Pick up standard AIRT config and required library (which pulls in the
 // other required libraries).
-require_once '@ETCPATH@/airt.cfg';
+require_once '@ETCDIR@/airt.cfg';
 require_once ETCDIR.'/importqueue.cfg';
 require_once LIBDIR.'/importqueue/importqueue.plib';
 

@@ -26,10 +26,10 @@
 /***** 1. GLOBAL SETTINGS *****/
 
 // location of the .plib files
-define('LIBDIR', '@PHPLIBPATH@');
+define('LIBDIR', '@AIRT_PHPDIR@');
 
 // location of configuration files
-define('ETCDIR', '@ETCPATH@');
+define('ETCDIR', '@ETCDIR@');
 
 // number of incidents to show on one page
 define('PAGESIZE', 20);

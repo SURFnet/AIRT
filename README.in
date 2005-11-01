@@ -79,7 +79,7 @@ Installation manual for packages
   You will be prompted for a password for the AIRT user. Keep this password
   somewhere handy, as you will need it again.
 
-    Step 3. Edit @ETCPATH@/airt.cfg and set the 
+    Step 3. Edit @ETCDIR@/airt/airt.cfg and set the 
     variables apropriately. Note that the configuration file is a
     regular PHP program, and any PHP construct can be used in it. For example,
     it is possible to move the database password out of the main configuration
@@ -128,7 +128,7 @@ Installation manual for packages
 
     Debian administrators can achieve the same by adding a symbolic link
     in /etc/apache/conf.d (or /etc/apache2/conf.d) which leads to
-    @ETCPATH@/airt-apache.conf
+    @ETCDIR@/airt/airt-apache.conf
 
     Step 9. Confirm that the configuration file is correct. Apache
     administrators do

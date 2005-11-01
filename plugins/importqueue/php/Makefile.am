@@ -17,6 +17,6 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # $Id$
-scriptdir=$(PHPPATH)/importqueue
+scriptdir=@AIRT_PHPDIR@/importqueue
 script_DATA = queue.php
 EXTRA_DIST = $(script_DATA)

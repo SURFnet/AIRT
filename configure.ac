@@ -27,14 +27,11 @@ Copyright (C) 2005 Tilburg University, The Netherlands
 
 AM_INIT_AUTOMAKE()
 
-AC_DEFINE_DIR(ETCPATH, sysconfdir/airt)
-dnl AC_DEFINE_DIR(PHPPATH, datadir/@PACKAGE@/php)
-AC_DEFINE_DIR(PHPLIBPATH, datadir/@PACKAGE@/lib)
 AC_DEFINE_DIR(DOCPATH, datadir/doc/@PACKAGE@)
-AC_DEFINE_DIR(STATEPATH, localstatedir/@PACKAGE@)
+AC_DEFINE_DIR(ETCDIR, sysconfdir/@PACKAGE@)
 
 
-AC_ARG_WITH(phpdir, 
+AC_ARG_WITH(phpdir,
     AC_HELP_STRING(--with-phpdir=DIR,Location of PHP files that may be accessed by the web server [datadir/airt/php]), 
     AIRT_PHPDIR="$withval")
 if test -z "$AIRT_PHPDIR"
@@ -48,7 +45,7 @@ then
 fi
 AC_SUBST(AIRT_PHPDIR)
 
-AC_ARG_WITH(phplibdir, 
+AC_ARG_WITH(phplibdir,
     AC_HELP_STRING(--with-phplibdir=DIR,Location of PHP files that may not be accessed by the web server [datadir/airt/plib]), 
     AIRT_PHPLIBDIR="$withval")
 if test -z "$AIRT_PHPLIBDIR"

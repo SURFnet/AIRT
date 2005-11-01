@@ -17,7 +17,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # $Id$
-scriptdir=$(PHPLIBPATH)/exportqueue
+scriptdir=@AIRT_PHPLIBDIR@/exportqueue
 script_DATA = exportqueue.plib
 script_SCRIPTS = wrapper_none
 

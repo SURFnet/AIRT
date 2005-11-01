@@ -127,12 +127,12 @@ required. Typically, the program is started as user B<airt-export>
 (certainly not as user B<root> and neither as B<nobody>), and upgrades to
 the required privilege level using B<sudo(8)>. However, the actual B<sudo>
 commands are not used in the B<airt_export> executable script; they all are
-inside the user-provided wrapper scripts in F<@PHPLIBPATH@/exportqueue>.
+inside the user-provided wrapper scripts in F<@AIRT_PHPLIBDIR@/exportqueue>.
 This means that all security-sensitive operations are fully controlled by
 the system administrator via the F<etc/sudoers> file and the wrappers.
 
 Wrappers run fully detached from any AIRT process (they are made a Posix
-session leader). Only F<@PHPLIBPATH@/exportqueue/wrapper_*> executables are
+session leader). Only F<@AIRT_PHPLIBDIR@/exportqueue/wrapper_*> executables are
 eligible to be started from the export queue. The only interface between
 AIRT and the wrapper script is the command line string. The first parameter
 of the command line string is the task ID, assigned by AIRT, which the
@@ -147,7 +147,7 @@ register its result code.
 =head1 WRAPPERS
 
 Actual background tasks are under full control of the wrapper scripts in
-F<@PHPLIBPATH@/exportqueue>. A sample wrapper, F<wrapper_none>, is being
+F<@AIRT_PHPLIBDIR@/exportqueue>. A sample wrapper, F<wrapper_none>, is being
 provided as a framework and reference. Each wrapper represents a specific
 task, such as a network-wide B<nmap(1)> run. Wrappers are written and set up
 by the local system/application administrator, using site-specific

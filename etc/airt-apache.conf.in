@@ -7,8 +7,8 @@
 #     Options -Indexes
 # </Directory>
 
-Alias /airt/ @PHPPATH@/
-<Directory @PHPPATH@>
+Alias /airt/ @AIRT_PHPDIR@/
+<Directory @AIRT_PHPDIR@>
     Options        Indexes
     DirectoryIndex index.php
 
