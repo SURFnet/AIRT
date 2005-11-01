@@ -18,6 +18,7 @@
 # $Id$
 
 # 
+SUBDIRS = . import_filters
 
 scriptdir=@PHPLIBDIR@
 

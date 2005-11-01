@@ -1,6 +1,5 @@
-# Makefile for liberty
-# AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
-# Copyright (C) 2004	Tilburg University, The Netherlands
+# AIR: APPLICATIION FOR INCIDENT RESPONSE
+# Copyright (C) 2004	Kees Leune <kees@uvt.nl>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,6 +17,11 @@
 #
 # $Id$
 
-SUBDIRS = . bin php lib doc etc man
+# 
+SUBDIRS = . import_filters
 
-docdir = $(datadir)/doc/airt/$(PACKAGE)
+scriptdir=@PHPLIBDIR@/import_filters
+
+script_DATA = filter_none.plib
+
+EXTRA_DIST = $(script_DATA)

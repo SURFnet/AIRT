@@ -1,0 +1,92 @@
+$Id$
+
+=pod
+
+=head1 NAME
+
+AIRT_IMPORT - CLI work horse for the AIRT import queue
+
+
+=head1 SYNOPSIS
+
+B<airt_import> [--filter=F<FILTER>] [--help] [--noqueue] [--verbose] [F<FILE>]
+
+
+=head1 DESCRIPTION
+
+The B<airt_import> command is used to put a new element into the AIRT import
+queue. This import queue subsequently may (semi-)automatically create a new
+AIRT incident, subject to operating policies outside the B<airt_import>
+program's jurisdiction.
+
+=over 4
+
+=item B<--filter>[=F<FILTER>]
+
+Each import data type needs a filter. The default filter is F<none> and
+functions as a plain passthrough pipe. This filter is only useful if the
+data to be imported is already in AIRT XML format, see
+F<@DOCPATH@/importqueue/inqueue-design.txt>. For most real-world
+applications, other import filters will be required. Several filters come
+with AIRT, such as for Cymru and MyNetWatchman. You can add your own filters
+in F<@AIRT_PHPLIBDIR@/importqueue> by taking one of the existing filters as
+framework.
+
+=item B<--help>
+
+Shows the usage of the program on the command line.
+
+=item B<--noqueue>
+
+Processes the input via the filter and presents it to the AIRT import queue
+for validation, but does not actually queue the incident. Useful for
+testing.
+
+=item B<--verbose>
+
+Generates verbose output on stdout while processing. Useful for testing.
+
+=back
+
+Data to be imported may come from a file or from stdin. The program reads
+the import data from stdin if no filename is given.
+
+Normally, B<airt_import> is quiet on stdout. Output is returned on stdout
+only when requested via --verbose, and on stderr in case of problems. Exit
+code 0 means everything went OK, 1 means there was some unrecoverable
+problem, which will have been reported on stderr. This behaviour should
+facilitate deployment of B<airt_import> from cron or other system background
+processes such as maildrop.
+
+
+=head1 AUTHOR
+
+Tilburg University/Infolab <airt-dev@uvt.nl>.
+
+
+=head1 REPORTING BUGS
+
+Please use the issue tracking system found at F<http://www.airt.nl/>.
+You will need to create an account on the web site to get access.
+
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2005 Tilburg University, The Netherlands.
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation; either version 2 of the License, or (at your option)
+any later version.
+
+
+=head1 SEE ALSO
+
+More information about AIRT can be found on its website, at
+F<http://www.airt.nl/>.
+
+Full documentation is available in F<@DOCPATH@>.
+
+AIRT man pages can be found by B<apropos airt>.
+
+=cut

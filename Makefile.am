@@ -18,7 +18,7 @@
 #
 # $Id$
 
-SUBDIRS = plugins php lib doc etc man .
+SUBDIRS = plugins php lib doc etc man bin .
 
 docdir = $(datadir)/doc/$(PACKAGE)
 doc_DATA = AUTHORS README 

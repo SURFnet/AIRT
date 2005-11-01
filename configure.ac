@@ -75,29 +75,23 @@ AC_SUBST(AIRT_DOCDIR)
 
 AC_OUTPUT([Makefile
     README
+    bin/airt_import
     doc/Makefile
     doc/examples/Makefile
     doc/database/Makefile
     doc/database/airtbootstrap.sql
-    lib/Makefile
-    php/Makefile
-    php/login.php
+    man/Makefile
+    man/airt_import.pod
+    man/airt.pod
     etc/Makefile
     etc/airt-apache.conf
     etc/airt.cfg
-    man/Makefile
+    lib/Makefile
+    lib/import_filters/Makefile
+    php/Makefile
+    php/login.php
     php/config.plib
-    man/airt.pod
     plugins/Makefile
-    plugins/importqueue/Makefile
-    plugins/importqueue/bin/Makefile
-    plugins/importqueue/bin/airt_import
-    plugins/importqueue/lib/Makefile
-    plugins/importqueue/php/Makefile
-    plugins/importqueue/doc/Makefile
-    plugins/importqueue/etc/Makefile
-    plugins/importqueue/man/Makefile
-    plugins/importqueue/man/airt_import.pod
     plugins/exportqueue/Makefile
     plugins/exportqueue/bin/Makefile
     plugins/exportqueue/bin/airt_export

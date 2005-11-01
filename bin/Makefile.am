@@ -17,8 +17,9 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # $Id$
-scriptdir=@AIRT_PHPDIR@/importqueue
-script_DATA = importqueue.plib filter_none.plib
+bin_SCRIPTS = airt_import
 
-EXTRA_DIST = $(script_DATA)
+EXTRA_DIST= airt_import.in
 
+CLEANFILES=airt_import
+DISTCLEANFILES=$(CLEANFILES)

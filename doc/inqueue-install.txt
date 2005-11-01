@@ -1,0 +1,111 @@
+$Id$ 
+In CVS at $Source$
+
+=============================
+SETTING UP THE EMAIL IMPORTER 
+=============================
+
+First, it would be ideal if the import queue can receive mail. The easiest way
+to accomplish this is by defining a local user which is able to receive email
+and who is allowed to use a mailfilter. We have set up a dedicate user 'cert'
+which is in the group 'cert-data'. 
+
+User uid=102(cert) gid=106(cert) groups=106(cert),1003(cert-data)
+
+The basic premise is that all configuration files that play a role in importing
+incidents are owned by this user. Additional write persmissions to those file
+are given via group rights.
+
+In the local aliases file, which must be owned by th user cert as follows, we
+added a line
+
+-rw-r--r--  1 cert root   495 Oct  3 16:42 /etc/postfix/aliases-local
+
+----- begin aliases-local -----
+airt-queue-import-uvtcert: |maildrop
+----- end aliases-local -----
+
+In cert's home directory, we have the configuration file
+
+-rw-r--r--  1 cert root 41 Oct  3 17:06 /home/cert/.mailfilter
+
+which contains the line
+
+----- begin .mailfilter -----
+include "/usr/local/etc/airt/mailfilter"
+----- end .mailfilter
+
+The file /usr/local/etc/airt/mailfilter is owned by cert.cert-data
+
+-rw-rw-r--  1 cert cert-data 403 Oct  4 10:33 /usr/local/etc/airt/mailfilter
+
+The file is writable by the group cert-data, which allows the AIRT application
+adminstrator to configure the queue.
+
+It contains the following:
+
+----- begin mailfilter -----
+# Mailfilter for UvT-CERT AIRT
+# 
+VERBOSE=1
+AIRT_IMPORT=/usr/bin/import
+FILTER_SURFNET_DDOS="$AIRT_IMPORT --filter=surfnet_bot"
+MAILDIR=/var/lib/cert-data/Maildir
+
+# SURFnet-CERT DDOS
+if (/^From.*cert@surfnet.nl/ && /^Subject: \[SURFnet-CERT#[0-9]+]: DDoS bot gevonden op/)
+{
+    cc $MAILDIR/.pre-filter
+    xfilter $FILTER_SURFNET_DDOS
+    to $MAILDIR/.post-filter
+}
+
+to /var/lib/cert-data/Maildir/.incoming
+----- end mailfilter -----
+
+Using the filter listed above, maildrop attempts to deliver mail in
+/var/lib/cert-data/Maildir, which has the following structure:
+
+drwxr-x---  8 cert cert-data  89 Oct  4 10:30 Maildir/
+drwxr-x---  5 cert cert-data  36 Oct  4 10:30 Maildir/.incoming
+drwxr-x---  5 cert cert-data  36 Oct  4 10:23 Maildir/.post-filter
+drwxr-x---  5 cert cert-data  36 Oct  4 10:23 Maildir/.pre-filter
+
+Maildir, Maildir/.incoming, Maildir/.post-filter and Maildir/.pre-filter are
+maildirs. To create them, use the maildirmake command of the maildrop package.
+
+The script /usr/bin/import will be executed as user cert and must have write
+access to /var/lib/airt/importqueue, which must have the following ownerships:
+
+drwxrwsr-x  2 cert     www-data   25 Oct  4 15:21 importqueue
+
+This ensures that both the maildrop filter can write in it, as well as the web
+server. The setguid bit ensures that all files that are created in the
+directory are owned by the group www-data.
+
+
+===========================
+SETTING UP THE IMPORT QUEUE
+===========================
+
+The import queue must be reachable via SSL. The PHP SOAP library uses CURL to
+accomplish this, which means that we need to install the CA certificate of
+the AIRT server in a location which can be found by CURL. A logical choice
+be to have the entire certificate chain available in /etc/ssl/certs/.
+
+Next, the web service must be configured by editing /etc/airt/webservice.cfg.
+In that configuration file, the following two options must be set:
+
+----- begin webservice.cfg -----
+define('WS_ENDPOINT', 'https://localhost/airt/server.php');
+define('AIRT_CAPATH', '/etc/ssl/certs');
+----- end webservice.cfg -----
+
+Note that the hostname used in the WS_ENDPOINT must match with the hostname on
+the certificate! Only in very rare situations, localhost will be appropriate.
+
+Note: the second options is currently not yet available on ferguson. The
+current version of AIRT has it hard-coded in
+/usr/share/airt/lib/importqueue/importqueue.plib. The next version of the
+package will fix this.
+

@@ -23,7 +23,7 @@ require_once '../config.plib';
 require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/database.plib';
 require_once LIBDIR.'/error.plib';
-require_once LIBDIR.'/importqueue/importqueue.plib';
+require_once LIBDIR.'/importqueue.plib';
 
 if (array_key_exists('action', $_REQUEST)) {
    $action = $_REQUEST['action'];
