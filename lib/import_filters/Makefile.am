@@ -18,9 +18,7 @@
 # $Id$
 
 # 
-SUBDIRS = . import_filters
-
-scriptdir=@PHPLIBDIR@/import_filters
+scriptdir=@AIRT_PHPLIBDIR@/import_filters
 
 script_DATA = filter_none.plib
 

@@ -4,6 +4,7 @@ SUBDIRS = . examples database
 
 docdir =  @AIRT_DOCDIR@
 doc_DATA = events.txt session-variables.txt \
-	HOWTO.txt airt_tutorial.pdf testing-guide.txt
+	HOWTO.txt airt_tutorial.pdf testing-guide.txt \
+	inqueue-design.txt inqueue-install.txt
 
 EXTRA_DIST = $(doc_DATA)

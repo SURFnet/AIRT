@@ -66,15 +66,16 @@ if test -z "$AIRT_DOCDIR"
 then
     if test "x$prefix" = xNONE
     then
-        AIRT_DOCDIR="$ac_default_prefix/share/doc/@PACKAGE@"
+        AIRT_DOCDIR="$ac_default_prefix/share/doc/airt"
     else
-        AIRT_DOCDIR="$prefix/share/doc/@PACKAGE@"
+        AIRT_DOCDIR="$prefix/share/doc/airt"
     fi
 fi
 AC_SUBST(AIRT_DOCDIR)
 
 AC_OUTPUT([Makefile
     README
+    bin/Makefile
     bin/airt_import
     doc/Makefile
     doc/examples/Makefile

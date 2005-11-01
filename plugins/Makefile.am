@@ -18,4 +18,4 @@
 #
 # $Id$
 
-SUBDIRS = importqueue exportqueue .
+SUBDIRS = exportqueue .

@@ -20,8 +20,8 @@
 # 
 SUBDIRS = . import_filters
 
-scriptdir=@PHPLIBDIR@
+scriptdir=@AIRT_PHPLIBDIR@
 
-script_DATA = airt.plib authentication.plib constituency.plib database.plib export.plib history.plib incident.plib mailtemplates.plib search.plib user.plib error.plib network.plib
+script_DATA = airt.plib authentication.plib constituency.plib database.plib export.plib history.plib incident.plib mailtemplates.plib search.plib user.plib error.plib network.plib importqueue.plib
 
 EXTRA_DIST = $(script_DATA)
