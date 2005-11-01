@@ -17,9 +17,9 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # $Id$
-bin_SCRIPTS = airt_import
+bin_SCRIPTS = airt_import airt_export
 
-EXTRA_DIST= airt_import.in
+EXTRA_DIST= airt_import.in airt_export.in
 
-CLEANFILES=airt_import
+CLEANFILES=airt_import airt_export
 DISTCLEANFILES=$(CLEANFILES)
