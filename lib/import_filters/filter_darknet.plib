@@ -23,7 +23,7 @@
  * $Id$
  */
 
-/* The Cymru import filter expects input as sent by Team Cymru. For each URL in
+/* The Darknet import filter. For each URL in
  * the message, it will attempt to retrieve the corresponding file using the
  * username and password specified in the configuration file. The filter uses
  * PHP's curl extensions for retrieving the data and provides a means to set
@@ -139,9 +139,9 @@ function filter_out($reports, &$output) {
          // set values
          $queuedata_el->set_attribute('ref', "#$id");
          $status_el->set_content('open');
-         $sender_el->set_content('Team Cymru');
-         $type_el->set_content('Cymru report: '.$report['type']);
-         $summary_el->set_content('Cymru report: '.$report['type'].' '.$incident['ip']);
+         $sender_el->set_content('Darknet');
+         $type_el->set_content('Darknet report: '.$report['type']);
+         $summary_el->set_content('Darknet report: '.$report['type'].' '.$incident['ip']);
 
          // create data structure
          $queuedata_el->append_child($status_el);
@@ -163,7 +163,7 @@ function filter_out($reports, &$output) {
          $ip_el->set_content($incident['ip']);
          $host_el->set_content(gethostbyaddr($incident['ip']));
          $resolv_el->set_content(Date('Y-m-d H:i:s'));
-         $logging_el->set_content($incident['details']);
+         $logging_el->set_content($report['type'].':'.$incident['details']);
          $time_el->set_content($incident['date'].' '.$incident['time']);
 
          // create structure
@@ -193,14 +193,15 @@ function filter_darknet($input, &$output, $verbosity=FALSE) {
 
    /* make sure we have the required config */
    if (!defined('CYMRU_USERNAME') || !defined('CYMRU_PASSWORD')) {
-      print "Missing username/password in Cymru filter\n";
+      print "Missing username/password in Darknet filter configuration file\n";
       return 1;
    }
 
    /* start fetching */
    $matches = array();
    $reports = array();
-   if (preg_match_all('/^<(.*)>.$/m', $input, $matches) > 0) {
+	print_r($input);
+   if (preg_match_all('/^<(.*)>$/m', $input, $matches) > 0) {
       foreach ($matches[1] as $url) {
          if ($verbosity) {
             print "Attempting to retrieve $url\n";
