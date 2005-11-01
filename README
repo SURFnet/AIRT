@@ -79,7 +79,7 @@ Installation manual for packages
   You will be prompted for a password for the AIRT user. Keep this password
   somewhere handy, as you will need it again.
 
-    Step 3. Edit /usr/local/etc/@PACKAGE@/airt/airt.cfg and set the 
+    Step 3. Edit /usr/local/etc/airt/airt/airt.cfg and set the 
     variables apropriately. Note that the configuration file is a
     regular PHP program, and any PHP construct can be used in it. For example,
     it is possible to move the database password out of the main configuration
@@ -113,14 +113,14 @@ Installation manual for packages
 
     Having psql and gunzip in your PATH, do:
 
-    postgres:~% gunzip -c /usr/local/share/doc/@PACKAGE@/database/airtschema.sql.gz \
+    postgres:~% gunzip -c /usr/local/share/doc/airt/database/airtschema.sql.gz \
             |psql airt airt
 
 
     Step 7. Bootstrap the database.
 
     postgres:~% psql airt airt < \
-        /usr/local/share/doc/@PACKAGE@/database/airtbootstrap.sql 
+        /usr/local/share/doc/airt/database/airtbootstrap.sql 
 
     Step 8. Configure your web server. If you are using Apache, the easiest
     way to do this is to add a symbolic link in your configuration directory
@@ -128,7 +128,7 @@ Installation manual for packages
 
     Debian administrators can achieve the same by adding a symbolic link
     in /etc/apache/conf.d (or /etc/apache2/conf.d) which leads to
-    /usr/local/etc/@PACKAGE@/airt/airt-apache.conf
+    /usr/local/etc/airt/airt/airt-apache.conf
 
     Step 9. Confirm that the configuration file is correct. Apache
     administrators do
@@ -203,12 +203,12 @@ need to do this manually. However, we give you a tool to do this.
 
 Each release contains a database schema file which can be used to compare
 your current database to what it should be. This file is
-/usr/local/share/doc/@PACKAGE@/database/airtschema.sql. At any time, your database should be
+/usr/local/share/doc/airt/database/airtschema.sql. At any time, your database should be
 consistent with this schema file.
 
 When relevant, a new release contains a database upgrade script to
 facilitate your database upgrade. The upgrade scripts are named:
-/usr/local/share/doc/@PACKAGE@/database/airtschema-from-PREVREL-to-CURRENTREL.sql
+/usr/local/share/doc/airt/database/airtschema-from-PREVREL-to-CURRENTREL.sql
 If you run the appropriate script against a database from PREVREL, you will
 hopefully end up with a database for CURRENTREL. The development team has
 tested these upgrade scripts, but as always it is wise to first make a
@@ -219,7 +219,7 @@ Example upgrade session (first backup, then upgrade):
 
     postgres:~% pg_dump -f /var/tmp/airt-20050607.1.sql airt
     postgres:~% psql airt airt < \
-        /usr/local/share/doc/@PACKAGE@/database/airtschema-from-20050607.1-to-20050610.1.sql
+        /usr/local/share/doc/airt/database/airtschema-from-20050607.1-to-20050610.1.sql
 
 Should you see any warnings or errors, please review them carefully. In
 many cases, there is no real problem, but for consistency reasons you should

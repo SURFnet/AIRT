@@ -15,7 +15,7 @@ capabilities to computer security incident response teams.
 
 AIRT is a PHP web application with some command-line components, built on
 top of a relational database. Information on how to set up the initial
-database for AIRT can be found in F<@DOCPATH@/README>.
+database for AIRT can be found in F<@AIRT_DOCDIR@/README>.
 
 
 =head1 AUTHOR
@@ -50,7 +50,7 @@ University.
 More information about AIRT can be found on its website, at
 F<http://www.airt.nl/>.
 
-Full documentation is available in F<@DOCPATH@>.
+Full documentation is available in F<@AIRT_DOCDIR@>.
 
 AIRT man pages can be found by B<apropos airt>.
 

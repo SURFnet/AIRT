@@ -30,7 +30,7 @@ define('AIRT_VERSION','@VERSION@');
 // other required libraries).
 require_once '@ETCDIR@/airt/airt.cfg';
 require_once ETCDIR.'/exportqueue.cfg';
-require_once LIBDIR.'/exportqueue/exportqueue.plib';
+require_once LIBDIR.'/exportqueue.plib';
 
 // Set up all default command line options.
 // Options are either Boolean (--option) or scalar (--option=value).

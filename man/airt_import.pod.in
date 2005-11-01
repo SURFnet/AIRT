@@ -26,7 +26,7 @@ program's jurisdiction.
 Each import data type needs a filter. The default filter is F<none> and
 functions as a plain passthrough pipe. This filter is only useful if the
 data to be imported is already in AIRT XML format, see
-F<@DOCPATH@/importqueue/inqueue-design.txt>. For most real-world
+F<@AIRT_DOCDIR@/importqueue/inqueue-design.txt>. For most real-world
 applications, other import filters will be required. Several filters come
 with AIRT, such as for Cymru and MyNetWatchman. You can add your own filters
 in F<@AIRT_PHPLIBDIR@/importqueue> by taking one of the existing filters as
@@ -85,7 +85,7 @@ any later version.
 More information about AIRT can be found on its website, at
 F<http://www.airt.nl/>.
 
-Full documentation is available in F<@DOCPATH@>.
+Full documentation is available in F<@AIRT_DOCDIR@>.
 
 AIRT man pages can be found by B<apropos airt>.
 
