@@ -489,7 +489,7 @@ function formatListOverviewBody() {
             '%status' => $data['status'],
             '%state' => $data['state'],
             '%type' => $data['type'],
-            '%updated' => Date("d M Y", $data["updated"])));
+            '%updated' => Date('d M Y', $data['updated'])));
 EOF;
    } // foreach
 

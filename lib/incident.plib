@@ -224,7 +224,7 @@ function getOpenIncidents($sqlfilter = "AND s1.label IN ('open','stalled')") {
                 u1.firstname as creator_firstname,
                 u1.email as creator_email,
                 u1.phone as creator_phone,
-                extract(epoch from i.updated),
+                extract(epoch from i.updated) as updated,
                 u2.lastname as updatedby_lastname,
                 u2.firstname as updatedby_firstname,
                 u2.email as updatedby_email,
