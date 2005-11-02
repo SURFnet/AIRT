@@ -61,7 +61,8 @@ function save_template($name='', $body='') {
    if ($name == '' || $body == '') {
       return 1;
    }
-   if (get_template($name) == '') {
+   $template = get_template($name);
+   if ($template == '') {
       $res = db_query(q('INSERT INTO mailtemplates (name, body, created, createdby) VALUES (\'%name\', \'%body\', CURRENT_TIMESTAMP, %uid)', array(
          '%name'=>db_escape_string($name),
          '%body'=>db_escape_string($body),
@@ -129,8 +130,9 @@ function get_templates() {
       return false;
    }
    if (db_num_rows($res) > 0) {
-      $row = db_fetch_next($res);
-      $out = array($row['name']=>$row['body']);
+      while ($row = db_fetch_next($res)) {
+         $out[$row['name']] = $row['body'];
+      }
    }
    return $out;
 }
