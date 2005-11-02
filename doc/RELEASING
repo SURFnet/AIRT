@@ -10,6 +10,7 @@ Creating the source tarball
 * Copy the file appropriately and update $AIRT/doc/database/Makefile.am
 * Update $AIRT/source/ChangeLog to relect the same version number
 * make clean && make distcheck
+* cvs tag rel-version-revision
 
 You now have a tarball.
 
