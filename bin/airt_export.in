@@ -73,6 +73,9 @@ foreach ($argv as $param) {
 // suppress second or third occurrences of the same wrapper.
 $WRAPPERS = array();
 foreach ($AIRT_EXPORTWRAPPER_DIRS as $dir) {
+   if (!file_exists($dir)) {
+      continue;
+   }
    $libdir = opendir($dir);
    while ($file = readdir($libdir)) {
       $wrapper_name = basename($file);
