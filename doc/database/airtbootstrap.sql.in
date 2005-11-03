@@ -45,25 +45,11 @@ INSERT INTO permissions
 INSERT INTO role_assignments
     (id, role, userid)
     VALUES
-    (nextval('role_assignments_sequence'), 1, 1);
+    (nextval('role_assignments_sequence'), currval('roles_sequence'), currval('users_sequence'));
 INSERT INTO role_permissions
     (id, role, permission)
     VALUES
-    (nextval('role_assignments_sequence'), 1, 1);
-INSERT INTO users
-    (id, lastname, email, login, password)
-    VALUES
-    (nextval('users_sequence'), 'Webservice', 'airt-ws@example.com', 'webservice',
-    '62e91bc649621eed1004de8936987fc853df0eb7');
-INSERT INTO roles
-    (id, label)
-    VALUES
-    (nextval('roles_sequence'), 'Webservice');
-INSERT INTO role_assignments
-    (id, role, userid)
-    VALUES
-    (nextval('role_assignments_sequence'), currval('roles_sequence'),
-    currval('users_sequence'));
+    (nextval('role_assignments_sequence'), currval('roles_sequence'), currval('permissions_sequence'));
 ---
 --- default constituency
 ---
@@ -144,37 +130,54 @@ INSERT INTO address_roles (id, label, isdefault)
 ---
 INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position)
   VALUES
-  (nextval('urls_sequence'), 'index.php', 'Main menu', 1, CURRENT_TIMESTAMP, NULL, 1);
+  (nextval('urls_sequence'), 'index.php', 'Main menu', currval('users_sequence'), CURRENT_TIMESTAMP, NULL, 1);
 INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position)
   VALUES
-  (nextval('urls_sequence'), 'search.php', 'IP Address lookup', 1, CURRENT_TIMESTAMP, 3, NULL);
+  (nextval('urls_sequence'), 'search.php', 'IP Address lookup', currval('users_sequence'), CURRENT_TIMESTAMP, 3, NULL);
 INSERT INTO urls (id, url, label, createdby, created, menu_position,
 navbar_position)
   VALUES
-  (nextval('urls_sequence'), 'mailtemplates.php', 'Mail templates', 1, CURRENT_TIMESTAMP, 4, 5);
+  (nextval('urls_sequence'), 'mailtemplates.php', 'Mail templates', currval('users_sequence'), CURRENT_TIMESTAMP, 4, 5);
 INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position)
   VALUES
-  (nextval('urls_sequence'), 'logout.php', 'Logout', 1, CURRENT_TIMESTAMP, 6, 6);
+  (nextval('urls_sequence'), 'logout.php', 'Logout', currval('users_sequence'), CURRENT_TIMESTAMP, 6, 6);
 INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position)
   VALUES
-  (nextval('urls_sequence'), 'incident.php', 'Incident management', 1, CURRENT_TIMESTAMP, 2, NULL);
+  (nextval('urls_sequence'), 'incident.php', 'Incident management', currval('users_sequence'), CURRENT_TIMESTAMP, 2, NULL);
 INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position)
   VALUES
-  (nextval('urls_sequence'), 'maintenance.php', 'Edit settings', 1, CURRENT_TIMESTAMP, 5, NULL);
+  (nextval('urls_sequence'), 'maintenance.php', 'Edit settings', currval('users_sequence'), CURRENT_TIMESTAMP, 5, NULL);
 INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position)
   VALUES
-  (nextval('urls_sequence'), 'incident.php', 'Incidents', 1, CURRENT_TIMESTAMP, NULL, 4);
+  (nextval('urls_sequence'), 'incident.php', 'Incidents', currval('users_sequence'), CURRENT_TIMESTAMP, NULL, 4);
 INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position)
   VALUES
-  (nextval('urls_sequenec'), 'search.php', 'Search', 1, CURRENT_TIMESTAMP, NULL, 3);
+  (nextval('urls_sequence'), 'search.php', 'Search', currval('users_sequence'), CURRENT_TIMESTAMP, NULL, 3);
 INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position)
   VALUES
-  (nextval('urls_sequence'), 'importqueue.php', 'Import Queue', 1, CURRENT_TIMESTAMP , NULL, 3);
+  (nextval('urls_sequence'), 'importqueue.php', 'Import Queue', currval('users_sequence'), CURRENT_TIMESTAMP , NULL, 3);
 
+---
+--- web service; must be created AFTER the menu urls
+---
+INSERT INTO users
+    (id, lastname, email, login, password)
+    VALUES
+    (nextval('users_sequence'), 'Webservice', 'airt-ws@example.com', 'webservice',
+    '62e91bc649621eed1004de8936987fc853df0eb7');
+INSERT INTO roles
+    (id, label)
+    VALUES
+    (nextval('roles_sequence'), 'Webservice');
+INSERT INTO role_assignments
+    (id, role, userid)
+    VALUES
+    (nextval('role_assignments_sequence'), currval('roles_sequence'),
+    currval('users_sequence'));
 --
 -- Create the database schema version record.
 --
 INSERT INTO versions (key, value) 
-    VALUES ('airtschema','@VERSION@');
+    VALUES ('airtversion','@VERSION@');
 
 end transaction;
