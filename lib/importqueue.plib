@@ -230,6 +230,7 @@ function getQueueOverview(&$elements, &$error) {
  */
 function formatQueueOverview() {
    $error = '';
+   $openips=array();
    $elements = array();
    if (getQueueOverview($elements, $error)) {
       return;
