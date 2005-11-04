@@ -7,6 +7,58 @@ Overview
 The AIRT home page can be found at http://www.airt.nl.
 
 
+Installation
+------------
+
+It depends how you want to install the AIRT system. The easiest way is from
+package, but if you read this, you likely want to do something more
+elaborate.
+
+For a typical development installation of AIRT (on a personal workstation),
+make sure you have a working Apache and a working PostgreSQL database
+server. Then cd to the source directory and type:
+
+$ ./bootstrap
+
+This creates a few scripts and files that the GNU Autoconf system needs. Now
+type:
+
+$ ./configure
+
+This by default configures stuff to be dropped in the following places:
+
+/usr/local/bin               CLI things: airt_import, airt_export...
+/usr/local/etc/airt          config things: airt.cfg, importqueue.cfg...
+/usr/local/lib/man           man pages: airt.1, airt_export.1...
+/usr/local/share/airt/php    PHP files to be published on the www.
+/usr/local/share/airt/plib   PHP (library) files not to be published on www.
+/usr/local/share/doc/airt    Documentation files.
+
+It does not actually drop stuff there. ./configure only creates a bunch of
+files with the correct paths filled in, so that you now can type:
+
+$ make
+
+which generates even more files and leaves your source tree littered with
+production versions of the code. But still there is nothing installed in the
+list of directories above. To do this, you need:
+
+$ make install
+
+which you may also do from one of the lower directories. For example, if you
+have modified something in the source/php directory, you only need to
+execute "make install" in that directory, as all others have been unchanged.
+Especially in the source/etc directory you will not often want to execute
+"make install" as this overwrites your own live config files (in
+/usr/local/etc/airt) with fresh versions with default values. If you do a
+"make install" in the source directory itself, it will recurse down the
+tree, so be careful with that given the etc directory.
+
+bootstrap, configure, and make are "safe", they won't touch anything in your
+live AIRT installation. "make install" is not safe, it will touch things in
+your live AIRT installation, and usually you don't want etc to be touched.
+
+
 Site customization
 ------------------
 
@@ -79,7 +131,7 @@ Installation manual for packages
   You will be prompted for a password for the AIRT user. Keep this password
   somewhere handy, as you will need it again.
 
-    Step 3. Edit /usr/local/etc/airt/airt/airt.cfg and set the 
+    Step 3. Edit /opt/airt/etc/airt/airt/airt.cfg and set the 
     variables apropriately. Note that the configuration file is a
     regular PHP program, and any PHP construct can be used in it. For example,
     it is possible to move the database password out of the main configuration
@@ -113,14 +165,14 @@ Installation manual for packages
 
     Having psql and gunzip in your PATH, do:
 
-    postgres:~% gunzip -c /usr/local/share/doc/airt/database/airtschema.sql.gz \
+    postgres:~% gunzip -c /opt/airt/doc/database/airtschema.sql.gz \
             |psql airt airt
 
 
     Step 7. Bootstrap the database.
 
     postgres:~% psql airt airt < \
-        /usr/local/share/doc/airt/database/airtbootstrap.sql 
+        /opt/airt/doc/database/airtbootstrap.sql 
 
     Step 8. Configure your web server. If you are using Apache, the easiest
     way to do this is to add a symbolic link in your configuration directory
@@ -128,7 +180,7 @@ Installation manual for packages
 
     Debian administrators can achieve the same by adding a symbolic link
     in /etc/apache/conf.d (or /etc/apache2/conf.d) which leads to
-    /usr/local/etc/airt/airt/airt-apache.conf
+    /opt/airt/etc/airt/airt/airt-apache.conf
 
     Step 9. Confirm that the configuration file is correct. Apache
     administrators do
@@ -203,12 +255,12 @@ need to do this manually. However, we give you a tool to do this.
 
 Each release contains a database schema file which can be used to compare
 your current database to what it should be. This file is
-/usr/local/share/doc/airt/database/airtschema.sql. At any time, your database should be
+/opt/airt/doc/database/airtschema.sql. At any time, your database should be
 consistent with this schema file.
 
 When relevant, a new release contains a database upgrade script to
 facilitate your database upgrade. The upgrade scripts are named:
-/usr/local/share/doc/airt/database/airtschema-from-PREVREL-to-CURRENTREL.sql
+/opt/airt/doc/database/airtschema-from-PREVREL-to-CURRENTREL.sql
 If you run the appropriate script against a database from PREVREL, you will
 hopefully end up with a database for CURRENTREL. The development team has
 tested these upgrade scripts, but as always it is wise to first make a
@@ -219,7 +271,7 @@ Example upgrade session (first backup, then upgrade):
 
     postgres:~% pg_dump -f /var/tmp/airt-20050607.1.sql airt
     postgres:~% psql airt airt < \
-        /usr/local/share/doc/airt/database/airtschema-from-20050607.1-to-20050610.1.sql
+        /opt/airt/doc/database/airtschema-from-20050607.1-to-20050610.1.sql
 
 Should you see any warnings or errors, please review them carefully. In
 many cases, there is no real problem, but for consistency reasons you should

@@ -240,6 +240,8 @@ if (array_key_exists("action", $_REQUEST)) {
 /* return a string containing the list overview header page
  */
 function formatListOverviewHeader() {
+   global $statusfilter;
+
    $out = t("<table cellpadding='3'>\n".
       "<tr>\n".
       "   <td>\n".
@@ -490,7 +492,6 @@ function formatListOverviewBody() {
             '%state' => $data['state'],
             '%type' => $data['type'],
             '%updated' => Date('d M Y', $data['updated'])));
-EOF;
    } // foreach
 
    $out .= "</table><p>\n";

@@ -232,7 +232,8 @@ function getOpenIncidents($sqlfilter = "AND s1.label IN ('open','stalled')") {
                 s2.label as state,
                 s1.label as status,
                 t.label as type,
-                a.ip as ip
+                a.ip as ip,
+                a.hostname as hostname
          FROM   incidents i, incident_status s1, incident_states s2,
                 incident_types t, users u1, users u2, incident_addresses a
          WHERE  i.status = s1.id
