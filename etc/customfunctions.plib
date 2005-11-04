@@ -53,7 +53,7 @@ function showheader($data) {
   echo <<<EOF
 <html>
 </head>
-<title>$data[title]</title>
+<title>AIRT: $data[title]</title>
 <style>
 .logo {
   font-size: smaller;
