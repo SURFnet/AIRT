@@ -1,0 +1,14 @@
+<?php
+require_once '/opt/airt/etc/airt/airt.cfg';
+require_once '/opt/airt/lib/mailtemplates.plib';
+$dir = "/var/lib/airt/templates";
+$d = opendir($dir);
+while ($name = readdir($d)) {
+  if ($name == "." || $name == "..") {
+    continue;
+  }
+  $body = file_get_contents($dir."/".$name);
+  save_template($name,$body);
+}
+closedir($d);
+?>
