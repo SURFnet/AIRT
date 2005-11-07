@@ -133,10 +133,12 @@ function formatEditForm() {
    $output .= "<tr>";
    $output .= "   <td>IP Address</td>";
    $output .= "   <td>Hostname</td>";
+   $output .= "   <td>Constituency</td>";
    $output .= "   <td>Role in incident</td>";
    $output .= "   <td>Edit</td>";
    $output .= "   <td>Remove</td>";
    $output .= "</tr>";
+   $conslist = getConstituencies();
 
    foreach ($incident['ips'] as $address) {
       $output .= "<tr>\n";
@@ -145,6 +147,10 @@ function formatEditForm() {
       $_SESSION['active_ip'] = $address['ip'];
       $output .= sprintf("  <td>%s</td>\n",
          $address['hostname']==""?"Unknown":@gethostbyaddr(@gethostbyname($address['ip'])));
+
+      $cons = getConstituencyIDbyNetworkID(categorize($address['ip']));
+
+      $output .= sprintf("  <td>%s</td>\n", $conslist[$cons]['label']);
       $output .= t("  <td>%addressrole</td>\n", array(
          '%addressrole'=>getAddressRoleByID($address['addressrole'])));
       $output .= sprintf("  <td><a href=\"$_SERVER[PHP_SELF]?action=editip&ip=%s\">edit</a></td>\n",
