@@ -1,6 +1,5 @@
 <?php
-
-require_once '/opt/airt/etc/airt/airt.cfg';
+require_once 'config.plib';
 require_once '/opt/airt/lib/mailtemplates.plib';
 $dir = "/var/lib/airt/templates";
 $d = opendir($dir);
