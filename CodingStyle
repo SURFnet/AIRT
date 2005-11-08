@@ -39,3 +39,14 @@ command. For example:
 
 - Do not break lines in a single command; it is okay to let things wrap around a bit
 
+- Single line comments are prefixed like so
+  // this is a comment
+
+- Multi-line comments are prefixed like so
+  /* First line of comment
+   * Last line of comment
+   */
+
+- Do not use #-style comments in production code. #'s are used as a reminder
+  for the developer and should be removed entirely before committing the
+  changes to the repository
