@@ -382,7 +382,8 @@ function createIncident($state,$status,$type,$logging) {
          $state == "" ? 'NULL' : $state ,
          $status == "" ? 'NULL' : $status ,
          $type == "" ? 'NULL' : $type,
-			$logging == "" ? 'NULL' : "'$logging'"
+         $logging == "" ? 'NULL' : "'".db_escape_string($logging)."'"
+
       )
    ) or die("Unable to execute query 3.");
    db_free_result($res);
