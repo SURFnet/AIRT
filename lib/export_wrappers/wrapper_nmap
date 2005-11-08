@@ -1,0 +1,83 @@
+#!/bin/bash
+# $Id$
+######################################################################
+# AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
+# Copyright (C) 2005   Tilburg University, The Netherlands
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# See airt_export(1) for more details.
+
+taskid=$1
+if [ "$taskid" = "" ]; then
+  echo "ERROR: Task ID must be provided as first parameter."
+  exit 1
+fi
+shift
+
+scriptname=`basename $0`
+function usage() {
+  echo '$Id$'
+  echo "Usage: $scriptname: resultid [-h] -p portrange -i iprange"
+  echo '   -h             print help summary'
+  echo '   -i iprange     nma-style address range for hosts to scan'
+  echo '   -p portrange   nmap-style portrange for ports to scan for'
+  return
+}
+
+# initialise some variables
+portrange=none
+iprange=none
+
+# parse command line
+while getopts hp:i: param; do
+  case "$param" in
+     h) usage
+     ;;
+     p) portrange=$OPTARG
+     ;;
+     i) iprange=$OPTARG
+     ;;
+     *) echo >&2 "Unknown parameter '$param'" 
+     ;;
+  esac
+done
+
+# check required parameters
+if test "x$portrange" = xnone; then
+  echo >&2 "Missing parameter: -p. Use $scriptname -h for help."
+  exit
+fi
+
+if test "x$iprange" = xnone; then
+  echo >&2 "Missing parameter: -i. Use $scriptname -h for help"
+  exit
+fi
+
+# run the actual command. Note that this invocation is NOT bomb-free against
+# evildoers. it is assumed to be called from a trusted source
+output=`mktemp`
+sudo nmap --max_rtt_timeout 25 --scan_delay 150 -p $portrange -oG $output $iprange
+
+# parse output and submit it to the import queue
+echo "Would run airt_nmap_to_inqueue $output"
+
+# clean up
+rm $output
+
+# Sends results to export queue..."
+airt_export --result-id=$taskid --result-code=OK --result-msg="Completed at `date`"
+
+# EOF
