@@ -125,7 +125,7 @@ that is assigned to the export queue task.
 B<airt_export> is built using the philosophy of upgrading privileges when
 required. Typically, the program is started as user B<airt-export>
 (certainly not as user B<root> and neither as B<nobody>), and upgrades to
-the required privilege level using B<sudo(8)>. However, the actual B<sudo>
+the required privilege level using sudo(8). However, the actual B<sudo>
 commands are not used in the B<airt_export> executable script; they all are
 inside the user-provided wrapper scripts in F<@AIRT_PHPLIBDIR@/exportqueue>.
 This means that all security-sensitive operations are fully controlled by
@@ -149,9 +149,9 @@ register its result code.
 Actual background tasks are under full control of the wrapper scripts in
 F<@AIRT_PHPLIBDIR@/exportqueue>. A sample wrapper, F<wrapper_none>, is being
 provided as a framework and reference. Each wrapper represents a specific
-task, such as a network-wide B<nmap(1)> run. Wrappers are written and set up
+task, such as a network-wide nmap(1) run. Wrappers are written and set up
 by the local system/application administrator, using site-specific
-approaches to management and security. This may involve B<sudo(8)> for
+approaches to management and security. This may involve sudo(8) for
 privilege upgrades/shifts.
 
 Each wrapper is assumed to end with a call to B<airt_export> using the
