@@ -200,7 +200,7 @@ function queueItemSetEnded($taskID, $ended, $result, &$error) {
  * Output: 0 on success, 1 on failure, with $error containing the message.
  */
 function queuePurge($maxAge, &$error) {
-   $error = 'Not yet implemented.'
+   $error = 'Not yet implemented.';
    return 1;
 }
 
