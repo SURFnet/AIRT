@@ -104,16 +104,16 @@ if ($OPTIONS['--help']) {
    exit(0);
 }
 
-
-// Purge all tasks that have an "ended" time stamp 24+ hours ago (setting).
-// This action is always silently taken, unless --help is requested.
-$q = q('DELETE FROM export_queue
-        WHERE EXTRACT(EPOCH FROM CURRENT_TIMESTAMP-ended) > 24*60*60');
-if (db_query($q)==FALSE) {
-   fwrite(STDERR,t('ERROR: Could not purge export queue.')."\n");
-   exit(1);
+if ($OPTIONS['--noqueue']) {
+   msg(t('Purge of export queue skipped.'));
+} else {      
+   // Purge all tasks that have a "created" time stamp which is too old.
+   // This action is always silently taken, unless --help is requested.
+   if (queuePurge(EXPORT_QUEUE_MAX_TTL, $error)) {
+      fwrite(STDERR,t('ERROR:').' '.$error."\n");
+      exit(1);
+   }
 }
-
 
 // Check whether a running task is being completed.
 if ($OPTIONS['--result-id']!='') {
@@ -121,40 +121,11 @@ if ($OPTIONS['--result-id']!='') {
    // others are plain strings that will not be parsed.
    $taskid = sprintf('%d',$OPTIONS['--result-id']);
 
-   if ($OPTIONS['--verbose']) {
-      // Output some diagnostics.
-      echo t("Task %id finished with result code %code:\n%msg\n",
-             array('%id'=>$taskid,
-                   '%code'=>$OPTIONS['--result-code'],
-                   '%msg'=>$OPTIONS['--result-msg']));
-   }
-
-   // See whether the identified task is still open. Be paranoid.
-   $q = q('SELECT started,ended
-           FROM export_queue
-           WHERE id=%id',
-           array('%id'=>$taskid));
-   $res = db_query($q);
-   if ($res==FALSE) {
-      fwrite(STDERR,t('ERROR: Could not query database.')."\n");
-      exit(1);
-   }
-   if (db_num_rows($res)==0) {
-      fwrite(STDERR,t('ERROR: Task %id unknown in export queue.',
-                      array('%id'=>$taskid))."\n");
-      exit(1);
-   }
-   $row = db_fetch_next($res);
-   if ($row['started']=='') {
-      fwrite(STDERR,t('ERROR: Task %id not started yet.',
-                      array('%id'=>$taskid))."\n");
-      exit(1);
-   }
-   if ($row['ended']!='') {
-      fwrite(STDERR,t('ERROR: Task %id has already completed.',
-                      array('%id'=>$taskid))."\n");
-      exit(1);
-   }
+   // Output some diagnostics.
+   msg(t("Task %id finished with result code %code:\n%msg\n",
+          array('%id'=>$taskid,
+                '%code'=>$OPTIONS['--result-code'],
+                '%msg'=>$OPTIONS['--result-msg'])));
 
    if ($OPTIONS['--noqueue']) {
       msg(t('Task completion not actually being registered.'));
@@ -164,15 +135,12 @@ if ($OPTIONS['--result-id']!='') {
       // by concatenating the result code and the message.
       $result = db_escape_string(trim(
          $OPTIONS['--result-code'].' '.$OPTIONS['--result-msg']));
-      $q = q("UPDATE export_queue
-              SET ended=CURRENT_TIMESTAMP,
-                  result='%result'
-              WHERE id=%id",
-              array('%result'=>$result,
-                    '%id'=>$taskid));
-      if (db_query($q)===FALSE) {
-         fwrite(STDERR,t('ERROR: Could not update database.')."\n");
-         exit(1);       
+      if (queueItemSetEnded($taskid, '',
+                            $result,
+                            $OPTIONS['--noqueue'],
+                            $error)) {
+         fwrite(STDERR,t('ERROR:').' '.$error."\n");
+         exit(1);
       }
       msg(t('Task completion has been registered.'));
    }
@@ -186,13 +154,8 @@ if ($OPTIONS['--result-id']!='') {
 // Find out all tasks to spawn, i.e., tasks with a 'scheduled' time that has
 // passed while they have no 'started' time yet.
 msg(t('Reading export queue...'));
-$q = q('select id,task,params
-        from export_queue
-        where scheduled<CURRENT_TIMESTAMP
-          and started IS NULL');
-$res = db_query($q);
-if ($res===FALSE) {
-   fwrite(STDERR,t('ERROR: Could not query database for tasks to run.')."\n");
+if (queueListRunnable($runnable, $error)) {
+   fwrite(STDERR,t('ERROR:').' '.$error."\n");
    exit(1);
 }
 if (db_num_rows($res)==0) {
@@ -200,10 +163,9 @@ if (db_num_rows($res)==0) {
 }
 
 // Run over all tasks that are ready to be spawned.
-while ($row = db_fetch_next($res)) {
-   $id     = $row['id'];
-   $task   = $row['task'];
-   $params = $row['params'];
+foreach ($runnable as $id=>$details) {
+   $task   = $details['task'];
+   $params = $details['params'];
    msg(t('Want to start "%task".',
          array('%task'=>$task)));
    // Known wrapper?
@@ -217,14 +179,9 @@ while ($row = db_fetch_next($res)) {
    if (!$OPTIONS['--noqueue']) {
       // We fill in "started" time stamp before we call "spawnTask()", since a
       // failed start won't be reattempted.
-      $q = q("UPDATE export_queue
-              SET    started=CURRENT_TIMESTAMP
-              WHERE  id=%id",
-              array('%id'=>$id));
-      $res = db_query($q);
-      if ($res===FALSE) {
+      if (queueItemSetStarted($id,'',$error)) {
          // This is pretty critical, so quit, even while we are in a loop.
-         fwrite(STDERR,t('ERROR: Could not update database.')."\n");
+         fwrite(STDERR,t('ERROR:').' '.$error."\n");
          exit(1);
       }
    }

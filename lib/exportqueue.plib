@@ -134,6 +134,37 @@ function queueList(&$itemArray, &$error) {
 }// queueList
 
 
+/* Returns all items in the queue that are ready to run.
+ * Input: itemArray = Variable to put the queue items into.
+ *           $itemArray[taskid]=array(task,params).
+ *        error = Variable to write the error message to.
+ * Output: 0 on success, 1 on failure, with $error containing a message.
+ */
+function queueListRunnable(&$itemArray, &$error) {
+   $itemArray = array();
+   $error = '';
+
+   $q = q('select id,task,params
+           from export_queue
+           where scheduled<CURRENT_TIMESTAMP
+             and started IS NULL');
+   $res = db_query($q);
+   if ($res===FALSE) {
+      $error = t('Could not query database for tasks to run.');
+      return 1;
+   }
+
+   while ($row = db_fetch_next($res)) {
+      $id     = $row['id'];
+      $task   = $row['task'];
+      $params = $row['params'];
+      $itemArray[$id] = array('task'=>$task, 'params'=>$params);
+   }
+
+   return 0;
+}// queueListRunnable
+
+
 /* Inserts a new task into the queue.
  * Input: task = The task name to run, e.g. 'none'. Leave out 'wrapper_'.
  *        params = The parameter string. Replace spaces
@@ -171,23 +202,132 @@ function queueItemPeek($taskID, &$output) {
  * Output: 0 on success, 1 on failure, with $error containing the message.
  */
 function queueItemSetStarted($taskID, $started, &$error) {
-   $error = 'Not yet implemented.';
-   return 1;
+   $error = '';
+
+   if (!is_numeric($taskID)) {
+      $error = t('taskID must be a number.');
+      return 1;
+   }
+
+   // Here comes the paranoid segment.
+   $q = q('SELECT started,ended
+           FROM export_queue
+           WHERE id=%id',
+           array('%id'=>$taskid));
+   $res = db_query($q);
+   if ($res==FALSE) {
+      $error = t('Could not query database.');
+      return 1;
+   }
+
+   if (db_num_rows($res)==0) {
+      $error = t('Task %id unknown in export queue.',
+                  array('%id'=>$taskid));
+      return 1;
+   }
+
+   $row = db_fetch_next($res);
+   if ($row['started']!='') {
+      $error = t('Task %id already started.',
+                  array('%id'=>$taskid));
+      return 1;
+   }
+   if ($row['ended']!='') {
+      $error = t('Task %id has already completed.',
+                  array('%id'=>$taskid))."\n";
+      return 1;
+   }
+
+   // Hmmm, everything seems OK.
+   if ($started=='') {
+      // Default to current time in ISO8601 format.
+      $started = date('c');
+   }
+
+   $q = q("UPDATE export_queue
+           SET    started='%started'
+           WHERE  id=%id",
+           array('%id'=>$id,
+                 '%started'=>$started));
+   $res = db_query($q);
+   if ($res===FALSE) {
+      $error = t('Could not update database.');
+      return 1;
+   }
+
+   return 0;
 }// queueItemSetStarted
 
 
-/* Marks an existing queue item as ended.
+/* Marks an existing queue item as ended. Checks a lot of things.
  * Input: taskID = The ID as returned by queueList() or queueInsertItem().
- *        ended = The ISO8601 time string when the item got
- *           started. When '', current system time will be used.
+ *        ended = The ISO8601 time string when the item completed.
+ *           When '', current system time will be used.
  *        result = The standard result code plus a possible message,
  *           together as one string.
+ *        noqueue = Boolean, TRUE if no database update should take place.
  *        error = Variable to write the error message to.
  * Output: 0 on success, 1 on failure, with $error containing the message.
  */
-function queueItemSetEnded($taskID, $ended, $result, &$error) {
-   $error = 'Not yet implemented.';
-   return 1;
+function queueItemSetEnded($taskID, $ended, $result, $noqueue, &$error) {
+   $error = '';
+
+   if (!is_numeric($taskID)) {
+      $error = t('taskID must be a number.');
+      return 1;
+   }
+
+   // See whether the identified task is still open. Be paranoid.
+   $q = q('SELECT started,ended
+           FROM export_queue
+           WHERE id=%id',
+           array('%id'=>$taskid));
+   $res = db_query($q);
+   if ($res==FALSE) {
+      $error = t('Could not query database.');
+      return 1;
+   }
+
+   if (db_num_rows($res)==0) {
+      $error = t('Task %id unknown in export queue.',
+                  array('%id'=>$taskid));
+      return 1;
+   }
+
+   $row = db_fetch_next($res);
+   if ($row['started']=='') {
+      $error = t('Task %id not started yet.',
+                  array('%id'=>$taskid));
+      return 1;
+   }
+   if ($row['ended']!='') {
+      $error = t('Task %id has already completed.',
+                  array('%id'=>$taskid))."\n";
+      return 1;
+   }
+
+   // Hmm, so far, so good.
+   if ($ended=='') {
+      // Default to current time in ISO8601 format.
+      $ended = date('c');
+   }
+
+   if (!$noqueue) {
+      $q = q("UPDATE export_queue
+              SET ended='%ended',
+                  result='%result'
+              WHERE id=%id",
+              array('%result'=>$result,
+                    '%ended'=>$ended,
+                    '%id'=>$taskid));
+      if (db_query($q)===FALSE) {
+         $error = t('Could not update database.');
+         return 1;
+      }
+   }
+
+   return 0;
+
 }// queueItemSetEnded
 
 
@@ -200,9 +340,20 @@ function queueItemSetEnded($taskID, $ended, $result, &$error) {
  * Output: 0 on success, 1 on failure, with $error containing the message.
  */
 function queuePurge($maxAge, &$error) {
-   $error = 'Not yet implemented.';
-   return 1;
+   if (!is_numeric($maxAge)) {
+      $error = t('maxAge must be a number.');
+      return 1;
+   }
+   $q = q('DELETE FROM export_queue
+           WHERE EXTRACT(EPOCH FROM CURRENT_TIMESTAMP-created) > %ttl',
+          array('%ttl'=>$maxAge));
+   if (db_query($q)==FALSE) {
+      $error = t('Could not purge export queue.');
+      return 1;
+   } else {
+      $error = '';
+      return 0;
+   }
 }
-
 
 ?>
