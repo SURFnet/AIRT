@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 # $Id$
 ######################################################################
 # AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
@@ -28,6 +28,7 @@ fi
 shift
 
 scriptname=`basename $0`
+logfile=`mktemp`
 function usage() {
   echo '$Id$'
   echo "Usage: $scriptname: resultid [-h] -p portrange -i iprange"
@@ -35,6 +36,16 @@ function usage() {
   echo '   -i iprange     nma-style address range for hosts to scan'
   echo '   -p portrange   nmap-style portrange for ports to scan for'
   return
+}
+
+function cleanup() {
+  if test "$#" = "1"; then
+    exitcode=$1
+  else 
+    exitcode=2
+  fi
+  rm -f $logfile
+  exit $exitcode
 }
 
 # initialise some variables
@@ -50,7 +61,8 @@ while getopts hp:i: param; do
      ;;
      i) iprange=$OPTARG
      ;;
-     *) echo >&2 "Unknown parameter '$param'" 
+     *) echo >&2 "Unknown parameter '$param'"
+     cleanup 1
      ;;
   esac
 done
@@ -58,24 +70,22 @@ done
 # check required parameters
 if test "x$portrange" = xnone; then
   echo >&2 "Missing parameter: -p. Use $scriptname -h for help."
-  exit
+  cleanup 1
 fi
 
 if test "x$iprange" = xnone; then
   echo >&2 "Missing parameter: -i. Use $scriptname -h for help"
-  exit
+  cleanup 1
 fi
 
 # run the actual command. Note that this invocation is NOT bomb-free against
 # evildoers. it is assumed to be called from a trusted source
-output=`mktemp`
-sudo nmap --max_rtt_timeout 25 --scan_delay 150 -p $portrange -oG $output $iprange
+sudo nmap --max_rtt_timeout 25 --scan_delay 150 -p $portrange -oG $logfile $iprange > /dev/null || cleanup
 
 # parse output and submit it to the import queue
-echo "Would run airt_nmap_to_inqueue $output"
+echo "Would run airt_nmap_to_inqueue $logfile"
 
-# clean up
-rm $output
+cleanup
 
 # Sends results to export queue..."
 airt_export --result-id=$taskid --result-code=OK --result-msg="Completed at `date`"
