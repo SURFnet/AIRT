@@ -50,6 +50,7 @@ switch ($action) {
          showQueue();
          break;
       }
+      pageHeader('Processing import queue');
 
       // interpret all decision and take action if accept or reject
       foreach ($_POST['decision'] as $id=>$value) {
@@ -57,24 +58,31 @@ switch ($action) {
          switch ($value) {
             case 'accept':
                $value = 'accepted';
+               print t('Accepting queue element %id<br/>'."\n", array('%id'=>$id));
+               flush();
                $update = true;
                if (isset($_POST['add'][$id]) && $_POST['add'][$id] == 'on') {
                   // TODO: add logging to existing incident
                   $update = false;
                } else if (queueToAIRT($id, $error)) {
                   $update = false;
-                  airt_error('ERR_FUNC', 'queue.php:'.__LINE__, $error);
+                  airt_error('ERR_FUNC', 'importqueue.php:'.__LINE__, $error);
                   break;
                }
                break;
             case 'reject':
+               print t('Rejecting queue element %id<br/>'."\n", array('%id'=>$id));
+               flush();
                $value = 'rejected';
                $update = true;
                break;
+            default:
+               print t('Ignoring queue elemnt %id<br/>'."\n", array('%id'=>$id));
+               flush();
          }
          if ($update) {
             if (updateQueueItem($id, 'status', $value, $error)) {
-               airt_error('ERR_QUERY', 'queue.php:'.__LINE__, $error);
+               airt_error('ERR_QUERY', 'importqueue.php:'.__LINE__, $error);
                Header("Location: $_SERVER[PHP_SELF]");
                return;
             }
@@ -82,24 +90,24 @@ switch ($action) {
       }
 
       // show updated queue;
-      showQueue();
+      echo "<p/><a href=\"incident.php\">Done.</a>";
       break;
 
    // ----------------------------------------------------------------
    case "showdetails":
       if (!array_key_exists('id', $_GET)) {
-         airt_error('PARAM_MISSING', 'queue.php:'.__LINE__);
+         airt_error('PARAM_MISSING', 'importqueue.php:'.__LINE__);
          Header("Location: $_SERVER[PHP_SELF]");
          exit;
       }
       if (!is_numeric($_GET['id'])) {
-         airt_error('PARAM_MISSING', 'queue.php:'.__LINE__);
+         airt_error('PARAM_MISSING', 'importqueue.php:'.__LINE__);
          Header("Location: $_SERVER[PHP_SELF]");
          exit;
       }
       $item = queuePeekItem($_GET['id'], $error);
       if ($item == NULL) {
-         airt_error('', 'queue.php:'.__LINE__, 'Error fetching queue item');
+         airt_error('', 'importqueue.php:'.__LINE__, 'Error fetching queue item');
          Header("Location: $_SERVER[PHP_SELF]");
          exit;
       }
@@ -137,7 +145,7 @@ switch ($action) {
 
    // ----------------------------------------------------------------
    default:
-      airt_error('PARAM_INVALID', 'queue.php:'.__LINE__);
+      airt_error('PARAM_INVALID', 'importqueue.php:'.__LINE__);
       Header("Location: $_SERVER[PHP_SELF]");
 }
 ?>
