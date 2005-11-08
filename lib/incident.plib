@@ -274,17 +274,18 @@ function getAddressesForIncident($id) {
 
 function getIncident($id) {
    // get basic info
-   $res = db_query(q('SELECT   id as incidentid,
-                extract(epoch from created) as created,
-                creator,
-                extract(epoch from updated) as updated,
-                updatedby,
-                state,
-                status,
-                type,
-					 logging
+   $q = q('SELECT id as incidentid,
+        extract(epoch from created) as created,
+        creator,
+        extract(epoch from updated) as updated,
+        updatedby,
+        state,
+        status,
+        type,
+		  logging
       FROM incidents
-      WHERE id=%id', array('%id'=>$id)))
+      WHERE id=%id', array('%id'=>$id));
+   $res = db_query($q)
    or die("Unable to execute query 1.");
 
    if (db_num_rows($res) == 0) {

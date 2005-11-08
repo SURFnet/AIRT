@@ -216,14 +216,14 @@ function prepare_message($template) {
    }
 
    generateEvent('premailtemplate', array(
-    'to'=>$to, 
-    'subject'=>$subject, 
-    'from'=>$from, 
-    'replyto'=>$replyto, 
+    'to'=>$to,
+    'subject'=>$subject,
+    'from'=>$from,
+    'replyto'=>$replyto,
     'message'=>$msg));
 
    echo <<<EOF
-<FORM action="$_SERVER[PHP_SELF]" method="POST">
+<FORM method="POST">
 <TABLE WIDTH="80">
 <TR>
    <TD>To:</TD>
@@ -254,6 +254,7 @@ EOF;
       echo <<<EOF
 </FORM>
 EOF;
+
    generateEvent('postmailtemplate', array(
     'to'=>$to, 
     'subject'=>$subject, 

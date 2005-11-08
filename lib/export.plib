@@ -1,8 +1,9 @@
 <?php
 /* $Id$ 
+ * vim: syntax=php shiftwidth=3 tabstop=3
  *
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
- * Copyright (C) 2004	Tilburg University, The Netherlands
+ * Copyright (C) 2004,2005	Tilburg University, The Netherlands
 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,9 +37,7 @@ function exportIncident($ids) {
       $expr .= "$incident,";
       $expr = rtrim($expr, ",").")";
 
-      ####
-      #messageIdentification
-      ####
+      // messageIdentification
 
       $query  = "SELECT lastname, firstname, email, phone FROM users WHERE id='".$_SESSION['userid']."'";
       if($_SESSION['userid']!=null) {
@@ -53,10 +52,7 @@ function exportIncident($ids) {
          }
       }
       $res_array['messageIdentification']['webservice_location'] = __FILE__;
-
-      ####
-      #ticketInformation
-      ####
+      // ticketInformation
       #problems with left joins when selecting multiple users
       $query  = "
          SELECT    incidents.id,
@@ -67,11 +63,15 @@ function exportIncident($ids) {
                    users.firstname as firstname,
                    users.lastname as lastname
            FROM    incidents
+           FULL JOIN incident_status ON (incident_status.id = incidents.status)
+           FULL JOIN incident_states ON (incident_states.id = incidents.state)
+           FULL JOIN incident_types ON (incident_types.id = incidents.type)
+           FULL JOIN incident_users ON (incident_users.incidentid = incidents.id)
+           FULL JOIN users ON (incident_users.userid = users.id)
           WHERE    incidents.id IN $expr
-            AND    incidents.creator = users.id
        ORDER BY    incidents.id";
 
-      $res = db_query($query) 
+      $res = db_query($query)
          or die ("Unable to query database. error 400");
 
       while ($row = db_fetch_next($res)) {
@@ -82,16 +82,16 @@ function exportIncident($ids) {
          $res_array[$row['id']]['ticketInformation']['status'] = $row['status'];
          $res_array[$row['id']]['ticketInformation']['type'] = $row['type'];
       }
-    
+
       #history information
       $query  = "
-         SELECT id,
+         SELECT incident_comments.id,
                 incident,
                 comment,
                 added,
                 users.firstname as firstname,
                 users.lastname as lastname
-           FROM incident_comments
+           FROM incident_comments, users
           WHERE incident IN $expr
             AND addedby = users.id
        ORDER BY incident_comments.id";
@@ -110,23 +110,17 @@ function exportIncident($ids) {
       #technicalInformation
       ####
       $query  = "
-         SELECT id,
-                incident,
-                addressrole,
-                ip,
-                hostname,
-                added,
-                addedby,
-                constituencies.name as constituency,
+         SELECT incident_addresses.id, incident, addressrole, 
+                ip, hostname, added,
+                addedby, constituencies.name as constituency,
                 users.firstname as firstname,
                 users.lastname as lastname
-           FROM incident_addresses
+           FROM incident_addresses, constituencies, users
           WHERE incident IN $expr
             AND constituency = constituencies.id
             AND addedby = users.id
        ORDER BY incident
             ";
-    
    $res = db_query($query)
       or die ("Unable to query database. error 800");
 
