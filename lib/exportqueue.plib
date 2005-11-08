@@ -24,7 +24,14 @@
  * $Id$
  */
 
+// This is the common library for all export queue functions, both for CLI
+// and for HTTP use.
+
+
 require_once LIBDIR.'/airt.plib';
+
+
+///// CLI functions ///////////////////////////////////////////////////////////
 
 /* Produce info on stdout (when user asked for --help). */
 function printUsage() {
@@ -94,7 +101,7 @@ function spawnTask($task,$params=array()) {
 }// spawnTask
 
 
-/* Message to user, is silent when no --verbose switch was given.
+/* Message to user on stdout, is silent when no --verbose switch was given.
  * Input: message = The string to display when --verbose, without line feed.
  * Output: void.
  */
@@ -106,5 +113,96 @@ function msg($message) {
       echo "$message\n";
    }
 }
+
+
+///// HTTP functions //////////////////////////////////////////////////////////
+
+// None yet.
+
+
+///// Common (SQL) functions //////////////////////////////////////////////////
+
+/* Returns all items in the queue, ordered by task ID.
+ * Input: itemArray = Variable to put the queue items into: array[taskid]=''.
+ *        error = Variable to write the error message to.
+ * Output: 0 on success, 1 on failure, with $error containing a message.
+ */
+function queueList(&$itemArray, &$error) {
+   $itemArray = array();
+   $error = 'Not yet implemented.';
+   return 1;
+}// queueList
+
+
+/* Inserts a new task into the queue.
+ * Input: task = The task name to run, e.g. 'none'. Leave out 'wrapper_'.
+ *        params = The parameter string. Replace spaces
+ *           by '!' like for Nagios: '-f!foo!-b!bar'. May be ''.
+ *        scheduled = A time string in ISO8601 format when the
+ *           task must be started. When '', task will run ASAP.
+ *        output = Variable to write the new task ID or the error msg to.
+ * Output: 0 on success, $output contains new task ID, or 1 on failure,
+ *    $output contains error msg.
+ */
+function queueItemInsert($task, $params, $scheduled, &$output) {
+   $output = 'Not yet implemented.';
+   return 1;
+}// queueItemInsert
+
+
+/* Returns the details of a given item. Does not touch the queue at all.
+ * Input: taskID = The task ID as returned by queueList() or queueInsertItem().
+ *        output = array[key]=value, with key in (id,task,params,created,
+ *           scheduled,started,ended,result); or the error message.
+ * Output: 0 on success, $output contains task details, or 1 on failure,
+ *    $output contains error msg.
+ */
+function queueItemPeek($taskID, &$output) {
+   $output = 'Not yet implemented.';
+   return 1;
+}// queueItemPeek
+
+
+/* Marks an existing queue item as started.
+ * Input: taskID = The ID as returned by queueList() or queueInsertItem().
+ *        started = The ISO8601 time string when the item got
+ *           started. When '', current system time will be used.
+ *        error = Variable to write the error message to.
+ * Output: 0 on success, 1 on failure, with $error containing the message.
+ */
+function queueItemSetStarted($taskID, $started, &$error) {
+   $error = 'Not yet implemented.';
+   return 1;
+}// queueItemSetStarted
+
+
+/* Marks an existing queue item as ended.
+ * Input: taskID = The ID as returned by queueList() or queueInsertItem().
+ *        ended = The ISO8601 time string when the item got
+ *           started. When '', current system time will be used.
+ *        result = The standard result code plus a possible message,
+ *           together as one string.
+ *        error = Variable to write the error message to.
+ * Output: 0 on success, 1 on failure, with $error containing the message.
+ */
+function queueItemSetEnded($taskID, $ended, $result, &$error) {
+   $error = 'Not yet implemented.';
+   return 1;
+}// queueItemSetEnded
+
+
+/* Purges all items that have expired from the queue. Does not make a
+ * difference between items on the basis of status; only looks at the
+ * creation time. Do not set the expiration period too short or you may
+ * cause problems with long-running tasks.
+ * Input: maxAge = Number of seconds that an item may stay in the queue.
+ *        error = Variable to write the error message to.
+ * Output: 0 on success, 1 on failure, with $error containing the message.
+ */
+function queuePurge($maxAge, &$error) {
+   $error = 'Not yet implemented.'
+   return 1;
+}
+
 
 ?>
