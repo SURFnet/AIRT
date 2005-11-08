@@ -39,17 +39,21 @@ function usage() {
 }
 
 function cleanup() {
+  # default exit code to 0
   if test "$#" = "1"; then
     exitcode=$1
   else 
     exitcode=0
   fi
-  if test "$exitcode" gt 0; then
-     # Sends results to export queue..."
+
+  # Notify queue of termination
+  if test "$exitcode" -gt 0; then
     airt_export --result-id=$taskid --result-code=ERROR
   else
     airt_export --result-id=$taskid --result-code=OK
   fi
+
+  # house keeping
   rm -f $logfile
   exit $exitcode
 }
