@@ -42,7 +42,13 @@ function cleanup() {
   if test "$#" = "1"; then
     exitcode=$1
   else 
-    exitcode=2
+    exitcode=0
+  fi
+  if test "$exitcode" gt 0; then
+     # Sends results to export queue..."
+    airt_export --result-id=$taskid --result-code=ERROR
+  else
+    airt_export --result-id=$taskid --result-code=OK
   fi
   rm -f $logfile
   exit $exitcode
@@ -80,14 +86,12 @@ fi
 
 # run the actual command. Note that this invocation is NOT bomb-free against
 # evildoers. it is assumed to be called from a trusted source
-sudo nmap --max_rtt_timeout 25 --scan_delay 150 -p $portrange -oG $logfile $iprange > /dev/null || cleanup
+sudo nmap --max_rtt_timeout 25 --scan_delay 150 -p $portrange -oG $logfile $iprange > /dev/null || cleanup 2
 
 # parse output and submit it to the import queue
 echo "Would run airt_nmap_to_inqueue $logfile"
 
 cleanup
 
-# Sends results to export queue..."
-airt_export --result-id=$taskid --result-code=OK --result-msg="Completed at `date`"
 
 # EOF
