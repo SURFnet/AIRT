@@ -696,7 +696,7 @@ function updateIncident($id,$state,$status,$type,$logging) {
       $set .= sprintf('type=%d,',$type);
    }
    if ($logging!='') {
-      $set .= sprintf('logging=\'%s\',',$logging);
+      $set .= sprintf('logging=\'%s\',',db_escape_string($logging));
    }
 
    // Add the fixed part (we know for sure there is at least one variable
