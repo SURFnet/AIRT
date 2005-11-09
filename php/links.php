@@ -72,7 +72,7 @@ switch ($action) {
          $out .= t("<tr bgcolor=\"%color\">\n", array(
             '%color' => ($count++%2==0) ? "#DDDDDD" : "#FFFFFF"));
          $out .= "<td>\n";
-         $out .= t(   '<a href="%url\">%label</a>', array(
+         $out .= t(   '<a href="%url">%label</a>', array(
             '%url'=>$row["url"], '%label'=>$row["label"]));
          $out .= t("</td>\n");
          $out .= "<td>\n";
