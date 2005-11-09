@@ -37,4 +37,8 @@ echo "Sleeping five seconds..."
 sleep 5
 echo "Waking up. Sending result to export queue..."
 airt_export --result-id=$taskid --result-code=OK --result-msg="Hello, world."
+if [ $? != 0 ]; then
+  echo "Bailing out."
+  exit 1
+fi
 echo "wrapper_none done."
