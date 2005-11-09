@@ -1,8 +1,9 @@
-2005-xx-xx
+2005-11-09
 * Import queue now caches IP address and Constituency at the initial import,
   speeding up the visualiser significantly. Also, visualiser now prints
 	progress reports while reading to prevent PHP processing time caps.
 * Import queue now keeps track of date that queue items were last updated.
+* Bug fixes
 
 2005-11-08
 * Bug fixes
