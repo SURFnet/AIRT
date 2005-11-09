@@ -182,7 +182,7 @@ function updateQueueItem($id, $field, $value, &$error) {
       $error = 'Invalid parameter \"id\"';
       return 1;
    }
-   $query = q('update import_queue set %field = \'%value\' where id=\'%id\'', 
+   $query = q('update import_queue set %field = \'%value\', updated = CURRENT_TIMESTAMP where id=\'%id\'', 
       array('%id'=>$id,
       '%field' => db_escape_string($field),
       '%value' => db_escape_string($value)
