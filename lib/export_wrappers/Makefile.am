@@ -18,7 +18,7 @@
 # $Id$
 
 # 
-scriptdir=@AIRT_PHPLIBDIR@/export_wrappers
+bindir=@AIRT_PHPLIBDIR@/export_wrappers
 
 bin_SCRIPTS = wrapper_none
 
