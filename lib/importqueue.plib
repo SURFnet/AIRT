@@ -209,7 +209,8 @@ function updateQueueItem($id, $field, $value, &$error) {
  */
 function getQueueOverview(&$elements, &$error) {
    $error = '';
-   $res = db_query(q('SELECT id, created, status, sender, type, summary 
+   $res = db_query(q('SELECT id, created, status, sender, type, summary,
+      cache_ip, cache_constituency
       FROM import_queue
       WHERE status = \'open\'
       ORDER BY created DESC'));
@@ -251,17 +252,6 @@ function formatQueueOverview() {
 			return;
 		}
 		if($tree = @domxml_open_mem($item['content'])) {
-   		$ips = $tree->get_elements_by_tagname('ip');
-	   	if (sizeof($ips) > 0) {
-		   	$ip = $ips[0]->get_content();
-   		} else {
-	   		$ip = 'Unknown';
-		   }
-   		$netid = categorize($ip);
-	   	$consid = getConstituencyIDByNetworkID($netid);
-		   $conss = getConstituencies();
-   		$cons = $conss[$consid]['label'];
-
          $out .= t("<tr bgcolor=\"%color\">\n", array('%color'=>($count++ % 2 == 0) ? '#DDDDDD' : '#FFFFFF'));
          $out .= t("  <td>\n");
          $out .= t("  <select name=\"decision[$id]\">\n");
@@ -271,8 +261,8 @@ function formatQueueOverview() {
          $out .= t("  </select>\n");
          $out .= t("  </td>\n");
          $out .= t("  <td>%type</td>\n", array('%type'=>$element['type']));
-         $out .= t("  <td>%cons</td>\n", array('%cons'=>$cons));
-         $out .= t("  <td>%ip</td>\n", array('%ip'=>$ip));
+         $out .= t("  <td>%cons</td>\n", array('%cons'=>$element['cache_constituency']));
+         $out .= t("  <td>%ip</td>\n", array('%ip'=>$element['cache_ip']));
          $out .= t("  <td><a target=\"airt_queue\" title=\"Show incident details in new browser window\" href=\"%url?action=showdetails&id=%id\">details</a></td>\n", array('%url'=>$_SERVER['PHP_SELF'], '%id'=>$id));;
          $out .= t("  <td>");
          if (array_key_exists($ip, $openips)) {
@@ -443,12 +433,25 @@ function queueInsertItem($status,$sender,$type,$summary,$content,&$error) {
    $row = db_fetch_next($res);
    $newID = sprintf('%08d',$row['id']);
 
+   $dom = domxml_open_mem($content);
+   if ($dom) {
+      $el = $dom->get_elements_by_tagname('ip');
+      if (sizeof($el) > 0) {
+         $cache_ip = $el[0]->get_content();
+         $networkid = categorize($cache_ip);
+         $consid = getConstituencyIDByNetworkID($networkid);
+         $conslist = getConstituencies();
+         $cache_constituency = $conslist[$consid]['label'];
+      }
+   }
+
    // Insert the record. Strings have already been escaped.
    $q = "INSERT INTO import_queue
-           (id,created,status,sender,type,summary,content)
+           (id,created,status,sender,type,summary,content, cache_ip,
+            cache_constituency)
          VALUES
            ($newID,CURRENT_TIMESTAMP,'$status','$sender','$type',
-            '$summary','$content')";
+            '$summary','$content','$cache_ip', '$cache_constituency')";
    if (!db_query($q)) {
       $error = 'Could not insert new queue item';
       return FALSE;

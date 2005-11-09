@@ -7,6 +7,12 @@
 -- for EACH release, even if there are no changes to the database schema,
 -- because the VERSIONS table needs to be updated in all cases.
 
+-- import queue caching
+alter table import_queue add column cache_ip varchar(128);
+alter table import_queue add column cache_constituency varchar(128);
+alter table import_queue add column updated timestamp;
+
+
 UPDATE versions SET value='----version string----' WHERE key='airtversion';
 -- Needs manual update with the AIRT_VERSION string of the release.
 -- Cannot rely on .in expansion as it needs to stay fixed in history.

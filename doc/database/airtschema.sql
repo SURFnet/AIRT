@@ -269,12 +269,15 @@ CREATE TABLE blocks (
 CREATE TABLE import_queue (
   id        integer,
   created   timestamp    not null,
+  updated   timestamp,
   status    varchar(16)  not null default 'open',
   sender    varchar(50)  not null,
   type      varchar(50)  not null,
   summary   varchar(100) not null,
   content   text         not null,
-  primary key (id)
+  cache_ip  varchar(128),
+  cache_constituency varchar(128),
+  primary key (id),
 );
 
 CREATE TABLE authentication_tickets (
