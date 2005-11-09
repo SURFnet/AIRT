@@ -45,7 +45,7 @@ fi
 AC_SUBST(AIRT_PHPDIR)
 
 AC_ARG_WITH(phplibdir,
-    AC_HELP_STRING(--with-phplibdir=DIR,Location of PHP files that may not be accessed by the web server [datadir/airt/plib]), 
+    AC_HELP_STRING(--with-phplibdir=DIR,Location of PHP files that may not be accessed by the web server [datadir/airt/lib]), 
     AIRT_PHPLIBDIR="$withval")
 if test -z "$AIRT_PHPLIBDIR"
 then
