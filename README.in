@@ -31,7 +31,7 @@ This by default configures stuff to be dropped in the following places:
 /usr/local/etc/airt          config things: airt.cfg, importqueue.cfg...
 /usr/local/lib/man           man pages: airt.1, airt_export.1...
 /usr/local/share/airt/php    PHP files to be published on the www.
-/usr/local/share/airt/plib   PHP (library) files not to be published on www.
+/usr/local/share/airt/lib    PHP (library) files not to be published on www.
 /usr/local/share/doc/airt    Documentation files.
 
 It does not actually drop stuff there. ./configure only creates a bunch of

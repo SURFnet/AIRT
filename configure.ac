@@ -51,9 +51,9 @@ if test -z "$AIRT_PHPLIBDIR"
 then
     if test "x$prefix" = xNONE
     then
-        AIRT_PHPLIBDIR="$ac_default_prefix/share/airt/plib"
+        AIRT_PHPLIBDIR="$ac_default_prefix/share/airt/lib"
     else
-        AIRT_PHPLIBDIR="$prefix/share/airt/plib"
+        AIRT_PHPLIBDIR="$prefix/share/airt/lib"
     fi
 fi
 AC_SUBST(AIRT_PHPLIBDIR)
