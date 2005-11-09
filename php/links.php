@@ -290,7 +290,6 @@ EOF;
          Header("Location: $_SERVER[PHP_SELF]");
          break;
       }
-      define('DEBUG', true);
       foreach ($_POST['menu_pos'] as $id=>$pos) {
          $res = db_query(q("UPDATE urls SET menu_position=%pos WHERE id=%id", 
             array('%pos'=>($pos=='')?'NULL':$pos, '%id'=>$id)));
@@ -311,7 +310,6 @@ EOF;
          Header("Location: $_SERVER[PHP_SELF]");
          break;
       }
-      define('DEBUG', true);
       foreach ($_POST['menu_pos'] as $id=>$pos) {
          $res = db_query(q("UPDATE urls SET navbar_position=%pos WHERE id=%id", 
             array('%pos'=>($pos=='')?'NULL':$pos, '%id'=>$id)));
