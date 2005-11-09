@@ -302,7 +302,7 @@ function queueItemSetEnded($taskID, $ended, $result, $noqueue, &$error) {
    }
    if ($row['ended']!='') {
       $error = t('Task %id has already completed.',
-                  array('%id'=>$taskID))."\n";
+                  array('%id'=>$taskID));
       return 1;
    }
 
