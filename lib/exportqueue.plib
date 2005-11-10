@@ -25,11 +25,11 @@
  */
 
 // This is the common library for all export queue functions, both for CLI
-// and for HTTP use.
-
+// and for HTML use.
 
 require_once LIBDIR.'/airt.plib';
 
+define('LF',"\n");   // See whether this is handy. If so, make app wide.
 
 ///// CLI functions ///////////////////////////////////////////////////////////
 
@@ -37,11 +37,11 @@ require_once LIBDIR.'/airt.plib';
 function printUsage() {
    global $WRAPPERS;
 
-   echo t('Task export program, part of the AIRT suite.')."\n";
-   echo t('Copyright (C) 2005   Tilburg University, The Netherlands.')."\n";
-   echo t('Usage: airt_export [--help] [--noqueue] [--verbose]')."\n";
-   echo   '         '.t('[--result-id=ID] [--result-code=CODE]')."\n";
-   echo   '         '.t('[--result-msg="message here"]')."\n";
+   echo t('Task export program, part of the AIRT suite.').LF;
+   echo t('Copyright (C) 2005   Tilburg University, The Netherlands.').LF;
+   echo t('Usage: airt_export [--help] [--noqueue] [--verbose]').LF;
+   echo   '         '.t('[--result-id=ID] [--result-code=CODE]').LF;
+   echo   '         '.t('[--result-msg="message here"]').LF;
 
    // Enumerate all registered wrappers.
    if (count($WRAPPERS)>0) {
@@ -49,7 +49,7 @@ function printUsage() {
       foreach ($WRAPPERS as $wrapper=>$execpath) {
          echo ' '.$wrapper;
       }
-      echo "\n";
+      echo LF;
    }
 
 }// printUsage
@@ -115,39 +115,126 @@ function msg($message) {
 }
 
 
-///// HTTP functions //////////////////////////////////////////////////////////
+///// HTML functions //////////////////////////////////////////////////////////
 
-// None yet.
+/* Table representation of queueList().
+ * Input: nothing.
+ * Output: HTML string, ready for output.
+ */
+function formatQueueList() {
+   $out = '';
+
+   // Fetch the items in the export queue.
+   if (getQueueList($itemArray,$error)) {
+      $out = '<p>'.t('ERROR:').' '.$error.'</p>'.LF;
+      return $out;
+   }
+
+   if (count($itemArray)==0) {
+      $out = '<p><em>'.t('No items in export queue.').'</em></p>'.LF;
+      return $out;
+   }
+
+   $out = '<table border=1>'.LF;
+   $out .= '<tr>'.LF;
+   $out .= '  <th>'.t('ID').'</th>'.LF;
+   $out .= '  <th>'.t('Task').'</th>'.LF;
+   $out .= '  <th>'.t('Params').'</th>'.LF;
+   $out .= '  <th>'.t('Created').'</th>'.LF;
+   $out .= '  <th>'.t('Scheduled').'</th>'.LF;
+   $out .= '  <th>'.t('Started').'</th>'.LF;
+   $out .= '  <th>'.t('Ended').'</th>'.LF;
+   $out .= '  <th>'.t('Result').'</th>'.LF;
+   $out .= '</tr>'.LF;
+   foreach ($itemArray as $id=>$details) {
+      $out .= '<tr>'.LF;
+      $out .= '  <td>'.$details['id'].'</td>'.LF;
+      $out .= '  <td>'.$details['task'].'</td>'.LF;
+      $out .= '  <td>'.$details['params'].'</td>'.LF;
+      $out .= '  <td>'.$details['created'].'</td>'.LF;
+      $out .= '  <td>'.$details['scheduled'].'</td>'.LF;
+      $out .= '  <td>'.$details['started'].'</td>'.LF;
+      $out .= '  <td>'.$details['ended'].'</td>'.LF;
+      $out .= '  <td>'.$details['result'].'</td>'.LF;
+      $out .= '</tr>'.LF;
+   }
+   $out .= '</table>'.LF;
+
+   return $out;
+
+}// formatQueueList
+
+
+/* HTML to add an item to the queue. Demo only, so not much choice. */
+function formatQueueItemInsert() {
+   $out = '<p><strong>'.t('Add a new task to the queue').'</strong></p>'.LF;
+   $out .= '<form method="POST" action="exportqueue.php">'.LF;
+   $out .= '<input type="hidden" name="action" value="add">'.LF;
+
+   $out .= '<select name="task">'.LF;
+   $out .= '  <option value="none">Demo Task'.LF;
+   $out .= '</select>'.LF;
+
+   $out .= '<select name="scheduled">'.LF;
+   $out .= '  <option value=0>Now'.LF;
+   $out .= '  <option value=1>In one hour'.LF;
+   $out .= '  <option value=2>In two hours'.LF;
+   $out .= '  <option value=3>In three hours'.LF;
+   $out .= '</select>'.LF;
+
+   $out .= '<input type="SUBMIT" value="'.t('Add Task').'">'.LF;
+   $out .= '</form>'.LF;
+
+   return $out;
+}// formatQueueItemInsert
 
 
 ///// Common (SQL) functions //////////////////////////////////////////////////
 
-/* Returns all items in the queue, ordered by task ID.
- * Input: itemArray = Variable to put the queue items into: array[taskid]=''.
+/* Returns all items in the queue with their details, ordered by task ID.
+ * Input: itemArray = Variable to put the queue items into.
+ *            array[taskid]=array(id,task,params,created,scheduled,started,
+ *                                ended,result).
  *        error = Variable to write the error message to.
  * Output: 0 on success, 1 on failure, with $error containing a message.
  */
-function queueList(&$itemArray, &$error) {
+function getQueueList(&$itemArray, &$error) {
    $itemArray = array();
-   $error = 'Not yet implemented.';
-   return 1;
-}// queueList
+   $error = '';
+
+   $q = q('SELECT id,task,params,created,scheduled,started,ended,result
+           FROM export_queue
+           ORDER BY id');
+   $res = db_query($q);
+   if ($res===FALSE) {
+      $error = t('Could not query database for all tasks.');
+      return 1;
+   }
+
+   while ($row = db_fetch_next($res)) {
+      $id = $row['id'];
+      $itemArray[$id] = $row;
+   }
+   return 0;
+   
+}// getQueueList
 
 
 /* Returns all items in the queue that are ready to run.
  * Input: itemArray = Variable to put the queue items into.
- *           $itemArray[taskid]=array(task,params).
+ *           $itemArray[taskid]=array(id,task,params).
  *        error = Variable to write the error message to.
  * Output: 0 on success, 1 on failure, with $error containing a message.
  */
-function queueListRunnable(&$itemArray, &$error) {
+function getQueueRunnable(&$itemArray, &$error) {
    $itemArray = array();
    $error = '';
 
-   $q = q('select id,task,params
-           from export_queue
-           where (scheduled<CURRENT_TIMESTAMP or scheduled IS NULL)
-             and started IS NULL');
+   $q = q('SELECT id,task,params
+           FROM export_queue
+           WHERE (scheduled<CURRENT_TIMESTAMP OR scheduled IS NULL)
+             AND started IS NULL
+           ORDER BY id');
    $res = db_query($q);
    if ($res===FALSE) {
       $error = t('Could not query database for tasks to run.');
@@ -155,14 +242,12 @@ function queueListRunnable(&$itemArray, &$error) {
    }
 
    while ($row = db_fetch_next($res)) {
-      $id     = $row['id'];
-      $task   = $row['task'];
-      $params = $row['params'];
-      $itemArray[$id] = array('task'=>$task, 'params'=>$params);
+      $id = $row['id'];
+      $itemArray[$id] = $row;
    }
-
    return 0;
-}// queueListRunnable
+
+}// getQueueRunnable
 
 
 /* Inserts a new task into the queue.
@@ -176,8 +261,29 @@ function queueListRunnable(&$itemArray, &$error) {
  *    $output contains error msg.
  */
 function queueItemInsert($task, $params, $scheduled, &$output) {
-   $output = 'Not yet implemented.';
-   return 1;
+   # NOTE TODO PANIC ALERT
+   # THIS CODE IS FOR DEMONSTRATION PURPOSES ONLY and needs to be fully
+   # checked and sanitized before we dare to actually use it for production.
+   # For example, we need to query the sequence before the insert to get the
+   # ID for return value. Again, the current code must be SCRAPPED.
+
+   $q = q("INSERT INTO export_queue
+              (id,task,created,scheduled)
+           VALUES
+              (nextval('exportqueue_sequence'),
+               '%task',
+               CURRENT_TIMESTAMP,
+               CURRENT_TIMESTAMP + interval '%scheduled hour')",
+          array('%task'=>$task,
+                '%scheduled'=>$scheduled));
+   if (db_query($q)) {
+      $output = 'Could not insert queue item.';
+      return 1;
+   } else {
+      $output = 'THIS IS NOT IMPLEMENTED';
+      return 0;
+   }
+
 }// queueItemInsert
 
 
@@ -234,7 +340,7 @@ function queueItemSetStarted($taskID, $started, &$error) {
    }
    if ($row['ended']!='') {
       $error = t('Task %id has already completed.',
-                  array('%id'=>$taskID))."\n";
+                  array('%id'=>$taskID)).LF;
       return 1;
    }
 

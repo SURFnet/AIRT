@@ -154,7 +154,7 @@ if ($OPTIONS['--result-id']!='') {
 // Find out all tasks to spawn, i.e., tasks with a 'scheduled' time that has
 // passed while they have no 'started' time yet.
 msg(t('Reading export queue...'));
-if (queueListRunnable($runnable, $error)) {
+if (getQueueRunnable($runnable, $error)) {
    fwrite(STDERR,t('ERROR:').' '.$error."\n");
    exit(1);
 }
