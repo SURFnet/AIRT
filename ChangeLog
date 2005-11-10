@@ -1,3 +1,7 @@
+2005-11-10
+* Export queue backend (cron part) fully completed.
+* Export queue user interface part demo version ready.
+
 2005-11-09
 * Import queue now caches IP address and Constituency at the initial import,
   speeding up the visualiser significantly. Also, visualiser now prints
