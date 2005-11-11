@@ -189,8 +189,6 @@ function filter_out($reports, &$output) {
 
 /* The actual filter */
 function filter_darknet($input, &$output, $verbosity=FALSE) {
-   $report = array();
-
    /* make sure we have the required config */
    if (!defined('CYMRU_USERNAME') || !defined('CYMRU_PASSWORD')) {
       print "Missing username/password in Darknet filter configuration file\n";
@@ -203,6 +201,7 @@ function filter_darknet($input, &$output, $verbosity=FALSE) {
 	print_r($input);
    if (preg_match_all('/^<(.*)>$/m', $input, $matches) > 0) {
       foreach ($matches[1] as $url) {
+         $report = array();
          if ($verbosity) {
             print "Attempting to retrieve $url\n";
          }
@@ -221,7 +220,6 @@ function filter_darknet($input, &$output, $verbosity=FALSE) {
          print "No reports found.\n";
       }
    }
-
    filter_out($reports, $output);
    return 0;
 }
