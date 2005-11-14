@@ -87,7 +87,7 @@ function spawnTask($task,$params=array()) {
    // We are the child. Hello, world!
    // Detach from the controlling terminal, we run as a daemon.
    if (!posix_setsid()) {
-     fwrite(STDERR, "ERROR: Could not detach from terminal.\n");
+     fwrite(STDERR, t('ERROR: Could not detach from terminal').LF);
      exit(1);
    }
 
@@ -95,7 +95,7 @@ function spawnTask($task,$params=array()) {
    // any problem back to the parent here.
    pcntl_exec($task,$params);
    // and we'll never ever should get here.
-   fwrite(STDERR, "ERROR: Entered the twilight zone!?");
+   fwrite(STDERR, t('ERROR: Entered the twilight zone!?').LF);
    exit(1);
 
 }// spawnTask
@@ -110,12 +110,85 @@ function msg($message) {
    if (!$OPTIONS['--verbose']) {
       return;
    } else {
-      echo "$message\n";
+      echo $message.LF;
    }
 }
 
 
 ///// HTML functions //////////////////////////////////////////////////////////
+
+/* Central HTTP parameter fetcher. Should cater for most standard requests,
+ * does not have any known side effects. Is NOT meant to make strings
+ * SQL-safe, use the db-specific library calls for this.
+ * Gets and formats data from a GET, POST or COOKIE variable. Is safe to
+ * use no matter what register_globals or get_magic_quotes_gpc are set to,
+ * and returns an empty string '' or 0 (depending on format) when the
+ * required input variable is missing.
+ * TODO: this function cannot handle array variables yet. This can be
+ * implemented in two ways, declarative and observational.
+ * Declarative: the two '[]' characters need to be appended to the variable
+ * name and lead to a forced array output.
+ * Observational: if the incoming variable is of type array(), assume it is
+ * an array.
+ * For safety reasons, declarative looks like the better choice.
+ * It also needs a different implementation of the formatting (which should
+ * be applied to each index of the array in turn) and return parts (should
+ * return an array).
+ * Input:
+ * source = One of 'GET', 'POST', 'COOKIE', 'REQUEST'.
+ * name   = The variable to look up in the input arrays.
+ * format = Optionally, printf() format specifier for the value.
+ * Output: the requested input variable.
+ */
+function fetchFrom($source,$name,$format='') {
+
+  // Fetch the data, force empty if not available.
+  switch ($source) {
+    case 'GET':
+      if (isset($_GET[$name])) {
+        $value = $_GET[$name];
+      } else {
+        $value = '';
+      }
+      break;
+    case 'POST':
+      if (isset($_POST[$name])) {
+        $value = $_POST[$name];
+      } else {
+        $value = '';
+      }
+      break;
+    case 'COOKIE':
+      if (isset($_COOKIE[$name])) {
+        $value = $_COOKIE[$name];
+      } else {
+        $value = '';
+      }
+      break;
+    case 'REQUEST':
+      if (isset($_REQUEST[$name])) {
+        $value = $_REQUEST[$name];
+      } else {
+        $value = '';
+      }
+      break;
+    default:
+      die("Unknown fetch source '$source'. Script terminated.");
+  }
+
+  // If magic quotes is ON, strip all added slashes.
+  if (get_magic_quotes_gpc()) {
+    $value = stripSlashes($value);
+  }
+  // If format is given, apply it.
+  if ($format!='') {
+    $value = sprintf($format,$value);
+  }
+
+  return $value;
+
+}// fetchFrom
+
 
 /* Table representation of queueList().
  * Input: nothing.
@@ -135,27 +208,65 @@ function formatQueueList() {
       return $out;
    }
 
-   $out = '<table border=1>'.LF;
+   // Table format, header, etc.
+   $out = '<table>'.LF;
    $out .= '<tr>'.LF;
    $out .= '  <th>'.t('ID').'</th>'.LF;
    $out .= '  <th>'.t('Task').'</th>'.LF;
-   $out .= '  <th>'.t('Params').'</th>'.LF;
    $out .= '  <th>'.t('Created').'</th>'.LF;
    $out .= '  <th>'.t('Scheduled').'</th>'.LF;
    $out .= '  <th>'.t('Started').'</th>'.LF;
    $out .= '  <th>'.t('Ended').'</th>'.LF;
    $out .= '  <th>'.t('Result').'</th>'.LF;
    $out .= '</tr>'.LF;
+
+   // Table rows, each row contains one export queue entry.
+   $parity = 'even';
    foreach ($itemArray as $id=>$details) {
-      $out .= '<tr>'.LF;
-      $out .= '  <td>'.$details['id'].'</td>'.LF;
-      $out .= '  <td>'.$details['task'].'</td>'.LF;
-      $out .= '  <td>'.$details['params'].'</td>'.LF;
-      $out .= '  <td>'.$details['created'].'</td>'.LF;
-      $out .= '  <td>'.$details['scheduled'].'</td>'.LF;
-      $out .= '  <td>'.$details['started'].'</td>'.LF;
-      $out .= '  <td>'.$details['ended'].'</td>'.LF;
-      $out .= '  <td>'.$details['result'].'</td>'.LF;
+      $parity = ($parity=='even') ? 'odd' : 'even';
+      $result = $details['result'];
+      if ($result=='') {
+         // Skip all formatting and styling.
+# TODO: consider security code in result if not yet ended. In this case, use
+# the availability of ended as a trigger for formatting and styling.
+         $resultStr   = '';
+         $resultClass = '';
+      } else {
+         // Try to separate the result code from the message. Be forgiving.
+         $space = strpos($result,' ');
+         if (!$space) {
+            $resultCode = $result;
+            $resultStr  = $result;
+         } else {
+            $resultCode = substr($result,0,$space);
+            $resultStr  = substr($result,$space+1);
+         }
+         switch ($resultCode) {
+            case 'OK':
+               $resultClass = '';
+               break;
+            case 'WARNING':
+               $resultClass = 'class="warning"';
+               break;
+            case 'ERROR':
+               $resultClass = 'class="error"';
+               break;
+            default:
+               $resultClass = 'class="unknown"';
+         }
+      }
+      $url = 'exportqueue.php?action=remove&taskid='.$id;
+
+      $out .= '<tr class="'.$parity.'">'.LF;
+      $out .= '  <td align="right"><a href="'.$url.'">'.$details['id'].'</a></td>'.LF;
+      $out .= '  <td>&nbsp;'.$details['task'].'&nbsp;</td>'.LF;
+      $out .= '  <td>&nbsp;'.$details['created'].'&nbsp;</td>'.LF;
+      $out .= '  <td>&nbsp;'.$details['scheduled'].'&nbsp;</td>'.LF;
+      $out .= '  <td>&nbsp;'.$details['started'].'&nbsp;</td>'.LF;
+      $out .= '  <td>&nbsp;'.$details['ended'].'&nbsp;</td>'.LF;
+      $out .= '  <td '.$resultClass.'>&nbsp;'.$resultStr.'&nbsp;</td>'.LF;
+      $out .= '  <td>&nbsp;<a href="'.$url.'">'.t('[delete]').
+                     '</a>&nbsp;</td>'.LF;
       $out .= '</tr>'.LF;
    }
    $out .= '</table>'.LF;
@@ -192,6 +303,7 @@ function formatQueueItemInsert() {
 ///// Common (SQL) functions //////////////////////////////////////////////////
 
 /* Returns all items in the queue with their details, ordered by task ID.
+ * All time stamp data is returned rounded to the minute (no seconds).
  * Input: itemArray = Variable to put the queue items into.
  *            array[taskid]=array(id,task,params,created,scheduled,started,
  *                                ended,result).
@@ -202,9 +314,14 @@ function getQueueList(&$itemArray, &$error) {
    $itemArray = array();
    $error = '';
 
-   $q = q('SELECT id,task,params,created,scheduled,started,ended,result
+   $q = q("SELECT id,task,params,
+              to_char(created,'YYYY-MM-DD HH24:MI') as created,
+              to_char(scheduled,'YYYY-MM-DD HH24:MI') as scheduled,
+              to_char(started,'YYYY-MM-DD HH24:MI') as started,
+              to_char(ended,'YYYY-MM-DD HH24:MI') as ended,
+              result
            FROM export_queue
-           ORDER BY id');
+           ORDER BY id");
    $res = db_query($q);
    if ($res===FALSE) {
       $error = t('Could not query database for all tasks.');
@@ -261,30 +378,55 @@ function getQueueRunnable(&$itemArray, &$error) {
  *    $output contains error msg.
  */
 function queueItemInsert($task, $params, $scheduled, &$output) {
-   # NOTE TODO PANIC ALERT
-   # THIS CODE IS FOR DEMONSTRATION PURPOSES ONLY and needs to be fully
-   # checked and sanitized before we dare to actually use it for production.
-   # For example, we need to query the sequence before the insert to get the
-   # ID for return value. Again, the current code must be SCRAPPED.
+   // Get a new taskID (need this to be able to return it).
+   $q = q("SELECT nextval('exportqueue_sequence') as newid");
+   $res = db_query($q);
+   if ($res===FALSE || db_num_rows($res)==0) {
+      $output = t('Could not get next exportqueue item ID.');
+      return 1;
+   }
+   $row = db_fetch_next($res);
+   $newTaskID = $row['newid'];
 
+   // Insert the queue item.
    $q = q("INSERT INTO export_queue
               (id,task,created,scheduled)
-           VALUES
-              (nextval('exportqueue_sequence'),
-               '%task',
-               CURRENT_TIMESTAMP,
-               CURRENT_TIMESTAMP + interval '%scheduled hour')",
-          array('%task'=>$task,
-                '%scheduled'=>$scheduled));
-   if (db_query($q)) {
-      $output = 'Could not insert queue item.';
+           VALUES (
+              %taskID,
+              '%task',
+              CURRENT_TIMESTAMP,
+              CURRENT_TIMESTAMP + interval '%scheduled hour')",
+          array('%taskID'   =>$newTaskID,
+                '%task'     =>db_escape_string($task),
+                '%scheduled'=>db_escape_string($scheduled)));
+   if (!db_query($q)) {
+      $output = t('Could not insert queue item.');
       return 1;
    } else {
-      $output = 'THIS IS NOT IMPLEMENTED';
+      $output = $newTaskID;
       return 0;
    }
 
 }// queueItemInsert
+
+
+/* Removes a task from the queue. Does not complain if a named task ID does
+ * not exist (this could be added when considered useful).
+ * Input: taskID = The task ID to remove.
+ *        error  = Variable to write the error msg to.
+ * Output: 0 on success or 1 on failure, $output contains error msg.
+ */
+function queueItemRemove($taskID,&$error) {
+   $error = '';
+   $q = q('DELETE FROM export_queue
+           WHERE id=%taskid',
+          array('%taskid'=>sprintf('%d',$taskID)));
+   if (!db_query($q)) {
+      $error = t('Could not remove task from queue.');
+      return 1;
+   }
+   return 0;
+}// queueItemRemove
 
 
 /* Returns the details of a given item. Does not touch the queue at all.

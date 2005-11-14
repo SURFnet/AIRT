@@ -26,37 +26,35 @@ require_once LIBDIR.'/database.plib';
 require_once LIBDIR.'/error.plib';
 require_once LIBDIR.'/exportqueue.plib';
 
-if (array_key_exists('action', $_REQUEST)) {
-   $action = $_REQUEST['action'];
-} else {
-   $action = 'list';
-}
 
-pageHeader('AIRT export queue');
-echo "<em>Note: this is experimental demo code only</em><p>\n";
+// The default action of this script is to simply list the export queue.
+// All explicit actions are silently completed and end with a default action
+// reload.
 
-switch ($action) {
+switch (fetchFrom('REQUEST','action')) {
    case 'add':
-      // Sanitize incoming stuff.
-      if (queueItemInsert($_REQUEST['task'],
-                          '',
-                          $_REQUEST['scheduled'],
-                          $output)) {
-         // Oops.
-         echo('<p><strong>'.
-              t('ERROR: %err',
-                array('%err'=>$output)).
-              '</strong></p>'.LF);
+      // Add new item to the queue.
+      if (queueItemInsert(fetchFrom('REQUEST','task'),
+                          fetchFrom('REQUEST','params'),
+                          fetchFrom('REQUEST','scheduled'),
+                          $error)) {
+         airt_error('DB_QUERY','exportqueue.php:'.__LINE__,$error);
       }
-   case 'list':
+      header('Location: exportqueue.php');
+      exit;
+   case 'remove':
+      if (queueItemRemove(fetchFrom('REQUEST','taskid'),
+                          $error)) {
+         airt_error('DB_QUERY','exportqueue.php:'.__LINE__,$error);
+      }
+      header('Location: exportqueue.php');
+      exit;
+   default:
+      // List the queue.
+      pageHeader('AIRT export queue');
       printf(formatQueueList());
       printf(formatQueueItemInsert());
-      break;
-   default:
-      // Could also be an error message, consider.
-      printf(formatQueueList());
+      pageFooter();
 }
-
-pageFooter();
 
 ?>
