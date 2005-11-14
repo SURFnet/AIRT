@@ -96,14 +96,21 @@ function db_free_result($res) {
     return pg_free_result($res);
 }
 
-/* Return $str surrounded by singles quotes, or the string NULL is $str is an
- * empty string
+/* Return $str surrounded by singles quotes, or the string NULL if $str is an
+ * empty string ''. Takes care of quote escapes in case the string contains
+ * some. Not in every application is it a good idea to use NULL instead of
+ * the empty string '', beware.
  */
 function db_masq_null($str) {
-    return ($str == "" ? "NULL": "'$str'");
+   $str = db_escape_string($str);
+   return ($str == "" ? "NULL": "'$str'");
 }
 
+/* Postgres-specific wrapper to escape a string for insertion into a text
+ * field.
+ */
 function db_escape_string($string) {
   return pg_escape_string($string);
 }
+
 ?>
