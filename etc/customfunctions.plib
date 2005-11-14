@@ -50,6 +50,7 @@ function showheader($data) {
       '%description'=>$description));
   }
 
+  # TODO: put the inline style stuff in an external style.css file.
   echo <<<EOF
 <html>
 </head>
@@ -85,6 +86,27 @@ A {
 A:hover {
   text-decoration: underline;
 }
+
+tr.odd {
+  background-color: #DDDDDD;
+}
+
+tr.even {
+  background-color: transparent;
+}
+
+.error {
+  background-color: #FF0000;
+}
+
+.warning {
+  background-color: #FFFF00;
+}
+
+.unknown {
+  background-color: #FFAA00;
+}
+
 </style>
 </head>
 
