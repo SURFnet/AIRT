@@ -221,14 +221,13 @@ function formatQueueList() {
    $out .= '</tr>'.LF;
 
    // Table rows, each row contains one export queue entry.
+# TODO: consider alternative sort order(s).
    $parity = 'even';
    foreach ($itemArray as $id=>$details) {
       $parity = ($parity=='even') ? 'odd' : 'even';
       $result = $details['result'];
       if ($result=='') {
          // Skip all formatting and styling.
-# TODO: consider security code in result if not yet ended. In this case, use
-# the availability of ended as a trigger for formatting and styling.
          $resultStr   = '';
          $resultClass = '';
       } else {
@@ -255,18 +254,24 @@ function formatQueueList() {
                $resultClass = 'class="unknown"';
          }
       }
-      $url = 'exportqueue.php?action=remove&taskid='.$id;
 
-      $out .= '<tr class="'.$parity.'">'.LF;
-      $out .= '  <td align="right"><a href="'.$url.'">'.$details['id'].'</a></td>'.LF;
+      // Row title appears when hovering over the row for a while.
+      $tit = t('Task parameters').': '.$details['params'];
+      // Task removal has a confirmation dialog popup in JavaScript.
+      $del = 'exportqueue.php?action=remove&taskid='.$id;
+      $msg = t('Are you sure that you want to delete this queue entry?');
+      $pop  = "onclick=\"return confirm('$msg')\"";
+
+      $out .= '<tr class="'.$parity.'" title="'.$tit.'">'.LF;
+      $out .= '  <td align="right">&nbsp;'.$details['id'].'&nbsp;</td>'.LF;
       $out .= '  <td>&nbsp;'.$details['task'].'&nbsp;</td>'.LF;
       $out .= '  <td>&nbsp;'.$details['created'].'&nbsp;</td>'.LF;
       $out .= '  <td>&nbsp;'.$details['scheduled'].'&nbsp;</td>'.LF;
       $out .= '  <td>&nbsp;'.$details['started'].'&nbsp;</td>'.LF;
       $out .= '  <td>&nbsp;'.$details['ended'].'&nbsp;</td>'.LF;
       $out .= '  <td '.$resultClass.'>&nbsp;'.$resultStr.'&nbsp;</td>'.LF;
-      $out .= '  <td>&nbsp;<a href="'.$url.'">'.t('[delete]').
-                     '</a>&nbsp;</td>'.LF;
+      $out .= '  <td>&nbsp;<a href="'.$del.'" '.$pop.'>['.t('delete').
+                     ']</a>&nbsp;</td>'.LF;
       $out .= '</tr>'.LF;
    }
    $out .= '</table>'.LF;
