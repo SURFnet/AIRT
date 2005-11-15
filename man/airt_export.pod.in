@@ -10,65 +10,73 @@ AIRT_EXPORT - CLI work horse for the AIRT export queue
 
 =head1 SYNOPSIS
 
-B<airt_export> [--help] [--noqueue] [--verbose] [--result-id=F<ID>]
-[--result-code=F<CODE>] [--result-msg=F<MESSAGE>]
+B<airt_export> [--help] [--noqueue] [--verbose] [--result-id=I<ID>]
+[--result-code=I<CODE>] [--result-msg=I<MESSAGE>] [--purge=I<HOURS>]
 
 
 =head1 DESCRIPTION
 
 The B<airt_export> command is used to start up an external task, requested
 via the AIRT export queue. Although the program is intended to be used from
-B<cron>, it may without problems be called manually, as long as it is from
-the correct user account.
+cron(8), it may without problems be called manually, as long as it is from
+the correct user account, typically F<airtexport>.
 
-The same command is used for two separate actions.
+The same command is used for three separate actions.
 
 =over 4
 
 =item B<To dispatch queued external tasks from the export queue>
 
 This is the normal default behaviour of the B<airt_export> command when run
-with no command line parameters. Only the presence of the B<--result-id>
-parameter will make the command behave differently. Typically the command is
-run from B<cron> in this mode.
+with no command line parameters. Typically the command is run from cron(8)
+in this mode. The program picks up tasks from the queue that are ready to
+run and dispatches them.
 
 =item B<To signal the completion of an external task to the export queue>
 
-This is the alternate behaviour, triggered by the presence of the
-B<--result-id> parameter (only). Additionally, the B<--result-code> and the
-B<--result-msg> parameters may be present, but they have useful default
+This is the first alternate behaviour, triggered by the presence of the
+I<--result-id> parameter (only). Additionally, the I<--result-code> and the
+I<--result-msg> parameters may be present, but they have useful default
 values. Typically the task wrapper scripts will end by running the command
-in this mode.
+in this mode. No other action is performed.
+
+=item B<To purge the export queue of old tasks>
+
+This is the second alternate behaviour, triggered by the presence of the
+I<--purge> parameter. All expired export queue tasks are removed from the
+queue. Typically, a cron(8) job runs the C<airt_export --purge> command a
+few times per day. No other action is performed.
 
 =back
 
 
 =over 4
 
-=item B<--help>
+=item I<--help>
 
 Shows the usage of the program on the command line.
 
-=item B<--noqueue>
+=item I<--noqueue>
 
 This is mostly a debugging option. All possible sanity checks are performed
 as usual, but the AIRT database is never updated, and no background task is
-ever spawned. Typically used in combination with B<--verbose>. Take notice
+ever spawned. Typically used in combination with I<--verbose>. Take notice
 that you must have a runnable export queue entry before something will
-happen at all. B<--noqueue> can be used both for queue dispatch simulation
-and for task completion flagging simulation (with B<--result-id>).
+happen at all. I<--noqueue> can be used both for queue dispatch simulation,
+for task completion flagging simulation (with I<--result-id>), and for queue
+purge simulation (with I<--purge=HOURS>).
 
 =item B<--result-id=ID>
 
-Attempts to signal to the export queue that task F<ID> has been ended. If
+Attempts to signal to the export queue that task I<ID> has been ended. If
 this task is unknown to the queue, has not been started yet, or has already
 been completed, this leads to an error. The task ID was passed to the
 wrapper script as the first parameter and should be returned unchanged via
-the B<--result-id> option.
+the I<--result-id> option.
 
 =item B<--result-code=CODE>
 
-If B<--result-id> is given, the F<CODE> is assumed to be the formal result
+If I<--result-id> is given, the I<CODE> is assumed to be the formal result
 code of the wrapper script. Please use one of the following codes:
 
 =over 4
@@ -97,35 +105,42 @@ export queue.
 
 =item B<--result-msg=MSG>
 
-If B<--result-id> is given, the F<MSG> is assumed to be a brief (not more
+If I<--result-id> is given, the I<MSG> is assumed to be a brief (not more
 than 60-80 characters) statement in plain text about the results of the
 wrapper script. May be left out, but it is recommended in all cases,
-expecially if B<--result-code> is WARNING or ERROR. If you want to include
+expecially if I<--result-code> is WARNING or ERROR. If you want to include
 spaces in the message, use B<--result-msg="this type of syntax">.
 
+=item B<--purge=HOURS>
 
-=item B<--verbose>
+Purges the export queue: all export queue tasks created longer than I<HOURS>
+ago are removed from the queue. If I<HOURS> is left out, the default maximum
+time to live from the F<@ETCDIR@/exportqueue.cfg> file is used. Typically, a
+cron(8) job runs the C<airt_export --purge> command a few times per day. No
+other action is performed.
+
+=item I<--verbose>
 
 Generates verbose output on stdout while processing. Useful for testing.
 
 =back
 
-Normally, airt_export is quiet on stdout. Output is returned on stdout only
-when requested via --verbose, and on stderr in case of problems. Exit code 0
-means everything went OK, 1 means there was some unrecoverable problem,
-which will have been reported on stderr. There are cases where exit code 0
-will come together with stderr output, for example when processing more than
-one export queue entry and one of them cannot be spawned. A standard B<cron>
-implementation will catch all these cases and mail them to the user account
-that is assigned to the export queue task.
+Normally, B<airt_export> is quiet on stdout. Output is returned on stdout
+only when requested via --verbose, and on stderr in case of problems. Exit
+code 0 means everything went OK, 1 means there was some unrecoverable
+problem, which will have been reported on stderr. There are cases where exit
+code 0 will come together with stderr output, for example when processing
+more than one export queue entry and one of them cannot be spawned. A
+standard cron(8) implementation will catch all these cases and mail them to
+the user account that is assigned to the export queue task.
 
 
 =head1 SECURITY
 
 B<airt_export> is built using the philosophy of upgrading privileges when
-required. Typically, the program is started as user B<airt-export>
-(certainly not as user B<root> and neither as B<nobody>), and upgrades to
-the required privilege level using sudo(8). However, the actual B<sudo>
+required. Typically, the program is started as user F<airtexport>
+(certainly not as user F<root> and neither as F<nobody>), and upgrades to
+the required privilege level using sudo(8). However, the actual sudo(8)
 commands are not used in the B<airt_export> executable script; they all are
 inside the user-provided wrapper scripts in F<@AIRT_PHPLIBDIR@/exportqueue>.
 This means that all security-sensitive operations are fully controlled by
@@ -137,7 +152,7 @@ eligible to be started from the export queue. The only interface between
 AIRT and the wrapper script is the command line string. The first parameter
 of the command line string is the task ID, assigned by AIRT, which the
 wrapper script must use when returning the result code to AIRT. If this ID
-is faked or hijacked, for which access to the B<airt-export> user is
+is faked or hijacked, for which access to the F<airtexport> user is
 required, the AIRT export queue may be sent a fake result. However, this
 does not compromise the integrity of the rest of the queue or the running
 task, and the problem will be noticed when the original task attempts to
@@ -155,8 +170,8 @@ approaches to management and security. This may involve sudo(8) for
 privilege upgrades/shifts.
 
 Each wrapper is assumed to end with a call to B<airt_export> using the
-B<--result-id=ID> option. The actual task ID is passed as the first
-parameter to each wrapper script and needs to be passed to B<--result-id>
+I<--result-id=ID> option. The actual task ID is passed as the first
+parameter to each wrapper script and needs to be passed to I<--result-id>
 unchanged. If this call is not executed, the export queue entry will not be
 formally terminated, and eventually gets purged.
 
@@ -189,6 +204,6 @@ F<http://www.airt.nl/>.
 
 Full documentation is available in F<@AIRT_DOCDIR@>.
 
-AIRT man pages can be found by B<apropos airt>.
+AIRT man pages can be found by C<apropos airt>.
 
 =cut
