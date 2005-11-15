@@ -24,11 +24,11 @@
  * $Id$
  */
 
-define('AIRT_VERSION','@VERSION@');
+define('AIRT_VERSION','20051109.1');
 
 // Pick up standard AIRT config and required library (which pulls in the
 // other required libraries).
-require_once '@ETCDIR@/airt.cfg';
+require_once '/usr/local/etc/airt/airt.cfg';
 require_once ETCDIR.'/exportqueue.cfg';
 require_once LIBDIR.'/exportqueue.plib';
 

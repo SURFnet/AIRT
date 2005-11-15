@@ -281,14 +281,28 @@ function formatQueueList() {
 }// formatQueueList
 
 
-/* HTML to add an item to the queue. Demo only, so not much choice. */
+/* HTML to add an new task to the queue. Uses the list of known wrappers to
+ * offer the user a choice, plus optional parameter string, plus optional
+ * delayed scheduling.
+ * Input: nothing.
+ * Output: HTML code in string form.
+ */
 function formatQueueItemInsert() {
+   $wrappers = getWrapperList();
+   if (empty($wrappers)) {
+      // No wrappers available, we are done.
+echo "###";
+      return '';
+   }
+
    $out = '<p><strong>'.t('Add a new task to the queue').'</strong></p>'.LF;
    $out .= '<form method="POST" action="exportqueue.php">'.LF;
    $out .= '<input type="hidden" name="action" value="add">'.LF;
 
    $out .= '<select name="task">'.LF;
-   $out .= '  <option value="none">Demo Task'.LF;
+   foreach ($wrappers as $wrapper=>$execpath) {
+      $out .= '  <option value="'.$wrapper.'">'.$wrapper.LF;
+   }
    $out .= '</select>'.LF;
 
    $out .= '<select name="scheduled">'.LF;
@@ -305,7 +319,7 @@ function formatQueueItemInsert() {
 }// formatQueueItemInsert
 
 
-///// Common (SQL) functions //////////////////////////////////////////////////
+///// Common functions ///////////////////////////////////////////////////////
 
 /* Returns all items in the queue with their details, ordered by task ID.
  * All time stamp data is returned rounded to the minute (no seconds).
@@ -608,5 +622,48 @@ function queuePurge($maxHours, &$error) {
       return 0;
    }
 }
+
+
+/* Fetch a list of all available wrapper functions. Due to the possibility
+ * of double inclusion of the same directory, we suppress subsequent
+ * occurrences of the same wrapper. 
+ * Input:  nothing.
+ * Output: array with wrappers, [name]=execpath. May be empty.
+ */
+function getWrapperList() {
+   global $AIRT_EXPORTWRAPPER_DIRS;
+   $wrappers = array();
+
+   // Run over all declared directories where export wrappers may live.
+   clearStatCache();
+   foreach ($AIRT_EXPORTWRAPPER_DIRS as $dir) {
+      if (!is_dir($dir)) {
+         // Ehm? Ignore. Not deadly.
+         continue;
+      }
+      $libdir = opendir($dir);
+      // Run over all files in the declared wrapper directories.
+      while ($file = readdir($libdir)) {
+         $wrapper_name = basename($file);
+         if (substr($wrapper_name,0,8)=='wrapper_') {
+            // Found a wrapper file. Check whether it is executable for the
+            // current user.
+            if (!is_executable($dir.'/'.$wrapper_name)) {
+               // Nope, ignore.
+               continue;
+            } else {
+               // Ok, register the wrapper if we don't have it yet.
+               if (array_key_exists(substr($wrapper_name,8),$wrappers)===FALSE) {
+                 $wrappers[substr($wrapper_name,8)] = $dir.'/'.$file;
+               }
+            }
+         }
+      }// for each file name
+      closedir($libdir);
+   }// for each wrapper directory
+
+   return $wrappers;
+
+}// getWrapperList
 
 ?>
