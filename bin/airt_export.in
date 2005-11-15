@@ -41,7 +41,8 @@ $OPTIONS['--result-id']   = '';
 $OPTIONS['--result-code'] = 'UNKNOWN';
 $OPTIONS['--result-msg']  = '';
 $OPTIONS['--verbose']     = false;
-$OPTIONS['--purge']       = EXPORT_QUEUE_MAX_HOURS;
+$OPTIONS['--purge']       = false;
+$OPTIONS['--maxhours']    = EXPORT_QUEUE_MAX_HOURS;
 
 // Run over command line arguments.
 array_shift($argv);               // get rid of argument 0, the command itself.
@@ -83,16 +84,17 @@ if ($OPTIONS['--help']) {
 
 
 // Check whether the queue is being purged.
-if ($OPTIONS['--purge']!='') {
-   // Purge request.
+if ($OPTIONS['--purge']) {
+   // Purge request. Get maximum hours expiration (has good default).
+   $maxhours = $OPTIONS['--maxhours'];
    if ($OPTIONS['--noqueue']) {
       msg(t('Purge of export queue (max. TTL %hours hours) skipped.',
-            array('%hours'=>$OPTIONS['--purge'])));
+            array('%hours'=>$maxhours)));
    } else {      
       // Purge all tasks that have a "created" time stamp which is too old.
       msg(t('Purging all export queue tasks older than %hours hours.',
-            array('%hours'=>$OPTIONS['--purge'])));
-      if (queuePurge($OPTIONS['--purge'], $error)) {
+            array('%hours'=>$OPTIONS['--maxhours'])));
+      if (queuePurge($maxhours, $error)) {
          fwrite(STDERR,t('ERROR:').' '.$error."\n");
          exit(1);
       }

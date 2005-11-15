@@ -10,8 +10,9 @@ AIRT_EXPORT - CLI work horse for the AIRT export queue
 
 =head1 SYNOPSIS
 
-B<airt_export> [--help] [--noqueue] [--verbose] [--result-id=I<ID>]
-[--result-code=I<CODE>] [--result-msg=I<MESSAGE>] [--purge=I<HOURS>]
+B<airt_export> [--help] [--noqueue] [--verbose]
+[--result-id=I<ID>] [--result-code=I<CODE>] [--result-msg=I<MESSAGE>]
+[--purge] [--maxhours=HOURS]
 
 
 =head1 DESCRIPTION
@@ -64,9 +65,13 @@ ever spawned. Typically used in combination with I<--verbose>. Take notice
 that you must have a runnable export queue entry before something will
 happen at all. I<--noqueue> can be used both for queue dispatch simulation,
 for task completion flagging simulation (with I<--result-id>), and for queue
-purge simulation (with I<--purge=HOURS>).
+purge simulation (with I<--purge>).
 
-=item B<--result-id=ID>
+=item I<--verbose>
+
+Generates verbose output on stdout while processing. Useful for testing.
+
+=item I<--result-id=ID>
 
 Attempts to signal to the export queue that task I<ID> has been ended. If
 this task is unknown to the queue, has not been started yet, or has already
@@ -74,7 +79,7 @@ been completed, this leads to an error. The task ID was passed to the
 wrapper script as the first parameter and should be returned unchanged via
 the I<--result-id> option.
 
-=item B<--result-code=CODE>
+=item I<--result-code=CODE>
 
 If I<--result-id> is given, the I<CODE> is assumed to be the formal result
 code of the wrapper script. Please use one of the following codes:
@@ -103,7 +108,7 @@ further semantic meaning attached to the codes.  If no result code is passed
 to the B<airt_export> command, UNKNOWN will be assumed and sent to the
 export queue.
 
-=item B<--result-msg=MSG>
+=item I<--result-msg=MSG>
 
 If I<--result-id> is given, the I<MSG> is assumed to be a brief (not more
 than 60-80 characters) statement in plain text about the results of the
@@ -111,17 +116,20 @@ wrapper script. May be left out, but it is recommended in all cases,
 expecially if I<--result-code> is WARNING or ERROR. If you want to include
 spaces in the message, use B<--result-msg="this type of syntax">.
 
-=item B<--purge=HOURS>
+=item I<--purge>
 
-Purges the export queue: all export queue tasks created longer than I<HOURS>
-ago are removed from the queue. If I<HOURS> is left out, the default maximum
-time to live from the F<@ETCDIR@/exportqueue.cfg> file is used. Typically, a
-cron(8) job runs the C<airt_export --purge> command a few times per day. No
-other action is performed.
+Purges the export queue: all export queue tasks created longer than a
+specific number of hours ago are removed from the queue. If
+I<--maxhours=HOURS> is left out, the default maximum time to live from the
+F<@ETCDIR@/exportqueue.cfg> file is used. Typically, a cron(8) job runs the
+C<airt_export --purge> command a few times per day. No other action is
+performed.
 
-=item I<--verbose>
+=item I<--maxhours=HOURS>
 
-Generates verbose output on stdout while processing. Useful for testing.
+Specifies the number of hours an export queue item must have been in the
+export queue before it may get purged. The default value for this option
+comes from the F<@ETCDIR@/exportqueue.cfg> file.
 
 =back
 
