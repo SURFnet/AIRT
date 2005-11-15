@@ -1,4 +1,7 @@
-* Incident overview: filtering on state
+2005-11-15
+* Incident overview: filtering on state.
+* Export queue: user interface first practical release.
+* More stuff external in style declarations.
 
 2005-11-10
 * Export queue backend (cron part) fully completed.
