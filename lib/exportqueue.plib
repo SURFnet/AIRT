@@ -646,16 +646,9 @@ function getWrapperList() {
       while ($file = readdir($libdir)) {
          $wrapper_name = basename($file);
          if (substr($wrapper_name,0,8)=='wrapper_') {
-            // Found a wrapper file. Check whether it is executable for the
-            // current user.
-            if (!is_executable($dir.'/'.$wrapper_name)) {
-               // Nope, ignore.
-               continue;
-            } else {
-               // Ok, register the wrapper if we don't have it yet.
-               if (array_key_exists(substr($wrapper_name,8),$wrappers)===FALSE) {
-                 $wrappers[substr($wrapper_name,8)] = $dir.'/'.$file;
-               }
+            // Ok, register the wrapper if we don't have it yet.
+            if (array_key_exists(substr($wrapper_name,8),$wrappers)===FALSE) {
+              $wrappers[substr($wrapper_name,8)] = $dir.'/'.$file;
             }
          }
       }// for each file name
