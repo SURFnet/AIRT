@@ -2,9 +2,6 @@ Design of the AIRT Export Queue
 ===============================================================================
 $Id$
 
-BLOCKS BETWEEN *** STILL NEED TO BE REFINED
-
-
 The AIRT Export Queue is a mechanism to asynchronously call external
 programs from within the AIRT interface. Async calls are interesting when
 the external program takes longer than a few seconds to execute, and thus a
@@ -23,11 +20,11 @@ context, while the latter can provide some context data from the incident
 record and a limited option to feed the results of the external program back
 to the incident record.
 
-External programs can be dynamically parametrized from AIRT. A simple
-mechanism is provided to generate a parameter string with limited variable
-expansion from the AIRT incident record data. For the moment, more extensive
-mechanisms including full HTML entry forms are not implemented, but these
-can be added later without much fuss.
+Since the operational usage of the export queue still needs to be piloted,
+we do not provide extensive user interfaces yet. A basic queue manager and
+detailed technical documentation are available. In the future, after
+operational experience has been gained, we can add a task manager, which
+defines the available tasks and their parameters in a less technical way.
 
 
 AIRT System Interface
@@ -47,51 +44,19 @@ root, such a paranoid approach really is required.
 The narrow channel between AIRT and the external program allows for a simple
 one-line parameter string that is passed to the program. With the external
 program forked off asynchronously, the options it has to send the result
-back to AIRT are limited. As part of the parameter string, it will receive a
-fully specified file name to which it may write a single line of result,
-which should start with OK, WARNING or ERROR, followed by a maximum of 80
-characters in flat ASCII. For AIRT, the reception of this file marks the end
-of the exported task. It only serves as a commented flag. AIRT does not
-process the results in any way, it just stores them in the export queue to
-flag the completion of the task.
+back to AIRT are limited. As part of the parameter string, it receives a
+task ID that functions as the handle to return the results. The returned
+results are limited to one single one-line string, which should start with
+OK, WARNING or ERROR, followed by a maximum of 80 characters in flat ASCII.
+For AIRT, the reception of this file marks the end of the exported task. It
+only serves as a commented flag. AIRT does not process the results in any
+way, it just stores them in the export queue to flag the completion of the
+task.
 
 If the external program has more than just a one-liner to report back to
-AIRT, it must do so via the import mechanism, creating a new incident. AIRT
-does not provide extra help except for what the import mechanism already
-offers.
-
-
-Incident Context
-----------------
-***
-- Some basic incident data.
-- Entry in the incident history.
-- AIRT event handling?
-- Possibly, list of pending tasks per incident.
-- Expiration/warning mechanism.
-
-A function should be available which can produce a parameter string using
-standard %x expansion. Hm. Inside AIRT, this won't do, as nobody except the
-AIRT developers is supposed to touch this code. A better solution seems to
-be to define what parameter string is fed to the external program (wrapper
-script), and keep this string extensible. The database and whole export
-queue mechanism should already be built with this in mind. In other words,
-the AIRT core function export_Foepie() should produce a string which is
-passed on to the wrapper script unparsed by anything. Only the queue itself
-might add the queue item ID.
-***
-
-
-AIRT Interface Design
----------------------
-***
-- Mechanism to dynamically compile a parametrized URL.
-- Mechanism to securely catch parametrized URLs.
-- Narrow call channel for external program scripts.
-- Single list (directory) with callable scripts.
-- Predefined format for such scripts, using start-stop-daemon for the
-  actual queue work.
-***
+AIRT, it must do so via the import mechanism, creating a new incident or
+adding to an existing one. AIRT does not provide extra help except for what
+the import mechanism already offers.
 
 
 Operating System Interface
@@ -112,99 +77,29 @@ run.
 
 The cron script accesses the AIRT core database and picks up exported tasks
 that are ready to be run. These tasks must be available as an executable in
-a predefined directory, usually /usr/local/share/airt/lib/exportqueue, as
-they are site-specific. If the correct executable can be found, it is forked
-off with the parameter string from the database, and the cron script logs
-this event back to the AIRT core database. The cron script then terminates
-and will run again when cron fires.
+a predefined directory, usually /usr/local/share/airt/lib/export_wrappers,
+as they are site-specific. If the correct executable can be found, it is
+forked off with the parameter string from the database, and the cron script
+logs this event back to the AIRT core database. The cron script then
+terminates and will run again when cron fires.
 
-The site-specific executables in /usr/local/share/airt/lib/exportqueue are
-usually wrappers around standard programs such as nmap. The wrapper sets up
-a working environment for the actual work horse, including a sudo statement
-if required. If output of the work horse needs to be retained for reporting,
-it should be sent to files, but the wrapper script is responsible for all
-housekeeping. If extensive results are to be sent to AIRT, the wrapper needs
-to call the airt_import program with the proper filter. After everything is
-said and done, the wrapper is expected to call airt_export again with the
---result-id parameter and its task ID. --result-code is by convention also
-required (but technically not), and --result-msg is a good idea. These data
-are sent back to the AIRT export queue, and flag the formal end of the task.
+The site-specific executables in /usr/local/share/airt/lib/export_wrappers
+are usually wrappers around standard programs such as nmap. The wrapper sets
+up a working environment for the actual work horse, including a sudo
+statement if required. If output of the work horse needs to be retained for
+reporting, it should be sent to files, but the wrapper script is responsible
+for all housekeeping. If extensive results are to be sent to AIRT, the
+wrapper needs to call the airt_import program with the proper filter.  After
+everything is said and done, the wrapper is expected to call airt_export
+again with the --result-id parameter and its task ID.  --result-code is by
+convention also required (but technically not), and --result-msg is a good
+idea. These data are sent back to the AIRT export queue, and flag the formal
+end of the task.
 
 If an external program crashes and is not able to send the exit status back
 to the export queue, the job will remain flagged as "started at ..." until
 the export queue is purged. AIRT is robust against this, but does not take
 actions to determine why the process crashed.
-
-***
-What data do we need to start up a background/export process?
-
-- Which user we want to run the actual process. This is determined fully by
-  the site-specific wrapper script.
-- Which ID this process has, so that we can refer to it and put the results
-  back into the export queue after job completion.
-- Which main program we need (nmap, Nessus, router control...). Not a true
-  executable name, but a wrapper script name in the exportqueue directory.
-- Parameters for the wrapper script, such as IP address and scan type. Fully
-  dependent on the wrapper script.
-- Optionally a delayed start time for advanced scheduling (cheap). Default
-  should be "as soon as possible", i.e., the next whole minute.
-***
-
-
-FILE SYSTEM STRUCTURES AND FHS
-
-We follow the Filesystem Hierarchy Standard (http://www.pathname.com/fhs/)
-as closely as possible to keep AIRT portable to a wide range of Unix
-systems.
-
-Everything that is specific to AIRT must go in /var/lib/airt (via the
-%STATEDIR% install-time variable). This includes all input and output files
-for the external programs, as far as they are interesting. Non-interesting
-files may go to /[var/]tmp or /dev/null instead.
-
-If any external program needs a lock file, it should go to /var/lock, which
-is accessible to any user. This is to prevent clashes when the same program
-is run outside the AIRT scope. AIRT does not know of this, it is up to the
-site-specific wrapper script to use this mechanism.
-
-External program log files should be avoided if possible, but if they are
-required and do not fall under the input/output files of the program which
-go to %STATEDIR%, they can be dropped in /var/log. Note that this usually
-requires a specific setup, as /var/log itself is only accessible by root.
-Consider /var/tmp, /tmp, or /dev/null instead.
-
-The /var/run directory is also only accessible by root and therefore should
-be avoided to store PIDs and other state info. Although it may be the system
-itself that started a program (via the cron job), the program should be seen
-as running under command of AIRT and the state files should go to
-%STATEDIR%. The same holds for /var/spool.
-
-Non-living files (read-only, except when (re)configuring AIRT) go to the
-standard /etc/airt/ tree if they are true config files (no code, only
-defines and includes), to the standard /usr/share/airt/lib for code that
-shipped with the core, and to /usr/local/share/airt/lib/exportqueue for code
-specific to the exportqueue plugin, such as site-specific extensions
-(wrapper scripts).
-
-
-AIRT CONTEXT
-
-***
-- Firing off an external program might lead to an event registration for the
-  associated incident. This adds a history line, nothing more. A returned
-  answer may also lead to a history line. There are no other options to add
-  a result to an incident.
-***
-
-
-USER INTERACTION BEFORE FIRING OFF
-
-If a user form must be shown before the export queue entry is made, the site
-administrator must provide this form. It does not seem a good idea at this
-moment to allow a full HTML/PHP page for a form, with the associated data
-catcher and all fuss. We might get away with a simple list of variable names
-that gets expanded into a simple form, and leads to a parameter line with a
-'--variable=value --variable=value --variable=value' structure. Later.
 
 
 AIRT DATABASE SCHEMA EXTENSION
@@ -229,11 +124,11 @@ CREATE TABLE export_queue (
 
 The airt_export program queries the table and selects tasks with both a
 "scheduled" time that has passed and no "started" time. These are started by
-forking off the "task" wrapper script with the "-output <filename>"
-parameter and the "params" string broken up in pieces. Start time is also
-recorded. When a return string is found, ended time is recorded and the
-string is stored in the table. Queue entries are only removed by an explicit
-purge action (typically from cron).
+forking off the "task" wrapper script with the "ID" parameter and the
+"params" string broken up in pieces. Start time is also recorded. When a
+task ends, ended time is recorded and the return string is stored in the
+table. Queue entries are only removed by an explicit purge action
+(typically from cron).
 
 
 EXPORT QUEUE PURGING
@@ -242,16 +137,8 @@ No automatic purging of the queue is done. A database purge must be
 initiated by running the 'airt_export --purge' command, typically from cron
 and a few times per day. The default maximum time to live in hours is
 defined in etc/exportqueue.cfg, but may be overridden on the command line:
-'airt_export --purge=100' would purge jobs created more than 100 hours ago.
-It is up to the installation admin to decide how often the queue is purged
-and how long jobs may stay in there for reference.
-
-
-LOOSE ENDS
-
-Useful PHP man page:
-http://nl2.php.net/manual/en/function.shell-exec.php
-Look for the contribution by jesuse dot gonzalez at venalum dot com dot ve.
-Alternatively look at http://nl2.php.net/manual/en/function.pcntl-fork.php
+'airt_export --purge --maxhours=100' would purge jobs created more than 100
+hours ago. It is up to the installation admin to decide how often the queue
+is purged and how long jobs may stay in there for reference.
 
 [EOF]

@@ -195,7 +195,7 @@ function fetchFrom($source,$name,$format='') {
  * Output: HTML string, ready for output.
  */
 function formatQueueList() {
-   $out = '';
+   $out = '<p><em><a href="exportqueue.php">Refresh this page</a></em></p>'.LF;
 
    // Fetch the items in the export queue.
    if (getQueueList($itemArray,$error)) {
@@ -204,12 +204,12 @@ function formatQueueList() {
    }
 
    if (count($itemArray)==0) {
-      $out = '<p><em>'.t('No items in export queue.').'</em></p>'.LF;
+      $out .= '<p><em>'.t('No items in export queue.').'</em></p>'.LF;
       return $out;
    }
 
    // Table format, header, etc.
-   $out = '<table>'.LF;
+   $out .= '<table>'.LF;
    $out .= '<tr>'.LF;
    $out .= '  <th>'.t('ID').'</th>'.LF;
    $out .= '  <th>'.t('Task').'</th>'.LF;
@@ -291,7 +291,6 @@ function formatQueueItemInsert() {
    $wrappers = getWrapperList();
    if (empty($wrappers)) {
       // No wrappers available, we are done.
-echo "###";
       return '';
    }
 
@@ -305,14 +304,20 @@ echo "###";
    }
    $out .= '</select>'.LF;
 
+   $out .= '<input type="text" name="params" size=30>'.LF;
+
    $out .= '<select name="scheduled">'.LF;
-   $out .= '  <option value=0>Now'.LF;
-   $out .= '  <option value=1>In one hour'.LF;
-   $out .= '  <option value=2>In two hours'.LF;
-   $out .= '  <option value=3>In three hours'.LF;
+   $out .= '  <option value=0>Run Now'.LF;
+   $out .= '  <option value=1>Run in one hour'.LF;
+   $out .= '  <option value=2>Run in two hours'.LF;
+   $out .= '  <option value=5>Run in five hours'.LF;
    $out .= '</select>'.LF;
 
-   $out .= '<input type="SUBMIT" value="'.t('Add Task').'">'.LF;
+   $out .= '<input type="SUBMIT" value="'.t('Add Task').'"><p>'.LF;
+   $out .= '<em>'.t('For the exact functionality of the available tasks and
+   their possible parameters, please see %Athe documentation%E.',
+     array('%A'=>'<a href="http://www.airt.nl/documentation/">',
+           '%E'=>'</a>')).'</em>'.LF;
    $out .= '</form>'.LF;
 
    return $out;
@@ -409,14 +414,16 @@ function queueItemInsert($task, $params, $scheduled, &$output) {
 
    // Insert the queue item.
    $q = q("INSERT INTO export_queue
-              (id,task,created,scheduled)
+              (id,task,params,created,scheduled)
            VALUES (
               %taskID,
               '%task',
+              '%params',
               CURRENT_TIMESTAMP,
               CURRENT_TIMESTAMP + interval '%scheduled hour')",
           array('%taskID'   =>$newTaskID,
                 '%task'     =>db_escape_string($task),
+                '%params'   =>db_escape_string($params),
                 '%scheduled'=>db_escape_string($scheduled)));
    if (!db_query($q)) {
       $output = t('Could not insert queue item.');
