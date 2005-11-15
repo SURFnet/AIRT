@@ -232,8 +232,19 @@ The airt_export program queries the table and selects tasks with both a
 forking off the "task" wrapper script with the "-output <filename>"
 parameter and the "params" string broken up in pieces. Start time is also
 recorded. When a return string is found, ended time is recorded and the
-string is stored in the table. A purge thing should remove ended tasks of 24
-hours old, or so.
+string is stored in the table. Queue entries are only removed by an explicit
+purge action (typically from cron).
+
+
+EXPORT QUEUE PURGING
+
+No automatic purging of the queue is done. A database purge must be
+initiated by running the 'airt_export --purge' command, typically from cron
+and a few times per day. The default maximum time to live in hours is
+defined in etc/exportqueue.cfg, but may be overridden on the command line:
+'airt_export --purge=100' would purge jobs created more than 100 hours ago.
+It is up to the installation admin to decide how often the queue is purged
+and how long jobs may stay in there for reference.
 
 
 LOOSE ENDS

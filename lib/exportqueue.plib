@@ -39,7 +39,7 @@ function printUsage() {
 
    echo t('Task export program, part of the AIRT suite.').LF;
    echo t('Copyright (C) 2005   Tilburg University, The Netherlands.').LF;
-   echo t('Usage: airt_export [--help] [--noqueue] [--verbose]').LF;
+   echo t('Usage: airt_export [--help] [--noqueue] [--verbose] [--purge]').LF;
    echo   '         '.t('[--result-id=ID] [--result-code=CODE]').LF;
    echo   '         '.t('[--result-msg="message here"]').LF;
 
@@ -588,18 +588,18 @@ function queueItemSetEnded($taskID, $ended, $result, $noqueue, &$error) {
  * difference between items on the basis of status; only looks at the
  * creation time. Do not set the expiration period too short or you may
  * cause problems with long-running tasks.
- * Input: maxAge = Number of seconds that an item may stay in the queue.
+ * Input: maxHours = Number of hours that an item may stay in the queue.
  *        error = Variable to write the error message to.
  * Output: 0 on success, 1 on failure, with $error containing the message.
  */
-function queuePurge($maxAge, &$error) {
-   if (!is_numeric($maxAge)) {
-      $error = t('maxAge must be a number.');
+function queuePurge($maxHours, &$error) {
+   if (!is_numeric($maxHours)) {
+      $error = t('maxHours must be a number.');
       return 1;
    }
    $q = q('DELETE FROM export_queue
            WHERE EXTRACT(EPOCH FROM CURRENT_TIMESTAMP-created) > %ttl',
-          array('%ttl'=>$maxAge));
+          array('%ttl'=>$maxHours*60*60));
    if (db_query($q)==FALSE) {
       $error = t('Could not purge export queue.');
       return 1;

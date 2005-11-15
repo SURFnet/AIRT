@@ -41,6 +41,7 @@ $OPTIONS['--result-id']   = '';
 $OPTIONS['--result-code'] = 'UNKNOWN';
 $OPTIONS['--result-msg']  = '';
 $OPTIONS['--verbose']     = false;
+$OPTIONS['--purge']       = EXPORT_QUEUE_MAX_HOURS;
 
 // Run over command line arguments.
 array_shift($argv);               // get rid of argument 0, the command itself.
@@ -49,11 +50,14 @@ foreach ($argv as $param) {
       // Option parameter.
       @list($option,$value) = split('=',$param);
       if (isset($OPTIONS[$option])) {
-         // Known option, get new value of the correct type.
+         // Known option, get new value of the correct type. Don't touch
+         // default in case scalar and no value is given.
          if (is_bool($OPTIONS[$option])) {
             $OPTIONS[$option] = true;
          } else {
-            $OPTIONS[$option] = $value;
+            if ($value!='') {
+               $OPTIONS[$option] = $value;
+            }
          }
       } else {
          // Unknown option, quit.
@@ -104,16 +108,26 @@ if ($OPTIONS['--help']) {
    exit(0);
 }
 
-if ($OPTIONS['--noqueue']) {
-   msg(t('Purge of export queue skipped.'));
-} else {      
-   // Purge all tasks that have a "created" time stamp which is too old.
-   // This action is always silently taken, unless --help is requested.
-   if (queuePurge(EXPORT_QUEUE_MAX_TTL, $error)) {
-      fwrite(STDERR,t('ERROR:').' '.$error."\n");
-      exit(1);
+
+// Check whether the queue is being purged.
+if ($OPTIONS['--purge']!='') {
+   // Purge request.
+   if ($OPTIONS['--noqueue']) {
+      msg(t('Purge of export queue (max. TTL %hours hours) skipped.',
+            array('%hours'=>$OPTIONS['--purge'])));
+   } else {      
+      // Purge all tasks that have a "created" time stamp which is too old.
+      msg(t('Purging all export queue tasks older than %hours hours.',
+            array('%hours'=>$OPTIONS['--purge'])));
+      if (queuePurge($OPTIONS['--purge'], $error)) {
+         fwrite(STDERR,t('ERROR:').' '.$error."\n");
+         exit(1);
+      }
    }
-}
+
+   exit(0);
+}// if called to purge the export queue.
+
 
 // Check whether a running task is being completed.
 if ($OPTIONS['--result-id']!='') {
