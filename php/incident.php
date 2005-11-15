@@ -57,9 +57,6 @@ function formatIncidentForm(&$check) {
    if (array_key_exists("current_email", $_SESSION)) {
       $email = $_SESSION["current_email"];
    }
-   if (array_key_exists("current_email", $_SESSION)) {
-      $email = $_SESSION["current_email"];
-   }
 
    if (defined('CUSTOM_FUNCTIONS') && function_exists('custom_default_addressrole')) {
       $addressrole = custom_default_addressrole($address);
@@ -262,46 +259,62 @@ if (array_key_exists("action", $_REQUEST)) {
   $action="list";
 }
 
-/* return a string containing the list overview header page
- */
-function formatListOverviewHeader() {
-   global $statusfilter;
+/* format the filter block */
+function formatFilterBlock() {
+   if (array_key_exists('filter', $_REQUEST)) {
+      $filter = $_REQUEST['filter'];
+   } else {
+      $filter = array();
+      $filter['state'] = -1;
+      $filter['status'] = -1;
+   }
 
-   $out = t("<table cellpadding='3'>\n".
+   $out = t(
+      "<FORM method=\"POST\">\n".
+      "<table cellpadding=\"3\">\n".
       "<tr>\n".
-      "   <td>\n".
-      "   Enter incident number\n".
-      "   </td>\n".
-      "   <td>\n".
-      "   <FORM action=\"%url\" method=\"POST\">\n".
-      "   <INPUT TYPE=\"hidden\" name=\"action\" value=\"details\">\n".
-      "   <INPUT TYPE=\"input\" name=\"incidentid\" size=\"14\">\n".
-      "   <INPUT TYPE=\"submit\" value=\"Details\">\n".
-      "   </FORM>\n".
+      "   <td>Status</td>\n".
+      "   <td>".
+             getIncidentStatusSelection("filter[status]", $filter['status'],
+             array("-1"=>"Do not filter")).
       "   </td>\n".
       "</tr>\n".
       "<tr>\n".
-      "   <td>\n".
-      "   Select incident status\n".
-      "   </td>\n".
-      "   <td>\n".
-      "      <FORM action=\"%url\" method=\"POST\">\n".
-      "      <INPUT TYPE=\"hidden\" name=\"action\" value=\"list\">\n".
-      "      <SELECT name=\"statusfilter\">\n".
-             choice("open", 1, $statusfilter).
-             choice("stalled", 2, $statusfilter).
-             choice("open or stalled", 3, $statusfilter).
-             choice("closed", 4, $statusfilter).
-             choice("all", 5, $statusfilter).
-      "      </SELECT>\n".
-      "      <INPUT TYPE=\"submit\" VALUE=\"Ok\">\n".
-      "      </FORM>\n".
+      "   <td>State</td>\n".
+      "   <td>".
+             getIncidentStateSelection("filter[state]", $filter['state'],
+             array("-1"=>"Do not filter")).
       "   </td>\n".
       "</tr>\n".
       "</table>\n".
-      "<p><form action=\"%url\" method=\"POST\">\n".
-      "<input type=\"submit\" name=\"action\" value=\"New incident\">\n".
-      "</form>\n", array('%url'=>$_SERVER['PHP_SELF']));
+      "<INPUT TYPE=\"submit\" VALUE=\"Filter\">\n".
+      "</FORM>\n");
+   return $out;
+}
+
+function formatDetailBlock() {
+   $out = t(
+      "<form method=\"post\">".
+      "Incident number ".
+      "<INPUT TYPE=\"input\" name=\"incidentid\" size=\"14\">\n".
+      "<INPUT TYPE=\"submit\" name=\"Details\" value=\"Details\">\n".
+      "</form>\n");
+   return $out;
+}
+
+/* return a string containing the list overview header page
+ */
+function formatListOverviewHeader() {
+   $out = t(
+      "<table style=\"border-right:1px\">".
+      "<tr valign=\"top\">".
+      "   <td>%filters</td>".
+      "   <td>%details</td>".
+      "</tr>".
+      "</table>", array(
+         '%filters'=>formatFilterBlock(),
+         '%details'=>formatDetailBlock()));
+
    return $out;
 }
 
@@ -310,9 +323,9 @@ function formatListOverviewHeader() {
  */
 function formatPagerLine($page, $numincidents, $pagesize=PAGESIZE) {
    global $sortkey;
-   global $statusfilter;
+   global $filter;
 
-   $urlprefix="&sortkey=$sortkey&statusfilter=$statusfilter";
+   $urlprefix="&sortkey=$sortkey&filter[status]=$filter[status]&filter[state]=$filter[state]";
    if ($numincidents < $pagesize) {
       return '';
    }
@@ -347,12 +360,14 @@ function formatPagerLine($page, $numincidents, $pagesize=PAGESIZE) {
 
 function formatListOverviewBody() {
    global $sortkey;
-   global $statusfilter;
+   global $filter;
 
-   if (array_key_exists('statusfilter', $_REQUEST)) {
-      $statusfilter = $_REQUEST['statusfilter'];
+   if (array_key_exists('filter', $_REQUEST)) {
+      $filter = $_REQUEST['filter'];
    } else {
-      $statusfilter = '3';
+      $filter = array();
+      $filter['status'] = -1;
+      $filter['state']= -1;
    }
    if (array_key_exists('sortkey', $_REQUEST)) {
       $sortkey = $_REQUEST['sortkey'];
@@ -365,15 +380,17 @@ function formatListOverviewBody() {
       $page = 1;
    }
 
-   switch ($statusfilter) {
-      case 1: $sqlfilter = "AND s1.label = 'open'";
-         break;
-      case 2: $sqlfilter = "AND s1.label = 'stalled'";
-         break;
-      case 3: $sqlfilter = "AND s1.label IN ('open', 'stalled')";
-         break;
-      default:
-         $sqlfilter="";
+   $statuses = getIncidentStatus();
+   if (array_key_exists($filter['status'], $statuses) && 
+      $filter['status'] >= 0) {
+      $sqlfilter = " AND s1.label = '".$statuses[$filter['status']]."'";
+   } else {
+      $sqlfilter = " AND s1.label = 'open'";
+   }
+   $states = getIncidentStates();
+   if (array_key_exists($filter['state'], $states) && 
+      $filter['state'] >= 0) {
+      $sqlfilter .= " AND s2.label = '".$states[$filter['state']]."'";
    }
 
    switch ($sortkey) {
@@ -397,8 +414,8 @@ function formatListOverviewBody() {
    if (sizeof($incidents) == 0) {
         return "<I>No incidents.</I>";
    }
-
-   $out = t("<form action=\"%url\" method=\"POST\">\n".
+   $out = t(
+      "<form action=\"%url\" method=\"POST\">\n".
       "<INPUT TYPE=\"hidden\" name=\"action\" value=\"massupdate\">\n".
       "<table width=\"100%\">\n".
       "<tr>\n".
@@ -407,63 +424,68 @@ function formatListOverviewBody() {
    if ($sortkey == 'incidentid') {
       $out .=  "";
    } else {
-      $out .= t("<a href=\"%url?sortkey=incidentid&statusfilter=%sf&page=%p\">*</a>", 
-         array('%url'=>$_SERVER['PHP_SELF'], '%sf'=>$statusfilter,
-         '%p'=>$page));
+      $out .= t("<a href=\"%url?sortkey=incidentid&filter[status]=%sf&filter[state]=%stf&page=%p\">*</a>", 
+         array('%url'=>$_SERVER['PHP_SELF'], '%sf'=>$filter['status'],
+         '%p'=>$page, '%stf'=>$filter['state']));
    }
    $out .= t("</th>\n");
+
    $out .= t("   <th>Consituency");
    if ($sortkey == 'constituency') {
       $out .=  "";
    } else {
-      $out .= t("<a href=\"%url?sortkey=constituency&statusfilter=%sf&page=%p\">*</a>", 
-         array('%url'=>$_SERVER['PHP_SELF'], '%sf'=>$statusfilter,
-         '%p'=>$page));
+      $out .= t("<a href=\"%url?sortkey=constituency&filter[status]=%sf&filter[state]=%stf&page=%p\">*</a>", 
+         array('%url'=>$_SERVER['PHP_SELF'], '%sf'=>$filter['status'], '%stf'=>$filter['state'], '%p'=>$page));
    }
    $out .= t("</th>\n");
+
    $out .= t("   <th>Hostname");
    if ($sortkey == 'hostname') {
       $out .=  "";
    } else {
-      $out .= t("<a href=\"%url?sortkey=hostname&statusfilter=%sf&page=%p\">*</a>", 
-         array('%url'=>$_SERVER['PHP_SELF'], '%sf'=>$statusfilter,
+      $out .= t("<a href=\"%url?sortkey=hostname&filter[status]=%sf&filter[state]=%stf&page=%p\">*</a>", 
+         array('%url'=>$_SERVER['PHP_SELF'], '%sf'=>$filter['status'], '%stf'=>$filter['state'],
          '%p'=>$page));
    }
    $out .= t("</th>\n");
+
    $out .= t("   <th>Status");
    if ($sortkey == 'status') {
       $out .=  "";
    } else {
-      $out .= t("<a href=\"%url?sortkey=status&statusfilter=%sf&page=%p\">*</a>", 
-         array('%url'=>$_SERVER['PHP_SELF'], '%sf'=>$statusfilter,
+      $out .= t("<a href=\"%url?sortkey=status&filter[status]=%sf&filter[state]=%stf&page=%p\">*</a>", 
+         array('%url'=>$_SERVER['PHP_SELF'], '%sf'=>$filter[status], '%stf'=>$filter['state'],
          '%p'=>$page));
    }
    $out .= t("</th>\n");
+
    $out .= t("   <th>State");
    if ($sortkey == 'state') {
       $out .=  "";
    } else {
-      $out .= t("<a href=\"%url?sortkey=state&statusfilter=%sf&page=%p\">*</a>", 
-         array('%url'=>$_SERVER['PHP_SELF'], '%sf'=>$statusfilter,
-         '%p'=>$page));
+      $out .= t("<a href=\"%url?sortkey=state&filter[status]=%sf&filter[state]=%stf&page=%p\">*</a>", 
+         array('%url'=>$_SERVER['PHP_SELF'], '%sf'=>$filter['status'],
+         '%stf'=>$filter['state'], '%p'=>$page));
    }
    $out .= t("</th>\n");
+
    $out .= t("   <th>Type");
    if ($sortkey == 'type') {
       $out .=  "";
    } else {
-      $out .= t("<a href=\"%url?sortkey=type&statusfilter=%sf&page=%p\">*</a>", 
-         array('%url'=>$_SERVER['PHP_SELF'], '%sf'=>$statusfilter,
-         '%p'=>$page));
+      $out .= t("<a href=\"%url?sortkey=type&filter[status]=%sf&filter[state]=%stfpage=%p\">*</a>", 
+         array('%url'=>$_SERVER['PHP_SELF'], '%sf'=>$filter['status'],
+         '%stf'=>$filter['state'], '%p'=>$page));
    }
    $out .= t("</th>\n");
+
    $out .= t("   <th>Last updated");
    if ($sortkey == 'lastupdate') {
       $out .=  "";
    } else {
-      $out .= t("<a href=\"%url?sortkey=lastupdate&statusfilter=%sf&page=%p\">*</a>", 
-         array('%url'=>$_SERVER['PHP_SELF'], '%sf'=>$statusfilter,
-         '%p'=>$page));
+      $out .= t("<a href=\"%url?sortkey=lastupdate&filter[status]=%sf&filter[state]=%stf&page=%p\">*</a>", 
+         array('%url'=>$_SERVER['PHP_SELF'], '%sf'=>$filter['status'],
+         '%stf'=>$filter['state'], '%p'=>$page));
    }
    $out .= t("</th>\n");
    $out .= t("</tr>\n");

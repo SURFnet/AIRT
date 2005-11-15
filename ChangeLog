@@ -1,3 +1,5 @@
+* Incident overview: filtering on state
+
 2005-11-10
 * Export queue backend (cron part) fully completed.
 * Export queue user interface part demo version ready.

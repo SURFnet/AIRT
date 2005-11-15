@@ -486,9 +486,6 @@ function getIncidentTypeLabelByID($id) {
 }
 
 function addUsertoIncident($userid, $incident) {
-   # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-   # or die("unable to connect to database.");
-
    $res = db_query(sprintf("
       INSERT INTO incident_users
       (id, incidentid, userid, added, addedby)
@@ -499,7 +496,6 @@ function addUsertoIncident($userid, $incident) {
          db_masq_null($_SESSION["userid"])
       ))
    or die("Unable to execute query.");
-   # db_close($conn);
 
    generateEvent("incidentadduser", array(
       "incidentid" => $incident,
@@ -514,9 +510,6 @@ function removeUserfromIncident($userid, $incident) {
       "userid" => $userid
    ));
 
-   # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-   # or die("unable to connect to database.");
-
    $res = db_query(sprintf("
       DELETE FROM incident_users
       WHERE userid=%s
@@ -525,7 +518,6 @@ function removeUserfromIncident($userid, $incident) {
          db_masq_null($incident)
       ))
    or die("Unable to execute query.");
-   # db_close($conn);
 }
 
 /* Return an HTML formatted string containing the basic incident data (type,

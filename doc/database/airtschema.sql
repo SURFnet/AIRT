@@ -277,7 +277,7 @@ CREATE TABLE import_queue (
   content   text         not null,
   cache_ip  varchar(128),
   cache_constituency varchar(128),
-  primary key (id),
+  primary key (id)
 );
 
 CREATE TABLE authentication_tickets (

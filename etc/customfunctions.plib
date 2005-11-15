@@ -53,7 +53,7 @@ function showheader($data) {
   # TODO: put the inline style stuff in an external style.css file.
   echo <<<EOF
 <html>
-</head>
+<head>
 <title>AIRT: $data[title]</title>
 <style>
 .logo {
@@ -108,9 +108,15 @@ tr.even {
 }
 
 </style>
+<script language="JavaScript">
+function checkKeys(event) {
+  document.status = 'Key pressed'+event.which;
+}
+
+</script>
 </head>
 
-<body>
+<body onKey="checkKeys()">
 <table height="100%" cellspacing="0" border="0" width="100%">
   <tr>
     <td height="50" width="135" nowrap class="nav logo">Application for incident response teams</td>

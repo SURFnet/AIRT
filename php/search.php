@@ -62,9 +62,7 @@ switch ($action) {
    // ------------------------------------------------------------------
    case "search":
 		unset($_SESSION["current_name"]);
-		unset($_SESSION["current_name"]);
-		unset($_SESSION["current_name"]);
-		unset($_SESSION["current_name"]);
+		unset($_SESSION["current_email"]);
 
       if (array_key_exists("hostname", $_REQUEST)) {
          $hostname = $_REQUEST["hostname"];
