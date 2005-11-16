@@ -28,9 +28,9 @@ functions as a plain passthrough pipe. This filter is only useful if the
 data to be imported is already in AIRT XML format, see
 F<@AIRT_DOCDIR@/importqueue/inqueue-design.txt>. For most real-world
 applications, other import filters will be required. Several filters come
-with AIRT, such as for Cymru and MyNetWatchman. You can add your own filters
-in F<@AIRT_PHPLIBDIR@/importqueue> by taking one of the existing filters as
-framework.
+with AIRT, such as for Spamcop, MyNetWatchman, and other well-known sources.
+You can add your own filters in F<@AIRT_PHPLIBDIR@/importqueue> by taking
+one of the existing filters as framework.
 
 =item I<--help>
 
