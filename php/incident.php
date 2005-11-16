@@ -30,6 +30,34 @@ require_once LIBDIR.'/history.plib';
 require_once LIBDIR.'/user.plib';
 
 function updateCheckboxes() {
+   global $toggle;
+
+   if (array_key_exists('sortkey', $_REQUEST)) {
+      $sortkey = $_REQUEST['sortkey'];
+   } else {
+      $sortkey = 'incidentid';
+   }
+   if (array_key_exists('page', $_REQUEST)) {
+      $page = $_REQUEST['page'];
+   } else {
+      $page = 1;
+   }
+   if (!isset($toggle)) {
+      $toggle = 0;
+   }
+   if (array_key_exists('filter', $_REQUEST)) {
+      $filter = $_REQUEST['filter'];
+   } else {
+      $filter = array();
+      $filter['state'] = -1;
+      $filter['status'] = -1;
+   }
+   $urlsuffix=strtr("&page=%page&filter[state]=%sf&filter[status]=%stf&sortkey=%sk&toggle=%t", array(
+      '%page'=>$page,
+      '%t'=>$toggle,
+      '%sf'=>$filter['state'],
+      '%stf'=>$filter['status'],
+      '%sk'=>$sortkey));
    $output = "<SCRIPT Language=\"JavaScript\">\n";
    $output .= "function updateCheckboxes() {\n";
    $output .= "   if (!(document.jsform.email.value == '')) {\n";
@@ -39,6 +67,10 @@ function updateCheckboxes() {
    $output .= "      document.jsform.addifmissing.checked = false;\n";
    $output .= "   }\n";
    $output .= "}\n";
+   $output .= "function checkAll() {\n";
+   $output .= "   window.location = '$_SERVER[PHP_SELF]?action=toggle$urlsuffix';\n";
+   $output .= "}\n";
+
    $output .= "</SCRIPT>\n";
    return $output;
 }
@@ -361,6 +393,7 @@ function formatPagerLine($page, $numincidents, $pagesize=PAGESIZE) {
 function formatListOverviewBody() {
    global $sortkey;
    global $filter;
+   global $toggle;
 
    if (array_key_exists('filter', $_REQUEST)) {
       $filter = $_REQUEST['filter'];
@@ -415,11 +448,12 @@ function formatListOverviewBody() {
         return "<I>No incidents.</I>";
    }
    $out = t(
-      "<form action=\"%url\" method=\"POST\">\n".
+      "<form name=\"listform\" action=\"%url\" method=\"POST\">\n".
       "<INPUT TYPE=\"hidden\" name=\"action\" value=\"massupdate\">\n".
       "<table width=\"100%\">\n".
       "<tr>\n".
-      "   <td>&nbsp;</td>\n", array('%url'=>$_SERVER['PHP_SELF']));
+      "   <td><input type=\"checkbox\" onChange=\"checkAll()\"></td>\n", 
+          array('%url'=>$_SERVER['PHP_SELF']));
    $out .= t("   <th>Incident ID\n");
    if ($sortkey == 'incidentid') {
       $out .=  "";
@@ -517,7 +551,7 @@ function formatListOverviewBody() {
 
       $out .= t("<tr bgcolor=\"%color\">\n".
          "   <td>\n".
-         "   <input type=\"checkbox\" name=\"massincidents[]\" value=\"%id\"></td>\n".
+         "   <input type=\"checkbox\" name=\"massincidents[]\" %check value=\"%id\"></td>\n".
          "   </td>\n".
          "   <td>\n".
          "   <a href=\"%url?action=details&incidentid=%id\">%incidentid</a>\n".
@@ -538,6 +572,7 @@ function formatListOverviewBody() {
             '%status' => $data['status'],
             '%state' => $data['state'],
             '%type' => $data['type'],
+            '%check' => ($toggle == 1) ? "CHECKED" : "",
             '%updated' => Date('d M Y', $data['updated'])));
    } // foreach
 
@@ -700,31 +735,26 @@ EOF;
       else Header("Location: $_SERVER[PHP_SELF]");
         break;
 
+   //--------------------------------------------------------------------
+   case 'toggle':
+      if (array_key_exists('toggle', $_REQUEST)) {
+         $toggle = $_REQUEST['toggle'];
+      } else {
+         $toggle = 0;
+      }
+      $toggle = ($toggle == 0) ? 1 : 0;
+      // break omitted on purpose
 
     //--------------------------------------------------------------------
-    case "list":
+    case 'list':
       pageHeader("Incident overview");
-
-      if (array_key_exists('page', $_REQUEST)) {
-         $page = $_REQUEST['page'];
-      } else {
-         $page = 0;
-      }
-
-      if (array_key_exists("filter", $_POST)) {
-         $filter = $_POST["filter"];
-      } else {
-         $filter = 1;
-      }
+      print updateCheckboxes();
 
       generateEvent("incidentlistpre");
       print formatListOverviewHeader();
       print "<hr/>";
       print formatListOverviewBody();
       print formatListOverviewFooter();
-
-      // Create block below the incident list that allows mass updates.
-      db_free_result($res);
 
       generateEvent("incidentlistpost");
       pageFooter();
@@ -1105,6 +1135,7 @@ EOF;
 
       Header("Location: $_SERVER[PHP_SELF]");
       break;
+
 
    //--------------------------------------------------------------------
    default:
