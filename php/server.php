@@ -174,28 +174,36 @@ class IncidentHandling {
                exit;
             }
          }
-         
       }
+
+      // get defaults
+      if (!defined('WS_IMPORT_DEFAULTSTATE')) {
+         $state = getIncidentStateDefault();
+         if($state == null) {
+            setIncidentStateDefault();
+            $state = getIncidentStateDefault();
+         }
+      } else {
+         $state = array_search(WS_IMPORT_DEFAULTSTATE, getIncidentStates());
+         if ($state == false) {
+            $state = getIncidentStateDefault();
+         }
+      }
+      $status = getIncidentStatusDefault();
+      if($status == null) {
+         setIncidentStatusDefault();
+         $status = getIncidentStatusDefault();
+      }
+      $type = getIncidentTypeDefault();
+      if($type == null) {
+         setIncidentTypeDefault();
+         $type = getIncidentTypeDefault();
+      }
+
       foreach($root->get_elements_by_tagname('incident') as $incident_element) {
          $i = 0;
 
          if (sizeof($incident_element) > 0) {
-
-            $state = getIncidentStateDefault();
-            if($state == null) {
-               setIncidentStateDefault();
-               $state = getIncidentStateDefault();
-            }
-            $status = getIncidentStatusDefault();
-            if($status == null) {
-               setIncidentStatusDefault();
-               $status = getIncidentStatusDefault();
-            }
-            $type = getIncidentTypeDefault();
-            if($type == null) {
-               setIncidentTypeDefault();
-               $type = getIncidentTypeDefault();
-            }
 
             foreach($incident_element->get_elements_by_tagname('ticketInformation') as $ticketInformation) {
                if (sizeof($ticketInformation) > 0) {

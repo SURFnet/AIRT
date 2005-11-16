@@ -7,6 +7,9 @@
 -- for EACH release, even if there are no changes to the database schema,
 -- because the VERSIONS table needs to be updated in all cases.
 
+insert into incident_states (id, label, descr, isdefault)
+values
+(nextval('incident_states_sequence'), 'imported', 'Imported via the Import queue and not yet processed by a human', false);
 
 UPDATE versions SET value='----version string----' WHERE key='airtversion';
 -- Needs manual update with the AIRT_VERSION string of the release.

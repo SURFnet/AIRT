@@ -1,7 +1,10 @@
-2005-11-15
-* Incident overview: filtering on state.
-* Export queue: user interface first practical release.
+2005-11-16
+* Numerous bug fixes
+* Imported elements are now imported with state 'imported' (configurable)
+* Ability to toggle all incidents at once in incident overview
+* Ability to filter on incident state
 * More stuff external in style declarations.
+* Export queue: user interface first practical release.
 
 2005-11-10
 * Export queue backend (cron part) fully completed.
