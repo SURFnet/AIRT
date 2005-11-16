@@ -329,7 +329,7 @@ function formatDetailBlock() {
       "<form method=\"post\">".
       "Incident number ".
       "<INPUT TYPE=\"input\" name=\"incidentid\" size=\"14\">\n".
-      "<INPUT TYPE=\"submit\" name=\"Details\" value=\"Details\">\n".
+      "<INPUT TYPE=\"submit\" name=\"action\" value=\"Details\">\n".
       "</form>\n");
    return $out;
 }
@@ -605,6 +605,7 @@ function formatListOverviewFooter() {
 
 switch ($action) {
   //--------------------------------------------------------------------
+  case "Details":
   case "details":
     if (array_key_exists("incidentid", $_REQUEST)) {
       $incidentid=$_REQUEST["incidentid"];
