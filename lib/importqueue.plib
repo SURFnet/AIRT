@@ -265,9 +265,9 @@ function formatQueueOverview() {
          $out .= t("  <td>%ip</td>\n", array('%ip'=>$element['cache_ip']));
          $out .= t("  <td><a target=\"airt_queue\" title=\"Show incident details in new browser window\" href=\"%url?action=showdetails&id=%id\">details</a></td>\n", array('%url'=>$_SERVER['PHP_SELF'], '%id'=>$id));;
          $out .= t("  <td>");
-         if (array_key_exists($ip, $openips)) {
+         if (array_key_exists($element['cache_ip'], $openips)) {
             $out .= t("  <input type=\"checkbox\" checked name=\"add[$id]\">");
-            $out .= t("  Add to %id", array('%id'=>normalize_incidentid($openips[$ip])));
+            $out .= t("  Add to %id", array('%id'=>normalize_incidentid($openips[$element['cache_ip']])));
          }
          $out .= t("  </td>\n");
          $out .= "</tr>\n";
