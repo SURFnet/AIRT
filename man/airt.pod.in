@@ -52,6 +52,6 @@ F<http://www.airt.nl/>.
 
 Full documentation is available in F<@AIRT_DOCDIR@>.
 
-AIRT man pages can be found by B<apropos airt>.
+AIRT man pages can be found by C<apropos airt>.
 
 =cut

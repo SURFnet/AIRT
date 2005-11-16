@@ -9,7 +9,7 @@ AIRT_IMPORT - CLI work horse for the AIRT import queue
 
 =head1 SYNOPSIS
 
-B<airt_import> [--filter=F<FILTER>] [--help] [--noqueue] [--verbose] [F<FILE>]
+B<airt_import> [--filter=FILTER] [--help] [--noqueue] [--verbose] [FILE]
 
 
 =head1 DESCRIPTION
@@ -21,9 +21,9 @@ program's jurisdiction.
 
 =over 4
 
-=item B<--filter>[=F<FILTER>]
+=item I<--filter[=FILTER]>
 
-Each import data type needs a filter. The default filter is F<none> and
+Each import data type needs a filter. The default filter is C<none> and
 functions as a plain passthrough pipe. This filter is only useful if the
 data to be imported is already in AIRT XML format, see
 F<@AIRT_DOCDIR@/importqueue/inqueue-design.txt>. For most real-world
@@ -32,17 +32,17 @@ with AIRT, such as for Cymru and MyNetWatchman. You can add your own filters
 in F<@AIRT_PHPLIBDIR@/importqueue> by taking one of the existing filters as
 framework.
 
-=item B<--help>
+=item I<--help>
 
 Shows the usage of the program on the command line.
 
-=item B<--noqueue>
+=item I<--noqueue>
 
 Processes the input via the filter and presents it to the AIRT import queue
 for validation, but does not actually queue the incident. Useful for
 testing.
 
-=item B<--verbose>
+=item I<--verbose>
 
 Generates verbose output on stdout while processing. Useful for testing.
 
@@ -52,16 +52,16 @@ Data to be imported may come from a file or from stdin. The program reads
 the import data from stdin if no filename is given.
 
 Normally, B<airt_import> is quiet on stdout. Output is returned on stdout
-only when requested via --verbose, and on stderr in case of problems. Exit
-code 0 means everything went OK, 1 means there was some unrecoverable
+only when requested via I<--verbose>, and on stderr in case of problems.
+Exit code 0 means everything went OK, 1 means there was some unrecoverable
 problem, which will have been reported on stderr. This behaviour should
-facilitate deployment of B<airt_import> from cron or other system background
-processes such as maildrop.
+facilitate deployment of B<airt_import> from cron(8) or other system
+background processes such as maildrop(1).
 
 
 =head1 AUTHOR
 
-Tilburg University/Infolab <airt-dev@uvt.nl>.
+Tilburg University/Infolab <F<airt-dev@uvt.nl>>.
 
 
 =head1 REPORTING BUGS
@@ -87,6 +87,6 @@ F<http://www.airt.nl/>.
 
 Full documentation is available in F<@AIRT_DOCDIR@>.
 
-AIRT man pages can be found by B<apropos airt>.
+AIRT man pages can be found by C<apropos airt>.
 
 =cut
