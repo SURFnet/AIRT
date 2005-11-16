@@ -213,7 +213,7 @@ function getQueueOverview(&$elements, &$error) {
       cache_ip, cache_constituency
       FROM import_queue
       WHERE status = \'open\'
-      ORDER BY created DESC'));
+      ORDER BY cache_ip DESC'));
    if ($res == false) {
       $error = 'Unable to query database in importqueue.plib:'.__LINE__;
       return 1;
