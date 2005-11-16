@@ -452,8 +452,9 @@ function formatListOverviewBody() {
       "<INPUT TYPE=\"hidden\" name=\"action\" value=\"massupdate\">\n".
       "<table width=\"100%\">\n".
       "<tr>\n".
-      "   <td><input type=\"checkbox\" onChange=\"checkAll()\"></td>\n", 
-          array('%url'=>$_SERVER['PHP_SELF']));
+      "   <td><input type=\"checkbox\" %checked onChange=\"checkAll()\"></td>\n", 
+          array('%url'=>$_SERVER['PHP_SELF'],
+                '%checked'=>($toggle==1)?"CHECKED":""));
    $out .= t("   <th>Incident ID\n");
    if ($sortkey == 'incidentid') {
       $out .=  "";
@@ -468,7 +469,7 @@ function formatListOverviewBody() {
    if ($sortkey == 'constituency') {
       $out .=  "";
    } else {
-      $out .= t("<a href=\"%url?sortkey=constituency&filter[status]=%sf&filter[state]=%stf&page=%p\">*</a>", 
+      $out .= t("<a href=\"%url?sortkey=constituency&filter[status]=%sf&filter[state]=%stf&page=%p\">*</a>",
          array('%url'=>$_SERVER['PHP_SELF'], '%sf'=>$filter['status'], '%stf'=>$filter['state'], '%p'=>$page));
    }
    $out .= t("</th>\n");
@@ -477,7 +478,7 @@ function formatListOverviewBody() {
    if ($sortkey == 'hostname') {
       $out .=  "";
    } else {
-      $out .= t("<a href=\"%url?sortkey=hostname&filter[status]=%sf&filter[state]=%stf&page=%p\">*</a>", 
+      $out .= t("<a href=\"%url?sortkey=hostname&filter[status]=%sf&filter[state]=%stf&page=%p\">*</a>",
          array('%url'=>$_SERVER['PHP_SELF'], '%sf'=>$filter['status'], '%stf'=>$filter['state'],
          '%p'=>$page));
    }
@@ -488,7 +489,7 @@ function formatListOverviewBody() {
       $out .=  "";
    } else {
       $out .= t("<a href=\"%url?sortkey=status&filter[status]=%sf&filter[state]=%stf&page=%p\">*</a>", 
-         array('%url'=>$_SERVER['PHP_SELF'], '%sf'=>$filter[status], '%stf'=>$filter['state'],
+         array('%url'=>$_SERVER['PHP_SELF'], '%sf'=>$filter['status'], '%stf'=>$filter['state'],
          '%p'=>$page));
    }
    $out .= t("</th>\n");
