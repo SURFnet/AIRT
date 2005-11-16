@@ -181,68 +181,88 @@ function show_message($name) {
     printf("%s", replace_vars($message));
 } // show_message
 
-function prepare_message($template) {
-   pageHeader("Send message from template.");
 
-   // get vars
+/**
+ * Expand the template for the current situation.
+ *
+ * Returns an associative array with the following keys
+ *     $output['sender']       message sender
+ *     $output['receiver']     message receiver
+ *     $output['replyto']      replyto header
+ *     $output['subject']      subject header
+ *     $output['body']         message body
+ */
+function expand_template($template) {
+   $output = array();
+
+   // message sender
    $cert = getUserByUserId($_SESSION["userid"]);
    if (MAILFROM == '') {
-      $from = $cert["email"];
+      $output['sender'] = $cert["email"];
    } else {
-      $from = replace_vars(MAILFROM);
+      $output['sender'] = replace_vars(MAILFROM);
    }
 
-   if (defined(REPLYTO) && REPLYTO != '') {
-      $replyto = replace_vars(REPLYTO);
+   // message receiver
+   if (array_key_exists('current_email', $_SESSION)) {
+      $output['receiver'] = $_SESSION['current_email'];
    } else {
-      $replyto = '';
+      $output['receiver'] = '';
+   }
+
+   // reply to (if set)
+   if (defined(REPLYTO) && REPLYTO != '') {
+      $output['replyto'] = replace_vars(REPLYTO);
+   } else {
+      $output['replyto'] = '';
    }
 
    // load message and replace all standard variables
-   $msg = replace_vars(get_template($template));
+   $output['body'] = replace_vars(get_template($template));
+
    // extract subject
-   $subject = get_subject($msg);
+   $output['subject'] = get_subject($output['body']);
 
    // remove first line from standard message (which is the subject)
-   $m = explode("\n", $msg);
+   $m = explode("\n", $output['body']);
    unset($m[0]);
-   $msg = implode("\n", $m);
+   $output['body'] = implode("\n", $m);
 
-   // to
-   if (array_key_exists('current_email', $_SESSION)) {
-      $to = $_SESSION['current_email'];
-   } else {
-      $to = '';
-   }
+   return $output;
+}
+
+function prepare_message($template) {
+   pageHeader("Send message from template.");
+   $msgdata = expand_template($template);
 
    generateEvent('premailtemplate', array(
-    'to'=>$to,
-    'subject'=>$subject,
-    'from'=>$from,
-    'replyto'=>$replyto,
-    'message'=>$msg));
+    'to'=>$msgdata['receiver'],
+    'subject'=>$msgdata['subject'],
+    'from'=>$msgdata['sender'],
+    'replyto'=>$msgdata['replyto'],
+    'message'=>$msgdata['body']));
 
    echo <<<EOF
 <FORM method="POST">
 <TABLE WIDTH="80">
 <TR>
    <TD>To:</TD>
-   <TD><INPUT TYPE="text" size="50" name="to" value="$to"></TD>
+   <TD><INPUT TYPE="text" size="50" name="to" value="$msgdata[receiver]"></TD>
 </TR>
 <TR>
    <TD>Subject:</TD>
-   <TD><INPUT TYPE="text" size="50" name="subject" value="$subject"></TD>
+   <TD><INPUT TYPE="text" size="50" name="subject" value="$msgdata[subject]"></TD>
 </TR>
 <TR>
    <TD>From:</TD>
-   <TD><INPUT TYPE="text" size="50" name="from" value="$from"></TD>
+   <TD><INPUT TYPE="text" size="50" name="from" value="$msgdata[from]"></TD>
 </TR>
 <TR>
    <TD>Reply-To:</TD>
-   <TD><INPUT TYPE="text" size="50" name="replyto" value="$replyto"></TD>
+   <TD><INPUT TYPE="text" size="50" name="replyto" value="$msgdata[replyto]"></TD>
 </TR>
 </TABLE>
-<TEXTAREA name="msg" cols="80" rows="30">$msg</TEXTAREA>
+<TEXTAREA name="msg" cols="80" rows="30">$msgdata[body]</TEXTAREA>
 <P>
 <input type="hidden" name="action" value="send">
 <input type="reset"  value="Reset">
@@ -256,11 +276,11 @@ EOF;
 EOF;
 
    generateEvent('postmailtemplate', array(
-    'to'=>$to, 
-    'subject'=>$subject, 
-    'from'=>$from, 
-    'replyto'=>$replyto, 
-    'message'=>$msg));
+    'to'=>$msgdata['receiver'],
+    'subject'=>$msgdata['subject'],
+    'from'=>$msgdata['sender'],
+    'replyto'=>$msgdata['replyto'],
+    'message'=>$msgdata['body']));
    pageFooter();
 } // prepare_message
 

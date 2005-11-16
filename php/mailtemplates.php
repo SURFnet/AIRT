@@ -214,6 +214,7 @@ EOF;
          $sign = 'off';
       }
 
+
       /* prevent sending bogus stuff */
       if (trim($to) == '') {
          die('Empty recipient?');
@@ -322,7 +323,6 @@ EOF;
       if (! $mail->send($mailto, $hdrs, $m['body'])) {
          die("Error sending message!");
       }
-
       addIncidentComment(sprintf("Email sent to %s: %s",
          $to, $subject));
       Header("Location: $_SERVER[PHP_SELF]");
