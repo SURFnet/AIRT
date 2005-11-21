@@ -33,26 +33,59 @@ EventRecord: 13 Jul 2005 13:24:41, 137.56.x.x, 6, 1025, Lsass Vulnerability, 424
 */
 
 function filter_mynetwatchman($input, &$output, $verbosity=FALSE) {
-   $data = split("\n", $input);
-   $output = '<airt:airt xmlns:airt="http://infolab.uvt.nl/airt">'."\n";
-   foreach ($data as $in) {
-      if (preg_match('/^EventRecord: (\d+ \S+ \d+ [\d:]+), ([0-9x.]+), ([0-9]+), ([0-9]+), ([^,]+), ([0-9]+), ([0-9]+)$/', $in, $matches) > 0) {
-         $output .= "  <airt:incident>\n";
-         $output .="    <airt:ticketInformation>\n";
-         $output .="      <airt:prefix>MyNetwatchman</airt:prefix>\n";
-         $output .="    </airt:ticketInformation>\n";
-         $output .="    <airt:technicalInformation>\n";
-         $output .="      <airt:ip>$matches[2]</airt:ip>\n";
-         $output .="      <airt:port>$matches[4]</airt:port>\n";
-         $output .="      <airt:incident_time>$matches[3]</airt:incident_time>\n";
-         $output .="      <airt:logging>$matches[0]</airt:logging>\n";
-         $output .="   </airt:technicalInformation>\n";
-         $output .="  </airt:incident>\n";
+   $matches = array();
+   $source = $logdate = $log = '';
+   if (preg_match('/^Source IP: ([0-9.]+) LastEvent: (.*)$/m', $input, $matches)) {
+      $source = $matches[1];
+      $logdate = $matches[2];
+   }
+   $data = array();
+   if (preg_match_all('/^EventRecord: ([0-9]+ [a-zA-Z]+ [0-9]+) ([0-9:]+), ([0-9.x]+), ([0-9]+), ([0-9]+), ([^,]+), ([0-9]+), ([0-9]+)$/m', $input, $matches)) {
+      foreach ($matches[1] as $key=>$value) {
+         $data[$key]['date'] = $value;
+      }
+      foreach ($matches[2] as $key=>$value) {
+         $data[$key]['time'] = $value;
+      }
+      foreach ($matches[3] as $key=>$value) {
+         $data[$key]['destip'] = $value;
+      }
+      foreach ($matches[4] as $key=>$value) {
+         $data[$key]['proto'] = $value;
+      }
+      foreach ($matches[5] as $key=>$value) {
+         $data[$key]['dstport'] = $value;
+      }
+      foreach ($matches[6] as $key=>$value) {
+         $data[$key]['descr'] = $value;
+      }
+      foreach ($matches[7] as $key=>$value) {
+         $data[$key]['srcport'] = $value;
+      }
+      foreach ($matches[8] as $key=>$value) {
+         $data[$key]['count'] = $value;
+      }
+      foreach ($matches[0] as $key=>$value) {
+         $data[$key]['logging'] = $value;
       }
    }
+
+   $output = '<airt:airt xmlns:airt="http://infolab.uvt.nl/airt">'."\n";
+   $output .= "  <airt:incident>\n";
+   $output .="    <airt:ticketInformation>\n";
+   $output .="      <airt:prefix>MyNetwatchman</airt:prefix>\n";
+   $output .="    </airt:ticketInformation>\n";
+   $output .="    <airt:technicalInformation>\n";
+   $output .="      <airt:ip>$data[srcip]</airt:ip>\n";
+   $output .="      <airt:incident_time>$in[date] $in[time]</airt:incident_time>\n";
+   foreach ($data as $in) {
+      $output .="      <airt:logging>$in[logging]</airt:logging>\n";
+   }
+   $output .="   </airt:technicalInformation>\n";
+   $output .="  </airt:incident>\n";
    $output .= "</airt:airt>\n";
 
-   if ($verbose == true) {
+   if ($verbosity == true) {
       print "$output";
    }
    return 0;
