@@ -20,6 +20,6 @@
 # 
 scriptdir=@AIRT_PHPLIBDIR@/import_filters
 
-script_DATA = filter_none.plib
+script_DATA = filter_none.plib filter_mynetwatchman.plib  filter_spamcop.plib
 
 EXTRA_DIST = $(script_DATA)
