@@ -205,11 +205,11 @@ function show_message($name) {
  *     $output['subject']      subject header
  *     $output['body']         message body
  */
-function expand_template($template) {
+function expand_template($template, $current) {
    $output = array();
 
    // message sender
-   $cert = getUserByUserId($_SESSION["userid"]);
+   $cert = getUserByUserId($current['userid']);
    if (MAILFROM == '') {
       $output['sender'] = $cert["email"];
    } else {
@@ -218,7 +218,7 @@ function expand_template($template) {
 
    // message receiver
    if (array_key_exists('current_email', $_SESSION)) {
-      $output['receiver'] = $_SESSION['current_email'];
+      $output['receiver'] = $current['email'];
    } else {
       $output['receiver'] = '';
    }
@@ -247,22 +247,20 @@ function expand_template($template) {
 # FIXME HERE TODO XXX
 # Remove dependency on session
 # clear values before each iteration
-function prepare_message($template) {
-   pageHeader("Send message from template.");
-   if (array_key_exists('agenda', $_REQUEST)) {
-      $agenda = explode(',', $_REQUEST['agenda']);
-      $_SESSION['incidentid'] = $agenda[0];
-      unset($agenda[0]);
-      $agenda = implode(',', $agenda);
+function prepare_message($template, $agenda) {
+	$current = array('user'=>'', 'name'=>'', 'email'=>'');
 
-      $incident = getIncident($_SESSION['incidentid']);
-      if (sizeof($incident['users']) > 0) {
-         $user = getUserByUserID($incident['users'][0]);
-         $_SESSION['current_name'] = $user['lastname'];
-         $_SESSION['current_email'] = $user['email'];
-      }
+   pageHeader("Send message from template.");
+	$current['incidentid'] = $agenda[0];
+	unset($agenda[0]);
+	$incident = getIncident($_SESSION['incidentid']);
+	if (sizeof($incident['users']) > 0) {
+		$current['user'] = getUserByUserID($incident['users'][0]);
+		$current['name'] = $user['lastname'];
+		$current['email'] = $user['email'];
+	}
    }
-   $msgdata = expand_template($template);
+   $msgdata = expand_template($template, $current);
 
    generateEvent('premailtemplate', array(
     'to'=>$msgdata['receiver'],

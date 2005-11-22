@@ -167,7 +167,7 @@ EOF;
          return;
       }
 
-      prepare_message($template);
+      prepare_message($template, array($_SESSION['incidentid']));
       pageFooter();
       break;
 
