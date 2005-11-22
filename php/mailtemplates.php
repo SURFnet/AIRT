@@ -173,6 +173,7 @@ EOF;
 
    // -------------------------------------------------------------------
    case "send":
+   case "Send":
       if (array_key_exists("from", $_POST)) {
          $from=$_POST["from"];
       } else {

@@ -28,6 +28,7 @@ require_once LIBDIR.'/constituency.plib';
 require_once LIBDIR.'/incident.plib';
 require_once LIBDIR.'/history.plib';
 require_once LIBDIR.'/user.plib';
+require_once LIBDIR.'/mailtemplates.plib';
 
 function updateCheckboxes() {
    global $toggle;
@@ -586,7 +587,7 @@ function formatListOverviewBody() {
 
 
 function formatListOverviewFooter() {
-   $out = t("<table>\n".
+   $updatetable = t("<table>\n".
       "<tr><td>New State</td><td>".
       getIncidentStateSelection('massstate', 'null',
          array('null'=>'Leave Unchanged')).
@@ -598,12 +599,53 @@ function formatListOverviewFooter() {
       "<tr><td>&nbsp;</td><td>".
       "<input type=\"submit\" value=\"Update All Selected\">".
       "</td></tr>\n".
+      "</table>\n");
+
+   $actiontable = t("<table>\n".
+      "<tr>\n".
+      "<td>Bulk mail</td>\n".
+      "<td>".getMailTemplateSelection('template', 'null',
+         array('Do not send mail'=>''))."</td>\n".
+      "</tr>\n".
+      "<tr>\n".
+      "<td>&nbsp;</td>\n".
+      "<td><input type=\"submit\" name=\"action\" value=\"Apply\"></td>\n".
+      "</tr>\n".
+      "</table>\n");
+
+   $out = t("<table>\n".
+      "<tr valign=\"top\">\n".
+      "<td>%updatetable</td>\n".
+      "<td>%actiontable</td>\n".
+      "</tr>\n".
       "</table>\n".
-      "</form>");
+      "</form>", array(
+      '%actiontable'=>$actiontable,
+      '%updatetable'=>$updatetable
+      ));
    return $out;
 }
 
 switch ($action) {
+  //--------------------------------------------------------------------
+  case "Apply":
+     if (array_key_exists('massincidents', $_REQUEST)) {
+        $massincidents = $_REQUEST['massincidents'];
+     } else {
+       break;
+     }
+     $agenda = implode(',', $massincidents);
+
+     if (array_key_exists('template', $_REQUEST)) {
+        if ($_REQUEST['template'] != 'Do not send mail') {
+           Header("Location: mailtemplates.php?action=prepare&template=$_REQUEST[template]&agenda=$agenda");
+           break;
+        }
+     }
+
+     Header("Location :$_SERVER[PHP_SELF]");
+     break;
+
   //--------------------------------------------------------------------
   case "Details":
   case "details":

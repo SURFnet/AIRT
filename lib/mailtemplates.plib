@@ -122,19 +122,32 @@ function get_subject($msg) {
  * Returns an associative array in which the key is the name of the 
  * template and the value the body or false on failure.
  */
-function get_templates() {
-   $out = array();
+function get_templates($extras=array()) {
    $res = db_query(q('SELECT name,body FROM mailtemplates ORDER BY name'));
    if (!$res) {
       airt_error('ERR_FUNC', 'mailtemplates.plib:'.__LINE__);
       return false;
    }
+   $out = $extras;
    if (db_num_rows($res) > 0) {
       while ($row = db_fetch_next($res)) {
          $out[$row['name']] = $row['body'];
       }
    }
    return $out;
+}
+
+/**
+ * Get a SELECTION dialog with mail templates
+ */
+function getMailtemplateSelection($name, $default='', $extras=array()) {
+   $output = sprintf("<select name=\"%s\">\n", htmlentities($name));
+   $templates = get_templates($extras);
+   foreach ($templates as $i=>$l) {
+      $output .= sprintf("<option value=\"%s\" %s>%s</option>\n", htmlentities($i), ($i == $default) ? "SELECTED" : "", htmlentities($i));
+   }
+   $output .= "</select>";
+   return $output;
 }
 
 /**
@@ -231,8 +244,24 @@ function expand_template($template) {
    return $output;
 }
 
+# FIXME HERE TODO XXX
+# Remove dependency on session
+# clear values before each iteration
 function prepare_message($template) {
    pageHeader("Send message from template.");
+   if (array_key_exists('agenda', $_REQUEST)) {
+      $agenda = explode(',', $_REQUEST['agenda']);
+      $_SESSION['incidentid'] = $agenda[0];
+      unset($agenda[0]);
+      $agenda = implode(',', $agenda);
+
+      $incident = getIncident($_SESSION['incidentid']);
+      if (sizeof($incident['users']) > 0) {
+         $user = getUserByUserID($incident['users'][0]);
+         $_SESSION['current_name'] = $user['lastname'];
+         $_SESSION['current_email'] = $user['email'];
+      }
+   }
    $msgdata = expand_template($template);
 
    generateEvent('premailtemplate', array(
@@ -255,7 +284,7 @@ function prepare_message($template) {
 </TR>
 <TR>
    <TD>From:</TD>
-   <TD><INPUT TYPE="text" size="50" name="from" value="$msgdata[from]"></TD>
+   <TD><INPUT TYPE="text" size="50" name="from" value="$msgdata[sender]"></TD>
 </TR>
 <TR>
    <TD>Reply-To:</TD>
@@ -264,10 +293,13 @@ function prepare_message($template) {
 </TABLE>
 <TEXTAREA name="msg" cols="80" rows="30">$msgdata[body]</TEXTAREA>
 <P>
-<input type="hidden" name="action" value="send">
+<input type="hidden" name="agenda" value="$agenda">
 <input type="reset"  value="Reset">
-<input type="submit" value="Send">
+<input type="submit" name="action" value="Send">
 EOF;
+      if ($agenda != '') {
+         print t('<input type="submit" value="Send and prepare next">');
+      }
       if (defined('GPG_KEYID')) {
          echo '<input type="checkbox" name="sign" checked> Sign';
       }
