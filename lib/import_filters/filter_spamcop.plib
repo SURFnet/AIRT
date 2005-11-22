@@ -28,7 +28,7 @@ function filter_spamcop($input, &$output, $verbosity=FALSE) {
    if (preg_match('/^Date: (.*)$/m', $input, $matches)) {
       $data['datetime'] = $matches[1];
    }
-   if (preg_match('/^Unsolicited bounce from: ([0-9.]+)/m', $input, $matches)) {
+   if (preg_match('/^Subject: \[SpamCop \(([0-9.]+)\) id/m', $input, $matches)) {
       $data['srcip'] = $matches[1];
    }
    $text = explode("\n", $input);
