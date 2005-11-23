@@ -10,9 +10,15 @@ Creating the source tarball
 * Copy the file appropriately and update $AIRT/doc/database/Makefile.am
 * Update $AIRT/source/ChangeLog to relect the same version number
 * make clean && make distcheck
-* cvs tag rel-version-revision
 
 You now have a tarball.
+
+Creating the Subversion Branch
+==============================
+* mkdir branches/new-version
+* svn copy trunk/package branches/new-version
+* svn copy trunk/source branches/new-version
+* svn commit -m 'new release' branches/new-version
 
 Creating the Debian package
 ===========================
@@ -35,8 +41,3 @@ Testing
   revert to its pristine state every time I do it.
 * Create the database and populate it according to the install manual
 * Log in, search for IP and create incident
-
-Releasing
-=========
-* If all tests were passed, cd to $AIRT and cvs tag 'rel-version', e.g.
-  cvs tag rel-20050812-1 (note; cvs tags cannot contain periods)
