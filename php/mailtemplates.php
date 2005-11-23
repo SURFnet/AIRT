@@ -345,6 +345,11 @@ EOF;
       }
       addIncidentComment(sprintf("Email sent to %s: %s",
          $to, $subject), $incidentid);
+      generateEvent('postsendmail', array(
+         'incidentid'=>$incidentid,
+         'sender'=>$from,
+         'recipient'=>$to,
+         'subject'=>$subject));
 
       if ($action == 'Send and prepare next' && isset($agenda) &&
          isset($template)) {

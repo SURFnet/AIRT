@@ -108,3 +108,7 @@ Note:  Generated prior to displaying a mail template
 event: postmailtemplate
 data:  array with keys: to, subject, from, replyto, message
 Note:  Generated after displaying a mail template
+
+event: postsendmail
+data:  array with keys: incidentid, sender, recipient, subject
+Note:  Generated after sending mail
