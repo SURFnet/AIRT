@@ -1,6 +1,5 @@
 $Id$
-
-In CVS at $Source$
+$URL$
 
 - Indent using three spaces
 
@@ -50,3 +49,5 @@ command. For example:
 - Do not use #-style comments in production code. #'s are used as a reminder
   for the developer and should be removed entirely before committing the
   changes to the repository
+
+- Use descriptive SVN commit messages
