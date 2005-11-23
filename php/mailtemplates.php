@@ -166,14 +166,21 @@ EOF;
          Header("Location: $_SERVER[PHP_SELF]");
          return;
       }
-
-      prepare_message($template, array($_SESSION['incidentid']));
+      if (array_key_exists('agenda', $_REQUEST)) {
+         $agenda = explode(',',$_REQUEST['agenda']);
+      } elseif (array_key_exists('incidentid', $_REQUEST)) {
+         $agenda = array($_REQUEST['incidentid']);
+      } else {
+         $agenda = array($_SESSION['incidentid']);
+      }
+      prepare_message($template, $agenda);
       pageFooter();
       break;
 
    // -------------------------------------------------------------------
-   case "send":
-   case "Send":
+   case 'send':
+   case 'Send':
+   case 'Send and prepare next':
       if (array_key_exists("from", $_POST)) {
          $from=$_POST["from"];
       } else {
@@ -214,7 +221,19 @@ EOF;
       } else {
          $sign = 'off';
       }
-
+      if (array_key_exists('incidentid', $_POST)) {
+         $incidentid = $_POST['incidentid'];
+      } else {
+         airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
+         Header("Location: $_SERVER[PHP_SELF]");
+         return;
+      }
+      if (array_key_exists('agenda', $_POST)) {
+         $agenda = $_POST['agenda'];
+      }
+      if (array_key_exists('template', $_POST)) {
+         $template = $_POST['template'];
+      }
 
       /* prevent sending bogus stuff */
       if (trim($to) == '') {
@@ -325,8 +344,14 @@ EOF;
          die("Error sending message!");
       }
       addIncidentComment(sprintf("Email sent to %s: %s",
-         $to, $subject));
-      Header("Location: $_SERVER[PHP_SELF]");
+         $to, $subject), $incidentid);
+
+      if ($action == 'Send and prepare next' && isset($agenda) &&
+         isset($template)) {
+         Header("Location: $_SERVER[PHP_SELF]?action=prepare&template=$template&agenda=$agenda");
+      } else {
+         Header("Location: $_SERVER[PHP_SELF]");
+      }
       break;
 
 
