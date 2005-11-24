@@ -19,16 +19,19 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # See airt_export(1) for more details.
+mailrx="user@host.com"
 
-taskid=$1
-if [ "$taskid" = "" ]; then
+taskid="$1"
+case "$taskid" in "")
   echo "ERROR: Task ID must be provided as first parameter."
   exit 1
-fi
+esac
 shift
 
 scriptname=`basename $0`
-logfile=`mktemp`
+logfile="$(mktemp)"
+trap 'rm -f -- "$logfile"' EXIT
+
 function usage() {
   echo '$Id$'
   echo "Usage: $scriptname: resultid [-h] -p portrange -i iprange"
@@ -40,17 +43,18 @@ function usage() {
 
 function cleanup() {
   # default exit code to 0
-  if test "$#" = "1"; then
-    exitcode=$1
-  else 
-    exitcode=0
-  fi
+  case "$#" in
+     "1") exitcode=$1
+     ;;
+     *) exitcode=0
+     ;;
+  esac
 
   # Notify queue of termination
   if test "$exitcode" -gt 0; then
-    airt_export --result-id=$taskid --result-code=ERROR
+    airt_export --result-id="$taskid" --result-code=ERROR
   else
-    airt_export --result-id=$taskid --result-code=OK
+    airt_export --result-id="$taskid" --result-code=OK
   fi
 
   # house keeping
@@ -93,7 +97,8 @@ fi
 sudo nmap --max_rtt_timeout 25 --scan_delay 150 -p $portrange -oG $logfile $iprange > /dev/null || cleanup 2
 
 # parse output and submit it to the import queue
-echo "Would run airt_nmap_to_inqueue $logfile"
+mail -s "AIRT Export queue: nmap results  for target $iprange/$portrange" "$mailrx" <"$logfile"
+
 
 cleanup
 
