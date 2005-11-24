@@ -19,7 +19,22 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+/* Check if the provided credentials are valid
+ * 
+ * $ticketid (string) = the provided credentials
+ *
+ * Returns the userid belonging to the ticket, or -1
+ * if the ticket was invalid
+ */
 function CheckCredentials($ticketid) {
+   // initialise return value
+   $userid = -1;
+
+   // check params
+   if (!is_string($ticketid) || $ticketid == '') {
+      return -1;
+   }
+
    $res = db_query(sprintf('
       SELECT   userid 
       FROM     authentication_tickets where ticketid=%s 
@@ -27,6 +42,7 @@ function CheckCredentials($ticketid) {
       AND      CURRENT_TIMESTAMP < expiration',
          db_masq_null($ticketid)))
    or die;
+
 
    while ($row = db_fetch_next($res)) {
       $userid = $row['userid'];

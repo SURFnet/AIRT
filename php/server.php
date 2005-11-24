@@ -56,13 +56,26 @@ class IncidentHandling {
    function IncidentHandling () {
       // Define the signature of the dispatch map on the Web services method
       // Necessary for WSDL creation
-      $this->__dispatch_map['RequestAuthentication'] = array('in' =>
-         array('auth_request' => 'string'), 
-         'out' => array('AuthenticationTicket' => 'string'), );
-      $this->__dispatch_map['getXMLIncidentData'] = array('in' => array('action' => 'string'), 
-         'out' => array('airtXML' => 'string'), );
-      $this->__dispatch_map['importIncidentData'] = array('in' => array('importXML' => 'string'), 
-         'out' => array('confirmation' => 'string'), );
+      $this->__dispatch_map['RequestAuthentication'] = array(
+         'in'  => array('auth_request' => 'string'),
+         'out' => array('AuthenticationTicket' => 'string')
+      );
+
+      $this->__dispatch_map['getXMLIncidentData'] = array(
+         'in'  => array('action' => 'string'),
+         'out' => array('airtXML' => 'string')
+      );
+
+      $this->__dispatch_map['importIncidentData'] = array(
+         'in'  => array('importXML' => 'string'),
+         'out' => array('confirmation' => 'string')
+      );
+
+      $this->__dispatch_map['addLogging'] = array(
+         'in'  => array('incidentid' => 'integer',
+                        'logging'=>'string'),
+         'out' => array('confirmation' => 'string')
+      );
    }
 
    function RequestAuthentication($auth_request) {
@@ -80,7 +93,7 @@ class IncidentHandling {
          return $error;
          exit;
       }
-      
+
       $username_element = $root->get_elements_by_tagname('username');
       $password_element = $root->get_elements_by_tagname('password');
       if (sizeof($username_element) == 0 || sizeof($password_element) == 0) {
@@ -88,10 +101,10 @@ class IncidentHandling {
          return $error;
          exit;
       }
-      
+
       $username = $username_element[0]->get_content();
       $password = $password_element[0]->get_content();
-      
+
       $userid = airt_authenticate($username,$password);
       if ($userid == -1) {
          $error = 'Permission denied';
@@ -101,11 +114,11 @@ class IncidentHandling {
 
       // generate a new random id
       $ticketid = genRandom();
-      
+
       // put it in the db
       $creationid = CreateTicket($userid,$ticketid);
       $issuetime = getIssueTime($creationid);
-      
+
       // format it to XML-standards
       $issuetime = substr($issuetime,0,10)."T".substr($issuetime,11,8);
       $exptime = date('Y-m-d\TH:i:s',mktime(substr($issuetime,11,2),
@@ -119,10 +132,10 @@ class IncidentHandling {
       $ticket_details['ticketid'] = $ticketid;
       $ticket_details['issuetime'] = $issuetime;
       $ticket_details['exptime'] = $exptime;
-      
+
       // generate a SAML-ticket
       $saml_ticket = generateSAMLTicket($ticket_details);
-      
+
       // send it back to the user
       return $saml_ticket;
    }
@@ -136,7 +149,7 @@ class IncidentHandling {
 
    function importIncidentData($importXML) {
       $dom = $state = $status = $type = $incidentid = $address = $ip = $addressrole ='';
-      
+
       // first check the validity of the XML
       if (!$dom = domxml_open_mem($importXML,DOMXML_LOAD_PARSING + DOMXML_LOAD_DONT_KEEP_BLANKS,$error)) {
          $error = 'Could not parse XML document';
@@ -167,12 +180,11 @@ class IncidentHandling {
          }
          if (sizeof($ticket_el) > 0) {
             $ticketid = $ticket_el[0]->get_content();
-            $_SESSION['userid'] = CheckCredentials($ticketid);
-            if(!isset($_SESSION['userid'])) {
-               $error = 'You are not authorized';
-               return $error;
-               exit;
+            $userid = CheckCredentials($ticketid);
+            if ($userid == -1) {
+               return 'Not authorized';
             }
+            $_SESSION['userid'] = $userid;
          }
       }
 
@@ -283,6 +295,40 @@ class IncidentHandling {
          return $error;
       }
    }
+
+   /* Add log information to existing incident
+    *
+    * $incidentid (numeric) = Incident to add to
+    * $logging (string) = Logging to be added
+    * $authticket (string) = SAML Authentication ticket for the request
+    *
+    * Returns a string containing a descriptive error message
+    * in case of failure, or the empty string in case of success.
+    */
+   function addLogging($incidentid, $logging, $authticket) {
+      $userid = CheckCredentials($authticket);
+
+      if (!is_string($logging)) {
+         return 'Invalid data type (logging)';
+      }
+      if (!is_numeric($incidentid)) {
+         return 'Invalid data type (incidentid)';
+      }
+      if (!is_string($authticket)) {
+         return 'Invalid data type ($authticket)';
+      }
+      $userid = CheckCredentials($authticket);
+      if ($userid == -1) {
+         return 'Not authorized.';
+      }
+      if (($incident = getIncident($incidentid)) == false) {
+         return 'No such incident ($incidentid)';
+      }
+      $_SESSION['userid'] = $userid;
+      $logging = $incident['logging']."\n".$logging;
+      updateIncident($incidentid, '', '', '', $logging);
+      return '';
+   } // addLogging
 }
 
 function genRandom() {
