@@ -255,9 +255,9 @@ function formatQueueOverview() {
          $out .= t("<tr bgcolor=\"%color\">\n", array('%color'=>($count++ % 2 == 0) ? '#DDDDDD' : '#FFFFFF'));
          $out .= t("  <td>\n");
          $out .= t("  <select name=\"decision[$id]\">\n");
-         $out .= t("  <option value=\"accept\">Accept</option>\n");
+         $out .= t("  <option value=\"accept\" SELECTED>Accept</option>\n");
          $out .= t("  <option value=\"reject\">Reject</option>\n");
-         $out .= t("  <option value=\"donothing\" SELECTED>Do nothing</option>\n");
+         $out .= t("  <option value=\"donothing\">Do nothing</option>\n");
          $out .= t("  </select>\n");
          $out .= t("  </td>\n");
          $out .= t("  <td>%type</td>\n", array('%type'=>$element['type']));
