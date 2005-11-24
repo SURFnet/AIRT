@@ -255,9 +255,9 @@ function formatQueueOverview() {
          $out .= t("<tr bgcolor=\"%color\">\n", array('%color'=>($count++ % 2 == 0) ? '#DDDDDD' : '#FFFFFF'));
          $out .= t("  <td>\n");
          $out .= t("  <select name=\"decision[$id]\">\n");
-         $out .= t("  <option value=\"accept\" SELECTED>Accept</option>\n");
+         $out .= t("  <option value=\"accept\">Accept</option>\n");
          $out .= t("  <option value=\"reject\">Reject</option>\n");
-         $out .= t("  <option value=\"donothing\">Do nothing</option>\n");
+         $out .= t("  <option value=\"donothing\" SELECTED>Do nothing</option>\n");
          $out .= t("  </select>\n");
          $out .= t("  </td>\n");
          $out .= t("  <td>%type</td>\n", array('%type'=>$element['type']));
@@ -472,7 +472,8 @@ function queueInsertItem($status,$sender,$type,$summary,$content,&$error) {
  *   'type', 'summary', and 'content'. In case of retrieval failure, FALSE.
  */
 function queuePeekItem($id,&$error) {
-   $res = db_query(q('SELECT status, sender, type, summary, content
+   $res = db_query(q('SELECT status, sender, type, summary, content,
+      cache_ip, cache_constituency
       FROM import_queue
       WHERE id=%id', array('%id'=>$id)));
    if ($res == false) {
@@ -506,4 +507,96 @@ function queueRemoveItem($id,&$error) {
    return 1;
 }// queueRemoveItem
 
+/* Add logging contained in a queue element to an AIRT incident.
+ * 
+ * Parameters
+ *   id (integer) = The queue item ID to be processed
+ *   error (string) = variable to write the error string to, if any.
+ * Returns
+ *   0 in case of success, 1 in case of failure
+ */
+function queueAddLogging($id, &$error) {
+   global $AIRT_CURL_OPTIONS;
+
+   if (fetchAuthticket($ticket, $error) != 0) {
+      return 1;
+   }
+
+   // fetch item from queue
+   $item = queuePeekItem($id, $error);
+   if (!$item) {
+      return 2;
+   }
+
+   // fetch open incidents 
+   $openips = array();
+   foreach (getOpenincidents() as $id=>$data) {
+      $openips[$data['ip']] = $id;
+   }
+   if (!array_key_exists($item['cache_ip'], $openips)) {
+      $error = 'Invalid cache data';
+      return 3;
+   }
+
+   // fetch logging from item
+   $xml = @domxml_open_mem($item['content']);
+   $root = $xml->document_element();
+   $logging_els = $root->get_elements_by_tagname('logging');
+   if (sizeof($logging_els) == 0) {
+      $error = 'Invalid XML (no logging)';
+      return 4;
+   }
+   $logging = '';
+   foreach ($logging_els as $log_el) {
+      $logging .= $log_el->get_content();
+   }
+
+   // Call web service
+   $airt_client = new SOAP_Client(WS_ENDPOINT);
+   $method = "addLogging";
+   $params = array(
+      'incidentid'=>$openips[$item['cache_ip']],
+      'logging'=>$logging,
+      'authticket'=>$ticket);
+
+   // process CURL options
+   foreach ($AIRT_CURL_OPTIONS as $key=>$value) {
+      $airt_client->setOpt('curl', $key, $value);
+   }
+   $ans = $airt_client->call($method, $params);
+   if (PEAR::isError($ans)) {
+      $error = 'SOAP Error';
+      return 5;
+   }
+   return 0;
+}
+
+
+/* Fetch an authentication ticket from the web service
+ * 
+ * Parameters:
+ *    ticket (string); variable to write the ticket to, if sucessfully retrieved
+ *    error (string); variable to write error message in, if any
+ * Returns
+ *    0 on success, 1 in case of a problem
+ */
+function fetchAuthTicket(&$ticket, &$error) {
+   global $AIRT_CURL_OPTIONS;
+   $saml_ticket = '';
+   $saml_ticket = getSAMLTicket();
+   $saml_ticket = preg_replace('/xmlns:="urn:oasis:names:tc:SAML:1.0:assertion"/','',$saml_ticket);
+   $saml_ticket = preg_replace('/xmlns:ds="http:\/\/www.w3.org\/2000\/09\/xmldsig#"/','',$saml_ticket);
+   $saml_ticket = preg_replace('/ds:/','',$saml_ticket);
+   if($saml_xml = @domxml_open_mem($saml_ticket)) {
+      $content_saml = $saml_xml->document_element();
+      $ticket_element = $content_saml->get_elements_by_tagname('KeyValue');
+      $ticket = $ticket_element[0]->get_content();
+   }
+   if(!isset($ticket) || $ticket == null) {
+      $error = 'Missing key for authentication';
+      return 1;
+   } else {
+      return 0;
+   }
+}
 ?>

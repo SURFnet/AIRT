@@ -62,8 +62,15 @@ switch ($action) {
                flush();
                $update = true;
                if (isset($_POST['add'][$id]) && $_POST['add'][$id] == 'on') {
-                  // TODO: add logging to existing incident
-                  $update = false;
+                  print t('Adding to existing incident<br/>'."\n");
+                  $error = '';
+                  if (queueAddLogging($id, $error)) {
+                     print t('Error processing item: %error', array(
+                        '%error'=>$error));
+                     $update = false;
+                  } else {
+                     $update = true;
+                  }
                } else if (queueToAIRT($id, $error)) {
                   $update = false;
                   airt_error('ERR_FUNC', 'importqueue.php:'.__LINE__, $error);
@@ -77,7 +84,7 @@ switch ($action) {
                $update = true;
                break;
             default:
-               print t('Ignoring queue elemnt %id<br/>'."\n", array('%id'=>$id));
+               print t('Ignoring queue element %id<br/>'."\n", array('%id'=>$id));
                flush();
          }
          if ($update) {
