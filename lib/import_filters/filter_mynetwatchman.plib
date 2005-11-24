@@ -69,6 +69,12 @@ function filter_mynetwatchman($input, &$output, $verbosity=FALSE) {
          $data[$key]['logging'] = $value;
       }
    }
+   if (preg_match('|(http://www.mynetwatchman.com/UI.asp.*)\s|m', $input, $matches)) {
+      $trackingurl = $matches[1];
+   }
+   if (preg_match('|(http://www.mynetwatchman.com/LID.asp.*)\s|m', $input, $matches)) {
+      $detailurl = $matches[1];
+   }
 
    $output = '<airt>'."\n";
    $output .= "  <queuedata ref=\"#1\">\n";
@@ -89,6 +95,8 @@ function filter_mynetwatchman($input, &$output, $verbosity=FALSE) {
       if (!is_array($in)) continue;
       $output .= "$in[logging]\n";
    }
+   $output .= "\nDetails for this incident at:\n    $detailurl\n";
+   $output .= "\nUpdate the status of this incident at:\n    $trackingurl\n";
    $output .="      </logging>";
    $output .="   </technicalInformation>\n";
    $output .="  </incident>\n";
