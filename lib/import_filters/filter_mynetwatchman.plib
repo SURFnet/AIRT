@@ -69,6 +69,7 @@ function filter_mynetwatchman($input, &$output, $verbosity=FALSE) {
          $data[$key]['logging'] = $value;
       }
    }
+   $trackingurl = $detailurl = '';
    if (preg_match('|(http://www.mynetwatchman.com/UI.asp.*)\s|m', $input, $matches)) {
       $trackingurl = $matches[1];
    }
