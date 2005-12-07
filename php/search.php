@@ -180,24 +180,26 @@ EOF;
 		} else {
 			echo "<I>No previous incidents</I>";
 		}
-		
+/*		
 		echo <<<EOF
 <h2>Link address to incident</h2>
 EOF;
-		
       // create new incident
       $count = showOpenIncidentSelection("incidentid");
       if ($count == 0) echo "<I>No previous incidents</I><P>";
+*/		
 
       echo <<<EOF
 <form action="incident.php" method="POST">
 <input type="hidden" name="ip" value="ip">
 EOF;
+/*
       if ($count>0) {
          echo <<<EOF
 <input type="submit" name="action" value="Link to incident">
 EOF;
       }
+*/
       echo <<<EOF
 <input type="submit" name="action" value="New incident">
 </form>
