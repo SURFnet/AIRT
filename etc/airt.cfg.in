@@ -23,6 +23,20 @@
  */
 
 
+/* Check if we are called for a virtual host. The following checks will be
+ * performed: 1) Environment variable $_ENV['VIRTUAL_HOST']. If not set, the
+ * PHP variable $_SERVER['SERVER_NAME']. If not, variable defaults to the empty
+ * string ''
+ */
+
+if (array_key_exists('VIRTUAL_HOST', $_ENV)) {
+  define('VIRTUAL_HOST', $_ENV['VIRTUAL_HOST']);
+} elseif (array_key_exists('SERVER_NAME', $_SERVER)) {
+   define('VIRTUAL_HOST', $_SERVER['SERVER_NAME']);
+} else {
+   define('VIRTUAL_HOST', '');
+}
+
 /***** 1. GLOBAL SETTINGS *****/
 
 // location of the .plib files
