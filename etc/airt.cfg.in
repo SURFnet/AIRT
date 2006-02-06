@@ -50,7 +50,7 @@ function setup() {
    $SETTINGS['pagesize'] = 20;
    
    // directory for short-lived temporary files
-   $SETTINGS['tmpdir'],'/tmp';
+   $SETTINGS['tmpdir'] = '/tmp';
    
    
    /**** 2. EMAIL SETTINGS *****/
@@ -70,7 +70,7 @@ function setup() {
    
    // reply-to used in standard emails. 
    // If left empty, no replyto header will be set.
-   $SETTINGS[''REPLYTO'] = 'Example-CERT - @YOURFIRSTNAME@ <user@example.com>';
+   $SETTINGS['REPLYTO'] = 'Example-CERT - @YOURFIRSTNAME@ <user@example.com>';
    
    
    /***** 3. DATABASE SETTINGS *****/
