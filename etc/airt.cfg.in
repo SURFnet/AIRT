@@ -97,7 +97,7 @@ function setup() {
    
    /***** 5. SITE CUSTOMIZATION *****/
    // the session timeout in seconds
-   $SETTINGS['session_timeout'], 600;
+   $SETTINGS['session_timeout'] = 600;
    
    // Incident ID prefix
    $SETTINGS['incidentid_prefix'] = 'Example-CERT#';
