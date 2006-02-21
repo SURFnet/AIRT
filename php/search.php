@@ -38,7 +38,7 @@ if (array_key_exists("action", $_REQUEST)) {
 
 function ShowSearch() {
     echo <<<EOF
-<form action="$_SERVER[PHP_SELF]" method="POST">
+<p><form action="$_SERVER[PHP_SELF]" method="POST">
 <input type="hidden" name="action" value="search">
 <table width="100%" bgcolor="#DDDDDD" border=0 cellpadding=2>
 <tr>
@@ -50,6 +50,13 @@ function ShowSearch() {
     </td>
 </tr>
 </table>
+</form></p>
+
+<p><form action="incident.php" method="POST">
+Jump to incident id: <input type="text" name="incidentid" size="15">
+<input type="submit" name="action" value="Details">
+</form>
+</p>
 EOF;
 }
 
