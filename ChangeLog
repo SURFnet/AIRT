@@ -4,6 +4,7 @@
 * "New incident" button returned to incident details screen
 * Hostnames are no longer resolved every time the incident overview screen
   is generated, but only when the incident is created.
+* New event in search output between previous and new
 
 2005-11-23
 * Provisions for multiple emails

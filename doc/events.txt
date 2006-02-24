@@ -112,3 +112,8 @@ Note:  Generated after displaying a mail template
 event: postsendmail
 data:  array with keys: incidentid, sender, recipient, subject
 Note:  Generated after sending mail
+
+event: searchoutput
+data:  array with keys: ip, hostname
+Note:  Generated on the search output screen, between Previous Incidents and
+       New Search.
