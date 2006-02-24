@@ -196,7 +196,6 @@ EOF;
       if ($count == 0) echo "<I>No previous incidents</I><P>";
 */		
 
-      generateevent('searchoutput', array('ip'=>$i, 'hostname'=>$hostname));
       echo <<<EOF
 <form action="incident.php" method="POST">
 <input type="hidden" name="ip" value="ip">
@@ -212,6 +211,9 @@ EOF;
 <input type="submit" name="action" value="New incident">
 </form>
 <P>
+EOF;
+      generateevent('searchoutput', array('ip'=>$ip, 'hostname'=>$hostname));
+      echo <<<EOF
 <HR>
 <H2>New Search</H2>
 EOF;
