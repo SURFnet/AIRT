@@ -534,9 +534,11 @@ function formatListOverviewBody() {
          $count++;
          continue;
       }
-      $hostname= $data['hostname'];
-      $hostname2=@gethostbyaddr($data['ip']);
+      $hostline= $data['hostname'];
       $addresses = getAddressesForIncident($id);
+      $constituency = $conslist[$addresses[0]['constituency']]['label'];
+      /*
+      $hostname2=@gethostbyaddr($data['ip']);
       if (sizeof($addresses) == 0) {
          $hostline = 'Not set.';
          $constituency = '';
@@ -545,12 +547,11 @@ function formatListOverviewBody() {
          $hostdb = $addresses[0]['hostname'];
          $hostnow = gethostbyaddr($ip);
          if ($hostdb == $hostnow) {
-            $hostline = $hostnow;
          } else {
             $hostline = "$hostnow **";
          }
-         $constituency = $conslist[$addresses[0]['constituency']]['label'];
       }
+      */
 
       $out .= t("<tr bgcolor=\"%color\">\n".
          "   <td>\n".

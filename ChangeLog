@@ -2,6 +2,8 @@
 * Jump to incident from search screen
 * Ability to bulk update incident types
 * "New incident" button returned to incident details screen
+* Hostnames are no longer resolved every time the incident overview screen
+  is generated, but only when the incident is created.
 
 2005-11-23
 * Provisions for multiple emails
