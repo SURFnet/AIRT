@@ -246,8 +246,7 @@ EOF;
       /* clean off html and stuff (only unformatted mail) */
       $msg = strip_tags($msg);
       $msg = stripslashes($msg);
-      $msg = str_replace("
-", '', $msg);
+      $msg = str_replace("\r", '', $msg);
 
       /* prepare the intial state of the message */
       $hdrs = array(
