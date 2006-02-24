@@ -159,11 +159,11 @@ function getIncidentStatusSelection($name, $default='', $extras=array()) {
    return $output;
 }
 
-function getIncidentTypes() {
+function getIncidentTypes($extras=array()) {
    $res = db_query('SELECT id, label FROM incident_types ORDER BY id')
    or die('Unable to connect to database.');
 
-   $types=array();
+   $types=$extras;
    while ($row = db_fetch_next($res)) {
       $types[$row["id"]]=$row["label"];
    }
@@ -197,9 +197,9 @@ function setIncidentTypeDefault() {
 
 /* Return an HTML SELECT box containing valid choices for incident types.
    When a default choice is not given (""), fetch system default.*/
-function getIncidentTypeSelection($name, $default='') {
+function getIncidentTypeSelection($name, $default='',$extras=array()) {
    $output = sprintf("<select name=\"%s\">\n", htmlentities($name));
-   $states = getIncidentTypes();
+   $states = getIncidentTypes($extras);
    if ($default=='') {
       $default = getIncidentTypeDefault();
    }
@@ -705,9 +705,9 @@ function updateIncident($id,$state,$status,$type,$logging) {
  * will be set to each incident ID in the list.
  * Returns void.
  */
-function updateIncidentList($incidentList,$state,$status) {
+function updateIncidentList($incidentList,$state,$status,$type) {
    foreach ($incidentList as $id) {
-      updateIncident($id,$state,$status,'','');
+      updateIncident($id,$state,$status,$type,'');
    }
    return;
 }

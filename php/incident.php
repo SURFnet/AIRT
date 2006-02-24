@@ -321,6 +321,7 @@ function formatFilterBlock() {
       "</tr>\n".
       "</table>\n".
       "<INPUT TYPE=\"submit\" VALUE=\"Filter\">\n".
+      "<INPUT TYPE=\"submit\" Name=\"action\" VALUE=\"New incident\">\n".
       "</FORM>\n");
    return $out;
 }
@@ -596,6 +597,10 @@ function formatListOverviewFooter() {
       getIncidentStatusSelection('massstatus', 'null',
          array('null'=>'Leave Unchanged')).
       "</td></tr>\n".
+      "<tr><td>New Type</td><td>".
+      getIncidentTypeSelection('masstype', 'null',
+         array('null'=>'Leave Unchanged')).
+      "</td></tr>\n".
       "<tr><td>&nbsp;</td><td>".
       "<input type=\"submit\" value=\"Update All Selected\">".
       "</td></tr>\n".
@@ -798,6 +803,7 @@ EOF;
       print formatListOverviewHeader();
       print "<hr/>";
       print formatListOverviewBody();
+      print "<hr/>";
       print formatListOverviewFooter();
 
       generateEvent("incidentlistpost");
@@ -1174,8 +1180,16 @@ EOF;
       } else {
          $massStatus = '';
       }
+      if (array_key_exists('masstype', $_POST)) {
+         $massType = $_POST['masstype'];
+         if ($massType=='null') {
+            $massType = '';
+         }
+      } else {
+         $massType = '';
+      }
 
-      updateIncidentList($massIncidents,$massState,$massStatus);
+      updateIncidentList($massIncidents,$massState,$massStatus,$massType);
 
       Header("Location: $_SERVER[PHP_SELF]");
       break;

@@ -1,5 +1,7 @@
 2006-02-21
 * Jump to incident from search screen
+* Ability to bulk update incident types
+* "New incident" button returned to incident details screen
 
 2005-11-23
 * Provisions for multiple emails
