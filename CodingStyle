@@ -1,6 +1,10 @@
 $Id$
 $URL$
 
+
+Indentation and structure
+=========================
+
 - Indent using three spaces
 
 - All functions must be preceded by a comment block which describes the purpose
@@ -36,8 +40,14 @@ command. For example:
 
 - Always initialise varables before using them.
 
-- Do not break lines in a single command; it is okay to let things wrap around a bit
+- Do not break lines in a single command; it is okay to let things wrap around
+  a bit
 
+- Trailing spaces are frowned upon.
+
+
+How to comment
+==============
 - Single line comments are prefixed like so
   // this is a comment
 
@@ -49,5 +59,21 @@ command. For example:
 - Do not use #-style comments in production code. #'s are used as a reminder
   for the developer and should be removed entirely before committing the
   changes to the repository
+
+
+Using the database
+==================
+- Always use the functions provided to you by database.plib; never use
+  pg_ functions directly!
+
+- Before sending anything to a database, do proper input validation. This 
+  includes tests like is_numeric.
+
+- Escape strings before sending them to the database using db_escape_string().
+
+Using SVN
+=========
+- Commit each self-contained change to the repository after you test it. One
+  change per commit
 
 - Use descriptive SVN commit messages
