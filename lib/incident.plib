@@ -363,7 +363,22 @@ function addIPtoIncident($ip, $incident,$role=0) {
    }
 }
 
-function createIncident($state,$status,$type,$logging) {
+/** Add a new incident to the database.
+ * The incident will be assigned a new ID and the basic incident information
+ * will be added to the database.
+ *
+ * \param[in] $state   The numerical ID of an incident state
+ * \param[in] $status  The numerical ID of an incident status
+ * \param[in] $type    The numerical ID of an incident type
+ * \param[in] $logging An optional string containing the logging
+ *
+ * \return Returns a numerical incident ID on success, or false on failure
+ */
+function createIncident($state,$status,$type,$logging='') {
+   if (!is_numeric($state) || !is_numeric($status) || !is_numeric($type) ||
+       !is_numeric($type)) {
+      return false;
+   }
    $res        = db_query("select nextval('incidents_sequence') as incidentid")
                   or die("Unable to execute query 2.");
    $row        = db_fetch_next($res);
@@ -418,9 +433,6 @@ function removeIPfromIncident($ip, $incident, $role) {
 
 /* Fetch the label of an incident state by ID */
 function getIncidentStateLabelByID($id) {
-   # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-   # or die("unable to connect to database.");
-
    $res = db_query(sprintf("
       SELECT label
       FROM   incident_states
@@ -434,16 +446,11 @@ function getIncidentStateLabelByID($id) {
       $out = "unknown";
    }
 
-   # db_close($conn);
-
    return $out;
 }
 
 /* Fetch the label of an incident status by ID */
 function getIncidentStatusLabelByID($id) {
-   # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-   # or die("unable to connect to database.");
-
    $res = db_query(sprintf("
       SELECT label
       FROM   incident_status
@@ -457,16 +464,11 @@ function getIncidentStatusLabelByID($id) {
       $out = "unknown";
    }
 
-   # db_close($conn);
-
    return $out;
 }
 
 /* Fetch the label of an incident type by ID */
 function getIncidentTypeLabelByID($id) {
-   # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-   # or die("unable to connect to database.");
-
    $res = db_query(sprintf("
       SELECT label
       FROM   incident_types
@@ -479,8 +481,6 @@ function getIncidentTypeLabelByID($id) {
    } else {
       $out = "unknown";
    }
-
-   # db_close($conn);
 
    return $out;
 }

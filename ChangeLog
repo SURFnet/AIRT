@@ -1,3 +1,6 @@
+* Fixed bug in assigning multiple users to incident from search form
+* Now handles multiple email addresses per template properly
+
 2006-02-24
 * Jump to incident from search screen
 * Ability to bulk update incident types

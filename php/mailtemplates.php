@@ -173,7 +173,12 @@ EOF;
       } else {
          $agenda = array($_SESSION['incidentid']);
       }
-      prepare_message($template, $agenda);
+      if (array_key_exists('to', $_REQUEST)) {
+         $to = explode(',',$_REQUEST['to']);
+      } else {
+         $to = array();
+      }
+      prepare_message($template, $agenda, $to);
       pageFooter();
       break;
 

@@ -32,6 +32,7 @@ require_once LIBDIR.'/database.plib';
 
 registerEventHandler('pageHeader', 'showheader');
 registerEventHandler('pageFooter', 'showfooter');
+registerEventHandler('searchoutput','searchoutput');
 
 function showheader($data) {
   $navbar='';
@@ -136,4 +137,9 @@ function showfooter($data) {
 </html>
 EOF;
 }
+
+/* 
+function searchoutput($data) {
+}
+*/
 ?>

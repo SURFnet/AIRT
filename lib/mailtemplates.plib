@@ -150,10 +150,15 @@ function getMailtemplateSelection($name, $default='', $extras=array()) {
    return $output;
 }
 
-/**
- * Retrieve a formatted overview of mail templates
+/** Retrieve a formatted overview of mail templates.
+ * \return A string containing a HTML-formatted overview of available templates.
  */
 function format_templates() {
+   if (array_key_exists('to', $_REQUEST)) {
+      $to = "&to=".urlencode($_REQUEST['to']);
+   } else {
+      $to = '';
+   }
    $out = "<table>";
    $count=0;
    $templates = get_templates();
@@ -164,9 +169,10 @@ function format_templates() {
       $subject = get_subject($body);
       $out .= t("<tr bgcolor=\"%color\">", array(
          '%color'=>($count++%2==0?"#DDDDDD":"#FFFFFF")));
-      $out .= t("<td><a href=\"%url?action=prepare&template=%name\">prepare</a></td>", array(
+      $out .= t("<td><a href=\"%url?action=prepare&template=%name%to\">prepare</a></td>", array(
          '%url'=>$_SERVER['PHP_SELF'],
-         '%name'=>$name));
+         '%name'=>$name,
+         '%to'=>$to));
       $out .= t("<td>%name</td>\n", array('%name'=>$name));
       $out .= t("<td>%subject</td>\n", array('%subject'=>$subject));
       $out .= t("<td><a href=\"%url?action=edit&template=%name\">edit</a></td>\n", array(
@@ -195,10 +201,13 @@ function show_message($name) {
 } // show_message
 
 
-/**
- * Expand the template for the current situation.
+/** Expand a mail template. Use the information contained in $current to
+ * expand mail template $template.
  *
- * Returns an associative array with the following keys
+ * \param [in] $template  The template to be expanded
+ * \param [in] $current   An associative arrow with key-value pairs
+ *
+ * \return An associative array with the following keys
  *     $output['sender']       message sender
  *     $output['receiver']     message receiver
  *     $output['replyto']      replyto header
@@ -218,7 +227,15 @@ function expand_template($template, $current) {
 
    // message receiver
    if (array_key_exists('email', $current)) {
-      $output['receiver'] = $current['email'];
+      if (is_array($current['email'])) {
+         $receivers = array();
+         foreach($current['email'] as $email) {
+            $receivers[]=$email;
+         }
+         $output['receiver'] = implode(',',$receivers);
+      } else {
+         $output['receiver'] = $current['email'];
+      }
    } elseif (array_key_exists('current_email', $_SESSION)) {
       $output['receiver'] = $current['current_email'];
    } else {
@@ -248,7 +265,7 @@ function expand_template($template, $current) {
 
 /* Expand a message, based on a template.
  */
-function prepare_message($template, $agenda) {
+function prepare_message($template, $agenda=array(), $to=array()) {
 	$current = array('user'=>'', 'name'=>'', 'email'=>'', 
       'ip'=>'', 'hostname'=>'');
 
@@ -257,9 +274,13 @@ function prepare_message($template, $agenda) {
 	unset($agenda[0]);
 	$incident = getIncident($current['incidentid']);
 	if (sizeof($incident['users']) > 0) {
-		$user = getUserByUserID($incident['users'][0]);
-		$current['name'] = $user['lastname'];
-		$current['email'] = $user['email'];
+      foreach ($incident['users'] as $uid) {
+         $user = getUserByUserID($uid);
+         if (sizeof($to) == 0 || in_array($uid, $to)) {
+            $current['name'][] = $user['lastname'];
+            $current['email'][] = $user['email'];
+         }
+      }
 	}
    if (sizeof($incident['ips']) > 0) {
       $current['ip'] = $incident['ips'][0]['ip'];
@@ -400,7 +421,11 @@ function replace_vars($msg, $current=array()) {
    }
 
    if (array_key_exists('name', $current)) {
-      $name = $current['name'];
+      if (is_array($current['name'])) {
+         $name = implode(', ', $current['name']);
+      } else {
+         $name = $current['name'];
+      }
    } elseif ($array_key_exists('current_name', $_SESSION)) {
       $name = $_SESSION['name'];
    }

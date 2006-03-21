@@ -208,13 +208,10 @@ function formatEditForm() {
 
    $output .= "<hr/>\n";
    $output .= "<h3>Affected users</h3>\n";
+   $output .= '<form>';
+   $output .= t('<input type="hidden" name="incidentid" value="%incidentid"',
+      array('%incidentid'=>$incident['incidentid']));
    $output .= "<table cellpadding=\"4\">\n";
-   $output .= "<tr>\n";
-   $output .= "   <td>Email address</td>\n";
-   $output .= "   <td>Mail from template</td>\n";
-   $output .= "   <td>Remove from incident</td>\n";
-   $output .= "</tr>\n";
-   $count = 0;
 
    // re-initialise active users
    $_SESSION['current_name'] = '';
@@ -237,17 +234,15 @@ function formatEditForm() {
          $_SESSION['current_name'] .= ','.$name;
       }
       $output .= t('<tr >'."\n");
+      $output .= t('  <td><input type="checkbox" name="agenda[]" value="%userid"></td>', array('%userid'=>$user));
       $output .= t('  <td>%email</td>', array('%email'=>$u['email']))."\n";
-      // $p = "current_email=".$u['email'];
-      $output .= "  <td><a href=\"mailtemplates.php\">Select template</a></td>";
-      $output .= t('  <td><a href="%url">Remove</a></td>', array(
-         '%url'=>"$_SERVER[PHP_SELF]?action=deluser&userid=".urlencode($u['id'])
-      ));
       $output .= "</tr>\n";
    }
    $output .= "</table>\n";
+   $output .= '<input type="submit" name="action" value="Mail">';
+   $output .= '<input type="submit" name="action" value="Remove"';
+   $output .= '</form>';
    $output .= "<p/>\n";
-
    if (array_key_exists("current_userid", $_SESSION)) {
       $userid = $_SESSION["current_userid"];
       $u = getUserByUserID($userid);
@@ -649,7 +644,7 @@ switch ($action) {
         }
      }
 
-     Header("Location :$_SERVER[PHP_SELF]");
+     Header("Location: $_SERVER[PHP_SELF]");
      break;
 
   //--------------------------------------------------------------------
@@ -758,15 +753,17 @@ switch ($action) {
       addIPtoIncident($address,$incidentid,$addressrole);
 
       if ($email != "") {
-         $user = getUserByEmail($email);
-         if (!$user) {
-            if ($addif == "on") {
-               addUser(array("email"=>$email));
-               $user = getUserByEmail($email);
-               addUserToIncident($user["id"], $incidentid);
-            } else {
-               pageHeader("Unable to add user to incident.");
-               echo <<<EOF
+         foreach (explode(',', $email) as $addr) {
+            $addr = trim($addr);
+            $user = getUserByEmail($addr);
+            if (!$user) {
+               if ($addif == "on") {
+                  addUser(array("email"=>$addr));
+                  $user = getUserByEmail($addr);
+                  addUserToIncident($user["id"], $incidentid);
+               } else {
+                  pageHeader("Unable to add user to incident.");
+                  echo <<<EOF
 <p>The e-mail address specified in the incident data entry form is unknown
 and you chose not to add it to the database.</p>
 
@@ -775,10 +772,11 @@ it.</p>
 
 <p><a href="$_SERVER[PHP_SELF]">Continue...</a>
 EOF;
-               pageFooter();
-               exit;
-            }
-        } else addUserToIncident($user["id"], $incidentid);
+                  pageFooter();
+                  exit;
+               }
+           } else addUserToIncident($user["id"], $incidentid);
+         }
       }
 
       if ($sendmail == "on") Header("Location: mailtemplates.php");
@@ -1195,7 +1193,41 @@ EOF;
       Header("Location: $_SERVER[PHP_SELF]");
       break;
 
-
+   //--------------------------------------------------------------------
+   case 'Mail':
+      if (array_key_exists('agenda', $_REQUEST)) {
+         $agenda = $_REQUEST['agenda'];
+      } else {
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
+         Header("Location: $_SERVER[PHP_SELF]");
+         return;
+      }
+      Header("Location: mailtemplates.php?to=".urlencode(implode(',',$agenda)));
+      break;
+   //--------------------------------------------------------------------
+   case 'Remove':
+      if (array_key_exists('incidentid', $_REQUEST)) {
+         $incidentid = $_REQUEST['incidentid'];
+      } else {
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
+         Header("Location: $_SERVER[PHP_SELF]");
+         return;
+      }
+      if (array_key_exists('agenda', $_REQUEST)) {
+         $agenda = $_REQUEST['agenda'];
+      } else {
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
+         Header("Location: $_SERVER[PHP_SELF]");
+         return;
+      }
+      foreach ($agenda as $userid) {
+         $user = getUserByUserId($userid);
+         removeUserFromIncident($userid, $incidentid);
+         addIncidentComment(sprintf("User %s removed from incident.", 
+            $user["email"]));
+      }
+      Header("Location: $_SERVER[HTTP_REFERER]");
+      break;
    //--------------------------------------------------------------------
    default:
       die("Unknown action");
