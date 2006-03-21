@@ -113,7 +113,7 @@ function getConstituencyContacts($constituencyid) {
    }
    $out = array();
    while ($row = db_fetch_next($res)) {
-      $out[$row['id']] = $row;
+      $out[$row['userid']] = $row;
    }
    return $out;
 } // getConstituencyContacts()
