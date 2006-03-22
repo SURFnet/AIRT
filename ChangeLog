@@ -1,3 +1,4 @@
+2006-03-22
 * Fixed bug in assigning multiple users to incident from search form
 * Now handles multiple email addresses per template properly
 
