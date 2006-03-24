@@ -621,21 +621,21 @@ function edit_externalids($incidentid='') {
    if (!is_numeric($incidentid)) {
       return false;
    }
-   pageHeader(t('Additional incident identifiers of %id', array(
-      '%id'=>normalize_incidentid($id))));
+   pageHeader(t('External incident identifiers of %id', array(
+      '%id'=>normalize_incidentid($incidentid))));
 
    $incident = getIncident($incidentid);
    $out = '<h2>Basic incident data</h2>';
    $out .= '<table>';
    $out .= t('<tr><td>Incident ID</td><td>%incidentid</td></tr>', array(
-      '%incidentid'=>normalize_incidentid($id)));
+      '%incidentid'=>normalize_incidentid($incidentid)));
    $out .= t('<tr><td>Type</td><td>%type</td></tr>', array(
       '%type'=>getIncidentTypeDescr($incident['type'])));
    $out .= t('<tr><td>Status</td><td>%status</td></tr>', array(
       '%status'=>getIncidentStatusDescr($incident['status'])));
    $out .= t('<tr><td>State</td><td>%state</td></tr>', array(
       '%state'=>getIncidentStateDescr($incident['state'])));
-   $out .= t('<tr><td>Logging</td><td><pre>%logging</pre></td></tr>', array(
+   $out .= t('<tr valign="top"><td>Logging</td><td><pre>%logging</pre></td></tr>', array(
       '%logging'=>htmlentities($incident['logging'])));
    $out .= '</table>';
    $out .= t('<a href="%url?action=details&incidentid=%id">Back to details</a>',
@@ -707,7 +707,7 @@ switch ($action) {
     $output = '<div class="externalids" width="100%">';
     $output .= t('(<a href="%url?action=edit_extid&incidentid=%incidentid">Edit</a>) ', array(
        '%url'=>$_SERVER["PHP_SELF"], '%incidentid'=>urlencode($incidentid)));
-    $output .= 'Additional identifiers: ';
+    $output .= 'External identifiers: ';
     $output .= implode(',', getExternalIncidentIDs($incidentid));
     $output .= '</div>';
     $output .= formatEditForm();

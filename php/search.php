@@ -44,17 +44,17 @@ function showSearch($qtype='') {
       case 'incident':
          $incidentchecked='CHECKED';
          break;
+      default:
+         $hostchecked='CHECKED';
    }
    echo <<<EOF
 <p><form>
-<center>
 Search for:<p/>
 <input type="text" name="q" size="60"/>
 <input type="submit" name="action" value="Search"/>
 <br/>
 <input type="radio" name="qtype" value="host" $hostchecked/>Hostname
 <input type="radio" name="qtype" value="incident" $incidentchecked/>Incident
-</center>
 <p/>
 </form>
 EOF;
