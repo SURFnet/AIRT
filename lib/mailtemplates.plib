@@ -52,10 +52,10 @@ function get_template($template) {
 } // read_standard_message
 
 
-/** Update the definition of a template
- * $name = the name of the template
- * $body = the body of the template
- * Returns 0 on success, 1 on failure.
+/** Update the definition of a template.
+ * \param $name [in] the name of the template
+ * \param $body [in] the body of the template
+ * \return Returns 0 on success, 1 on failure.
  */
 function save_template($name='', $body='') {
    if ($name == '' || $body == '') {
@@ -84,7 +84,7 @@ function save_template($name='', $body='') {
       // existing template
    }
    return 0;
-}
+\return }
 
 /** Remove the named template
  * return 0 on success, 1 on failure
@@ -390,6 +390,10 @@ function print_variables_info() {
     <td>Will be replaced with the incident data in XML format</td>
 </tr>
 <tr>
+    <td>@EXTIDS@</td>
+	 <td>External incident identifiers (if any)</td>
+</tr>
+<tr>
     <td>@YOURFIRSTNAME@</td>
     <td>Will be replaced with the first name of the logged in incident
     handler</td>
@@ -403,6 +407,13 @@ function print_variables_info() {
 EOF;
 }
 
+/** Replace @..@ macros in mail templates.
+ * \param [in] $msg the mail template to expand
+ * \param [in] $current an associative array containing information on the
+ * current incident.
+ *
+ * \return The expanded template.
+ */
 function replace_vars($msg, $current=array()) {
    $out = $msg;
 
@@ -489,6 +500,8 @@ function replace_vars($msg, $current=array()) {
      }
      $out = ereg_replace('@LOGGING@',$logging,$out);
 
+	  $out = ereg_replace('@EXTIDS@',
+	  implode(',',getExternalIncidentIDs($incidentid)));
      // Basic incident data in XML format.
      $xmlData = trim(exportIncident(
                    array(0=>decode_incidentid($incidentid))));
