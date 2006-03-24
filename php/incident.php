@@ -635,7 +635,7 @@ function edit_externalids($incidentid='') {
       '%status'=>getIncidentStatusDescr($incident['status'])));
    $out .= t('<tr><td>State</td><td>%state</td></tr>', array(
       '%state'=>getIncidentStateDescr($incident['state'])));
-   $out .= t('<tr><td>Logging</td><td>%logging</td></tr>', array(
+   $out .= t('<tr><td>Logging</td><td><pre>%logging</pre></td></tr>', array(
       '%logging'=>htmlentities($incident['logging'])));
    $out .= '</table>';
    $out .= t('<a href="%url?action=details&incidentid=%id">Back to details</a>',

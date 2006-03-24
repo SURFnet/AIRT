@@ -202,6 +202,7 @@ EOF;
 /** Search for incidents by id
  */
 function search_incident($incidentid) {
+   pageHeader("Search results");
    $hits=array();
    if ((int)$incidentid > 0) {
       $incident = getIncident($incidentid);
@@ -276,7 +277,6 @@ switch ($action) {
          Header($_SERVER['PHP_SELF']);
          exit;
       }
-      pageHeader("Search results");
       switch ($qtype) {
          case 'host':
             search_host($q);
