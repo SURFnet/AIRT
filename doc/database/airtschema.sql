@@ -42,6 +42,7 @@ DROP SEQUENCE importqueue_sequence;
 DROP SEQUENCE authentication_tickets_sequence;
 DROP SEQUENCE exportqueue_sequence;
 
+DROP TABLE external_incidentids CASCADE;
 DROP TABLE incident_types CASCADE; 
 DROP TABLE incident_states CASCADE;
 DROP TABLE incident_status CASCADE;
@@ -318,6 +319,13 @@ CREATE TABLE export_queue (
   ended     timestamp,
   result    varchar(256),
   primary key (id)
+);
+
+CREATE TABLE external_incidentids (
+  incidentid integer,
+  externalid varchar(64),
+  primary key (incidentid,externalid),
+  foreign key (incidentid) references incidents(id)
 );
 
 CREATE SEQUENCE incident_types_sequence;

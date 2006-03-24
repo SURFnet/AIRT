@@ -75,6 +75,10 @@ function showheader($data) {
   padding-top: 10px;
 }
 
+.content .externalids {
+  font-color: red;
+}
+
 .title {
   padding-left: 10px;
 }

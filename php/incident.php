@@ -532,21 +532,6 @@ function formatListOverviewBody() {
       $hostline= $data['hostname'];
       $addresses = getAddressesForIncident($id);
       $constituency = $conslist[$addresses[0]['constituency']]['label'];
-      /*
-      $hostname2=@gethostbyaddr($data['ip']);
-      if (sizeof($addresses) == 0) {
-         $hostline = 'Not set.';
-         $constituency = '';
-      } else {
-         $ip = $addresses[0]['ip'];
-         $hostdb = $addresses[0]['hostname'];
-         $hostnow = gethostbyaddr($ip);
-         if ($hostdb == $hostnow) {
-         } else {
-            $hostline = "$hostnow **";
-         }
-      }
-      */
 
       $out .= t("<tr bgcolor=\"%color\">\n".
          "   <td>\n".
@@ -627,6 +612,54 @@ function formatListOverviewFooter() {
    return $out;
 }
 
+/** User interface component for editing external incident ids.
+ * \param [in] $incidentid  Identifier of the incident
+ *
+ * \return false on failure, true on success.
+ */
+function edit_externalids($incidentid='') {
+   if (!is_numeric($incidentid)) {
+      return false;
+   }
+   pageHeader(t('Additional incident identifiers of %id', array(
+      '%id'=>normalize_incidentid($id))));
+
+   $incident = getIncident($incidentid);
+   $out = '<h2>Basic incident data</h2>';
+   $out .= '<table>';
+   $out .= t('<tr><td>Incident ID</td><td>%incidentid</td></tr>', array(
+      '%incidentid'=>normalize_incidentid($id)));
+   $out .= t('<tr><td>Type</td><td>%type</td></tr>', array(
+      '%type'=>getIncidentTypeDescr($incident['type'])));
+   $out .= t('<tr><td>Status</td><td>%status</td></tr>', array(
+      '%status'=>getIncidentStatusDescr($incident['status'])));
+   $out .= t('<tr><td>State</td><td>%state</td></tr>', array(
+      '%state'=>getIncidentStateDescr($incident['state'])));
+   $out .= t('<tr><td>Logging</td><td>%logging</td></tr>', array(
+      '%logging'=>htmlentities($incident['logging'])));
+   $out .= '</table>';
+   $out .= t('<a href="%url?action=details&incidentid=%id">Back to details</a>',
+      array('%url'=>$_SERVER['PHP_SELF'], '%id'=>urlencode($incidentid)));
+
+   $out .= '<h2>External identifiers</h2>';
+   foreach (getExternalIncidentIDS($incidentid) as $extid) {
+      $out .= t('<a href="%url?action=delete_extid&incidentid=%id&extid=%extid">Remove</a> ', array(
+         '%url'=>$_SERVER['PHP_SELF'], 
+         '%id' => $incidentid, 
+         '%extid' => urlencode($extid)));
+      $out .= $extid."<br/>\n";
+   }
+   $out .= '<p/><form>';
+   $out .= t('<input type="hidden" name="incidentid" value="%id">', array(
+      '%id'=>urlencode($incidentid)));
+   $out .= 'New identifer: <input type="text" name="extid" size="25">';
+   $out .= '<input type="submit" name="action" value="Add external identifier">';
+   $out .= '</form>';
+   print $out;
+   pageFooter();
+}
+
+
 switch ($action) {
   //--------------------------------------------------------------------
   case "Apply":
@@ -671,7 +704,13 @@ switch ($action) {
     $_SESSION["incidentid"] = $incidentid;
 
     pageHeader("Incident details: $norm_incidentid");
-    $output = formatEditForm();
+    $output = '<div class="externalids" width="100%">';
+    $output .= t('(<a href="%url?action=edit_extid&incidentid=%incidentid">Edit</a>) ', array(
+       '%url'=>$_SERVER["PHP_SELF"], '%incidentid'=>urlencode($incidentid)));
+    $output .= 'Additional identifiers: ';
+    $output .= implode(',', getExternalIncidentIDs($incidentid));
+    $output .= '</div>';
+    $output .= formatEditForm();
     $output .= "<hr/>\n";
     $output .= "<h3>History</h3>\n";
 
@@ -1228,6 +1267,60 @@ EOF;
       }
       Header("Location: $_SERVER[HTTP_REFERER]");
       break;
+   //--------------------------------------------------------------------
+   case 'edit_extid':
+      if (array_key_exists('incidentid', $_REQUEST)) {
+         $incidentid = $_REQUEST['incidentid'];
+      } else {
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
+         Header("Location: $_SERVER[PHP_SELF]");
+         return;
+      }
+      edit_externalids($incidentid);
+      break;
+
+   //--------------------------------------------------------------------
+   case 'delete_extid':
+      if (array_key_exists('incidentid', $_REQUEST)) {
+         $incidentid = $_REQUEST['incidentid'];
+      } else {
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
+         Header("Location: $_SERVER[PHP_SELF]");
+         return;
+      }
+      if (array_key_exists('extid', $_REQUEST)) {
+         $extid = $_REQUEST['extid'];
+      } else {
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
+         Header("Location: $_SERVER[PHP_SELF]");
+         return;
+      }
+      deleteExternalIncidentIDs($incidentid, $extid);
+      Header("Location: $_SERVER[PHP_SELF]?action=edit_extid&incidentid=".
+         urlencode($incidentid));
+      break;
+   //--------------------------------------------------------------------
+   case 'Add external identifier':
+   case 'add_extid':
+      if (array_key_exists('incidentid', $_REQUEST)) {
+         $incidentid = $_REQUEST['incidentid'];
+      } else {
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
+         Header("Location: $_SERVER[PHP_SELF]");
+         return;
+      }
+      if (array_key_exists('extid', $_REQUEST)) {
+         $extid = $_REQUEST['extid'];
+      } else {
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
+         Header("Location: $_SERVER[PHP_SELF]");
+         return;
+      }
+      addExternalIncidentIDs($incidentid, $extid);
+      Header("Location: $_SERVER[PHP_SELF]?action=edit_extid&incidentid=".
+         urlencode($incidentid));
+      break;
+
    //--------------------------------------------------------------------
    default:
       die("Unknown action");

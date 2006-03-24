@@ -45,6 +45,22 @@ function getIncidentStates($extras=array()) {
    return $states;
 }
 
+/** Retrieve an incident state description by its identifier.
+ * \param [in] $id Identifier of the incident state
+ * \return An empty string on failure, or a string containing the description.
+ */
+function getIncidentStateDescr($id='') {
+   if (!is_numeric($id)) {
+      return '';
+   }
+   $states = getIncidentStates();
+   if (array_key_exists($id, $states)) {
+      return $states[$id];
+   } else {
+      return '';
+   }
+}
+
 /* Return the current incident state ID system default. If there is no
  * explicit default set, return an empty string. */
 function getIncidentStateDefault() {
@@ -112,6 +128,22 @@ function getIncidentStatus($extras=array()) {
    return $statuses;
 }
 
+/** Retrieve an incident status description by its identifier.
+ * \param [in] $id Identifier of the incident status
+ * \return An empty string on failure, or a string containing the description.
+ */
+function getIncidentStatusDescr($id='') {
+   if (!is_numeric($id)) {
+      return '';
+   }
+   $statuses = getIncidentStatus();
+   if (array_key_exists($id, $statuses)) {
+      return $statuses[$id];
+   } else {
+      return '';
+   }
+}
+
 /* Return the current incident status ID system default. If there is no
  * explicit default set, return an empty string. */
 function getIncidentStatusDefault() {
@@ -157,6 +189,22 @@ function getIncidentStatusSelection($name, $default='', $extras=array()) {
    }
    $output .= "</select>";
    return $output;
+}
+
+/** Retrieve an incident type description by its identifier.
+ * \param [in] $id Identifier of the incident type
+ * \return An empty string on failure, or a string containing the description.
+ */
+function getIncidentTypeDescr($id='') {
+   if (!is_numeric($id)) {
+      return '';
+   }
+   $types = getIncidentTypes();
+   if (array_key_exists($id, $types)) {
+      return $types[$id];
+   } else {
+      return '';
+   }
 }
 
 function getIncidentTypes($extras=array()) {
@@ -799,5 +847,72 @@ function getAddressRoleByID($id) {
    } else {
       return "";
    }
+}
+
+/** Retrieve 3rd-party incident IDs.
+ * \param [in] $incidentid  Internal incident ID
+ *
+ * \return Will return an array of external incident identifiers. The array may
+ * be empty if none exist.
+ */
+function getExternalIncidentIDs($incidentid='') {
+   if (!is_numeric($incidentid)) {
+      return array();
+   }
+   $out = array();
+   $q = q('select incidentid, externalid from external_incidentids where incidentid=%id', array('%id'=>$incidentid));
+   $res = db_query($q);
+   while ($row = db_fetch_next($res)) {
+      $out[] = $row['externalid'];
+   }
+   return $out;
+}
+
+/** Add 3rd-party incident IDs.
+ * \param [in] $incidentid   Internal incident id.
+ * \param [in] $externalids  External incident ids. If $externalids is a string, only one will be added, if it is an array, all will be added.
+ * \return true on success, false on failure.
+ */
+function addExternalIncidentIDs($incidentid='', $externalids) {
+   if (!is_numeric($incidentid)) {
+      return false;
+   }
+   if (is_string($externalids)) {
+      $externalids = array($externalids);
+   }
+   $res = db_query('begin transaction');
+   foreach ($externalids as $extid) {
+      db_free_result($res);
+      $res = db_query(q('insert into external_incidentids (incidentid, externalid) values (%id, \'%extid\')', array('%id'=>$incidentid, '%extid'=>db_escape_string($extid))));
+      if ($res == false) {
+         db_query('rollback');
+         return false;
+      }
+   }
+   return db_query('end transaction');
+}
+
+/** Remove 3rd-party incident IDs.
+ * \param [in] $incidentid   Internal incident id.
+ * \param [in] $externalids  External incident ids. If $externalids is a string, only one will be removed, if it is an array, all will be removed.
+ * \return true on success, false on failure.
+ */
+function deleteExternalIncidentIDs($incidentid='', $externalids) {
+   if (!is_numeric($incidentid)) {
+      return false;
+   }
+   if (is_string($externalids)) {
+      $externalids = array($externalids);
+   }
+   $res = db_query('begin transaction');
+   foreach ($externalids as $extid) {
+      db_free_result($res);
+      $res = db_query(q('delete from external_incidentids where incidentid=%id and externalid=\'%extid\'', array('%id'=>$incidentid, '%extid'=>db_escape_string($extid))));
+      if ($res == false) {
+         db_query('rollback');
+         return false;
+      }
+   }
+   return db_query('end transaction');
 }
 ?>

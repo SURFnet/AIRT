@@ -10,3 +10,11 @@
 UPDATE versions SET value='----version string----' WHERE key='airtversion';
 -- Needs manual update with the AIRT_VERSION string of the release.
 -- Cannot rely on .in expansion as it needs to stay fixed in history.
+
+create table external_incidentids (
+  incidentid integer,
+  externalid varchar(64),
+  primary key (incidentid,externalid),
+  foreign key (incidentid) references incidents(id)
+);
+
