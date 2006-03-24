@@ -888,6 +888,8 @@ function addExternalIncidentIDs($incidentid='', $externalids) {
          db_query('rollback');
          return false;
       }
+      addincidentcomment('External identifier "'.$extid.'" added.', $incidentid);
+
    }
    return db_query('end transaction');
 }
@@ -912,6 +914,7 @@ function deleteExternalIncidentIDs($incidentid='', $externalids) {
          db_query('rollback');
          return false;
       }
+      addincidentcomment('External identifier "'.$extid.'" removed.', $incidentid);
    }
    return db_query('end transaction');
 }
