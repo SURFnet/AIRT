@@ -10,16 +10,16 @@ Indentation and structure
 - All functions must be preceded by a comment block which describes the purpose
   of that function. Following the following structure:
 
-   /**
-    * Short description of the function
-    * 
-    * Parameters:
-    *   $a: demo one
+   /** Short description of the function. A longer description of the function
+    *  may follow after the first period.
     *
-    * Returns:
-    *   an associative array containing the following keuys, etc.
+    *  \param [in] $a: demo one
+    *  \param [out] $b: demo two
+    *
+    *  \return an associative array containing the following keys, etc.
     */
-   function demoFunction($a) {
+   function demoFunction($a, &$b) {
+      $b = $a;
       return array('return value'=>$value);
    }
 
