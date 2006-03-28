@@ -21,6 +21,9 @@
 SUBDIRS = php lib doc etc man bin .
 
 docdir = $(datadir)/doc/$(PACKAGE)
-doc_DATA = AUTHORS README 
+doc_DATA = AUTHORS README ChangeLog
 
 EXTRA_DIST = README.in 
+
+ChangeLog:
+	./utils/svn2cl ChangeLog
