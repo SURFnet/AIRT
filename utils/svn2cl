@@ -1,0 +1,141 @@
+#!/usr/bin/env python
+
+"""
+Script that generates ChangeLog file much like the old cvs2cl script.
+
+Downloaded from:
+http://www.gnuenterprise.org/cgi-bin/viewcvs.cgi/trunk/gnue-common/utils/svn2cl
+
+Syntax:
+  svn2cl [output]
+
+If run with no arguments, output is written to stdout. If <output>
+is specified, output is written to that file instead.
+"""
+SVNCMD="svn log -v --xml"
+
+import xml.parsers.expat
+import tempfile, os, sys, string
+
+
+class Parser:
+  def __init__(self, input, output):
+
+    self.out = output
+    self.package = os.path.basename (os.getcwd ())
+
+    p = xml.parsers.expat.ParserCreate()
+
+    p.StartElementHandler = self.start_element
+    p.EndElementHandler = self.end_element
+    p.CharacterDataHandler = self.char_data
+    p.ParseFile(input)
+
+    self.paths = []
+    self.revision = ""
+
+  # 3 handler functions
+  def start_element(self, name, attrs):
+    self.text = ""
+    if name == "logentry":
+      self.revision = attrs['revision']
+    elif name == "paths":
+      self.paths = []
+
+  def end_element(self, name):
+    if name == "logentry":
+      self.out.write("\n")
+    elif name == "author":
+      self.author = self.text
+    elif name == "path":
+      p = string.split (self.text, '/', 3)
+      if len (p) == 4:
+        if p [2] == self.package:
+          self.paths.append (p [3])
+    elif name == "msg":
+      self.out.write("%s  Rev %s  %s\n\n" % (
+             self.date,
+             string.ljust(self.revision,5),
+             self.author))
+      self.out.write("\t* %s" % linewrap("%s: %s" % (string.join(self.paths,', '), self.text)))
+    elif name == "date":
+      self.date = self.text[:10] + ' ' + self.text[11:19]
+
+
+  def char_data(self, data):
+    self.text += data.encode('ascii',"replace")
+
+
+def linewrap(message,maxWidth=68,indent = "\t  "):
+
+  text = ""
+
+  temptext = string.strip(str(message))
+  #buff = string.split(temptext,"\n")
+  buff = string.split(temptext.replace('\n\n','\r').replace('\n',' '),'\r')
+  first = 1
+
+  for strings in buff:
+    while len(strings) > maxWidth:
+      index = 0
+
+      for sep in [' ',',',':','.',';']:
+        ind = string.rfind(strings,sep,0,maxWidth-1)+1
+        if ind > index: index = ind
+
+      if index > maxWidth or index==0:
+        index = maxWidth-1
+
+      line = strings[:index]
+      if not first:
+        text += indent
+      text += "%s\n" % line
+      strings = strings[index:].strip()
+
+      first = 0
+    line = strings
+    if not first:
+      text += indent
+    text += "%s\n" % line
+    first = 0
+
+
+  return text
+
+
+
+if __name__ == '__main__':
+  filename = tempfile.mktemp('xml')
+  if os.system(SVNCMD + '> %s' % filename):
+    print "Unable to retrieve svn log"
+    sys.exit(1)
+
+  inp = open(filename)
+
+  # Get output destination... either
+  # stdout or first arg of command line
+  try:
+    out = open(sys.argv[1],'w')
+    close = 1
+  except IndexError:
+    out = sys.stdout
+    close = 0
+
+  try:
+    Parser(inp, out)
+  except:
+    try:
+      inp.close()
+      os.unlink(filename)
+      if close:
+        out.close()
+    except:
+      pass
+    raise
+
+  # Clean up input/output files
+  inp.close()
+  os.unlink(filename)
+  if close:
+    out.close()
+
