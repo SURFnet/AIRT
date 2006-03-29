@@ -84,10 +84,10 @@ function save_template($name='', $body='') {
       // existing template
    }
    return 0;
-\return }
+}
 
 /** Remove the named template
- * return 0 on success, 1 on failure
+ * \return 0 on success, 1 on failure
  */
 function delete_template($name='') {
    if ($name=='') {
@@ -501,7 +501,7 @@ function replace_vars($msg, $current=array()) {
      $out = ereg_replace('@LOGGING@',$logging,$out);
 
 	  $out = ereg_replace('@EXTIDS@',
-	  implode(',',getExternalIncidentIDs($incidentid)));
+	  implode(',',getExternalIncidentIDs($incidentid)),$out);
      // Basic incident data in XML format.
      $xmlData = trim(exportIncident(
                    array(0=>decode_incidentid($incidentid))));
