@@ -63,8 +63,8 @@ if (AIRT_RUN_MODE=='HTTP') {
       } else {
          $_SESSION['BASEURL'] = dirname($_SERVER['PHP_SELF']);
       }
-      $BASEURL=$_SESSION['BASEURL'];
    }
+   $BASEURL=$_SESSION['BASEURL'];
 
    if (!isset($public) || !$public) {
        if (!array_key_exists("username", $_SESSION)) {
