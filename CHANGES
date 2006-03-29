@@ -1,3 +1,6 @@
+2006-03-29
+* Bug fixes and configuration option for base url
+
 2006-03-24
 * Multiple (external) incident identifers per incident.
 * Improved search interface
