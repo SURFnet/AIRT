@@ -39,69 +39,71 @@ if (array_key_exists('VIRTUAL_HOST', $_ENV)) {
 
 function setup() {
    /***** 1. GLOBAL SETTINGS *****/
-   
+   $SETTINGS['baseurl'] = 'http://localhost/airt/';
+
    // location of the .plib files
    $SETTINGS['libdir'] = '@AIRT_PHPLIBDIR@';
-   
+
    // location of configuration files
    $SETTINGS['etcdir'] = '@ETCDIR@';
-   
+
    // number of incidents to show on one page
    $SETTINGS['pagesize'] = 20;
-   
+
    // directory for short-lived temporary files
    $SETTINGS['tmpdir'] = '/tmp';
-   
-   
+
+
    /**** 2. EMAIL SETTINGS *****/
    // sender-from in standard emails. 
    // If left empty, the email address of the currently logged in AIRT 
    // use will be used. 
    $SETTINGS['mailfrom'] = 'Example-CERT - @YOURFIRSTNAME@ <user@example.com>';
-   
+
    // Any mail sent from this sysstem will have the following envelope sender.
    // Note: dont leave this empty, or you will get the userid of the owner of
    // your web server process. Only use an email address here, dont add a name.
    $SETTINGS['mailenvfrom'] = 'user@example.com';
-   
+
    // this email address will always be cc'ed on outgoing messages. 
    // If left empty, no cc's of standard messages will be sent.
    $SETTINGS['MAILCC'] = 'user@example.com';
-   
+
    // reply-to used in standard emails. 
    // If left empty, no replyto header will be set.
    $SETTINGS['REPLYTO'] = 'Example-CERT - @YOURFIRSTNAME@ <user@example.com>';
-   
-   
+
+
    /***** 3. DATABASE SETTINGS *****/
    // connect string for the database
    $SETTINGS['dbdb'] = 'airt';
    $SETTINGS['dbuser'] = 'airt';
    $SETTINGS['dbpasswd'] = '**********';        // <--- CHANGE THIS
-   
-   
+
+
    /***** 4. GPG SETTINGS *****/
+
    /* To make this work, generate a gnupg key according to the instructions in
     * section 4.14 of the GnuPG FAQ (http://www.gnupg.org) and copy it to a
-    * directory in which the web server has write access. Make sure that your key
-    * rings (pubkey.gpg and secring.gpg) are readable by the web server, but not
-    * writable. Also, keep the directory with the keys OUTSIDE YOUR DOCUMENT
-    * SPACE. The directory containing your keys will be referred to as the
-    * GPG_HOMEDIR.
+    * directory in which the web server has write access. Make sure that your
+    * key rings (pubkey.gpg and secring.gpg) are readable by the web server,
+    * but not writable. Also, keep the directory with the keys OUTSIDE YOUR
+    * DOCUMENT SPACE. The directory containing your keys will be referred to as
+    * the GPG_HOMEDIR.
     */
    $SETTINGS['gpg_bin'] = '/usr/bin/gpg';
    $SETTINGS['gpg_homedir'] = '/usr/local/share/airt/key';
    $SETTINGS['gpg_options'] = '--detach-sign -t --armor --batch';
    // SETTINGS['gpg_keyid'] = '8830B66F';
-   
-   
+
+
    /***** 5. SITE CUSTOMIZATION *****/
    // the session timeout in seconds
    $SETTINGS['session_timeout'] = 600;
-   
+
    // Incident ID prefix
    $SETTINGS['incidentid_prefix'] = 'Example-CERT#';
-   
+
    // local customization can be found in this file. If undefined, no local
    // additions are done
    $SETTINGS['custom_functions'] = $SETTINGS['etcdir'].'/customfunctions.plib';
