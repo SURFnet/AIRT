@@ -28,9 +28,6 @@ function filter_spamcop($input, &$output, $verbosity=FALSE) {
    if (preg_match('/^Date: (.*)$/m', $input, $matches)) {
       $data['datetime'] = $matches[1];
    }
-   if (preg_match('/^Subject: \[SpamCop \(([0-9.]+)\) id/m', $input, $matches)) {
-      $data['srcip'] = $matches[1];
-   }
    $text = explode("\n", $input);
    $body = 0;
    for ($i=0; $i<sizeof($text); $i++) {
@@ -41,6 +38,9 @@ function filter_spamcop($input, &$output, $verbosity=FALSE) {
       if ($body >= 1 && $body <= 2) {
          $data['logging'] .= "\n".$text[$i];
       }
+   }\
+   if (preg_match('Email from ([0-9.]+) /', $input, $matches)) {
+      $data['srcip'] = $matches[1];
    }
 
    $output = '<airt>'."\n";
