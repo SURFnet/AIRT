@@ -52,7 +52,7 @@ function filter_spamcop($input, &$output, $verbosity=FALSE) {
    $output .= "  </queuedata>\n";
    $output .= "  <incident id=\"1\">\n";
    $output .="    <ticketInformation>\n";
-   $output .="      <prefix>MyNetwatchman</prefix>\n";
+   $output .="      <prefix>SpamCop</prefix>\n";
    $output .="    </ticketInformation>\n";
    $output .="    <technicalInformation>\n";
    $output .="      <ip>$data[srcip]</ip>\n";
