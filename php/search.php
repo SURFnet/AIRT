@@ -36,13 +36,16 @@ if (array_key_exists("action", $_REQUEST)) {
 }
 
 function showSearch($qtype='') {
-   $hostchecked=$incidentchecked='';
+   $hostchecked=$incidentchecked=$zoomchecked='';
    switch ($qtype) {
       case 'host':
          $hostchecked='CHECKED';
          break;
       case 'incident':
          $incidentchecked='CHECKED';
+         break;
+      case 'zoom':
+         $zoomchecked='CHECKED';
          break;
       default:
          $hostchecked='CHECKED';
@@ -55,6 +58,7 @@ Search for:<p/>
 <br/>
 <input type="radio" name="qtype" value="host" $hostchecked/>Hostname
 <input type="radio" name="qtype" value="incident" $incidentchecked/>Incident
+<input type="radio" name="qtype" value="zoom" $zoomchecked/>Mask
 <p/>
 </form>
 EOF;
