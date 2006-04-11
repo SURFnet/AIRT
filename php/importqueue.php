@@ -31,6 +31,9 @@ if (array_key_exists('action', $_REQUEST)) {
    $action = 'list';
 }
 
+
+/** Helper function to display the queue.
+ */
 function showQueue() {
    pageHeader('AIRT Import queue');
    $out = "<form method=\"post\">";
@@ -40,6 +43,7 @@ function showQueue() {
    $out .= "</form>\n";
    print $out;
 }
+
 
 switch ($action) {
    //----------------------------------------------------------------

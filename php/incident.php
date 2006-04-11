@@ -240,7 +240,7 @@ function formatEditForm() {
    }
    $output .= "</table>\n";
    $output .= '<input type="submit" name="action" value="Mail">';
-   $output .= '<input type="submit" name="action" value="Remove"';
+   $output .= '<input type="submit" name="action" value="Remove">';
    $output .= '</form>';
    $output .= "<p/>\n";
    if (array_key_exists("current_userid", $_SESSION)) {
