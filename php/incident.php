@@ -209,7 +209,7 @@ function formatEditForm() {
    $output .= "<hr/>\n";
    $output .= "<h3>Affected users</h3>\n";
    $output .= '<form>';
-   $output .= t('<input type="hidden" name="incidentid" value="%incidentid"',
+   $output .= t('<input type="hidden" name="incidentid" value="%incidentid">',
       array('%incidentid'=>$incident['incidentid']));
    $output .= "<table cellpadding=\"4\">\n";
 
