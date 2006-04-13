@@ -477,8 +477,7 @@ switch ($action) {
 </form>
 <P>
 EOF;
-      generateevent('searchoutput', array('ip'=>$ip, 'hostname'=>$hostname,
-         'qtype'=>$qtype));
+      generateevent('searchoutput', array('q'=>$q));
       echo <<<EOF
 <HR>
 <H2>New Search</H2>

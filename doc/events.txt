@@ -114,6 +114,6 @@ data:  array with keys: incidentid, sender, recipient, subject
 Note:  Generated after sending mail
 
 event: searchoutput
-data:  array with keys: ip, hostname, qtype
+data:  array with keys: q
 Note:  Generated on the search output screen, between Previous Incidents and
-       New Search.
+       New Search. q is the query that was entered by the user.
