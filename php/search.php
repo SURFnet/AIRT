@@ -258,6 +258,11 @@ function search_incident($incidentid) {
 } // search_incident
 
 
+/** Returns TRUE or FALSE depending on whether the
+ * IP range has been formulated correct or not
+ * \param [in] $matches: Array containing the entire string, the four IP integers, and the mask.
+ */ 
+
 function mask_ok ($matches) {
 
    if (count($matches) == 6 and 
@@ -270,10 +275,13 @@ function mask_ok ($matches) {
    } else {
      return(FALSE); 
    }
-}
+} //mask OK
 
 
 
+/** Returns the the lowest and highest IP number within a range 
+ * \param [in] $matches: Array containing the entire string, the four IP integers, and the mask.
+ */
 function mask_limits($matches) {
 
    if ($matches[5] < 9) { 
@@ -331,18 +339,12 @@ function mask_limits($matches) {
   
    return(array($min,$max));
 
-}
-
-
-
-
-
-
+} //mask_limits
 
 
 
 /** Find all incidents within an IP range
- * \param [in] $mask IP range to search within.
+ * \param [in] $mask: IP range to search within.
  */
 function search_zoom($mask) {
   
