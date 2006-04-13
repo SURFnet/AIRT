@@ -32,7 +32,6 @@ function AIRT_Cymru_whois($ip, &$result) {
   $errstr = '';
   $whoisdata = array();
 
-print "=$ip=";
   if (!preg_match('/^[0-9.]{4}/', $ip)) {
     return 1;
   }
