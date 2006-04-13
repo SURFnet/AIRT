@@ -257,6 +257,180 @@ function search_incident($incidentid) {
    print $out;
 } // search_incident
 
+
+function mask_ok ($matches) {
+
+   if (count($matches) == 6 and 
+       0 <= $matches[1] and $matches[1] < 256 and
+       0 <= $matches[2] and $matches[2] < 256 and
+       0 <= $matches[3] and $matches[3] < 256 and
+       0 <= $matches[4] and $matches[4] < 256 and
+       0 <= $matches[5] and $matches[5] < 32) {
+      return(TRUE);   
+   } else {
+     return(FALSE); 
+   }
+}
+
+
+
+function mask_limits($matches) {
+
+   if ($matches[5] < 9) { 
+
+      $width      = 8-$matches[5];     
+      $matches[1] = $matches[1] - ( $matches[1] % pow(2,$width));
+
+      $span       = pow(2,$width) - 1; 
+      $min =  $matches[1]. ".0.0.0" ;
+
+      $matches[1] += $span;
+
+      $max =  $matches[1]. ".255.255.255" ;
+
+   } else if ($matches[5] < 17) {
+
+      $width      = 16-$matches[5];      
+      $matches[2] = $matches[1] - ( $matches[1] % pow(2,$width));
+
+      $span       = pow(2,$width) - 1; 
+
+      $min = $matches[1] . "." . $matches[2]. ".0.0" ;
+
+      $matches[2] += $span;
+
+      $max = $matches[1] . "." . $matches[2]. ".255.255" ;
+      
+   } else if ($matches[5] < 25) {
+
+      $width      = 24-$matches[5];
+      $matches[3] = $matches[1] - ( $matches[1] % pow(2,$width));
+
+      $span       = pow(2,$width) - 1; 
+
+      $min = $matches[1] . "." . $matches[2] . "." . $matches[3] . ".0" ;
+
+      $matches[3] += $span;
+
+      $max = $matches[1] . "." . $matches[2] . "." . $matches[3] . ".255" ;
+
+   } else {
+
+      $width      = 32-$matches[5];      
+      $matches[4] = $matches[1] - ( $matches[1] % pow(2,$width));
+
+      $span       = pow(2,$width) - 1; 
+
+      $min = $matches[1] . "." . $matches[2] . "." . $matches[3] . "." . $matches[4];
+
+      $matches[4] += $span;
+
+      $max = $matches[1] . "." . $matches[2] . "." . $matches[3] . "." . $matches[4];
+
+   }
+  
+   return(array($min,$max));
+
+}
+
+
+
+
+
+
+
+
+
+/** Find all incidents within an IP range
+ * \param [in] $mask IP range to search within.
+ */
+function search_zoom($mask) {
+  
+   preg_match("/(\d+)\.(\d+)\.(\d+)\.(\d+)\/(\d+)/",$mask,$matches);
+
+   if (mask_ok($matches)) {
+
+      $limits = mask_limits($matches);
+   
+      pageHeader("Search results from " . $limits[0] . " to "  . $limits[1] );   
+    
+      $res = db_query("
+         SELECT  i.id as incidentid,
+                 extract (epoch from a.added) as created,
+                 t.label as type,
+                 s.label as state,
+                 s2.label as status
+         FROM  incidents i, 
+               incident_addresses a,
+               incident_types t,
+               incident_status s2,
+               incident_states s
+         WHERE a.ip BETWEEN '$limits[0]' and '$limits[1]'
+         ORDER BY incidentid")
+         or die("Unable to query.");
+    
+      if (db_num_rows($res)) {
+         echo <<<EOF
+<table cellpadding="3">
+<tr>
+<th>Incident ID</th>
+<th>Created</th>
+<th>Type</th>
+<th>State</th>
+<th>Status</th>
+</tr>
+EOF;
+         $count = 0;
+         while ($row = db_fetch_next($res)) {
+         printf("
+<tr bgcolor=\"%s\">
+   <td><a href=\"incident.php?action=details&incidentid=%s\">%s</a></td>
+   <td>%s</td>
+   <td>%s</td>
+   <td>%s</td>
+   <td>%s</td>
+</tr>",
+                ($count++ % 2 == 0 ? "#DDDDDD" : "#FFFFFF"),
+                $row["incidentid"],
+                normalize_incidentid($row["incidentid"]),
+                Date("d M Y", $row["created"]),
+                $row["type"],
+                $row["state"],
+                $row["status"]);
+      }
+      echo <<<EOF
+</table>
+EOF;
+      } else {
+      echo "<I>No incidents within this range</I>";
+      }
+
+   } else {
+   echo "<I>$mask is not a correct netmask, 123.45.67.89/22 for instance is</I>";
+   }
+} //search_zoom
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /***********************************************************************/
 switch ($action) {
    case "none":
@@ -288,6 +462,10 @@ switch ($action) {
          case 'incident':
             search_incident($q);
             break;
+         case 'zoom':
+            search_zoom($q);
+            break;
+
          default:
             echo 'Unknown query type';
       }
