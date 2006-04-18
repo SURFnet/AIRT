@@ -299,7 +299,7 @@ function mask_limits($matches) {
    } else if ($matches[5] < 17) {
 
       $width      = 16-$matches[5];      
-      $matches[2] = $matches[1] - ( $matches[1] % pow(2,$width));
+      $matches[2] = $matches[2] - ( $matches[1] % pow(2,$width));
 
       $span       = pow(2,$width) - 1; 
 
@@ -312,7 +312,7 @@ function mask_limits($matches) {
    } else if ($matches[5] < 25) {
 
       $width      = 24-$matches[5];
-      $matches[3] = $matches[1] - ( $matches[1] % pow(2,$width));
+      $matches[3] = $matches[3] - ( $matches[1] % pow(2,$width));
 
       $span       = pow(2,$width) - 1; 
 
@@ -325,7 +325,7 @@ function mask_limits($matches) {
    } else {
 
       $width      = 32-$matches[5];      
-      $matches[4] = $matches[1] - ( $matches[1] % pow(2,$width));
+      $matches[4] = $matches[4] - ( $matches[1] % pow(2,$width));
 
       $span       = pow(2,$width) - 1; 
 
