@@ -172,7 +172,7 @@ function formatEditForm() {
 
    foreach ($incident['ips'] as $address) {
       $output .= "<tr>\n";
-      $output .= sprintf("  <td><a href=\"search.php?action=search&hostname=%s\">%s</a></td>\n",
+      $output .= sprintf("  <td><a href=\"search.php?action=search&q=%s\">%s</a></td>\n",
          urlencode($address['ip']), $address['ip']);
       $_SESSION['active_ip'] = $address['ip'];
       $output .= sprintf("  <td>%s</td>\n",
