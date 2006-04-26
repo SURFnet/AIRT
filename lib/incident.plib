@@ -713,7 +713,7 @@ function updateIPofIncident($id,$constituency,$addressrole) {
  * Relevant automatic fields will be generated accordingly.
  * Returns void.
  */
-function updateIncident($id,$state,$status,$type,$logging) {
+function updateIncident($id,$state='',$status='',$type='',$logging='') {
    // Problem case: no ID given.
    if ($id=='') {
       die('No ID given to update request.');

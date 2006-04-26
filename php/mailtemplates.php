@@ -75,12 +75,46 @@ special variables in the template:
 <P>
 EOF;
       print_variables_info();
+      $update = array();
+      get_template_actions($template, $update);
       echo <<<EOF
 <P>
 
 <form action="$_SERVER[PHP_SELF]" method="POST">
 <textarea wrap name="message" cols=75 rows=20>$msg</textarea>
-<P>
+
+<P>Automatically change settings after mail based on this template is sent:<P>
+<table cellpadding="3">
+<tr>
+   <td>Type</td>
+   <td>
+EOF;
+   print getIncidentTypeSelection("update[type]", $update['type'],
+       array(-1=>"Do not update"));
+   echo <<<EOF
+   </td>
+</tr>
+<tr>
+   <td>Status</td>
+   <td>
+EOF;
+   print getIncidentStatusSelection("update[status]", $update['status'],
+       array(-1=>"Do not update"));
+   echo <<<EOF
+   </td>
+</tr>
+<tr>
+   <td>State</td>
+   <td>
+EOF;
+   print getIncidentStateSelection("update[state]", $update['state'],
+      array(-1=>"Do not update"));
+   echo <<<EOF
+   </td>
+</tr>
+</table>
+
+
 <input type="hidden" name="action" value="save">
 <input type="hidden" name="template" value="$template">
 <input type="submit" value="Save">
@@ -108,11 +142,18 @@ EOF;
          Header("Location: $_SERVER[PHP_SELF]");
          return;
       }
+      if (array_key_exists("update", $_REQUEST)) {
+            $update=$_REQUEST["update"];
+      } else {
+         airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
+         Header("Location: $_SERVER[PHP_SELF]");
+         return;
+      }
 
       $message = strip_tags($message);
       $message = stripslashes($message);
 
-      if (save_template($template, $message)) {
+      if (save_template($template, $message, $update)) {
          airt_error('ERR_FUNC', 'mailtemplates.php:'.__LINE__);
       }
       listTemplates();
@@ -355,6 +396,30 @@ EOF;
          'recipient'=>$to,
          'subject'=>$subject));
 
+      /* check for default actions on template */
+      $actions = array();
+      if (get_template_actions($template, $actions)) {
+         if ($actions['type'] == -1) {
+            $actions['type'] = '';
+         } else {
+            addIncidentComment(sprintf('Type updated to %s',
+               getIncidentTypeLabelByID($actions['type'])));
+         }
+         if ($actions['status'] == -1) {
+            $actions['status'] = '';
+         } else {
+            addIncidentComment(sprintf('Status updated to %s',
+               getIncidentStatusLabelByID($actions['status'])));
+         }
+         if ($actions['state'] == -1) {
+            $actions['state'] = '';
+         } else {
+            addIncidentComment(sprintf('State updated to %s',
+               getIncidentStateLabelByID($actions['state'])));
+         }
+         updateIncident($incidentid, $actions['state'], $actions['status'],
+            $actions['type']);
+      }
       if ($action == 'Send and prepare next' && isset($agenda) &&
          isset($template)) {
          Header("Location: $_SERVER[PHP_SELF]?action=prepare&template=$template&agenda=$agenda");

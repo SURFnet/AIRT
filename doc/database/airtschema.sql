@@ -298,9 +298,15 @@ CREATE TABLE mailtemplates (
    created timestamp not null,
    updatedby integer,
    updated timestamp,
+   action_status int,
+   action_state  int,
+   action_type   int,
    primary key (name),
    foreign key (createdby) references users(id),
-   foreign key (updatedby) references users(id)
+   foreign key (updatedby) references users(id),
+   foreign key (action_status) references incident_status(id),
+   foreign key (action_state) references incident_states(id),
+   foreign key (action_type) references incident_types(id)
 );
 
 CREATE TABLE versions (

@@ -30,11 +30,37 @@ require_once 'Mail.php';
 require_once 'Mail/mimePart.php';
 
 
-/**
- * Read a standard message from the filesystem
- * $str = the name of the template to be read
- * Returns the file as one large buffer on success, or false on failure.
- * Note: retrieving a non-existing template is not considered to be an error. Instead, the function will return an empty body.
+
+/** Retrieve the mail template actions.
+ * \param [in] $template identifier of the template
+ * \param [out] $actions associative array with keys: type, state, status
+ * \return true on success, false on failure
+ */
+function get_template_actions($template, &$actions) {
+   $res = db_query(q("select action_type as type, action_state as state, action_status as status from mailtemplates where name='%name'", array('%name'=>db_escape_string($template))));
+   if (!$res) {
+      return false;
+   }
+   if (db_num_rows($res) == 0) {
+      return false;
+   }
+   $actions = db_fetch_next($res);
+   if ($actions['type'] == '') { $actions['type'] = -1; }
+   if ($actions['status'] == '') { $actions['status'] = -1; }
+   if ($actions['state'] == '') { $actions['state'] = -1; }
+   db_free_result($res);
+   return true;
+}
+
+
+/** Retrieve a message template.
+ * \param [in] $template the name of the template to be read
+ *
+ * \return Returns the file as one large buffer on success, or false on
+ * failure.
+ *
+ * Note: retrieving a non-existing template is not considered to be an error.
+ * Instead, the function will return an empty body.
  */
 function get_template($template) {
    $res = db_query(q('SELECT body FROM mailtemplates WHERE name=\'%name\'',
@@ -57,25 +83,44 @@ function get_template($template) {
  * \param $body [in] the body of the template
  * \return Returns 0 on success, 1 on failure.
  */
-function save_template($name='', $body='') {
+function save_template($name='', $body='', $update) {
    if ($name == '' || $body == '') {
       return 1;
    }
+   if (!array_key_exists('type', $update) || !is_numeric($update['type'])) {
+      return 1;
+   } 
+   if (!array_key_exists('state', $update) || !is_numeric($update['state'])) {
+      return 1;
+   }
+   if (!array_key_exists('status', $update) || !is_numeric($update['status'])) {
+      return 1;
+   }
+   if ($update['type'] == -1) { $update['type'] = 'NULL'; }
+   if ($update['status'] == -1) { $update['status'] = 'NULL'; }
+   if ($update['state'] == -1) { $update['state'] = 'NULL'; }
+
    $template = get_template($name);
    if ($template == '') {
-      $res = db_query(q('INSERT INTO mailtemplates (name, body, created, createdby) VALUES (\'%name\', \'%body\', CURRENT_TIMESTAMP, %uid)', array(
+      $res = db_query(q('INSERT INTO mailtemplates (name, body, created, createdby, action_type, action_state, action_status) VALUES (\'%name\', \'%body\', CURRENT_TIMESTAMP, %uid, %type, %state, $status)', array(
          '%name'=>db_escape_string($name),
          '%body'=>db_escape_string($body),
-         '%uid'=>$_SESSION['userid'])));
+         '%uid'=>$_SESSION['userid'],
+         '%type'=>$update['type'],
+         '%state'=>$update['state'],
+         '%status'=>$update['status'])));
       if (!$res) {
          airt_error('DB_QUERY', 'mailtemplates.plib:'.__LINE__);
          return 1;
       }
       // new template
    } else {
-      $res = db_query(q('UPDATE mailtemplates SET body=\'%body\', updated=CURRENT_TIMESTAMP, updatedby=%uid WHERE name=\'%name\'', array(
+      $res = db_query(q('UPDATE mailtemplates SET body=\'%body\', updated=CURRENT_TIMESTAMP, updatedby=%uid, action_state=%state, action_status=%status, action_type=%type WHERE name=\'%name\'', array(
          '%name'=>db_escape_string($name),
          '%body'=>db_escape_string($body),
+         '%type'=>$update['type'],
+         '%state'=>$update['state'],
+         '%status'=>$update['status'],
          '%uid'=>$_SESSION['userid'])));
       if (!$res) {
          airt_error('DB_QUERY', 'mailtemplates.plib:'.__LINE__);
