@@ -38,7 +38,7 @@ function filter_spamcop($input, &$output, $verbosity=FALSE) {
       if ($body >= 1 && $body <= 2) {
          $data['logging'] .= "\n".$text[$i];
       }
-   }\
+   }
    if (preg_match('Email from ([0-9.]+) /', $input, $matches)) {
       $data['srcip'] = $matches[1];
    }
