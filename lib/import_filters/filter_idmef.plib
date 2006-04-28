@@ -20,7 +20,7 @@
  *
  * filter_surfnet.plib -- filter function for surfnet reports
  * 
- * $Id: filter_xml.plib 696 2005-11-01 10:44:17Z kees $
+ * $Id$
  */
 
 function v_print($msg, $verbosity) {
@@ -48,39 +48,39 @@ function filter_idmef($input, &$output, $verbosity=FALSE) {
    xpath_register_ns($xpath, 'idmef', 'http://iana.org/idmef');
    $alerts = $xpath->xpath_eval('/idmef:IDMEF-Message/idmef:Alert');
 
+   /* note: this is stupidified IDMEF; max 1 source and max 1 
+    * target per alert 
+    */
    $output = "<airt:airt>\n";
    foreach ($alerts->nodeset as $alertnode) {
       $id = $alertnode->get_attribute('messageid');
       $time_l = $alertnode->get_elements_by_tagname('CreateTime');
       $time = $time_l[0]->get_content();
 
-      $srcips=array();
       $res = $xpath->xpath_eval("idmef:Source/idmef:Node/idmef:Address",
          $alertnode);
-      foreach ($res->nodeset as $r) {
-         $srcips[] = trim($r->get_content());
-      }
-      $dstips=array();
+      $resnodes = $res->nodeset;
+      $srcip = trim($resnodes[0]->get_content());
+
       $res = $xpath->xpath_eval("idmef:Target/idmef:Node/idmef:Address",
          $alertnode);
-      foreach ($res->nodeset as $r) {
-         $dstips[] = trim($r->get_content());
-      }
-      $srcports=array();
-      $res = $xpath->xpath_eval("idmef:AdditionalData[@meaning=\"source-port\"]/idmef:integer", $alertnode);
-      foreach ($res->nodeset as $r) {
-         $srcports[] = trim($r->get_content());
-      }
-      $dstports=array();
-      $res = $xpath->xpath_eval("idmef:AdditionalData[@meaning=\"destination-port\"]/idmef:integer", $alertnode);
-      foreach ($res->nodeset as $r) {
-         $dstports[] = trim($r->get_content());
-      }
-      $types=array();
+      $resnodes = $res->nodeset;
+      $dstip = trim($resnodes[0]->get_content());
+
+      $res = $xpath->xpath_eval("idmef:Source/idmef:Service/idmef:port",
+         $alertnode);
+      $resnodes = $res->nodeset;
+      $srcport = trim($resnodes[0]->get_content());
+
+      $res = $xpath->xpath_eval("idmef:Target/idmef:Service/idmef:port",
+         $alertnode);
+      $resnodes = $res->nodeset;
+      $dstport = trim($resnodes[0]->get_content());
+
       $res = $xpath->xpath_eval("idmef:AdditionalData[@meaning=\"attack-type\"]/idmef:string", $alertnode);
-      foreach ($res->nodeset as $r) {
-         $types[] = trim($r->get_content());
-      }
+      $resnodes = $res->nodeset;
+      $type = trim($resnodes[0]->get_content());
+
       $logging = domxml_new_doc('1.0');
       $root = $alertnode->clone_node(true);
       $logging->append_child($root);
@@ -91,21 +91,23 @@ function filter_idmef($input, &$output, $verbosity=FALSE) {
       $output .= "<airt:queuedata ref=\"#$id\">\n";
       $output .= "   <airt:status>open</airt:status>\n";
       $output .= "   <airt:sender>SURFnet-IDS</airt:sender>\n";
-      $output .= "   <airt:type>$types[0]</airt:type>\n";
-      $output .= "   <airt:summary>SURFnet-IDS $types[0] attack, target $dstips[0]</airt:summary>\n";
+      $output .= "   <airt:type>$type</airt:type>\n";
+      $output .= "   <airt:summary>SURFnet-IDS $type attack, target $dstip</airt:summary>\n";
       $output .= "</airt:queuedata>\n";
       $output .= "<airt:incident id=\"$id\">\n";
       $output .= "  <airt:ticketInformation>\n";
       $output .= "    <airt:prefix>SURFnet-IDS</airt:prefix>\n";
       $output .= "  </airt:ticketInformation>\n";
       $output .= "  <airt:technicalInformation>\n";
-      $output .= "    <airt:ip>$srcips[0]</airt:ip>\n";
+      $output .= "    <airt:ip>$srcip</airt:ip>\n";
+      $output .= "    <airt:port>$srcport</airt:port>\n";
       $output .= "    <airt:incident_time>$time</airt:incident_time>\n";
       $output .= "    <airt:logging>$logging</airt:logging>\n";
       $output .= "  </airt:technicalInformation>\n";
       $output .= "</airt:incident>\n";
    }
    $output .= "</airt:airt>";
+   v_print($output,$verbosity);
 
 }
 ?>
