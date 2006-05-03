@@ -1237,8 +1237,8 @@ EOF;
       if (array_key_exists('agenda', $_REQUEST)) {
          $agenda = $_REQUEST['agenda'];
       } else {
-         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
+         airt_msg('USER ERROR: Must select one or more recipients for mail.');
+         Header("Location: $_SERVER[PHP_SELF]?action=details&incidentid=$_SESSION[incidentid]");
          return;
       }
       Header("Location: mailtemplates.php?to=".urlencode(implode(',',$agenda)));
