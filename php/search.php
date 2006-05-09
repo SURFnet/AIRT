@@ -369,6 +369,10 @@ function search_zoom($mask) {
                incident_status s2,
                incident_states s
          WHERE a.ip BETWEEN '$limits[0]' and '$limits[1]'
+         AND     i.id = a.incident
+         AND     i.status = s2.id
+         AND     i.state = s.id
+         AND     i.type = t.id
          ORDER BY incidentid")
          or die("Unable to query.");
     

@@ -76,6 +76,49 @@ function updateCheckboxes() {
    return $output;
 }
 
+
+function formatIncidentBulkForm(&$check) {
+   $constituency = $name = $email = $type = $state = $status = $addressrole = "";
+
+   if (array_key_exists("active_ip", $_SESSION)) {
+      $address = $_SESSION["active_ip"];
+   } else {
+      $address = "";
+   }
+   if (array_key_exists("constituency_id", $_SESSION)) {
+      $constituency = $_SESSION["constituency_id"];
+   }
+   if (array_key_exists("current_email", $_SESSION)) {
+      $email = $_SESSION["current_email"];
+   }
+
+   if (defined('CUSTOM_FUNCTIONS') && function_exists('custom_default_addressrole')) {
+      $addressrole = custom_default_addressrole($address);
+   }
+   $output =  formatBasicIncidentData($type, $state, $status);
+   $output .= "<hr/>\n";
+   $output .= "<h3>affected ip addresses</h3>\n";
+   $output .= "<table cellpadding=\"4\">\n";
+   $output .= "<tr>\n";
+   $output .= "  <td valign=\"top\">hostname or ip address</td>\n";
+   $output .= "  <td><textarea cols=\"30\" rows=\"15\" name=\"addresses\"></textarea>\n";
+   $output .= "</tr>\n";
+   $output .= "<tr>\n";
+   $output .= t("<td>addressrole</td><td>%addressrole</td>\n",array('%addressrole'=>getAddressRolesSelection('addressrole', $addressrole)));
+   $output .= "</tr>\n";
+
+   $output .= "<tr>\n";
+   $output .= "  <td>constituency</td>\n";
+   $output .= "  <td>".getConstituencySelection("constituency", $constituency)."</td>\n";
+   $output .= "</tr>\n";
+   $output .= "</table>\n";
+ 
+   $output .= "<p/>\n";
+
+   return $output;
+} // show IncidentBulkForm
+
+
 function formatIncidentForm(&$check) {
    $constituency = $name = $email = $type = $state = $status = $addressrole = "";
 
@@ -131,7 +174,7 @@ function formatIncidentForm(&$check) {
    $output .= "<p/>\n";
 
    return $output;
-} // showincidentform
+} // show Incidentform
 
 /* return a formatted string representing an HTML form for editing incident
  * details 
@@ -317,6 +360,10 @@ function formatFilterBlock() {
       "</table>\n".
       "<INPUT TYPE=\"submit\" VALUE=\"Filter\">\n".
       "<INPUT TYPE=\"submit\" Name=\"action\" VALUE=\"New incident\">\n".
+      "<INPUT TYPE=\"submit\" Name=\"action\" VALUE=\"Bulk incidents\">\n".
+
+
+
       "</FORM>\n");
    return $out;
 }
@@ -740,7 +787,9 @@ switch ($action) {
       $check = false;
       $output = updateCheckboxes();
       $output .= "<form name=\"jsform\" action=\"$_SERVER[PHP_SELF]\" method=\"POST\">\n";
+
       $output .= formatIncidentForm($check);
+
       $output .= "<input type=\"submit\" name=\"action\" value=\"Add\">\n";
       $output .= t("<input type=\"checkbox\" name=\"sendmail\" %checked>\n",
          array('%checked'=>($check==false)?'':'CHECKED'));
@@ -748,17 +797,75 @@ switch ($action) {
       $output .= "</form>\n";
       print $output;
       break;
-
     //--------------------------------------------------------------------
+    case "Bulk incidents":
+      PageHeader("Bulk incidents");
+      $check = false;
+      $output = updateCheckboxes();
+      $output .= "<form name=\"jsform\" action=\"$_SERVER[PHP_SELF]\" method=\"POST\">\n";
+
+      $output .= formatIncidentBulkForm($check);
+
+      $output .= "<input type=\"submit\" name=\"action\" value=\"Addbulk\">\n";
+           
+      $output .= "</form>\n";
+      print $output;
+      break;
+
+
+    //---------------------------------------------------------------------
+    case "Addbulk":
+      $addresses = $constituency = $type = $state = $status = $email =
+		   $addressrole = $logging = '';
+     
+      if (array_key_exists("addressrole", $_POST)) {
+         $addressrole=$_POST["addressrole"];
+      }
+     
+      if (array_key_exists("constituency", $_POST)) {
+        $constituency=$_POST["constituency"];
+      }
+      if (array_key_exists("type", $_POST)) {
+        $type=$_POST["type"];
+      }
+      if (array_key_exists("state", $_POST)) {
+        $state=$_POST["state"];
+      }
+      if (array_key_exists("status", $_POST)) {
+        $status=$_POST["status"];
+      }
+      if (array_key_exists("logging", $_POST)) {
+        $logging=trim($_POST["logging"]);
+      }
+
+      if (array_key_exists("addresses", $_POST)) {
+         $addresses=$_POST["addresses"];      
+         $addresslist = split("\r?\n",$addresses);
+
+         foreach($addresslist as $address) {
+        
+            // make sure we have an IP address here
+            $address = @gethostbyname($address);
+            if($address) {
+               $incidentid = createIncident($state,$status,$type,$logging);
+               addIPtoIncident($address,$incidentid,$addressrole);
+	    }
+         }
+      }
+      Header("Location: $_SERVER[PHP_SELF]");
+      break;
+
+    //---------------------------------------------------------------------
     case "Add":
       $address = $constituency = $type = $state = $status = $email =
 		$addressrole = $logging = '';
       $addifmissing = $sendmail = 'off';
-      if (array_key_exists("address", $_POST)) {
-        $address=$_POST["address"];
-      }
+
       if (array_key_exists("addressrole", $_POST)) {
          $addressrole=$_POST["addressrole"];
+      }
+      if (array_key_exists("address", $_POST)) {
+        $address=$_POST["address"];
       }
       // make sure we have an IP address here
       $address = @gethostbyname($address);
