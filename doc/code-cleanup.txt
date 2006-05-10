@@ -1,5 +1,5 @@
 Work plan for the AIRT Spring Code Cleaning
--------------------------------------------
+===========================================
 
 Main targets:
 
@@ -11,7 +11,10 @@ Main targets:
 
 3. Scrutinise the universal use of string escapes for SQL generation.
 
-4. Have a general look at everything that might need cleaning.
+4. Introduce the universal use of the getparam() or fetchFrom() functions to
+   safely retrieve external parameters (GET, POST, COOKIE...).
+
+5. Have a general look at everything that might need cleaning.
 
 
 GNU gettext support for AIRT
@@ -47,3 +50,90 @@ Actual details will be provided as the spring code cleanup progresses. There
 is documentation available in php-gettext.txt as well, which will eventually
 get adapted to the AIRT situation.
 
+
+Doxygen support for AIRT
+------------------------
+
+Doxygen (http://www.stack.nl/~dimitri/doxygen/) allows for quick and handy
+low-level (API) documentation generation straight from the sources. It does
+not replace any other form of documentation, but may help developers in both
+finding relevant APIs quicker and writing better API documentation.
+
+We use the JavaDoc style, '/**', to introduce Doxygen doc blocks. The first
+sentence (until and including the dot) is always treated as a brief
+description (JAVADOC_AUTOBRIEF=YES), so please write this accordingly. We do
+not go over the top in using Doxygen features, we only do mandatory brief
+descriptions, optionally detailed descriptions, and a small selection of the
+Doxygen special commands: @file, @param[in|out], @return, @todo.
+
+In order to generate the documentation, you need the 'doxygen' package:
+  # apt-get install doxygen
+and to run it, you cd to the source directory and type:
+  $ doxygen airt.doxy
+You can now find the generated documentation in source/doc/api/html.
+Typically you want to view index.html with a good, CSS-aware browser.
+
+Doxygen documentation generation needs to be reviewed better as all the
+files get cleaned, as currently there is a lot of cruft being generated.
+JH, 2006-05-10.
+
+
+String escapes for SQL generation
+---------------------------------
+To avoid SQL injection due to sloppy variable expansion, we use a rule that
+all user-provided strings fed to an SQL parser have to be escaped, no matter
+what their expected content is. Whereas number escapes can and should be
+reliably done via the sprintf() function, string escapes are database-
+specific. Therefore the database library (database.plib) contains the
+correct escape function, always called db_escape_string().
+
+Under no circumstances should SQL queries be assembled using plain PHP
+variable expansion (SELECT field FROM table WHERE id=$id). Always use at
+least something like:
+  sprintf('SELECT field FROM table WHERE id=%d',
+          $id);
+or the respective db_escape_string() variant with '%s'. We have a special
+function q() which does nearly the same, but without the explicit hard
+formatting, just replacements. This q() function was inspired by the NL
+translation requirements of Drupal, but seems not as useful in the SQL
+context. Drupal's equivalent db_query() does a little bit more than the NL
+translation function. It is not at all a true database (SQL) abstraction
+function, but it does allow for clean SQL generation, and it uses plain
+printf() replacement syntax. The only additional thing of Drupal db_query()
+compared to a straightforward sprintf() is that %s replacements are always
+automatically embraced with db_escape_string().
+
+So we need to decide whether we will equip our own db_query() function with
+our own variant of % parsing à la Drupal, or whether we rely totally on
+sprintf() usage by the programmer. It seems safer to require the programmer
+to always use our own set of % parameters and offer documented escapes in
+case (s)he really wants to bypass them.
+
+**** NEEDS TO BE FINALISED ****
+
+
+Use fetchFrom() function to get at external parameters
+------------------------------------------------------
+Since PHP 4.1.0, use of the register_globals=on parameter has been
+discouraged. But using the available $_{POST|GET|COOKIE} superglobal arrays
+is impractical as they are not protected against empty values and a miss
+will generate a PHP warning. So we introduce a fetchFrom() function which
+reliably and safely fetches the required parameter from the superglobal
+arrays, or creates an empty variable if the parameter is absent. As a bonus,
+the fetchFrom() function can force a sprintf() mask over the retrieved
+parameter.
+
+In some situations, for example when we want to explicitly check whether a
+cookie is already set, direct access to the $_COOKIE superglobal array might
+be required, but this does not in any way invalidate the fetchFrom()
+function. fetchFrom() is just a convenient shortcut that also improves code
+readability a lot.
+
+
+General cleanup
+---------------
+Especially look closely at our coding style guidelines and enforce them
+where appropriate.
+
+
+[EOF]
