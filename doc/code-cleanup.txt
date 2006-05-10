@@ -1,0 +1,14 @@
+Work plan for the AIRT Spring Code Cleaning
+-------------------------------------------
+
+Main targets:
+
+1. Full multilingual preparation for GNU gettext, including all required
+   documentation for all relevant people.
+
+2. Where relevant, add Doxygen documentation to functions, and document 
+   the full procedure to generate external API documentation from these.
+
+3. Scrutinise the universal use of string escapes for SQL generation.
+
+4. Have a general look at everything that might need cleaning.
