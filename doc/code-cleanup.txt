@@ -12,3 +12,38 @@ Main targets:
 3. Scrutinise the universal use of string escapes for SQL generation.
 
 4. Have a general look at everything that might need cleaning.
+
+
+GNU gettext support for AIRT
+----------------------------
+
+There are four things for gettext that need attention, of which only one
+needs work in the AIRT code base.
+
+1. Write code so that all English strings that can reach the user interface
+   are passed through the _() function. Take care that these strings must
+   be reasonably coherent so that a translator can process them out of
+   context. Also take care that you do not want direct variable expansion in
+   these strings, always use the printf() variant and where necessary
+   provide numbered arguments so they can be swapped and repeated ($).
+   Note: it does not suffice that you have one _() function which gets
+   passed parameters; it needs literal strings, due to step 2.
+
+2. Run the xgettext(1) program over your sources (from a Makefile). This
+   will extract all literal strings that are within _() function calls.
+   Obviously, for this to work, you need to do step 1. properly and test it.
+
+3. The result is a .po file, which is flat ASCII and can be translated.
+   There are nice tools available for this, such as poedit(1) (auch für
+   Fenster).
+
+4. The translated .po file comes back, is compiled via msgfmt(1) into a .mo
+   file, and gets installed in a very specific place on the system. Live
+   calls to the _() function now may use their parameter as a lookup index
+   into the .mo file and return the translated string instead of the
+   original string.
+
+Actual details will be provided as the spring code cleanup progresses. There
+is documentation available in php-gettext.txt as well, which will eventually
+get adapted to the AIRT situation.
+

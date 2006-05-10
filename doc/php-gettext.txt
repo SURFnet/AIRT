@@ -1,0 +1,145 @@
+File:        php-gettext.txt
+Author:      Jeroen Hoppenbrouwers <hoppie@uvt.nl>
+$Id: php-gettext.txt 616 2006-02-21 18:54:38Z hoppie $
+Description: How to set up PHP with GNU gettext support
+
+The whole Gnu gettext() system is not complex, but extensive, so you need to
+read up on it. Any Web reference about gettext() is OK. PHP is supported by
+the xgettext utility from version 0.12 onward. This is available on Radix.
+
+
+OVERVIEW
+
+In brief, gettext() works as follows.
+
+1. You write PHP code in a special way, using _() around all text strings
+   that you want to be translation-enabled. You need to consciously do this,
+   keeping the strings together as meaningful and sometimes reusable units.
+   It requires attention, but not much. If you do this from the start, it's
+   painless.
+
+2. You can run this code like it is. It will produce the exact same strings
+   as you typed in your output.
+
+3. You use the 'xgettext' utility to extract all marked strings out of your
+   sources and put them in a .po file.
+
+4. You send the .po file to a translator, who provides the translations in
+   the file and returns it.
+
+5. You convert the .po file to .mo using the 'msgfmt' utility.
+
+6. You put the .mo file in a specific place in your application tree.
+
+7. You tell PHP to switch language.
+
+Steps 3. to 6. can be repeated as often as you like, and you DO NOT NEED a
+new .mo file for each development cycle. It is better if you can do that,
+but untranslated strings will just appear untranslated, not break something.
+
+Assumptions (also for system managers):
+1) You use a full locale in the setlocale(), both language and COUNTRY.
+2) Your language_COUNTRY exists in the /usr/share/locale/locale.alias .
+3) You restart Apache if you have updated the .../locale.alias file.
+
+
+DEVELOPMENT
+
+Take notice that gettext() is extremely sparse on any error or warning
+message. Basically you won't get any help whatsoever flat if it does not
+work. So stick to the rules and suggestions written here.
+
+If PHP has been installed with GNU gettext support (--with-gettext), the PHP
+side of things (step 7.) is pretty straightforward. A working example can be
+found in the "AVC apparatuuraanvraag" application.
+
+setlocale(LC_ALL,"nl_NL");                # Select language
+bindtextdomain ("messages", "./locale");  # Point PHP at the message tree
+textdomain("messages");                   # Select message file
+
+The two last lines are not strictly required but if you leave them out, some
+weird things may happen if Apache loses track of the files. For example, if
+you update a .mo file, Apache will choke on it without these lines. Just
+leave them in. Defaults are nice for command lines, not for programs.
+
+In your PHP main application source directory, create a directory tree as
+follows (only for the languages you add):
+
+  locale/
+    nl_NL/
+      LC_MESSAGES/
+        nl_NL.po
+    en_GB/
+      LC_MESSAGES/
+	en_GB.po
+
+You should name the *.po files as nl_NL.po in order to avoid your
+translators messing them up. They are in their own directories, so
+technically they can all be called messages.po. It is just clearer not to.
+
+Typically, you create the .po files by a command from the application top
+source directory:
+
+$ xgettext --language=PHP --join-existing \
+  --output=locale/en_GB/LC_MESSAGES/en_GB.po \
+  https/apparatuuraanvraag/*.php lib/*.plib
+
+This command will read and add to an existing .po file, so you will not lose
+any translations that are already in this file. Take care that you specify
+all possible (PHP) files that contain text strings that may need
+translation. This may include the etc directory as well.
+
+Usually, the command above is put in the Makefile at top level, under the
+'messages' target. If you have more than one language to translate to, use
+the same command twice with a different target .po file. This will keep all
+your translations in sync. Example:
+
+messages:
+<TAB>xgettext --language=PHP --join-existing \
+<TAB>--output=locale/en_GB/LC_MESSAGES/en_GB.po \
+<TAB>https/apparatuuraanvraag/*.php \
+<TAB>lib/*.plib
+
+The .po file(s) go to the source tree in SVN. When a translation is needed,
+you send the .po file(s) to the translator(s) and have them add in the
+missing lines. Good software for this is available, such as poedit (also for
+Windows), but plain vi is fully capable of doing it as well.
+
+The 'make messages', sending to translators, and putting the received .po
+files into SVN does not need to be repeated that often. The gettext() system
+is extremely robust against .po or .mo files being out of sync with the
+application, and can easily cope with translations that are not in sync with
+each other.
+
+
+INSTALLATION
+
+The Makefile in the LC_MESSAGES directories will use the 'install' target to
+convert the .po file to a .mo file which goes directly to the installation
+place in the file system. It does not appear at all in the source tree or in
+SVN. The .po file in turn does not appear at the installation place.
+
+When you have a .po file, you can create the messages.mo file with:
+
+$ msgfmt *.po
+
+so the Makefile entry looks like:
+
+csp_CPDIR = /var/php/avc/apparatuuraanvraag/locale/en_GB/LC_MESSAGES
+csp_TABOOFILES_ADD = en_GB.po
+include ../../../include/install.mk
+install:
+<TAB>msgfmt --output-file=${csp_CPDIR}/messages.mo --verbose en_GB.po
+
+csp_CPDIR is the target for the messages.mo file.
+CSP_TABOOFILES_ADD prevents the .po file from being installed.
+install: target does the work.
+
+All your translations will now automatically be installed when you do a
+'make install-recursive' in the toplevel application source directory. It's
+spooky.
+
+After installation, it may take a bit of cache convincing before the
+translations are picked up by Apache.
+
+[EOF]
