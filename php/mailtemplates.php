@@ -167,6 +167,7 @@ Enter your new template in the text field below. Use the following variables
 in your text body:
 <P>
 EOF;
+      $update = array('state'=>-1, 'status'=>-1, 'type'=>-1);
       print_variables_info();
       echo <<<EOF
 <P>
@@ -175,7 +176,36 @@ File name: <input type="text" size="40" name="template">
 <P>
 Message:<BR>
 <textarea wrap name="message" cols=75 rows=20></textarea>
-<P>
+<P>Automatically change settings after mail based on this template is sent:<P>
+<table cellpadding="3">
+<tr>
+   <td>Type</td>
+   <td>
+EOF;
+   print getIncidentTypeSelection("update[type]", $update['type'],
+       array(-1=>"Do not update"));
+   echo <<<EOF
+   </td>
+</tr>
+<tr>
+   <td>Status</td>
+   <td>
+EOF;
+   print getIncidentStatusSelection("update[status]", $update['status'],
+       array(-1=>"Do not update"));
+   echo <<<EOF
+   </td>
+</tr>
+<tr>
+   <td>State</td>
+   <td>
+EOF;
+   print getIncidentStateSelection("update[state]", $update['state'],
+      array(-1=>"Do not update"));
+   echo <<<EOF
+   </td>
+</tr>
+</table>
 <input type="hidden" name="action" value="save">
 <input type="submit" value="Save!">
 <input type="reset" value="Cancel!">

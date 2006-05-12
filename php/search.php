@@ -104,7 +104,7 @@ Search results for the following host:
 <PRE>
  IP Address          : $ip
  Hostname            : $hostname
- Network             : $netname ($network/$netmask)
+ Network             : $netname (<a href="$_SERVER[PHP_SELF]?q=$network/$netmask&action=Search&qtype=zoom">$network/$netmask</a>)
  Constituency        : $consname
 </PRE>
 
