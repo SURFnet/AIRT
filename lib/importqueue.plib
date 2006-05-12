@@ -386,7 +386,7 @@ function getSAMLTicket() {
    $ans = $airt_client->call($method, $params);
    return($ans);
    if (PEAR::isError($ans)) {
-      return "SOAP Error";
+      return "SOAP Error:$ans";
    }
    else {
       return $ans;

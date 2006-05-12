@@ -102,7 +102,7 @@ function save_template($name='', $body='', $update) {
 
    $template = get_template($name);
    if ($template == '') {
-      $res = db_query(q('INSERT INTO mailtemplates (name, body, created, createdby, action_type, action_state, action_status) VALUES (\'%name\', \'%body\', CURRENT_TIMESTAMP, %uid, %type, %state, $status)', array(
+      $res = db_query(q('INSERT INTO mailtemplates (name, body, created, createdby, action_type, action_state, action_status) VALUES (\'%name\', \'%body\', CURRENT_TIMESTAMP, %uid, %type, %state, %status)', array(
          '%name'=>db_escape_string($name),
          '%body'=>db_escape_string($body),
          '%uid'=>$_SESSION['userid'],
