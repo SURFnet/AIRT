@@ -16,6 +16,7 @@ You now have a tarball.
 Creating the Subversion Branch
 ==============================
 * mkdir branches/new-version
+* svn add branches/new-version
 * svn copy trunk/package branches/new-version
 * svn copy trunk/source branches/new-version
 * svn commit -m 'new release' branches/new-version
