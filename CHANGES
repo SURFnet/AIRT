@@ -1,5 +1,10 @@
+2006-05-12
+* Ability to create incidents in bulk
+* Ability to search for incidents in a network range
 * Ability to specify a default action on status, state, type in
   mail templates
+* Import filter for IDMEF
+* Bug fixes
 
 2006-03-29
 * Bug fixes and configuration option for base url
