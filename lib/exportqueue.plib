@@ -2,7 +2,7 @@
 /* vim: syntax=php tabstop=3 shiftwidth=3
  *
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
- * Copyright (C) 2005   Tilburg University, The Netherlands
+ * Copyright (C) 2006   Tilburg University, The Netherlands
 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,10 +38,11 @@ function printUsage() {
    global $WRAPPERS;
 
    echo t('Task export program, part of the AIRT suite.').LF;
-   echo t('Copyright (C) 2005   Tilburg University, The Netherlands.').LF;
+   echo t('Copyright (C) 2006   Tilburg University, The Netherlands.').LF;
    echo t('Usage: airt_export [--help] [--noqueue] [--verbose] [--purge]').LF;
    echo   '         '.t('[--result-id=ID] [--result-code=CODE]').LF;
    echo   '         '.t('[--result-msg="message here"]').LF;
+   echo   '         '.t('[--virtual-host=VIRTUAL_HOST]').LF;
 
    // Enumerate all registered wrappers.
    if (count($WRAPPERS)>0) {

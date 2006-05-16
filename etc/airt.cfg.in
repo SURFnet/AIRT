@@ -23,18 +23,20 @@
  */
 
 
-/* Check if we are called for a virtual host. The following checks will be
- * performed: 1) Environment variable $_ENV['VIRTUAL_HOST']. If not set, the
- * PHP variable $_SERVER['SERVER_NAME']. If not, variable defaults to the empty
- * string ''
+/* Check if we are called for a virtual host.
+ * 1. If already defined, skip.
+ * 2. If set, use environment variable $_ENV['VIRTUAL_HOST'].
+ * 3. If set, use PHP variable $_SERVER['SERVER_NAME'].
+ * 4. If still not set, variable defaults to the empty string, ''.
  */
-
-if (array_key_exists('VIRTUAL_HOST', $_ENV)) {
-  define('VIRTUAL_HOST', $_ENV['VIRTUAL_HOST']);
-} elseif (array_key_exists('SERVER_NAME', $_SERVER)) {
-   define('VIRTUAL_HOST', $_SERVER['SERVER_NAME']);
-} else {
-   define('VIRTUAL_HOST', '');
+if (!defined('VIRTUAL_HOST')) {
+   if (array_key_exists('VIRTUAL_HOST', $_ENV)) {
+     define('VIRTUAL_HOST', $_ENV['VIRTUAL_HOST']);
+   } elseif (array_key_exists('SERVER_NAME', $_SERVER)) {
+      define('VIRTUAL_HOST', $_SERVER['SERVER_NAME']);
+   } else {
+      define('VIRTUAL_HOST', '');
+   }
 }
 
 function setup() {

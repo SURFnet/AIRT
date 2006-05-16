@@ -47,9 +47,10 @@ function printUsage() {
    global $FILTERS;
 
    echo t('Incidence import program, part of the AIRT suite.')."\n";
-   echo t('Copyright (C) 2005   Tilburg University, The Netherlands.')."\n";
+   echo t('Copyright (C) 2006   Tilburg University, The Netherlands.')."\n";
    echo t(
-'Usage: import [--filter=<filter>] [--help] [--noqueue] [--verbose] [filename]'
+'Usage: import [--filter=<filter>] [--help] [--noqueue] [--verbose] \\
+              [--virtual-host=<virtual_host>] [filename]'
      )."\n";
    echo t(
      'The program reads the import data from stdin if no filename is given.'
