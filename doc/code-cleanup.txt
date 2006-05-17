@@ -121,7 +121,9 @@ will generate a PHP warning. So we introduce a fetchFrom() function which
 reliably and safely fetches the required parameter from the superglobal
 arrays, or creates an empty variable if the parameter is absent. As a bonus,
 the fetchFrom() function can force a sprintf() mask over the retrieved
-parameter.
+parameter, and it can cope with Sybase Magic Quotes (which we want OFF or at
+least not included; we do our escapes just before we create SQL, not when we
+pick up variables).
 
 In some situations, for example when we want to explicitly check whether a
 cookie is already set, direct access to the $_COOKIE superglobal array might
