@@ -25,6 +25,8 @@
 require_once LIBDIR.'/database.plib';
 require_once LIBDIR.'/error.plib';
 
+define('LF',"\n");
+
 // Find out whether we run as web server module or as CLI interpreter.
 if ($_SERVER['DOCUMENT_ROOT']=='') {
    // We run as CLI.

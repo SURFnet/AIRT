@@ -29,8 +29,6 @@
 
 require_once LIBDIR.'/airt.plib';
 
-define('LF',"\n");   // See whether this is handy. If so, make app wide.
-
 ///// CLI functions ///////////////////////////////////////////////////////////
 
 /* Produce info on stdout (when user asked for --help). */
