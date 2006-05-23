@@ -47,6 +47,9 @@ function showSearch($qtype='') {
       case 'zoom':
          $zoomchecked='CHECKED';
          break;
+      case 'email':
+         $email='CHECKED';
+         break;
       default:
          $hostchecked='CHECKED';
    }
@@ -59,6 +62,7 @@ Search for:<p/>
 <input type="radio" name="qtype" value="host" $hostchecked/>Hostname
 <input type="radio" name="qtype" value="incident" $incidentchecked/>Incident
 <input type="radio" name="qtype" value="zoom" $zoomchecked/>Mask
+<input type="radio" name="qtype" value="email" $zoomchecked/>Mask
 <p/>
 </form>
 EOF;
@@ -477,9 +481,63 @@ EOF;
 } //search_zoom
 
 
+/** Search for an email address associated with an incident.
+ * Only email addresses of users associated with an incident are searched.
+ * Incident histories are left untouched.
+ *
+ * \param [in] $email Email address to search for
+ * \param [out] $results An array containing incident IDs that match
+ * \return 0 on success, 1 on failure
+ */
+function do_search_email($email='', &$results) {
+   $results = array();
+   if ($email == '') {
+      return 1;
+   }
+   $userid = getUserByEmail(strtolower($email));
+   $res = db_query(q('select incidentid from incident_users where userid=%userid', array('%userid'=>$userid)));
+   if (!$res) {
+      return 1;
+   }
+   foreach ($row as db_fetch_next($res)) {
+      $results[] = $row['incidentid'];
+   }
+   return 0;
+} // search_email
 
 
+/** Show search results for email search.
+ * \param [in] Array containing incident IDs
+ * \return 0 on success, 1 on failure
+ */
+function show_search_email($incidentids) {
+   if (!is_array($incidentids)) {
+      return 1;
+   }
+   $out = '<table>';
+   $out .= '<tr>';
+   $out .= '  <th>Incident ID</th>';
+   $out .= '  <th>Hostname</th>';
+   $out .= '  <th>Type</th>';
+   $out .= '  <th>Status</th>';
+   $out .= '  <th>State</th>';
+   $out .= '  <th>User</th>';
+   $out .= '</tr>';
 
+   foreach ($incidentids as $incidentid) {
+      $out .= '<tr>';
+      $out .= '   <td>'.normalize_incidentid($incidentid).'</td>';
+      $incident = getIncident($incidentid);
+      $out .= '   <td>'. implode($incident['ips'], '<br/>').'</td>';
+      $out .= '   <td>'.getIncidentTypeLabel($incident['type']).'</td>';
+      $out .= '   <td>'.getIncidentStatusLabel($incident['status']).'</td>';
+      $out .= '   <td>'.getIncidentStateLabel($incident['state']).'</td>';
+      $out .= '   <td>'. implode($incident['users'], '<br/>'.'</td>';
+      $out .= '</tr>';
+   }
+   $out .= '</table>';
+   printf($out);
+} // show_search_email
 
 
 
@@ -554,3 +612,4 @@ EOF;
       die("Unknown action.");
 } // switch
 ?>
+
