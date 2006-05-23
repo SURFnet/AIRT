@@ -88,28 +88,24 @@ specific. Therefore the database library (database.plib) contains the
 correct escape function, always called db_escape_string().
 
 Under no circumstances should SQL queries be assembled using plain PHP
-variable expansion (SELECT field FROM table WHERE id=$id). Always use at
-least something like:
-  sprintf('SELECT field FROM table WHERE id=%d',
-          $id);
-or the respective db_escape_string() variant with '%s'. We have a special
-function q() which does nearly the same, but without the explicit hard
-formatting, just replacements. This q() function was inspired by the NL
-translation requirements of Drupal, but seems not as useful in the SQL
-context. Drupal's equivalent db_query() does a little bit more than the NL
-translation function. It is not at all a true database (SQL) abstraction
-function, but it does allow for clean SQL generation, and it uses plain
-printf() replacement syntax. The only additional thing of Drupal db_query()
-compared to a straightforward sprintf() is that %s replacements are always
-automatically embraced with db_escape_string().
-
-So we need to decide whether we will equip our own db_query() function with
-our own variant of % parsing à la Drupal, or whether we rely totally on
-sprintf() usage by the programmer. It seems safer to require the programmer
-to always use our own set of % parameters and offer documented escapes in
-case (s)he really wants to bypass them.
-
-**** NEEDS TO BE FINALISED ****
+variable expansion (SELECT field FROM table WHERE id=$id).
+Because this is so important, we have extended the lowest level database
+call db_query() with the sprintf() equivalences. Typical use is:
+  db_query("INSERT INTO table
+              (field1, field2)
+              VALUES (%d,'%s')",
+            $someInteger,
+            $someString);
+The first parameter is a syntactically correct SQL statement with or without
+replacement (%) strings. The subsequent parameters are the expressions that
+will replace the % strings, just as with sprintf(). There is one slight, but
+important difference between db_query() and sprintf(): all substitution 
+parameters, regardless of actual type, will be db_escape_string()-ed before
+insertion into the query string. This in practice only affects expressions
+with quotes, i.e., strings. But it makes it impossible to forget to do
+replacements as long as the programmer uses % syntax and substitution
+parameters instead of one pre-crafted SQL string. Which still is an option
+for very special cases.
 
 
 Use fetchFrom() function to get at external parameters
@@ -121,9 +117,9 @@ will generate a PHP warning. So we introduce a fetchFrom() function which
 reliably and safely fetches the required parameter from the superglobal
 arrays, or creates an empty variable if the parameter is absent. As a bonus,
 the fetchFrom() function can force a sprintf() mask over the retrieved
-parameter, and it can cope with Sybase Magic Quotes (which we want OFF or at
-least not included; we do our escapes just before we create SQL, not when we
-pick up variables).
+parameter, and it can cope with Sybase Magic Quotes interference (which we
+want OFF or at least not included; we do our escapes just before we create
+SQL, not when we pick up variables).
 
 In some situations, for example when we want to explicitly check whether a
 cookie is already set, direct access to the $_COOKIE superglobal array might
