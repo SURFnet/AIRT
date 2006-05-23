@@ -62,7 +62,7 @@ Search for:<p/>
 <input type="radio" name="qtype" value="host" $hostchecked/>Hostname
 <input type="radio" name="qtype" value="incident" $incidentchecked/>Incident
 <input type="radio" name="qtype" value="zoom" $zoomchecked/>Mask
-<input type="radio" name="qtype" value="email" $zoomchecked/>Mask
+<input type="radio" name="qtype" value="email" $zoomchecked/>Email
 <p/>
 </form>
 EOF;
@@ -499,7 +499,7 @@ function do_search_email($email='', &$results) {
    if (!$res) {
       return 1;
    }
-   foreach ($row as db_fetch_next($res)) {
+   while ($row = db_fetch_next($res)) {
       $results[] = $row['incidentid'];
    }
    return 0;
@@ -507,7 +507,7 @@ function do_search_email($email='', &$results) {
 
 
 /** Show search results for email search.
- * \param [in] Array containing incident IDs
+ * \param [in] $incidentids Array containing incident IDs
  * \return 0 on success, 1 on failure
  */
 function show_search_email($incidentids) {
@@ -532,17 +532,12 @@ function show_search_email($incidentids) {
       $out .= '   <td>'.getIncidentTypeLabel($incident['type']).'</td>';
       $out .= '   <td>'.getIncidentStatusLabel($incident['status']).'</td>';
       $out .= '   <td>'.getIncidentStateLabel($incident['state']).'</td>';
-      $out .= '   <td>'. implode($incident['users'], '<br/>'.'</td>';
+      $out .= '   <td>'. implode($incident['users'], '<br/>').'</td>';
       $out .= '</tr>';
    }
    $out .= '</table>';
-   printf($out);
+   print $out;
 } // show_search_email
-
-
-
-
-
 
 
 
@@ -588,6 +583,9 @@ switch ($action) {
             break;
          case 'zoom':
             search_zoom($q);
+            break;
+         case 'email':
+            search_email($q);
             break;
 
          default:
