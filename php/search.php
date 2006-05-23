@@ -492,11 +492,30 @@ EOF;
  */
 function do_search_email($email='', &$results) {
    $results = array();
+   $userids=array();
    if ($email == '') {
       return 1;
    }
-   $userid = getUserByEmail(strtolower($email));
-   $res = db_query(q('select incidentid from incident_users where userid=%userid', array('%userid'=>$userid)));
+   /* find all matching user ids */
+   $res = db_query(q('select id from users where email like \'%%email%\'',
+      array('%email'=>db_escape_string($email))));
+   if (!$res) {
+      return 1;
+   }
+   if (db_num_rows($res) == 0) {
+      return 0;
+   }
+   while ($row = db_fetch_next($res)) {
+      $userids[] = $row['id'];
+   }
+   db_free_result($res);
+
+   // stop processing of no users were found
+   if (sizeof($userids) == 0) {
+      return 0;
+   }
+   // fetch corresponding incidentids
+   $res = db_query(q('select incidentid from incident_users where userid in (%userids) order by incidentid', array('%userids'=>implode($userids, ','))));
    if (!$res) {
       return 1;
    }
@@ -515,25 +534,38 @@ function show_search_email($incidentids) {
    if (!is_array($incidentids)) {
       return 1;
    }
-   $out = '<table>';
+   pageHeader("Search output");
+   $out = '<table cellpadding="3">';
    $out .= '<tr>';
    $out .= '  <th>Incident ID</th>';
    $out .= '  <th>Hostname</th>';
+   $out .= '  <th>Constituency</th>';
    $out .= '  <th>Type</th>';
    $out .= '  <th>Status</th>';
    $out .= '  <th>State</th>';
    $out .= '  <th>User</th>';
    $out .= '</tr>';
 
+   $constituencies = getConstituencies();
+   $count=0;
    foreach ($incidentids as $incidentid) {
-      $out .= '<tr>';
-      $out .= '   <td>'.normalize_incidentid($incidentid).'</td>';
+      $out .= t('<tr valign="top" bgColor="%bg">', array('%bg'=>($count++ % 2) == 0 ? '#FFFFFF' : '#DDDDDD'));
+      $out .= t('   <td><a href="incident.php?action=details&incidentid=%id">%iid</a></td>', array('%id'=>$incidentid, '%iid'=>normalize_incidentid($incidentid)));
       $incident = getIncident($incidentid);
-      $out .= '   <td>'. implode($incident['ips'], '<br/>').'</td>';
-      $out .= '   <td>'.getIncidentTypeLabel($incident['type']).'</td>';
-      $out .= '   <td>'.getIncidentStatusLabel($incident['status']).'</td>';
-      $out .= '   <td>'.getIncidentStateLabel($incident['state']).'</td>';
-      $out .= '   <td>'. implode($incident['users'], '<br/>').'</td>';
+      foreach ($incident['ips'] as $node) {
+         $out .= '   <td>'.$node['hostname'].'</td>';
+         $out .= '   <td>'.$constituencies[$node['constituency']]['label'].
+                     '</td>';
+      }
+      $out .= '   <td>'.getIncidentTypeLabelByID($incident['type']).'</td>';
+      $out .= '   <td>'.getIncidentStatusLabelByID($incident['status']).'</td>';
+      $out .= '   <td>'.getIncidentStateLabelByID($incident['state']).'</td>';
+      $out .= '   <td>';
+      foreach ($incident['users'] as $u) {
+         $u = getUserByUserID($u);
+         $out .= $u['email']."<br/>";
+      }
+      $out .= '   </td>';
       $out .= '</tr>';
    }
    $out .= '</table>';
@@ -612,4 +644,3 @@ EOF;
       die("Unknown action.");
 } // switch
 ?>
-
