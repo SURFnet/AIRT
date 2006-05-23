@@ -28,6 +28,7 @@ require_once LIBDIR.'/search.plib';
 require_once LIBDIR.'/incident.plib';
 require_once LIBDIR.'/constituency.plib';
 require_once LIBDIR.'/network.plib';
+require_once LIBDIR.'/user.plib';
 
 if (array_key_exists("action", $_REQUEST)) {
    $action=$_REQUEST["action"];
@@ -585,7 +586,8 @@ switch ($action) {
             search_zoom($q);
             break;
          case 'email':
-            search_email($q);
+            do_search_email($q, $res);
+            show_search_email($res);
             break;
 
          default:
