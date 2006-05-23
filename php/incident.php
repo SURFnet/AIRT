@@ -2,7 +2,7 @@
 /* vim:syntax=php shiftwidth=3 tabstop=3
  *
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
- * Copyright (C) 2004   Tilburg University, The Netherlands
+ * Copyright (C) 2006   Tilburg University, The Netherlands
 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
  * Incidents.php - incident management interface
  * $Id$
  */
+
 require_once 'config.plib';
 require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/database.plib';
@@ -96,8 +97,8 @@ function formatIncidentBulkForm(&$check) {
       $addressrole = custom_default_addressrole($address);
    }
    $output =  formatBasicIncidentData($type, $state, $status);
-   $output .= "<hr/>\n";
-   $output .= "<h3>affected ip addresses</h3>\n";
+   $output .= '<hr/>'.LF;
+   $output .= '<h3>'._('Affected IP addresses').'</h3>'.LF;
    $output .= "<table cellpadding=\"4\">\n";
    $output .= "<tr>\n";
    $output .= "  <td valign=\"top\">hostname or ip address</td>\n";
@@ -941,30 +942,30 @@ EOF;
 
     //--------------------------------------------------------------------
     case 'list':
-      pageHeader("Incident overview");
+      pageHeader(_('Incident Overview'));
       print updateCheckboxes();
 
-      generateEvent("incidentlistpre");
+      generateEvent('incidentlistpre');
       print formatListOverviewHeader();
-      print "<hr/>";
+      print '<hr/>';
       print formatListOverviewBody();
-      print "<hr/>";
+      print '<hr/>';
       print formatListOverviewFooter();
 
-      generateEvent("incidentlistpost");
+      generateEvent('incidentlistpost');
       pageFooter();
       break;
 
    //--------------------------------------------------------------------
-   case "addip":
-      if (array_key_exists("incidentid", $_SESSION)) {
-         $incidentid = $_SESSION["incidentid"];
+   case 'addip':
+      if (array_key_exists('incidentid', $_SESSION)) {
+         $incidentid = $_SESSION['incidentid'];
       } else {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          Header("Location: $_SERVER[PHP_SELF]");
          return;
       }
-      if (array_key_exists("ip", $_POST)) {
+      if (array_key_exists('ip', $_POST)) {
          $ip = gethostbyname($_POST["ip"]);
       } else {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
@@ -985,29 +986,33 @@ EOF;
       ));
       if (trim($ip) != "") {
          addIpToIncident(trim($ip), $incidentid, $addressrole);
-         addIncidentComment(t('IP address %ip added to incident with role %role', array(
+         addIncidentComment(t(
+           _('IP address %ip added to incident with role %role'),
+           array(
             '%ip'=>$ip,
-            '%role'=>getAddressRoleByID($addressrole))));
+            '%role'=>getAddressRoleByID($addressrole))
+         ));
       }
 
-      Header(sprintf("Location: $_SERVER[PHP_SELF]?action=details&incidentid=%s",
+      header(sprintf('Location: %s?action=details&incidentid=%s',
+         $_SERVER[PHP_SELF],
          urlencode($incidentid)));
       break;
 
     //--------------------------------------------------------------------
-   case "editip":
+   case 'editip':
       if (array_key_exists("incidentid", $_SESSION)) {
          $incidentid = $_SESSION["incidentid"];
       } else {
-         die("Missing information (1).");
+         die(_('Missing information').' (1).');
       }
       if (array_key_exists("ip", $_GET)) {
          $ip = $_GET["ip"];
       } else {
-         die("Missing information (2).");
+         die(_('Missing information').' (2).');
       }
 
-      pageHeader("IP address details");
+      pageHeader(_('IP address details'));
       printf(editIPform($incidentid,$ip));
       pageFooter();
       break;
@@ -1057,10 +1062,12 @@ EOF;
       $addressRoleLabel = $addressroles[$addressrole];
 
       // Generate comment and event.
-      addIncidentComment(t('Details of IP address %ip updated; const=%const, addressrole=%role', array(
-         '%ip'=>$ip,
-         '%const'=>$constLabel,
-         '%role'=>$addressRoleLabel)
+      addIncidentComment(t(
+         _('Details of IP address %ip updated; const=%const, addressrole=%role'),
+         array(
+           '%ip'=>$ip,
+           '%const'=>$constLabel,
+           '%role'=>$addressRoleLabel)
       ));
       generateEvent('updateipdetails', array(
          'incidentid' => $incidentid,
@@ -1069,13 +1076,13 @@ EOF;
          'addressrole' => $addressrole
       ));
 
-      Header(sprintf('Location: %s?action=details&incidentid=%s',
+      header(sprintf('Location: %s?action=details&incidentid=%s',
          $_SERVER['PHP_SELF'],
          urlencode($incidentid)));
       break;
 
     //--------------------------------------------------------------------
-   case "deleteip":
+   case 'deleteip':
       if (array_key_exists("incidentid", $_SESSION)) {
          $incidentid = $_SESSION["incidentid"];
       } else {
@@ -1099,25 +1106,29 @@ EOF;
       }
 
       removeIpFromIncident($ip, $incidentid, $addressrole);
-      addIncidentComment(t('IP address %address (%role) removed from incident.', array(
-         '%address'=>$ip,
-         '%role'=>getAddressRolebyID($addressrole))));
+      addIncidentComment(t(
+         _('IP address %address (%role) removed from incident.'),
+         array(
+            '%address'=>$ip,
+            '%role'=>getAddressRolebyID($addressrole)
+         )));
 
       generateEvent("removeipfromincident", array(
          "incidentid" => $incidentid,
          "ip"         => $ip,
          "addressrole"=> $addressrole
       ));
-      Header(sprintf("Location: $_SERVER[PHP_SELF]?action=details&incidentid=%s",
+      header(sprintf('Location: %s?action=details&incidentid=%s',
+         $_SERVER[PHP_SELF],
          urlencode($incidentid)));
       break;
 
     //--------------------------------------------------------------------
-   case "adduser":
+   case 'adduser':
       if (array_key_exists("email", $_REQUEST)) {
          $email = validate_input($_REQUEST["email"]);
       } else {
-         die("Missing information (1).");
+         die(_('Missing information').' (1).');
       }
       if (array_key_exists("addifmissing", $_REQUEST)) {
          $add = validate_input($_REQUEST["addifmissing"]);
@@ -1126,7 +1137,7 @@ EOF;
       }
       $incidentid = $_SESSION["incidentid"];
       if ($incidentid == '') {
-         die("Missing information (2).");
+         die(_('Missing information').' (2).');
       }
 
       $id = getUserByEmail($email);
@@ -1135,47 +1146,50 @@ EOF;
             addUser(array("email"=>$email));
             $id = getUserByEmail($email);
          } else {
-            printf("Unknown email address. User not added.");
+            printf(_('Unknown email address. User not added.'));
             exit();
          }
       }
 
       $user = getUserByUserID($id["id"]);
       addUserToIncident($id["id"], $incidentid);
-      addIncidentComment(sprintf("User %s added to incident.", $user["email"]));
+      addIncidentComment(sprintf(_('User %s added to incident.'),
+                                 $user["email"]));
 
-      Header(sprintf("Location: $_SERVER[PHP_SELF]?action=details&incidentid=%s",
+      Header(sprintf("Location: %s?action=details&incidentid=%s",
+         $_SERVER[PHP_SELF],
          urlencode($incidentid)));
 
       break;
    //--------------------------------------------------------------------
-   case "deluser":
+   case 'deluser':
       if (array_key_exists("incidentid", $_SESSION)) {
          $incidentid = $_SESSION["incidentid"];
       } else {
-         die("Missing information (1).");
+         die(_('Missing information').' (1).');
       }
       if (array_key_exists("userid", $_GET)) {
          $userid = $_GET["userid"];
       } else {
-         die("Missing information (2).");
+         die(_('Missing information').' (2).');
       }
 
       removeUserFromIncident($userid, $incidentid);
       $user = getUserByUserID($userid);
-      addIncidentComment(sprintf("User %s removed from incident.", 
+      addIncidentComment(sprintf(_('User %s removed from incident.'), 
          $user["email"]));
 
-      Header(sprintf("Location: $_SERVER[PHP_SELF]?action=details&incidentid=%s",
+      header(sprintf('Location: %s?action=details&incidentid=%s',
+         $_SERVER[PHP_SELF],
          urlencode($incidentid)));
       break;
 
    //--------------------------------------------------------------------
-   case "addcomment":
+   case 'addcomment':
       if (array_key_exists("comment", $_REQUEST)) {
          $comment = $_REQUEST["comment"];
       } else {
-         die ("Missing information.");
+         die (_('Missing information').'.');
       }
 
       addIncidentComment($comment);
@@ -1184,36 +1198,38 @@ EOF;
          "incidentid"=>$_SESSION['incidentid']
       ));
 
-      Header("Location: $_SERVER[PHP_SELF]?action=details&incidentid=$_SESSION[incidentid]");
+      Header(sprintf('Location: %s?action=details&incidentid=%s',
+        $_SERVER[PHP_SELF],
+        $_SESSION['incidentid']));
       break;
 
     //--------------------------------------------------------------------
-   case "Update":
-   case "update":
+   case 'Update':
+   case 'update':
       if (array_key_exists("incidentid", $_SESSION)) {
          $incidentid = $_SESSION["incidentid"];
       } else {
-         die("Missing information.");
+         die(_('Missing information').'.');
       }
       if (array_key_exists("state", $_POST)) {
          $state = $_POST["state"];
       } else {
-         die("Missing information (2).");
+         die(_('Missing information').' (2).');
       }
       if (array_key_exists("status", $_POST)) {
          $status = $_POST["status"];
       } else {
-         die("Missing information (3).");
+         die(_('Missing information').' (3).');
       }
       if (array_key_exists("type", $_POST)) {
          $type = $_POST["type"];
       } else {
-         die("Missing information (4).");
+         die(_('Missing information').' (4).');
       }
       if (array_key_exists("logging", $_POST)) {
          $logging = trim($_POST["logging"]);
       } else {
-         die("Missing information (5).");
+         die(_('Missing information').' (5).');
       }
 
       generateEvent("incidentupdate", array(
@@ -1225,8 +1241,8 @@ EOF;
 
       updateIncident($incidentid,$state,$status,$type,$logging);
 
-      addIncidentComment(sprintf("Incident updated: state=%s, ".
-         "status=%s type=%s", 
+      addIncidentComment(sprintf(_(
+        'Incident updated: state=%s, status=%s type=%s'), 
          getIncidentStateLabelByID($state),
          getIncidentStatusLabelByID($status),
          getIncidentTypeLabelByID($type)));
@@ -1235,12 +1251,13 @@ EOF;
       break;
 
     //--------------------------------------------------------------------
-   case "showstates":
-      generateEvent('pageHeader', array('title' => 'Available incident states'));
-      $res = db_query("SELECT label, descr
+   case 'showstates':
+      generateEvent('pageHeader',
+         array('title' => _('Available incident states')));
+      $res = db_query('SELECT label, descr
          FROM   incident_states
-         ORDER BY label")
-      or die("Unable to query incident states.");
+         ORDER BY label')
+      or die(_('Unable to query incident states.'));
       $output = "<script language=\"JavaScript\">\n";
       $output .= "window.resizeTo(800,500);\n";
       $output .= "</script>";
@@ -1256,12 +1273,13 @@ EOF;
       break;
 
    //--------------------------------------------------------------------
-   case "showtypes":
-      generateEvent('pageHeader', array('title' => 'Available incident types'));
-      $res = db_query("SELECT label, descr
+   case 'showtypes':
+      generateEvent('pageHeader',
+         array('title' => _('Available incident types')));
+      $res = db_query('SELECT label, descr
          FROM   incident_types
-         ORDER BY label")
-      or die("Unable to query incident types.");
+         ORDER BY label')
+      or die(_('Unable to query incident types.'));
       $output = "<script language=\"JavaScript\">\n";
       $output .= "window.resizeTo(800,500);\n";
       $output .= "</script>";
@@ -1278,14 +1296,15 @@ EOF;
       break;
 
     //--------------------------------------------------------------------
-   case "showstatus":
-      generateEvent('pageHeader', array('title' => 'Available incident statuses'));
+   case 'showstatus':
+      generateEvent('pageHeader',
+         array('title' => _('Available incident statuses')));
 
       $res = db_query('
          SELECT label, descr
          FROM   incident_status
          ORDER BY label')
-      or die("Unable to query incident statuses.");
+      or die(_('Unable to query incident statuses.'));
       $output = "<script language=\"JavaScript\">\n";
       $output .= "window.resizeTo(800,500);\n";
       $output .= "</script>";
@@ -1301,7 +1320,7 @@ EOF;
       break;
 
    //--------------------------------------------------------------------
-   case "massupdate":
+   case 'massupdate':
       // massincidents may be absent, this is how HTML checkboxes work.
       if (array_key_exists('massincidents', $_POST)) {
          $massIncidents = $_POST['massincidents'];
@@ -1344,7 +1363,8 @@ EOF;
       if (array_key_exists('agenda', $_REQUEST)) {
          $agenda = $_REQUEST['agenda'];
       } else {
-         airt_msg('USER ERROR: Must select one or more recipients for mail.');
+         airt_msg(_(
+           'USER ERROR: Must select one or more recipients for mail.'));
          Header("Location: $_SERVER[PHP_SELF]?action=details&incidentid=$_SESSION[incidentid]");
          return;
       }
@@ -1369,7 +1389,7 @@ EOF;
       foreach ($agenda as $userid) {
          $user = getUserByUserId($userid);
          removeUserFromIncident($userid, $incidentid);
-         addIncidentComment(sprintf("User %s removed from incident.", 
+         addIncidentComment(sprintf(_('User %s removed from incident.'), 
             $user["email"]));
       }
       Header("Location: $_SERVER[HTTP_REFERER]");
