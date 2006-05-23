@@ -107,6 +107,22 @@ replacements as long as the programmer uses % syntax and substitution
 parameters instead of one pre-crafted SQL string. Which still is an option
 for very special cases.
 
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
+
+We actually need two variants of db_query(). One, the most common one, uses
+the default global $db for the database connection. The second one is called
+db_query_conn() and needs an extra parameter (first parameter) which is an
+explicit database connection. So:
+
+  db_query('SQL',$expr,$expr,$expr...);
+  db_query_conn($db,'SQL',$expr,$expr,$expr...);
+
+The current code uses the second option only in php/roles.php en
+php/roleassignments.php; these two files need to be adapted when the new
+db_query() syntax is introduced.
+
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
+
 
 Use fetchFrom() function to get at external parameters
 ------------------------------------------------------
