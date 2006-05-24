@@ -255,76 +255,111 @@ function airt_msg($msg, $prio=0) {
 }
 
 
-/* Central HTTP parameter fetcher. Should cater for most standard requests,
- * does not have any known side effects. Is NOT meant to make strings
- * SQL-safe, use the db-specific library calls for this.
- * Gets and formats data from a GET, POST or COOKIE variable. Is safe to
- * use no matter what register_globals or get_magic_quotes_gpc are set to,
- * and returns an empty string '' or 0 (depending on format) when the
- * required input variable is missing.
- * TODO: this function cannot handle array variables yet. This can be
- * implemented in two ways, declarative and observational.
- * Declarative: the two '[]' characters need to be appended to the variable
- * name and lead to a forced array output.
- * Observational: if the incoming variable is of type array(), assume it is
- * an array.
- * For safety reasons, declarative looks like the better choice.
- * It also needs a different implementation of the formatting (which should
- * be applied to each index of the array in turn) and return parts (should
- * return an array).
- * Input:
- * source = One of 'GET', 'POST', 'COOKIE', 'REQUEST'.
- * name   = The variable to look up in the input arrays.
- * format = Optionally, printf() format specifier for the value.
- * Output: the requested input variable.
+/** Central HTTP parameter and session variable fetcher.
+ * Should cater for most standard requests, does not have any known side
+ * effects. Is NOT meant to make strings SQL-safe, use the DB-specific
+ * library calls for this. Gets and formats data from a GET, POST or COOKIE
+ * variable, or from REQUEST (combined GET and POST). Same for SESSION.
+ *
+ * Is safe to use no matter what register_globals or get_magic_quotes_gpc
+ * are set to. The return value is of type string in most cases, unless the
+ * requested name has '[]' appended to force it to type array. When a
+ * formatting string (such as '%d') is given, this may also lead to return
+ * values of type integer or float.
+ *
+ * If the requested input variable is absent from the PHP input arrays, the
+ * returned value is either '' or array(). It won't trigger a PHP warning.
+ * 
+ * @param $source = One of 'GET', 'POST', 'COOKIE', 'REQUEST', 'SESSION'.
+ * @param $name   = The variable to look up in the input arrays.
+ * @param $format = Optionally, printf() format specifier for the value.
+ * @return The requested input variable, no escaped quotes, various types
+ * possible.
  */
 function fetchFrom($source,$name,$format='') {
+
+  // Set up the default return value for the requested parameter, used in
+  // case it is not available. Basically only two types: string and array.
+  if (substr($name,-2,2)=='[]') {
+     $value = array();
+     // Remove the trailing '[]'.
+     $name = substr($name,0,-2);
+  } else {
+     $value = '';
+  }
 
   // Fetch the data, force empty if not available.
   switch ($source) {
     case 'GET':
       if (isset($_GET[$name])) {
         $value = $_GET[$name];
-      } else {
-        $value = '';
       }
       break;
     case 'POST':
       if (isset($_POST[$name])) {
         $value = $_POST[$name];
-      } else {
-        $value = '';
       }
       break;
     case 'COOKIE':
       if (isset($_COOKIE[$name])) {
         $value = $_COOKIE[$name];
-      } else {
-        $value = '';
       }
       break;
     case 'REQUEST':
       if (isset($_REQUEST[$name])) {
         $value = $_REQUEST[$name];
-      } else {
-        $value = '';
+      }
+      break;
+    case 'SESSION':
+      if (isset($_SESSION[$name])) {
+        $value = $_SESSION[$name];
       }
       break;
     default:
-      die("Unknown fetch source '$source'. Script terminated.");
+      die(sprintf(_(
+        "Unknown fetch source type '%s'. Script terminated."),
+        $source));
   }
 
   // If magic quotes is ON, strip all added slashes.
   if (get_magic_quotes_gpc()) {
-    $value = stripSlashes($value);
+    if (is_array($value)) {
+       foreach($value as $index=>$val) {
+          $value[$index] = stripSlashes($val);
+       }
+    } else {
+      $value = stripSlashes($value);
+    }
   }
+
   // If format is given, apply it.
   if ($format!='') {
-    $value = sprintf($format,$value);
+    if (is_array($value)) {
+       foreach($value as $index=>$val) {
+          $value[$index] = sprintf($format,$val);
+       }
+    } else {
+      $value = sprintf($format,$value);
+    }
   }
 
   return $value;
 
 }// fetchFrom
+
+
+/** Uses a default value for a variable if the variable is empty ('').
+ * In case the variable does not exist yet, it is silently created with the
+ * default value. If the variable is an empty array() it is considered empty
+ * and the given default value may be an array.
+ * @param[in|out] $variable The variable (reference) which needs to be
+ *                          checked and possibly defaulted.
+ * @param $default_value    The default value of the variable.
+ */
+function defaultTo(&$variable, $default_value) {
+   if (empty($variable)) {
+      $variable = $default_value;
+   }
+}// defaultTo
 
 ?>
