@@ -1,7 +1,7 @@
 <?php
 /* vim: syntax=php shiftwidth=3 tabstop=3
  * AIRT: Application for Incident Response Teams
- * Copyright (C) 2004,2005   Kees Leune <kees@uvt.nl>
+ * Copyright (C) 2006 Tilburg University, The Netherlands
 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,18 +21,20 @@
  *
  * $Id$
  */
+
 require_once LIBDIR.'/database.plib';
 require_once LIBDIR.'/search.plib';
 require_once LIBDIR.'/constituency.plib';
 require_once LIBDIR.'/history.plib';
 require_once LIBDIR.'/airt.plib';
 
-/* Return an associative array with incident states.
- * Input: optionally, an array with extra incident states that are not from
- * the database. Typically, "Please select a state"-like inert selections.
+/** Return an associative array with incident states.
+ * @param $extras Optionally, an array with extra incident states that are
+ * not from the database. Typically, "Please select a state"-like inert
+ * selections.
  * Array format: array[extra_id]=extra_label. The extra states are prefixed
  * before the states from the database.
- * Output: array[id]=label.
+ * @return array[id]=label.
  */
 function getIncidentStates($extras=array()) {
    $res = db_query('SELECT  id, label FROM incident_states ORDER BY id')
@@ -40,7 +42,7 @@ function getIncidentStates($extras=array()) {
 
    $states=$extras;
    while ($row = db_fetch_next($res)) {
-      $states[$row["id"]]=$row["label"];
+      $states[$row['id']]=$row['label'];
    }
    return $states;
 }
