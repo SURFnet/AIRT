@@ -32,30 +32,24 @@ require_once LIBDIR.'/user.plib';
 require_once LIBDIR.'/mailtemplates.plib';
 
 function updateCheckboxes() {
+   // Used to compile some JavaScript that is needed in many places.
    global $toggle;
 
-   if (array_key_exists('sortkey', $_REQUEST)) {
-      $sortkey = $_REQUEST['sortkey'];
-   } else {
-      $sortkey = 'incidentid';
-   }
-   if (array_key_exists('page', $_REQUEST)) {
-      $page = $_REQUEST['page'];
-   } else {
-      $page = 1;
-   }
-   if (!isset($toggle)) {
-      $toggle = 0;
-   }
-   if (array_key_exists('filter', $_REQUEST)) {
-      $filter = $_REQUEST['filter'];
-   } else {
-      $filter = array();
-      $filter['state'] = -1;
-      $filter['status'] = -1;
-   }
-   $urlsuffix=strtr("&page=%page&filter[state]=%sf&filter[status]=%stf&sortkey=%sk&toggle=%t", array(
-      '%page'=>$page,
+   $sortkey = fetchFrom('REQUEST','sortkey');
+   defaultTo($sortkey,'incidentid');
+   
+   $page = fetchFrom('REQUEST','page','%d');
+   defaultTo($page,1);
+
+   defaultTo($toggle,0);
+
+   $filter = fetchFrom('REQUEST','filter[]');
+   defaultTo($filter,array('state'=>-1, 'status'=>-1));
+
+   $urlsuffix=strtr(
+     '&page=%p&filter[state]=%sf&filter[status]=%stf&sortkey=%sk&toggle=%t',
+     array(
+      '%p'=>$page,
       '%t'=>$toggle,
       '%sf'=>$filter['state'],
       '%stf'=>$filter['status'],
@@ -75,17 +69,20 @@ function updateCheckboxes() {
 
    $output .= "</SCRIPT>\n";
    return $output;
-}
+} // updateCheckboxes
 
 
 function formatIncidentBulkForm(&$check) {
-   $constituency = $name = $email = $type = $state = $status = $addressrole = "";
+   $constituency = $name = $email = $type = $state = $status
+     = $addressrole = "";
 
    if (array_key_exists("active_ip", $_SESSION)) {
       $address = $_SESSION["active_ip"];
    } else {
       $address = "";
    }
+   $address = fetchFrom('SESSION','active_ip');
+
    if (array_key_exists("constituency_id", $_SESSION)) {
       $constituency = $_SESSION["constituency_id"];
    }
@@ -325,75 +322,94 @@ function formatEditForm() {
    return $output;
 } // formatEditForm
 
-if (array_key_exists("action", $_REQUEST)) {
-  $action=$_REQUEST["action"];
-} else {
-  $action="list";
-}
 
-/* format the filter block */
+/* format the filter block in the page header */
 function formatFilterBlock() {
-   if (array_key_exists('filter', $_REQUEST)) {
-      $filter = $_REQUEST['filter'];
-   } else {
-      $filter = array();
-      $filter['state'] = -1;
-      $filter['status'] = -1;
-   }
+   $filter = fetchFrom('REQUEST','filter[]');
+   defaultTo($filter, array('state'=>-1, 'status'=>-1));
 
    $out = t(
-      "<FORM method=\"POST\">\n".
-      "<table cellpadding=\"3\">\n".
-      "<tr>\n".
-      "   <td>Status</td>\n".
-      "   <td>".
-             getIncidentStatusSelection("filter[status]", $filter['status'],
-             array("-1"=>"Do not filter")).
-      "   </td>\n".
-      "</tr>\n".
-      "<tr>\n".
-      "   <td>State</td>\n".
-      "   <td>".
-             getIncidentStateSelection("filter[state]", $filter['state'],
-             array("-1"=>"Do not filter")).
-      "   </td>\n".
-      "</tr>\n".
-      "</table>\n".
-      "<INPUT TYPE=\"submit\" VALUE=\"Filter\">\n".
-      "<INPUT TYPE=\"submit\" Name=\"action\" VALUE=\"New incident\">\n".
-      "<INPUT TYPE=\"submit\" Name=\"action\" VALUE=\"Bulk incidents\">\n".
-
-
-
-      "</FORM>\n");
+      '<FORM method="POST">'.LF.
+      '<table>'.LF.
+      '<tr>'.LF.
+      '   <td>'._('Status').'</td>'.LF.
+      '   <td>'.
+             getIncidentStatusSelection('filter[status]', $filter['status'],
+             array(-1=>_('Do not filter'))).
+      '   </td>'.LF.
+      '</tr>'.LF.
+      '<tr>'.LF.
+      '   <td>'._('State').'</td>'.LF.
+      '   <td>'.
+             getIncidentStateSelection('filter[state]', $filter['state'],
+             array(-1=>_('Do not filter'))).
+      '   </td>'.LF.
+      '</tr>'.LF.
+      '<tr>'.LF.
+      '  <td></td>'.LF.
+      '  <td><INPUT TYPE="submit" VALUE="'._('Filter the List').'"></td>'.LF.
+      '</tr>'.LF.
+      '</table>'.LF.
+      '</FORM>'.LF);
    return $out;
-}
+}// formatFilterBlock
 
+/* format the details block in the page header */
 function formatDetailBlock() {
    $out = t(
-      "<form method=\"post\">".
-      "Incident number ".
-      "<INPUT TYPE=\"input\" name=\"incidentid\" size=\"14\">\n".
-      "<INPUT TYPE=\"submit\" name=\"action\" value=\"Details\">\n".
-      "</form>\n");
+      '<form method="post">'.LF.
+      '<table>'.LF.
+      '<tr>'.LF.
+      '  <td>'._('Incident #').'</td>'.LF.
+      '  <td><INPUT TYPE="text" name="incidentid" size="7">'.LF.
+      '</tr><tr>'.LF.
+      '  <td></td>'.LF.
+      '  <td><INPUT TYPE="submit" name="action" value="'.
+            _('Show Details').'"></td>'.LF.
+      '</tr>'.LF.
+      '</table>'.LF.
+      '</form>'.LF);
    return $out;
 }
 
-/* return a string containing the list overview header page
+/* format the create incident(s) block in the page header */
+function formatCreateIncidentBlock() {
+   $out = t(
+      '<form method="post">'.LF.
+      '<INPUT TYPE="submit" Name="action" VALUE="'.
+         _('Create New Incident').'"><p>'.LF.
+      '<INPUT TYPE="submit" Name="action" VALUE="'.
+         _('Create Many Incidents').'">'.LF.
+      '</form>'.LF
+   );
+   return $out;
+}
+
+/* return a string containing the list overview page header, which contains
+ * a few blocks horizontally next to each other.
  */
 function formatListOverviewHeader() {
+   // A style expression for the vertical separation lines between the
+   // blocks.
+   $style = 'style="border-right-width:1px; border-right-style:solid; '.
+            'padding-left:10px; padding-right:10px"';
+
    $out = t(
-      "<table style=\"border-right:1px\">".
-      "<tr valign=\"top\">".
-      "   <td>%filters</td>".
-      "   <td>%details</td>".
-      "</tr>".
-      "</table>", array(
+      '<table>'.LF.
+      '<tr valign="top">'.LF.
+      '   <td %style>%filters</td>'.LF.
+      '   <td %style>%details</td>'.LF.
+      '   <td style="padding-left:10px">%createIncident</td>'.LF.
+      '</tr>'.LF.
+      '</table>'.LF,
+      array(
+         '%style'=>$style,
          '%filters'=>formatFilterBlock(),
-         '%details'=>formatDetailBlock()));
+         '%details'=>formatDetailBlock(),
+         '%createIncident'=>formatCreateIncidentBlock()));
 
    return $out;
-}
+}// formatListOverviewHeader
 
 /* format a pager line. Take the total number of incidents, the current page,
  * and the number of incidents per page as input
@@ -463,7 +479,7 @@ function formatListOverviewBody() {
       $filter['status'] >= 0) {
       $sqlfilter = " AND s1.label = '".$statuses[$filter['status']]."'";
    } else {
-      $sqlfilter = " AND s1.label = 'open'";
+      $sqlfilter = '';
    }
    $states = getIncidentStates();
    if (array_key_exists($filter['state'], $states) && 
@@ -708,7 +724,13 @@ function edit_externalids($incidentid='') {
 }
 
 
+///// PAGE GENERATION STARTS HERE //////////////////////////////////////////
+
+$action = fetchFrom('REQUEST','action');
+defaultTo($action,'list');
+
 switch ($action) {
+
   //--------------------------------------------------------------------
   case "Apply":
      if (array_key_exists('massincidents', $_REQUEST)) {
@@ -729,14 +751,9 @@ switch ($action) {
      break;
 
   //--------------------------------------------------------------------
-  case "Details":
-  case "details":
-    if (array_key_exists("incidentid", $_REQUEST)) {
-      $incidentid=$_REQUEST["incidentid"];
-    } else {
-      die("Missing information(1).");
-    }
-
+  case _('Show Details'):
+  case 'details':
+    $incidentid = fetchFrom('REQUEST','incidentid','%d');
     print updateCheckboxes();
 
     /* prevent cross site scripting in incidentid */
@@ -782,8 +799,8 @@ switch ($action) {
     break;
 
     //---------------------------------------------------------------
-    case "New incident":
-    case "new":
+    case _('Create New Incident'):
+    case 'new':
       PageHeader("New Incident");
       $check = false;
       $output = updateCheckboxes();
@@ -799,7 +816,7 @@ switch ($action) {
       print $output;
       break;
     //--------------------------------------------------------------------
-    case "Bulk incidents":
+    case _('Create Many Incidents'):
       PageHeader("Bulk incidents");
       $check = false;
       $output = updateCheckboxes();
@@ -1450,7 +1467,7 @@ EOF;
 
    //--------------------------------------------------------------------
    default:
-      die("Unknown action");
+      die(_('Unknown action'));
 }
 
 ?>
