@@ -354,6 +354,7 @@ function formatFilterBlock() {
    return $out;
 }// formatFilterBlock
 
+
 /* format the details block in the page header */
 function formatDetailBlock() {
    $out = t(
@@ -385,6 +386,7 @@ function formatCreateIncidentBlock() {
    return $out;
 }
 
+
 /* return a string containing the list overview page header, which contains
  * a few blocks horizontally next to each other.
  */
@@ -411,6 +413,7 @@ function formatListOverviewHeader() {
    return $out;
 }// formatListOverviewHeader
 
+
 /* format a pager line. Take the total number of incidents, the current page,
  * and the number of incidents per page as input
  */
@@ -418,16 +421,23 @@ function formatPagerLine($page, $numincidents, $pagesize=PAGESIZE) {
    global $sortkey;
    global $filter;
 
-   $urlprefix="&sortkey=$sortkey&filter[status]=$filter[status]&filter[state]=$filter[state]";
    if ($numincidents < $pagesize) {
       return '';
    }
+
+   $urlprefix = "&sortkey=$sortkey".
+                "&filter[status]=".$filter['status'].
+                "&filter[state]=".$filter['state'];
    $out = '';
    $numpages = (int) ceil($numincidents / $pagesize);
+
    if ($page == 1) {
-      $out .= '<strong>Previous</strong>&nbsp;';
+      $out .= '<strong>'._('Previous').'</strong>&nbsp;';
    } else {
-      $out .= t("<a href=\"%url?page=%prev$urlprefix\">Previous</a>&nbsp;", array(
+      $out .= t("<a href=\"%url?page=%prev%urlprefix\">".
+                 _('Previous')."</a>&nbsp;",
+                array(
+         '%urlprefix'=>$urlprefix,
          '%url'=>$_SERVER['PHP_SELF'],
          '%prev'=>($page-1)));
    }
@@ -435,44 +445,43 @@ function formatPagerLine($page, $numincidents, $pagesize=PAGESIZE) {
       if ($i == $page) {
          $out .= "<strong>$i</strong>&nbsp;";
       } else {
-         $out .= t("<a href=\"%url?page=$i$urlprefix\">$i</a>&nbsp;", array(
-            '%url' => $_SERVER['PHP_SELF']));
+         $out .= t("<a href=\"%url?page=$i%urlprefix\">$i</a>&nbsp;",
+                 array(
+                   '%urlprefix'=>$urlprefix,
+                   '%url' => $_SERVER['PHP_SELF']));
       }
    }
    if ($page == $numpages) {
-      $out .= '<strong>Next</strong>&nbsp;';
+      $out .= '<strong>'._('Next').'</strong>&nbsp;';
    } else {
-      $out .= t("<a href=\"%url?page=%next$urlprefix\">Next</a>&nbsp;", array(
-         '%url'=>$_SERVER['PHP_SELF'],
-         '%next'=>($page+1)));
+      $out .= t("<a href=\"%url?page=%next%urlprefix\">"._('Next')."</a>&nbsp;",
+              array(
+               '%urlprefix'=>$urlprefix,
+               '%url'=>$_SERVER['PHP_SELF'],
+               '%next'=>($page+1)));
    }
    return $out;
 }
 
-/* return an HTML-formatted overview of open incidents */
 
+/* return an HTML-formatted overview of open incidents */
 function formatListOverviewBody() {
    global $sortkey;
    global $filter;
    global $toggle;
 
-   if (array_key_exists('filter', $_REQUEST)) {
-      $filter = $_REQUEST['filter'];
-   } else {
-      $filter = array();
-      $filter['status'] = -1;
-      $filter['state']= -1;
-   }
-   if (array_key_exists('sortkey', $_REQUEST)) {
-      $sortkey = $_REQUEST['sortkey'];
-   } else {
-      $sortkey = 'incidentid';
-   }
-   if (array_key_exists('page', $_REQUEST)) {
-      $page = $_REQUEST['page'];
-   } else {
-      $page = 1;
-   }
+   $filter = fetchFrom('REQUEST','filter[]');
+   // NOTE: the $filter itself has a default, but if somebody manipulates
+   // the $filter and e.g. removes the 'status' index, things go wrong here.
+   // It looks secure, but it breaks.
+   defaultTo($filter,
+             array('status'=>-1, 'state'=>-1));
+
+   $sortkey = fetchFrom('REQUEST','sortkey');
+   defaultTo($sortkey,'incidentid');
+   
+   $page = fetchFrom('REQUEST','page','%d');
+   defaultTo($page,1);
 
    $statuses = getIncidentStatus();
    if (array_key_exists($filter['status'], $statuses) && 
@@ -481,6 +490,7 @@ function formatListOverviewBody() {
    } else {
       $sqlfilter = '';
    }
+
    $states = getIncidentStates();
    if (array_key_exists($filter['state'], $states) && 
       $filter['state'] >= 0) {
@@ -488,104 +498,138 @@ function formatListOverviewBody() {
    }
 
    switch ($sortkey) {
-      case 'incidentid': $sqlfilter .= " ORDER BY incidentid";
+      case 'incidentid':
+         $sqlfilter .= ' ORDER BY incidentid';
          break;
-      case "constituency": $sqlfilter .= " ORDER BY constituency";
+      case 'constituency':
+         $sqlfilter .= ' ORDER BY constituency';
          break;
-      case "hostname": $sqlfilter .= " ORDER BY hostname";
+      case 'hostname':
+         $sqlfilter .= ' ORDER BY hostname';
          break;
-      case "status": $sqlfilter .= " ORDER BY status";
+      case 'status':
+         $sqlfilter .= ' ORDER BY status';
          break;
-      case "state": $sqlfilter .= " ORDER BY state";
+      case 'state':
+         $sqlfilter .= ' ORDER BY state';
          break;
-      case "type": $sqlfilter .= " ORDER BY type";
+      case 'type':
+         $sqlfilter .= ' ORDER BY type';
          break;
-      case "lastupdated": $sqlfilter .= " ORDER BY updated";
+      case 'lastupdated':
+         $sqlfilter .= ' ORDER BY updated';
          break;
+      default:
+         // Hmmm... should not happen. Manual intervention in the URL?
+         $sqlfilter .= ' ORDER BY incidentid';
+         $sortkey = 'incidentid';
    }
 
    $incidents = getOpenIncidents($sqlfilter);
    if (sizeof($incidents) == 0) {
-        return "<I>No incidents.</I>";
+        return '<I>'._('No incidents').'</I>';
    }
+
+   // Now produce the list header.
    $out = t(
-      "<form name=\"listform\" action=\"%url\" method=\"POST\">\n".
-      "<INPUT TYPE=\"hidden\" name=\"action\" value=\"massupdate\">\n".
-      "<table width=\"100%\">\n".
-      "<tr>\n".
-      "   <td><input type=\"checkbox\" %checked onChange=\"checkAll()\"></td>\n", 
-          array('%url'=>$_SERVER['PHP_SELF'],
-                '%checked'=>($toggle==1)?"CHECKED":""));
-   $out .= t("   <th>Incident ID\n");
+      '<form name="listform" action="%url" method="POST">'.LF.
+      '<INPUT TYPE="hidden" name="action" value="massupdate">'.LF.
+      '<table width="100%">'.LF.'<tr>'.LF,
+      array('%url'=>$_SERVER['PHP_SELF']));
+
+   // 'Select all' checkbox. No <th> but <td> for visual alignment reasons.
+   $out .= t(
+      '   <td><input type="checkbox" %checked onChange="checkAll()"></td>'.LF,
+      array('%url'=>$_SERVER['PHP_SELF'],
+            '%checked'=>($toggle==1)?"CHECKED":""));
+
+   // 'Incident ID' column header. Clickable if not the current sort key.
    if ($sortkey == 'incidentid') {
-      $out .=  "";
+      $out .= t('   <th>'._('Incident ID').'</th>'.LF);
    } else {
-      $out .= t("<a href=\"%url?sortkey=incidentid&filter[status]=%sf&filter[state]=%stf&page=%p\">*</a>", 
-         array('%url'=>$_SERVER['PHP_SELF'], '%sf'=>$filter['status'],
-         '%p'=>$page, '%stf'=>$filter['state']));
+      $out .= t('   <th><a href="%url?sortkey=incidentid&filter[status]=%sf'.
+                '&filter[state]=%stf&page=1">%heading</a></th>'.LF, 
+         array('%url'=>$_SERVER['PHP_SELF'],
+               '%sf'=>$filter['status'],
+               '%heading'=>_('Incident ID'),
+               '%stf'=>$filter['state']));
    }
-   $out .= t("</th>\n");
 
-   $out .= t("   <th>Consituency");
+   // 'Constituency' column header. Clickable if not the current sort key.
    if ($sortkey == 'constituency') {
-      $out .=  "";
+      $out .= t('   <th>'._('Constituency').'</th>'.LF);
    } else {
-      $out .= t("<a href=\"%url?sortkey=constituency&filter[status]=%sf&filter[state]=%stf&page=%p\">*</a>",
-         array('%url'=>$_SERVER['PHP_SELF'], '%sf'=>$filter['status'], '%stf'=>$filter['state'], '%p'=>$page));
+      $out .= t('   <th><a href="%url?sortkey=constituency&filter[status]=%sf'.
+                '&filter[state]=%stf&page=1">%heading</a></th>'.LF, 
+         array('%url'=>$_SERVER['PHP_SELF'],
+               '%sf'=>$filter['status'],
+               '%heading'=>_('Constituency'),
+               '%stf'=>$filter['state']));
    }
-   $out .= t("</th>\n");
 
-   $out .= t("   <th>Hostname");
+   // 'Hostname' column header. Clickable if not the current sort key.
    if ($sortkey == 'hostname') {
-      $out .=  "";
+      $out .= t('   <th>'._('Host name').'</th>'.LF);
    } else {
-      $out .= t("<a href=\"%url?sortkey=hostname&filter[status]=%sf&filter[state]=%stf&page=%p\">*</a>",
-         array('%url'=>$_SERVER['PHP_SELF'], '%sf'=>$filter['status'], '%stf'=>$filter['state'],
-         '%p'=>$page));
+      $out .= t('   <th><a href="%url?sortkey=hostname&filter[status]=%sf'.
+                '&filter[state]=%stf&page=1">%heading</a></th>'.LF, 
+         array('%url'=>$_SERVER['PHP_SELF'],
+               '%sf'=>$filter['status'],
+               '%heading'=>_('Host name'),
+               '%stf'=>$filter['state']));
    }
-   $out .= t("</th>\n");
 
-   $out .= t("   <th>Status");
+   // 'Status' column header. Clickable if not the current sort key.
    if ($sortkey == 'status') {
-      $out .=  "";
+      $out .= t('   <th>'._('Status').'</th>'.LF);
    } else {
-      $out .= t("<a href=\"%url?sortkey=status&filter[status]=%sf&filter[state]=%stf&page=%p\">*</a>", 
-         array('%url'=>$_SERVER['PHP_SELF'], '%sf'=>$filter['status'], '%stf'=>$filter['state'],
-         '%p'=>$page));
+      $out .= t('   <th><a href="%url?sortkey=status&filter[status]=%sf'.
+                '&filter[state]=%stf&page=1">%heading</a></th>'.LF, 
+         array('%url'=>$_SERVER['PHP_SELF'],
+               '%sf'=>$filter['status'],
+               '%heading'=>_('Status'),
+               '%stf'=>$filter['state']));
    }
-   $out .= t("</th>\n");
 
-   $out .= t("   <th>State");
+   // 'State' column header. Clickable if not the current sort key.
    if ($sortkey == 'state') {
-      $out .=  "";
+      $out .= t('   <th>'._('State').'</th>'.LF);
    } else {
-      $out .= t("<a href=\"%url?sortkey=state&filter[status]=%sf&filter[state]=%stf&page=%p\">*</a>", 
-         array('%url'=>$_SERVER['PHP_SELF'], '%sf'=>$filter['status'],
-         '%stf'=>$filter['state'], '%p'=>$page));
+      $out .= t('   <th><a href="%url?sortkey=state&filter[status]=%sf'.
+                '&filter[state]=%stf&page=1">%heading</a></th>'.LF, 
+         array('%url'=>$_SERVER['PHP_SELF'],
+               '%sf'=>$filter['status'],
+               '%heading'=>_('State'),
+               '%stf'=>$filter['state']));
    }
-   $out .= t("</th>\n");
 
-   $out .= t("   <th>Type");
+   // 'Type' column header. Clickable if not the current sort key.
    if ($sortkey == 'type') {
-      $out .=  "";
+      $out .= t('   <th>'._('Type').'</th>'.LF);
    } else {
-      $out .= t("<a href=\"%url?sortkey=type&filter[status]=%sf&filter[state]=%stfpage=%p\">*</a>", 
-         array('%url'=>$_SERVER['PHP_SELF'], '%sf'=>$filter['status'],
-         '%stf'=>$filter['state'], '%p'=>$page));
+      $out .= t('   <th><a href="%url?sortkey=type&filter[status]=%sf'.
+                '&filter[state]=%stf&page=1">%heading</a></th>'.LF, 
+         array('%url'=>$_SERVER['PHP_SELF'],
+               '%sf'=>$filter['status'],
+               '%heading'=>_('Type'),
+               '%stf'=>$filter['state']));
    }
-   $out .= t("</th>\n");
 
-   $out .= t("   <th>Last updated");
-   if ($sortkey == 'lastupdate') {
-      $out .=  "";
+   // 'Last updated' column header. Clickable if not the current sort key.
+   if ($sortkey == 'lastupdated') {
+      $out .= t('   <th>'._('Last updated').'</th>'.LF);
    } else {
-      $out .= t("<a href=\"%url?sortkey=lastupdate&filter[status]=%sf&filter[state]=%stf&page=%p\">*</a>", 
-         array('%url'=>$_SERVER['PHP_SELF'], '%sf'=>$filter['status'],
-         '%stf'=>$filter['state'], '%p'=>$page));
+      $out .= t('   <th><a href="%url?sortkey=lastupdated&filter[status]=%sf'.
+                '&filter[state]=%stf&page=1">%heading</a></th>'.LF, 
+         array('%url'=>$_SERVER['PHP_SELF'],
+               '%sf'=>$filter['status'],
+               '%heading'=>_('Last updated'),
+               '%stf'=>$filter['state']));
    }
-   $out .= t("</th>\n");
-   $out .= t("</tr>\n");
 
+   $out .= t('</tr>'.LF);
+
+   // Prepare to run over the list of incidents that need display.
    $count = 0;
    $conslist = getConstituencies();
    foreach ($incidents as $id=>$data) {
@@ -597,20 +641,20 @@ function formatListOverviewBody() {
       $addresses = getAddressesForIncident($id);
       $constituency = $conslist[$addresses[0]['constituency']]['label'];
 
-      $out .= t("<tr bgcolor=\"%color\">\n".
-         "   <td>\n".
-         "   <input type=\"checkbox\" name=\"massincidents[]\" %check value=\"%id\"></td>\n".
-         "   </td>\n".
-         "   <td>\n".
-         "   <a href=\"%url?action=details&incidentid=%id\">%incidentid</a>\n".
-         "   </td>\n".
-         "   <td>%constituency</td>\n".
-         "   <td>%hostline</td>\n".
-         "   <td>%status</td>\n".
-         "   <td>%state</td>\n".
-         "   <td>%type</td>\n".
-         "   <td>%updated</td>\n".
-         "</tr>", array(
+      $out .= t('<tr bgcolor="%color">'.LF.
+         '   <td>'.
+         '<input type="checkbox" name="massincidents[]" %check value="%id">'.
+         '</td>'.LF.
+         '   <td>'.
+         '<a href="%url?action=details&incidentid=%id">%incidentid</a>'.
+         '</td>'.LF.
+         '   <td>%constituency</td>'.LF.
+         '   <td>%hostline</td>'.LF.
+         '   <td>%status</td>'.LF.
+         '   <td>%state</td>'.LF.
+         '   <td>%type</td>'.LF.
+         '   <td>%updated</td>'.LF.
+         '</tr>'.LF, array(
             '%color'=> ($count++%2 == 1) ? '#FFFFFF' : '#DDDDDD',
             '%url' => $_SERVER['PHP_SELF'],
             '%id' => $id,
@@ -620,58 +664,74 @@ function formatListOverviewBody() {
             '%status' => $data['status'],
             '%state' => $data['state'],
             '%type' => $data['type'],
-            '%check' => ($toggle == 1) ? "CHECKED" : "",
+            '%check' => ($toggle == 1) ? 'CHECKED' : '',
             '%updated' => Date('d M Y', $data['updated'])));
    } // foreach
 
-   $out .= "</table><p>\n";
-   $out .= "<div align=\"center\">".
+   $out .= '</table><p>'.LF;
+   $out .= '<div align="center">'.
            formatPagerLine($page, sizeof($incidents)).
-           "</div>";
+           '</div>'.LF;
    return $out;
 } // formatQueueOverviewBody
 
 
+/* Returns a string which contains the incident overview list footer, two
+ * blocks of menus/buttons.
+ */
 function formatListOverviewFooter() {
-   $updatetable = t("<table>\n".
-      "<tr><td>New State</td><td>".
-      getIncidentStateSelection('massstate', 'null',
-         array('null'=>'Leave Unchanged')).
-      "</td></tr>\n".
-      "<tr><td>New Status</td><td>".
-      getIncidentStatusSelection('massstatus', 'null',
-         array('null'=>'Leave Unchanged')).
-      "</td></tr>\n".
-      "<tr><td>New Type</td><td>".
-      getIncidentTypeSelection('masstype', 'null',
-         array('null'=>'Leave Unchanged')).
-      "</td></tr>\n".
-      "<tr><td>&nbsp;</td><td>".
-      "<input type=\"submit\" value=\"Update All Selected\">".
-      "</td></tr>\n".
-      "</table>\n");
+   // A style expression for the vertical separation lines between the
+   // blocks.
+   $style = 'style="border-right-width:1px; border-right-style:solid; '.
+            'padding-left:10px; padding-right:10px"';
 
-   $actiontable = t("<table>\n".
-      "<tr>\n".
-      "<td>Bulk mail</td>\n".
-      "<td>".getMailTemplateSelection('template', 'null',
-         array('Do not send mail'=>''))."</td>\n".
-      "</tr>\n".
-      "<tr>\n".
-      "<td>&nbsp;</td>\n".
-      "<td><input type=\"submit\" name=\"action\" value=\"Apply\"></td>\n".
-      "</tr>\n".
-      "</table>\n");
+   $updatetable = t(
+      '<table>'.LF.
+      '<tr>'.LF.
+      '  <td>'._('New State').'</td>'.LF.
+      '  <td>'.getIncidentStateSelection('massstate', 'null',
+                          array('null'=>_('Leave Unchanged'))).'</td>'.LF.
+      '</tr>'.LF.
+      '<tr>'.LF.
+      '  <td>'._('New Status').'</td>'.LF.
+      '  <td>'.getIncidentStatusSelection('massstatus', 'null',
+                          array('null'=>_('Leave Unchanged'))).'</td>'.LF.
+      '</tr>'.LF.
+      '<tr>'.LF.
+      '  <td>'._('New Type').'</td>'.LF.
+      '  <td>'.getIncidentTypeSelection('masstype', 'null',
+                          array('null'=>_('Leave Unchanged'))).'</td>'.LF.
+      '</tr>'.LF.
+      '<tr>'.LF.
+      '  <td>&nbsp;</td>'.LF.
+      '  <td><input type="submit" value="'._('Update All Selected').'"></td>'.LF.
+      '</tr>'.LF.
+      '</table>'.LF);
 
-   $out = t("<table>\n".
-      "<tr valign=\"top\">\n".
-      "<td>%updatetable</td>\n".
-      "<td>%actiontable</td>\n".
-      "</tr>\n".
-      "</table>\n".
-      "</form>", array(
-      '%actiontable'=>$actiontable,
-      '%updatetable'=>$updatetable
+   $actiontable = t(
+      '<table>'.LF.
+      '<tr>'.LF.
+      '  <td>'._('Bulk mail').'</td>'.LF.
+      '  <td>'.getMailTemplateSelection('template', 'null',
+                   array(_('Do not send mail')=>'')).'</td>'.LF.
+      '</tr>'.LF.
+      '<tr>'.LF.
+      '  <td>&nbsp;</td>'.LF.
+      '  <td><input type="submit" name="action" value="'._('Prepare').'"></td>'.LF.
+      '</tr>'.LF.
+      '</table>'.LF);
+
+   $out = t(
+      '<table>'.LF.
+      '<tr valign="top">'.LF.
+      '  <td %style>%updatetable</td>'.LF.
+      '  <td style="padding-left:10px">%actiontable</td>'.LF.
+      '</tr>'.LF.
+      '</table>'.LF.
+      '</form>', array(
+         '%actiontable'=>$actiontable,
+         '%updatetable'=>$updatetable,
+         '%style'=>$style
       ));
    return $out;
 }
@@ -732,22 +792,26 @@ defaultTo($action,'list');
 switch ($action) {
 
   //--------------------------------------------------------------------
-  case "Apply":
-     if (array_key_exists('massincidents', $_REQUEST)) {
-        $massincidents = $_REQUEST['massincidents'];
-     } else {
-       break;
+  case _('Prepare'):
+     // Send bulk mail for the selected incidents.
+     $massincidents = fetchFrom('REQUEST','massincidents[]');
+     if (empty($massincidents)) {
+        // Nothing selected, show list again.
+        Header("Location: $_SERVER[PHP_SELF]");
+        break;
      }
      $agenda = implode(',', $massincidents);
 
-     if (array_key_exists('template', $_REQUEST)) {
-        if ($_REQUEST['template'] != 'Do not send mail') {
-           Header("Location: mailtemplates.php?action=prepare&template=$_REQUEST[template]&agenda=$agenda");
-           break;
-        }
+     $template = fetchFrom('REQUEST','template');
+     defaultTo($template,_('Do not send mail'));
+     if ($template==_('Do not send mail')) {
+        // No template selected, show list again.
+        Header("Location: $_SERVER[PHP_SELF]");
+        break;
      }
 
-     Header("Location: $_SERVER[PHP_SELF]");
+     Header("Location: mailtemplates.php?action=prepare&".
+               "template=$template&agenda=$agenda");
      break;
 
   //--------------------------------------------------------------------
