@@ -820,44 +820,46 @@ switch ($action) {
     $incidentid = fetchFrom('REQUEST','incidentid','%d');
     print updateCheckboxes();
 
-    /* prevent cross site scripting in incidentid */
+    /* Prevent cross site scripting in incidentid. */
     $norm_incidentid = normalize_incidentid($incidentid);
     $incidentid = decode_incidentid($norm_incidentid);
-
     if (!getIncident($incidentid)) {
-      pageHeader("Invalid incident");
-      printf("Requested incident ($norm_incidentid) does not exist.", $norm_incidentid);
+      pageHeader(_('Invalid incident'));
+      printf(_('Requested incident (%s) does not exist.'),
+             $norm_incidentid);
       pageFooter();
       exit;
     }
-    $_SESSION["incidentid"] = $incidentid;
+    $_SESSION['incidentid'] = $incidentid;
 
-    pageHeader("Incident details: $norm_incidentid");
+    pageHeader(_('Incident details: ').$norm_incidentid);
     $output = '<div class="externalids" width="100%">';
-    $output .= t('(<a href="%url?action=edit_extid&incidentid=%incidentid">Edit</a>) ', array(
-       '%url'=>$_SERVER["PHP_SELF"], '%incidentid'=>urlencode($incidentid)));
-    $output .= 'External identifiers: ';
+    $output .= t('(<a href="%url?action=edit_extid&'.
+                 'incidentid=%incidentid">'._('Edit').'</a>) ',
+            array(
+       '%url'=>$_SERVER['PHP_SELF'], '%incidentid'=>urlencode($incidentid)));
+    $output .= _('External identifiers').': ';
     $output .= implode(',', getExternalIncidentIDs($incidentid));
     $output .= '</div>';
     $output .= formatEditForm();
-    $output .= "<hr/>\n";
-    $output .= "<h3>History</h3>\n";
+    $output .= '<hr/>'.LF;
+    $output .= '<h3>'._('History').'</h3>'.LF;
 
-    generateEvent("historyshowpre", array("incidentid"=>$incidentid));
+    generateEvent('historyshowpre', array('incidentid'=>$incidentid));
     $output .= formatIncidentHistory($incidentid);
-    generateEvent("historyshowpost", array("incidentid"=>$incidentid));
+    generateEvent('historyshowpost', array('incidentid'=>$incidentid));
 
-    $output .= "<p/>\n";
-    $output .= "<form action=\"$_SERVER[PHP_SELF]\" method=\"post\">\n";
-    $output .= "<input type=\"hidden\" name=\"action\" value=\"addcomment\">\n";
-    $output .= "<table bgcolor=\"#DDDDDD\" border=\"0\" cellpadding=\"2\">\n";
-    $output .= "<tr>\n";
-    $output .= "  <td>New comment: </td>\n";
-    $output .= "  <td><input type=\"text\" size=\"45\" name=\"comment\"></td>\n";
-    $output .= "  <td><input type=\"submit\" value=\"Add\"></td>\n";
-    $output .= "</tr>\n";
-    $output .= "</table>\n";
-    $output .= "</form>\n";
+    $output .= '<p/>'.LF;
+    $output .= '<form action="'.$_SERVER['PHP_SELF'].'" method="post">'.LF;
+    $output .= '<input type="hidden" name="action" value="addcomment">'.LF;
+    $output .= '<table bgcolor="#DDDDDD" border=0 cellpadding=2>'.LF;
+    $output .= '<tr>'.LF;
+    $output .= '  <td>'._('New comment').': </td>'.LF;
+    $output .= '  <td><input type="text" size=45 name="comment"></td>'.LF;
+    $output .= '  <td><input type="submit" value="'._('Add').'"></td>'.LF;
+    $output .= '</tr>'.LF;
+    $output .= '</table>'.LF;
+    $output .= '</form>'.LF;
 
     print $output;
     break;
