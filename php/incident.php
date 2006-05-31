@@ -174,53 +174,54 @@ function formatIncidentForm(&$check) {
    return $output;
 } // show Incidentform
 
-/* return a formatted string representing an HTML form for editing incident
- * details 
+
+/* Return a formatted string representing an HTML form for editing incident
+ * details.
  */
 function formatEditForm() {
-   $incident = getincident($_SESSION["incidentid"]);
-   $type = $incident['type'];
-   $state = $incident['state'];
-   $status = $incident['status'];
+   $incident = getincident(fetchFrom('SESSION','incidentid'));
+   $type    = $incident['type'];
+   $state   = $incident['state'];
+   $status  = $incident['status'];
 	$logging = $incident['logging'];
 
-   if (array_key_exists("active_ip", $_SESSION)) {
-      $address = $_SESSION["active_ip"];
-   }
-   if (array_key_exists("constituency_id", $_SESSION)) {
-      $constituency = $_SESSION["constituency_id"];
-   }
+   $address = fetchFrom('SESSION','active_ip');
+   $constituency = fetchFrom('SESSION','constituency_id');
 
-   $output = "<form action=\"$_SERVER[PHP_SELF]\" method=\"post\">\n";
-   $output .= "<hr/>\n";
-   $output .= "<h3>Basic incident data</h3>\n";
+   $output = '<form action="'.$_SERVER['PHP_SELF'].'" method="post">'.LF;
+   $output .= '<hr/>'.LF;
+   $output .= '<h3>'._('Basic incident data').'</h3>'.LF;
    $output .= formatBasicIncidentData($type, $state, $status, $logging);
-   $output .= "<input type=\"submit\" name=\"action\" value=\"update\">\n";
-   $output .= "</form>";
+   $output .= '<input type="submit" name="action" value="update">'.LF;
+   $output .= '</form>'.LF;
 
-   $output .= "<hr/>\n";
-   $output .= "<h3>Affected IP addresses</h3>\n";
-   $output .= "<table cellpadding=\"4\">\n";
-   $output .= "<tr>";
-   $output .= "   <td>IP Address</td>";
-   $output .= "   <td>Hostname</td>";
-   $output .= "   <td>Constituency</td>";
-   $output .= "   <td>Role in incident</td>";
-   $output .= "   <td>Edit</td>";
-   $output .= "   <td>Remove</td>";
-   $output .= "</tr>";
+   $output .= '<hr/>'.LF;
+   $output .= '<h3>'._('Affected IP addresses').'</h3>'.LF;
+   $output .= '<table cellpadding=4>'.LF;
+   $output .= '<tr>'.LF;
+   $output .= '   <td>'._('IP Address').'</td>'.LF;
+   $output .= '   <td>'._('Hostname').'</td>'.LF;
+   $output .= '   <td>'._('Constituency').'</td>'.LF;
+   $output .= '   <td>'._('Role in incident').'</td>'.LF;
+   $output .= '   <td>'._('Edit').'</td>'.LF;
+   $output .= '   <td>'._('Remove').'</td>'.LF;
+   $output .= '</tr>'.LF;
    $conslist = getConstituencies();
 
    foreach ($incident['ips'] as $address) {
-      $output .= "<tr>\n";
-      $output .= sprintf("  <td><a href=\"search.php?action=search&q=%s\">%s</a></td>\n",
-         urlencode($address['ip']), $address['ip']);
+      $output .= '<tr>'.LF;
+      $output .= sprintf(
+        '  <td><a href="search.php?action=search&q=%s">%s</a></td>'.LF,
+         urlencode($address['ip']),
+         $address['ip']);
       $_SESSION['active_ip'] = $address['ip'];
-      $output .= sprintf("  <td>%s</td>\n",
-         $address['hostname']==""?"Unknown":@gethostbyaddr(@gethostbyname($address['ip'])));
+      $output .= sprintf(
+        '  <td>%s</td>'.LF,
+         $address['hostname']==''?_('Unknown'):
+                            @gethostbyaddr(@gethostbyname($address['ip'])));
 
       $cons = getConstituencyIDbyNetworkID(categorize($address['ip']));
-
+# HERE
       $output .= sprintf("  <td>%s</td>\n", $conslist[$cons]['label']);
       $output .= t("  <td>%addressrole</td>\n", array(
          '%addressrole'=>getAddressRoleByID($address['addressrole'])));
