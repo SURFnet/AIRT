@@ -118,58 +118,57 @@ function formatIncidentBulkForm(&$check) {
 
 
 function formatIncidentForm(&$check) {
-   $constituency = $name = $email = $type = $state = $status = $addressrole = "";
+   $constituency = $name = $email = $type = $state = $status 
+     = $addressrole = '';
 
-   if (array_key_exists("active_ip", $_SESSION)) {
-      $address = $_SESSION["active_ip"];
-   } else {
-      $address = "";
-   }
-   if (array_key_exists("constituency_id", $_SESSION)) {
-      $constituency = $_SESSION["constituency_id"];
-   }
-   if (array_key_exists("current_email", $_SESSION)) {
-      $email = $_SESSION["current_email"];
-   }
+   $address      = fetchFrom('SESSION','active_ip');
+   $constituency = fetchFrom('SESSION','constituency_id');
+   $email        = fetchFrom('SESSION','current_email');
 
-   if (defined('CUSTOM_FUNCTIONS') && function_exists('custom_default_addressrole')) {
+   if (defined('CUSTOM_FUNCTIONS') &&
+             function_exists('custom_default_addressrole')) {
       $addressrole = custom_default_addressrole($address);
    }
+
    $output =  formatBasicIncidentData($type, $state, $status);
-   $output .= "<hr/>\n";
-   $output .= "<h3>affected ip addresses</h3>\n";
-   $output .= "<table cellpadding=\"4\">\n";
-   $output .= "<tr>\n";
-   $output .= "  <td>hostname or ip address</td>\n";
-   $output .= t("  <td><input type=\"text\" size=\"30\" name=\"address\" value=\"%address\">%addressrole</td>\n", array(
+   $output .= '<hr/>'.LF;
+   $output .= '<h3>'._('Affected IP addresses').'</h3>'.LF;
+   $output .= '<table cellpadding=4>'.LF;
+   $output .= '<tr>'.LF;
+   $output .= '  <td>'._('Hostname or IP address').'</td>'.LF;
+   $output .= t('  <td><input type="text" size=30 name="address" '.
+                'value="%address">%addressrole</td>'.LF, array(
       '%address'=>$address,
       '%addressrole'=>getAddressRolesSelection('addressrole', $addressrole)
    ));
-   $output .= "</tr>\n";
-   $output .= "<tr>\n";
-   $output .= "  <td>constituency</td>\n";
-   $output .= "  <td>".getConstituencySelection("constituency", $constituency)."</td>\n";
-   $output .= "</tr>\n";
-   $output .= "</table>\n";
+   $output .= '</tr>'.LF;
+   $output .= '<tr>'.LF;
+   $output .= '  <td>'._('Constituency').'</td>'.LF;
+   $output .= '  <td>'.getConstituencySelection('constituency',
+       $constituency).'</td>'.LF;
+   $output .= '</tr>'.LF;
+   $output .= '</table>'.LF;
  
-   $output .= "<hr/>\n";
-   $output .= "<h3>affected users</h3>\n";
-   $output .= "<table bgcolor=\"#dddddd\" cellpadding=\"2\" border=\"0\">";
-   $output .= "<tr>\n";
-   $output .= "  <td>email address of user:</td>\n";
-   $output .= "  <td><input onChange=\"updateCheckboxes()\" type=\"text\" size=\"40\" name=\"email\" value=\"$email\"></td>\n";
-   $output .= "  <td><a href=\"help.php?topic=incident-adduser\">help</td>\n";
-   $output .= "</tr>\n";
-   $output .= "</table>\n";
+   $output .= '<hr/>'.LF;
+   $output .= '<h3>'._('Affected users').'</h3>'.LF;
+   $output .= '<table bgcolor="#dddddd" cellpadding=2 border=0>'.LF;
+   $output .= '<tr>'.LF;
+   $output .= '  <td>'._('E-mail address of user').':</td>'.LF;
+   $output .= '  <td><input onChange="updateCheckboxes()" type="text" '.
+              'size=40 name="email" value="'.$email.'"></td>'.LF;
+   $output .= '  <td><a href="help.php?topic=incident-adduser">'.
+              _('help').'</td>'.LF;
+   $output .= '</tr>'.LF;
+   $output .= '</table>'.LF;
 
    if ($email != '') {
       $check = true;
    }
-   $output .= t("<input type=\"checkbox\" name=\"addifmissing\" %checked>",
+   $output .= t('<input type="checkbox" name="addifmissing" %checked>'.LF,
       array('%checked'=>($check == false) ? '' : 'checked'));
-   $output .= "  if checked, create user if email address unknown\n";
+   $output .= '  '._('If checked, create user if email address unknown').LF;
 
-   $output .= "<p/>\n";
+   $output .= '<p/>'.LF;
 
    return $output;
 } // show Incidentform
@@ -188,6 +187,7 @@ function formatEditForm() {
    $address = fetchFrom('SESSION','active_ip');
    $constituency = fetchFrom('SESSION','constituency_id');
 
+   // Basic incident data block.
    $output = '<form action="'.$_SERVER['PHP_SELF'].'" method="post">'.LF;
    $output .= '<hr/>'.LF;
    $output .= '<h3>'._('Basic incident data').'</h3>'.LF;
@@ -195,6 +195,7 @@ function formatEditForm() {
    $output .= '<input type="submit" name="action" value="update">'.LF;
    $output .= '</form>'.LF;
 
+   // Affected IP addresses block. First the header part.
    $output .= '<hr/>'.LF;
    $output .= '<h3>'._('Affected IP addresses').'</h3>'.LF;
    $output .= '<table cellpadding=4>'.LF;
@@ -207,7 +208,7 @@ function formatEditForm() {
    $output .= '   <td>'._('Remove').'</td>'.LF;
    $output .= '</tr>'.LF;
    $conslist = getConstituencies();
-
+   // Then the IP address list.
    foreach ($incident['ips'] as $address) {
       $output .= '<tr>'.LF;
       $output .= sprintf(
@@ -216,49 +217,53 @@ function formatEditForm() {
          $address['ip']);
       $_SESSION['active_ip'] = $address['ip'];
       $output .= sprintf(
-        '  <td>%s</td>'.LF,
+         '  <td>%s</td>'.LF,
          $address['hostname']==''?_('Unknown'):
-                            @gethostbyaddr(@gethostbyname($address['ip'])));
-
+                       @gethostbyaddr(@gethostbyname($address['ip'])));
       $cons = getConstituencyIDbyNetworkID(categorize($address['ip']));
-# HERE
-      $output .= sprintf("  <td>%s</td>\n", $conslist[$cons]['label']);
-      $output .= t("  <td>%addressrole</td>\n", array(
-         '%addressrole'=>getAddressRoleByID($address['addressrole'])));
-      $output .= sprintf("  <td><a href=\"$_SERVER[PHP_SELF]?action=editip&ip=%s\">edit</a></td>\n",
+      $output .= sprintf('  <td>%s</td>'.LF, $conslist[$cons]['label']);
+      $output .= t('  <td>%addressrole</td>'.LF,
+         array(
+            '%addressrole'=>getAddressRoleByID($address['addressrole'])));
+      $output .= sprintf('  <td><a href="'.$_SERVER['PHP_SELF'].
+                         '?action=editip&ip=%s">'._('edit').'</a></td>'.LF,
          urlencode($address['ip']));
-      $output .= t("  <td><a href=\"$_SERVER[PHP_SELF]?action=deleteip&ip=%ip&addressrole=%addressrole\">remove</a></td>\n", array(
-         '%ip'=>urlencode($address['ip']),
-         '%addressrole'=>urlencode($address['addressrole'])));
-      $output .= "</tr>\n";
+      $output .= t('  <td><a href="'.$_SERVER['PHP_SELF'].
+                   '?action=deleteip&ip=%ip&addressrole=%addressrole">'.
+                   _('remove').'</a></td>'.LF,
+         array(
+            '%ip'=>urlencode($address['ip']),
+            '%addressrole'=>urlencode($address['addressrole'])));
+      $output .= '</tr>'.LF;
    }
-   $output .= "</table>\n";
-   $output .= "<p/>";
-   $output .= "<form action=\"$_SERVER[PHP_SELF]\" method=\"POST\">\n";
-   $output .= "<input type=\"hidden\" name=\"action\" value=\"addip\">\n";
-   $output .= "<table bgColor=\"#DDDDDD\" cellpadding=\"2\">\n";
-   $output .= "<tr>\n";
-   $output .= "  <td>IP Address</td>\n";
-   $output .= "  <td><input type=\"text\" name=\"ip\" size=\"40\"></td>\n";
+   $output .= '</table>'.LF;
+   // And lastly, the IP address footer.
+   $output .= '<p/>'.LF;
+   $output .= '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">'.LF;
+   $output .= '<input type="hidden" name="action" value="addip">'.LF;
+   $output .= '<table bgColor="#DDDDDD" cellpadding=2>'.LF;
+   $output .= '<tr>'.LF;
+   $output .= '  <td>'._('IP Address').'</td>'.LF;
+   $output .= '  <td><input type="text" name="ip" size=40></td>'.LF;
    $output .= t('<td>%addressrole</td>', array(
       '%addressrole' => getAddressRolesSelection('addressrole')
    ));
-   $output .= "  <td><input type=\"submit\" value=\"Add\"></td>\n";
-   $output .= "</tr>\n";
-   $output .= "</table>\n";
-   $output .= "</form>\n";
+   $output .= '  <td><input type="submit" value="'._('Add').'"></td>'.LF;
+   $output .= '</tr>'.LF;
+   $output .= '</table>'.LF;
+   $output .= '</form>'.LF;
 
-   $output .= "<hr/>\n";
-   $output .= "<h3>Affected users</h3>\n";
-   $output .= '<form>';
+   // Affected users block.
+   $output .= '<hr/>'.LF;
+   $output .= '<h3>'._('Affected users').'</h3>'.LF;
+   $output .= '<form>'.LF;
    $output .= t('<input type="hidden" name="incidentid" value="%incidentid">',
       array('%incidentid'=>$incident['incidentid']));
-   $output .= "<table cellpadding=\"4\">\n";
-
+   $output .= '<table cellpadding=4>'.LF;
    // re-initialise active users
    $_SESSION['current_name'] = '';
    $_SESSION['current_email'] = '';
-   foreach ($incident["users"] as $user) {
+   foreach ($incident['users'] as $user) {
       $u = getUserByUserId($user);
       if ($_SESSION['current_email'] == '') {
          $_SESSION['current_email'] = $u['email'];
@@ -275,50 +280,45 @@ function formatEditForm() {
       } else {
          $_SESSION['current_name'] .= ','.$name;
       }
-      $output .= t('<tr >'."\n");
+      $output .= t('<tr >'.LF);
       $output .= t('  <td><input type="checkbox" name="agenda[]" value="%userid"></td>', array('%userid'=>$user));
-      $output .= t('  <td>%email</td>', array('%email'=>$u['email']))."\n";
-      $output .= "</tr>\n";
+      $output .= t('  <td>%email</td>', array('%email'=>$u['email'])).LF;
+      $output .= '</tr>'.LF;
    }
-   $output .= "</table>\n";
-   $output .= '<input type="submit" name="action" value="Mail">';
-   $output .= '<input type="submit" name="action" value="Remove">';
-   $output .= '</form>';
-   $output .= "<p/>\n";
-   if (array_key_exists("current_userid", $_SESSION)) {
-      $userid = $_SESSION["current_userid"];
-      $u = getUserByUserID($userid);
+   $output .= '</table>'.LF;
+   $output .= '<input type="submit" name="action" value="Mail">'.LF;
+   $output .= '<input type="submit" name="action" value="Remove">'.LF;
+   $output .= '</form>'.LF;
+   $output .= '<p/>'.LF;
+   // Affected user list footer. First get som data.
+   $userid = fetchFrom('SESSION','current_userid');
+   if ($userid!='') {
+      $u = getUserByUserID($userid);    // Cannot cope with empty userids.
       if (sizeof($u) > 0) {
-         $lastname = $u[0]["lastname"];
-         $email = $u[0]["email"];
-      } else {
-        $userid = "";
+         $lastname = $u[0]['lastname'];
+         $email = $u[0]['email'];
       }
-   } else {
-     $userid = "";
    }
-   if (array_key_exists('current_email', $_SESSION)) {
-      $email = $_SESSION['current_email'];
-   } else {
-     $email='';
-   }
-
-   $output .= "<form name=\"jsform\" action=\"$_SERVER[PHP_SELF]\" method=\"POST\">\n";
-   $output .= "  <input type=\"hidden\" name=\"action\" value=\"adduser\">\n";
-   $output .= "  <table bgColor=\"#DDDDDD\" cellpadding=\"2\" border=\"0\">\n";
-   $output .= "  <tr>\n";
-   $output .= "    <td>Email address of user:</td>\n";
-   $output .= "    <td><input onChange=\"updateCheckboxes()\" type=\"text\" size=\"40\" name=\"email\" value=\"$email\"></td>\n";
-   $output .= "    <td><input type=\"submit\" value=\"Add\"></td>\n";
-   $output .= "    <td><a href=\"help.php?topic=incident-adduser\">help</td>\n";
-   $output .= "  </tr>\n";
-   $output .= "  </table>\n";
+   $email = fetchFrom('SESSION','current_email');
+   // Then build the form.
+   $output .= '<form name="jsform" action="'.$_SERVER['PHP_SELF'].
+              ' method="POST">'.LF;
+   $output .= '  <input type="hidden" name="action" value="adduser">'.LF;
+   $output .= '  <table bgColor="#DDDDDD" cellpadding=2 border=0>'.LF;
+   $output .= '  <tr>'.LF;
+   $output .= '    <td>'._('Email address of user').':</td>'.LF;
+   $output .= '    <td><input onChange="updateCheckboxes()" type="text" '.
+              'size=40 name="email" value="'.$email.'"></td>'.LF;
+   $output .= '    <td><input type="submit" value="'._('Add').'"></td>'.LF;
+   $output .= '    <td><a href="help.php?topic=incident-adduser">'.
+              _('help').'</td>'.LF;
+   $output .= '  </tr>'.LF;
+   $output .= '  </table>'.LF;
    $output .= t('  <input onChange="updateCheckboxes()" type="checkbox" name="addifmissing" %checked>', array(
-      '%checked'=>($email=='')?'':'CHECKED'))."\n";
-   $output .= "  If checked, create user if email address unknown\n";
-
-   $output .= "<hr/>\n";
-   $output .= "</form>\n";
+      '%checked'=>($email=='')?'':'CHECKED')).LF;
+   $output .= '  '._('If checked, create user if email address unknown').LF;
+   $output .= '<hr/>'.LF;
+   $output .= '</form>'.LF;
 
    return $output;
 } // formatEditForm
@@ -845,7 +845,6 @@ switch ($action) {
     $output .= formatEditForm();
     $output .= '<hr/>'.LF;
     $output .= '<h3>'._('History').'</h3>'.LF;
-
     generateEvent('historyshowpre', array('incidentid'=>$incidentid));
     $output .= formatIncidentHistory($incidentid);
     generateEvent('historyshowpost', array('incidentid'=>$incidentid));
@@ -868,18 +867,19 @@ switch ($action) {
     //---------------------------------------------------------------
     case _('Create New Incident'):
     case 'new':
-      PageHeader("New Incident");
+      PageHeader(_('New Incident'));
       $check = false;
       $output = updateCheckboxes();
-      $output .= "<form name=\"jsform\" action=\"$_SERVER[PHP_SELF]\" method=\"POST\">\n";
+      $output .= '<form name="jsform" action="'.$_SERVER['PHP_SELF'].
+                 '" method="POST">'.LF;
 
       $output .= formatIncidentForm($check);
 
-      $output .= "<input type=\"submit\" name=\"action\" value=\"Add\">\n";
-      $output .= t("<input type=\"checkbox\" name=\"sendmail\" %checked>\n",
+      $output .= '<input type="submit" name="action" value="'._('Add').'">'.LF;
+      $output .= t('<input type="checkbox" name="sendmail" %checked>'.LF,
          array('%checked'=>($check==false)?'':'CHECKED'));
-      $output .= "Check to prepare mail.\n";
-      $output .= "</form>\n";
+      $output .= _('Check to prepare mail.').LF;
+      $output .= '</form>'.LF;
       print $output;
       break;
     //--------------------------------------------------------------------
