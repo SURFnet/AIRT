@@ -821,7 +821,6 @@ switch ($action) {
     $incidentid = fetchFrom('REQUEST','incidentid');
     if ($incidentid=='') {
        airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
-       airt_error('PARAM_MISSING', __FILE__.':'.__LINE__);
        reload();
     }
 
@@ -1034,20 +1033,19 @@ _('Continue').'...</a>'.LF,
       $incidentid = fetchFrom('SESSION','incidentid');
       if ($incidentid=='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
-         airt_error('PARAM_MISSING', __FILE__.':'.__LINE__);
          reload();
       }
 
       $ip = fetchFrom('POST','ip');
       if ($ip=='') {
-         airt_error('PARAM_MISSING', __FILE__.':'.__LINE__);
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
       $ip = gethostbyname($ip);
 
       $addressrole = fetchFrom('POST','addressrole');
       if ($addressrole=='') {
-         airt_error('PARAM_MISSING', __FILE__.':'.__LINE__);
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
 
@@ -1076,13 +1074,13 @@ _('Continue').'...</a>'.LF,
    case 'editip':
       $incidentid = fetchFrom('SESSION','incidentid');
       if ($incidentid=='') {
-         airt_error('PARAM_MISSING', __FILE__.':'.__LINE__);
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
 
       $ip = fetchFrom('REQUEST','ip');
       if ($ip=='') {
-         airt_error('PARAM_MISSING', __FILE__.':'.__LINE__);
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
 
@@ -1095,33 +1093,32 @@ _('Continue').'...</a>'.LF,
    case 'updateip':
       $id = fetchFrom('POST','id');
       if ($id=='') {
-         airt_error('PARAM_MISSING', __FILE__.':'.__LINE__);
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
 
       $constituency = fetchFrom('POST','constituency');
       if ($constituency=='') {
-         airt_error('PARAM_MISSING', __FILE__.':'.__LINE__);
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
 
       $ip = fetchFrom('POST','ip');
       if ($ip=='') {
-         airt_error('PARAM_MISSING', __FILE__.':'.__LINE__);
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
 
       $incidentid = fetchFrom('POST','incidentid');
       if ($incidentid=='') {
-         airt_error('PARAM_MISSING', __FILE__.':'.__LINE__);
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
-# HERE
-      if (array_key_exists('addressrole', $_POST)) {
-         $addressrole = $_POST['addressrole'];
-      } else {
+
+      $addressrole = fetchFrom('POST','addressrole');
+      if ($addressrole=='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
-         return;
+         reload();
       }
 
       // Update the IP details.
@@ -1136,7 +1133,7 @@ _('Continue').'...</a>'.LF,
 
       // Generate comment and event.
       addIncidentComment(t(
-         _('Details of IP address %ip updated; const=%const, addressrole=%role'),
+  _('Details of IP address %ip updated; const=%const, addressrole=%role'),
          array(
            '%ip'=>$ip,
            '%const'=>$constLabel,
@@ -1149,33 +1146,28 @@ _('Continue').'...</a>'.LF,
          'addressrole' => $addressrole
       ));
 
-      header(sprintf('Location: %s?action=details&incidentid=%s',
+      reload(sprintf('%s?action=details&incidentid=%s',
          $_SERVER['PHP_SELF'],
          urlencode($incidentid)));
-      break;
 
     //--------------------------------------------------------------------
    case 'deleteip':
-      if (array_key_exists('incidentid', $_SESSION)) {
-         $incidentid = $_SESSION['incidentid'];
-      } else {
+      $incidentid = fetchFrom('SESSION','incidentid');
+      if ($incidentid=='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
-         Header('Location: '.$_SERVER['PHP_SELF']);
-         return;
+         reload();
       }
-      if (array_key_exists('ip', $_GET)) {
-         $ip = $_GET['ip'];
-      } else {
+
+      $ip = fetchFrom('GET','ip');
+      if ($ip=='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
-         Header('Location: '.$_SERVER['PHP_SELF']);
-         return;
+         reload();
       }
-      if (array_key_exists('addressrole', $_GET)) {
-         $addressrole = $_GET['addressrole'];
-      } else {
+
+      $addressrole = fetchFrom('GET','addressrole');
+      if ($addressrole=='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
-         Header('Location: '.$_SERVER['PHP_SELF']);
-         return;
+         reload();
       }
 
       removeIpFromIncident($ip, $incidentid, $addressrole);
@@ -1191,32 +1183,32 @@ _('Continue').'...</a>'.LF,
          'ip'         => $ip,
          'addressrole'=> $addressrole
       ));
-      header(sprintf('Location: %s?action=details&incidentid=%s',
+      reload(sprintf('%s?action=details&incidentid=%s',
          $_SERVER['PHP_SELF'],
          urlencode($incidentid)));
       break;
 
     //--------------------------------------------------------------------
    case 'adduser':
-      if (array_key_exists('email', $_REQUEST)) {
-         $email = validate_input($_REQUEST['email']);
-      } else {
-         die(_('Missing information').' (1).');
+      $email = fetchFrom('REQUEST','email');
+      if ($email=='') {
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
+         reload();
       }
-      if (array_key_exists("addifmissing", $_REQUEST)) {
-         $add = validate_input($_REQUEST["addifmissing"]);
-      } else {
-         $add = 'off';
-      }
-      $incidentid = $_SESSION["incidentid"];
-      if ($incidentid == '') {
-         die(_('Missing information').' (2).');
+
+      $add = fetchFrom('REQUEST','addifmissing');
+      defaultTo($add,'off');
+
+      $incidentid = fetchFrom('SESSION','incidentid');
+      if ($incidentid=='') {
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
+         reload();
       }
 
       $id = getUserByEmail($email);
       if (!$id) {
          if ($add == 'on') {
-            addUser(array("email"=>$email));
+            addUser(array('email'=>$email));
             $id = getUserByEmail($email);
          } else {
             printf(_('Unknown email address. User not added.'));
@@ -1229,87 +1221,88 @@ _('Continue').'...</a>'.LF,
       addIncidentComment(sprintf(_('User %s added to incident.'),
                                  $user['email']));
 
-      Header(sprintf("Location: %s?action=details&incidentid=%s",
+      reload(sprintf('%s?action=details&incidentid=%s',
          $_SERVER['PHP_SELF'],
          urlencode($incidentid)));
 
       break;
    //--------------------------------------------------------------------
    case 'deluser':
-      if (array_key_exists("incidentid", $_SESSION)) {
-         $incidentid = $_SESSION["incidentid"];
-      } else {
-         die(_('Missing information').' (1).');
+      $incidentid = fetchFrom('SESSION','incidentid');
+      if ($incidentid=='') {
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
+         reload();
       }
-      if (array_key_exists("userid", $_GET)) {
-         $userid = $_GET["userid"];
-      } else {
-         die(_('Missing information').' (2).');
+
+      $userid = fetchFrom('GET','userid');
+      if ($userid=='') {
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
+         reload();
       }
 
       removeUserFromIncident($userid, $incidentid);
       $user = getUserByUserID($userid);
       addIncidentComment(sprintf(_('User %s removed from incident.'), 
-         $user["email"]));
+         $user['email']));
 
-      header(sprintf('Location: %s?action=details&incidentid=%s',
+      reload(sprintf('%s?action=details&incidentid=%s',
          $_SERVER['PHP_SELF'],
          urlencode($incidentid)));
       break;
 
    //--------------------------------------------------------------------
    case 'addcomment':
-      if (array_key_exists("comment", $_REQUEST)) {
-         $comment = $_REQUEST["comment"];
-      } else {
-         die (_('Missing information').'.');
+      $comment = fetchFrom('REQUEST','comment');
+      if ($comment=='') {
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
+         reload();
       }
 
       addIncidentComment($comment);
-      generateEvent("incidentcommentadd", array(
-         "comment"=>$comment,
-         "incidentid"=>$_SESSION['incidentid']
+      generateEvent('incidentcommentadd', array(
+         'comment'=>$comment,
+         'incidentid'=>$_SESSION['incidentid']
       ));
 
-      Header(sprintf('Location: %s?action=details&incidentid=%s',
-        $_SERVER[PHP_SELF],
+      reload(sprintf('%s?action=details&incidentid=%s',
+        $_SERVER['PHP_SELF'],
         $_SESSION['incidentid']));
       break;
 
     //--------------------------------------------------------------------
    case 'Update':
    case 'update':
-      if (array_key_exists("incidentid", $_SESSION)) {
-         $incidentid = $_SESSION["incidentid"];
-      } else {
-         die(_('Missing information').'.');
-      }
-      if (array_key_exists("state", $_POST)) {
-         $state = $_POST["state"];
-      } else {
-         die(_('Missing information').' (2).');
-      }
-      if (array_key_exists("status", $_POST)) {
-         $status = $_POST["status"];
-      } else {
-         die(_('Missing information').' (3).');
-      }
-      if (array_key_exists("type", $_POST)) {
-         $type = $_POST["type"];
-      } else {
-         die(_('Missing information').' (4).');
-      }
-      if (array_key_exists("logging", $_POST)) {
-         $logging = trim($_POST["logging"]);
-      } else {
-         die(_('Missing information').' (5).');
+      $incidentid = fetchFrom('SESSION','incidentid');
+      if ($incidentid=='') {
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
+         reload();
       }
 
-      generateEvent("incidentupdate", array(
-         "incidentid" => $incidentid,
-         "state" => $state,
-         "status" => $status,
-         "type" => $type
+      $state = fetchFrom('POST','state');
+      if ($state=='') {
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
+         reload();
+      }
+
+      $status = fetchFrom('POST','status');
+      if ($status=='') {
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
+         reload();
+      }
+
+      $type = fetchFrom('POST','type');
+      if ($type=='') {
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
+         reload();
+      }
+
+      $logging = trim(fetchFrom('POST','logging'));
+
+      generateEvent('incidentupdate', array(
+         'incidentid' => $incidentid,
+         'state' => $state,
+         'status' => $status,
+         'type' => $type
       ));
 
       updateIncident($incidentid,$state,$status,$type,$logging);
@@ -1320,9 +1313,10 @@ _('Continue').'...</a>'.LF,
          getIncidentStatusLabelByID($status),
          getIncidentTypeLabelByID($type)));
 
-      Header("Location: $_SERVER[PHP_SELF]");
+      reload();
       break;
 
+# HERE
     //--------------------------------------------------------------------
    case 'showstates':
       generateEvent('pageHeader',
