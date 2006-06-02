@@ -327,6 +327,7 @@ function formatEditForm() {
 /* format the filter block in the page header */
 function formatFilterBlock() {
    $filter = fetchFrom('REQUEST','filter[]');
+# TODO These defaults need to come from the database.
    defaultTo($filter, array('state'=>-1, 'status'=>-1));
 
    $out = t(
@@ -426,17 +427,17 @@ function formatPagerLine($page, $numincidents, $pagesize=PAGESIZE) {
       return '';
    }
 
-   $urlprefix = "&sortkey=$sortkey".
-                "&filter[status]=".$filter['status'].
-                "&filter[state]=".$filter['state'];
+   $urlprefix = '&sortkey='.$sortkey.
+                '&filter[status]='.$filter['status'].
+                '&filter[state]='.$filter['state'];
    $out = '';
    $numpages = (int) ceil($numincidents / $pagesize);
 
    if ($page == 1) {
       $out .= '<strong>'._('Previous').'</strong>&nbsp;';
    } else {
-      $out .= t("<a href=\"%url?page=%prev%urlprefix\">".
-                 _('Previous')."</a>&nbsp;",
+      $out .= t('<a href="%url?page=%prev%urlprefix">'.
+                 _('Previous').'</a>&nbsp;',
                 array(
          '%urlprefix'=>$urlprefix,
          '%url'=>$_SERVER['PHP_SELF'],
@@ -446,8 +447,9 @@ function formatPagerLine($page, $numincidents, $pagesize=PAGESIZE) {
       if ($i == $page) {
          $out .= "<strong>$i</strong>&nbsp;";
       } else {
-         $out .= t("<a href=\"%url?page=$i%urlprefix\">$i</a>&nbsp;",
+         $out .= t('<a href="%url?page=%i%urlprefix">'.$i.'</a>&nbsp;',
                  array(
+                   '%i'=>$i,
                    '%urlprefix'=>$urlprefix,
                    '%url' => $_SERVER['PHP_SELF']));
       }
@@ -455,7 +457,7 @@ function formatPagerLine($page, $numincidents, $pagesize=PAGESIZE) {
    if ($page == $numpages) {
       $out .= '<strong>'._('Next').'</strong>&nbsp;';
    } else {
-      $out .= t("<a href=\"%url?page=%next%urlprefix\">"._('Next')."</a>&nbsp;",
+      $out .= t('<a href="%url?page=%next%urlprefix">'._('Next').'</a>&nbsp;',
               array(
                '%urlprefix'=>$urlprefix,
                '%url'=>$_SERVER['PHP_SELF'],
@@ -942,87 +944,66 @@ switch ($action) {
 
     //---------------------------------------------------------------------
     case "Add":
+      // Create a new incident from edit form.
       $address = $constituency = $type = $state = $status = $email =
-		$addressrole = $logging = '';
+		  $addressrole = $logging = '';
       $addifmissing = $sendmail = 'off';
 
-      if (array_key_exists("addressrole", $_POST)) {
-         $addressrole=$_POST["addressrole"];
-      }
-      if (array_key_exists("address", $_POST)) {
-        $address=$_POST["address"];
-      }
-      // make sure we have an IP address here
+      $addressrole  = fetchFrom('POST','addressrole');
+      $address      = fetchFrom('POST','address');
       $address = @gethostbyname($address);
-      if (array_key_exists("constituency", $_POST)) {
-        $constituency=$_POST["constituency"];
+      $constituency = fetchFrom('POST','constituency');
+      $type         = fetchFrom('POST','type');
+      $state        = fetchFrom('POST','state');
+      $status       = fetchFrom('POST','status');
+      $sendmail     = fetchFrom('POST','sendmail');
+      $email        = fetchFrom('POST','email');
+      if ($email!='') {
+# NOTE: this may be a list of addresss; looks not good.
+         $_SESSION['current_email'] = trim(strtolower($email));
       }
-      if (array_key_exists("type", $_POST)) {
-        $type=$_POST["type"];
-      }
-      if (array_key_exists("state", $_POST)) {
-        $state=$_POST["state"];
-      }
-      if (array_key_exists("status", $_POST)) {
-        $status=$_POST["status"];
-      }
-      if (array_key_exists("sendmail", $_POST)) {
-        $sendmail=$_POST["sendmail"];
-      }
-      if (array_key_exists("email", $_POST)) {
-         $email=trim(strtolower($_POST["email"]));
-         $_SESSION['current_email'] = $email;
-      }
-      if (array_key_exists("addifmissing", $_POST)) {
-         $addif=$_POST["addifmissing"];
-      }
-      if (array_key_exists("logging", $_POST)) {
-         $logging=trim($_POST["logging"]);
-      }
+      $addif        = fetchFrom('POST','addifmissing');
+      $logging      = fetchFrom('POST','logging');
 
       $incidentid   = createIncident($state,$status,$type,$logging);
       addIPtoIncident($address,$incidentid,$addressrole);
 
-      if ($email != "") {
+      if ($email != '') {
          foreach (explode(',', $email) as $addr) {
             $addr = trim($addr);
             $user = getUserByEmail($addr);
             if (!$user) {
-               if ($addif == "on") {
-                  addUser(array("email"=>$addr));
+               if ($addif == 'on') {
+                  addUser(array('email'=>$addr));
                   $user = getUserByEmail($addr);
-                  addUserToIncident($user["id"], $incidentid);
+                  addUserToIncident($user['id'], $incidentid);
                } else {
-                  pageHeader("Unable to add user to incident.");
-                  echo <<<EOF
-<p>The e-mail address specified in the incident data entry form is unknown
-and you chose not to add it to the database.</p>
-
-<p>The incident has been created, however no users have been associated with
-it.</p>
-
-<p><a href="$_SERVER[PHP_SELF]">Continue...</a>
-EOF;
+                  pageHeader(_('Unable to add user to incident.'));
+                  printf('<p>'.LF.
+_('The e-mail address specified in the incident data entry form (%s) is unknown
+to AIRT and you chose not to add it to the database.').'</p>'.LF.'<p>'.
+_('The incident has been created, however no users have been associated with
+it.').'</p>'.LF.'<p><a href="'.$_SERVER['PHP_SELF'].'">'.
+_('Continue').'...</a>'.LF,
+                     $addr);
                   pageFooter();
                   exit;
                }
-           } else addUserToIncident($user["id"], $incidentid);
+           } else addUserToIncident($user['id'], $incidentid);
          }
       }
 
-      if ($sendmail == "on") Header("Location: mailtemplates.php");
+      if ($sendmail == 'on') Header('Location: mailtemplates.php');
       else Header("Location: $_SERVER[PHP_SELF]");
         break;
 
    //--------------------------------------------------------------------
    case 'toggle':
-      if (array_key_exists('toggle', $_REQUEST)) {
-         $toggle = $_REQUEST['toggle'];
-      } else {
-         $toggle = 0;
-      }
+      // Flip the column of check boxes.
+      $toggle = fetchFrom('REQUEST','toggle');
+      defaultTo($toggle,0);
       $toggle = ($toggle == 0) ? 1 : 0;
-      // break omitted on purpose
+      // Break omitted on purpose.
 
     //--------------------------------------------------------------------
     case 'list':
@@ -1050,25 +1031,25 @@ EOF;
          return;
       }
       if (array_key_exists('ip', $_POST)) {
-         $ip = gethostbyname($_POST["ip"]);
+         $ip = gethostbyname($_POST['ip']);
       } else {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          Header("Location: $_SERVER[PHP_SELF]");
          return;
       }
-      if (array_key_exists("addressrole", $_POST)) {
+      if (array_key_exists('addressrole', $_POST)) {
          $addressrole = $_POST['addressrole'];
       } else {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          Header("Location: $_SERVER[PHP_SELF]");
          return;
       }
-      generateEvent("addiptoincident", array(
-         "incidentid" => $incidentid,
-         "ip"         => $ip,
-         "addressrole"=> $addressrole
+      generateEvent('addiptoincident', array(
+         'incidentid' => $incidentid,
+         'ip'         => $ip,
+         'addressrole'=> $addressrole
       ));
-      if (trim($ip) != "") {
+      if (trim($ip) != '') {
          addIpToIncident(trim($ip), $incidentid, $addressrole);
          addIncidentComment(t(
            _('IP address %ip added to incident with role %role'),
@@ -1079,19 +1060,19 @@ EOF;
       }
 
       header(sprintf('Location: %s?action=details&incidentid=%s',
-         $_SERVER[PHP_SELF],
+         $_SERVER['PHP_SELF'],
          urlencode($incidentid)));
       break;
 
     //--------------------------------------------------------------------
    case 'editip':
-      if (array_key_exists("incidentid", $_SESSION)) {
-         $incidentid = $_SESSION["incidentid"];
+      if (array_key_exists('incidentid', $_SESSION)) {
+         $incidentid = $_SESSION['incidentid'];
       } else {
          die(_('Missing information').' (1).');
       }
-      if (array_key_exists("ip", $_GET)) {
-         $ip = $_GET["ip"];
+      if (array_key_exists('ip', $_GET)) {
+         $ip = $_GET['ip'];
       } else {
          die(_('Missing information').' (2).');
       }
@@ -1167,25 +1148,25 @@ EOF;
 
     //--------------------------------------------------------------------
    case 'deleteip':
-      if (array_key_exists("incidentid", $_SESSION)) {
-         $incidentid = $_SESSION["incidentid"];
+      if (array_key_exists('incidentid', $_SESSION)) {
+         $incidentid = $_SESSION['incidentid'];
       } else {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
+         Header('Location: '.$_SERVER['PHP_SELF']);
          return;
       }
-      if (array_key_exists("ip", $_GET)) {
-         $ip = $_GET["ip"];
+      if (array_key_exists('ip', $_GET)) {
+         $ip = $_GET['ip'];
       } else {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
+         Header('Location: '.$_SERVER['PHP_SELF']);
          return;
       }
-      if (array_key_exists("addressrole", $_GET)) {
-         $addressrole = $_GET["addressrole"];
+      if (array_key_exists('addressrole', $_GET)) {
+         $addressrole = $_GET['addressrole'];
       } else {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
+         Header('Location: '.$_SERVER['PHP_SELF']);
          return;
       }
 
@@ -1197,20 +1178,20 @@ EOF;
             '%role'=>getAddressRolebyID($addressrole)
          )));
 
-      generateEvent("removeipfromincident", array(
-         "incidentid" => $incidentid,
-         "ip"         => $ip,
-         "addressrole"=> $addressrole
+      generateEvent('removeipfromincident', array(
+         'incidentid' => $incidentid,
+         'ip'         => $ip,
+         'addressrole'=> $addressrole
       ));
       header(sprintf('Location: %s?action=details&incidentid=%s',
-         $_SERVER[PHP_SELF],
+         $_SERVER['PHP_SELF'],
          urlencode($incidentid)));
       break;
 
     //--------------------------------------------------------------------
    case 'adduser':
-      if (array_key_exists("email", $_REQUEST)) {
-         $email = validate_input($_REQUEST["email"]);
+      if (array_key_exists('email', $_REQUEST)) {
+         $email = validate_input($_REQUEST['email']);
       } else {
          die(_('Missing information').' (1).');
       }
@@ -1235,13 +1216,13 @@ EOF;
          }
       }
 
-      $user = getUserByUserID($id["id"]);
-      addUserToIncident($id["id"], $incidentid);
+      $user = getUserByUserID($id['id']);
+      addUserToIncident($id['id'], $incidentid);
       addIncidentComment(sprintf(_('User %s added to incident.'),
-                                 $user["email"]));
+                                 $user['email']));
 
       Header(sprintf("Location: %s?action=details&incidentid=%s",
-         $_SERVER[PHP_SELF],
+         $_SERVER['PHP_SELF'],
          urlencode($incidentid)));
 
       break;
@@ -1264,7 +1245,7 @@ EOF;
          $user["email"]));
 
       header(sprintf('Location: %s?action=details&incidentid=%s',
-         $_SERVER[PHP_SELF],
+         $_SERVER['PHP_SELF'],
          urlencode($incidentid)));
       break;
 
