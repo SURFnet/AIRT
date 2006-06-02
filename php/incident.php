@@ -800,8 +800,7 @@ switch ($action) {
      $massincidents = fetchFrom('REQUEST','massincidents[]');
      if (empty($massincidents)) {
         // Nothing selected, show list again.
-        Header("Location: $_SERVER[PHP_SELF]");
-        break;
+        reload();
      }
      $agenda = implode(',', $massincidents);
 
@@ -809,21 +808,28 @@ switch ($action) {
      defaultTo($template,_('Do not send mail'));
      if ($template==_('Do not send mail')) {
         // No template selected, show list again.
-        Header("Location: $_SERVER[PHP_SELF]");
-        break;
+        reload();
      }
 
-     Header("Location: mailtemplates.php?action=prepare&".
+     reload("mailtemplates.php?action=prepare&".
                "template=$template&agenda=$agenda");
      break;
 
   //--------------------------------------------------------------------
   case _('Show Details'):
   case 'details':
-    $incidentid = fetchFrom('REQUEST','incidentid','%d');
+    $incidentid = fetchFrom('REQUEST','incidentid');
+    if ($incidentid=='') {
+       airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
+       airt_error('PARAM_MISSING', __FILE__.':'.__LINE__);
+       reload();
+    }
+
     print updateCheckboxes();
 
     /* Prevent cross site scripting in incidentid. */
+# TODO This thing still does not cope well with non-integers. It breaks some
+# SQL statement down the line.
     $norm_incidentid = normalize_incidentid($incidentid);
     $incidentid = decode_incidentid($norm_incidentid);
     if (!getIncident($incidentid)) {
@@ -939,7 +945,7 @@ switch ($action) {
 	    }
          }
       }
-      Header("Location: $_SERVER[PHP_SELF]");
+      reload();
       break;
 
     //---------------------------------------------------------------------
@@ -993,9 +999,11 @@ _('Continue').'...</a>'.LF,
          }
       }
 
-      if ($sendmail == 'on') Header('Location: mailtemplates.php');
-      else Header("Location: $_SERVER[PHP_SELF]");
-        break;
+      if ($sendmail == 'on') {
+         reload('mailtemplates.php');
+      } else {
+         reload();
+      }
 
    //--------------------------------------------------------------------
    case 'toggle':
@@ -1023,32 +1031,32 @@ _('Continue').'...</a>'.LF,
 
    //--------------------------------------------------------------------
    case 'addip':
-      if (array_key_exists('incidentid', $_SESSION)) {
-         $incidentid = $_SESSION['incidentid'];
-      } else {
+      $incidentid = fetchFrom('SESSION','incidentid');
+      if ($incidentid=='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
-         return;
+         airt_error('PARAM_MISSING', __FILE__.':'.__LINE__);
+         reload();
       }
-      if (array_key_exists('ip', $_POST)) {
-         $ip = gethostbyname($_POST['ip']);
-      } else {
-         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
-         return;
+
+      $ip = fetchFrom('POST','ip');
+      if ($ip=='') {
+         airt_error('PARAM_MISSING', __FILE__.':'.__LINE__);
+         reload();
       }
-      if (array_key_exists('addressrole', $_POST)) {
-         $addressrole = $_POST['addressrole'];
-      } else {
-         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
-         return;
+      $ip = gethostbyname($ip);
+
+      $addressrole = fetchFrom('POST','addressrole');
+      if ($addressrole=='') {
+         airt_error('PARAM_MISSING', __FILE__.':'.__LINE__);
+         reload();
       }
+
       generateEvent('addiptoincident', array(
          'incidentid' => $incidentid,
          'ip'         => $ip,
          'addressrole'=> $addressrole
       ));
+
       if (trim($ip) != '') {
          addIpToIncident(trim($ip), $incidentid, $addressrole);
          addIncidentComment(t(
@@ -1059,22 +1067,23 @@ _('Continue').'...</a>'.LF,
          ));
       }
 
-      header(sprintf('Location: %s?action=details&incidentid=%s',
+      reload(sprintf('%s?action=details&incidentid=%s',
          $_SERVER['PHP_SELF'],
          urlencode($incidentid)));
       break;
 
     //--------------------------------------------------------------------
    case 'editip':
-      if (array_key_exists('incidentid', $_SESSION)) {
-         $incidentid = $_SESSION['incidentid'];
-      } else {
-         die(_('Missing information').' (1).');
+      $incidentid = fetchFrom('SESSION','incidentid');
+      if ($incidentid=='') {
+         airt_error('PARAM_MISSING', __FILE__.':'.__LINE__);
+         reload();
       }
-      if (array_key_exists('ip', $_GET)) {
-         $ip = $_GET['ip'];
-      } else {
-         die(_('Missing information').' (2).');
+
+      $ip = fetchFrom('REQUEST','ip');
+      if ($ip=='') {
+         airt_error('PARAM_MISSING', __FILE__.':'.__LINE__);
+         reload();
       }
 
       pageHeader(_('IP address details'));
@@ -1084,31 +1093,30 @@ _('Continue').'...</a>'.LF,
 
     //--------------------------------------------------------------------
    case 'updateip':
-      // Rough sanity check of data.
-      if (array_key_exists('id', $_POST)) {
-         $id = $_POST['id'];
-      } else {
-         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
-         return;
+      $id = fetchFrom('POST','id');
+      if ($id=='') {
+         airt_error('PARAM_MISSING', __FILE__.':'.__LINE__);
+         reload();
       }
-      if (array_key_exists('constituency', $_POST)) {
-         $constituency = $_POST['constituency'];
-      } else {
-         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
-         return;
+
+      $constituency = fetchFrom('POST','constituency');
+      if ($constituency=='') {
+         airt_error('PARAM_MISSING', __FILE__.':'.__LINE__);
+         reload();
       }
-      if (array_key_exists('ip', $_POST)) {
-         $ip = $_POST['ip'];
-      } else {
-         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
-         return;
+
+      $ip = fetchFrom('POST','ip');
+      if ($ip=='') {
+         airt_error('PARAM_MISSING', __FILE__.':'.__LINE__);
+         reload();
       }
-      if (array_key_exists('incidentid', $_POST)) {
-         $incidentid = $_POST['incidentid'];
-      } else {
-         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
-         return;
+
+      $incidentid = fetchFrom('POST','incidentid');
+      if ($incidentid=='') {
+         airt_error('PARAM_MISSING', __FILE__.':'.__LINE__);
+         reload();
       }
+# HERE
       if (array_key_exists('addressrole', $_POST)) {
          $addressrole = $_POST['addressrole'];
       } else {

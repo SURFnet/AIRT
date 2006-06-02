@@ -362,4 +362,20 @@ function defaultTo(&$variable, $default_value) {
    }
 }// defaultTo
 
+
+/** Directs the browser to reload the current page.
+ * Uses a 'Location:' header (so needs to be called before any other output)
+ * and directly exits the script.
+ * @param $url Optionally, a full URL to jump to instead of to the current
+ *             page.
+ */
+function reload($url='') {
+   if ($url=='') {
+      header('Location: '.$_SERVER['PHP_SELF']);
+   } else {
+      header('Location: '.$url);
+   }
+   exit;      
+}// reload
+
 ?>
