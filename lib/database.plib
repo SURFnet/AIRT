@@ -20,6 +20,17 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+/* Basic check for availability of PostgreSQL PHP module. PHP tends to die
+ * without even a log entry if --without-pgsql has been used while building
+ * the PHP module, and we issue PostgreSQL calls with '@' prefixes to catch
+ * the errors.
+ */
+if (!function_exists('pg_query')) {
+  // Panic. There is no graceful way out.
+  echo _('PHP seems not to have been compiled with PostgreSQL support.');
+  exit;
+}
+
 /* connect to the database on page load and remain connected.
  */
 global $db;
