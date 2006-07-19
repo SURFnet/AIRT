@@ -328,7 +328,7 @@ function formatEditForm() {
 function formatFilterBlock() {
    $filter = fetchFrom('REQUEST','filter[]');
 # TODO These defaults need to come from the database.
-   defaultTo($filter, array('state'=>-1, 'status'=>-1));
+   defaultTo($filter, array('state'=>-1, 'status'=>getIncidentStatusDefault()));
 
    $out = t(
       '<FORM method="POST">'.LF.
@@ -478,7 +478,7 @@ function formatListOverviewBody() {
    // the $filter and e.g. removes the 'status' index, things go wrong here.
    // It looks secure, but it breaks.
    defaultTo($filter,
-             array('status'=>-1, 'state'=>-1));
+             array('status'=>getIncidentStatusDefault(), 'state'=>-1));
 
    $sortkey = fetchFrom('REQUEST','sortkey');
    defaultTo($sortkey,'incidentid');
