@@ -25,15 +25,12 @@ require_once LIBDIR."/database.plib";
 require_once LIBDIR."/user.plib";
 
 function airt_authenticate($username, $password) {
-   # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-   # or die("Unable to connect to database.");
-
    $query = sprintf("
       SELECT id as userid
       FROM   users
       WHERE  login = '%s'
       AND    password = '%s'",
-         $username,
+         db_escape_string($username),
          sha1($password)
    );
 
@@ -43,12 +40,10 @@ function airt_authenticate($username, $password) {
       $row = db_fetch_next($res);
       $userid = $row["userid"];
       db_free_result($res);
-      # db_close($conn);
 
       return $userid;
     } else {
       db_free_result($res);
-      # db_close($conn);
       return -1;
     }
 } // airt_authenticate
@@ -79,8 +74,6 @@ function airt_initsession($userid='') {
 	$_SESSION["last"]     = time();
 
   #select vars for welcome message
-  # $conn   = db_connect(DBDB, DBUSER, DBPASSWD)
-  # or die("Unable to connect to database.");
   $query  = "SELECT to_char(last,'YYYY-MM-DD HH24:MI') as last, hostnamelast FROM users WHERE id='$_SESSION[userid]'";
   $res    = db_query($query) or die("Unable to query database.");
 
@@ -89,11 +82,8 @@ function airt_initsession($userid='') {
     $_SESSION['hostnamelast'] = $row["hostnamelast"];
    }
    db_free_result($res);
-   # db_close($conn);
 
    #update db for future welcome message
-   # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-   # or die("Unable to connect to database.");
    $query  = "UPDATE users
            SET last = CURRENT_TIMESTAMP,
            hostnamelast = '$_SERVER[REMOTE_ADDR]'
@@ -101,7 +91,6 @@ function airt_initsession($userid='') {
    $res    = db_query($query)
    or die("Unable to query database.");
    db_free_result($res);
-   # db_close($conn);
    Header("Location: $_SESSION[BASEURL]/index.php");
 }
 
