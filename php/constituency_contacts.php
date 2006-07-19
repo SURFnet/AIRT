@@ -63,7 +63,9 @@ switch ($action) {
       } else {
          die("Missing information.");
       }
-
+      if (!is_numeric($consid)) {
+         die("Invalid format");
+      }
       pageHeader("Edit constituency assignments");
 
       $res = db_query(
@@ -118,8 +120,7 @@ switch ($action) {
       }
 
       db_free_result($res);
-      $res = db_query(
-         "SELECT  id, email
+      $res = db_query("SELECT  id, email
           FROM    users
           WHERE   NOT id IN (
              SELECT userid
@@ -173,6 +174,9 @@ EOF;
       } else {
          die("Missing information (2).");
       }
+      if (!is_numeric($consid) || !is_numeric($userid)) {
+         die('Invalid data.');
+      }
 
       $res=db_query("
          INSERT INTO constituency_contacts
@@ -195,16 +199,15 @@ EOF;
       } else {
          die("Missing information (2).");
       }
-
-      # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-      # or die("Unable to connect to database.");
+      if (!is_numeric($id) || !is_numeric($cons)) {
+         die("Invalid format");
+      }
 
       $res = db_query(
             "DELETE FROM constituency_contacts
              WHERE  userid=$id
              AND    constituency=$cons")
       or die("Unable to execute query");
-      # db_close($conn);
       Header("Location: $_SERVER[PHP_SELF]?action=edit&consid=$cons");
 
       break;

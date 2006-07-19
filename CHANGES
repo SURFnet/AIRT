@@ -1,5 +1,6 @@
 * Improved interface of constituency contact administration and code cleanup
 * Incident Overview defaults to open incidents now
+* Possible SQL injection fixes
 
 2006-05-17
 * Maintenance release
