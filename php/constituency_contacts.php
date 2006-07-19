@@ -1,9 +1,10 @@
 <?php
-/*
+/* $Id$
+ * $URL$
  * vim: syntax=php shiftwidth=3 tabstop=3
  * 
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
- * Copyright (C) 2004	Tilburg University, The Netherlands
+ * Copyright (C) 2004,2005,2006	Tilburg University, The Netherlands
 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,8 +38,6 @@ switch ($action) {
    //-----------------------------------------------------------------
    case "list":
       pageHeader("Constituency contacts");
-      # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-      # or die("Unable to connect to database.");
 
       $res = db_query("SELECT   id, label, name
              FROM     constituencies
@@ -54,7 +53,6 @@ switch ($action) {
       }
       db_free_result($res);
 
-      # db_close($conn);
       pageFooter();
       break;
 
@@ -67,9 +65,6 @@ switch ($action) {
       }
 
       pageHeader("Edit constituency assignments");
-
-      # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-      # or die("Unable to connect to database.");
 
       $res = db_query(
          "SELECT label, name
@@ -124,13 +119,14 @@ switch ($action) {
 
       db_free_result($res);
       $res = db_query(
-         "SELECT  id, login, lastname, firstname
+         "SELECT  id, email
           FROM    users
           WHERE   NOT id IN (
              SELECT userid
              FROM   constituency_contacts
              WHERE  constituency=$consid
-          )")
+          )
+          ORDER BY email")
       or die("Unable to execute query(3).");
 
       if (db_num_rows($res) > 0) {
@@ -138,17 +134,14 @@ switch ($action) {
 <P>
 <FORM action="$_SERVER[PHP_SELF]" method="POST">
 Assing user(s) to constituency: 
-<SELECT MULTIPLE name="userid[]">
+<SELECT name="userid">
 
 EOF;
          while ($row = db_fetch_next($res)) {
-            $login     = $row["login"];
-            $lastname  = $row["lastname"];
-            $firstname = $row["firstname"];
+            $email = $row['email'];
             $id    = $row["id"];
 
-            printf("<option value=\"$id\">$login ($lastname, ".
-            "$firstname)</option>\n");
+            printf("<option value=\"$id\">$email</option>\n");
          }
          echo <<<EOF
 </SELECT>
@@ -160,8 +153,6 @@ EOF;
          } else {
             echo "<P><I>No unassigned users.</I>";
          }
-         # db_close($conn);
-
          echo <<<EOF
 <P><HR>
 <a href="$_SERVER[PHP_SELF]">Select another constituency</a> &nbsp;|&nbsp;
@@ -183,14 +174,12 @@ EOF;
          die("Missing information (2).");
       }
 
-      foreach ($userid as $key=>$value) {
-         $res=db_query("
-            INSERT INTO constituency_contacts
-            (id, constituency, userid)
-            VALUES
-            (nextval('constituency_contacts_sequence'), $consid, $value)")
-         or die("Unable to execute query");
-      }
+      $res=db_query("
+         INSERT INTO constituency_contacts
+         (id, constituency, userid)
+         VALUES
+         (nextval('constituency_contacts_sequence'), $consid, $userid)")
+      or die("Unable to execute query");
       Header("Location: $_SERVER[PHP_SELF]?action=edit&consid=$consid");
       break;
 
