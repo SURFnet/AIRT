@@ -31,13 +31,17 @@ require_once LIBDIR.'/history.plib';
 require_once LIBDIR.'/user.plib';
 require_once LIBDIR.'/mailtemplates.plib';
 
+/** Update JavaScript in incidents pages.
+ * This function will output HTML containing JavaScript. The JavaScript is a
+ * non-essential part of AIRT, but it can make life easier at times.
+ */
 function updateCheckboxes() {
    // Used to compile some JavaScript that is needed in many places.
    global $toggle;
 
    $sortkey = fetchFrom('REQUEST','sortkey');
    defaultTo($sortkey,'incidentid');
-   
+
    $page = fetchFrom('REQUEST','page','%d');
    defaultTo($page,1);
 
@@ -72,6 +76,8 @@ function updateCheckboxes() {
 } // updateCheckboxes
 
 
+/** Format the form for batch creation of incidents.
+ */
 function formatIncidentBulkForm(&$check) {
    $constituency = $name = $email = $type = $state = $status
      = $addressrole = "";
@@ -81,6 +87,8 @@ function formatIncidentBulkForm(&$check) {
    } else {
       $address = "";
    }
+# do we need the preceding 5 lines of code? I dont think so...
+# KL 24-jul-2006
    $address = fetchFrom('SESSION','active_ip');
 
    if (array_key_exists("constituency_id", $_SESSION)) {
@@ -117,6 +125,8 @@ function formatIncidentBulkForm(&$check) {
 } // show IncidentBulkForm
 
 
+/** Format the incident details form.
+ */
 function formatIncidentForm(&$check) {
    $constituency = $name = $email = $type = $state = $status 
      = $addressrole = '';
@@ -183,6 +193,7 @@ function formatEditForm() {
    $state   = $incident['state'];
    $status  = $incident['status'];
 	$logging = $incident['logging'];
+   $date    = $incident['incidentdate'];
 
    $address = fetchFrom('SESSION','active_ip');
    $constituency = fetchFrom('SESSION','constituency_id');
@@ -191,7 +202,7 @@ function formatEditForm() {
    $output = '<form action="'.$_SERVER['PHP_SELF'].'" method="post">'.LF;
    $output .= '<hr/>'.LF;
    $output .= '<h3>'._('Basic incident data').'</h3>'.LF;
-   $output .= formatBasicIncidentData($type, $state, $status, $logging);
+   $output .= formatBasicIncidentData($type, $state, $status, $logging, $date);
    $output .= '<input type="submit" name="action" value="update">'.LF;
    $output .= '</form>'.LF;
 
@@ -482,7 +493,7 @@ function formatListOverviewBody() {
 
    $sortkey = fetchFrom('REQUEST','sortkey');
    defaultTo($sortkey,'incidentid');
-   
+
    $page = fetchFrom('REQUEST','page','%d');
    defaultTo($page,1);
 
@@ -899,7 +910,7 @@ switch ($action) {
       $output .= formatIncidentBulkForm($check);
 
       $output .= "<input type=\"submit\" name=\"action\" value=\"Addbulk\">\n";
-           
+
       $output .= "</form>\n";
       print $output;
       break;
@@ -909,11 +920,11 @@ switch ($action) {
     case "Addbulk":
       $addresses = $constituency = $type = $state = $status = $email =
 		   $addressrole = $logging = '';
-     
+
       if (array_key_exists("addressrole", $_POST)) {
          $addressrole=$_POST["addressrole"];
       }
-     
+
       if (array_key_exists("constituency", $_POST)) {
         $constituency=$_POST["constituency"];
       }
@@ -935,7 +946,7 @@ switch ($action) {
          $addresslist = split("\r?\n",$addresses);
 
          foreach($addresslist as $address) {
-        
+
             // make sure we have an IP address here
             $address = @gethostbyname($address);
             if($address) {
