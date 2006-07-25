@@ -574,7 +574,7 @@ function removeUserfromIncident($userid, $incident) {
  * state and status. All input variables may be "", which leads to a system
  * default selection.
  */
-function formatBasicIncidentData($type, $state, $status, $logging="") {
+function formatBasicIncidentData($type, $state, $status, $logging="", $date='') {
    $output = "<table>\n";
    $output .= "  <tr>\n";
    $output .= "    <td>Incident type</td>\n";
@@ -590,6 +590,10 @@ function formatBasicIncidentData($type, $state, $status, $logging="") {
    $output .= "    <td>Incident status</td>\n";
    $output .= "    <td>".getIncidentStatusSelection("status", $status)."</td>\n";
    $output .= "    <td><a target=\"airthelp\" href=\"$_SERVER[PHP_SELF]?action=showstatus\">Help</a></td>\n";
+   $output .= "  </tr>\n";
+   $output .= "  <tr valign=\"top\">\n";
+   $output .= "    <td>Date of incident</td>";
+   $output .= "    <td>".formatDateInput($date)."</td>";
    $output .= "  </tr>\n";
 	$output .= "  <tr valign=\"top\">\n";
 	$output .= "    <td>Logging</td>\n";
