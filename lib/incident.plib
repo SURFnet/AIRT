@@ -593,7 +593,7 @@ function formatBasicIncidentData($type, $state, $status, $logging="", $date='') 
    $output .= "  </tr>\n";
    $output .= "  <tr valign=\"top\">\n";
    $output .= "    <td>Date of incident</td>";
-   $output .= "    <td>".formatDateInput($date)."</td>";
+   $output .= "    <td>".formatDateInput('date')."</td>";
    $output .= "  </tr>\n";
 	$output .= "  <tr valign=\"top\">\n";
 	$output .= "    <td>Logging</td>\n";

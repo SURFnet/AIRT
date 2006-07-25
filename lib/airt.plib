@@ -392,8 +392,7 @@ function formatDateInput($var='') {
       5=>_('May'),  11=>_('Nov'),
       6=>_('Jun'),   12=>_('Dec'));
    $var = strip_tags($var);
-   $out = "<select name=\"$var_day\">\n";
-   $out .= '<option value="0">'._('--Day--').'</option>'.LF;
+   $out = '<select name="'.$var.'_day">'.LF;
    $today_day=Date('j');
    $today_month=Date('n');
    $today_year=Date('Y');
@@ -404,27 +403,26 @@ function formatDateInput($var='') {
       $out .= sprintf('<option %s value="%d">%02d</option>'.LF, 
          ($i==$today_day)?'SELECTED':'', $i, $i);
    }
-   $out .= "<select name=\"$var_month\">".LF;
-   $out .= '<option value="0">'._('-Mon-').'</option>'.LF;
+   $out .= '<select name="'.$var.'_month">'.LF;
    for ($i=1;$i<13;$i++) {
       $out .= sprintf('<option %s value="%d">%s</option>'.LF,
          ($i==$today_month)?'SELECTED':'', $i, $months[$i]);
    }
-   $out .= "<input type=\"text\" size=\"4\" width=\"4\" name=\"$var_year\" value=\"$today_year\">";
-   $out .= "<select name=\"$var_hour\">".LF;
-   $out .= '<option value="-1">'._('-Hr-').'</option>'.LF;
-   for ($i=0;$i<25;$i++) {
+   $out .= '<input type="text" size="4" width="4" name="'.$var.'_year" value="'.$today_year.'">'.LF;
+
+   $out .= '&nbsp;&nbsp;&nbsp;';
+
+   $out .= '<select name="'.$var.'_hour">'.LF;
+   for ($i=0;$i<24;$i++) {
       $out .= sprintf('<option %s value="%d">%02d</option>'.LF,
          ($i==$today_hour)?'SELECTED':'', $i, $i);
    }
-   $out .= "<select name=\"$var_minute\">".LF;
-   $out .= '<option value="-1">'._('-Min-').'</option>'.LF;
+   $out .= '<select name="'.$var.'_minute">'.LF;
    for ($i=0;$i<60;$i++) {
       $out .= sprintf('<option %s value="%d">%02d</option>'.LF,
          ($i==$today_min)?'SELECTED':'', $i, $i);
    }
-   $out .= "<select name=\"$var_second\">".LF;
-   $out .= '<option value="-1">'._('-Sec-').'</option>'.LF;
+   $out .= '<select name="'.$var.'_second">'.LF;
    for ($i=0;$i<60;$i++) {
       $out .= sprintf('<option %s value="%d">%02d</option>'.LF,
          ($i==$today_sec)?'SELECTED':'', $i, $i);
