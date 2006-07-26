@@ -1,3 +1,4 @@
+* Extra basic incident data: date of incident
 * Improved interface of constituency contact administration and code cleanup
 * Incident Overview defaults to open incidents now
 * Possible SQL injection fixes
