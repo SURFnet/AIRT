@@ -283,7 +283,8 @@ function getOpenIncidents($sqlfilter = "AND s1.label IN ('open','stalled')") {
                 s1.label as status,
                 t.label as type,
                 a.ip as ip,
-                a.hostname as hostname
+                a.hostname as hostname,
+                extract(epoch from i.incidentdate) as incidentdate
          FROM   incidents i, incident_status s1, incident_states s2,
                 incident_types t, users u1, users u2, incident_addresses a
          WHERE  i.status = s1.id
@@ -332,7 +333,8 @@ function getIncident($id) {
         state,
         status,
         type,
-		  logging
+		  logging,
+        extract(epoch from incidentdate) as incidentdate
       FROM incidents
       WHERE id=%id', array('%id'=>$id));
    $res = db_query($q)
@@ -424,7 +426,7 @@ function addIPtoIncident($ip, $incident,$role=0) {
  *
  * \return Returns a numerical incident ID on success, or false on failure
  */
-function createIncident($state,$status,$type,$logging='') {
+function createIncident($state,$status,$type,$date='',$logging='') {
    if (!is_numeric($state) || !is_numeric($status) || !is_numeric($type) ||
        !is_numeric($type)) {
       return false;
@@ -437,16 +439,17 @@ function createIncident($state,$status,$type,$logging='') {
    db_free_result($res);
 
    $res = db_query(sprintf(
-      "insert into incidents
-      (id, created, creator, updated, updatedby, state, status, type, logging)
+      'insert into incidents
+      (id, created, creator, updated, updatedby, state, status, type, incidentdate, logging)
       values
-      (%s, CURRENT_TIMESTAMP, %s, CURRENT_TIMESTAMP, %s, %s, %s, %s, %s)",
+      (%s, CURRENT_TIMESTAMP, %s, CURRENT_TIMESTAMP, %s, %s, %s, %s, %s, %s)',
          $incidentid,
-         $_SESSION["userid"],
-         $_SESSION["userid"],
-         $state == "" ? 'NULL' : $state ,
-         $status == "" ? 'NULL' : $status ,
-         $type == "" ? 'NULL' : $type,
+         $_SESSION['userid'],
+         $_SESSION['userid'],
+         $state == '' ? 'NULL' : $state ,
+         $status == '' ? 'NULL' : $status ,
+         $type == '' ? 'NULL' : $type,
+         $date == '' ? 'NULL' : "'".Date('Y-m-d H:i:s', $date)."'",
          $logging == "" ? 'NULL' : "'".db_escape_string($logging)."'"
 
       )
@@ -593,7 +596,7 @@ function formatBasicIncidentData($type, $state, $status, $logging="", $date='') 
    $output .= "  </tr>\n";
    $output .= "  <tr valign=\"top\">\n";
    $output .= "    <td>Date of incident</td>";
-   $output .= "    <td>".formatDateInput('date')."</td>";
+   $output .= "    <td>".formatDateInput('date', $date)."</td>";
    $output .= "  </tr>\n";
 	$output .= "  <tr valign=\"top\">\n";
 	$output .= "    <td>Logging</td>\n";
@@ -719,7 +722,7 @@ function updateIPofIncident($id,$constituency,$addressrole) {
  * Relevant automatic fields will be generated accordingly.
  * Returns void.
  */
-function updateIncident($id,$state='',$status='',$type='',$logging='') {
+function updateIncident($id,$state='',$status='',$type='',$date='', $logging='') {
    // Problem case: no ID given.
    if ($id=='') {
       die('No ID given to update request.');
@@ -740,6 +743,10 @@ function updateIncident($id,$state='',$status='',$type='',$logging='') {
    }
    if ($type!='') {
       $set .= sprintf('type=%d,',$type);
+   }
+   if ($date != '') {
+      $set .= sprintf('incidentdate=\'%s\',', db_escape_string(
+      date('Y-m-d H:i:s', $date)));
    }
    if ($logging!='') {
       $set .= sprintf('logging=\'%s\',',db_escape_string($logging));

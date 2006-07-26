@@ -82,11 +82,11 @@ function formatIncidentBulkForm(&$check) {
    $constituency = $name = $email = $type = $state = $status
      = $addressrole = "";
 
-   if (array_key_exists("active_ip", $_SESSION)) {
-      $address = $_SESSION["active_ip"];
-   } else {
-      $address = "";
-   }
+#   if (array_key_exists("active_ip", $_SESSION)) {
+#      $address = $_SESSION["active_ip"];
+#   } else {
+#      $address = "";
+#   }
 # do we need the preceding 5 lines of code? I dont think so...
 # KL 24-jul-2006
    $address = fetchFrom('SESSION','active_ip');
@@ -126,6 +126,7 @@ function formatIncidentBulkForm(&$check) {
 
 
 /** Format the incident details form.
+ * This function is called only when creating a new incident report.
  */
 function formatIncidentForm(&$check) {
    $constituency = $name = $email = $type = $state = $status 
@@ -940,6 +941,15 @@ switch ($action) {
       if (array_key_exists("logging", $_POST)) {
         $logging=trim($_POST["logging"]);
       }
+      $date_day = trim(fetchFrom('POST', 'date_day', '%d'));
+      $date_month = trim(fetchFrom('POST', 'date_month', '%d'));
+      $date_year = trim(fetchFrom('POST', 'date_year', '%d'));
+      $date_hour = trim(fetchFrom('POST', 'date_hour', '%d'));
+      $date_minute = trim(fetchFrom('POST', 'date_minute', '%d'));
+      $date_second = trim(fetchFrom('POST', 'date_second', '%d'));
+      $date = strtotime(sprintf('%04d-%02d-%04d %02d:%02d:%02d',
+         $date_year, $date_month, $date_day,
+         $date_hour, $date_minute, $date_second));
 
       if (array_key_exists("addresses", $_POST)) {
          $addresses=$_POST["addresses"];      
@@ -950,8 +960,10 @@ switch ($action) {
             // make sure we have an IP address here
             $address = @gethostbyname($address);
             if($address) {
-               $incidentid = createIncident($state,$status,$type,$logging);
-               addIPtoIncident($address,$incidentid,$addressrole);
+               $incidentid = createIncident($state,$status,$type,$date,$logging);
+               if ($address!='') {
+                  addIPtoIncident($address,$incidentid,$addressrole);
+               }
 	    }
          }
       }
@@ -981,7 +993,17 @@ switch ($action) {
       $addif        = fetchFrom('POST','addifmissing');
       $logging      = fetchFrom('POST','logging');
 
-      $incidentid   = createIncident($state,$status,$type,$logging);
+      $date_day = trim(fetchFrom('POST', 'date_day', '%d'));
+      $date_month = trim(fetchFrom('POST', 'date_month', '%d'));
+      $date_year = trim(fetchFrom('POST', 'date_year', '%d'));
+      $date_hour = trim(fetchFrom('POST', 'date_hour', '%d'));
+      $date_minute = trim(fetchFrom('POST', 'date_minute', '%d'));
+      $date_second = trim(fetchFrom('POST', 'date_second', '%d'));
+      $date = strtotime(sprintf('%04d-%02d-%04d %02d:%02d:%02d',
+         $date_year, $date_month, $date_day,
+         $date_hour, $date_minute, $date_second));
+
+      $incidentid   = createIncident($state,$status,$type,$date,$logging);
       addIPtoIncident($address,$incidentid,$addressrole);
 
       if ($email != '') {
@@ -1308,15 +1330,24 @@ _('Continue').'...</a>'.LF,
       }
 
       $logging = trim(fetchFrom('POST','logging'));
-
+      $date_day = trim(fetchFrom('POST', 'date_day', '%d'));
+      $date_month = trim(fetchFrom('POST', 'date_month', '%d'));
+      $date_year = trim(fetchFrom('POST', 'date_year', '%d'));
+      $date_hour = trim(fetchFrom('POST', 'date_hour', '%d'));
+      $date_minute = trim(fetchFrom('POST', 'date_minute', '%d'));
+      $date_second = trim(fetchFrom('POST', 'date_second', '%d'));
+      $date = strtotime(sprintf('%04d-%02d-%04d %02d:%02d:%02d',
+         $date_year, $date_month, $date_day,
+         $date_hour, $date_minute, $date_second));
       generateEvent('incidentupdate', array(
          'incidentid' => $incidentid,
          'state' => $state,
          'status' => $status,
-         'type' => $type
+         'type' => $type,
+         'date' => $date
       ));
 
-      updateIncident($incidentid,$state,$status,$type,$logging);
+      updateIncident($incidentid,$state,$status,$type,$date,$logging);
 
       addIncidentComment(sprintf(_(
         'Incident updated: state=%s, status=%s type=%s'), 

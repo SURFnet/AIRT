@@ -380,10 +380,11 @@ function reload($url='') {
 
 /** Create an HTML fragment for inputing a date. 
  * @param $var Name of the variable containing the date.
+ * @param $default Default date in Unix format (Date('U'))
  * The function will create 6 HTML variables:
  * $var_day, $var_month, $var_year, $var_hour, $var_min, $var_sec
  */
-function formatDateInput($var='') {
+function formatDateInput($var='', $default='') {
    $months = array(
       1=>_('Jan'),   7=>_('Jul'),
       2=>_('Feb'),   8=>_('Aug'),
@@ -393,12 +394,15 @@ function formatDateInput($var='') {
       6=>_('Jun'),   12=>_('Dec'));
    $var = strip_tags($var);
    $out = '<select name="'.$var.'_day">'.LF;
-   $today_day=Date('j');
-   $today_month=Date('n');
-   $today_year=Date('Y');
-   $today_hour=Date('H');
-   $today_min=(int)Date('i');
-   $today_sec=(int)Date('s');
+   if ($default=='') {
+      $default = Date('U');
+   }
+   $today_day=Date('j', $default);
+   $today_month=Date('n', $default);
+   $today_year=Date('Y', $default);
+   $today_hour=Date('H', $default);
+   $today_min=(int)Date('i', $default);
+   $today_sec=(int)Date('s', $default);
    for ($i=1;$i<32;$i++) {
       $out .= sprintf('<option %s value="%d">%02d</option>'.LF, 
          ($i==$today_day)?'SELECTED':'', $i, $i);
