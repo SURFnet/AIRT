@@ -885,6 +885,7 @@ switch ($action) {
 
     //---------------------------------------------------------------
     case _('Create New Incident'):
+    case _('New incident'):
     case 'new':
       PageHeader(_('New Incident'));
       $check = false;
