@@ -18,7 +18,7 @@ function getStartDate() {
   $month = fetchFrom('REQUEST', 'start_month', '%d');
   $day = fetchFrom('REQUEST', 'start_day', '%d');
 
-  $start = strtotime(sprintf('%02d/%02d/%04d', $day, $month, $year));
+  $start = strtotime(sprintf('%02d/%02d/%04d', $month, $day, $year));
   if ($start == FALSE) {
     return -1;
   } else {
@@ -34,7 +34,7 @@ function getEndDate() {
   $month = fetchFrom('REQUEST', 'stop_month', '%d');
   $day = fetchFrom('REQUEST', 'stop_day', '%d');
 
-  $end = strtotime(sprintf('%02d/%02d/%04d', $day, $month, $year));
+  $end = strtotime(sprintf('%02d/%02d/%04d', $month, $day, $year));
   if ($end == FALSE) {
     return -1;
   } else {
@@ -48,12 +48,16 @@ function getEndDate() {
  * of incidents in the reporting period.
  */
 function showMatrix($start, $end) {
-# here
   $constituencies = getConstituencies();
   $types = getIncidentTypes();
 
   $out = '<H2>'._('Incident type/Constituency matrix').'</H2>';
 
+  $out .= '<p>';
+  $out .= t(_('Printing from %startdate until %enddate.'), array(
+    '%startdate'=>Date('d-M-Y', $start),
+    '%enddate'=>Date('d-M-Y', $end)));
+  $out .= '</p>'.LF;
   $out .= '<table border="1" cellpadding="3">'.LF;
   $out .= '<tr>'.LF;
   $out .= '<td>&nbsp;</td>'.LF;
@@ -72,8 +76,12 @@ function showMatrix($start, $end) {
          FROM incidents i
          LEFT JOIN incident_addresses a ON (i.id = a.incident)
          WHERE type = %type
-         AND a.constituency = %constituency', array(
-            '%type'=>$id, '%constituency'=>$consid)));
+         AND a.constituency = %constituency
+         AND i.created BETWEEN \'%start\' AND \'%stop\'', array(
+            '%type'=>$id, 
+            '%constituency'=>$consid,
+            '%start'=>Date('d-M-Y', $start),
+            '%stop'=>Date('d-M-Y', $end))));
       $row = db_fetch_next($res);
       $out .= '<td>'.$row['count'].'</td>';
       $typesum[$label] += $row['count'];
@@ -94,11 +102,14 @@ function showMatrix($start, $end) {
   $out .= '</table>'.LF;
 
   $out .= '<H2>'._('Incidents without IP addresses').'</h2>';
-  $res = db_query('SELECT i.id
+  $res = db_query(q('SELECT i.id
      FROM incidents i
      LEFT JOIN incident_addresses a ON i.id = a.incident
+     WHERE i.created BETWEEN \'%start\' AND \'stop\'
      GROUP BY i.id
-     HAVING COUNT (ip) = 0');
+     HAVING COUNT (ip) = 0', array(
+            '%start'=>Date('d-M-Y', $start),
+            '%stop'=>Date('d-M-Y', $end))));
   $out .= '<table border="1" cellpadding="3">'.LF;
   $out .= '<tr>'.LF;
   $out .= '   <th>'._('Incident ID').'</th>'.LF;
