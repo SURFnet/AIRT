@@ -407,11 +407,13 @@ function formatDateInput($var='', $default='') {
       $out .= sprintf('<option %s value="%d">%02d</option>'.LF, 
          ($i==$today_day)?'SELECTED':'', $i, $i);
    }
+   $out .= '</select>'.LF;
    $out .= '<select name="'.$var.'_month">'.LF;
    for ($i=1;$i<13;$i++) {
       $out .= sprintf('<option %s value="%d">%s</option>'.LF,
          ($i==$today_month)?'SELECTED':'', $i, $months[$i]);
    }
+   $out .= '</select>'.LF;
    $out .= '<input type="text" size="4" width="4" name="'.$var.'_year" value="'.$today_year.'">'.LF;
 
    $out .= '&nbsp;&nbsp;&nbsp;';
@@ -421,16 +423,19 @@ function formatDateInput($var='', $default='') {
       $out .= sprintf('<option %s value="%d">%02d</option>'.LF,
          ($i==$today_hour)?'SELECTED':'', $i, $i);
    }
+   $out .= '</select>'.LF;
    $out .= '<select name="'.$var.'_minute">'.LF;
    for ($i=0;$i<60;$i++) {
       $out .= sprintf('<option %s value="%d">%02d</option>'.LF,
          ($i==$today_min)?'SELECTED':'', $i, $i);
    }
+   $out .= '</select>'.LF;
    $out .= '<select name="'.$var.'_second">'.LF;
    for ($i=0;$i<60;$i++) {
       $out .= sprintf('<option %s value="%d">%02d</option>'.LF,
          ($i==$today_sec)?'SELECTED':'', $i, $i);
    }
+   $out .= '</select>'.LF;
    return $out;
 } // formatDateInput
 ?>
