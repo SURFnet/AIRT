@@ -24,6 +24,11 @@
 require_once LIBDIR."/database.plib";
 require_once LIBDIR."/user.plib";
 
+/** Authenticate a user by username and password.
+ * @param $username Username provided by authentication frontend
+ * @param $password Password provided by authentication frontend
+ * @return Returns the user's userid (numerical), or -1 for failure.
+ */
 function airt_authenticate($username, $password) {
    $query = sprintf("
       SELECT id as userid
@@ -34,11 +39,11 @@ function airt_authenticate($username, $password) {
          sha1($password)
    );
 
-   $res = db_query($query) or die("Unable to query database.");
+   $res = db_query($query) or die(_('Unable to query database.'));
 
    if (db_num_rows($res) > 0) {
       $row = db_fetch_next($res);
-      $userid = $row["userid"];
+      $userid = $row['userid'];
       db_free_result($res);
 
       return $userid;
@@ -49,56 +54,65 @@ function airt_authenticate($username, $password) {
 } // airt_authenticate
 
 
+/** Set up the session for the newly authenticated user. Do not call this
+ * function if credentials have not been properly validated!
+ * @param @userid Userid (numerical) of the session's owner.
+ */
 function airt_initsession($userid='') {
+   if (!is_numeric($userid)) {
+      exit;
+   }
    if ($userid == '') {
-      die("Invalid login!");
+      die(_('Invalid login!'));
    }
 	$user = getUserByUserID($userid);
 	if (!$user) {
-      die("Incorrect login!");
+      die(_('Incorrect login!'));
    }
 
 	generateEvent("goodlogin", array(
-		"login" => $user['login'],
-		"remoteip" => $_SERVER['REMOTE_ADDR']
+		'login' => $user['login'],
+		'remoteip' => $_SERVER['REMOTE_ADDR']
 	));
 
 	// session_start();
-	foreach (array("username", "userid", "ip", "last", "lastdb", "hostnamelast") as $key => $value) {
+	foreach (array('username', 'userid', 'ip', 'last', 'lastdb', 'hostnamelast') as $key => $value) {
 		session_register($value);
   }
 
-	$_SESSION["username"] = $user['login'];
-	$_SESSION["userid"]   = $user['id'];
-	$_SESSION["ip"]       = $_SERVER["REMOTE_ADDR"];
-	$_SESSION["last"]     = time();
+	$_SESSION['username'] = $user['login'];
+	$_SESSION['userid']   = $user['id'];
+	$_SESSION['ip']       = $_SERVER['REMOTE_ADDR'];
+	$_SESSION['last']     = time();
 
   #select vars for welcome message
   $query  = "SELECT to_char(last,'YYYY-MM-DD HH24:MI') as last, hostnamelast FROM users WHERE id='$_SESSION[userid]'";
-  $res    = db_query($query) or die("Unable to query database.");
+  $res    = db_query($query) or die(_('Unable to query database.'));
 
    while($row = db_fetch_next($res)) {
-    $_SESSION['lastdb']       = $row["last"];
-    $_SESSION['hostnamelast'] = $row["hostnamelast"];
+    $_SESSION['lastdb']       = $row['last'];
+    $_SESSION['hostnamelast'] = $row['hostnamelast'];
    }
    db_free_result($res);
 
-   #update db for future welcome message
+   // update db for future welcome message
    $query  = "UPDATE users
            SET last = CURRENT_TIMESTAMP,
            hostnamelast = '$_SERVER[REMOTE_ADDR]'
            WHERE id = '$_SESSION[userid]'";
    $res    = db_query($query)
-   or die("Unable to query database.");
+   or die(_('Unable to query database.'));
    db_free_result($res);
    Header("Location: $_SESSION[BASEURL]/index.php");
 }
 
+/** Generate an event when a user offers invalid credentials.
+ * @param $login login provided by the user
+ */
 function airt_invalidCredentials($login = '') {
-	generateEvent("invalidlogin", array(
-				"login" => $login,
-				"remoteip" => $_SERVER['REMOTE_ADDR']
+	generateEvent('invalidlogin', array(
+				'login' => $login,
+				'remoteip' => $_SERVER['REMOTE_ADDR']
 			));
 }
-
 ?>

@@ -46,23 +46,23 @@ require_once LIBDIR.'/constituency.plib';
 function printUsage() {
    global $FILTERS;
 
-   echo t('Incidence import program, part of the AIRT suite.')."\n";
-   echo t('Copyright (C) 2006   Tilburg University, The Netherlands.')."\n";
-   echo t(
+   echo _('Incidence import program, part of the AIRT suite.').LF;
+   echo _('Copyright (C) 2006   Tilburg University, The Netherlands.').LF;
+   echo _(
 'Usage: import [--filter=<filter>] [--help] [--noqueue] [--verbose] \\
               [--virtual-host=<virtual_host>] [filename]'
-     )."\n";
-   echo t(
+     ).LF;
+   echo _(
      'The program reads the import data from stdin if no filename is given.'
-     )."\n";
+     ).LF;
 
    // Enumerate all registered filters.
    if (count($FILTERS)>0) {
-      echo t('Available filters:');
+      echo _('Available filters:');
       foreach ($FILTERS as $filter) {
          echo ' '.$filter;
       }
-      echo "\n";
+      echo LF;
    }
 
 }// printUsage
@@ -87,7 +87,7 @@ function import($input,&$error,$verbosity=FALSE) {
    if ($OPTIONS['--noqueue']) {
       // Just kidding.
       if ($verbosity) {
-         echo t('Not actually queueing the incident.')."\n";
+         echo _('Not actually queueing the incident.').LF;
       }
       return 0;
    }
@@ -102,7 +102,7 @@ function import($input,&$error,$verbosity=FALSE) {
    $xml=preg_replace('/airt:/','',$input);
    $dom = domxml_open_mem($xml);
    if ($dom == false) {
-      $error = 'Unable to parse xml';
+      $error = _('Unable to parse xml');
       return 1;
    }
 
@@ -115,7 +115,7 @@ function import($input,&$error,$verbosity=FALSE) {
 
    foreach ($importqueue as $element) {
       if (!$element->has_attribute('ref')) {
-         $error = 'Missing ref attribute in XML';
+         $error = _('Missing ref attribute in XML');
          return 1;
       }
       $ref = $element->get_attribute('ref');
@@ -161,7 +161,7 @@ function import($input,&$error,$verbosity=FALSE) {
 
       // Progress
       if ($verbosity) {
-         echo t("Queued incident, ID=$newID")."\n";
+         echo _("Queued incident, ID=$newID").LF;
       }
    } // foreach
 
@@ -180,7 +180,7 @@ function import($input,&$error,$verbosity=FALSE) {
 function updateQueueItem($id, $field, $value, &$error) {
    $error = '';
    if (!is_numeric($id)) {
-      $error = 'Invalid parameter \"id\"';
+      $error = _('Invalid parameter "id"');
       return 1;
    }
    $query = q('update import_queue set %field = \'%value\', updated = CURRENT_TIMESTAMP where id=\'%id\'', 
@@ -190,7 +190,7 @@ function updateQueueItem($id, $field, $value, &$error) {
    ));
    $res = db_query($query);
    if ($res == false) {
-      $error = 'Unable to query database in importqueue.plib:'.__LINE__;
+      $error = _('Unable to query database in importqueue.plib:').__LINE__;
       return 1;
    }
 
@@ -238,14 +238,21 @@ function formatQueueOverview() {
       return;
    }
    if (sizeof($elements) == 0) {
-      return "No items pending.\n";
+      return _('No items pending').LF;
    }
    foreach (getOpenincidents() as $id=>$data) {
       $openips[$data['ip']] = $id;
    }
    $count = 0;
-   $out = "<table cellpadding=\"4\" class=\"queue\">\n";
-   $out .= "<tr><th>Decision</th><th>Sender</th><th>Constituency</th><th>IP Address</th><th>Details</th></tr><th></th>\n";
+   $out = '<table cellpadding="4" class="queue">'.LF;
+   $out .= '<tr>'.LF;
+   $out .= '   <th>'._('Decision').'</th>'.LF;
+   $out .= '   <th>'._('Sender').'</th>'.LF;
+   $out .= '   <th>'._('Constituency').'</th>'.LF;
+   $out .= '   <th>'._('IP Address').'</th>'.LF;
+   $out .= '   <th>'._('Details').'</th>'.LF;
+   $out .= '</tr>'.LF;
+   $out .= '<th></th>'.LF;
    foreach ($elements as $id=>$element) {
 		$item = queuePeekItem($id,$error);
 		if ($error != '') {
@@ -254,24 +261,29 @@ function formatQueueOverview() {
 		}
 		if($tree = @domxml_open_mem($item['content'])) {
          $out .= t("<tr bgcolor=\"%color\">\n", array('%color'=>($count++ % 2 == 0) ? '#DDDDDD' : '#FFFFFF'));
-         $out .= t("  <td>\n");
-         $out .= t("  <select name=\"decision[$id]\">\n");
-         $out .= t("  <option value=\"accept\" SELECTED>Accept</option>\n");
-         $out .= t("  <option value=\"reject\">Reject</option>\n");
-         $out .= t("  <option value=\"donothing\">Do nothing</option>\n");
-         $out .= t("  </select>\n");
-         $out .= t("  </td>\n");
+         $out .= '  <td>'.LF;
+         $out .= '     <select name="'.$decision[$id].'">'.LF;
+         $out .= '     <option value="accept" SELECTED>'._('Accept').'</option>'.LF;
+         $out .= '     <option value="reject">'._('Reject').'</option>'.LF;
+         $out .= '     <option value="donothing">'._('Do nothing').'</option>'.LF;
+         $out .= '  </select>'.LF;
+         $out .= '  </td>'.LF;
          $out .= t("  <td>%type</td>\n", array('%type'=>$element['type']));
          $out .= t("  <td>%cons</td>\n", array('%cons'=>$element['cache_constituency']));
          $out .= t("  <td>%ip</td>\n", array('%ip'=>$element['cache_ip']));
-         $out .= t("  <td><a target=\"airt_queue\" title=\"Show incident details in new browser window\" href=\"%url?action=showdetails&id=%id\">details</a></td>\n", array('%url'=>$_SERVER['PHP_SELF'], '%id'=>$id));;
-         $out .= t("  <td>");
+         $out .= t('  <td><a target="airt_queue" title="'.
+            _('Show incident details in new browser window').
+            ' href="%url?action=showdetails&id=%id">'.
+            _('details').'</a></td>'.LF,
+            array('%url'=>$_SERVER['PHP_SELF'], '%id'=>$id));;
+         $out .= '   <td>'.LF;
          if (array_key_exists($element['cache_ip'], $openips)) {
-            $out .= t("  <input type=\"checkbox\" checked name=\"add[$id]\">");
-            $out .= t("  Add to %id", array('%id'=>normalize_incidentid($openips[$element['cache_ip']])));
+            $out .= '  <input type="checkbox" checked name="'.$add[$id].'">'.LF;
+            $out .= t(_('  Add to %id').LF,
+            array('%id'=>normalize_incidentid($openips[$element['cache_ip']])));
          }
-         $out .= t("  </td>\n");
-         $out .= "</tr>\n";
+         $out .= '  </td>'.LF;
+         $out .= '</tr>'.LF;
       }
       $count++;
    }
@@ -300,12 +312,12 @@ function queueToAIRT($id, &$error) {
       $ticketid = $ticket_element[0]->get_content();
    }
    if(!isset($ticketid) || $ticketid == null) {
-      $error = 'Missing key for authentication';
+      $error = _('Missing key for authentication');
       return 1;
    }
 
    if ($id == '') {
-      $error = 'Missing parameter id';
+      $error = _('Missing parameter id');
       return 1;
    }
    $data = queuePeekItem($id, $error);
@@ -313,7 +325,7 @@ function queueToAIRT($id, &$error) {
       return 1;
    }
    $matches = array();
-   $name = $email = 'Unknown';
+   $name = $email = _('Unknown');
    // Poor man's RFC2822 filter
    if (preg_match('/^([^<]+)<([^>]+)>$/', $data['sender'], $matches) > 0) {
       $name = trim($matches[1]);
@@ -420,7 +432,7 @@ function queueInsertItem($status,$sender,$type,$summary,$content,&$error) {
    $content = trim(db_escape_string($content));
    if ($status=='' || $sender=='' || $type=='' || $summary=='' ||
        $content=='') {
-      $error = 'Empty parameter';
+      $error = _('Empty parameter');
       return FALSE;
    }
 
@@ -428,7 +440,7 @@ function queueInsertItem($status,$sender,$type,$summary,$content,&$error) {
    $q = "select nextval('importqueue_sequence') as id";
    $res = db_query($q);
    if (!$res) {
-      $error = 'Cannot get next queue item ID';
+      $error = _('Cannot get next queue item ID');
       return FALSE;
    }
    $row = db_fetch_next($res);
@@ -454,7 +466,7 @@ function queueInsertItem($status,$sender,$type,$summary,$content,&$error) {
            ($newID,CURRENT_TIMESTAMP,'$status','$sender','$type',
             '$summary','$content','$cache_ip', '$cache_constituency')";
    if (!db_query($q)) {
-      $error = 'Could not insert new queue item';
+      $error = _('Could not insert new queue item');
       return FALSE;
    }
 
@@ -478,11 +490,11 @@ function queuePeekItem($id,&$error) {
       FROM import_queue
       WHERE id=%id', array('%id'=>$id)));
    if ($res == false) {
-      $error = "Unable to query database in importqueue.plib:".__LINE__;
+      $error = _('Unable to query database in ').'importqueue.plib:'.__LINE__;
       return NULL;
    }
    if (db_num_rows($res) == 0) {
-      $error = "Request for invalid queue item";
+      $error = _('Request for invalid queue item');
       return NULL;
    }
    $out = db_fetch_next($res);
@@ -504,7 +516,7 @@ function queuePeekItem($id,&$error) {
  *   0 in case of successful removal, 1 in case of a problem.
  */
 function queueRemoveItem($id,&$error) {
-   $error = 'Not yet implemented';
+   $error = _('Not yet implemented');
    return 1;
 }// queueRemoveItem
 
@@ -535,7 +547,7 @@ function queueAddLogging($id, &$error) {
       $openips[$data['ip']] = $id;
    }
    if (!array_key_exists($item['cache_ip'], $openips)) {
-      $error = 'Invalid cache data';
+      $error = _('Invalid cache data');
       return 3;
    }
 
@@ -544,7 +556,7 @@ function queueAddLogging($id, &$error) {
    $root = $xml->document_element();
    $logging_els = $root->get_elements_by_tagname('logging');
    if (sizeof($logging_els) == 0) {
-      $error = 'Invalid XML (no logging)';
+      $error = _('Invalid XML (no logging)');
       return 4;
    }
    $logging = '';
@@ -594,7 +606,7 @@ function fetchAuthTicket(&$ticket, &$error) {
       $ticket = $ticket_element[0]->get_content();
    }
    if(!isset($ticket) || $ticket == null) {
-      $error = 'Missing key for authentication';
+      $error = _('Missing key for authentication');
       return 1;
    } else {
       return 0;

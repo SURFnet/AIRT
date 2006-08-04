@@ -31,16 +31,17 @@ $AIRT_ERRORS = array(
 );
 
 
-// Central API to report error conditions.
-// errClass  = Error class from the AIRT_ERRORS array.
-// scope     = Place in the code where the error occurred, typically file
-//             name and line number.
-// user_info = Message to be shown to end user, should be meaningful for a
-//             user but typically not contain information that is sensitive
-//             or only of use to developers. Optional.
-// sys_info  = Detailed information that will not be shown to the end user,
-//             but may be very interesting for a developer (query text,
-//             etc.). Optional. Should be sent to log file or such (TODO).
+/** Central API to report error conditions.
+ * @param errClass Error class from the AIRT_ERRORS array.
+ * @param scope Place in the code where the error occurred, typically file
+ *    name and line number.
+ * @param user_info Message to be shown to end user, should be meaningful for a
+ *    user but typically not contain information that is sensitive
+ *    or only of use to developers. Optional.
+ * @param sys_info Detailed information that will not be shown to the end user,
+ *    but may be very interesting for a developer (query text,
+ *    etc.). Optional. Should be sent to log file or such (TODO).
+ */
 function airt_error($errClass, $scope, $user_info='', $sys_info='') {
    global $AIRT_ERRORS;
 
@@ -51,7 +52,7 @@ function airt_error($errClass, $scope, $user_info='', $sys_info='') {
                  '%info'=>($user_info=='' ? '' : "($user_info)")
       )));
    } else {
-      airt_msg(t('AIRT Unknown error %errno: %info in scope %scope', array(
+      airt_msg(t(_('AIRT Unknown error %errno: %info in scope %scope'), array(
                  '%errno'=>$errClass, 
                  '%scope'=>$scope,
                  '%info'=>($user_info=='' ? '' : "($user_info)")

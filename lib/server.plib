@@ -43,7 +43,6 @@ function CheckCredentials($ticketid) {
          db_masq_null($ticketid)))
    or die;
 
-
    while ($row = db_fetch_next($res)) {
       $userid = $row['userid'];
    }
@@ -53,7 +52,7 @@ function CheckCredentials($ticketid) {
 function CreateTicket($userid,$ticketid) {
    $res = db_query(
       "SELECT  nextval('authentication_tickets_sequence') as creationid")
-      or die("Unable to execute query");
+      or die(_('Unable to execute query'));
 
    while ($row = db_fetch_next($res)) {
       $creationid = $row['creationid'];
@@ -66,7 +65,7 @@ function CreateTicket($userid,$ticketid) {
       db_masq_null($creationid),
       db_masq_null($userid),
       db_masq_null($ticketid)))
-   or die('Unable to create ticket');
+   or die(_('Unable to create ticket'));
 
    return $creationid;
 }

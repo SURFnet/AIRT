@@ -208,22 +208,26 @@ function format_templates() {
    $count=0;
    $templates = get_templates();
    if (sizeof($templates) == 0) {
-      return "No templates available.";
+      return _('No templates available.');
    }
    foreach ($templates as $name=>$body) {
       $subject = get_subject($body);
       $out .= t("<tr bgcolor=\"%color\">", array(
          '%color'=>($count++%2==0?"#DDDDDD":"#FFFFFF")));
-      $out .= t("<td><a href=\"%url?action=prepare&template=%name%to\">prepare</a></td>", array(
+      $out .= t('<td><a href="%url?action=prepare&template=%name%to">'.
+                _('prepare').'</a></td>'.LF, array(
          '%url'=>$_SERVER['PHP_SELF'],
          '%name'=>$name,
          '%to'=>$to));
-      $out .= t("<td>%name</td>\n", array('%name'=>$name));
-      $out .= t("<td>%subject</td>\n", array('%subject'=>$subject));
-      $out .= t("<td><a href=\"%url?action=edit&template=%name\">edit</a></td>\n", array(
+      $out .= t("<td>%name</td>".LF, array('%name'=>$name));
+      $out .= t("<td>%subject</td>".LF, array('%subject'=>$subject));
+      $out .= t('<td><a href="%url?action=edit&template=%name">'.
+               _('edit').'</a></td>'.LF, array(
          '%url'=>$_SERVER['PHP_SELF'],
          '%name'=>$name));
-      $out .= t("<td><a onclick=\"return confirm('Are you sure that you want to delete this message?')\" href=\"%url?action=delete&template=%name\">delete</a></td>\n", array(
+      $out .= t('<td><a onclick="return confirm(\''.
+         _('Are you sure that you want to delete this message?').'\')\" href=\"%url?action=delete&template=%name\">'.
+         _('delete').'</a></td>'.LF, array(
          '%url'=>$_SERVER['PHP_SELF'],
          '%name'=>$name));
       $out .= t("</tr>\n");
@@ -239,7 +243,7 @@ function format_templates() {
  */
 function show_message($name) {
     if (($message = read_standard_message($name)) == false) {
-        printf("Unable to read message.");
+        printf(_('Unable to read message.'));
         return false;
     }
     printf("%s", replace_vars($message));
@@ -314,7 +318,7 @@ function prepare_message($template, $agenda=array(), $to=array()) {
 	$current = array('user'=>'', 'name'=>'', 'email'=>'', 
       'ip'=>'', 'hostname'=>'');
 
-   pageHeader("Send message from template.");
+   pageHeader(_('Send message from template.'));
 	$current['incidentid'] = $agenda[0];
 	unset($agenda[0]);
 	$incident = getIncident($current['incidentid']);
@@ -342,43 +346,40 @@ function prepare_message($template, $agenda=array(), $to=array()) {
     'message'=>$msgdata['body']));
 
    $agendaval=implode(',', $agenda);
-   echo <<<EOF
-<FORM method="POST">
-<TABLE WIDTH="80">
-<TR>
-   <TD>To:</TD>
-   <TD><INPUT TYPE="text" size="50" name="to" value="$msgdata[receiver]"></TD>
-</TR>
-<TR>
-   <TD>Subject:</TD>
-   <TD><INPUT TYPE="text" size="50" name="subject" value="$msgdata[subject]"></TD>
-</TR>
-<TR>
-   <TD>From:</TD>
-   <TD><INPUT TYPE="text" size="50" name="from" value="$msgdata[sender]"></TD>
-</TR>
-<TR>
-   <TD>Reply-To:</TD>
-   <TD><INPUT TYPE="text" size="50" name="replyto" value="$msgdata[replyto]"></TD>
-</TR>
-</TABLE>
-<TEXTAREA name="msg" cols="80" rows="30">$msgdata[body]</TEXTAREA>
-<P>
-<input type="hidden" name="agenda" value="$agendaval">
-<input type="hidden" name="template" value="$template">
-<input type="hidden" name="incidentid" value="$current[incidentid]">
-<input type="reset"  value="Reset">
-<input type="submit" name="action" value="Send">
-EOF;
-      if (sizeof($agenda) > 0) {
-         print t('<input type="submit" name="action" value="Send and prepare next">');
-      }
-      if (defined('GPG_KEYID')) {
-         echo '<input type="checkbox" name="sign" checked> Sign';
-      }
-      echo <<<EOF
-</FORM>
-EOF;
+   $out = '<FORM method="POST">'.LF;
+   $out .= '<TABLE WIDTH="80">'.LF;
+   $out .= '<TR>'.LF;
+   $out .= '<TD>'._('To:').'</TD>'.LF;
+   $out .= '<TD><INPUT TYPE="text" size="50" name="to" value="'.$msgdata[receiver].'"></TD>'.LF;
+   $out .= '</TR>'.LF;
+   $out .= '<TR>'.LF;
+   $out .= '<TD>'._('Subject:').'</TD>'.LF;
+   $out .= '<TD><INPUT TYPE="text" size="50" name="subject" value="'.$msgdata[subject].'"></TD>'.LF;
+   $out .= '</TR>'.LF;
+   $out .= '<TR>'.LF;
+   $out .= '<TD>'._('From:').'</TD>'.LF;
+   $out .= '<TD><INPUT TYPE="text" size="50" name="from" value="'.$msgdata[sender].'"></TD>'.LF;
+   $out .= '</TR>';
+   $out .= '<TR>';
+   $out .= '<TD>'._('Reply-To:').'</TD>'.LF;
+   $out .= '<TD><INPUT TYPE="text" size="50" name="replyto" value="'.$msgdata[replyto].'"></TD>'.LF;
+   $out .= '</TR>'.LF;
+   $out .= '</TABLE>'.LF;
+   $out .= '<TEXTAREA name="msg" cols="80" rows="30">'.$msgdata[body].'</TEXTAREA>'.LF;
+   $out .= '<P>'.LF;
+   $out .= '<input type="hidden" name="agenda" value="'.$agendaval.'">'.LF;
+   $out .= '<input type="hidden" name="template" value="'.$template.'">'.LF;
+   $out .= '<input type="hidden" name="incidentid" value="'.$current[incidentid].'">'.LF;
+   $out .= '<input type="reset"  value="Reset">'.LF;
+   $out .= '<input type="submit" name="action" value="Send">'.LF;
+   print $out;
+   if (sizeof($agenda) > 0) {
+      print '<input type="submit" name="action" value="'._('Send and prepare next').'">'.LF;
+   }
+   if (defined('GPG_KEYID')) {
+      print '<input type="checkbox" name="sign" checked> '._('Sign').LF;
+   }
+   print '</form>'.LF;
 
    generateEvent('postmailtemplate', array(
     'to'=>$msgdata['receiver'],
@@ -391,65 +392,66 @@ EOF;
 
 
 function print_variables_info() {
-    echo <<<EOF
-<table cellpadding="2">
-<tr>
-    <td>@HOSTNAME@</td>
-    <td>Will be replaced with the currently active hostname</td>
-</tr>
-<tr>
-    <td>@INCIDENTID@</td>
-    <td>Will be replaced with the current incident id</td>
-</tr>
-<tr>
-    <td>@IPADDRESS@</td>
-    <td>Will be replaced with the currently active IP address</td>
-</tr>
-<tr>
-    <td>@LOGGING@</td>
-    <td>Will be replaced with the available logging information</td>
-</tr>
-<tr>
-    <td>@PREVIOUS@</td>
-    <td>Will be replaced with previous incidents</td>
-</tr>
-<tr>
-    <td nowrap>@SUBJECT@ .. @ENDSUBJECT@</td>
-    <td>Delimits the subject line of the message</td>
-</tr>
-<tr>
-   <td>@USEREMAIL@</td>
-   <td>Will be replaced with the email address of the current user</td>
-</tr>
-<tr>
-   <td>@USERINFO@</td>
-   <td>Will be replaced with detailed information about the user, if that
-   information is available.</td>
-</tr>
-<tr>
-    <td>@USERNAME@</td>
-    <td>Will be replaced with the name of the current user</td>
-</tr>
-<tr>
-    <td>@XMLDATA@</td>
-    <td>Will be replaced with the incident data in XML format</td>
-</tr>
-<tr>
-    <td>@EXTIDS@</td>
-	 <td>External incident identifiers (if any)</td>
-</tr>
-<tr>
-    <td>@YOURFIRSTNAME@</td>
-    <td>Will be replaced with the first name of the logged in incident
-    handler</td>
-</tr>
-<tr>
-    <td>@YOURNAME@</td>
-    <td>Will be replaced with the full name of the logged in incident
-    handler</td>
-</tr>
-</table>
-EOF;
+   $out = '<table cellpadding="2">'.LF;
+   $out .= '<tr>'.LF;
+   $out .= '<td>@HOSTNAME@</td>'.LF;
+   $out .= '<td>'._('Will be replaced with the currently active hostname').
+      '</td>'.LF;
+   $out .= '</tr>'.LF;
+   $out .= '<tr>'.LF;
+   $out .= '<td>@INCIDENTID@</td>'.LF;
+   $out .= '<td>'._('Will be replaced with the current incident id').
+      '</td>'.LF;
+   $out .= '</tr>'.LF;
+   $out .= '<tr>'.LF;
+   $out .= '<td>@IPADDRESS@</td>'.LF;
+   $out .= '<td>'._('Will be replaced with the currently active IP address').
+      '</td>'.LF;
+   $out .= '</tr>'.LF;
+   $out .= '<tr>'.LF;
+   $out .= '<td>@LOGGING@</td>'.LF;
+   $out .= '<td>'._('Will be replaced with the available logging information').
+      '</td>'.LF;
+   $out .= '</tr>'.LF;
+   $out .= '<tr>'.LF;
+   $out .= '<td>@PREVIOUS@</td>'.LF;
+   $out .= '<td>'._('Will be replaced with previous incidents').'</td>'.LF;
+   $out .= '</tr>'.LF;
+   $out .= '<tr>'.LF;
+   $out .= '<td nowrap>@SUBJECT@ .. @ENDSUBJECT@</td>'.LF;
+   $out .= '<td>'._('Delimits the subject line of the message').'</td>'.LF;
+   $out .= '</tr>'.LF;
+   $out .= '<tr>'.LF;
+   $out .= '<td>@USEREMAIL@</td>'.LF;
+   $out .= '<td>'._('Will be replaced with the email address of the current user').'</td>'.LF;
+   $out .= '</tr>'.LF;
+   $out .= '<tr>'.LF;
+   $out .= '<td>@USERINFO@</td>'.LF;
+   $out .= '<td>'._('Will be replaced with detailed information about the user, if that
+   information is available.').'</td>'.LF;
+   $out .= '</tr>'.LF;
+   $out .= '<tr>'.LF;
+   $out .= '<td>@USERNAME@</td>'.LF;
+   $out .= '<td>'._('Will be replaced with the name of the current user').'</td>'.LF;
+   $out .= '</tr>'.LF;
+   $out .= '<tr>'.LF;
+   $out .= '    <td>@XMLDATA@</td>'.LF;
+   $out .= '    <td>'._('Will be replaced with the incident data in XML format').'</td>'.LF;
+   $out .= '</tr>'.LF;
+   $out .= '<tr>'.LF;
+   $out .= '    <td>@EXTIDS@</td>'.LF;
+   $out .= '	 <td>'._('External incident identifiers (if any)').'</td>'.LF;
+   $out .= '</tr>'.LF;
+   $out .= '<tr>'.LF;
+   $out .= '    <td>@YOURFIRSTNAME@</td>'.LF;
+   $out .= '    <td>'._('Will be replaced with the first name of the logged in incident handler').'</td>'.LF;
+   $out .= '</tr>'.LF;
+   $out .= '<tr>'.LF;
+   $out .= '    <td>@YOURNAME@</td>'.LF;
+   $out .= '    <td>'._('Will be replaced with the full name of the logged in incident handler').'</td>'.LF;
+   $out .= '</tr>'.LF;
+   $out .= '</table>'.LF;
+   print $out;
 }
 
 /** Replace @..@ macros in mail templates.

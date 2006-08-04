@@ -1,0 +1,46 @@
+List of files to be checked for multilingual support.
+
+$AIRT/php:
+     config.plib.in
+     constituencies.php
+     constituency_contacts.php
+     export.php
+     exportqueue.php
+     help.php
+     importqueue.php
+DONE incident.php
+     incident_states.php
+     incident_status.php
+     incident_types.php
+     index.php
+     license.php
+     links.php
+     login.php.in
+     logout.php
+     mailtemplates.php
+     maintenance.php
+     networks.php
+     roleassignments.php
+     roles.php
+     search.php
+     server.php
+     stats.php
+     users.php
+
+$AIRT/lib:
+DONE airt.plib
+DONE authentication.plib
+DONE constituency.plib
+DONE database.plib
+DONE error.plib
+DONE export.plib
+DONE exportqueue.plib
+DONE history.plib
+DONE importqueue.plib
+DONE incident.plib
+DONE mailtemplates.plib
+DONE network.plib
+DONE search.plib
+DONE server.plib
+DONE user.plib
+DONE whois.plib

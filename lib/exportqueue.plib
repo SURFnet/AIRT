@@ -35,16 +35,16 @@ require_once LIBDIR.'/airt.plib';
 function printUsage() {
    global $WRAPPERS;
 
-   echo t('Task export program, part of the AIRT suite.').LF;
-   echo t('Copyright (C) 2006   Tilburg University, The Netherlands.').LF;
-   echo t('Usage: airt_export [--help] [--noqueue] [--verbose] [--purge]').LF;
+   echo t(_('Task export program, part of the AIRT suite.')).LF;
+   echo t(_('Copyright (C) 2006   Tilburg University, The Netherlands.')).LF;
+   echo t(_('Usage: airt_export [--help] [--noqueue] [--verbose] [--purge]')).LF;
    echo   '         '.t('[--result-id=ID] [--result-code=CODE]').LF;
-   echo   '         '.t('[--result-msg="message here"]').LF;
+   echo   '         '.t('[--result-msg='._('"message here"').']').LF;
    echo   '         '.t('[--virtual-host=VIRTUAL_HOST]').LF;
 
    // Enumerate all registered wrappers.
    if (count($WRAPPERS)>0) {
-      echo t('Available wrappers:');
+      echo t(_('Available wrappers').':');
       foreach ($WRAPPERS as $wrapper=>$execpath) {
          echo ' '.$wrapper;
       }
@@ -69,7 +69,7 @@ function spawnTask($task,$params=array()) {
    // Check whether we have any chance of successfully executing the task.
    if (!is_executable($task)) {
       // Nope.
-      return t('%task is not executable.',
+      return t(_('%task is not executable.'),
                array('%task'=>$task));
    }
 
@@ -77,7 +77,7 @@ function spawnTask($task,$params=array()) {
    $child = pcntl_fork();
    if ($child==-1) {
      // Could not fork!?
-     return t('Could not fork.');
+     return t(_('Could not fork.'));
    } else if ($child>0) {
      // Forked successfully and we are the parent.
      return '';
@@ -86,7 +86,7 @@ function spawnTask($task,$params=array()) {
    // We are the child. Hello, world!
    // Detach from the controlling terminal, we run as a daemon.
    if (!posix_setsid()) {
-     fwrite(STDERR, t('ERROR: Could not detach from terminal').LF);
+     fwrite(STDERR, t(_('ERROR: Could not detach from terminal')).LF);
      exit(1);
    }
 
@@ -94,7 +94,7 @@ function spawnTask($task,$params=array()) {
    // any problem back to the parent here.
    pcntl_exec($task,$params);
    // and we'll never ever should get here.
-   fwrite(STDERR, t('ERROR: Entered the twilight zone!?').LF);
+   fwrite(STDERR, t(_('ERROR: Entered the twilight zone!?')).LF);
    exit(1);
 
 }// spawnTask
@@ -121,29 +121,29 @@ function msg($message) {
  * Output: HTML string, ready for output.
  */
 function formatQueueList() {
-   $out = '<p><em><a href="exportqueue.php">Refresh this page</a></em></p>'.LF;
+   $out = '<p><em><a href="exportqueue.php">'._('Refresh this page').'</a></em></p>'.LF;
 
    // Fetch the items in the export queue.
    if (getQueueList($itemArray,$error)) {
-      $out = '<p>'.t('ERROR:').' '.$error.'</p>'.LF;
+      $out = '<p>'._('ERROR:').' '.$error.'</p>'.LF;
       return $out;
    }
 
    if (count($itemArray)==0) {
-      $out .= '<p><em>'.t('No items in export queue.').'</em></p>'.LF;
+      $out .= '<p><em>'._('No items in export queue.').'</em></p>'.LF;
       return $out;
    }
 
    // Table format, header, etc.
    $out .= '<table>'.LF;
    $out .= '<tr>'.LF;
-   $out .= '  <th>'.t('ID').'</th>'.LF;
-   $out .= '  <th>'.t('Task').'</th>'.LF;
-   $out .= '  <th>'.t('Created').'</th>'.LF;
-   $out .= '  <th>'.t('Scheduled').'</th>'.LF;
-   $out .= '  <th>'.t('Started').'</th>'.LF;
-   $out .= '  <th>'.t('Ended').'</th>'.LF;
-   $out .= '  <th>'.t('Result').'</th>'.LF;
+   $out .= '  <th>'._('ID').'</th>'.LF;
+   $out .= '  <th>'._('Task').'</th>'.LF;
+   $out .= '  <th>'._('Created').'</th>'.LF;
+   $out .= '  <th>'._('Scheduled').'</th>'.LF;
+   $out .= '  <th>'._('Started').'</th>'.LF;
+   $out .= '  <th>'._('Ended').'</th>'.LF;
+   $out .= '  <th>'._('Result').'</th>'.LF;
    $out .= '</tr>'.LF;
 
    // Table rows, each row contains one export queue entry.
@@ -182,10 +182,10 @@ function formatQueueList() {
       }
 
       // Row title appears when hovering over the row for a while.
-      $tit = t('Task parameters').': '.$details['params'];
+      $tit = _('Task parameters').': '.$details['params'];
       // Task removal has a confirmation dialog popup in JavaScript.
       $del = 'exportqueue.php?action=remove&taskid='.$id;
-      $msg = t('Are you sure that you want to delete this queue entry?');
+      $msg = _('Are you sure that you want to delete this queue entry?');
       $pop  = "onclick=\"return confirm('$msg')\"";
 
       $out .= '<tr class="'.$parity.'" title="'.$tit.'">'.LF;
@@ -196,7 +196,7 @@ function formatQueueList() {
       $out .= '  <td>&nbsp;'.$details['started'].'&nbsp;</td>'.LF;
       $out .= '  <td>&nbsp;'.$details['ended'].'&nbsp;</td>'.LF;
       $out .= '  <td '.$resultClass.'>&nbsp;'.$resultStr.'&nbsp;</td>'.LF;
-      $out .= '  <td>&nbsp;<a href="'.$del.'" '.$pop.'>['.t('delete').
+      $out .= '  <td>&nbsp;<a href="'.$del.'" '.$pop.'>['._('delete').
                      ']</a>&nbsp;</td>'.LF;
       $out .= '</tr>'.LF;
    }
@@ -220,7 +220,7 @@ function formatQueueItemInsert() {
       return '';
    }
 
-   $out = '<p><strong>'.t('Add a new task to the queue').'</strong></p>'.LF;
+   $out = '<p><strong>'._('Add a new task to the queue').'</strong></p>'.LF;
    $out .= '<form method="POST" action="exportqueue.php">'.LF;
    $out .= '<input type="hidden" name="action" value="add">'.LF;
 
@@ -233,15 +233,15 @@ function formatQueueItemInsert() {
    $out .= '<input type="text" name="params" size=30>'.LF;
 
    $out .= '<select name="scheduled">'.LF;
-   $out .= '  <option value=0>Run Now'.LF;
-   $out .= '  <option value=1>Run in one hour'.LF;
-   $out .= '  <option value=2>Run in two hours'.LF;
-   $out .= '  <option value=5>Run in five hours'.LF;
+   $out .= '  <option value=0>'._('Run Now').LF;
+   $out .= '  <option value=1>'._('Run in one hour').LF;
+   $out .= '  <option value=2>'._('Run in two hours').LF;
+   $out .= '  <option value=5>'._('Run in five hours').LF;
    $out .= '</select>'.LF;
 
-   $out .= '<input type="SUBMIT" value="'.t('Add Task').'"><p>'.LF;
-   $out .= '<em>'.t('For the exact functionality of the available tasks and
-   their possible parameters, please see %Athe documentation%E.',
+   $out .= '<input type="SUBMIT" value="'._('Add Task').'"><p>'.LF;
+   $out .= '<em>'.t(_('For the exact functionality of the available tasks and
+   their possible parameters, please see %Athe documentation%E.'),
      array('%A'=>'<a href="http://www.airt.nl/documentation/">',
            '%E'=>'</a>')).'</em>'.LF;
    $out .= '</form>'.LF;
@@ -274,7 +274,7 @@ function getQueueList(&$itemArray, &$error) {
            ORDER BY id");
    $res = db_query($q);
    if ($res===FALSE) {
-      $error = t('Could not query database for all tasks.');
+      $error = _('Could not query database for all tasks.');
       return 1;
    }
 
@@ -283,7 +283,7 @@ function getQueueList(&$itemArray, &$error) {
       $itemArray[$id] = $row;
    }
    return 0;
-   
+
 }// getQueueList
 
 
@@ -304,7 +304,7 @@ function getQueueRunnable(&$itemArray, &$error) {
            ORDER BY id');
    $res = db_query($q);
    if ($res===FALSE) {
-      $error = t('Could not query database for tasks to run.');
+      $error = _('Could not query database for tasks to run.');
       return 1;
    }
 
@@ -332,7 +332,7 @@ function queueItemInsert($task, $params, $scheduled, &$output) {
    $q = q("SELECT nextval('exportqueue_sequence') as newid");
    $res = db_query($q);
    if ($res===FALSE || db_num_rows($res)==0) {
-      $output = t('Could not get next exportqueue item ID.');
+      $output = _('Could not get next exportqueue item ID.');
       return 1;
    }
    $row = db_fetch_next($res);
@@ -352,7 +352,7 @@ function queueItemInsert($task, $params, $scheduled, &$output) {
                 '%params'   =>db_escape_string($params),
                 '%scheduled'=>db_escape_string($scheduled)));
    if (!db_query($q)) {
-      $output = t('Could not insert queue item.');
+      $output = _('Could not insert queue item.');
       return 1;
    } else {
       $output = $newTaskID;
@@ -374,7 +374,7 @@ function queueItemRemove($taskID,&$error) {
            WHERE id=%taskid',
           array('%taskid'=>sprintf('%d',$taskID)));
    if (!db_query($q)) {
-      $error = t('Could not remove task from queue.');
+      $error = _('Could not remove task from queue.');
       return 1;
    }
    return 0;
@@ -389,7 +389,7 @@ function queueItemRemove($taskID,&$error) {
  *    $output contains error msg.
  */
 function queueItemPeek($taskID, &$output) {
-   $output = 'Not yet implemented.';
+   $output = _('Not yet implemented.');
    return 1;
 }// queueItemPeek
 
@@ -405,7 +405,7 @@ function queueItemSetStarted($taskID, $started, &$error) {
    $error = '';
 
    if (!is_numeric($taskID)) {
-      $error = t('taskID must be a number.');
+      $error = _('taskID must be a number.');
       return 1;
    }
 
@@ -416,24 +416,24 @@ function queueItemSetStarted($taskID, $started, &$error) {
            array('%id'=>$taskID));
    $res = db_query($q);
    if ($res==FALSE) {
-      $error = t('Could not query database.');
+      $error = _('Could not query database.');
       return 1;
    }
 
    if (db_num_rows($res)==0) {
-      $error = t('Task %id unknown in export queue.',
+      $error = t(_('Task %id unknown in export queue.'),
                   array('%id'=>$taskID));
       return 1;
    }
 
    $row = db_fetch_next($res);
    if ($row['started']!='') {
-      $error = t('Task %id already started.',
+      $error = t(_('Task %id already started.'),
                   array('%id'=>$taskID));
       return 1;
    }
    if ($row['ended']!='') {
-      $error = t('Task %id has already completed.',
+      $error = t(_('Task %id has already completed.'),
                   array('%id'=>$taskID)).LF;
       return 1;
    }
@@ -451,7 +451,7 @@ function queueItemSetStarted($taskID, $started, &$error) {
                  '%started'=>$started));
    $res = db_query($q);
    if ($res===FALSE) {
-      $error = t('Could not update database.');
+      $error = _('Could not update database.');
       return 1;
    }
 
@@ -473,7 +473,7 @@ function queueItemSetEnded($taskID, $ended, $result, $noqueue, &$error) {
    $error = '';
 
    if (!is_numeric($taskID)) {
-      $error = t('taskID must be a number.');
+      $error = _('taskID must be a number.');
       return 1;
    }
 
@@ -484,24 +484,24 @@ function queueItemSetEnded($taskID, $ended, $result, $noqueue, &$error) {
            array('%id'=>$taskID));
    $res = db_query($q);
    if ($res==FALSE) {
-      $error = t('Could not query database.');
+      $error = _('Could not query database.');
       return 1;
    }
 
    if (db_num_rows($res)==0) {
-      $error = t('Task %id unknown in export queue.',
+      $error = t(_('Task %id unknown in export queue.'),
                   array('%id'=>$taskID));
       return 1;
    }
 
    $row = db_fetch_next($res);
    if ($row['started']=='') {
-      $error = t('Task %id not started yet.',
+      $error = t(_('Task %id not started yet.'),
                   array('%id'=>$taskID));
       return 1;
    }
    if ($row['ended']!='') {
-      $error = t('Task %id has already completed.',
+      $error = t(_('Task %id has already completed.'),
                   array('%id'=>$taskID));
       return 1;
    }
@@ -521,7 +521,7 @@ function queueItemSetEnded($taskID, $ended, $result, $noqueue, &$error) {
                     '%ended'=>$ended,
                     '%id'=>$taskID));
       if (db_query($q)===FALSE) {
-         $error = t('Could not update database.');
+         $error = _('Could not update database.');
          return 1;
       }
    }
@@ -541,14 +541,14 @@ function queueItemSetEnded($taskID, $ended, $result, $noqueue, &$error) {
  */
 function queuePurge($maxHours, &$error) {
    if (!is_numeric($maxHours)) {
-      $error = t('maxHours must be a number.');
+      $error = _('maxHours must be a number.');
       return 1;
    }
    $q = q('DELETE FROM export_queue
            WHERE EXTRACT(EPOCH FROM CURRENT_TIMESTAMP-created) > %ttl',
           array('%ttl'=>$maxHours*60*60));
    if (db_query($q)==FALSE) {
-      $error = t('Could not purge export queue.');
+      $error = _('Could not purge export queue.');
       return 1;
    } else {
       $error = '';

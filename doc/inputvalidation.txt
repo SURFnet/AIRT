@@ -1,0 +1,47 @@
+List of files to be checked for proper input validation for preventing
+cross-site scripting and SQL injection.
+
+$AIRT/php:
+     config.plib.in
+     constituencies.php
+     constituency_contacts.php
+     export.php
+     exportqueue.php
+     help.php
+     importqueue.php
+DONE incident.php
+     incident_states.php
+     incident_status.php
+     incident_types.php
+     index.php
+     license.php
+     links.php
+     login.php.in
+     logout.php
+     mailtemplates.php
+     maintenance.php
+     networks.php
+     roleassignments.php
+     roles.php
+     search.php
+     server.php
+     stats.php
+     users.php
+
+$AIRT/lib:
+DONE airt.plib
+DONE authentication.plib
+DONE constituency.plib
+DONE database.plib
+DONE error.plib
+     export.plib
+     exportqueue.plib
+     history.plib
+     importqueue.plib
+DONE incident.plib
+     mailtemplates.plib
+     network.plib
+     search.plib
+     server.plib
+     user.plib
+     whois.plib

@@ -23,75 +23,104 @@
  */
 require_once LIBDIR.'/database.plib';
 
+/** Return a list of constituencies.
+ * @return an associative array containing constituency information. The
+ *    key of the array is the constituency's ID. the value of the array is
+ *    an associative array with keys 'label' and 'name'
+ */
 function getConstituencies() {
    $res = db_query(
       'SELECT   id, label, name
        FROM     constituencies
        ORDER BY label')
-   or die("Unable to connect to database.");
+   or die(_('Unable to connect to database.'));
 
    $constituencies=array();
    while ($row = db_fetch_next($res)) {
-      $constituencies[$row["id"]]=array(
-         "label" => $row["label"],
-         "name"  => $row["name"]
+      $constituencies[$row['id']]=array(
+         'label' => $row['label'],
+         'name'  => $row['name']
       );
   }
   return $constituencies;
 }
 
 
+/** GUI component that returns an HTML <SELECT> box containing constituencies.
+ * @param $name Name of the <SELECT> element. Defaults to 'constituency'
+ * @param $default Value of the default constituency.
+ */
 function getConstituencySelection($name="constituency", $default=-1) {
-   $output = sprintf("<select name=\"%s\">\n", htmlentities($name));
+   $output = sprintf('<select name="%s">'.LF, htmlentities($name));
    $constituencies = getConstituencies();
    foreach ($constituencies as $id=>$data) {
-      $output .= sprintf("<option value=%s %s>%s (%s)</option>\n", htmlentities($id), ($id == $default)?"SELECTED":"", htmlentities($data["label"]), htmlentities($data["name"]));
+      $output .= sprintf('<option value=%s %s>%s (%s)</option>'.LF,
+         htmlentities($id),
+         ($id == $default)?'SELECTED':'',
+         htmlentities($data['label']),
+         htmlentities($data['name']));
    }
-   $output .= "</select>\n";
+   $output .= '</select>'.LF;
    return $output;
 }
 
-
+/** Return a list of networks.
+ * @return Returns an associative array of network information. They key of
+ *    the array is the network ID. The value is an associative array with
+ *    keys: 'id', 'network', 'netmask', 'label', 'constituency'. The value
+ *    of the constituency is the numerical ID of the constituency.
+ */
 function getNetworks() {
    $res = db_query(
-      "SELECT   id, network, netmask, label, constituency
+      'SELECT   id, network, netmask, label, constituency
        FROM     networks
-       ORDER BY network,netmask")
-   or die("Unable to connect to database.");
+       ORDER BY network,netmask')
+   or die('Unable to connect to database.');
 
    $networks=array();
    while ($row = db_fetch_next($res)) {
-      $networks[$row["id"]]=array(
-         "id"          => $row["id"],
-         "network"     => $row["network"],
-         "netmask"     => $row["netmask"],
-         "label"       => $row["label"],
-         "constituency"=> $row["constituency"]
+      $networks[$row['id']]=array(
+         'id'          => $row['id'],
+         'network'     => $row['network'],
+         'netmask'     => $row['netmask'],
+         'label'       => $row['label'],
+         'constituency'=> $row['constituency']
       );
    }
    return $networks;
 }
 
-function showNetworksSelection($name="network", $default=-1) {
-   printf("<select name=\"%s\">\n", htmlentities($name));
+/** GUI Component that returns an HTML <SELECT> box of networks.
+ * @param $name Name of the <SELECT> element
+ * @param $default Default value
+ */
+function showNetworksSelection($name='network', $default=-1) {
+   printf('<select name="%s">'.LF, htmlentities($name));
    $networks = getNetworks();
    foreach ($networks as $id => $data) {
       printf("<!-- %s, %s, %s, %s -->\n", $id, $data[0], $data[1], $data[2]);
-      $network = $data["network"];
-      $netmask = $data["netmask"];
-      $label   = $data["label  "];
+      $network = $data['network'];
+      $netmask = $data['netmask'];
+      $label   = $data['label  '];
 
-      printf("<option value=%s %s>%s/%s</option>\n",
+      printf('<option value=%s %s>%s/%s</option>'.LF,
          htmlentities($id),
-         ($id == $default)?"SELECTED":"",
+         ($id == $default)?'SELECTED':'',
          htmlentities($network),
          htmlentities($netmask),
          htmlentities($label)
       );
    }
-   printf("</select>\n");
+   printf('</select>'.LF);
 }
 
+/** Return an array of constituency contacts for a given constituency.
+ * @param $constituencyid Numerical ID of the constituency
+ * @returns an associative array with the key holding the user's numerical ID
+ *    and the value being an associative array with keys: 'id', 'userid', 
+ *    'lastname', 'firstname', 'email', 'phone', 'name'. The values of
+ *    'name' and 'id' reflect the constituency.
+ */
 function getConstituencyContacts($constituencyid) {
    if (!is_numeric($constituencyid)) {
       return;
@@ -119,45 +148,48 @@ function getConstituencyContacts($constituencyid) {
 } // getConstituencyContacts()
 
 
+/** GUI Component that displays an overview of constituency contacts for
+ * a given constituency.
+ * @param $constituencyid Numerical ID of the constituency
+ */
 function showConstituencyContacts($constituencyid) {
    $contacts = getConstituencyContacts($constituencyid);
    if (sizeof($contacts) == 0) {
-      print "No contacts.";
+      print _('No contacts.');
    } else {
-      echo <<<EOF
-<table cellpadding=3>
-<tr>
-    <td>Name</td>
-    <td>Email</td>
-    <td>Phone</td>
-</tr>
-EOF;
-     $count=0;
-     $_SESSION["current_email"] = "";
+      $out = '<table cellpadding="3">'.LF;
+      $out .= '<tr>'.LF;
+      $out .= '   <td>'._('Name').'</td>'.LF;
+      $out .= '   <td>'._('Email').'</td>'.LF;
+      $out .= '   <td>'._('Phone').'</td>'.LF;
+      $out .= '</tr>'.LF;
+      $count=0;
+      $_SESSION['current_email'] = '';
      foreach ($contacts as $id=>$data) {
-         printf("<tr>
-   <td>%s, %s</td>
-   <td><a href=\"mailto:%s\">%s</a></td>
-   <td>%s</td>
-</tr>",
-        $data["lastname"], $data["firstname"],
-        $data["email"], $data["email"],
-        $data["phone"]
-       );
-         $_SESSION["current_name"] = $data["firstname"] . " " . 
-            $data["lastname"];
-         if ($_SESSION["current_email"] == "") {
-            $_SESSION["current_email"] = $data["email"];
+         $out .= '<tr>'.LF;
+         $out .= '  <td>'.$data['lastname'].', '.$data['firstname'].'</td>'.LF;
+         $out .= '  <td><a href="mailto:'.$data['email'].'">'.$data['email'].'</a></td>'.LF;
+         $out .= '  <td>'.$data['phone'].'</td>'.LF;
+         $out .= '</tr>'.LF;
+
+         $_SESSION['current_name'] = $data['firstname'] . ' ' . 
+            $data['lastname'];
+         if ($_SESSION['current_email'] == '') {
+            $_SESSION['current_email'] = $data['email'];
          } else {
-            $_SESSION["current_email"] .= ','.$data["email"];
+            $_SESSION['current_email'] .= ','.$data['email'];
          }
       }
-      echo "</table>";
+      $out .= '</table>';
+      print $out;
    }
 }
 
 /* Convert a networkID to a constituencyID. Returns FALSE when no match. */
 function getConstituencyIDbyNetworkID($networkID) {
+   if (!is_numeric($networkid)) {
+      return false;
+   }
    // Simple lookup function.
    $q = sprintf('SELECT constituency
                  FROM   networks

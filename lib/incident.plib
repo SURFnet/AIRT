@@ -299,7 +299,7 @@ function getOpenIncidents($sqlfilter = "AND s1.label IN ('open','stalled')") {
          AND    i.type = t.id
          AND    i.creator = u1.id
          AND    i.updatedby = u2.id
-         AND    i.id = a.incident'.
+         AND    i.id = a.incident '.
          $sqlfilter);
    if (!$res) {
       airt_error('DB_QUERY', 'incident.plib:'.__LINE__);

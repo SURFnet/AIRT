@@ -42,7 +42,7 @@ function exportIncident($ids) {
       $query  = "SELECT lastname, firstname, email, phone FROM users WHERE id='".$_SESSION['userid']."'";
       if($_SESSION['userid']!=null) {
          $res = db_query($query)
-            or die ("Unable to query database. error 200");
+            or die (_('Unable to query database.').' '._('error').' 200');
 
 
          while ($row = db_fetch_next($res)) {
@@ -72,7 +72,7 @@ function exportIncident($ids) {
        ORDER BY    incidents.id";
 
       $res = db_query($query)
-         or die ("Unable to query database. error 400");
+      or die(_('Unable to query database.').' '._('error').' 400');
 
       while ($row = db_fetch_next($res)) {
          $res_array[$row['id']]['ticketInformation']['ticketnumber']['reference'] = $row['id'];
@@ -97,7 +97,7 @@ function exportIncident($ids) {
        ORDER BY incident_comments.id";
 
       $res = db_query($query)
-         or die ("Unable to query database. error 600");
+         or die(_('Unable to query database.').' '._('error').' 600');
 
       while ($row = db_fetch_next($res)) {
          $res_array[$row['incident']]['ticketInformation']['history'][$row['id']]['ticket_updater'] = $row['firstname']." ".$row['lastname'];

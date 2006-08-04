@@ -39,14 +39,14 @@ if ($_SERVER['DOCUMENT_ROOT']=='') {
 // We already have a database connection here. Check for a match between
 // code and database AIRT version.
 $q = "SELECT value FROM VERSIONS where key='airtversion'";
-$res = db_query($q) or die('Unable to connect to database.');
+$res = db_query($q) or die(_('Unable to connect to database.'));
 $row = db_fetch_next($res);
 $dbVersion = $row['value'];
 $br = (AIRT_RUN_MODE=='CLI') ? '' : '<br/>';
 if (AIRT_VERSION != $dbVersion) {
-   echo "Expected database version: ".AIRT_VERSION."$br\n";
-   echo "Actual database version:   $dbVersion$br\n";
-   echo "Cannot continue, needs database update first.\n";
+   echo _('Expected database version: ').AIRT_VERSION.$br.LF;
+   echo _('Actual database version:   ').$dbVersion.$br.LF;
+   echo _('Cannot continue, needs database update first.').LF;
    exit;
 }
 
@@ -69,49 +69,50 @@ if (AIRT_RUN_MODE=='HTTP') {
    $BASEURL=$_SESSION['BASEURL'];
 
    if (!isset($public) || !$public) {
-       if (!array_key_exists("username", $_SESSION)) {
+       if (!array_key_exists('username', $_SESSION)) {
            Header("Location: $BASEURL/login.php");
            exit;
        }
 
-       if (!array_key_exists("userid", $_SESSION)) {
+       if (!array_key_exists('userid', $_SESSION)) {
            Header("Location: $BASEURL/login.php");
            exit;
        }
 
-       if (!array_key_exists("ip", $_SESSION)) {
+       if (!array_key_exists('ip', $_SESSION)) {
            Header("Location: $BASEURL/login.php");
            exit;
        }
 
-       if (!array_key_exists("last", $_SESSION)) {
+       if (!array_key_exists('last', $_SESSION)) {
            Header("Location: $BASEURL/login.php");
            exit;
        }
 
        // check session ip
-       if ($_SERVER["REMOTE_ADDR"] != $_SESSION["ip"]) {
+       if ($_SERVER['REMOTE_ADDR'] != $_SESSION['ip']) {
            Header("Location: $BASEURL/login.php");
            exit;
        }
 
        // check expiration
-       $last = $_SESSION["last"];
+       $last = $_SESSION['last'];
        $now = time();
 
        if ($now - $last > SESSION_TIMEOUT) {
-         printf("Your session has expired. Please ".
-            "<a href=\"$BASEURL/login.php\">log in again</a>.");
+         printf(_('Your session has expired. Please ').
+            "<a href=\"$BASEURL/login.php\">"._('log in again').'</a>.'.LF);
            exit;
        }
 
        // update session timestamp
-       $_SESSION["last"] = $now;
+       $_SESSION['last'] = $now;
    }
 } // HTTP runtime environment
 
 ///// End init code; remaining file contains only function definitions, ////
 ///// but these are partially conditional. /////////////////////////////////
+
 
 /**
  * Display the page header
@@ -130,15 +131,6 @@ function pageheader($title="", $helptopic="") {
 	));
 
 } // pageheader()
-
-
-/** 
- * Validate input provided by user
- * TODO: make this function do something
- */
-function validate_input($input) {
-	return $input;
-}
 
 
 /**
@@ -162,32 +154,56 @@ function email($msg) {
    printf("<a href=\"%s\">%s</a>", $msg, $msg);
 }
 
-/**
+/** Encodes an incident ID with the configured prefix.
+ * @param $id Numerical incident ID
+ * @return A string in the format PREFIX#number
  */
 function encode_incidentid($id) {
-    return sprintf("%s%06d", INCIDENTID_PREFIX, $id);
+   return sprintf("%s%06d", INCIDENTID_PREFIX, $id);
 }
 
+/** Extract the numerical incident ID from a normalized incident ID.
+ * @param $id String containing the normalized incident ID
+ * @return a numerical value containing the incident id.
+ */
 function decode_incidentid($id) {
-    $x = ereg_replace(INCIDENTID_PREFIX, "", $id);
-    $x = ereg_replace("^0*", "", $x);
-    return $x;
+   $x = ereg_replace(INCIDENTID_PREFIX, "", $id);
+   $x = ereg_replace("^0*", "", $x);
+   return $x;
 }
 
+/** Normalize an incident ID.
+ * @param $id Numeric or previously normalized incident id
+ * @return Normalized incidentid
+ */
 function normalize_incidentid($id) {
     $id = decode_incidentid($id);
     return encode_incidentid($id);
 }
 
+/** GUI component which returns an HTML <OPTION>. Both option and value are
+ * stripped of HTML/PHP code and are properly HTML entity encoded.
+ *
+ * @param $label Label of the option
+ * @param $value Value of the option
+ * @param $default Default value; makes option SELECTED is $value==$default
+ * @return HTML string
+ */
 function choice($label, $value, $default) {
     if ($value == $default)
-        return sprintf("<OPTION value='%s' SELECTED>%s</OPTION>\n",
-            $value, $label);
+        return sprintf('<OPTION value="%s" SELECTED>%s</OPTION>'.LF,
+            htmlentities(strip_tags($value)),
+            htmlentities(strip_tags($label)));
     else
-        return sprintf("<OPTION value='%s'>%s</OPTION>\n",
-            $value, $label);
+        return sprintf('<OPTION value="%s">%s</OPTION>'.LF,
+            htmlentities(strip_tags($value)),
+            htmlentities(strip_tags($label)));
 }
 
+/** Register an event handler.
+ * @param $event Event to register for
+ * @param $function Function to call when $event is generated.
+ */
 function registerEventHandler($event, $function) {
 	global $glEventHandlers;
 
@@ -199,6 +215,10 @@ function registerEventHandler($event, $function) {
 		$glEventHandlers[$event] = array($function);
 }
 
+/** Generate an event.
+ * @param $event Event to generate
+ * @param $data Associative array containing additional information about event
+ */
 function generateEvent($event, $data=array()) {
 	global $glEventHandlers;
 
@@ -228,6 +248,7 @@ function t($string, $args = 0) {
    }
 }
 
+
 /* based on Drupal code; replace patterns in sql string
  *   $string A string containing the English string to translate.
  *
@@ -253,7 +274,6 @@ function airt_msg($msg, $prio=0) {
       $_SESSION['msg'] = $msg;
    }
 }
-
 
 /** Central HTTP parameter and session variable fetcher.
  * Should cater for most standard requests, does not have any known side
@@ -375,10 +395,11 @@ function reload($url='') {
    } else {
       header('Location: '.$url);
    }
-   exit;      
+   exit;
 }// reload
 
-/** Create an HTML fragment for inputing a date. 
+
+/** Create an HTML fragment for inputing a date.
  * @param $var Name of the variable containing the date.
  * @param $default Default date in Unix format (Date('U'))
  * The function will create 6 HTML variables:

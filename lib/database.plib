@@ -46,7 +46,7 @@ function db_errormessage() {
  * and password, and return a connection resource.
  */
 function db_connect($database, $username, $password) {
-    $connectstring = sprintf("dbname=%s user=%s password=%s",
+    $connectstring = sprintf('dbname=%s user=%s password=%s',
         $database, $username, $password);
     $conn = @pg_pconnect($connectstring, PGSQL_CONNECT_FORCE_NEW);
 
@@ -66,9 +66,9 @@ function db_query($query, $conn=NULL) {
   $res = @pg_query($conn, $query);
   if (defined('DEBUG') && DEBUG && $res===FALSE) {
     // PostgreSQL error in debug mode; get verbose.
-    printf("<hr><b><font color=\"red\">PostgreSQL problem</font></b><br>\n".
-           "<PRE>QUERY: %s\n".
-           "%s</PRE><hr>\n",
+    printf('<hr><b><font color="red">PostgreSQL problem</font></b><br>'.LF.
+           '<PRE>QUERY: %s'.LF.
+           '%s</PRE><hr>'.LF,
            $query,
            db_errormessage());
   }
@@ -102,7 +102,7 @@ function db_num_rows($res) {
     return pg_num_rows($res);
 }
 
-
+/* Clear the result cache */
 function db_free_result($res) {
     return pg_free_result($res);
 }
