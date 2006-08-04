@@ -342,7 +342,7 @@ function getAddressesForIncident($id) {
  *    All dates are returned as Unix timestamps. Status, state and type are
  *    numeric identifiers. ids and users are arrays.
  */
-function getIncident($id, &$errormsg='') {
+function getIncident($id) {
    if (!is_numeric($id)) {
       return false;
    }
@@ -361,7 +361,6 @@ function getIncident($id, &$errormsg='') {
       WHERE id=%id', array('%id'=>$id));
    $res = db_query($q);
    if ($res == false) {
-      $errormsg = _('Unable to retrieve incident details from database.');
       return false;
    }
    if (db_num_rows($res) == 0) {
@@ -476,8 +475,7 @@ function createIncident($state,$status,$type,$date='',$logging='') {
          $type == '' ? 'NULL' : $type,
          $date == '' ? 'NULL' : "'".Date('Y-m-d H:i:s', $date)."'",
          $logging == "" ? 'NULL' : "'".db_escape_string($logging)."'"
-      )
-   ;
+   ));
    if ($res) {
       return false;
    }
@@ -661,8 +659,8 @@ function removeUserfromIncident($userid, $incident) {
  */
 function formatBasicIncidentData($type, $state, $status, $logging="", $date='') {
    $output = '<table>'.LF;
-   $output .= '  <tr>'.LF';
-   $output .= '    <td>'._('Incident type').'</td>'.LF';
+   $output .= '  <tr>'.LF;
+   $output .= '    <td>'._('Incident type').'</td>'.LF;
    $output .= '    <td>'.getIncidentTypeSelection('type', $type).'</td>'.LF;
    $output .= '  </tr>'.LF;
    $output .= '  <tr>'.LF;
@@ -735,7 +733,7 @@ function editIPform($incidentid,$ip) {
    $o .= '<table>'.LF;
    $o .= '  <tr>'.LF;
    $o .= '    <td>'._('IP address').'</td>'.LF;
-   $o .= '    <td>'.$ip,'</td>'.LF;
+   $o .= '    <td>'.$ip.'</td>'.LF;
    $o .= '  </tr>'.LF;
    $o .= '  <tr>'.LF;
    $o .= '    <td>'._('Host name').'</td>'.LF;
@@ -1047,7 +1045,7 @@ function updateCheckboxes() {
       '%sk'=>$sortkey));
    $output = '<SCRIPT Language="JavaScript">'.LF;
    $output .= 'function updateCheckboxes() {'.LF;
-   $output .= '   if (!(document.jsform.email.value == '')) {'.LF;
+   $output .= '   if (!(document.jsform.email.value == \'\')) {'.LF;
    $output .= '      document.jsform.addifmissing.checked = true;'.LF;
    $output .= '      if (typeof document.jsform.sendmail != "undefined") document.jsform.sendmail.checked = true;'.LF;
    $output .= '   } else {'.LF;
