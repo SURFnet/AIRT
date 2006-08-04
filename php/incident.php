@@ -31,775 +31,6 @@ require_once LIBDIR.'/history.plib';
 require_once LIBDIR.'/user.plib';
 require_once LIBDIR.'/mailtemplates.plib';
 
-/** Update JavaScript in incidents pages.
- * This function will output HTML containing JavaScript. The JavaScript is a
- * non-essential part of AIRT, but it can make life easier at times.
- */
-function updateCheckboxes() {
-   // Used to compile some JavaScript that is needed in many places.
-   global $toggle;
-
-   $sortkey = fetchFrom('REQUEST','sortkey');
-   defaultTo($sortkey,'incidentid');
-
-   $page = fetchFrom('REQUEST','page','%d');
-   defaultTo($page,1);
-
-   defaultTo($toggle,0);
-
-   $filter = fetchFrom('REQUEST','filter[]');
-   defaultTo($filter,array('state'=>-1, 'status'=>-1));
-
-   $urlsuffix=strtr(
-     '&page=%p&filter[state]=%sf&filter[status]=%stf&sortkey=%sk&toggle=%t',
-     array(
-      '%p'=>$page,
-      '%t'=>$toggle,
-      '%sf'=>$filter['state'],
-      '%stf'=>$filter['status'],
-      '%sk'=>$sortkey));
-   $output = "<SCRIPT Language=\"JavaScript\">\n";
-   $output .= "function updateCheckboxes() {\n";
-   $output .= "   if (!(document.jsform.email.value == '')) {\n";
-   $output .= "      document.jsform.addifmissing.checked = true;\n";
-   $output .= "      if (typeof document.jsform.sendmail != \"undefined\") document.jsform.sendmail.checked = true;\n";
-   $output .= "   } else {\n";
-   $output .= "      document.jsform.addifmissing.checked = false;\n";
-   $output .= "   }\n";
-   $output .= "}\n";
-   $output .= "function checkAll() {\n";
-   $output .= "   window.location = '$_SERVER[PHP_SELF]?action=toggle$urlsuffix';\n";
-   $output .= "}\n";
-
-   $output .= "</SCRIPT>\n";
-   return $output;
-} // updateCheckboxes
-
-
-/** Format the form for batch creation of incidents.
- */
-function formatIncidentBulkForm(&$check) {
-   $constituency = $name = $email = $type = $state = $status
-     = $addressrole = "";
-
-#   if (array_key_exists("active_ip", $_SESSION)) {
-#      $address = $_SESSION["active_ip"];
-#   } else {
-#      $address = "";
-#   }
-# do we need the preceding 5 lines of code? I dont think so...
-# KL 24-jul-2006
-   $address = fetchFrom('SESSION','active_ip');
-
-   if (array_key_exists("constituency_id", $_SESSION)) {
-      $constituency = $_SESSION["constituency_id"];
-   }
-   if (array_key_exists("current_email", $_SESSION)) {
-      $email = $_SESSION["current_email"];
-   }
-
-   if (defined('CUSTOM_FUNCTIONS') && function_exists('custom_default_addressrole')) {
-      $addressrole = custom_default_addressrole($address);
-   }
-   $output =  formatBasicIncidentData($type, $state, $status);
-   $output .= '<hr/>'.LF;
-   $output .= '<h3>'._('Affected IP addresses').'</h3>'.LF;
-   $output .= "<table cellpadding=\"4\">\n";
-   $output .= "<tr>\n";
-   $output .= "  <td valign=\"top\">hostname or ip address</td>\n";
-   $output .= "  <td><textarea cols=\"30\" rows=\"15\" name=\"addresses\"></textarea>\n";
-   $output .= "</tr>\n";
-   $output .= "<tr>\n";
-   $output .= t("<td>addressrole</td><td>%addressrole</td>\n",array('%addressrole'=>getAddressRolesSelection('addressrole', $addressrole)));
-   $output .= "</tr>\n";
-
-   $output .= "<tr>\n";
-   $output .= "  <td>constituency</td>\n";
-   $output .= "  <td>".getConstituencySelection("constituency", $constituency)."</td>\n";
-   $output .= "</tr>\n";
-   $output .= "</table>\n";
- 
-   $output .= "<p/>\n";
-
-   return $output;
-} // show IncidentBulkForm
-
-
-/** Format the incident details form.
- * This function is called only when creating a new incident report.
- */
-function formatIncidentForm(&$check) {
-   $constituency = $name = $email = $type = $state = $status 
-     = $addressrole = '';
-
-   $address      = fetchFrom('SESSION','active_ip');
-   $constituency = fetchFrom('SESSION','constituency_id');
-   $email        = fetchFrom('SESSION','current_email');
-
-   if (defined('CUSTOM_FUNCTIONS') &&
-             function_exists('custom_default_addressrole')) {
-      $addressrole = custom_default_addressrole($address);
-   }
-
-   $output =  formatBasicIncidentData($type, $state, $status);
-   $output .= '<hr/>'.LF;
-   $output .= '<h3>'._('Affected IP addresses').'</h3>'.LF;
-   $output .= '<table cellpadding=4>'.LF;
-   $output .= '<tr>'.LF;
-   $output .= '  <td>'._('Hostname or IP address').'</td>'.LF;
-   $output .= t('  <td><input type="text" size=30 name="address" '.
-                'value="%address">%addressrole</td>'.LF, array(
-      '%address'=>$address,
-      '%addressrole'=>getAddressRolesSelection('addressrole', $addressrole)
-   ));
-   $output .= '</tr>'.LF;
-   $output .= '<tr>'.LF;
-   $output .= '  <td>'._('Constituency').'</td>'.LF;
-   $output .= '  <td>'.getConstituencySelection('constituency',
-       $constituency).'</td>'.LF;
-   $output .= '</tr>'.LF;
-   $output .= '</table>'.LF;
- 
-   $output .= '<hr/>'.LF;
-   $output .= '<h3>'._('Affected users').'</h3>'.LF;
-   $output .= '<table bgcolor="#dddddd" cellpadding=2 border=0>'.LF;
-   $output .= '<tr>'.LF;
-   $output .= '  <td>'._('E-mail address of user').':</td>'.LF;
-   $output .= '  <td><input onChange="updateCheckboxes()" type="text" '.
-              'size=40 name="email" value="'.$email.'"></td>'.LF;
-   $output .= '  <td><a href="help.php?topic=incident-adduser">'.
-              _('help').'</td>'.LF;
-   $output .= '</tr>'.LF;
-   $output .= '</table>'.LF;
-
-   if ($email != '') {
-      $check = true;
-   }
-   $output .= t('<input type="checkbox" name="addifmissing" %checked>'.LF,
-      array('%checked'=>($check == false) ? '' : 'checked'));
-   $output .= '  '._('If checked, create user if email address unknown').LF;
-
-   $output .= '<p/>'.LF;
-
-   return $output;
-} // show Incidentform
-
-
-/* Return a formatted string representing an HTML form for editing incident
- * details.
- */
-function formatEditForm() {
-   $incident = getincident(fetchFrom('SESSION','incidentid'));
-   $type    = $incident['type'];
-   $state   = $incident['state'];
-   $status  = $incident['status'];
-	$logging = $incident['logging'];
-   $date    = $incident['incidentdate'];
-
-   $address = fetchFrom('SESSION','active_ip');
-   $constituency = fetchFrom('SESSION','constituency_id');
-
-   // Basic incident data block.
-   $output = '<form action="'.$_SERVER['PHP_SELF'].'" method="post">'.LF;
-   $output .= '<hr/>'.LF;
-   $output .= '<h3>'._('Basic incident data').'</h3>'.LF;
-   $output .= formatBasicIncidentData($type, $state, $status, $logging, $date);
-   $output .= '<input type="submit" name="action" value="update">'.LF;
-   $output .= '</form>'.LF;
-
-   // Affected IP addresses block. First the header part.
-   $output .= '<hr/>'.LF;
-   $output .= '<h3>'._('Affected IP addresses').'</h3>'.LF;
-   $output .= '<table cellpadding=4>'.LF;
-   $output .= '<tr>'.LF;
-   $output .= '   <td>'._('IP Address').'</td>'.LF;
-   $output .= '   <td>'._('Hostname').'</td>'.LF;
-   $output .= '   <td>'._('Constituency').'</td>'.LF;
-   $output .= '   <td>'._('Role in incident').'</td>'.LF;
-   $output .= '   <td>'._('Edit').'</td>'.LF;
-   $output .= '   <td>'._('Remove').'</td>'.LF;
-   $output .= '</tr>'.LF;
-   $conslist = getConstituencies();
-   // Then the IP address list.
-   foreach ($incident['ips'] as $address) {
-      $output .= '<tr>'.LF;
-      $output .= sprintf(
-        '  <td><a href="search.php?action=search&q=%s">%s</a></td>'.LF,
-         urlencode($address['ip']),
-         $address['ip']);
-      $_SESSION['active_ip'] = $address['ip'];
-      $output .= sprintf(
-         '  <td>%s</td>'.LF,
-         $address['hostname']==''?_('Unknown'):
-                       @gethostbyaddr(@gethostbyname($address['ip'])));
-      $cons = getConstituencyIDbyNetworkID(categorize($address['ip']));
-      $output .= sprintf('  <td>%s</td>'.LF, $conslist[$cons]['label']);
-      $output .= t('  <td>%addressrole</td>'.LF,
-         array(
-            '%addressrole'=>getAddressRoleByID($address['addressrole'])));
-      $output .= sprintf('  <td><a href="'.$_SERVER['PHP_SELF'].
-                         '?action=editip&ip=%s">'._('edit').'</a></td>'.LF,
-         urlencode($address['ip']));
-      $output .= t('  <td><a href="'.$_SERVER['PHP_SELF'].
-                   '?action=deleteip&ip=%ip&addressrole=%addressrole">'.
-                   _('remove').'</a></td>'.LF,
-         array(
-            '%ip'=>urlencode($address['ip']),
-            '%addressrole'=>urlencode($address['addressrole'])));
-      $output .= '</tr>'.LF;
-   }
-   $output .= '</table>'.LF;
-   // And lastly, the IP address footer.
-   $output .= '<p/>'.LF;
-   $output .= '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">'.LF;
-   $output .= '<input type="hidden" name="action" value="addip">'.LF;
-   $output .= '<table bgColor="#DDDDDD" cellpadding=2>'.LF;
-   $output .= '<tr>'.LF;
-   $output .= '  <td>'._('IP Address').'</td>'.LF;
-   $output .= '  <td><input type="text" name="ip" size=40></td>'.LF;
-   $output .= t('<td>%addressrole</td>', array(
-      '%addressrole' => getAddressRolesSelection('addressrole')
-   ));
-   $output .= '  <td><input type="submit" value="'._('Add').'"></td>'.LF;
-   $output .= '</tr>'.LF;
-   $output .= '</table>'.LF;
-   $output .= '</form>'.LF;
-
-   // Affected users block.
-   $output .= '<hr/>'.LF;
-   $output .= '<h3>'._('Affected users').'</h3>'.LF;
-   $output .= '<form>'.LF;
-   $output .= t('<input type="hidden" name="incidentid" value="%incidentid">',
-      array('%incidentid'=>$incident['incidentid']));
-   $output .= '<table cellpadding=4>'.LF;
-   // re-initialise active users
-   $_SESSION['current_name'] = '';
-   $_SESSION['current_email'] = '';
-   foreach ($incident['users'] as $user) {
-      $u = getUserByUserId($user);
-      if ($_SESSION['current_email'] == '') {
-         $_SESSION['current_email'] = $u['email'];
-      } else {
-         $_SESSION['current_email'] .= ','.$u['email'];
-      }
-      if ($u['firstname'] == '' && $u['lastname'] == '') {
-         $name = $u['email'];
-      } else {
-         $name = $u['firstname'].' '.$u['lastname'];
-      }
-      if ($_SESSION['current_name'] == '') {
-         $_SESSION['current_name'] = $name;
-      } else {
-         $_SESSION['current_name'] .= ','.$name;
-      }
-      $output .= t('<tr >'.LF);
-      $output .= t('  <td><input type="checkbox" name="agenda[]" value="%userid"></td>', array('%userid'=>$user));
-      $output .= t('  <td>%email</td>', array('%email'=>$u['email'])).LF;
-      $output .= '</tr>'.LF;
-   }
-   $output .= '</table>'.LF;
-   $output .= '<input type="submit" name="action" value="Mail">'.LF;
-   $output .= '<input type="submit" name="action" value="Remove">'.LF;
-   $output .= '</form>'.LF;
-   $output .= '<p/>'.LF;
-   // Affected user list footer. First get som data.
-   $userid = fetchFrom('SESSION','current_userid');
-   if ($userid!='') {
-      $u = getUserByUserID($userid);    // Cannot cope with empty userids.
-      if (sizeof($u) > 0) {
-         $lastname = $u[0]['lastname'];
-         $email = $u[0]['email'];
-      }
-   }
-   $email = fetchFrom('SESSION','current_email');
-   // Then build the form.
-   $output .= '<form name="jsform" action="'.$_SERVER['PHP_SELF'].
-              ' method="POST">'.LF;
-   $output .= '  <input type="hidden" name="action" value="adduser">'.LF;
-   $output .= '  <table bgColor="#DDDDDD" cellpadding=2 border=0>'.LF;
-   $output .= '  <tr>'.LF;
-   $output .= '    <td>'._('Email address of user').':</td>'.LF;
-   $output .= '    <td><input onChange="updateCheckboxes()" type="text" '.
-              'size=40 name="email" value="'.$email.'"></td>'.LF;
-   $output .= '    <td><input type="submit" value="'._('Add').'"></td>'.LF;
-   $output .= '    <td><a href="help.php?topic=incident-adduser">'.
-              _('help').'</td>'.LF;
-   $output .= '  </tr>'.LF;
-   $output .= '  </table>'.LF;
-   $output .= t('  <input onChange="updateCheckboxes()" type="checkbox" name="addifmissing" %checked>', array(
-      '%checked'=>($email=='')?'':'CHECKED')).LF;
-   $output .= '  '._('If checked, create user if email address unknown').LF;
-   $output .= '<hr/>'.LF;
-   $output .= '</form>'.LF;
-
-   return $output;
-} // formatEditForm
-
-
-/* format the filter block in the page header */
-function formatFilterBlock() {
-   $filter = fetchFrom('REQUEST','filter[]');
-# TODO These defaults need to come from the database.
-   defaultTo($filter, array('state'=>-1, 'status'=>getIncidentStatusDefault()));
-
-   $out = t(
-      '<FORM method="POST">'.LF.
-      '<table>'.LF.
-      '<tr>'.LF.
-      '   <td>'._('Status').'</td>'.LF.
-      '   <td>'.
-             getIncidentStatusSelection('filter[status]', $filter['status'],
-             array(-1=>_('Do not filter'))).
-      '   </td>'.LF.
-      '</tr>'.LF.
-      '<tr>'.LF.
-      '   <td>'._('State').'</td>'.LF.
-      '   <td>'.
-             getIncidentStateSelection('filter[state]', $filter['state'],
-             array(-1=>_('Do not filter'))).
-      '   </td>'.LF.
-      '</tr>'.LF.
-      '<tr>'.LF.
-      '  <td></td>'.LF.
-      '  <td><INPUT TYPE="submit" VALUE="'._('Filter the List').'"></td>'.LF.
-      '</tr>'.LF.
-      '</table>'.LF.
-      '</FORM>'.LF);
-   return $out;
-}// formatFilterBlock
-
-
-/* format the details block in the page header */
-function formatDetailBlock() {
-   $out = t(
-      '<form method="post">'.LF.
-      '<table>'.LF.
-      '<tr>'.LF.
-      '  <td>'._('Incident #').'</td>'.LF.
-      '  <td><INPUT TYPE="text" name="incidentid" size="7">'.LF.
-      '</tr><tr>'.LF.
-      '  <td></td>'.LF.
-      '  <td><INPUT TYPE="submit" name="action" value="'.
-            _('Show Details').'"></td>'.LF.
-      '</tr>'.LF.
-      '</table>'.LF.
-      '</form>'.LF);
-   return $out;
-}
-
-/* format the create incident(s) block in the page header */
-function formatCreateIncidentBlock() {
-   $out = t(
-      '<form method="post">'.LF.
-      '<INPUT TYPE="submit" Name="action" VALUE="'.
-         _('Create New Incident').'"><p>'.LF.
-      '<INPUT TYPE="submit" Name="action" VALUE="'.
-         _('Create Many Incidents').'">'.LF.
-      '</form>'.LF
-   );
-   return $out;
-}
-
-
-/* return a string containing the list overview page header, which contains
- * a few blocks horizontally next to each other.
- */
-function formatListOverviewHeader() {
-   // A style expression for the vertical separation lines between the
-   // blocks.
-   $style = 'style="border-right-width:1px; border-right-style:solid; '.
-            'padding-left:10px; padding-right:10px"';
-
-   $out = t(
-      '<table>'.LF.
-      '<tr valign="top">'.LF.
-      '   <td %style>%filters</td>'.LF.
-      '   <td %style>%details</td>'.LF.
-      '   <td style="padding-left:10px">%createIncident</td>'.LF.
-      '</tr>'.LF.
-      '</table>'.LF,
-      array(
-         '%style'=>$style,
-         '%filters'=>formatFilterBlock(),
-         '%details'=>formatDetailBlock(),
-         '%createIncident'=>formatCreateIncidentBlock()));
-
-   return $out;
-}// formatListOverviewHeader
-
-
-/* format a pager line. Take the total number of incidents, the current page,
- * and the number of incidents per page as input
- */
-function formatPagerLine($page, $numincidents, $pagesize=PAGESIZE) {
-   global $sortkey;
-   global $filter;
-
-   if ($numincidents < $pagesize) {
-      return '';
-   }
-
-   $urlprefix = '&sortkey='.$sortkey.
-                '&filter[status]='.$filter['status'].
-                '&filter[state]='.$filter['state'];
-   $out = '';
-   $numpages = (int) ceil($numincidents / $pagesize);
-
-   if ($page == 1) {
-      $out .= '<strong>'._('Previous').'</strong>&nbsp;';
-   } else {
-      $out .= t('<a href="%url?page=%prev%urlprefix">'.
-                 _('Previous').'</a>&nbsp;',
-                array(
-         '%urlprefix'=>$urlprefix,
-         '%url'=>$_SERVER['PHP_SELF'],
-         '%prev'=>($page-1)));
-   }
-   for ($i = 1; $i <= $numpages; $i++) {
-      if ($i == $page) {
-         $out .= "<strong>$i</strong>&nbsp;";
-      } else {
-         $out .= t('<a href="%url?page=%i%urlprefix">'.$i.'</a>&nbsp;',
-                 array(
-                   '%i'=>$i,
-                   '%urlprefix'=>$urlprefix,
-                   '%url' => $_SERVER['PHP_SELF']));
-      }
-   }
-   if ($page == $numpages) {
-      $out .= '<strong>'._('Next').'</strong>&nbsp;';
-   } else {
-      $out .= t('<a href="%url?page=%next%urlprefix">'._('Next').'</a>&nbsp;',
-              array(
-               '%urlprefix'=>$urlprefix,
-               '%url'=>$_SERVER['PHP_SELF'],
-               '%next'=>($page+1)));
-   }
-   return $out;
-}
-
-
-/* return an HTML-formatted overview of open incidents */
-function formatListOverviewBody() {
-   global $sortkey;
-   global $filter;
-   global $toggle;
-
-   $filter = fetchFrom('REQUEST','filter[]');
-   // NOTE: the $filter itself has a default, but if somebody manipulates
-   // the $filter and e.g. removes the 'status' index, things go wrong here.
-   // It looks secure, but it breaks.
-   defaultTo($filter,
-             array('status'=>getIncidentStatusDefault(), 'state'=>-1));
-
-   $sortkey = fetchFrom('REQUEST','sortkey');
-   defaultTo($sortkey,'incidentid');
-
-   $page = fetchFrom('REQUEST','page','%d');
-   defaultTo($page,1);
-
-   $statuses = getIncidentStatus();
-   if (array_key_exists($filter['status'], $statuses) && 
-      $filter['status'] >= 0) {
-      $sqlfilter = " AND s1.label = '".$statuses[$filter['status']]."'";
-   } else {
-      $sqlfilter = '';
-   }
-
-   $states = getIncidentStates();
-   if (array_key_exists($filter['state'], $states) && 
-      $filter['state'] >= 0) {
-      $sqlfilter .= " AND s2.label = '".$states[$filter['state']]."'";
-   }
-
-   switch ($sortkey) {
-      case 'incidentid':
-         $sqlfilter .= ' ORDER BY incidentid';
-         break;
-      case 'constituency':
-         $sqlfilter .= ' ORDER BY constituency';
-         break;
-      case 'hostname':
-         $sqlfilter .= ' ORDER BY hostname';
-         break;
-      case 'status':
-         $sqlfilter .= ' ORDER BY status';
-         break;
-      case 'state':
-         $sqlfilter .= ' ORDER BY state';
-         break;
-      case 'type':
-         $sqlfilter .= ' ORDER BY type';
-         break;
-      case 'lastupdated':
-         $sqlfilter .= ' ORDER BY updated';
-         break;
-      default:
-         // Hmmm... should not happen. Manual intervention in the URL?
-         $sqlfilter .= ' ORDER BY incidentid';
-         $sortkey = 'incidentid';
-   }
-
-   $incidents = getOpenIncidents($sqlfilter);
-   if (sizeof($incidents) == 0) {
-        return '<I>'._('No incidents').'</I>';
-   }
-
-   // Now produce the list header.
-   $out = t(
-      '<form name="listform" action="%url" method="POST">'.LF.
-      '<INPUT TYPE="hidden" name="action" value="massupdate">'.LF.
-      '<table width="100%">'.LF.'<tr>'.LF,
-      array('%url'=>$_SERVER['PHP_SELF']));
-
-   // 'Select all' checkbox. No <th> but <td> for visual alignment reasons.
-   $out .= t(
-      '   <td><input type="checkbox" %checked onChange="checkAll()"></td>'.LF,
-      array('%url'=>$_SERVER['PHP_SELF'],
-            '%checked'=>($toggle==1)?"CHECKED":""));
-
-   // 'Incident ID' column header. Clickable if not the current sort key.
-   if ($sortkey == 'incidentid') {
-      $out .= t('   <th>'._('Incident ID').'</th>'.LF);
-   } else {
-      $out .= t('   <th><a href="%url?sortkey=incidentid&filter[status]=%sf'.
-                '&filter[state]=%stf&page=1">%heading</a></th>'.LF, 
-         array('%url'=>$_SERVER['PHP_SELF'],
-               '%sf'=>$filter['status'],
-               '%heading'=>_('Incident ID'),
-               '%stf'=>$filter['state']));
-   }
-
-   // 'Constituency' column header. Clickable if not the current sort key.
-   if ($sortkey == 'constituency') {
-      $out .= t('   <th>'._('Constituency').'</th>'.LF);
-   } else {
-      $out .= t('   <th><a href="%url?sortkey=constituency&filter[status]=%sf'.
-                '&filter[state]=%stf&page=1">%heading</a></th>'.LF, 
-         array('%url'=>$_SERVER['PHP_SELF'],
-               '%sf'=>$filter['status'],
-               '%heading'=>_('Constituency'),
-               '%stf'=>$filter['state']));
-   }
-
-   // 'Hostname' column header. Clickable if not the current sort key.
-   if ($sortkey == 'hostname') {
-      $out .= t('   <th>'._('Host name').'</th>'.LF);
-   } else {
-      $out .= t('   <th><a href="%url?sortkey=hostname&filter[status]=%sf'.
-                '&filter[state]=%stf&page=1">%heading</a></th>'.LF, 
-         array('%url'=>$_SERVER['PHP_SELF'],
-               '%sf'=>$filter['status'],
-               '%heading'=>_('Host name'),
-               '%stf'=>$filter['state']));
-   }
-
-   // 'Status' column header. Clickable if not the current sort key.
-   if ($sortkey == 'status') {
-      $out .= t('   <th>'._('Status').'</th>'.LF);
-   } else {
-      $out .= t('   <th><a href="%url?sortkey=status&filter[status]=%sf'.
-                '&filter[state]=%stf&page=1">%heading</a></th>'.LF, 
-         array('%url'=>$_SERVER['PHP_SELF'],
-               '%sf'=>$filter['status'],
-               '%heading'=>_('Status'),
-               '%stf'=>$filter['state']));
-   }
-
-   // 'State' column header. Clickable if not the current sort key.
-   if ($sortkey == 'state') {
-      $out .= t('   <th>'._('State').'</th>'.LF);
-   } else {
-      $out .= t('   <th><a href="%url?sortkey=state&filter[status]=%sf'.
-                '&filter[state]=%stf&page=1">%heading</a></th>'.LF, 
-         array('%url'=>$_SERVER['PHP_SELF'],
-               '%sf'=>$filter['status'],
-               '%heading'=>_('State'),
-               '%stf'=>$filter['state']));
-   }
-
-   // 'Type' column header. Clickable if not the current sort key.
-   if ($sortkey == 'type') {
-      $out .= t('   <th>'._('Type').'</th>'.LF);
-   } else {
-      $out .= t('   <th><a href="%url?sortkey=type&filter[status]=%sf'.
-                '&filter[state]=%stf&page=1">%heading</a></th>'.LF, 
-         array('%url'=>$_SERVER['PHP_SELF'],
-               '%sf'=>$filter['status'],
-               '%heading'=>_('Type'),
-               '%stf'=>$filter['state']));
-   }
-
-   // 'Last updated' column header. Clickable if not the current sort key.
-   if ($sortkey == 'lastupdated') {
-      $out .= t('   <th>'._('Last updated').'</th>'.LF);
-   } else {
-      $out .= t('   <th><a href="%url?sortkey=lastupdated&filter[status]=%sf'.
-                '&filter[state]=%stf&page=1">%heading</a></th>'.LF, 
-         array('%url'=>$_SERVER['PHP_SELF'],
-               '%sf'=>$filter['status'],
-               '%heading'=>_('Last updated'),
-               '%stf'=>$filter['state']));
-   }
-
-   $out .= t('</tr>'.LF);
-
-   // Prepare to run over the list of incidents that need display.
-   $count = 0;
-   $conslist = getConstituencies();
-   foreach ($incidents as $id=>$data) {
-      if ($count < PAGESIZE*($page-1) || $count >= PAGESIZE*($page)) {
-         $count++;
-         continue;
-      }
-      $hostline= $data['hostname'];
-      $addresses = getAddressesForIncident($id);
-      $constituency = $conslist[$addresses[0]['constituency']]['label'];
-
-      $out .= t('<tr bgcolor="%color">'.LF.
-         '   <td>'.
-         '<input type="checkbox" name="massincidents[]" %check value="%id">'.
-         '</td>'.LF.
-         '   <td>'.
-         '<a href="%url?action=details&incidentid=%id">%incidentid</a>'.
-         '</td>'.LF.
-         '   <td>%constituency</td>'.LF.
-         '   <td>%hostline</td>'.LF.
-         '   <td>%status</td>'.LF.
-         '   <td>%state</td>'.LF.
-         '   <td>%type</td>'.LF.
-         '   <td>%updated</td>'.LF.
-         '</tr>'.LF, array(
-            '%color'=> ($count++%2 == 1) ? '#FFFFFF' : '#DDDDDD',
-            '%url' => $_SERVER['PHP_SELF'],
-            '%id' => $id,
-            '%incidentid' => encode_incidentid($id),
-            '%constituency' => $constituency,
-            '%hostline' => $hostline,
-            '%status' => $data['status'],
-            '%state' => $data['state'],
-            '%type' => $data['type'],
-            '%check' => ($toggle == 1) ? 'CHECKED' : '',
-            '%updated' => Date('d M Y', $data['updated'])));
-   } // foreach
-
-   $out .= '</table><p>'.LF;
-   $out .= '<div align="center">'.
-           formatPagerLine($page, sizeof($incidents)).
-           '</div>'.LF;
-   return $out;
-} // formatQueueOverviewBody
-
-
-/* Returns a string which contains the incident overview list footer, two
- * blocks of menus/buttons.
- */
-function formatListOverviewFooter() {
-   // A style expression for the vertical separation lines between the
-   // blocks.
-   $style = 'style="border-right-width:1px; border-right-style:solid; '.
-            'padding-left:10px; padding-right:10px"';
-
-   $updatetable = t(
-      '<table>'.LF.
-      '<tr>'.LF.
-      '  <td>'._('New State').'</td>'.LF.
-      '  <td>'.getIncidentStateSelection('massstate', 'null',
-                          array('null'=>_('Leave Unchanged'))).'</td>'.LF.
-      '</tr>'.LF.
-      '<tr>'.LF.
-      '  <td>'._('New Status').'</td>'.LF.
-      '  <td>'.getIncidentStatusSelection('massstatus', 'null',
-                          array('null'=>_('Leave Unchanged'))).'</td>'.LF.
-      '</tr>'.LF.
-      '<tr>'.LF.
-      '  <td>'._('New Type').'</td>'.LF.
-      '  <td>'.getIncidentTypeSelection('masstype', 'null',
-                          array('null'=>_('Leave Unchanged'))).'</td>'.LF.
-      '</tr>'.LF.
-      '<tr>'.LF.
-      '  <td>&nbsp;</td>'.LF.
-      '  <td><input type="submit" value="'._('Update All Selected').'"></td>'.LF.
-      '</tr>'.LF.
-      '</table>'.LF);
-
-   $actiontable = t(
-      '<table>'.LF.
-      '<tr>'.LF.
-      '  <td>'._('Bulk mail').'</td>'.LF.
-      '  <td>'.getMailTemplateSelection('template', 'null',
-                   array(_('Do not send mail')=>'')).'</td>'.LF.
-      '</tr>'.LF.
-      '<tr>'.LF.
-      '  <td>&nbsp;</td>'.LF.
-      '  <td><input type="submit" name="action" value="'._('Prepare').'"></td>'.LF.
-      '</tr>'.LF.
-      '</table>'.LF);
-
-   $out = t(
-      '<table>'.LF.
-      '<tr valign="top">'.LF.
-      '  <td %style>%updatetable</td>'.LF.
-      '  <td style="padding-left:10px">%actiontable</td>'.LF.
-      '</tr>'.LF.
-      '</table>'.LF.
-      '</form>', array(
-         '%actiontable'=>$actiontable,
-         '%updatetable'=>$updatetable,
-         '%style'=>$style
-      ));
-   return $out;
-}
-
-/** User interface component for editing external incident ids.
- * \param [in] $incidentid  Identifier of the incident
- *
- * \return false on failure, true on success.
- */
-function edit_externalids($incidentid='') {
-   if (!is_numeric($incidentid)) {
-      return false;
-   }
-   pageHeader(t('External incident identifiers of %id', array(
-      '%id'=>normalize_incidentid($incidentid))));
-
-   $incident = getIncident($incidentid);
-   $out = '<h2>Basic incident data</h2>';
-   $out .= '<table>';
-   $out .= t('<tr><td>Incident ID</td><td>%incidentid</td></tr>', array(
-      '%incidentid'=>normalize_incidentid($incidentid)));
-   $out .= t('<tr><td>Type</td><td>%type</td></tr>', array(
-      '%type'=>getIncidentTypeDescr($incident['type'])));
-   $out .= t('<tr><td>Status</td><td>%status</td></tr>', array(
-      '%status'=>getIncidentStatusDescr($incident['status'])));
-   $out .= t('<tr><td>State</td><td>%state</td></tr>', array(
-      '%state'=>getIncidentStateDescr($incident['state'])));
-   $out .= t('<tr valign="top"><td>Logging</td><td><pre>%logging</pre></td></tr>', array(
-      '%logging'=>htmlentities($incident['logging'])));
-   $out .= '</table>';
-   $out .= t('<a href="%url?action=details&incidentid=%id">Back to details</a>',
-      array('%url'=>$_SERVER['PHP_SELF'], '%id'=>urlencode($incidentid)));
-
-   $out .= '<h2>External identifiers</h2>';
-   foreach (getExternalIncidentIDS($incidentid) as $extid) {
-      $out .= t('<a href="%url?action=delete_extid&incidentid=%id&extid=%extid">Remove</a> ', array(
-         '%url'=>$_SERVER['PHP_SELF'], 
-         '%id' => $incidentid, 
-         '%extid' => urlencode($extid)));
-      $out .= $extid."<br/>\n";
-   }
-   $out .= '<p/><form>';
-   $out .= t('<input type="hidden" name="incidentid" value="%id">', array(
-      '%id'=>urlencode($incidentid)));
-   $out .= 'New identifer: <input type="text" name="extid" size="25">';
-   $out .= '<input type="submit" name="action" value="Add external identifier">';
-   $out .= '</form>';
-   print $out;
-   pageFooter();
-}
-
-
-///// PAGE GENERATION STARTS HERE //////////////////////////////////////////
 
 $action = fetchFrom('REQUEST','action');
 defaultTo($action,'list');
@@ -1359,7 +590,6 @@ _('Continue').'...</a>'.LF,
       reload();
       break;
 
-# HERE
     //--------------------------------------------------------------------
    case 'showstates':
       generateEvent('pageHeader',
@@ -1368,17 +598,17 @@ _('Continue').'...</a>'.LF,
          FROM   incident_states
          ORDER BY label')
       or die(_('Unable to query incident states.'));
-      $output = "<script language=\"JavaScript\">\n";
-      $output .= "window.resizeTo(800,500);\n";
-      $output .= "</script>";
-      $output .= "<table>\n";
+      $output = '<script language="JavaScript">'.LF;
+      $output .= 'window.resizeTo(800,500);'.LF;
+      $output .= '</script>'.LF;
+      $output .= '<table>'.LF;
       while ($row = db_fetch_next($res)) {
-         $output .= "<tr>\n";
-         $output .= "  <td>$row[label]</td>\n";
-         $output .= "  <td>$row[descr]</td>\n";
-         $output .= "</tr>\n";
+         $output .= '<tr>'.LF;
+         $output .= '  <td>'.strip_tags($row[label]).'</td>'.LF;
+         $output .= '  <td>'.strip_tags($row[descr]).'</td>'.LF;
+         $output .= '</tr>'.LF;
       }
-      $output .= "</table>\n";
+      $output .= '</table>'.LF;
       print $output;
       break;
 
@@ -1390,18 +620,17 @@ _('Continue').'...</a>'.LF,
          FROM   incident_types
          ORDER BY label')
       or die(_('Unable to query incident types.'));
-      $output = "<script language=\"JavaScript\">\n";
-      $output .= "window.resizeTo(800,500);\n";
-      $output .= "</script>";
-
-      $output .= "<table>\n";
+      $output = '<script language="JavaScript">'.LF;
+      $output .= 'window.resizeTo(800,500);'.LF;
+      $output .= '</script>';
+      $output .= '<table>'.LF;
       while ($row = db_fetch_next($res)) {
-         $output .= "<tr>\n";
-         $output .= "  <td>$row[label]</td>\n";
-         $output .= "  <td>$row[descr]</td>\n";
-         $output .= "</tr>\n";
+         $output .= '<tr>'.LF;
+         $output .= '  <td>'.strip_chars($row[label]).'</td>'.LF;
+         $output .= '  <td>'.strip_chars($row[descr]).'</td>'.LF;
+         $output .= '</tr>'.LF;
       }
-      $output .= "</table>\n";
+      $output .= '</table>'.LF;
       print $output;
       break;
 
@@ -1415,51 +644,38 @@ _('Continue').'...</a>'.LF,
          FROM   incident_status
          ORDER BY label')
       or die(_('Unable to query incident statuses.'));
-      $output = "<script language=\"JavaScript\">\n";
-      $output .= "window.resizeTo(800,500);\n";
-      $output .= "</script>";
-      $output .= "<table>\n";
+      $output = '<script language="JavaScript">'.LF;
+      $output .= 'window.resizeTo(800,500);'.LF;
+      $output .= '</script>'.LF;
+      $output .= '<table>'.LF;
       while ($row = db_fetch_next($res)) {
-         $output .= "<tr>\n";
-         $output .= "  <td>$row[label]</td>\n";
-         $output .= "  <td>$row[descr]</td>\n";
-         $output .= "</tr>\n";
+         $output .= '<tr>\n';
+         $output .= '  <td>'.strip_chars($row[label]).'</td>'.LF;
+         $output .= '  <td>'.strip_chars($row[descr]).'</td>'.LF;
+         $output .= '</tr>'.LF;
       }
-      $output .= "</table>\n";
+      $output .= '</table>'.LF;
       print $output;
       break;
 
    //--------------------------------------------------------------------
    case 'massupdate':
       // massincidents may be absent, this is how HTML checkboxes work.
-      if (array_key_exists('massincidents', $_POST)) {
-         $massIncidents = $_POST['massincidents'];
-      } else {
+      $massIncidents = fetchFrom('POST', 'massincidents');
+      if ($massIncidents == '') {
          // Nothing checked, nothing to do; disregard command.
          Header("Location: $_SERVER[PHP_SELF]");
       }
-      if (array_key_exists('massstate', $_POST)) {
-         $massState = $_POST['massstate'];
-         if ($massState=='null') {
-            $massState = '';
-         }
-      } else {
+      $massState = fetchFrom('POST', 'massstate');
+      if ($massState == 'null') {
          $massState = '';
       }
-      if (array_key_exists('massstatus', $_POST)) {
-         $massStatus = $_POST['massstatus'];
-         if ($massStatus=='null') {
-            $massStatus = '';
-         }
-      } else {
+      $massStatus = fetchFrom('POST', 'massstatus');
+      if ($massStatus=='null') {
          $massStatus = '';
       }
-      if (array_key_exists('masstype', $_POST)) {
-         $massType = $_POST['masstype'];
-         if ($massType=='null') {
-            $massType = '';
-         }
-      } else {
+      $massType = fetchFrom('POST', 'masstype');
+      if ($massType=='null') {
          $massType = '';
       }
 
@@ -1470,9 +686,8 @@ _('Continue').'...</a>'.LF,
 
    //--------------------------------------------------------------------
    case 'Mail':
-      if (array_key_exists('agenda', $_REQUEST)) {
-         $agenda = $_REQUEST['agenda'];
-      } else {
+      $agenda = fetchFrom('REQUEST', 'agenda');
+      if ($agenda == '') {
          airt_msg(_(
            'USER ERROR: Must select one or more recipients for mail.'));
          Header("Location: $_SERVER[PHP_SELF]?action=details&incidentid=$_SESSION[incidentid]");
@@ -1480,18 +695,17 @@ _('Continue').'...</a>'.LF,
       }
       Header("Location: mailtemplates.php?to=".urlencode(implode(',',$agenda)));
       break;
+
    //--------------------------------------------------------------------
    case 'Remove':
-      if (array_key_exists('incidentid', $_REQUEST)) {
-         $incidentid = $_REQUEST['incidentid'];
-      } else {
+      $incidentid = fetchFrom('REQUEST', 'incidentid');
+      $agenda = fetchFrom('REQUEST', 'agenda');
+      if ($incidentid == '') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          Header("Location: $_SERVER[PHP_SELF]");
          return;
       }
-      if (array_key_exists('agenda', $_REQUEST)) {
-         $agenda = $_REQUEST['agenda'];
-      } else {
+      if ($agenda == '') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          Header("Location: $_SERVER[PHP_SELF]");
          return;
@@ -1504,30 +718,28 @@ _('Continue').'...</a>'.LF,
       }
       Header("Location: $_SERVER[HTTP_REFERER]");
       break;
+
    //--------------------------------------------------------------------
    case 'edit_extid':
-      if (array_key_exists('incidentid', $_REQUEST)) {
-         $incidentid = $_REQUEST['incidentid'];
-      } else {
+      $incidentid = fetchFrom('REQUEST', 'incidentid');
+      if ($incidentid == '') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          Header("Location: $_SERVER[PHP_SELF]");
          return;
       }
-      edit_externalids($incidentid);
+      formatEditExternalids($incidentid);
       break;
 
    //--------------------------------------------------------------------
    case 'delete_extid':
-      if (array_key_exists('incidentid', $_REQUEST)) {
-         $incidentid = $_REQUEST['incidentid'];
-      } else {
+      $incidentid = fetchFrom('REQUEST', 'incidentid');
+      $extid = fetchFrom('REQUEST', 'extid');
+      if ($incidentid == '') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          Header("Location: $_SERVER[PHP_SELF]");
          return;
       }
-      if (array_key_exists('extid', $_REQUEST)) {
-         $extid = $_REQUEST['extid'];
-      } else {
+      if ($extid == '') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          Header("Location: $_SERVER[PHP_SELF]");
          return;
@@ -1536,19 +748,18 @@ _('Continue').'...</a>'.LF,
       Header("Location: $_SERVER[PHP_SELF]?action=edit_extid&incidentid=".
          urlencode($incidentid));
       break;
+
    //--------------------------------------------------------------------
    case 'Add external identifier':
    case 'add_extid':
-      if (array_key_exists('incidentid', $_REQUEST)) {
-         $incidentid = $_REQUEST['incidentid'];
-      } else {
+      $incidentid = fetchFrom('REQUEST', 'incidentid');
+      $extid = fetchFrom('REQUEST', 'extid');
+      if ($incidentid == '') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          Header("Location: $_SERVER[PHP_SELF]");
          return;
       }
-      if (array_key_exists('extid', $_REQUEST)) {
-         $extid = $_REQUEST['extid'];
-      } else {
+      if ($extid == '') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          Header("Location: $_SERVER[PHP_SELF]");
          return;
@@ -1562,5 +773,4 @@ _('Continue').'...</a>'.LF,
    default:
       die(_('Unknown action'));
 }
-
 ?>
