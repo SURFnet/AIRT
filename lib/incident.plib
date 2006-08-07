@@ -476,7 +476,7 @@ function createIncident($state,$status,$type,$date='',$logging='') {
          $date == '' ? 'NULL' : "'".Date('Y-m-d H:i:s', $date)."'",
          $logging == "" ? 'NULL' : "'".db_escape_string($logging)."'"
    ));
-   if ($res) {
+   if (!$res) {
       return false;
    }
    db_free_result($res);
@@ -487,7 +487,6 @@ function createIncident($state,$status,$type,$date='',$logging='') {
       strip_tags(getIncidentStatusLabelByID($status)),
       strip_tags(getIncidentTypeLabelById($type)),
       Date('d-M-Y H:i:s', $date)), '', '');
-
    return $incidentid;
 }
 
