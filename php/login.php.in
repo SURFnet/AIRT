@@ -34,34 +34,31 @@ if (array_key_exists('action', $_REQUEST)) {
 switch ($action) {
    case "none":
       pageHeader("AIRT login page");
-      $out = t("<form method=\"POST\">\n");
-      $out .= t("<table>\n");
-      $out .= t("<tr>\n");
-      $out .= t("   <td>Login</td>\n");
-      $out .= t("    <td><input type=\"text\" name=\"login\" size=\"25\"></td>\n");
-      $out .= t("</tr>\n");
-      $out .= t("<tr>\n");
-      $out .= t("   <td>Password</td>\n");
-      $out .= t("   <td><input type=\"password\"  name=\"password\" size=\"25\"></td>\n");
-      $out .= t("</tr>\n");
-      $out .= t("</table>\n");
+      $out = '<form method="POST">'.LF;
+      $out .= '<table>'.LF;
+      $out .= '<tr>'.LF;
+      $out .= '   <td>'._('Login').'</td>'.LF;
+      $out .= '   <td><input type="text" name="login" size="25"></td>'.LF;
+      $out .= '</tr>'.LF;
+      $out .= '<tr>'.LF;
+      $out .= '   <td>'._('Password').'</td>'.LF;
+      $out .= '   <td><input type="password" name="password" size="25"></td>'.LF;
+      $out .= '</tr>'.LF;
+      $out .= '</table>'.LF;
       print $out;
 
-		generateEvent('loginscreen');
+      generateEvent('loginscreen');
 
-      $out = t("<p><input type=\"hidden\" name=\"action\" value=\"check\">\n");
-      $out .= t("<input type=\"submit\" value=\"Login\">");
-      $out .= t("</form></p>\n");
-      
-      $out .= t("<HR/>");
-      $out .= t("<BLOCKQUOTE><small>");
-      $out .= t("AIRT version @VERSION@, Copyright (C) 2004-2005 Tilburg University ");
-      $out .= t("&lt;<a href=\"mailto:airt-dev@uvt.nl\">airt-dev@uvt.nl</a>&gt;<BR/>\n");
-      $out .= t("AIRT comes with ABSOLUTELY NO WARRANTY; for details ");
-      $out .= t("<a href=\"license.php\">click here</a>.<BR/>\n");
-      $out .= t("This is free software, and you are welcome to redistribute it");
-      $out .= t("under certain conditions; See the license for more details.\n");
-      $out .= t("</small></BLOCKQUOTE>");
+      $out = '<p><input type="hidden" name="action" value="check">'.LF;
+      $out .= '<input type="submit" value="'._('Login').'">'.LF;
+      $out .= '</form></p>'.LF;
+      $out .= '<HR/>'.LF;
+      $out .= '<BLOCKQUOTE><small>'.LF;
+      $out .= _('AIRT version @VERSION@, Copyright (C) 2004-2006 Tilburg University ').LF;
+      $out .= '&lt;<a href="mailto:info@airt.nl">airt-dev@uvt.nl</a>&gt;<BR/>'.LF;
+      $out .= _('AIRT comes with ABSOLUTELY NO WARRANTY; for details <a href="license.php">click here</a>.').'<BR/>'.LF;
+      $out .= _('This is free software, and you are welcome to redistribute it under certain conditions; See the license for more details.').LF;
+      $out .= '</small></BLOCKQUOTE>'.LF;
 
       print $out;
     break;
@@ -86,8 +83,8 @@ switch ($action) {
 
         $userid = airt_authenticate($login, $password);
         if ($userid == -1) {
-            pageHeader("Permission denied.");
-            print t("Username and/or password incorrect.");
+            pageHeader(_('Permission denied.'));
+            print _('Username and/or password incorrect.');
 			   airt_invalidCredentials();
             pageFooter();
 			   exit();
@@ -97,6 +94,6 @@ switch ($action) {
         break;
 
     default:
-        die("Unknown action.");
+        die(_('Unknown action.'));
 } // switch
 ?>

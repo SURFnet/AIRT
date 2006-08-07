@@ -1,9 +1,9 @@
 List of files to be checked for multilingual support.
 
 $AIRT/php:
-     config.plib.in
-     constituencies.php
-     constituency_contacts.php
+DONE config.plib.in
+DONE constituencies.php
+DONE constituency_contacts.php
      export.php
      exportqueue.php
      help.php
@@ -15,8 +15,8 @@ DONE incident.php
      index.php
      license.php
      links.php
-     login.php.in
-     logout.php
+DONE login.php.in
+DONE logout.php
      mailtemplates.php
      maintenance.php
      networks.php

@@ -37,14 +37,14 @@ if (array_key_exists("action", $_REQUEST)) {
 switch ($action) {
    //-----------------------------------------------------------------
    case "list":
-      pageHeader("Constituency contacts");
+      pageHeader(_('Constituency contacts'));
 
       $res = db_query("SELECT   id, label, name
              FROM     constituencies
              ORDER BY label")
-      or die("Unable to execute query.");
+      or die(_('Unable to execute query.'));
 
-      echo "Please select a constituency to edit assign contacts:<P>";
+      echo _('Please select a constituency to edit assign contacts:').'<P>'.LF;
       while($row=db_fetch_next($res)) {
          $id = $row["id"];
          $label = $row["label"];
@@ -61,21 +61,21 @@ switch ($action) {
       if (array_key_exists("consid", $_GET)) {
          $consid=$_GET["consid"];
       } else {
-         die("Missing information.");
+         die(_('Missing information.'));
       }
       if (!is_numeric($consid)) {
-         die("Invalid format");
+         die(_('Invalid format'));
       }
-      pageHeader("Edit constituency assignments");
+      pageHeader(_('Edit constituency assignments'));
 
       $res = db_query(
          "SELECT label, name
           FROM   constituencies
           WHERE  id=$consid")
-      or die("Unable to execute query 1.");
+      or die(_('Unable to execute query 1.'));
 
       if (db_num_rows($res) == 0) {
-         die("Invalid constituency.");
+         die(_('Invalid constituency.'));
       }
 
       $row = db_fetch_next($res);
@@ -83,40 +83,40 @@ switch ($action) {
       $name  = $row["name"];
       db_free_result($res);
 
-      echo "<h3>Current contacts of constituency $label</H3>";
+      echo '<h3>'._('Current contacts of constituency ').$label.'</H3>'.LF;
 
       $res = db_query(
          "SELECT u.id, login, lastname, firstname, email, phone
           FROM   constituency_contacts cc, users u
           WHERE  cc.constituency=$consid
           AND    cc.userid = u.id")
-      or die("Unable to execute query(2).");
+      or die(_('Unable to execute query(2).'));
 
       if (db_num_rows($res) == 0) {
-         echo "<I>No assigned users.</I>";
+         echo '<I>'._('No assigned users.').'</I>'.LF;
       } else {
-         echo "<table border=1 cellpadding=4>";
+         echo '<table border="1" cellpadding="4">'.LF;
          while ($row = db_fetch_next($res)) {
-            $login = $row["login"];
-            $lastname = $row["lastname"];
-            $firstname = $row["firstname"];
-            $email = $row["email"];
-            $phone = $row["phone"];
-            $id = $row["id"];
+            $login = $row['login'];
+            $lastname = $row['lastname'];
+            $firstname = $row['firstname'];
+            $email = $row['email'];
+            $phone = $row['phone'];
+            $id = $row['id'];
 
-            printf("
+            printf('
 <tr>
     <td>%s (%s, %s)</td>
-    <td><a href=\"mailto:%s\">%s</a></td>
+    <td><a href="mailto:%s">%s</a></td>
     <td>%s</td>
-    <td><a href=\"$_SERVER[PHP_SELF]?action=remove&cons=%s&user=%s\">Remove</a>
+    <td><a href="%s?action=remove&cons=%s&user=%s">'._('Remove').'</a>
 	</td>
-</tr>",
+</tr>',
             $login, $lastname, $firstname,
             $email, $email,
-            $phone, $consid, $id);
+            $phone, $_SERVER['PHP_SELF'], $consid, $id);
          }
-         echo "</table>";
+         echo '</table>'.LF;
       }
 
       db_free_result($res);
@@ -128,54 +128,48 @@ switch ($action) {
              WHERE  constituency=$consid
           )
           ORDER BY email")
-      or die("Unable to execute query(3).");
+      or die(_('Unable to execute query(3).'));
 
       if (db_num_rows($res) > 0) {
-         echo <<<EOF
-<P>
-<FORM action="$_SERVER[PHP_SELF]" method="POST">
-Assing user(s) to constituency: 
-<SELECT name="userid">
-
-EOF;
+         print '<P>'.LF;
+         print '<FORM action="'.$_SERVER[PHP_SELF].'" method="POST">'.LF;
+         print _('Assing user(s) to constituency:').LF;
+         print '<SELECT name="userid">'.LF;
          while ($row = db_fetch_next($res)) {
             $email = $row['email'];
             $id    = $row["id"];
 
             printf("<option value=\"$id\">$email</option>\n");
          }
-         echo <<<EOF
-</SELECT>
-<input type="hidden" name="consid" value="$consid">
-<input type="hidden" name="action" value="assignuser">
-<input type="submit" value="Assign">
-</FORM>
-EOF;
-         } else {
-            echo "<P><I>No unassigned users.</I>";
-         }
-         echo <<<EOF
-<P><HR>
-<a href="$_SERVER[PHP_SELF]">Select another constituency</a> &nbsp;|&nbsp;
-<a href="maintenance.php">Settings</a>
-EOF;
-         pageFooter();
-         break;
+         print '</SELECT>'.LF;
+         print '<input type="hidden" name="consid" value="'.$consid.'">'.LF;
+         print '<input type="hidden" name="action" value="assignuser">'.LF;
+         print '<input type="submit" value="Assign">'.LF;
+         print '</FORM>'.LF;
+      } else {
+         echo '<P><I>'._('No unassigned users.').'</I>'.LF;
+      }
+      print '<P><HR>'.LF;
+      print '<a href="'.$_SERVER[PHP_SELF].'">'.
+            _('Select another constituency').'</a> &nbsp;|&nbsp;'.
+            '<a href="maintenance.php">'._('Settings').'</a>'.LF;
+      pageFooter();
+      break;
 
    //-----------------------------------------------------------------
    case "assignuser":
       if (array_key_exists("consid", $_POST)) {
          $consid=$_POST["consid"];
       } else {
-         die("Missing information (1).");
+         die(_('Missing information (1).'));
       }
       if (array_key_exists("userid", $_POST)) {
          $userid=$_POST["userid"];
       } else {
-         die("Missing information (2).");
+         die(_('Missing information (2).'));
       }
       if (!is_numeric($consid) || !is_numeric($userid)) {
-         die('Invalid data.');
+         die(_('Invalid data.'));
       }
 
       $res=db_query("
@@ -183,7 +177,7 @@ EOF;
          (id, constituency, userid)
          VALUES
          (nextval('constituency_contacts_sequence'), $consid, $userid)")
-      or die("Unable to execute query");
+      or die(_('Unable to execute query'));
       Header("Location: $_SERVER[PHP_SELF]?action=edit&consid=$consid");
       break;
 
@@ -192,29 +186,29 @@ EOF;
       if (array_key_exists("cons", $_GET)) {
          $cons=$_GET["cons"];
       } else {
-         die("Missing information (1).");
+         die(_('Missing information (1).'));
       }
       if (array_key_exists("user", $_GET)) {
          $id=$_GET["user"];
       } else {
-         die("Missing information (2).");
+         die(_('Missing information (2).'));
       }
       if (!is_numeric($id) || !is_numeric($cons)) {
-         die("Invalid format");
+         die(_('Invalid format'));
       }
 
       $res = db_query(
             "DELETE FROM constituency_contacts
              WHERE  userid=$id
              AND    constituency=$cons")
-      or die("Unable to execute query");
+      or die(_('Unable to execute query'));
       Header("Location: $_SERVER[PHP_SELF]?action=edit&consid=$cons");
 
       break;
 
    //-----------------------------------------------------------------
    default:
-      die("Unknown action: $action");
+      die(_('Unknown action: ').$action);
 } // switch
 
 ?>
