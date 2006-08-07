@@ -54,19 +54,21 @@ function showSearch($qtype='') {
       default:
          $hostchecked='CHECKED';
    }
-   echo <<<EOF
-<p><form>
-Search for:<p/>
-<input type="text" name="q" size="60"/>
-<input type="submit" name="action" value="Search"/>
-<br/>
-<input type="radio" name="qtype" value="host" $hostchecked/>Hostname
-<input type="radio" name="qtype" value="incident" $incidentchecked/>Incident
-<input type="radio" name="qtype" value="zoom" $zoomchecked/>Mask
-<input type="radio" name="qtype" value="email" $zoomchecked/>Email
-<p/>
-</form>
-EOF;
+   print '<p><form>'.LF;
+   print _('Search for:').'<p/>'.LF;
+   print '<input type="text" name="q" size="60"/>'.LF;
+   print '<input type="submit" name="action" value="'._('Search').'"/>'.LF;
+   print '<br/>'.LF;
+   print '<input type="radio" name="qtype" value="host" '.$hostchecked.
+      '/>'._('Hostname').LF;
+   print '<input type="radio" name="qtype" value="incident" '.$incidentchecked.
+      '/>'._('Incident').LF;
+   print '<input type="radio" name="qtype" value="zoom" '.$zoomchecked.
+      '/>'._('Mask').LF;
+   print '<input type="radio" name="qtype" value="email" '.$zoomchecked.
+      '/>'._('Email').LF;
+   print '<p/>'.LF;
+   print '</form>'.LF;
 }
 
 
@@ -102,19 +104,17 @@ function search_host($hostname='') {
    $_SESSION["active_ip"] = $ip;
    $_SESSION["constituency_id"] = $consid;
 
-   pageHeader("Detailed information for host $hostname", "search-info");
+   pageHeader(_('Detailed information for host ').$hostname, "search-info");
 
-   echo <<<EOF
-Search results for the following host:
-<PRE>
- IP Address          : $ip
- Hostname            : $hostname
- Network             : $netname (<a href="$_SERVER[PHP_SELF]?q=$network/$netmask&action=Search&qtype=zoom">$network/$netmask</a>)
- Constituency        : $consname
-</PRE>
-
-<H2>Constituency Contacts</H2>
-EOF;
+   print _('Search results for the following host:');
+   print '<PRE>';
+   print _('IP Address').'          : '.$ip.LF;
+   print _('Hostname').'            : '.$hostname.LF;
+   print _('Network').'             : '.$netname.'(<a href="'.
+      $_SERVER[PHP_SELF].'?q='.$network.'/'.$netmask.'&action=Search&qtype=zoom">'.$network.'/'.$netmask.'</a>)'.LF;
+   print _('Constituency').'        : '.$consname.LF;
+   print '</PRE>'.LF;
+   print '<H2>'._('Constituency Contacts').'</H2>'.LF;
    showConstituencyContacts($consid);
 
    // call user-defined search function. Must print in unformatted layout
@@ -126,9 +126,7 @@ EOF;
    }
 
    // include previous incidents
-   echo <<<EOF
-<h2>Previous incidents</h2>
-EOF;
+   print '<h2>'._('Previous incidents').'</h2>'.LF;
    $res = db_query("
       SELECT  i.id as incidentid,
             extract (epoch from a.added) as created,
@@ -147,19 +145,17 @@ EOF;
       AND     a.ip = '$ip'
 
       ORDER BY incidentid")
-   or die("Unable to query.");
+   or die(_('Unable to query.'));
 
    if (db_num_rows($res)) {
-      echo <<<EOF
-<table cellpadding="3">
-<tr>
-<th>Incident ID</th>
-<th>Created</th>
-<th>Type</th>
-<th>State</th>
-<th>Status</th>
-</tr>
-EOF;
+      print '<table cellpadding="3">'.LF;
+      print '<tr>'.LF;
+      print '   <th>'._('Incident ID').'</th>'.LF;
+      print '   <th>'._('Created').'</th>'.LF;
+      print '   <th>'._('Type').'</th>'.LF;
+      print '   <th>'._('State').'</th>'.LF;
+      print '   <th>'._('Status').'</th>'.LF;
+      print '</tr>'.LF;
       $count = 0;
       while ($row = db_fetch_next($res)) {
          printf("
@@ -178,17 +174,13 @@ EOF;
                $row["state"],
                $row["status"]);
       }
-      echo <<<EOF
-</table>
-EOF;
+      print '</table>'.LF;
    } else {
-      echo "<I>No previous incidents</I>";
+      echo "<I>"._('No previous incidents')."</I>";
    }
 
-   echo <<<EOF
-<form action="incident.php" method="POST">
-<input type="hidden" name="ip" value="ip">
-EOF;
+   print '<form action="incident.php" method="POST">'.LF;
+   print '<input type="hidden" name="ip" value="ip">'.LF;
 } // search_host()
 
 
@@ -196,7 +188,7 @@ EOF;
 /** Search for incidents by id
  */
 function search_incident($incidentid) {
-   pageHeader("Search results");
+   pageHeader(_('Search results'));
    $hits=array();
    if ((int)$incidentid > 0) {
       $incident = getIncident($incidentid);
@@ -219,13 +211,20 @@ function search_incident($incidentid) {
       }
    }
    if (sizeof($hits) == 0) {
-      print "No results matched your query.";
+      print _('No results matched your query.');
       return;
    }
-   $out = "Research results for incident = '$incidentid':<p/>";
+   $out = _('Research results for incident = ').$incidentid.':<p/>';
    $out .= '<table width="100%" cellpadding="2" border="0">';
-   $out .= '<tr><td>Incidentid</td><td>Type</td><td>Status</td><td>State</td>'.
-           '<td>IP Address</td><td>Hostname</td><td>Additional identifiers</td></tr>';
+   $out .= '<tr>'.LF;
+   $out .= '<td>'._('Incidentid').'</td>'.LF;
+   $out .= '<td>'._('Type').'</td>'.LF;
+   $out .= '<td>'._('Status').'</td>'.LF;
+   $out .= '<td>'._('State').'</td>'.LF;
+   $out .= '<td>'._('IP Address').'</td>'.LF;
+   $out .= '<td>'._('Hostname').'</td>'.LF;
+   $out .= '<td>'._('Additional identifiers').'</td>'.LF;
+   $out .= '</tr>'.LF;
    $count = 0;
    foreach ($hits as $h) {
       $ip = $h['ips'][0];
@@ -286,9 +285,9 @@ function mask_ok ($matches) {
 
 function mask_limits($matches) {
 
-   if ($matches[5] < 9) { 
+   if ($matches[5] < 9) {
 
-      $width      = 8-$matches[5];     
+      $width      = 8-$matches[5];
       $matches[1] = $matches[1] - ($matches[1] % pow(2,$width));
 
       $span       = pow(2,$width) - 1; 
@@ -369,7 +368,7 @@ function search_zoom($mask) {
 
       $where_clause = "";
 
-      pageHeader("Search results from $pre$min$postmin to $pre$max$postmax");   
+      pageHeader(_("Search results from $pre$min$postmin to $pre$max$postmax"));   
 
       if ($min < 10)
       {
@@ -426,19 +425,17 @@ function search_zoom($mask) {
          or die("Unable to query.");
     
       if (db_num_rows($res)) {
-         echo <<<EOF
-<table cellpadding="3">
-<tr>
-<th>Incident ID</th>
-<th>Created</th>
-<th>Type</th>
-<th>State</th>
-<th>Status</th>
-</tr>
-EOF;
+         print '<table cellpadding="3">'.LF;
+         print '<tr>'.LF;
+         print '<th>'._('Incident ID').'</th>'.LF;
+         print '<th>'._('Created').'</th>'.LF;
+         print '<th>'._('Type').'</th>'.LF;
+         print '<th>'._('State').'</th>'.LF;
+         print '<th>'._('Status').'</th>'.LF;
+         print '</tr>'.LF;
          $count = 0;
          while ($row = db_fetch_next($res)) {
-         printf("
+            printf("
 <tr bgcolor=\"%s\">
    <td><a href=\"incident.php?action=details&incidentid=%s\">%s</a></td>
    <td>%s</td>
@@ -453,16 +450,14 @@ EOF;
                 $row["type"],
                 $row["state"],
                 $row["status"]);
-      }
-      echo <<<EOF
-</table>
-EOF;
+         }
+         print '</table>'.LF;
       } else {
-      echo "<I>No incidents within this range</I>";
+         echo "<I>"._('No incidents within this range')."</I>";
       }
 
    } else {
-   echo "<I>$mask is not a correct netmask, 123.45.67.89/22 for instance is</I>";
+   echo "<I>$mask "._('is not a correct netmask, 123.45.67.89/22 for instance is')."</I>";
    }
 } //search_zoom
 
@@ -522,13 +517,13 @@ function show_search_email($incidentids) {
    pageHeader("Search output");
    $out = '<table cellpadding="3">';
    $out .= '<tr>';
-   $out .= '  <th>Incident ID</th>';
-   $out .= '  <th>Hostname</th>';
-   $out .= '  <th>Constituency</th>';
-   $out .= '  <th>Type</th>';
-   $out .= '  <th>Status</th>';
-   $out .= '  <th>State</th>';
-   $out .= '  <th>User</th>';
+   $out .= '  <th>'._('Incident ID').'</th>';
+   $out .= '  <th>'._('Hostname').'</th>';
+   $out .= '  <th>'._('Constituency').'</th>';
+   $out .= '  <th>'._('Type').'</th>';
+   $out .= '  <th>'._('Status').'</th>';
+   $out .= '  <th>'._('State').'</th>';
+   $out .= '  <th>'._('User').'</th>';
    $out .= '</tr>';
 
    $constituencies = getConstituencies();
@@ -558,25 +553,15 @@ function show_search_email($incidentids) {
 } // show_search_email
 
 
-
-
-
-
-
-
-
-
-
-
 /***********************************************************************/
 switch ($action) {
    case "none":
-      pageHeader("Search", "search-search");
+      pageHeader(_('Search'));
       showSearch();
       pageFooter();
       break;
    // ------------------------------------------------------------------
-   case "Search":
+   case _("Search"):
    case "search":
 		unset($_SESSION["current_name"]);
 		unset($_SESSION["current_email"]);
@@ -608,24 +593,20 @@ switch ($action) {
             break;
 
          default:
-            echo 'Unknown query type';
+            echo _('Unknown query type');
       }
 
-      echo <<<EOF
-<input type="submit" name="action" value="New incident">
-</form>
-<P>
-EOF;
+      print '<input type="submit" name="action" value="'._('New incident').'">'.LF;
+      print '</form>'.LF;
+      print '<P>'.LF;
       generateevent('searchoutput', array('q'=>$q));
-      echo <<<EOF
-<HR>
-<H2>New Search</H2>
-EOF;
+      print '<HR>'.LF;
+      print '<H2>'._('New Search').'</H2>'.LF;
       showSearch($qtype);
       pageFooter();
 
       break;
    default:
-      die("Unknown action.");
+      die(_('Unknown action.'));
 } // switch
 ?>

@@ -1,7 +1,7 @@
 <?php
 /* vim: syntax=php tabstop=3 shiftwidth=3
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
- * Copyright (C) 2004,2005	Tilburg University, The Netherlands
+ * Copyright (C) 2004,2005   Tilburg University, The Netherlands
 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,118 +32,114 @@
  function show_form($id="") {
     $lastname = $firstname = $email = $phone = $login = $userid = '';
     $action = "add";
-    $submit = "Add!";
+    $submit = _("Add!");
 
     if ($id != "") {
-        # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-        # or die("Unable to connect to database.");
-
         $res = db_query("
         SELECT lastname, firstname, email, phone, login, userid, password
         FROM   users
         WHERE  id = '$id'")
-        or die("Unable to query database.");
+        or die(_("Unable to query database."));
 
         if (db_num_rows($res) > 0) {
             $row = db_fetch_next($res);
-			if (array_key_exists('lastname', $row))
-				$lastname=$row['lastname'];
-			if (array_key_exists('firstname', $row))
-				$firstname=$row['firstname'];
-			if (array_key_exists('email', $row))
-				$email=$row['email'];
-			if (array_key_exists('phone', $row))
-				$phone=$row['phone'];
-			if (array_key_exists('login', $row))
-				$login=$row['login'];
-			if (array_key_exists('userid', $row))
-				$userid=$row['userid'];
+         if (array_key_exists('lastname', $row))
+            $lastname=$row['lastname'];
+         if (array_key_exists('firstname', $row))
+            $firstname=$row['firstname'];
+         if (array_key_exists('email', $row))
+            $email=$row['email'];
+         if (array_key_exists('phone', $row))
+            $phone=$row['phone'];
+         if (array_key_exists('login', $row))
+            $login=$row['login'];
+         if (array_key_exists('userid', $row))
+            $userid=$row['userid'];
 
             $action = "update";
-            $submit = "Update!";
+            $submit = _("Update!");
         }
-        # db_close($conn);
     }
-    echo <<<EOF
-<form action="$_SERVER[PHP_SELF]" method="POST">
-<input type="hidden" name="action" value="$action">
-<input type="hidden" name="id" value="$id">
-<table>
-<tr>
-    <td>Login</td>
-    <td><input type="text" size="30" name="login" value="$login"></td>
-</tr>
-<tr>
-    <td>Organizational user id</td>
-    <td><input type="text" size="30" name="userid" value="$userid"></td>
-</tr>
-<tr>
-    <td>Last name</td>
-    <td><input type="text" size="30" name="lastname" value="$lastname"></td>
-</tr>
-<tr>
-    <td>First name</td>
-    <td><input type="text" size="30" name="firstname" value="$firstname"></td>
-</tr>
-<tr>
-    <td>Email address</td>
-    <td><input type="text" size="30" name="email" value="$email"></td>
-</tr>
-<tr>
-    <td>Phone number</td>
-    <td><input type="text" size="30" name="phone" value="$phone"></td>
-</tr>
-<tr>
-    <td>Password</td>
-    <td><input type="password" size="30" name="password"></td>
-</tr>
-<tr>
-    <td>Confirm password</td>
-    <td><input type="password" size="30" name="password2"></td>
-</tr>
-</table>
-<p>
-<input type="submit" value="$submit">
-</form>
-EOF;
+    print '<form action="'.$_SERVER[PHP_SELF].'" method="POST">'.LF;
+    print '<input type="hidden" name="action" value="'.$action.'">'.LF;
+    print '<input type="hidden" name="id" value="'.$id.'">'.LF;
+    print '<table>'.LF;
+    print '<tr>'.LF;
+    print '    <td>'._('Login').'</td>'.LF;
+    print '    <td><input type="text" size="30" name="login" value="'.
+       $login.'"></td>'.LF;
+    print '</tr>'.LF;
+    print '<tr>'.LF;
+    print '    <td>'._('Organizational user id').'</td>'.LF;
+    print '    <td><input type="text" size="30" name="userid" value="'.
+      $userid.'"></td>'.LF;
+    print '</tr>'.LF;
+    print '<tr>'.LF;
+    print '    <td>'._('Last name').'</td>'.LF;
+    print '    <td><input type="text" size="30" name="lastname" value="'.
+      $lastname.'"></td>'.LF;
+    print '</tr>'.LF;
+    print '<tr>'.LF;
+    print '    <td>'._('First name').'</td>'.LF;
+    print '    <td><input type="text" size="30" name="firstname" value="'.
+      $firstname.'"></td>'.LF;
+    print '</tr>'.LF;
+    print '<tr>'.LF;
+    print '    <td>'._('Email address').'</td>'.LF;
+    print '    <td><input type="text" size="30" name="email" value="'.
+      $email.'"></td>'.LF;
+    print '</tr>'.LF;
+    print '<tr>'.LF;
+    print '    <td>'._('Phone number').'</td>'.LF;
+    print '    <td><input type="text" size="30" name="phone" value="'.
+      $phone.'"></td>'.LF;
+    print '</tr>'.LF;
+    print '<tr>'.LF;
+    print '    <td>'._('Password').'</td>'.LF;
+    print '    <td><input type="password" size="30" name="password"></td>'.LF;
+    print '</tr>'.LF;
+    print '<tr>'.LF;
+    print '    <td>'._('Confirm password').'</td>'.LF;
+    print '    <td><input type="password" size="30" name="password2"></td>'.LF;
+    print '</tr>'.LF;
+    print '</table>'.LF;
+    print '<p>'.LF;
+    print '<input type="submit" value="'.$submit.'">'.LF;
+    print '</form>'.LF;
  }
 
  switch ($action) {
-    // --------------------------------------------------------------
-    case "list":
-        pageHeader("AIRT users");
-        # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-        # or die ("Unable to connect to database.");
+   // --------------------------------------------------------------
+   case "list":
+      pageHeader(_("AIRT users"));
 
-        $res = db_query("
+      $res = db_query("
             SELECT id, login, lastname, firstname, email, phone,
                    userid
             FROM   users
             ORDER BY login")
-        or die("Unable to query database.");
+      or die(_('Unable to query database.'));
 
-        echo <<<EOF
-<table width="100%" cellpadding=3>
-<tr>
-    <th>Login</th>
-	<th>User id</th>
-    <th>Last name</th>
-    <th>First name</th>
-    <th>Email</th>
-    <th>Phone</th>
-</tr>
-EOF;
-        $count=0;
-        while ($row = db_fetch_next($res)) {
-			$id = $row["id"];
-            $login = $row["login"];
-            $lastname = $row["lastname"];
-            $firstname = $row["firstname"];
-            $email = $row["email"];
-            $phone = $row["phone"];
-            $userid = $row["userid"];
+      print '<table width="100%" cellpadding=3>'.LF;
+      print '<tr>'.LF;
+      print '   <th>'._('Login').'</th>'.LF;
+      print '   <th>'._('User id').'</th>'.LF;
+      print '   <th>'._('Last name').'</th>'.LF;
+      print '   <th>'._('First name').'</th>'.LF;
+      print '   <th>'._('Email').'</th>'.LF;
+      print '   <th>'._('Phone').'</th>'.LF;
+      print '</tr>'.LF;
+      $count=0;
+      while ($row = db_fetch_next($res)) {
+         $id = $row["id"];
+         $login = $row["login"];
+         $lastname = $row["lastname"];
+         $firstname = $row["firstname"];
+         $email = $row["email"];
+         $phone = $row["phone"];
+         $userid = $row["userid"];
 
-            printf("
+         printf("
 <tr bgcolor='%s'>
     <td>%s</td>
     <td>%s</td>
@@ -151,46 +147,42 @@ EOF;
     <td>%s</td>
     <td><a href='mailto:%s'>%s</a></td>
     <td>%s</td>
-    <td><a href='$_SERVER[PHP_SELF]?action=edit&id=%s'>edit</a></td>
+    <td><a href='$_SERVER[PHP_SELF]?action=edit&id=%s'>"._('edit')."</a></td>
     <td><a 
-       onclick=\"return confirm('Are you sure that you want to delete %s?')\"
-       href='$_SERVER[PHP_SELF]?action=delete&id=%s'>delete</a></td>
+       onclick=\"return confirm('"._('Are you sure that you want to delete %s?')."')\"
+       href='$_SERVER[PHP_SELF]?action=delete&id=%s'>"._('delete')."</a></td>
 </tr>",
             ($count++%2==0?"#FFFFFF":"#DDDDDD"),
             $login, $userid, $lastname, $firstname, $email, $email, $phone,
             $id, $login, $id);
-        }
-        db_free_result($res);
-        # db_close($conn);
-        echo <<<EOF
-</table>
-
-<P>
-
-<h3>New user</h3>
-EOF;
-        show_form();
-        pageFooter();
-        break;
+      }
+      db_free_result($res);
+      print '</table>'.LF;
+      print '<P>'.LF;
+      print '<h3>'._('New user').'</h3>'.LF;
+      show_form();
+      pageFooter();
+      break;
 
     // --------------------------------------------------------------
     case "add":
     case "update":
         if (array_key_exists("login", $_POST)) $login=$_POST["login"];
-        else die("Missing information (1).");
+        else die(_("Missing information (1)."));
 
         if (array_key_exists("lastname", $_POST)) $lastname=$_POST["lastname"];
-        else die("Missing information (2).");
+        else die(_("Missing information (2)."));
 
         if (array_key_exists("firstname", $_POST)) 
-            $firstname=$_POST["firstname"];
-        else die("Missing information (3).");
+           $firstname=$_POST["firstname"];
+        else die(_("Missing information (3)."));
 
-        if (array_key_exists("email", $_POST)) $email=strtolower($_POST["email"]);
-        else die("Missing information (4).");
+        if (array_key_exists("email", $_POST)) 
+           $email=strtolower($_POST["email"]);
+        else die(_("Missing information (4)."));
 
         if (array_key_exists("phone", $_POST)) $phone=$_POST["phone"];
-        else die("Missing information (5).");
+        else die(_("Missing information (5)."));
 
         if (array_key_exists("password", $_POST)) $password=$_POST["password"];
         else $password="";
@@ -208,71 +200,61 @@ EOF;
         // ========= ADD ==========
         if ($action == "add") {
             if ($password != $password2) {
-                pageHeader("Error");
-                echo <<<EOF
-The passwords that you provided do not match.<P>
-Please use your browser's back button to correct the problem and 
-resend the form.
-EOF;
-                pageFooter();
-                exit;
+                pageHeader(_("Error"));
+               print _('The passwords that you provided do not match.').LF;
+               print '<P>'.LF;
+               print _("Please use your browser's back button to correct the problem and resend the form.").LF;
+               pageFooter();
+               exit;
             }
-            # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-            # or die("Unable to connect to database.");
 
             $res = db_query(
                 "SELECT id
                  FROM   users
                  WHERE  login='$login'")
-            or die("Unable to query database.");
+            or die(_("Unable to query database."));
 
             if (db_num_rows($res) > 0) {
-                pageHeader("Error");
-                echo <<<EOF
-Login <em>$login</em> is already in use.<P>
-Please use your browser's back button to correct the problem and 
-resend the form.
-EOF;
-                pageFooter();
-                exit;
+                pageHeader(_("Error"));
+               print _("Login <em>$login</em> is already in use.").'<P>'.LF;
+               print _("Please use your browser's back button to correct the problem and resend the form.").LF;
+               pageFooter();
+               exit;
             }
 
             db_free_result($res);
 
-			addUser(array(
-				"lastname" => $lastname,
-				"firstname" => $firstname,
-				"email" => $email,
-				"phone" => $phone,
-				"login" => $login,
-				"userid" => $userid,
-				"password" => $password
-			));
+            addUser(array(
+            "lastname" => $lastname,
+            "firstname" => $firstname,
+            "email" => $email,
+            "phone" => $phone,
+            "login" => $login,
+            "userid" => $userid,
+            "password" => $password
+            ));
 
-            # db_close($conn);
             Header("Location: $_SERVER[PHP_SELF]");
         }
 
         // ========== UPDATE ===========
         else if ($action == "update")
         {
-            if ($id=="") die("Missing information(A)");
+            if ($id=="") die(_("Missing information(A)"));
             if ($password != "")
             {
                 if ($password != $password2)
                 {
-                    pageHeader("Error");
-                    echo <<<EOF
-The passwords that you provided do not match.<P>
-Please use your browser's back button to correct the problem and 
-resend the form.
-EOF;
+                    pageHeader(_("Error"));
+                    print _('The passwords that you provided do not match.').LF;
+                    print '<P>'.LF;
+                    print _("Please use your browser's back button to correct the problem and resend the form.").LF;
                     pageFooter();
                     exit;
                 }
-			}
+         }
 
-            $query = sprintf("
+         $query = sprintf("
                 UPDATE users
                 SET    lastname=%s,
                        firstname=%s,
@@ -284,78 +266,68 @@ EOF;
                     db_masq_null($firstname),
                     db_masq_null($email),
                     db_masq_null($phone),
-					db_masq_null($login),
-					db_masq_null($userid),
+               db_masq_null($login),
+               db_masq_null($userid),
                     $id);
-			if ($password != "") {
+         if ($password != "") {
                 $query=sprintf("
                     %s, 
                     password=%s", 
                         $query,
                         db_masq_null(sha1($password))
-				);
-            }
-            $query = sprintf("
+            );
+         }
+         $query = sprintf("
                 %s
                 WHERE id=%s",
                     $query,
                     $id);
 
-            # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-            # or die("Unable to connect to database.");
+         $res = db_query($query)
+         or die(_("Unable to execute query 1"));
 
-            $res = db_query($query)
-            or die("Unable to execute query 1");
+         # db_close($conn);
+         Header("Location: $_SERVER[PHP_SELF]");
+   }
 
-            # db_close($conn);
-            Header("Location: $_SERVER[PHP_SELF]");
-        }
-
-        break;
+   break;
 
     // --------------------------------------------------------------
     case "delete":
         if (array_key_exists("id", $_GET)) $id=$_GET["id"];
         else $id="";
 
-        # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-        # or die("Unable to connect to database.");
-
         $res = db_query(
             "DELETE FROM users
              WHERE  id = $id");
         if (!$res) {
-			pageHeader("Error removing user.");
-			echo <<<EOF
-<p>Unable to remove this user from the database.</p>
+         pageHeader(_("Error removing user."));
+         print '<p>'.LF;
+         print _('Unable to remove this user from the database.').'</p>'.LF;
+         print '<p>'.LF;
+         print _('The most likely cause for this failure is that the user is associated with one or more incidents.').'</p>'.LF;
+         print '<p>'.LF;
+         print '<a href="'.$_SERVER[PHP_SELF].'">'._('continue').'...</a></p>'.LF;
+         pageFooter();
+         exit;
+      }
 
-<p>The most likely cause for this failure is that the user is associated with
-one or more incidents.</p>
+      Header("Location: $_SERVER[PHP_SELF]");
 
-<p><a href="$_SERVER[PHP_SELF]">continue...</a></p>
-EOF;
-			pageFooter();
-			exit;
-		}
-
-        # db_close($conn);
-        Header("Location: $_SERVER[PHP_SELF]");
-
-        break;
+      break;
 
     // --------------------------------------------------------------
     case "edit":
         if (array_key_exists("id", $_GET)) $id=$_GET["id"];
-        else die("Missing information (1).");
+        else die(_("Missing information (1)."));
 
-        pageHeader("Edit user information");
+        pageHeader(_("Edit user information"));
         show_form($id);
         pageFooter();
         break;
 
     // --------------------------------------------------------------
     default:
-        die("Unknown action: $action");
+        die(_("Unknown action: $action"));
 } // switch
 ?>
- 
