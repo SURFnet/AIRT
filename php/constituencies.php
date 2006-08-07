@@ -33,60 +33,60 @@ if (array_key_exists("action", $_REQUEST)) {
    $action = "list";
 }
 
-function show_form($id="") {
-   $label = $description = "";
-   $action = "add";
-   $submit = "Add!";
+/** GUI Component to show the update constituecy form. */
+function formatConstituencyForm($id="") {
+   $label = $description = '';
+   $action = 'add';
+   $submit = _('Add!');
 
-   if ($id != "") {
+   if ($id != '') {
       $constituencies = getConstituencies();
 
       if (array_key_exists($id, $constituencies)) {
          $row = $constituencies[$id];
-         $action = "update";
-         $submit = "Update!";
-         $label = $row["label"];
-         $description = $row["name"];
+         $action = 'update';
+         $submit = _('Update!');
+         $label = $row['label'];
+         $description = $row['name'];
       }
    }
-   echo <<<EOF
-<form action="$_SERVER[PHP_SELF]" method="POST">
-<input type="hidden" name="action" value="$action">
-<input type="hidden" name="consid" value="$id">
-<table>
-<tr>
-    <td>Label</td>
-    <td><input type="text" size="30" name="label" value="$label"></td>
-</tr>
-<tr>
-    <td>Description</td>
-    <td><input type="text" size="30" name="description" value="$description">
-        </td>
-</tr>
-</table>
-<p>
-<input type="submit" value="$submit">
-EOF;
+   $out = '<form action="$_SERVER[PHP_SELF]" method="POST">'.LF;
+   $out .= '<input type="hidden" name="action" value="'.$action.'">'.LF;
+   $out .= '<input type="hidden" name="consid" value="'.$id.'">'.LF;
+   $out .= '<table>'.LF;
+   $out .= '<tr>'.LF;
+   $out .= '   <td>Label</td>'.LF;
+   $out .= '   <td><input type="text" size="30" name="label" '.
+           '       value="'.$label.'"></td>'.LF;
+   $out .= '</tr>'.LF;
+   $out .= '<tr>'.LF;
+   $out .= '   <td>Description</td>'.LF;
+   $out .= '   <td><input type="text" size="30" name="description" '.
+           '    value="'.$description.'"></td>'.LF;
+   $out .= '</tr>'.LF;
+   $out .= '</table>'.LF;
+   $out .= '<p>'.LF;
+   $out .= '<input type="submit" value="'.$submit.'">'.LF;
    if ($action=="update") {
-        echo "<input type=\"submit\" name=\"action\" value=\"Delete\">";
+        $out .= '<input type="submit" name="action" value="Delete">'.LF;
    }
-   echo "</form>";
+   $out .= '</form>'.LF;
+   return $out;
 }
+
 
 switch ($action) {
    // --------------------------------------------------------------
    case "list":
-      pageHeader("Constituencies");
+      pageHeader(_('Constituencies'));
 
-      echo <<<EOF
-<table width="100%" cellpadding="3">
-<tr>
-    <th>&nbsp;</th>
-    <th>Label</th>
-    <th>Description</th>
-    <th>Netblocks</th>
-</tr>
-EOF;
+      $out = '<table width="100%" cellpadding="3">'.LF;
+      $out .= '<tr>'.LF;
+      $out .= '<th>&nbsp;</th>'.LF;
+      $out .= '<th>Label</th>'.LF;
+      $out .= '<th>Description</th>'.LF;
+      $out .= '<th>Netblocks</th>'.LF;
+      $out .= '</tr>'.LF;
       $constituencies = getConstituencies();
       $networks = getNetworks();
 
@@ -96,13 +96,14 @@ EOF;
          $name  = $row["name"];
          $consid = $id;
          $color = ($count++%2==0?"#FFFFFF":"#DDDDDD");
-         echo <<<EOF
-<tr valign="top" bgcolor="$color">
-    <td><a href="$_SERVER[PHP_SELF]?action=edit&cons=$consid">edit</a></td>
-    <td>$label</td>
-    <td>$name</td>
-    <td>
-EOF;
+         $out .= '<tr valign="top" bgcolor="'.$color.'">'.LF;
+         $out .= '<td>'.LF;
+         $out .= '<a href="'.$_SERVER[PHP_SELF].'?action=edit&cons='.$consid.
+                 '">'._('edit').'</a>'.LF;
+         $out .= '</td>'.LF;
+         $out .= '<td>'.$label.'</td>'.LF;
+         $out .= '<td>'.$name.'</td>'.LF;
+         $out .= '<td>'.LF;
          foreach ($networks as $id=>$row2) {
             if ($row2["constituency"] != $consid) {
                continue;
@@ -111,19 +112,17 @@ EOF;
             $network = $row2["network"];
             $netmask = $row2["netmask"];
 
-            echo "- $label<BR>  <small>$network / $netmask</small><BR>";
+            $out .= '- '.$label.'<BR>  <small>'.$network .' / '. $netmask.
+                    '</small><BR>'.LF;
          }
-
-         echo <<<EOF
-</td>
-</tr>
-EOF;
+         $out .= '</td>'.LF;
+         $out .= '</tr>'.LF;
       } // foreach
-      echo "</table>";
+      $out .= '</table>';
 
-      echo "<h3>New constituency</h3>";
-      show_form("");
-
+      $out .= '<h3>'._('New constituency').'</h3>'.LF;
+      $out .= formatConstituencyForm('');
+      print $out;
       break;
 
    //-----------------------------------------------------------------
@@ -131,11 +130,11 @@ EOF;
       if (array_key_exists("cons", $_GET)) {
          $cons=$_GET["cons"];
       } else {
-         die("Missing information.");
+         die(_('Missing information.'));
       }
 
-      pageHeader("Edit constituency");
-      show_form($cons);
+      pageHeader(_('Edit constituency'));
+      print formatConstituencyForm($cons);
       pageFooter();
       break;
 
@@ -150,17 +149,14 @@ EOF;
       if (array_key_exists("label", $_POST)) {
          $label=$_POST["label"];
       } else {
-         die("Missing information (1).");
+         die(_('Missing information (1).'));
       }
       if (array_key_exists("description", $_POST)) {
             $description=$_POST["description"];
       } else {
-         die("Missing information (2).");
+         die(_('Missing information (2).'));
       }
       if ($action=="add") {
-         # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-         # or die("Unable to connect to database.");
-
          $res = db_query(sprintf("
             INSERT INTO constituencies
             (id, label, name)
@@ -168,9 +164,7 @@ EOF;
             (nextval('constituencies_sequence'), %s, %s)",
             db_masq_null($label),
             db_masq_null($description)))
-         or die("Unable to excute query.");
-
-         # db_close($conn);
+         or die(_('Unable to excute query.'));
 
          generateEvent("newconstituency", array(
             "label"=>$label,
@@ -179,10 +173,8 @@ EOF;
          Header("Location: $_SERVER[PHP_SELF]");
       } else if ($action=="update") {
          if ($consid=="") {
-            die("Missing information (3).");
+            die(_('Missing information (3).'));
          }
-         # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-         # or die("Unable to connect to database.");
 
          $res = db_query(sprintf("
             UPDATE constituencies
@@ -192,9 +184,8 @@ EOF;
             db_masq_null($label),
             db_masq_null($description),
             $consid))
-         or die("Unable to excute query.");
+         or die(_('Unable to excute query.'));
 
-         # db_close($conn);
          generateEvent("updateconstituency", array(
             "label"=>$label,
             "name"=>$description
@@ -209,29 +200,25 @@ EOF;
       if (array_key_exists("consid", $_POST)) {
          $cons=$_POST["consid"];
       } else {
-         die("Missing information (1).");
+         die(_('Missing information (1).'));
       }
 
       generateEvent("deleteconstituency", array(
          "constituencyid" => $cons
       ));
 
-      # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-      # or die("Unable to connect to database.");
-
       $res = db_query("
          DELETE FROM constituencies
          WHERE  id='$cons'")
-      or die("Unable to execute query.");
+      or die(_('Unable to execute query.'));
 
-      # db_close($conn);
       Header("Location: $_SERVER[PHP_SELF]");
 
       break;
 
    //-----------------------------------------------------------------
    default:
-      die("Unknown action: $action");
+      die(_('Unknown action: ').$action);
  } // switch
 
 ?>
