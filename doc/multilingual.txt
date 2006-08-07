@@ -11,20 +11,20 @@ DONE importqueue.php
 DONE incident.php
 DONE incident_states.php
 DONE incident_status.php
-     incident_types.php
-     index.php
-     license.php
-     links.php
+DONE incident_types.php
+DONE index.php
+DONE license.php
+DONE links.php
 DONE login.php.in
 DONE logout.php
      mailtemplates.php
      maintenance.php
      networks.php
-     roleassignments.php
-     roles.php
+SKIP roleassignments.php
+SKIP roles.php
      search.php
      server.php
-     stats.php
+DONE stats.php
      users.php
 
 $AIRT/lib:
