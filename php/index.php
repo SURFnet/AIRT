@@ -27,9 +27,9 @@ require_once 'config.plib';
 require_once LIBDIR."/airt.plib";
 require_once LIBDIR."/database.plib";
 
-pageHeader("AIRT Control Center");
+pageHeader(_('AIRT Control Center'));
 
-$out = t('<small>Welcome %username. Your last login was at %lastdb from %hostname.</small>', array(
+$out = t('<small>'._('Welcome %username. Your last login was at %lastdb from %hostname.').'</small>', array(
    '%username'=>$_SESSION['username'],
    '%lastdb'=>$_SESSION['lastdb'],
    '%hostname'=>$_SESSION['hostnamelast']));
@@ -38,21 +38,13 @@ $out .= "<HR/>\n";
 print $out;
 generateEvent('mainmenutop');
 
-/*
-$out  = t("<strong>Main tasks</strong>\n");
-$out .= t("<p><a href=\"incident.php\">Incident management</a></p>\n");
-$out .= t("<p><a href=\"search.php\">IP Address lookup</a></p>\n");
-$out .= t("<a href=\"mailtemplates.php\">Mail templates</a></p>\n");
-$out .= t("<a href=\"maintenance.php\">Edit settings</a></p>\n");
-*/
-
 $out='';
 $res = db_query(q("
       SELECT url, label
       FROM   urls
       WHERE  NOT menu_position IS NULL
       ORDER BY menu_position"))
-or die("Unable to query database.");
+or die(_('Unable to query database.'));
 
 while ($row = db_fetch_next($res)) {
    $url = $row['url'];
