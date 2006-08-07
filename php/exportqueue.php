@@ -52,7 +52,7 @@ switch (fetchFrom('REQUEST','action')) {
       exit;
    default:
       // List the queue.
-      pageHeader('AIRT export queue');
+      pageHeader(_('AIRT export queue'));
       printf(formatQueueList());
       printf(formatQueueItemInsert());
       pageFooter();

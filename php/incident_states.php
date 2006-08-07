@@ -36,80 +36,71 @@ function show_form($id="") {
    $desc      = "";
    $isdefault = 'f';
    $action    = "add";
-   $submit    = "Add!";
+   $submit    = _('Add!');
 
    if ($id != "") {
-      # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-      # or die("Unable to connect to database.");
-
       $res = db_query("
          SELECT label, descr, isdefault
          FROM   incident_states
          WHERE  id = '$id'")
-      or die("Unable to query database.");
+      or die(_('Unable to query database.'));
 
       if (db_num_rows($res) > 0) {
          $row = db_fetch_next($res);
          $action    = "update";
-         $submit    = "Update!";
+         $submit    = _('Update!');
          $label     = $row['label'];
          $desc      = $row['descr'];
          $isdefault = $row['isdefault'];
       }
-      #  db_close($conn);
    }
    if ($isdefault=='t') {
       $isdefault = 'CHECKED';
    } else {
       $isdefault = '';
    }
-   echo <<<EOF
-<form action="$_SERVER[PHP_SELF]" method="POST">
-<input type="hidden" name="action" value="$action">
-<input type="hidden" name="id" value="$id">
-<table>
-<tr>
-    <td>Label</td>
-    <td><input type="text" size="30" name="label" value="$label"></td>
-</tr>
-<tr>
-    <td>Description</td>
-    <td><input type="text" size="50" name="desc" value="$desc"></td>
-</tr>
-<tr>
-    <td>Entry is default</td>
-    <td><input type="checkbox" name="isdefault" value="1" $isdefault></td>
-</tr>
-</table>
-<p>
-<input type="submit" value="$submit">
-</form>
-EOF;
+   echo '<form action="'.$_SERVER[PHP_SELF].'" method="POST">'.LF;
+   echo '<input type="hidden" name="action" value="'.$action.'">'.LF;
+   echo '<input type="hidden" name="id" value="'.$id.'">'.LF;
+   echo '<table>'.LF;
+   echo '<tr>'.LF;
+   echo '<td>'._('Label').'</td>'.LF;
+   echo '<td>'.LF;
+   echo '<input type="text" size="30" name="label" value="'.$label.'">'.LF;
+   echo '</td>'.LF;
+   echo '</tr>'.LF;
+   echo '<tr>'.LF;
+   echo '<td>'._('Description').'</td>'.LF;
+   echo '<td><input type="text" size="50" name="desc" value="'.$desc.'"></td>'.LF;
+   echo '</tr>'.LF;
+   echo '<tr>'.LF;
+   echo '<td>'._('Entry is default').'</td>'.LF;
+   echo '<td><input type="checkbox" name="isdefault" value="1" '.$isdefault.'></td>'.LF;
+   echo '</tr>'.LF;
+   echo '</table>'.LF;
+   echo '<p>'.LF;
+   echo '<input type="submit" value="'.$submit.'">'.LF;
+   echo '</form>'.LF;
 }
 
 switch ($action) {
    // --------------------------------------------------------------
    case "list":
-      pageHeader("Incident states");
-      # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-      # or die("Unable to connect to database.");
-
+      pageHeader(_('Incident states'));
       $res = db_query(
          "SELECT   id, label, descr, isdefault
           FROM     incident_states
           ORDER BY label")
-      or die("Unable to execute query 1");
+      or die(_('Unable to execute query 1'));
 
-      echo <<<EOF
-<table cellpadding="3">
-<tr>
-    <td><B>Label</B></td>
-    <td><B>Short description</B></td>
-    <td><B>Is default</B></td>
-    <td><B>Edit</B></td>
-    <td><B>Delete</B></td>
-</tr>
-EOF;
+      echo '<table cellpadding="3">'.LF;
+      echo '<tr>'.LF;
+      echo '<td><B>'._('Label').'</B></td>'.LF;
+      echo '<td><B>'._('Short description').'</B></td>'.LF;
+      echo '<td><B>'._('Is default').'</B></td>'.LF;
+      echo '<td><B>'._('Edit').'</B></td>'.LF;
+      echo '<td><B>'._('Delete').'</B></td>'.LF;
+      echo '</tr>'.LF;
       $count=0;
       while ($row = db_fetch_next($res)) {
          $label = $row["label"];
@@ -117,23 +108,22 @@ EOF;
          $desc  = $row['descr'];
          $isdefault = $row['isdefault']=='t'? 'Yes':'';
          $color = ($count++%2==0?"#FFFFFF":"#DDDDDD");
-         echo <<<EOF
-<tr valign="top" bgcolor="$color">
-    <td>$label</td>
-    <td>$desc</td>
-    <td>$isdefault</td>
-    <td><a href="$_SERVER[PHP_SELF]?action=edit&id=$id">edit</a></td>
-    <td><a href="$_SERVER[PHP_SELF]?action=delete&id=$id">delete</a></td>
-</tr>
-EOF;
+         echo '<tr valign="top" bgcolor="'.$color.'">'.LF;
+         echo '<td>'.$label.'</td>'.LF;
+         echo '<td>'.$desc,'</td>'.LF;
+         echo '<td>'.$isdefault.'</td>'.LF;
+         echo '<td><a href="'.$_SERVER[PHP_SELF].
+            '?action=edit&id='.$id.'">'._('edit').'</a></td>'.LF;
+         echo '<td><a href="'.$_SERVER[PHP_SELF].
+            '?action=delete&id='.$id.'">'._('delete').'</a></td>'.LF;
+         echo '</tr>'.LF;
       } // while $row
-      echo "</table>";
+      echo '</table>'.LF;
 
       db_free_result($res);
-      # db_close($conn);
 
-      echo "<h3>New incident state</h3>";
-      show_form("");
+      echo '<h3>'._('New incident state').'</h3>'.LF;
+      show_form('');
 
       break;
 
@@ -142,10 +132,10 @@ EOF;
       if (array_key_exists("id", $_GET)) {
          $id=$_GET["id"];
       } else {
-         die("Missing information.");
+         die(_('Missing information.'));
       }
 
-      pageHeader("Edit incident state");
+      pageHeader(_('Edit incident state'));
       show_form($id);
       pageFooter();
       break;
@@ -161,12 +151,12 @@ EOF;
       if (array_key_exists("label", $_POST)) {
          $label=$_POST["label"];
       } else {
-         die("Missing information (1).");
+         die(_('Missing information (1).'));
       }
       if (array_key_exists("desc", $_POST)) {
          $desc=$_POST["desc"];
       } else {
-         die("Missing information (2).");
+         die(_('Missing information (2).'));
       }
       if (array_key_exists("isdefault", $_POST)) {
          $isdefault = 't';
@@ -174,14 +164,11 @@ EOF;
          $isdefault = 'f';
       }
 
-      #  $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-      #  or die("Unable to connect to database.");
-
       if ($isdefault=='t') {
          // The new/updated record is default, so all others are not.
          $q = "UPDATE incident_states
                SET isdefault = 'f'";
-         $res = db_query($q) or die("Unable to execute query 4.");
+         $res = db_query($q) or die(_('Unable to execute query 4.'));
       }
 
       // Insert or update the current state record.
@@ -194,13 +181,12 @@ EOF;
             db_masq_null($label),
             db_masq_null($desc),
             db_masq_null($isdefault)))
-         or die("Unable to excute query 2.");
+         or die(_('Unable to excute query 2.'));
 
-         # db_close($conn);
          Header("Location: $_SERVER[PHP_SELF]");
       } else if ($action=="update") {
          if ($id=="") {
-            die("Missing information (3).");
+            die(_('Missing information (3).'));
          }
          $res = db_query(sprintf("
             UPDATE incident_states
@@ -212,9 +198,8 @@ EOF;
             db_masq_null($desc),
             db_masq_null($isdefault),
             $id))
-         or die("Unable to excute query 3.");
+         or die(_('Unable to excute query 3.'));
 
-         # db_close($conn);
          Header("Location: $_SERVER[PHP_SELF]");
       }
       break;
@@ -224,24 +209,20 @@ EOF;
       if (array_key_exists("id", $_GET)) {
          $id=$_GET["id"];
       } else {
-         die("Missing information.");
+         die(_('Missing information.'));
       }
-
-      # $conn = db_connect(DBDB, DBUSER, DBPASSWD)
-      # or die("Unable to connect to database.");
 
       $res = db_query("
          DELETE FROM incident_states
          WHERE  id='$id'")
-      or die("Unable to execute query.");
+      or die(_('Unable to execute query.'));
 
-      #  db_close($conn);
       Header("Location: $_SERVER[PHP_SELF]");
 
       break;
    //-----------------------------------------------------------------
    default:
-      die("Unknown action: $action");
+      die(_('Unknown action: ').$action);
  } // switch
 
 ?>

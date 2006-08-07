@@ -1151,8 +1151,6 @@ function formatIncidentForm(&$check) {
    $output .= '  <td>'._('E-mail address of user').':</td>'.LF;
    $output .= '  <td><input onChange="updateCheckboxes()" type="text" '.
               'size=40 name="email" value="'.$email.'"></td>'.LF;
-   $output .= '  <td><a href="help.php?topic=incident-adduser">'.
-              _('help').'</td>'.LF;
    $output .= '</tr>'.LF;
    $output .= '</table>'.LF;
 
@@ -1306,8 +1304,6 @@ function formatEditForm() {
    $output .= '    <td><input onChange="updateCheckboxes()" type="text" '.
               'size=40 name="email" value="'.$email.'"></td>'.LF;
    $output .= '    <td><input type="submit" value="'._('Add').'"></td>'.LF;
-   $output .= '    <td><a href="help.php?topic=incident-adduser">'.
-              _('help').'</td>'.LF;
    $output .= '  </tr>'.LF;
    $output .= '  </table>'.LF;
    $output .= t('  <input onChange="updateCheckboxes()" type="checkbox" name="addifmissing" %checked>', array(

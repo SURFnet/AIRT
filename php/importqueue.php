@@ -35,26 +35,30 @@ if (array_key_exists('action', $_REQUEST)) {
 /** Helper function to display the queue.
  */
 function showQueue() {
-   pageHeader('AIRT Import queue');
-   $out = "<form method=\"post\">";
+   pageHeader(_('AIRT Import queue'));
+   $out = '<form method="post">'.LF;
    $out .= formatQueueOverview();
-   $out .= "<p><input type=\"submit\" label=\"Commit all incidents as accept or reject\" name=\"action\" value=\"Process\"> ";
-   $out .= "<input type=\"submit\" name=\"action\" label=\"Refresh the import queue. Any unprocessed changes will be lost.\" value=\"Refresh\"></p>\n";
-   $out .= "</form>\n";
+   $out .= '<p><input type="submit" label="'.
+      _('Commit all incidents as accept or reject').
+      '" name="action" value="'._('Process').'"> ';
+   $out .= '<input type="submit" name="action" label="'.
+      _('Refresh the import queue. Any unprocessed changes will be lost.').
+      '" value="'._('Refresh').'"></p>'.LF;
+   $out .= '</form>'.LF;
    print $out;
 }
 
 
 switch ($action) {
    //----------------------------------------------------------------
-   case 'Process':
+   case _('Process'):
       $error = '';
       // no decision received. Process button pushed from empty queue?
       if (!array_key_exists('decision', $_POST)) {
          showQueue();
          break;
       }
-      pageHeader('Processing import queue');
+      pageHeader(_('Processing import queue'));
 
       // interpret all decision and take action if accept or reject
       foreach ($_POST['decision'] as $id=>$value) {
@@ -62,14 +66,14 @@ switch ($action) {
          switch ($value) {
             case 'accept':
                $value = 'accepted';
-               print t('Accepting queue element %id<br/>'."\n", array('%id'=>$id));
+               print t(_('Accepting queue element %id<br/>').LF, array('%id'=>$id));
                flush();
                $update = true;
                if (isset($_POST['add'][$id]) && $_POST['add'][$id] == 'on') {
-                  print t('Adding to existing incident<br/>'."\n");
+                  print _('Adding to existing incident<br/>').LF;
                   $error = '';
                   if (queueAddLogging($id, $error)) {
-                     print t('Error processing item: %error', array(
+                     print t(_('Error processing item: %error'), array(
                         '%error'=>$error));
                      $update = false;
                   } else {
@@ -82,13 +86,13 @@ switch ($action) {
                }
                break;
             case 'reject':
-               print t('Rejecting queue element %id<br/>'."\n", array('%id'=>$id));
+               print t(_('Rejecting queue element %id<br/>').LF, array('%id'=>$id));
                flush();
                $value = 'rejected';
                $update = true;
                break;
             default:
-               print t('Ignoring queue element %id<br/>'."\n", array('%id'=>$id));
+               print t(_('Ignoring queue element %id<br/>').LF, array('%id'=>$id));
                flush();
          }
          if ($update) {
@@ -101,7 +105,7 @@ switch ($action) {
       }
 
       // show updated queue;
-      echo "<p/><a href=\"incident.php\">Done.</a>";
+      echo '<p/><a href="incident.php">'._('Done.').'</a>'.LF;
       break;
 
    // ----------------------------------------------------------------
@@ -118,38 +122,39 @@ switch ($action) {
       }
       $item = queuePeekItem($_GET['id'], $error);
       if ($item == NULL) {
-         airt_error('', 'importqueue.php:'.__LINE__, 'Error fetching queue item');
+         airt_error('', 'importqueue.php:'.__LINE__, _('Error fetching queue item'));
          Header("Location: $_SERVER[PHP_SELF]");
          exit;
       }
-      pageHeader("Queue details for item $_GET[id]");
-      $out = "<table>\n";
-      $out .= "<tr>\n";
-      $out .= "  <td>Status</td>\n";
-      $out .= "  <td>$item[status]</td>\n";
-      $out .= "</tr>\n";
-      $out .= "<tr>\n";
-      $out .= "  <td>Type</td>\n";
-      $out .= "  <td>$item[type]</td>\n";
-      $out .= "</tr>\n";
-      $out .= "<tr>\n";
-      $out .= "  <td>Summary</td>\n";
-      $out .= "  <td>$item[summary]</td>\n";
-      $out .= "</tr>\n";
-      $out .= "<tr>\n";
-      $out .= "  <td colspan=\"2\" align=\"left\" nowrap>Input queue data</td>\n";
-      $out .= "</tr>\n";
-      $out .= "<tr valign=\"top\">\n";
-      $out .= t("  <td colspan=\"2\" align=\"left\"><pre>%xml</pre></td>",
+      pageHeader(_('Queue details for item ').$_GET[id]);
+      $out = '<table>'.LF;
+      $out .= '<tr>'.LF;
+      $out .= '  <td>'._('Status').'</td>'.LF;
+      $out .= '  <td>'.$item['status'].'</td>'.LF;
+      $out .= '</tr>'.LF;
+      $out .= '<tr>'.LF;
+      $out .= '  <td>'._('Type').'</td>'.LF;
+      $out .= '  <td>'.$item['type'].'</td>'.LF;
+      $out .= '</tr>'.LF;
+      $out .= '<tr>'.LF;
+      $out .= '  <td>'._('Summary').'</td>'.LF;
+      $out .= '  <td>'.$item['summary'].'</td>'.LF;
+      $out .= '</tr>'.LF;
+      $out .= '<tr>'.LF;
+      $out .= '  <td colspan="2" align="left" nowrap>'.
+              _('Input queue data').'</td>'.LF;
+      $out .= '</tr>'.LF;
+      $out .= '<tr valign="top">'.LF;
+      $out .= t('  <td colspan="2" align="left"><pre>%xml</pre></td>'.LF,
          array('%xml'=>htmlentities($item['content'])));
-      $out .= "</tr>\n";
-      $out .= "</table>\n";
+      $out .= '</tr>'.LF;
+      $out .= '</table>'.LF;
 
       print $out;
       pageFooter();
       break;
    // ----------------------------------------------------------------
-   case 'Refresh':
+   case _('Refresh'):
    case 'list':
       showQueue();
       break;
