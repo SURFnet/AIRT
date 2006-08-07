@@ -17,15 +17,15 @@ DONE license.php
 DONE links.php
 DONE login.php.in
 DONE logout.php
-     mailtemplates.php
-     maintenance.php
-     networks.php
+DONE mailtemplates.php
+DONE maintenance.php
+DONE networks.php
 SKIP roleassignments.php
 SKIP roles.php
-     search.php
-     server.php
+DONE search.php
+DONE server.php
 DONE stats.php
-     users.php
+DONE users.php
 
 $AIRT/lib:
 DONE airt.plib
