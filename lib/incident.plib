@@ -1044,7 +1044,7 @@ function updateCheckboxes() {
       '%sk'=>$sortkey));
    $output = '<SCRIPT Language="JavaScript">'.LF;
    $output .= 'function updateCheckboxes() {'.LF;
-   $output .= '   if (!(document.jsform.email.value == \'\')) {'.LF;
+   $output .= '   if (!(document.jsform.email.value == "")) {'.LF;
    $output .= '      document.jsform.addifmissing.checked = true;'.LF;
    $output .= '      if (typeof document.jsform.sendmail != "undefined") document.jsform.sendmail.checked = true;'.LF;
    $output .= '   } else {'.LF;
@@ -1052,7 +1052,7 @@ function updateCheckboxes() {
    $output .= '   }'.LF;
    $output .= '}'.LF;
    $output .= 'function checkAll() {'.LF;
-   $output .= '   window.location = '.$_SERVER[PHP_SELF].'?action=toggle'.$urlsuffix.LF;
+   $output .= '   window.location = "'.$_SERVER[PHP_SELF].'?action=toggle'.$urlsuffix.'"'.LF;
    $output .= '}'.LF;
 
    $output .= '</SCRIPT>'.LF;
