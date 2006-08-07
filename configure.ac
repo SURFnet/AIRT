@@ -26,7 +26,6 @@ Copyright (C) 2005 Tilburg University, The Netherlands
 ])
 
 AM_INIT_AUTOMAKE()
-AM_GNU_GETTEXT
 
 AC_DEFINE_DIR(ETCDIR, sysconfdir/airt)
 
