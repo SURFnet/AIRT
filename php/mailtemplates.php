@@ -31,10 +31,11 @@ if (array_key_exists('action', $_REQUEST)) {
 }
 
 function listTemplates() {
-  pageHeader("Available mail templates");
+  pageHeader(_('Available mail templates'));
 
    print format_templates();
-   print t("<P><a href=\"%url?action=new\">Create a new message</a></P>\n", 
+   print t('<P><a href="%url?action=new">'.
+      _('Create a new message').'</a></P>'.LF,
       array('%url'=>$_SERVER['PHP_SELF']));
    // If a current_email parameter has been passed along, put it in the
    // session for later use by "prepare".
@@ -62,69 +63,56 @@ switch ($action) {
          return;
       }
 
-      pageHeader("Edit mail template");
+      pageHeader(_('Edit mail template'));
 
       if (($msg = get_template($template)) == false) {
-         printf("Template not available.");
+         printf(_('Template not available.'));
       } else {
-         echo <<<EOF
-Update the template and press the 'Save!' button to save it. The first
+         print _('Update the template and press the "Save!" button to save it. The first
 line of the message will be used as the subject. You may use the following
-special variables in the template:
-
-<P>
-EOF;
+special variables in the template:').'<p>'.LF;
       print_variables_info();
       $update = array();
       get_template_actions($template, $update);
-      echo <<<EOF
-<P>
+      print '<P>';
+      print '<form action="'.$_SERVER[PHP_SELF].'" method="POST">'.LF;
+      print '<textarea wrap name="message" cols=75 rows=20>'.$msg.'</textarea>'.LF;
+      print '<P>'.LF;
+      print _('Automatically change settings after mail based on this template is sent:').'<P>'.LF;
+      print '<table cellpadding="3">'.LF;
+      print '<tr>'.LF;
+      print '   <td>'._('Type').'</td>'.LF;
+      print '   <td>'.LF;
+      print getIncidentTypeSelection("update[type]", $update['type'],
+         array(-1=>_('Do not update')));
+      print '   </td>'.LF;
+      print '</tr>'.LF;
+      print '<tr>'.LF;
+      print '   <td>'._('Status').'</td>'.LF;
+      print '   <td>'.LF;
+      print getIncidentStatusSelection("update[status]", $update['status'],
+         array(-1=>_('Do not update')));
+      print '   </td>'.LF;
+      print '</tr>'.LF;
+      print '<tr>'.LF;
+      print '   <td>'._('State').'</td>'.LF;
+      print '   <td>'.LF;
+      print getIncidentStateSelection("update[state]", $update['state'],
+         array(-1=>_('Do not update')));
+      print '   </td>'.LF;
+      print '</tr>'.LF;
+      print '</table>'.LF;
+      print ''.LF;
+      print ''.LF;
+      print '<input type="hidden" name="action" value="save">'.LF;
+      print '<input type="hidden" name="template" value="'.$template.'">'.LF;
+      print '<input type="submit" value="Save">'.LF;
+      print '<input type="reset" value="Cancel">'.LF;
+      print '</form>'.LF;
+   }
+   pageFooter();
 
-<form action="$_SERVER[PHP_SELF]" method="POST">
-<textarea wrap name="message" cols=75 rows=20>$msg</textarea>
-
-<P>Automatically change settings after mail based on this template is sent:<P>
-<table cellpadding="3">
-<tr>
-   <td>Type</td>
-   <td>
-EOF;
-   print getIncidentTypeSelection("update[type]", $update['type'],
-       array(-1=>"Do not update"));
-   echo <<<EOF
-   </td>
-</tr>
-<tr>
-   <td>Status</td>
-   <td>
-EOF;
-   print getIncidentStatusSelection("update[status]", $update['status'],
-       array(-1=>"Do not update"));
-   echo <<<EOF
-   </td>
-</tr>
-<tr>
-   <td>State</td>
-   <td>
-EOF;
-   print getIncidentStateSelection("update[state]", $update['state'],
-      array(-1=>"Do not update"));
-   echo <<<EOF
-   </td>
-</tr>
-</table>
-
-
-<input type="hidden" name="action" value="save">
-<input type="hidden" name="template" value="$template">
-<input type="submit" value="Save">
-<input type="reset" value="Cancel">
-</form>
-EOF;
-      }
-      pageFooter();
-
-      break;
+   break;
 
    // -------------------------------------------------------------------
    case "save":
@@ -161,56 +149,45 @@ EOF;
 
    // -------------------------------------------------------------------
    case "new":
-      pageHeader("New mail template");
-      echo <<<EOF
-Enter your new template in the text field below. Use the following variables
-in your text body:
-<P>
-EOF;
+      pageHeader(_('New mail template'));
+      print _('Enter your new template in the text field below. Use the following variables in your text body:');
+      print '<P>'.LF;
       $update = array('state'=>-1, 'status'=>-1, 'type'=>-1);
       print_variables_info();
-      echo <<<EOF
-<P>
-<form action="$_SERVER[PHP_SELF]" method="POST">
-File name: <input type="text" size="40" name="template">
-<P>
-Message:<BR>
-<textarea wrap name="message" cols=75 rows=20></textarea>
-<P>Automatically change settings after mail based on this template is sent:<P>
-<table cellpadding="3">
-<tr>
-   <td>Type</td>
-   <td>
-EOF;
-   print getIncidentTypeSelection("update[type]", $update['type'],
-       array(-1=>"Do not update"));
-   echo <<<EOF
-   </td>
-</tr>
-<tr>
-   <td>Status</td>
-   <td>
-EOF;
-   print getIncidentStatusSelection("update[status]", $update['status'],
-       array(-1=>"Do not update"));
-   echo <<<EOF
-   </td>
-</tr>
-<tr>
-   <td>State</td>
-   <td>
-EOF;
-   print getIncidentStateSelection("update[state]", $update['state'],
-      array(-1=>"Do not update"));
-   echo <<<EOF
-   </td>
-</tr>
-</table>
-<input type="hidden" name="action" value="save">
-<input type="submit" value="Save!">
-<input type="reset" value="Cancel!">
-</form>
-EOF;
+      print '<P>'.LF;
+      print '<form action="'.$_SERVER[PHP_SELF].'" method="POST">'.LF;
+      print _('Template name').': <input type="text" size="40" name="template">'.LF;
+      print '<P>'.LF;
+      print _('Message').':<BR>'.LF;
+      print '<textarea wrap name="message" cols=75 rows=20></textarea>'.LF;
+      print '<P>'._('Automatically change settings after mail based on this template is sent:').'<P>'.LF;
+      print '<table cellpadding="3">'.LF;
+      print '<tr>'.LF;
+      print '   <td>'._('Type').'</td>'.LF;
+      print '   <td>'.LF;
+      print getIncidentTypeSelection("update[type]", $update['type'],
+         array(-1=>_('Do not update')));
+      print '   </td>'.LF;
+      print '</tr>'.LF;
+      print '<tr>'.LF;
+      print '   <td>'._('Status').'</td>'.LF;
+      print '   <td>'.LF;
+      print getIncidentStatusSelection("update[status]", $update['status'],
+         array(-1=>_('Do not update')));
+      print '   </td>'.LF;
+      print '</tr>'.LF;
+      print '<tr>'.LF;
+      print '   <td>'._('State').'</td>'.LF;
+      print '   <td>'.LF;
+      print getIncidentStateSelection("update[state]", $update['state'],
+         array(-1=>_('Do not update')));
+      print '   </td>'.LF;
+      print '</tr>'.LF;
+      print '</table>'.LF;
+      print '<input type="hidden" name="action" value="save">'.LF;
+      print '<input type="submit" value="'._('Save!').'">'.LF;
+      print '<input type="reset" value="'._('Cancel!').'">'.LF;
+      print '</form>'.LF;
       break;
 
    // -------------------------------------------------------------------
@@ -255,8 +232,8 @@ EOF;
 
    // -------------------------------------------------------------------
    case 'send':
-   case 'Send':
-   case 'Send and prepare next':
+   case _('Send'):
+   case _('Send and prepare next'):
       if (array_key_exists("from", $_POST)) {
          $from=$_POST["from"];
       } else {
@@ -313,10 +290,10 @@ EOF;
 
       /* prevent sending bogus stuff */
       if (trim($to) == '') {
-         die('Empty recipient?');
+         die(_('Empty recipient?'));
       }
       if (trim($msg) == '') {
-         die('Empty message body?');
+         die(_('Empty message body?'));
       }
 
       /* clean off html and stuff (only unformatted mail) */
@@ -329,7 +306,7 @@ EOF;
          'From'     => $from,
          'Subject'  => $subject,
          'To'       => $to,
-         'X-Mailer' => 'AIRT $Revision$ http://www.sourceforge.net/projects/airt'
+         'X-Mailer' => 'AIRT $Revision$ http://www.airt.nl'
       );
       if ($replyto != '') {
           $hdrs['Reply-To'] = $replyto;
@@ -396,7 +373,7 @@ EOF;
             GPG_BIN, GPG_OPTIONS, GPG_HOMEDIR, GPG_KEYID, $fname);
          exec($cmd);
          if (($sig = file_get_contents("$fname.asc")) == false) {
-            die('Unable to read signed message.');
+            die(_('Unable to read signed message.'));
          }
 
          /* clean up */
@@ -407,7 +384,7 @@ EOF;
          $sig_params = array();
          $sig_params['content_type'] = 'application/pgp-signature';
          $sig_params['disposition'] = 'inline';
-         $sig_params['description'] = 'Digital signature';
+         $sig_params['description'] = _('Digital signature');
          $sig_params['dfilename'] = 'signature.asc';
          $mime->addsubpart($sig, $sig_params);
       }
@@ -416,9 +393,9 @@ EOF;
       $mail = &Mail::factory('smtp', $mail_params);
       $hdrs = array_merge($hdrs, $m['headers']);
       if (! $mail->send($mailto, $hdrs, $m['body'])) {
-         die("Error sending message!");
+         die(_("Error sending message!"));
       }
-      addIncidentComment(sprintf("Email sent to %s: %s",
+      addIncidentComment(sprintf(_("Email sent to %s: %s"),
          $to, $subject), $incidentid);
       generateEvent('postsendmail', array(
          'incidentid'=>$incidentid,
@@ -432,25 +409,25 @@ EOF;
          if ($actions['type'] == -1) {
             $actions['type'] = '';
          } else {
-            addIncidentComment(sprintf('Type updated to %s',
+            addIncidentComment(sprintf(_('Type updated to %s'),
                getIncidentTypeLabelByID($actions['type'])));
          }
          if ($actions['status'] == -1) {
             $actions['status'] = '';
          } else {
-            addIncidentComment(sprintf('Status updated to %s',
+            addIncidentComment(sprintf(_('Status updated to %s'),
                getIncidentStatusLabelByID($actions['status'])));
          }
          if ($actions['state'] == -1) {
             $actions['state'] = '';
          } else {
-            addIncidentComment(sprintf('State updated to %s',
+            addIncidentComment(sprintf(_('State updated to %s'),
                getIncidentStateLabelByID($actions['state'])));
          }
          updateIncident($incidentid, $actions['state'], $actions['status'],
             $actions['type']);
       }
-      if ($action == 'Send and prepare next' && isset($agenda) &&
+      if ($action == _('Send and prepare next') && isset($agenda) &&
          isset($template)) {
          Header("Location: $_SERVER[PHP_SELF]?action=prepare&template=$template&agenda=$agenda");
       } else {
@@ -461,6 +438,6 @@ EOF;
 
    // -------------------------------------------------------------------
    default:
-      die("Unknown action: $action");
+      die(_('Unknown action: '. $action));
 } // switch
 ?>

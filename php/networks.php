@@ -37,7 +37,7 @@ if (array_key_exists("action", $_REQUEST)) {
 function show_form($id="") {
    $label = "";
    $action = "add";
-   $submit = "Add!";
+   $submit = _('Add!');
    $constituency = "";
    $netmask = "";
    $network = "";
@@ -47,55 +47,55 @@ function show_form($id="") {
       if (array_key_exists($id, $networks)) {
          $row = $networks["$id"];
          $action = "update";
-         $submit = "Update!";
+         $submit = _('Update!');
          $network = $row["network"];
          $netmask = $row["netmask"];
          $label   = $row["label"];
          $constituency = $row["constituency"];
       }
    }
-   print t('<form method="POST">')."\n";
+   print '<form method="POST">'.LF;
    print t('<input type="hidden" name="action" value="%action">', array(
-      '%action'=>$action))."\n";
+      '%action'=>$action)).LF;
    print t('<input type="hidden" name="id" value="%id">', array(
-      '%id'=>$id))."\n";
-   print t('<table>')."\n";
-   print t('<tr>')."\n";
-   print t('   <td>Network Address</td>')."\n";
-   print t('   <td><input type="text" size="30" name="network" value="%network"></td>', array('%network'=>$network))."\n";
-   print t('</tr>')."\n";
-   print t('<tr>')."\n";
-   print t('   <td>Netmask or CIDR</td>')."\n";
-   print t('   <td><input type="text" size="30" name="netmask" value="%netmask"></td>', array('%netmask'=>$netmask))."\n";
-   print t('</tr>')."\n";
-   print t('<tr>')."\n";
-   print t('   <td>Label</td>')."\n";
-   print t('   <td><input type="text" size="30" name="label" value="%label"></td>', array('%label'=>$label))."\n";
-   print t('</tr>')."\n";
-   print t('<tr>')."\n";
-   print t('   <td>Constituency</td>'."\n");
-   print t('   <td>%constituencies</td>'."\n", array('%constituencies'=>getConstituencySelection("constituency", $constituency)))."\n";
-   print t('</tr>')."\n";
-   print t('</table>')."\n";
-   print t('<p/>')."\n";
-   print t('<input type="submit" value="%submit">', array('%submit'=>$submit))."\n";
-   print t('</form>')."\n";
+      '%id'=>$id)).LF;
+   print '<table>'.LF;
+   print '<tr>'.LF;
+   print '   <td>'._('Network Address').'</td>'.LF;
+   print t('   <td><input type="text" size="30" name="network" value="%network"></td>', array('%network'=>$network)).LF;
+   print '</tr>'.LF;
+   print '<tr>'.LF;
+   print '   <td>'._('Netmask or CIDR').'</td>'.LF;
+   print t('   <td><input type="text" size="30" name="netmask" value="%netmask"></td>', array('%netmask'=>$netmask)).LF;
+   print '</tr>'.LF;
+   print '<tr>'.LF;
+   print '   <td>'._('Label').'</td>'.LF;
+   print t('   <td><input type="text" size="30" name="label" value="%label"></td>', array('%label'=>$label)).LF;
+   print '</tr>'.LF;
+   print '<tr>'.LF;
+   print '   <td>'._('Constituency').'</td>'.LF;
+   print t('   <td>%constituencies</td>'.LF, array('%constituencies'=>getConstituencySelection("constituency", $constituency))).LF;
+   print '</tr>'.LF;
+   print '</table>'.LF;
+   print '<p/>'.LF;
+   print t('<input type="submit" value="%submit">', array('%submit'=>$submit)).LF;
+   print '</form>'.LF;
 }
 
 
 switch ($action) {
    // --------------------------------------------------------------
    case "list":
-      pageHeader("Networks");
+      pageHeader(_('Networks'));
 
-      print t('<table cellpadding="3">')."\n";
-      print t('<tr>')."\n";
-      print t('   <td><B>Network</B></td>')."\n";
-      print t('   <td><B>Label</B></td>')."\n";
-      print t('   <td><B>Constituency</B></td>')."\n";
-      print t('   <td><B>Edit</B></td>')."\n";
-      print t('   <td><B>Delete</B></td>')."\n";
-      print t('</tr>')."\n";
+      print '<table cellpadding="3">'.LF;
+      print '<tr>'.LF;
+      print '   <td><B>'._('Network').'</B></td>'.LF;
+      print '   <td><B>'._('Label').'</B></td>'.LF;
+      print '   <td><B>'._('Constituency').'</B></td>'.LF;
+      print '   <td><B>'._('Edit').'</B></td>'.LF;
+      print '   <td><B>'._('Delete').'</B></td>'.LF;
+      print '</tr>'.LF;
 
       $networklist = getNetworks();
       usort($networklist, "airt_netsort");
@@ -111,20 +111,20 @@ switch ($action) {
          $constituency_name  = $constituencies["$constituency"]["name"];
          $color = ($count++%2==0?"#FFFFFF":"#DDDDDD");
          print t('<tr valign="top" bgcolor="%color">', array(
-            '%color'=>$color))."\n";
+            '%color'=>$color)).LF;
          print t('<td>%network/%netmask</td>', array(
             '%network'=>$network,
-            '%netmask'=>$netmask))."\n";
-         print t('<td>%label</td>', array('%label'=>$label))."\n";
+            '%netmask'=>$netmask)).LF;
+         print t('<td>%label</td>', array('%label'=>$label)).LF;
          print t('<td><a href="constituencies.php?action=edit&cons=%constituency">%name</a></td>', array(
             '%constituency'=>$constituency,
-            '%name'=>$constituency_name))."\n";
-         print t('<td><a href="%url?action=edit&id=%id"><small>edit</small></td>', array('%url'=>$_SERVER['PHP_SELF'], '%id'=>$id))."\n";
-         print t('<td><a href="%url?action=delete&id=%id"><small>delete</small></td>', array('%url'=>$_SERVER['PHP_SELF'], '%id'=>$id))."\n";
-         print t('</tr>')."\n";
+            '%name'=>$constituency_name)).LF;
+         print t('<td><a href="%url?action=edit&id=%id"><small>'._('edit').'</small></td>', array('%url'=>$_SERVER['PHP_SELF'], '%id'=>$id)).LF;
+         print t('<td><a href="%url?action=delete&id=%id"><small>'._('delete').'</small></td>', array('%url'=>$_SERVER['PHP_SELF'], '%id'=>$id)).LF;
+         print '</tr>'.LF;
       }
-      print t('</table>')."\n";
-      print t('<h3>New network</h3>')."\n";
+      print '</table>'.LF;
+      print '<h3>'._('New network').'</h3>'.LF;
       show_form("");
       break;
 
@@ -137,7 +137,7 @@ switch ($action) {
          Header("Location: $_SERVER[PHP_SELF]");
          break;
       }
-      pageHeader("Edit Network");
+      pageHeader(_('Edit Network'));
       show_form($id);
       pageFooter();
       break;
@@ -247,6 +247,6 @@ switch ($action) {
       break;
    //-----------------------------------------------------------------
    default:
-      die("Unknown action: $action");
+      die(_('Unknown action: ').$action);
 } // switch
 ?>

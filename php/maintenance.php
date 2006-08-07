@@ -24,82 +24,33 @@
 require_once 'config.plib';
 require_once LIBDIR."/airt.plib";
 
-pageHeader("AIRT Maintenance Center");
-?>
-
-
-<hr>
-
-<b>User management</b>
-
-<P>
-
-<a href="users.php">Edit users</a>
-
-<!--
-<P>
-
-<a href="roles.php">Edit roles</a> 
-
-<P>
-
-<a href="roleassignments.php">Manage role assignments</a>
--->
-
-
-
-
-<HR>
-
-<b>Incident management</b>
-
-<P>
-
-<a href="incident_states.php">Edit incident states</a>
-
-<P>
-
-<a href="incident_status.php">Edit incident statuses</a>
-
-<P>
-
-<a href="incident_types.php">Edit incident types</a> 
-
-<P>
-
-<a href="mailtemplates.php">Edit standard messages</a>
-
-
-<HR>
-
-<b>Network management</b>
-
-<P>
-
-<a href="networks.php">Edit networks</a>
-
-<P>
-
-<a href="constituencies.php">Edit constituencies</a>
-
-<P>
-
-<a href="constituency_contacts.php">Edit constituency contacts</a> 
-
-
-
-
-<HR>
-
-<b>Appearance</b>
-
-<P>
-
-<a href="links.php">Edit main menu links</a>
-
-
-<hr>
-
-<?php
-    pageFooter();
+pageHeader(_('AIRT Maintenance Center'));
+print '<hr>'.LF;
+print '<b>'._('User management').'</b>'.LF;
+print '<P>'.LF;
+print '<a href="users.php">'._('Edit users').'</a>'.LF;
+print '<HR>'.LF;
+print '<b>'._('Incident management').'</b>'.LF;
+print '<P>'.LF;
+print '<a href="incident_states.php">'._('Edit incident states').'</a>'.LF;
+print '<P>'.LF;
+print '<a href="incident_status.php">'._('Edit incident statuses').'</a>'.LF;
+print '<P>'.LF;
+print '<a href="incident_types.php">'._('Edit incident types').'</a>'.LF;
+print '<P>'.LF;
+print '<a href="mailtemplates.php">'._('Edit standard messages').'</a>'.LF;
+print '<HR>'.LF;
+print '<b>'._('Network management').'</b>'.LF;
+print '<P>'.LF;
+print '<a href="networks.php">'._('Edit networks').'</a>'.LF;
+print '<P>'.LF;
+print '<a href="constituencies.php">'._('Edit constituencies').'</a>'.LF;
+print '<P>'.LF;
+print '<a href="constituency_contacts.php">'._('Edit constituency contacts').'</a>'.LF;
+print '<HR>'.LF;
+print '<b>'._('Appearance').'</b>'.LF;
+print '<P>'.LF;
+print '<a href="links.php">'._('Edit main menu links').'</a>'.LF;
+print '<hr>'.LF;
+pageFooter();
 ?>
