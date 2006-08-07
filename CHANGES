@@ -1,3 +1,6 @@
+* Gettext support
+* Added statistics module
+
 2007-06-26
 * Extra basic incident data: date of incident
 * Improved interface of constituency contact administration and code cleanup
