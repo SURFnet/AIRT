@@ -1296,7 +1296,7 @@ function formatEditForm() {
    $email = fetchFrom('SESSION','current_email');
    // Then build the form.
    $output .= '<form name="jsform" action="'.$_SERVER['PHP_SELF'].
-              ' method="POST">'.LF;
+              '" method="POST">'.LF;
    $output .= '  <input type="hidden" name="action" value="adduser">'.LF;
    $output .= '  <table bgColor="#DDDDDD" cellpadding=2 border=0>'.LF;
    $output .= '  <tr>'.LF;
