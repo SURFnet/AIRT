@@ -1,0 +1,2002 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: AIRT 20060807.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2006-08-07 15:30+0200\n"
+"PO-Revision-Date: 2006-08-07 15:51+0100\n"
+"Last-Translator: Kees Leune <kees@airt.nl>\n"
+"Language-Team: Nederlands <info@airt.nl>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Dutch\n"
+"X-Poedit-Country: NETHERLANDS\n"
+"X-Poedit-SourceCharset: utf-8\n"
+
+#: php/constituencies.php:40
+#: php/incident_states.php:39
+#: php/incident_status.php:37
+#: php/incident_types.php:38
+#: php/networks.php:40
+#: php/users.php:35
+msgid "Add!"
+msgstr "Toevoegen!"
+
+#: php/constituencies.php:48
+#: php/incident_states.php:51
+#: php/incident_status.php:49
+#: php/incident_types.php:50
+#: php/networks.php:50
+#: php/users.php:60
+msgid "Update!"
+msgstr "Bijwerken!"
+
+#: php/constituencies.php:81
+msgid "Constituencies"
+msgstr ""
+
+#: php/constituencies.php:102
+#: php/incident_states.php:116
+#: php/incident_status.php:112
+#: php/incident_types.php:113
+#: php/links.php:84
+#: php/links.php:131
+#: php/networks.php:122
+#: php/users.php:150
+#: lib/incident.plib:1223
+#: lib/mailtemplates.plib:225
+#, php-format
+msgid "edit"
+msgstr "bewerken"
+
+#: php/constituencies.php:123
+msgid "New constituency"
+msgstr ""
+
+#: php/constituencies.php:133
+#: php/constituency_contacts.php:64
+#: php/incident_states.php:135
+#: php/incident_states.php:212
+#: php/incident_status.php:129
+#: php/incident_status.php:191
+#: php/incident_types.php:129
+#: php/incident_types.php:194
+msgid "Missing information."
+msgstr "Ontbrekende informatie."
+
+#: php/constituencies.php:136
+msgid "Edit constituency"
+msgstr ""
+
+#: php/constituencies.php:152
+#: php/constituencies.php:203
+#: php/constituency_contacts.php:164
+#: php/constituency_contacts.php:189
+#: php/incident_states.php:154
+#: php/incident_status.php:142
+#: php/incident_types.php:142
+#: php/links.php:170
+#: php/links.php:194
+#: php/links.php:245
+#: php/users.php:171
+#: php/users.php:322
+msgid "Missing information (1)."
+msgstr "Ontbrekende informatie (1)."
+
+#: php/constituencies.php:157
+#: php/constituency_contacts.php:169
+#: php/constituency_contacts.php:194
+#: php/incident_states.php:159
+#: php/incident_status.php:144
+#: php/incident_types.php:144
+#: php/links.php:174
+#: php/links.php:249
+#: php/users.php:174
+msgid "Missing information (2)."
+msgstr "Ontbrekende informatie (2)."
+
+#: php/constituencies.php:167
+#: php/constituencies.php:187
+#: php/incident_types.php:168
+#: php/incident_types.php:184
+msgid "Unable to excute query."
+msgstr "Niet in staat om vraag te stellen."
+
+#: php/constituencies.php:176
+#: php/incident_states.php:189
+#: php/incident_status.php:171
+#: php/incident_types.php:172
+#: php/links.php:208
+#: php/links.php:253
+#: php/users.php:178
+msgid "Missing information (3)."
+msgstr "Ontbrekende informatie (3)."
+
+#: php/constituencies.php:213
+#: php/constituency_contacts.php:45
+#: php/incident_states.php:218
+#: php/incident_types.php:199
+#: lib/history.plib:49
+#: lib/incident.plib:70
+#: lib/incident.plib:155
+#: lib/incident.plib:231
+msgid "Unable to execute query."
+msgstr "NIet in staat om vraag te stellen."
+
+#: php/constituencies.php:221
+#: php/constituency_contacts.php:211
+#: php/incident_states.php:225
+#: php/incident_status.php:203
+#: php/incident_types.php:206
+#: php/links.php:309
+#: php/mailtemplates.php:441
+#: php/networks.php:250
+msgid "Unknown action: "
+msgstr "Onbekende bewerking:"
+
+#: php/constituency_contacts.php:40
+msgid "Constituency contacts"
+msgstr ""
+
+#: php/constituency_contacts.php:47
+msgid "Please select a constituency to edit assign contacts:"
+msgstr ""
+
+#: php/constituency_contacts.php:67
+#: php/constituency_contacts.php:197
+msgid "Invalid format"
+msgstr "Ongeldig formaat"
+
+#: php/constituency_contacts.php:69
+msgid "Edit constituency assignments"
+msgstr ""
+
+#: php/constituency_contacts.php:75
+msgid "Unable to execute query 1."
+msgstr "Niet in staat om vraag 1 uit te voeren."
+
+#: php/constituency_contacts.php:78
+msgid "Invalid constituency."
+msgstr ""
+
+#: php/constituency_contacts.php:86
+msgid "Current contacts of constituency "
+msgstr ""
+
+#: php/constituency_contacts.php:93
+msgid "Unable to execute query(2)."
+msgstr "Niet in staat om vraag uit te voeren (2)."
+
+#: php/constituency_contacts.php:96
+msgid "No assigned users."
+msgstr "Geen toegekende gebruikers."
+
+#: php/constituency_contacts.php:112
+#: lib/incident.plib:1202
+#, php-format
+msgid "Remove"
+msgstr "Verwijder"
+
+#: php/constituency_contacts.php:131
+msgid "Unable to execute query(3)."
+msgstr "Niet in staat om vraag uit te voeren (3)."
+
+#: php/constituency_contacts.php:136
+msgid "Assing user(s) to constituency:"
+msgstr "Gebruiker(s) toekennen aan constituency:"
+
+#: php/constituency_contacts.php:150
+msgid "No unassigned users."
+msgstr "Alle gebruikers toegekend."
+
+#: php/constituency_contacts.php:154
+msgid "Select another constituency"
+msgstr ""
+
+#: php/constituency_contacts.php:155
+msgid "Settings"
+msgstr "Instellingen"
+
+#: php/constituency_contacts.php:172
+msgid "Invalid data."
+msgstr "Ongeldige gegevens."
+
+#: php/constituency_contacts.php:180
+#: php/constituency_contacts.php:204
+#: lib/server.plib:55
+msgid "Unable to execute query"
+msgstr "Niet in staat om vraag te stellen"
+
+#: php/exportqueue.php:55
+msgid "AIRT export queue"
+msgstr "AIRT uitvoerrij"
+
+#: php/importqueue.php:38
+msgid "AIRT Import queue"
+msgstr "AIRT invoerrij"
+
+#: php/importqueue.php:42
+msgid "Commit all incidents as accept or reject"
+msgstr "Alle incidenten als geaccepteerd of als geweigerd doorvoeren"
+
+#: php/importqueue.php:43
+#: php/importqueue.php:54
+msgid "Process"
+msgstr "Verwerken"
+
+#: php/importqueue.php:45
+msgid "Refresh the import queue. Any unprocessed changes will be lost."
+msgstr "Ververs de invoerrij. Alle niet-verwerkte veranderingen zullen verloren gaan."
+
+#: php/importqueue.php:46
+#: php/importqueue.php:157
+msgid "Refresh"
+msgstr "Verversen"
+
+#: php/importqueue.php:61
+msgid "Processing import queue"
+msgstr "Invoerrij aan het verwerken"
+
+#: php/importqueue.php:69
+msgid "Accepting queue element %id<br/>"
+msgstr "Rijelement %id aan het accepteren<br/>"
+
+#: php/importqueue.php:73
+msgid "Adding to existing incident<br/>"
+msgstr "Toevoegen aan bestaand incident"
+
+#: php/importqueue.php:76
+#, php-format
+msgid "Error processing item: %error"
+msgstr "Fout bij het verwerken van onderdeel: %error"
+
+#: php/importqueue.php:89
+msgid "Rejecting queue element %id<br/>"
+msgstr "Rijelement %id wordt geweigerd<br/>"
+
+#: php/importqueue.php:95
+msgid "Ignoring queue element %id<br/>"
+msgstr "Rijelement %id wordt genegeerd<br/>"
+
+#: php/importqueue.php:108
+msgid "Done."
+msgstr "Gereed."
+
+#: php/importqueue.php:125
+msgid "Error fetching queue item"
+msgstr "Fout bij ophalen van rijelement"
+
+#: php/importqueue.php:129
+msgid "Queue details for item "
+msgstr "Rijdetails van onderdeel "
+
+#: php/importqueue.php:132
+#: php/mailtemplates.php:91
+#: php/mailtemplates.php:173
+#: php/search.php:157
+#: php/search.php:222
+#: php/search.php:434
+#: php/search.php:524
+#: php/stats.php:138
+#: lib/incident.plib:1329
+#: lib/incident.plib:1583
+#: lib/incident.plib:1589
+msgid "Status"
+msgstr "Status"
+
+#: php/importqueue.php:136
+#: php/mailtemplates.php:84
+#: php/mailtemplates.php:166
+#: php/search.php:155
+#: php/search.php:221
+#: php/search.php:432
+#: php/search.php:523
+#: php/stats.php:137
+#: lib/incident.plib:1607
+#: lib/incident.plib:1613
+msgid "Type"
+msgstr "Type"
+
+#: php/importqueue.php:140
+msgid "Summary"
+msgstr "Samenvatting"
+
+#: php/importqueue.php:145
+msgid "Input queue data"
+msgstr "Invoerrijgegevens"
+
+#: php/incident.php:41
+#: lib/incident.plib:1719
+msgid "Prepare"
+msgstr "Voorbereiden"
+
+#: php/incident.php:51
+#: php/incident.php:52
+#: lib/incident.plib:1715
+msgid "Do not send mail"
+msgstr "Post niet versturen"
+
+#: php/incident.php:62
+#: lib/incident.plib:1363
+msgid "Show Details"
+msgstr "Toon Details"
+
+#: php/incident.php:78
+msgid "Invalid incident"
+msgstr "Ongeldig incident"
+
+#: php/incident.php:79
+#, php-format
+msgid "Requested incident (%s) does not exist."
+msgstr "Gevraagd incident (%s) bestaat niet˙"
+
+#: php/incident.php:86
+msgid "Incident details: "
+msgstr ""
+
+#: php/incident.php:89
+#: php/incident_states.php:101
+#: php/incident_status.php:96
+#: php/incident_types.php:98
+#: php/networks.php:96
+#: lib/incident.plib:1201
+msgid "Edit"
+msgstr "Bewerken"
+
+#: php/incident.php:92
+msgid "External identifiers"
+msgstr "Externe identificatie"
+
+#: php/incident.php:97
+msgid "History"
+msgstr "Geschiedenis"
+
+#: php/incident.php:107
+msgid "New comment"
+msgstr "Nieuwe opmerking"
+
+#: php/incident.php:109
+#: php/incident.php:129
+#: php/links.php:159
+#: lib/incident.plib:1245
+#: lib/incident.plib:1306
+msgid "Add"
+msgstr "Toevoegen"
+
+#: php/incident.php:118
+#: lib/incident.plib:1375
+msgid "Create New Incident"
+msgstr "Creëer nieuw incident"
+
+#: php/incident.php:119
+#: php/search.php:599
+msgid "New incident"
+msgstr "Nieuw incident"
+
+#: php/incident.php:121
+msgid "New Incident"
+msgstr "Nieuw Incident"
+
+#: php/incident.php:132
+msgid "Check to prepare mail."
+msgstr "Aanvinken om post voor te bereiden"
+
+#: php/incident.php:137
+#: lib/incident.plib:1377
+msgid "Create Many Incidents"
+msgstr "Maak verscheidene incidenten"
+
+#: php/incident.php:251
+msgid "Unable to add user to incident."
+msgstr "Niet in staat om gebruiker aan incident toe te voegen"
+
+#: php/incident.php:253
+#, php-format
+msgid ""
+"The e-mail address specified in the incident data entry form (%s) is unknown\n"
+"to AIRT and you chose not to add it to the database."
+msgstr "Het electronisch postadres in het incidentgegevens-invoerformulier (%s) is onbekend bij AIRT, en u heeft ervoor gekozen het niet aan de gegevensbank toe te voegen."
+
+#: php/incident.php:255
+#, php-format
+msgid ""
+"The incident has been created, however no users have been associated with\n"
+"it."
+msgstr "Het incident is gecreëerd, maar er zijn geen gebruikers mee geassocieerd."
+
+#: php/incident.php:257
+#, php-format
+msgid "Continue"
+msgstr "Doorgaan"
+
+#: php/incident.php:282
+msgid "Incident Overview"
+msgstr "Incidentoverzicht"
+
+#: php/incident.php:326
+msgid "IP address %ip added to incident with role %role"
+msgstr "IP adres %ip toegevoegd aan incident met role %role"
+
+#: php/incident.php:352
+msgid "IP address details"
+msgstr "Details van IP adres"
+
+#: php/incident.php:401
+#, fuzzy
+msgid "Details of IP address %ip updated; const=%const, addressrole=%role"
+msgstr "Details van IP adres %ip bijgewerkt; const=%const, adresrol=%role"
+
+#: php/incident.php:440
+msgid "IP address %address (%role) removed from incident."
+msgstr ""
+
+#: php/incident.php:479
+#, php-format
+msgid "Unknown email address. User not added."
+msgstr ""
+
+#: php/incident.php:486
+#, php-format
+msgid "User %s added to incident."
+msgstr ""
+
+#: php/incident.php:510
+#: php/incident.php:716
+#, php-format
+msgid "User %s removed from incident."
+msgstr ""
+
+#: php/incident.php:585
+#, php-format
+msgid "Incident updated: state=%s, status=%s type=%s"
+msgstr ""
+
+#: php/incident.php:596
+msgid "Available incident states"
+msgstr ""
+
+#: php/incident.php:600
+msgid "Unable to query incident states."
+msgstr ""
+
+#: php/incident.php:618
+msgid "Available incident types"
+msgstr ""
+
+#: php/incident.php:622
+msgid "Unable to query incident types."
+msgstr ""
+
+#: php/incident.php:640
+msgid "Available incident statuses"
+msgstr ""
+
+#: php/incident.php:646
+msgid "Unable to query incident statuses."
+msgstr ""
+
+#: php/incident.php:692
+msgid "USER ERROR: Must select one or more recipients for mail."
+msgstr ""
+
+#: php/incident.php:774
+msgid "Unknown action"
+msgstr ""
+
+#: php/incident_states.php:46
+#: php/incident_types.php:45
+#: php/index.php:47
+#: php/users.php:42
+#: php/users.php:121
+#: php/users.php:215
+#: lib/authentication.plib:42
+#: lib/authentication.plib:90
+#: lib/authentication.plib:104
+#: lib/export.plib:45
+#: lib/export.plib:75
+#: lib/export.plib:100
+#: lib/history.plib:63
+#: lib/user.plib:29
+msgid "Unable to query database."
+msgstr ""
+
+#: php/incident_states.php:67
+#: php/incident_states.php:98
+#: php/incident_status.php:93
+#: php/incident_types.php:95
+#: php/networks.php:72
+#: php/networks.php:94
+msgid "Label"
+msgstr ""
+
+#: php/incident_states.php:73
+#: php/incident_status.php:94
+#: php/incident_types.php:96
+#: php/links.php:155
+msgid "Description"
+msgstr ""
+
+#: php/incident_states.php:77
+msgid "Entry is default"
+msgstr ""
+
+#: php/incident_states.php:89
+msgid "Incident states"
+msgstr ""
+
+#: php/incident_states.php:94
+#: php/incident_status.php:90
+#: php/incident_types.php:92
+#: php/users.php:287
+msgid "Unable to execute query 1"
+msgstr ""
+
+#: php/incident_states.php:99
+msgid "Short description"
+msgstr ""
+
+#: php/incident_states.php:100
+#: php/incident_status.php:95
+#: php/incident_types.php:97
+msgid "Is default"
+msgstr ""
+
+#: php/incident_states.php:102
+#: php/incident_status.php:97
+#: php/incident_types.php:99
+#: php/networks.php:97
+msgid "Delete"
+msgstr ""
+
+#: php/incident_states.php:118
+#: php/incident_status.php:114
+#: php/incident_types.php:115
+#: php/links.php:87
+#: php/links.php:134
+#: php/networks.php:123
+#: php/users.php:153
+#: lib/exportqueue.plib:199
+#: lib/mailtemplates.plib:230
+#, php-format
+msgid "delete"
+msgstr ""
+
+#: php/incident_states.php:125
+#: php/incident_types.php:122
+msgid "New incident state"
+msgstr ""
+
+#: php/incident_states.php:138
+#: php/incident_types.php:131
+msgid "Edit incident state"
+msgstr ""
+
+#: php/incident_states.php:171
+#: php/incident_status.php:154
+#: php/incident_status.php:196
+#: php/incident_types.php:155
+msgid "Unable to execute query 4."
+msgstr ""
+
+#: php/incident_states.php:184
+msgid "Unable to excute query 2."
+msgstr ""
+
+#: php/incident_states.php:201
+msgid "Unable to excute query 3."
+msgstr ""
+
+#: php/incident_status.php:85
+#: lib/incident.plib:670
+msgid "Incident status"
+msgstr ""
+
+#: php/incident_status.php:121
+msgid "New incident status"
+msgstr ""
+
+#: php/incident_status.php:131
+msgid "Edit incident status"
+msgstr ""
+
+#: php/incident_status.php:167
+msgid "Unable to execute query 2."
+msgstr ""
+
+#: php/incident_status.php:182
+msgid "Unable to execute query  3."
+msgstr ""
+
+#: php/incident_types.php:86
+msgid "Incident types"
+msgstr ""
+
+#: php/index.php:30
+#: php/logout.php:27
+msgid "AIRT Control Center"
+msgstr ""
+
+#: php/index.php:32
+msgid "Welcome %username. Your last login was at %lastdb from %hostname."
+msgstr ""
+
+#: php/links.php:37
+msgid "Do not display"
+msgstr ""
+
+#: php/links.php:61
+msgid "Main menu links"
+msgstr ""
+
+#: php/links.php:65
+#: php/links.php:112
+msgid "Menu item"
+msgstr ""
+
+#: php/links.php:66
+#: php/links.php:113
+msgid "Position"
+msgstr ""
+
+#: php/links.php:93
+#: php/links.php:269
+msgid "Update main menu"
+msgstr ""
+
+#: php/links.php:108
+msgid "Navbar links"
+msgstr ""
+
+#: php/links.php:141
+#: php/links.php:289
+msgid "Update navigation bar"
+msgstr ""
+
+#: php/links.php:146
+msgid "Add new menu item"
+msgstr ""
+
+#: php/links.php:151
+msgid "URL"
+msgstr ""
+
+#: php/links.php:162
+msgid "Links"
+msgstr ""
+
+#: php/links.php:186
+msgid "Unable to insert URL"
+msgstr ""
+
+#: php/links.php:199
+msgid "Unable to delete URL"
+msgstr ""
+
+#: php/links.php:214
+msgid "Unable to retrieve URL"
+msgstr ""
+
+#: php/links.php:216
+msgid "Incorrect row id"
+msgstr ""
+
+#: php/links.php:263
+msgid "Unable to update URL"
+msgstr ""
+
+#: php/links.php:284
+msgid "Menu updated."
+msgstr ""
+
+#: php/links.php:304
+msgid "Navigation bar updated."
+msgstr ""
+
+#: php/login.php:40
+#: php/login.php:53
+#: php/users.php:68
+#: php/users.php:125
+msgid "Login"
+msgstr ""
+
+#: php/login.php:44
+#: php/users.php:98
+msgid "Password"
+msgstr ""
+
+#: php/login.php:57
+msgid "AIRT version 20060807.1, Copyright (C) 2004-2006 Tilburg University "
+msgstr ""
+
+#: php/login.php:59
+msgid "AIRT comes with ABSOLUTELY NO WARRANTY; for details <a href=\"license.php\">click here</a>."
+msgstr ""
+
+#: php/login.php:60
+msgid "This is free software, and you are welcome to redistribute it under certain conditions; See the license for more details."
+msgstr ""
+
+#: php/login.php:86
+msgid "Permission denied."
+msgstr ""
+
+#: php/login.php:87
+msgid "Username and/or password incorrect."
+msgstr ""
+
+#: php/login.php:97
+#: php/search.php:610
+msgid "Unknown action."
+msgstr ""
+
+#: php/logout.php:31
+msgid "You have been logged out."
+msgstr ""
+
+#: php/logout.php:33
+msgid "Click here to <a href=\"login.php\">log in again</a>."
+msgstr ""
+
+#: php/mailtemplates.php:34
+msgid "Available mail templates"
+msgstr ""
+
+#: php/mailtemplates.php:38
+msgid "Create a new message"
+msgstr ""
+
+#: php/mailtemplates.php:66
+msgid "Edit mail template"
+msgstr ""
+
+#: php/mailtemplates.php:69
+#, php-format
+msgid "Template not available."
+msgstr ""
+
+#: php/mailtemplates.php:71
+msgid ""
+"Update the template and press the \"Save!\" button to save it. The first\n"
+"line of the message will be used as the subject. You may use the following\n"
+"special variables in the template:"
+msgstr ""
+
+#: php/mailtemplates.php:81
+#: php/mailtemplates.php:163
+msgid "Automatically change settings after mail based on this template is sent:"
+msgstr ""
+
+#: php/mailtemplates.php:87
+#: php/mailtemplates.php:94
+#: php/mailtemplates.php:101
+#: php/mailtemplates.php:169
+#: php/mailtemplates.php:176
+#: php/mailtemplates.php:183
+msgid "Do not update"
+msgstr ""
+
+#: php/mailtemplates.php:98
+#: php/mailtemplates.php:180
+#: php/search.php:156
+#: php/search.php:223
+#: php/search.php:433
+#: php/search.php:525
+#: php/stats.php:139
+#: lib/incident.plib:1336
+#: lib/incident.plib:1595
+#: lib/incident.plib:1601
+msgid "State"
+msgstr ""
+
+#: php/mailtemplates.php:152
+msgid "New mail template"
+msgstr ""
+
+#: php/mailtemplates.php:153
+msgid "Enter your new template in the text field below. Use the following variables in your text body:"
+msgstr ""
+
+#: php/mailtemplates.php:159
+msgid "Template name"
+msgstr ""
+
+#: php/mailtemplates.php:161
+msgid "Message"
+msgstr ""
+
+#: php/mailtemplates.php:188
+msgid "Save!"
+msgstr ""
+
+#: php/mailtemplates.php:189
+msgid "Cancel!"
+msgstr ""
+
+#: php/mailtemplates.php:235
+msgid "Send"
+msgstr ""
+
+#: php/mailtemplates.php:236
+#: php/mailtemplates.php:430
+#: lib/mailtemplates.plib:377
+msgid "Send and prepare next"
+msgstr ""
+
+#: php/mailtemplates.php:293
+msgid "Empty recipient?"
+msgstr ""
+
+#: php/mailtemplates.php:296
+msgid "Empty message body?"
+msgstr ""
+
+#: php/mailtemplates.php:376
+msgid "Unable to read signed message."
+msgstr ""
+
+#: php/mailtemplates.php:387
+msgid "Digital signature"
+msgstr ""
+
+#: php/mailtemplates.php:396
+msgid "Error sending message!"
+msgstr ""
+
+#: php/mailtemplates.php:398
+#, php-format
+msgid "Email sent to %s: %s"
+msgstr ""
+
+#: php/mailtemplates.php:412
+#, php-format
+msgid "Type updated to %s"
+msgstr ""
+
+#: php/mailtemplates.php:418
+#, php-format
+msgid "Status updated to %s"
+msgstr ""
+
+#: php/mailtemplates.php:424
+#, php-format
+msgid "State updated to %s"
+msgstr ""
+
+#: php/maintenance.php:27
+msgid "AIRT Maintenance Center"
+msgstr ""
+
+#: php/maintenance.php:29
+msgid "User management"
+msgstr ""
+
+#: php/maintenance.php:31
+msgid "Edit users"
+msgstr ""
+
+#: php/maintenance.php:33
+msgid "Incident management"
+msgstr ""
+
+#: php/maintenance.php:35
+msgid "Edit incident states"
+msgstr ""
+
+#: php/maintenance.php:37
+msgid "Edit incident statuses"
+msgstr ""
+
+#: php/maintenance.php:39
+msgid "Edit incident types"
+msgstr ""
+
+#: php/maintenance.php:41
+msgid "Edit standard messages"
+msgstr ""
+
+#: php/maintenance.php:43
+msgid "Network management"
+msgstr ""
+
+#: php/maintenance.php:45
+msgid "Edit networks"
+msgstr ""
+
+#: php/maintenance.php:47
+msgid "Edit constituencies"
+msgstr ""
+
+#: php/maintenance.php:49
+msgid "Edit constituency contacts"
+msgstr ""
+
+#: php/maintenance.php:51
+msgid "Appearance"
+msgstr ""
+
+#: php/maintenance.php:53
+msgid "Edit main menu links"
+msgstr ""
+
+#: php/networks.php:64
+msgid "Network Address"
+msgstr ""
+
+#: php/networks.php:68
+msgid "Netmask or CIDR"
+msgstr ""
+
+#: php/networks.php:76
+#: php/networks.php:95
+#: php/search.php:115
+#: php/search.php:522
+#: lib/importqueue.plib:251
+#: lib/incident.plib:746
+#: lib/incident.plib:1141
+#: lib/incident.plib:1199
+#: lib/incident.plib:1559
+#: lib/incident.plib:1565
+msgid "Constituency"
+msgstr ""
+
+#: php/networks.php:89
+msgid "Networks"
+msgstr ""
+
+#: php/networks.php:93
+#: php/search.php:113
+msgid "Network"
+msgstr ""
+
+#: php/networks.php:127
+msgid "New network"
+msgstr ""
+
+#: php/networks.php:140
+msgid "Edit Network"
+msgstr ""
+
+#: php/search.php:58
+msgid "Search for:"
+msgstr ""
+
+#: php/search.php:60
+#: php/search.php:559
+#: php/search.php:564
+msgid "Search"
+msgstr ""
+
+#: php/search.php:63
+#: php/search.php:112
+#: php/search.php:225
+#: php/search.php:521
+#: lib/incident.plib:1198
+msgid "Hostname"
+msgstr ""
+
+#: php/search.php:65
+msgid "Incident"
+msgstr ""
+
+#: php/search.php:67
+msgid "Mask"
+msgstr ""
+
+#: php/search.php:69
+#: php/users.php:129
+#: lib/constituency.plib:163
+msgid "Email"
+msgstr ""
+
+#: php/search.php:107
+msgid "Detailed information for host "
+msgstr ""
+
+#: php/search.php:109
+msgid "Search results for the following host:"
+msgstr ""
+
+#: php/search.php:111
+#: php/search.php:224
+#: lib/importqueue.plib:252
+#: lib/incident.plib:1197
+#: lib/incident.plib:1240
+msgid "IP Address"
+msgstr ""
+
+#: php/search.php:117
+msgid "Constituency Contacts"
+msgstr ""
+
+#: php/search.php:129
+msgid "Previous incidents"
+msgstr ""
+
+#: php/search.php:148
+msgid "Unable to query."
+msgstr ""
+
+#: php/search.php:153
+#: php/search.php:430
+#: php/search.php:520
+#: php/stats.php:136
+#: lib/incident.plib:1547
+#: lib/incident.plib:1553
+msgid "Incident ID"
+msgstr ""
+
+#: php/search.php:154
+#: php/search.php:431
+#: lib/exportqueue.plib:142
+msgid "Created"
+msgstr ""
+
+#: php/search.php:179
+msgid "No previous incidents"
+msgstr ""
+
+#: php/search.php:191
+msgid "Search results"
+msgstr ""
+
+#: php/search.php:214
+msgid "No results matched your query."
+msgstr ""
+
+#: php/search.php:217
+msgid "Research results for incident = "
+msgstr ""
+
+#: php/search.php:220
+msgid "Incidentid"
+msgstr ""
+
+#: php/search.php:226
+msgid "Additional identifiers"
+msgstr ""
+
+#: php/search.php:456
+msgid "No incidents within this range"
+msgstr ""
+
+#: php/search.php:460
+msgid "is not a correct netmask, 123.45.67.89/22 for instance is"
+msgstr ""
+
+#: php/search.php:526
+msgid "User"
+msgstr ""
+
+#: php/search.php:596
+msgid "Unknown query type"
+msgstr ""
+
+#: php/search.php:604
+msgid "New Search"
+msgstr ""
+
+#: php/stats.php:75
+msgid "Incident type/Constituency matrix"
+msgstr ""
+
+#: php/stats.php:78
+#, php-format
+msgid "Printing from %startdate until %enddate."
+msgstr ""
+
+#: php/stats.php:89
+#: php/stats.php:116
+msgid "Sum"
+msgstr ""
+
+#: php/stats.php:125
+msgid "Incidents without IP addresses"
+msgstr ""
+
+#: php/stats.php:140
+msgid "Date"
+msgstr ""
+
+#: php/stats.php:149
+#: lib/importqueue.plib:328
+#: lib/incident.plib:1215
+msgid "Unknown"
+msgstr ""
+
+#: php/stats.php:158
+msgid "January"
+msgstr ""
+
+#: php/stats.php:159
+msgid "February"
+msgstr ""
+
+#: php/stats.php:160
+msgid "March"
+msgstr ""
+
+#: php/stats.php:161
+msgid "April"
+msgstr ""
+
+#: php/stats.php:162
+#: lib/airt.plib:414
+msgid "May"
+msgstr ""
+
+#: php/stats.php:163
+msgid "June"
+msgstr ""
+
+#: php/stats.php:164
+msgid "July"
+msgstr ""
+
+#: php/stats.php:165
+msgid "August"
+msgstr ""
+
+#: php/stats.php:166
+msgid "September"
+msgstr ""
+
+#: php/stats.php:167
+msgid "October"
+msgstr ""
+
+#: php/stats.php:168
+msgid "November"
+msgstr ""
+
+#: php/stats.php:169
+msgid "December"
+msgstr ""
+
+#: php/stats.php:173
+msgid "Incident statistics"
+msgstr ""
+
+#: php/stats.php:174
+msgid ""
+"Please select the reporting period of which you would like to see statistics. (note; the start date and the end date are included in the\n"
+"report."
+msgstr ""
+
+#: php/stats.php:180
+msgid "Start date (day-month-year)"
+msgstr ""
+
+#: php/stats.php:183
+#: php/stats.php:204
+msgid "Select day"
+msgstr ""
+
+#: php/stats.php:190
+#: php/stats.php:211
+msgid "Select month"
+msgstr ""
+
+#: php/stats.php:201
+msgid "End date (day-month-year)"
+msgstr ""
+
+#: php/stats.php:222
+#: php/stats.php:232
+msgid "Show statistics"
+msgstr ""
+
+#: php/users.php:73
+msgid "Organizational user id"
+msgstr ""
+
+#: php/users.php:78
+#: php/users.php:127
+msgid "Last name"
+msgstr ""
+
+#: php/users.php:83
+#: php/users.php:128
+msgid "First name"
+msgstr ""
+
+#: php/users.php:88
+msgid "Email address"
+msgstr ""
+
+#: php/users.php:93
+msgid "Phone number"
+msgstr ""
+
+#: php/users.php:102
+msgid "Confirm password"
+msgstr ""
+
+#: php/users.php:114
+msgid "AIRT users"
+msgstr ""
+
+#: php/users.php:126
+msgid "User id"
+msgstr ""
+
+#: php/users.php:130
+#: lib/constituency.plib:164
+msgid "Phone"
+msgstr ""
+
+#: php/users.php:152
+#, php-format
+msgid "Are you sure that you want to delete %s?"
+msgstr ""
+
+#: php/users.php:162
+msgid "New user"
+msgstr ""
+
+#: php/users.php:182
+msgid "Missing information (4)."
+msgstr ""
+
+#: php/users.php:185
+msgid "Missing information (5)."
+msgstr ""
+
+#: php/users.php:203
+#: php/users.php:218
+#: php/users.php:248
+msgid "Error"
+msgstr ""
+
+#: php/users.php:204
+#: php/users.php:249
+msgid "The passwords that you provided do not match."
+msgstr ""
+
+#: php/users.php:206
+#: php/users.php:220
+#: php/users.php:251
+msgid "Please use your browser's back button to correct the problem and resend the form."
+msgstr ""
+
+#: php/users.php:243
+msgid "Missing information(A)"
+msgstr ""
+
+#: php/users.php:304
+msgid "Error removing user."
+msgstr ""
+
+#: php/users.php:306
+msgid "Unable to remove this user from the database."
+msgstr ""
+
+#: php/users.php:308
+msgid "The most likely cause for this failure is that the user is associated with one or more incidents."
+msgstr ""
+
+#: php/users.php:310
+msgid "continue"
+msgstr ""
+
+#: php/users.php:324
+msgid "Edit user information"
+msgstr ""
+
+#: lib/airt.plib:42
+#: lib/constituency.plib:36
+#: lib/incident.plib:41
+#: lib/incident.plib:126
+#: lib/incident.plib:218
+msgid "Unable to connect to database."
+msgstr ""
+
+#: lib/airt.plib:47
+msgid "Expected database version: "
+msgstr ""
+
+#: lib/airt.plib:48
+msgid "Actual database version:   "
+msgstr ""
+
+#: lib/airt.plib:49
+msgid "Cannot continue, needs database update first."
+msgstr ""
+
+#: lib/airt.plib:103
+#, php-format
+msgid "Your session has expired. Please "
+msgstr ""
+
+#: lib/airt.plib:104
+#, php-format
+msgid "log in again"
+msgstr ""
+
+#: lib/airt.plib:340
+#, php-format
+msgid "Unknown fetch source type '%s'. Script terminated."
+msgstr ""
+
+#: lib/airt.plib:410
+msgid "Jan"
+msgstr ""
+
+#: lib/airt.plib:410
+msgid "Jul"
+msgstr ""
+
+#: lib/airt.plib:411
+msgid "Feb"
+msgstr ""
+
+#: lib/airt.plib:411
+msgid "Aug"
+msgstr ""
+
+#: lib/airt.plib:412
+msgid "Mar"
+msgstr ""
+
+#: lib/airt.plib:412
+msgid "Sep"
+msgstr ""
+
+#: lib/airt.plib:413
+msgid "Apr"
+msgstr ""
+
+#: lib/airt.plib:413
+msgid "Oct"
+msgstr ""
+
+#: lib/airt.plib:414
+msgid "Nov"
+msgstr ""
+
+#: lib/airt.plib:415
+msgid "Jun"
+msgstr ""
+
+#: lib/airt.plib:415
+msgid "Dec"
+msgstr ""
+
+#: lib/authentication.plib:66
+msgid "Invalid login!"
+msgstr ""
+
+#: lib/authentication.plib:70
+msgid "Incorrect login!"
+msgstr ""
+
+#: lib/constituency.plib:158
+msgid "No contacts."
+msgstr ""
+
+#: lib/constituency.plib:162
+msgid "Name"
+msgstr ""
+
+#: lib/database.plib:30
+msgid "PHP seems not to have been compiled with PostgreSQL support."
+msgstr ""
+
+#: lib/error.plib:55
+msgid "AIRT Unknown error %errno: %info in scope %scope"
+msgstr ""
+
+#: lib/export.plib:45
+#: lib/export.plib:75
+#: lib/export.plib:100
+msgid "error"
+msgstr ""
+
+#: lib/exportqueue.plib:38
+msgid "Task export program, part of the AIRT suite."
+msgstr ""
+
+#: lib/exportqueue.plib:39
+#: lib/importqueue.plib:50
+msgid "Copyright (C) 2006   Tilburg University, The Netherlands."
+msgstr ""
+
+#: lib/exportqueue.plib:40
+msgid "Usage: airt_export [--help] [--noqueue] [--verbose] [--purge]"
+msgstr ""
+
+#: lib/exportqueue.plib:42
+msgid "\"message here\""
+msgstr ""
+
+#: lib/exportqueue.plib:47
+msgid "Available wrappers"
+msgstr ""
+
+#: lib/exportqueue.plib:72
+msgid "%task is not executable."
+msgstr ""
+
+#: lib/exportqueue.plib:80
+msgid "Could not fork."
+msgstr ""
+
+#: lib/exportqueue.plib:89
+msgid "ERROR: Could not detach from terminal"
+msgstr ""
+
+#: lib/exportqueue.plib:97
+msgid "ERROR: Entered the twilight zone!?"
+msgstr ""
+
+#: lib/exportqueue.plib:124
+msgid "Refresh this page"
+msgstr ""
+
+#: lib/exportqueue.plib:128
+msgid "ERROR:"
+msgstr ""
+
+#: lib/exportqueue.plib:133
+msgid "No items in export queue."
+msgstr ""
+
+#: lib/exportqueue.plib:140
+msgid "ID"
+msgstr ""
+
+#: lib/exportqueue.plib:141
+msgid "Task"
+msgstr ""
+
+#: lib/exportqueue.plib:143
+msgid "Scheduled"
+msgstr ""
+
+#: lib/exportqueue.plib:144
+msgid "Started"
+msgstr ""
+
+#: lib/exportqueue.plib:145
+msgid "Ended"
+msgstr ""
+
+#: lib/exportqueue.plib:146
+msgid "Result"
+msgstr ""
+
+#: lib/exportqueue.plib:185
+msgid "Task parameters"
+msgstr ""
+
+#: lib/exportqueue.plib:188
+msgid "Are you sure that you want to delete this queue entry?"
+msgstr ""
+
+#: lib/exportqueue.plib:223
+msgid "Add a new task to the queue"
+msgstr ""
+
+#: lib/exportqueue.plib:236
+msgid "Run Now"
+msgstr ""
+
+#: lib/exportqueue.plib:237
+msgid "Run in one hour"
+msgstr ""
+
+#: lib/exportqueue.plib:238
+msgid "Run in two hours"
+msgstr ""
+
+#: lib/exportqueue.plib:239
+msgid "Run in five hours"
+msgstr ""
+
+#: lib/exportqueue.plib:242
+msgid "Add Task"
+msgstr ""
+
+#: lib/exportqueue.plib:243
+msgid ""
+"For the exact functionality of the available tasks and\n"
+"   their possible parameters, please see %Athe documentation%E."
+msgstr ""
+
+#: lib/exportqueue.plib:277
+msgid "Could not query database for all tasks."
+msgstr ""
+
+#: lib/exportqueue.plib:307
+msgid "Could not query database for tasks to run."
+msgstr ""
+
+#: lib/exportqueue.plib:335
+msgid "Could not get next exportqueue item ID."
+msgstr ""
+
+#: lib/exportqueue.plib:355
+msgid "Could not insert queue item."
+msgstr ""
+
+#: lib/exportqueue.plib:377
+msgid "Could not remove task from queue."
+msgstr ""
+
+#: lib/exportqueue.plib:392
+msgid "Not yet implemented."
+msgstr ""
+
+#: lib/exportqueue.plib:408
+#: lib/exportqueue.plib:476
+msgid "taskID must be a number."
+msgstr ""
+
+#: lib/exportqueue.plib:419
+#: lib/exportqueue.plib:487
+msgid "Could not query database."
+msgstr ""
+
+#: lib/exportqueue.plib:424
+#: lib/exportqueue.plib:492
+msgid "Task %id unknown in export queue."
+msgstr ""
+
+#: lib/exportqueue.plib:431
+msgid "Task %id already started."
+msgstr ""
+
+#: lib/exportqueue.plib:436
+#: lib/exportqueue.plib:504
+msgid "Task %id has already completed."
+msgstr ""
+
+#: lib/exportqueue.plib:454
+#: lib/exportqueue.plib:524
+msgid "Could not update database."
+msgstr ""
+
+#: lib/exportqueue.plib:499
+msgid "Task %id not started yet."
+msgstr ""
+
+#: lib/exportqueue.plib:544
+msgid "maxHours must be a number."
+msgstr ""
+
+#: lib/exportqueue.plib:551
+msgid "Could not purge export queue."
+msgstr ""
+
+#: lib/importqueue.plib:49
+msgid "Incidence import program, part of the AIRT suite."
+msgstr ""
+
+#: lib/importqueue.plib:52
+msgid ""
+"Usage: import [--filter=<filter>] [--help] [--noqueue] [--verbose] \\\n"
+"              [--virtual-host=<virtual_host>] [filename]"
+msgstr ""
+
+#: lib/importqueue.plib:56
+msgid "The program reads the import data from stdin if no filename is given."
+msgstr ""
+
+#: lib/importqueue.plib:61
+msgid "Available filters:"
+msgstr ""
+
+#: lib/importqueue.plib:90
+msgid "Not actually queueing the incident."
+msgstr ""
+
+#: lib/importqueue.plib:105
+msgid "Unable to parse xml"
+msgstr ""
+
+#: lib/importqueue.plib:118
+msgid "Missing ref attribute in XML"
+msgstr ""
+
+#: lib/importqueue.plib:183
+msgid "Invalid parameter \"id\""
+msgstr ""
+
+#: lib/importqueue.plib:193
+msgid "Unable to query database in importqueue.plib:"
+msgstr ""
+
+#: lib/importqueue.plib:241
+msgid "No items pending"
+msgstr ""
+
+#: lib/importqueue.plib:249
+msgid "Decision"
+msgstr ""
+
+#: lib/importqueue.plib:250
+msgid "Sender"
+msgstr ""
+
+#: lib/importqueue.plib:253
+msgid "Details"
+msgstr ""
+
+#: lib/importqueue.plib:266
+msgid "Accept"
+msgstr ""
+
+#: lib/importqueue.plib:267
+msgid "Reject"
+msgstr ""
+
+#: lib/importqueue.plib:268
+msgid "Do nothing"
+msgstr ""
+
+#: lib/importqueue.plib:275
+msgid "Show incident details in new browser window"
+msgstr ""
+
+#: lib/importqueue.plib:277
+msgid "details"
+msgstr ""
+
+#: lib/importqueue.plib:282
+msgid "  Add to %id"
+msgstr ""
+
+#: lib/importqueue.plib:315
+#: lib/importqueue.plib:609
+msgid "Missing key for authentication"
+msgstr ""
+
+#: lib/importqueue.plib:320
+msgid "Missing parameter id"
+msgstr ""
+
+#: lib/importqueue.plib:435
+msgid "Empty parameter"
+msgstr ""
+
+#: lib/importqueue.plib:443
+msgid "Cannot get next queue item ID"
+msgstr ""
+
+#: lib/importqueue.plib:469
+msgid "Could not insert new queue item"
+msgstr ""
+
+#: lib/importqueue.plib:493
+msgid "Unable to query database in "
+msgstr ""
+
+#: lib/importqueue.plib:497
+msgid "Request for invalid queue item"
+msgstr ""
+
+#: lib/importqueue.plib:519
+msgid "Not yet implemented"
+msgstr ""
+
+#: lib/importqueue.plib:550
+msgid "Invalid cache data"
+msgstr ""
+
+#: lib/importqueue.plib:559
+msgid "Invalid XML (no logging)"
+msgstr ""
+
+#: lib/incident.plib:380
+msgid "Unable to match users to incident."
+msgstr ""
+
+#: lib/incident.plib:433
+msgid "Could not add IP to incident"
+msgstr ""
+
+#: lib/incident.plib:532
+#: lib/incident.plib:559
+#: lib/incident.plib:586
+msgid "unkown"
+msgstr ""
+
+#: lib/incident.plib:539
+#: lib/incident.plib:546
+#: lib/incident.plib:566
+#: lib/incident.plib:573
+#: lib/incident.plib:593
+#: lib/incident.plib:599
+msgid "unknown"
+msgstr ""
+
+#: lib/incident.plib:662
+msgid "Incident type"
+msgstr ""
+
+#: lib/incident.plib:666
+msgid "Incident state"
+msgstr ""
+
+#: lib/incident.plib:674
+msgid "Date of incident"
+msgstr ""
+
+#: lib/incident.plib:678
+msgid "Logging"
+msgstr ""
+
+#: lib/incident.plib:710
+msgid "Could not fetch IP address details"
+msgstr ""
+
+#: lib/incident.plib:723
+msgid "Could not find assigned IP address."
+msgstr ""
+
+#: lib/incident.plib:734
+msgid "IP address"
+msgstr ""
+
+#: lib/incident.plib:738
+#: lib/incident.plib:1571
+#: lib/incident.plib:1577
+msgid "Host name"
+msgstr ""
+
+#: lib/incident.plib:742
+#: lib/incident.plib:1200
+msgid "Role in incident"
+msgstr ""
+
+#: lib/incident.plib:743
+msgid "Not set"
+msgstr ""
+
+#: lib/incident.plib:750
+msgid "Added"
+msgstr ""
+
+#: lib/incident.plib:754
+msgid "Added by"
+msgstr ""
+
+#: lib/incident.plib:758
+msgid "Updated"
+msgstr ""
+
+#: lib/incident.plib:762
+msgid "Updated by"
+msgstr ""
+
+#: lib/incident.plib:767
+msgid "Update"
+msgstr ""
+
+#: lib/incident.plib:796
+msgid "Could not update IP with incident"
+msgstr ""
+
+#: lib/incident.plib:809
+msgid "No ID given to update request."
+msgstr ""
+
+#: lib/incident.plib:875
+msgid "Could not get related incidents"
+msgstr ""
+
+#: lib/incident.plib:901
+msgid "Could not get address roles"
+msgstr ""
+
+#: lib/incident.plib:985
+#, php-format
+msgid "External identifier %extid added."
+msgstr ""
+
+#: lib/incident.plib:1012
+#, php-format
+msgid "External identifier %extid removed."
+msgstr ""
+
+#: lib/incident.plib:1090
+#: lib/incident.plib:1130
+#: lib/incident.plib:1194
+msgid "Affected IP addresses"
+msgstr ""
+
+#: lib/incident.plib:1133
+msgid "Hostname or IP address"
+msgstr ""
+
+#: lib/incident.plib:1148
+#: lib/incident.plib:1252
+msgid "Affected users"
+msgstr ""
+
+#: lib/incident.plib:1151
+msgid "E-mail address of user"
+msgstr ""
+
+#: lib/incident.plib:1162
+#: lib/incident.plib:1311
+msgid "If checked, create user if email address unknown"
+msgstr ""
+
+#: lib/incident.plib:1187
+msgid "Basic incident data"
+msgstr ""
+
+#: lib/incident.plib:1227
+msgid "remove"
+msgstr ""
+
+#: lib/incident.plib:1303
+msgid "Email address of user"
+msgstr ""
+
+#: lib/incident.plib:1332
+#: lib/incident.plib:1339
+msgid "Do not filter"
+msgstr ""
+
+#: lib/incident.plib:1344
+msgid "Filter the List"
+msgstr ""
+
+#: lib/incident.plib:1358
+msgid "Incident #"
+msgstr ""
+
+#: lib/incident.plib:1430
+#: lib/incident.plib:1433
+msgid "Previous"
+msgstr ""
+
+#: lib/incident.plib:1451
+#: lib/incident.plib:1453
+msgid "Next"
+msgstr ""
+
+#: lib/incident.plib:1529
+msgid "No incidents"
+msgstr ""
+
+#: lib/incident.plib:1619
+#: lib/incident.plib:1625
+msgid "Last updated"
+msgstr ""
+
+#: lib/incident.plib:1690
+msgid "New State"
+msgstr ""
+
+#: lib/incident.plib:1692
+#: lib/incident.plib:1697
+#: lib/incident.plib:1702
+msgid "Leave Unchanged"
+msgstr ""
+
+#: lib/incident.plib:1695
+msgid "New Status"
+msgstr ""
+
+#: lib/incident.plib:1700
+msgid "New Type"
+msgstr ""
+
+#: lib/incident.plib:1706
+msgid "Update All Selected"
+msgstr ""
+
+#: lib/incident.plib:1713
+msgid "Bulk mail"
+msgstr ""
+
+#: lib/mailtemplates.plib:211
+msgid "No templates available."
+msgstr ""
+
+#: lib/mailtemplates.plib:218
+msgid "prepare"
+msgstr ""
+
+#: lib/mailtemplates.plib:229
+msgid "Are you sure that you want to delete this message?"
+msgstr ""
+
+#: lib/mailtemplates.plib:246
+#, php-format
+msgid "Unable to read message."
+msgstr ""
+
+#: lib/mailtemplates.plib:321
+msgid "Send message from template."
+msgstr ""
+
+#: lib/mailtemplates.plib:352
+msgid "To:"
+msgstr ""
+
+#: lib/mailtemplates.plib:356
+msgid "Subject:"
+msgstr ""
+
+#: lib/mailtemplates.plib:360
+msgid "From:"
+msgstr ""
+
+#: lib/mailtemplates.plib:364
+msgid "Reply-To:"
+msgstr ""
+
+#: lib/mailtemplates.plib:380
+msgid "Sign"
+msgstr ""
+
+#: lib/mailtemplates.plib:398
+msgid "Will be replaced with the currently active hostname"
+msgstr ""
+
+#: lib/mailtemplates.plib:403
+msgid "Will be replaced with the current incident id"
+msgstr ""
+
+#: lib/mailtemplates.plib:408
+msgid "Will be replaced with the currently active IP address"
+msgstr ""
+
+#: lib/mailtemplates.plib:413
+msgid "Will be replaced with the available logging information"
+msgstr ""
+
+#: lib/mailtemplates.plib:418
+msgid "Will be replaced with previous incidents"
+msgstr ""
+
+#: lib/mailtemplates.plib:422
+msgid "Delimits the subject line of the message"
+msgstr ""
+
+#: lib/mailtemplates.plib:426
+msgid "Will be replaced with the email address of the current user"
+msgstr ""
+
+#: lib/mailtemplates.plib:430
+msgid ""
+"Will be replaced with detailed information about the user, if that\n"
+"   information is available."
+msgstr ""
+
+#: lib/mailtemplates.plib:435
+msgid "Will be replaced with the name of the current user"
+msgstr ""
+
+#: lib/mailtemplates.plib:439
+msgid "Will be replaced with the incident data in XML format"
+msgstr ""
+
+#: lib/mailtemplates.plib:443
+msgid "External incident identifiers (if any)"
+msgstr ""
+
+#: lib/mailtemplates.plib:447
+msgid "Will be replaced with the first name of the logged in incident handler"
+msgstr ""
+
+#: lib/mailtemplates.plib:451
+msgid "Will be replaced with the full name of the logged in incident handler"
+msgstr ""
+
+#: lib/server.plib:68
+msgid "Unable to create ticket"
+msgstr ""
+
+#: lib/user.plib:115
+msgid "Unable to query database in addUser."
+msgstr ""
+
