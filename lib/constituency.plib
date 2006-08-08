@@ -187,7 +187,7 @@ function showConstituencyContacts($constituencyid) {
 
 /* Convert a networkID to a constituencyID. Returns FALSE when no match. */
 function getConstituencyIDbyNetworkID($networkID) {
-   if (!is_numeric($networkid)) {
+   if (!is_numeric($networkID)) {
       return false;
    }
    // Simple lookup function.

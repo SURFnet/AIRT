@@ -50,7 +50,7 @@ function formatConstituencyForm($id="") {
          $description = $row['name'];
       }
    }
-   $out = '<form action="$_SERVER[PHP_SELF]" method="POST">'.LF;
+   $out = '<form action="'.$_SERVER[PHP_SELF].'" method="POST">'.LF;
    $out .= '<input type="hidden" name="action" value="'.$action.'">'.LF;
    $out .= '<input type="hidden" name="consid" value="'.$id.'">'.LF;
    $out .= '<table>'.LF;
