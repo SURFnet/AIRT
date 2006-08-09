@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: AIRT\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2006-08-09 15:03+0200\n"
-"PO-Revision-Date: 2006-08-09 15:20+0100\n"
+"PO-Revision-Date: 2006-08-09 15:50+0100\n"
 "Last-Translator: Kees Leune <kees@airt.nl>\n"
 "Language-Team: AIRT <info@airt.nl>\n"
 "MIME-Version: 1.0\n"
@@ -184,7 +184,7 @@ msgid "Requested incident (%s) does not exist."
 msgstr "Gevraagd incident (%s) bestaat niet˙"
 
 msgid "Incident details: "
-msgstr ""
+msgstr "Incidentdetails"
 
 msgid "Edit"
 msgstr "Bewerken"
@@ -249,41 +249,41 @@ msgid "Details of IP address %ip updated; const=%const, addressrole=%role"
 msgstr "Details van IP adres %ip bijgewerkt; const=%const, adresrol=%role"
 
 msgid "IP address %address (%role) removed from incident."
-msgstr ""
+msgstr "IP adres %address (%role) verwijderd van incident."
 
 #, php-format
 msgid "Unknown email address. User not added."
-msgstr ""
+msgstr "Onbekend e-mailadres. Gebruiker niet toegevoegd"
 
 #, php-format
 msgid "User %s added to incident."
-msgstr ""
+msgstr "Gebruiker (%s) toegevoegd aan incident."
 
 #, php-format
 msgid "User %s removed from incident."
-msgstr ""
+msgstr "Gebruiker (%s) verwijderd van incident."
 
 #, php-format
 msgid "Incident updated: state=%s, status=%s type=%s"
-msgstr ""
+msgstr "Incident bijgewerkt: toestand=%s, status=%s soort=%s"
 
 msgid "Available incident states"
-msgstr ""
+msgstr "Beschikbare incidenttoestanden"
 
 msgid "Unable to query incident states."
-msgstr ""
+msgstr "Niet in staat om incidenttoestanden op te vragen"
 
 msgid "Available incident types"
-msgstr ""
+msgstr "Beschikbare incidentsoorten"
 
 msgid "Unable to query incident types."
-msgstr ""
+msgstr "Niet in staat om incidentsoorten op te vragen."
 
 msgid "Available incident statuses"
-msgstr ""
+msgstr "Beschikbare incidentstatussen"
 
 msgid "Unable to query incident statuses."
-msgstr ""
+msgstr "Niet in staat om incidentstatussen op te vragen"
 
 msgid "USER ERROR: Must select one or more recipients for mail."
 msgstr ""
