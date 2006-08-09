@@ -19,7 +19,7 @@
 
 #
 scriptdir=@AIRT_PHPLIBDIR@/locale
-script_DATA= nl.mo en.mo
+script_DATA= nl_NL.utf8.mo en_US.utf8.mo
 pofiles = $(wildcard *.po)
 
 install: $(script_DATA)
