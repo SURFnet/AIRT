@@ -10,3 +10,4 @@ config.guess
 config.sub
 INSTALL
 ChangeLog
+acinclude.m4
