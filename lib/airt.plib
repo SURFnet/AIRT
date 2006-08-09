@@ -459,4 +459,49 @@ function formatDateInput($var='', $default='') {
    $out .= '</select>'.LF;
    return $out;
 } // formatDateInput
+
+
+/** Retrieve a list of available languages.
+ * @return An associative array. The key of the array is the ISO language
+ *    code, the value is a descriptive name of the language (when available).
+ */
+function getAvailableLanguages() {
+   $localedir = LIBDIR.'/locale';
+   if (!is_dir($localedir)) {
+      airt_msg(_('Unable to open locale directory.'));
+      return array();
+   }
+   $d = opendir($localedir);
+   if ($d == false) {
+      airt_msg(_('Unable to open locale directory'));
+      return array();
+   }
+   $l = array();
+   while ($file = readdir($d)) {
+      // only turn directories that do not start with a dot.
+      if (is_dir($localedir.'/'.$file) && substr($file, 0, 1) != '.') {
+         $l[$file] = '';
+      }
+   }
+   closedir($d);
+   return $l;
+}
+
+/** Format the list of available languages as a HTML selection box.
+ * @param [in]  $name - HTML name of the selection box
+ * @param [in]  $default - Default value (optional)
+ * @param [in]  $extra - Extra values to be added (optional)
+ * @return an HTML formatted string containing a <select> element.
+ */
+function formatAvailableLanguages($name, $default='', $extra=array()) {
+   $out = '<select name="'.htmlentities($name).'">'.LF;
+   foreach ($extra as $code => $desc) {
+      $out .= choice($desc == '' ? $code : $desc, $code, $default).LF;
+   }
+   foreach (getAvailableLanguages() as $code => $desc) {
+      $out .= choice($desc == '' ? $code : $desc, $code, $default).LF;
+   }
+   $out .= '</select>'.LF;
+   return $out;
+}
 ?>

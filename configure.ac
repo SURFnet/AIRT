@@ -94,5 +94,6 @@ AC_OUTPUT([Makefile
     php/Makefile
     php/login.php
     php/config.plib
+    po/Makefile
 ])
 

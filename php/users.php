@@ -60,7 +60,14 @@
             $submit = _("Update!");
         }
     }
-    print '<form action="'.$_SERVER[PHP_SELF].'" method="POST">'.LF;
+    if (array_key_exists('language', $_SESSION)) {
+       $lang = $_SESSION['lang'];
+    } elseif (defined('DEFAULTLANGUAGE')) {
+       $lang = DEFAULTLANGUAGE;
+    } else {
+       $lang = 'en';
+    }
+    print '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">'.LF;
     print '<input type="hidden" name="action" value="'.$action.'">'.LF;
     print '<input type="hidden" name="id" value="'.$id.'">'.LF;
     print '<table>'.LF;
@@ -93,6 +100,10 @@
     print '    <td>'._('Phone number').'</td>'.LF;
     print '    <td><input type="text" size="30" name="phone" value="'.
       $phone.'"></td>'.LF;
+    print '</tr>'.LF;
+    print '<tr>'.LF;
+    print '   <td>'._('Preferred language').'</td>'.LF;
+    print '   <td>'.formatAvailableLanguages('language', $lang).'</td>'.LF;
     print '</tr>'.LF;
     print '<tr>'.LF;
     print '    <td>'._('Password').'</td>'.LF;
