@@ -183,7 +183,7 @@ function setIncidentStatusDefault() {
  * Output: HTML string with full <select> block.
  */
 function getIncidentStatusSelection($name, $default='', $extras=array()) {
-   $output = sprintf('<select name="%s">.LF', htmlentities($name));
+   $output = sprintf('<select name="%s">'.LF, htmlentities($name));
    $statuses = getIncidentStatus($extras);
    if ($default=='') {
       $default = getIncidentStatusDefault();
@@ -1032,7 +1032,7 @@ function updateCheckboxes() {
    defaultTo($toggle,0);
 
    $filter = fetchFrom('REQUEST','filter[]');
-   defaultTo($filter,array('state'=>-1, 'status'=>-1));
+   defaultTo($filter,array('state'=>-1, 'status'=>getIncidentStatusDefault()));
 
    $urlsuffix=strtr(
      '&page=%p&filter[state]=%sf&filter[status]=%stf&sortkey=%sk&toggle=%t',
@@ -1052,7 +1052,7 @@ function updateCheckboxes() {
    $output .= '   }'.LF;
    $output .= '}'.LF;
    $output .= 'function checkAll() {'.LF;
-   $output .= '   window.location = "'.$_SERVER[PHP_SELF].'?action=toggle'.$urlsuffix.'"'.LF;
+   $output .= '   window.location = "'.$_SERVER['PHP_SELF'].'?action=toggle'.$urlsuffix.'"'.LF;
    $output .= '}'.LF;
 
    $output .= '</SCRIPT>'.LF;
