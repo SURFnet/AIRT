@@ -1,0 +1,1342 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2006-08-09 10:50+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Add!"
+msgstr ""
+
+msgid "Update!"
+msgstr ""
+
+msgid "Constituencies"
+msgstr ""
+
+#, php-format
+msgid "edit"
+msgstr ""
+
+msgid "New constituency"
+msgstr ""
+
+msgid "Missing information."
+msgstr ""
+
+msgid "Edit constituency"
+msgstr ""
+
+msgid "Missing information (1)."
+msgstr ""
+
+msgid "Missing information (2)."
+msgstr ""
+
+msgid "Unable to excute query."
+msgstr ""
+
+msgid "Missing information (3)."
+msgstr ""
+
+msgid "Unable to execute query."
+msgstr ""
+
+msgid "Unknown action: "
+msgstr ""
+
+msgid "Constituency contacts"
+msgstr ""
+
+msgid "Please select a constituency to edit assign contacts:"
+msgstr ""
+
+msgid "Invalid format"
+msgstr ""
+
+msgid "Edit constituency assignments"
+msgstr ""
+
+msgid "Unable to execute query 1."
+msgstr ""
+
+msgid "Invalid constituency."
+msgstr ""
+
+msgid "Current contacts of constituency "
+msgstr ""
+
+msgid "Unable to execute query(2)."
+msgstr ""
+
+msgid "No assigned users."
+msgstr ""
+
+#, php-format
+msgid "Remove"
+msgstr ""
+
+msgid "Unable to execute query(3)."
+msgstr ""
+
+msgid "Assing user(s) to constituency:"
+msgstr ""
+
+msgid "No unassigned users."
+msgstr ""
+
+msgid "Select another constituency"
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "Invalid data."
+msgstr ""
+
+msgid "Unable to execute query"
+msgstr ""
+
+msgid "AIRT export queue"
+msgstr ""
+
+msgid "AIRT Import queue"
+msgstr ""
+
+msgid "Commit all incidents as accept or reject"
+msgstr ""
+
+msgid "Process"
+msgstr ""
+
+msgid "Refresh the import queue. Any unprocessed changes will be lost."
+msgstr ""
+
+msgid "Refresh"
+msgstr ""
+
+msgid "Processing import queue"
+msgstr ""
+
+msgid "Accepting queue element %id<br/>"
+msgstr ""
+
+msgid "Adding to existing incident<br/>"
+msgstr ""
+
+#, php-format
+msgid "Error processing item: %error"
+msgstr ""
+
+msgid "Rejecting queue element %id<br/>"
+msgstr ""
+
+msgid "Ignoring queue element %id<br/>"
+msgstr ""
+
+msgid "Done."
+msgstr ""
+
+msgid "Error fetching queue item"
+msgstr ""
+
+msgid "Queue details for item "
+msgstr ""
+
+msgid "Status"
+msgstr ""
+
+msgid "Type"
+msgstr ""
+
+msgid "Summary"
+msgstr ""
+
+msgid "Input queue data"
+msgstr ""
+
+msgid "Prepare"
+msgstr ""
+
+msgid "Do not send mail"
+msgstr ""
+
+msgid "Show Details"
+msgstr ""
+
+msgid "Invalid incident"
+msgstr ""
+
+#, php-format
+msgid "Requested incident (%s) does not exist."
+msgstr ""
+
+msgid "Incident details: "
+msgstr ""
+
+msgid "Edit"
+msgstr ""
+
+msgid "External identifiers"
+msgstr ""
+
+msgid "History"
+msgstr ""
+
+msgid "New comment"
+msgstr ""
+
+msgid "Add"
+msgstr ""
+
+msgid "Create New Incident"
+msgstr ""
+
+msgid "New incident"
+msgstr ""
+
+msgid "New Incident"
+msgstr ""
+
+msgid "Check to prepare mail."
+msgstr ""
+
+msgid "Create Many Incidents"
+msgstr ""
+
+msgid "Unable to add user to incident."
+msgstr ""
+
+#, php-format
+msgid ""
+"The e-mail address specified in the incident data entry form (%s) is "
+"unknown\n"
+"to AIRT and you chose not to add it to the database."
+msgstr ""
+
+#, php-format
+msgid ""
+"The incident has been created, however no users have been associated with\n"
+"it."
+msgstr ""
+
+#, php-format
+msgid "Continue"
+msgstr ""
+
+msgid "Incident Overview"
+msgstr ""
+
+msgid "IP address %ip added to incident with role %role"
+msgstr ""
+
+msgid "IP address details"
+msgstr ""
+
+msgid "Details of IP address %ip updated; const=%const, addressrole=%role"
+msgstr ""
+
+msgid "IP address %address (%role) removed from incident."
+msgstr ""
+
+#, php-format
+msgid "Unknown email address. User not added."
+msgstr ""
+
+#, php-format
+msgid "User %s added to incident."
+msgstr ""
+
+#, php-format
+msgid "User %s removed from incident."
+msgstr ""
+
+#, php-format
+msgid "Incident updated: state=%s, status=%s type=%s"
+msgstr ""
+
+msgid "Available incident states"
+msgstr ""
+
+msgid "Unable to query incident states."
+msgstr ""
+
+msgid "Available incident types"
+msgstr ""
+
+msgid "Unable to query incident types."
+msgstr ""
+
+msgid "Available incident statuses"
+msgstr ""
+
+msgid "Unable to query incident statuses."
+msgstr ""
+
+msgid "USER ERROR: Must select one or more recipients for mail."
+msgstr ""
+
+msgid "Unknown action"
+msgstr ""
+
+msgid "Unable to query database."
+msgstr ""
+
+msgid "Label"
+msgstr ""
+
+msgid "Description"
+msgstr ""
+
+msgid "Entry is default"
+msgstr ""
+
+msgid "Incident states"
+msgstr ""
+
+msgid "Unable to execute query 1"
+msgstr ""
+
+msgid "Short description"
+msgstr ""
+
+msgid "Is default"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+#, php-format
+msgid "delete"
+msgstr ""
+
+msgid "New incident state"
+msgstr ""
+
+msgid "Edit incident state"
+msgstr ""
+
+msgid "Unable to execute query 4."
+msgstr ""
+
+msgid "Unable to excute query 2."
+msgstr ""
+
+msgid "Unable to excute query 3."
+msgstr ""
+
+msgid "Incident status"
+msgstr ""
+
+msgid "New incident status"
+msgstr ""
+
+msgid "Edit incident status"
+msgstr ""
+
+msgid "Unable to execute query 2."
+msgstr ""
+
+msgid "Unable to execute query  3."
+msgstr ""
+
+msgid "Incident types"
+msgstr ""
+
+msgid "AIRT Control Center"
+msgstr ""
+
+msgid "Welcome %username. Your last login was at %lastdb from %hostname."
+msgstr ""
+
+msgid "Do not display"
+msgstr ""
+
+msgid "Main menu links"
+msgstr ""
+
+msgid "Menu item"
+msgstr ""
+
+msgid "Position"
+msgstr ""
+
+msgid "Update main menu"
+msgstr ""
+
+msgid "Navbar links"
+msgstr ""
+
+msgid "Update navigation bar"
+msgstr ""
+
+msgid "Add new menu item"
+msgstr ""
+
+msgid "URL"
+msgstr ""
+
+msgid "Links"
+msgstr ""
+
+msgid "Unable to insert URL"
+msgstr ""
+
+msgid "Unable to delete URL"
+msgstr ""
+
+msgid "Unable to retrieve URL"
+msgstr ""
+
+msgid "Incorrect row id"
+msgstr ""
+
+msgid "Unable to update URL"
+msgstr ""
+
+msgid "Menu updated."
+msgstr ""
+
+msgid "Navigation bar updated."
+msgstr ""
+
+msgid "Login"
+msgstr ""
+
+msgid "Password"
+msgstr ""
+
+msgid "AIRT version 20060807.1, Copyright (C) 2004-2006 Tilburg University "
+msgstr ""
+
+msgid ""
+"AIRT comes with ABSOLUTELY NO WARRANTY; for details <a href=\"license.php"
+"\">click here</a>."
+msgstr ""
+
+msgid ""
+"This is free software, and you are welcome to redistribute it under certain "
+"conditions; See the license for more details."
+msgstr ""
+
+msgid "Permission denied."
+msgstr ""
+
+msgid "Username and/or password incorrect."
+msgstr ""
+
+msgid "Unknown action."
+msgstr ""
+
+msgid "You have been logged out."
+msgstr ""
+
+msgid "Click here to <a href=\"login.php\">log in again</a>."
+msgstr ""
+
+msgid "Available mail templates"
+msgstr ""
+
+msgid "Create a new message"
+msgstr ""
+
+msgid "Edit mail template"
+msgstr ""
+
+#, php-format
+msgid "Template not available."
+msgstr ""
+
+msgid ""
+"Update the template and press the \"Save!\" button to save it. The first\n"
+"line of the message will be used as the subject. You may use the following\n"
+"special variables in the template:"
+msgstr ""
+
+msgid ""
+"Automatically change settings after mail based on this template is sent:"
+msgstr ""
+
+msgid "Do not update"
+msgstr ""
+
+msgid "State"
+msgstr ""
+
+msgid "New mail template"
+msgstr ""
+
+msgid ""
+"Enter your new template in the text field below. Use the following variables "
+"in your text body:"
+msgstr ""
+
+msgid "Template name"
+msgstr ""
+
+msgid "Message"
+msgstr ""
+
+msgid "Save!"
+msgstr ""
+
+msgid "Cancel!"
+msgstr ""
+
+msgid "Send"
+msgstr ""
+
+msgid "Send and prepare next"
+msgstr ""
+
+msgid "Empty recipient?"
+msgstr ""
+
+msgid "Empty message body?"
+msgstr ""
+
+msgid "Unable to read signed message."
+msgstr ""
+
+msgid "Digital signature"
+msgstr ""
+
+msgid "Error sending message!"
+msgstr ""
+
+#, php-format
+msgid "Email sent to %s: %s"
+msgstr ""
+
+#, php-format
+msgid "Type updated to %s"
+msgstr ""
+
+#, php-format
+msgid "Status updated to %s"
+msgstr ""
+
+#, php-format
+msgid "State updated to %s"
+msgstr ""
+
+msgid "AIRT Maintenance Center"
+msgstr ""
+
+msgid "User management"
+msgstr ""
+
+msgid "Edit users"
+msgstr ""
+
+msgid "Incident management"
+msgstr ""
+
+msgid "Edit incident states"
+msgstr ""
+
+msgid "Edit incident statuses"
+msgstr ""
+
+msgid "Edit incident types"
+msgstr ""
+
+msgid "Edit standard messages"
+msgstr ""
+
+msgid "Network management"
+msgstr ""
+
+msgid "Edit networks"
+msgstr ""
+
+msgid "Edit constituencies"
+msgstr ""
+
+msgid "Edit constituency contacts"
+msgstr ""
+
+msgid "Appearance"
+msgstr ""
+
+msgid "Edit main menu links"
+msgstr ""
+
+msgid "Network Address"
+msgstr ""
+
+msgid "Netmask or CIDR"
+msgstr ""
+
+msgid "Constituency"
+msgstr ""
+
+msgid "Networks"
+msgstr ""
+
+msgid "Network"
+msgstr ""
+
+msgid "New network"
+msgstr ""
+
+msgid "Edit Network"
+msgstr ""
+
+msgid "Search for:"
+msgstr ""
+
+msgid "Search"
+msgstr ""
+
+msgid "Hostname"
+msgstr ""
+
+msgid "Incident"
+msgstr ""
+
+msgid "Mask"
+msgstr ""
+
+msgid "Email"
+msgstr ""
+
+msgid "Detailed information for host "
+msgstr ""
+
+msgid "Search results for the following host:"
+msgstr ""
+
+msgid "IP Address"
+msgstr ""
+
+msgid "Constituency Contacts"
+msgstr ""
+
+msgid "Previous incidents"
+msgstr ""
+
+msgid "Unable to query."
+msgstr ""
+
+msgid "Incident ID"
+msgstr ""
+
+msgid "Created"
+msgstr ""
+
+msgid "No previous incidents"
+msgstr ""
+
+msgid "Search results"
+msgstr ""
+
+msgid "No results matched your query."
+msgstr ""
+
+msgid "Research results for incident = "
+msgstr ""
+
+msgid "Incidentid"
+msgstr ""
+
+msgid "Additional identifiers"
+msgstr ""
+
+msgid "No incidents within this range"
+msgstr ""
+
+msgid "is not a correct netmask, 123.45.67.89/22 for instance is"
+msgstr ""
+
+msgid "User"
+msgstr ""
+
+msgid "Unknown query type"
+msgstr ""
+
+msgid "New Search"
+msgstr ""
+
+msgid "Incident type/Constituency matrix"
+msgstr ""
+
+#, php-format
+msgid "Printing from %startdate until %enddate."
+msgstr ""
+
+msgid "Sum"
+msgstr ""
+
+msgid "Incidents without IP addresses"
+msgstr ""
+
+msgid "Date"
+msgstr ""
+
+msgid "Unknown"
+msgstr ""
+
+msgid "January"
+msgstr ""
+
+msgid "February"
+msgstr ""
+
+msgid "March"
+msgstr ""
+
+msgid "April"
+msgstr ""
+
+msgid "May"
+msgstr ""
+
+msgid "June"
+msgstr ""
+
+msgid "July"
+msgstr ""
+
+msgid "August"
+msgstr ""
+
+msgid "September"
+msgstr ""
+
+msgid "October"
+msgstr ""
+
+msgid "November"
+msgstr ""
+
+msgid "December"
+msgstr ""
+
+msgid "Incident statistics"
+msgstr ""
+
+msgid ""
+"Please select the reporting period of which you would like to see "
+"statistics. (note; the start date and the end date are included in the\n"
+"report."
+msgstr ""
+
+msgid "Start date (day-month-year)"
+msgstr ""
+
+msgid "Select day"
+msgstr ""
+
+msgid "Select month"
+msgstr ""
+
+msgid "End date (day-month-year)"
+msgstr ""
+
+msgid "Show statistics"
+msgstr ""
+
+msgid "Organizational user id"
+msgstr ""
+
+msgid "Last name"
+msgstr ""
+
+msgid "First name"
+msgstr ""
+
+msgid "Email address"
+msgstr ""
+
+msgid "Phone number"
+msgstr ""
+
+msgid "Preferred language"
+msgstr ""
+
+msgid "Confirm password"
+msgstr ""
+
+msgid "AIRT users"
+msgstr ""
+
+msgid "User id"
+msgstr ""
+
+msgid "Phone"
+msgstr ""
+
+#, php-format
+msgid "Are you sure that you want to delete %s?"
+msgstr ""
+
+msgid "New user"
+msgstr ""
+
+msgid "Missing information (4)."
+msgstr ""
+
+msgid "Missing information (5)."
+msgstr ""
+
+msgid "Error"
+msgstr ""
+
+msgid "The passwords that you provided do not match."
+msgstr ""
+
+msgid ""
+"Please use your browser's back button to correct the problem and resend the "
+"form."
+msgstr ""
+
+msgid "Missing information(A)"
+msgstr ""
+
+msgid "Error removing user."
+msgstr ""
+
+msgid "Unable to remove this user from the database."
+msgstr ""
+
+msgid ""
+"The most likely cause for this failure is that the user is associated with "
+"one or more incidents."
+msgstr ""
+
+msgid "continue"
+msgstr ""
+
+msgid "Edit user information"
+msgstr ""
+
+msgid "Unable to connect to database."
+msgstr ""
+
+msgid "Expected database version: "
+msgstr ""
+
+msgid "Actual database version:   "
+msgstr ""
+
+msgid "Cannot continue, needs database update first."
+msgstr ""
+
+#, php-format
+msgid "Your session has expired. Please "
+msgstr ""
+
+#, php-format
+msgid "log in again"
+msgstr ""
+
+#, php-format
+msgid "Unknown fetch source type '%s'. Script terminated."
+msgstr ""
+
+msgid "Jan"
+msgstr ""
+
+msgid "Jul"
+msgstr ""
+
+msgid "Feb"
+msgstr ""
+
+msgid "Aug"
+msgstr ""
+
+msgid "Mar"
+msgstr ""
+
+msgid "Sep"
+msgstr ""
+
+msgid "Apr"
+msgstr ""
+
+msgid "Oct"
+msgstr ""
+
+msgid "Nov"
+msgstr ""
+
+msgid "Jun"
+msgstr ""
+
+msgid "Dec"
+msgstr ""
+
+msgid "Unable to open locale directory."
+msgstr ""
+
+msgid "Unable to open locale directory"
+msgstr ""
+
+msgid "Invalid login!"
+msgstr ""
+
+msgid "Incorrect login!"
+msgstr ""
+
+msgid "No contacts."
+msgstr ""
+
+msgid "Name"
+msgstr ""
+
+msgid "PHP seems not to have been compiled with PostgreSQL support."
+msgstr ""
+
+msgid "AIRT Unknown error %errno: %info in scope %scope"
+msgstr ""
+
+msgid "error"
+msgstr ""
+
+msgid "Task export program, part of the AIRT suite."
+msgstr ""
+
+msgid "Copyright (C) 2006   Tilburg University, The Netherlands."
+msgstr ""
+
+msgid "Usage: airt_export [--help] [--noqueue] [--verbose] [--purge]"
+msgstr ""
+
+msgid "\"message here\""
+msgstr ""
+
+msgid "Available wrappers"
+msgstr ""
+
+msgid "%task is not executable."
+msgstr ""
+
+msgid "Could not fork."
+msgstr ""
+
+msgid "ERROR: Could not detach from terminal"
+msgstr ""
+
+msgid "ERROR: Entered the twilight zone!?"
+msgstr ""
+
+msgid "Refresh this page"
+msgstr ""
+
+msgid "ERROR:"
+msgstr ""
+
+msgid "No items in export queue."
+msgstr ""
+
+msgid "ID"
+msgstr ""
+
+msgid "Task"
+msgstr ""
+
+msgid "Scheduled"
+msgstr ""
+
+msgid "Started"
+msgstr ""
+
+msgid "Ended"
+msgstr ""
+
+msgid "Result"
+msgstr ""
+
+msgid "Task parameters"
+msgstr ""
+
+msgid "Are you sure that you want to delete this queue entry?"
+msgstr ""
+
+msgid "Add a new task to the queue"
+msgstr ""
+
+msgid "Run Now"
+msgstr ""
+
+msgid "Run in one hour"
+msgstr ""
+
+msgid "Run in two hours"
+msgstr ""
+
+msgid "Run in five hours"
+msgstr ""
+
+msgid "Add Task"
+msgstr ""
+
+msgid ""
+"For the exact functionality of the available tasks and\n"
+"   their possible parameters, please see %Athe documentation%E."
+msgstr ""
+
+msgid "Could not query database for all tasks."
+msgstr ""
+
+msgid "Could not query database for tasks to run."
+msgstr ""
+
+msgid "Could not get next exportqueue item ID."
+msgstr ""
+
+msgid "Could not insert queue item."
+msgstr ""
+
+msgid "Could not remove task from queue."
+msgstr ""
+
+msgid "Not yet implemented."
+msgstr ""
+
+msgid "taskID must be a number."
+msgstr ""
+
+msgid "Could not query database."
+msgstr ""
+
+msgid "Task %id unknown in export queue."
+msgstr ""
+
+msgid "Task %id already started."
+msgstr ""
+
+msgid "Task %id has already completed."
+msgstr ""
+
+msgid "Could not update database."
+msgstr ""
+
+msgid "Task %id not started yet."
+msgstr ""
+
+msgid "maxHours must be a number."
+msgstr ""
+
+msgid "Could not purge export queue."
+msgstr ""
+
+msgid "Incidence import program, part of the AIRT suite."
+msgstr ""
+
+msgid ""
+"Usage: import [--filter=<filter>] [--help] [--noqueue] [--verbose] \\\n"
+"              [--virtual-host=<virtual_host>] [filename]"
+msgstr ""
+
+msgid "The program reads the import data from stdin if no filename is given."
+msgstr ""
+
+msgid "Available filters:"
+msgstr ""
+
+msgid "Not actually queueing the incident."
+msgstr ""
+
+msgid "Unable to parse xml"
+msgstr ""
+
+msgid "Missing ref attribute in XML"
+msgstr ""
+
+msgid "Invalid parameter \"id\""
+msgstr ""
+
+msgid "Unable to query database in importqueue.plib:"
+msgstr ""
+
+msgid "No items pending"
+msgstr ""
+
+msgid "Decision"
+msgstr ""
+
+msgid "Sender"
+msgstr ""
+
+msgid "Details"
+msgstr ""
+
+msgid "Accept"
+msgstr ""
+
+msgid "Reject"
+msgstr ""
+
+msgid "Do nothing"
+msgstr ""
+
+msgid "Show incident details in new browser window"
+msgstr ""
+
+msgid "details"
+msgstr ""
+
+msgid "  Add to %id"
+msgstr ""
+
+msgid "Missing key for authentication"
+msgstr ""
+
+msgid "Missing parameter id"
+msgstr ""
+
+msgid "Empty parameter"
+msgstr ""
+
+msgid "Cannot get next queue item ID"
+msgstr ""
+
+msgid "Could not insert new queue item"
+msgstr ""
+
+msgid "Unable to query database in "
+msgstr ""
+
+msgid "Request for invalid queue item"
+msgstr ""
+
+msgid "Not yet implemented"
+msgstr ""
+
+msgid "Invalid cache data"
+msgstr ""
+
+msgid "Invalid XML (no logging)"
+msgstr ""
+
+msgid "Unable to match users to incident."
+msgstr ""
+
+msgid "Could not add IP to incident"
+msgstr ""
+
+msgid "unkown"
+msgstr ""
+
+msgid "unknown"
+msgstr ""
+
+msgid "Incident type"
+msgstr ""
+
+msgid "Incident state"
+msgstr ""
+
+msgid "Date of incident"
+msgstr ""
+
+msgid "Logging"
+msgstr ""
+
+msgid "Could not fetch IP address details"
+msgstr ""
+
+msgid "Could not find assigned IP address."
+msgstr ""
+
+msgid "IP address"
+msgstr ""
+
+msgid "Host name"
+msgstr ""
+
+msgid "Role in incident"
+msgstr ""
+
+msgid "Not set"
+msgstr ""
+
+msgid "Added"
+msgstr ""
+
+msgid "Added by"
+msgstr ""
+
+msgid "Updated"
+msgstr ""
+
+msgid "Updated by"
+msgstr ""
+
+msgid "Update"
+msgstr ""
+
+msgid "Could not update IP with incident"
+msgstr ""
+
+msgid "No ID given to update request."
+msgstr ""
+
+msgid "Could not get related incidents"
+msgstr ""
+
+msgid "Could not get address roles"
+msgstr ""
+
+#, php-format
+msgid "External identifier %extid added."
+msgstr ""
+
+#, php-format
+msgid "External identifier %extid removed."
+msgstr ""
+
+msgid "Affected IP addresses"
+msgstr ""
+
+msgid "Hostname or IP address"
+msgstr ""
+
+msgid "Affected users"
+msgstr ""
+
+msgid "E-mail address of user"
+msgstr ""
+
+msgid "If checked, create user if email address unknown"
+msgstr ""
+
+msgid "Basic incident data"
+msgstr ""
+
+msgid "remove"
+msgstr ""
+
+msgid "Email address of user"
+msgstr ""
+
+msgid "Do not filter"
+msgstr ""
+
+msgid "Filter the List"
+msgstr ""
+
+msgid "Incident #"
+msgstr ""
+
+msgid "Previous"
+msgstr ""
+
+msgid "Next"
+msgstr ""
+
+msgid "No incidents"
+msgstr ""
+
+msgid "Last updated"
+msgstr ""
+
+msgid "New State"
+msgstr ""
+
+msgid "Leave Unchanged"
+msgstr ""
+
+msgid "New Status"
+msgstr ""
+
+msgid "New Type"
+msgstr ""
+
+msgid "Update All Selected"
+msgstr ""
+
+msgid "Bulk mail"
+msgstr ""
+
+msgid "No templates available."
+msgstr ""
+
+msgid "prepare"
+msgstr ""
+
+msgid "Are you sure that you want to delete this message?"
+msgstr ""
+
+#, php-format
+msgid "Unable to read message."
+msgstr ""
+
+msgid "Send message from template."
+msgstr ""
+
+msgid "To:"
+msgstr ""
+
+msgid "Subject:"
+msgstr ""
+
+msgid "From:"
+msgstr ""
+
+msgid "Reply-To:"
+msgstr ""
+
+msgid "Sign"
+msgstr ""
+
+msgid "Will be replaced with the currently active hostname"
+msgstr ""
+
+msgid "Will be replaced with the current incident id"
+msgstr ""
+
+msgid "Will be replaced with the currently active IP address"
+msgstr ""
+
+msgid "Will be replaced with the available logging information"
+msgstr ""
+
+msgid "Will be replaced with previous incidents"
+msgstr ""
+
+msgid "Delimits the subject line of the message"
+msgstr ""
+
+msgid "Will be replaced with the email address of the current user"
+msgstr ""
+
+msgid ""
+"Will be replaced with detailed information about the user, if that\n"
+"   information is available."
+msgstr ""
+
+msgid "Will be replaced with the name of the current user"
+msgstr ""
+
+msgid "Will be replaced with the incident data in XML format"
+msgstr ""
+
+msgid "External incident identifiers (if any)"
+msgstr ""
+
+msgid "Will be replaced with the first name of the logged in incident handler"
+msgstr ""
+
+msgid "Will be replaced with the full name of the logged in incident handler"
+msgstr ""
+
+msgid "Unable to create ticket"
+msgstr ""
+
+msgid "Unable to query database in addUser."
+msgstr ""
