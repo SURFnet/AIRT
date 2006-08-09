@@ -7,10 +7,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AIRT\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-08-09 14:51+0200\n"
-"PO-Revision-Date: 2006-08-09 14:53+0100\n"
+"POT-Creation-Date: 2006-08-09 15:03+0200\n"
+"PO-Revision-Date: 2006-08-09 15:20+0100\n"
 "Last-Translator: Kees Leune <kees@airt.nl>\n"
-"Language-Team: AIRT developers <info@airt.nl>\n"
+"Language-Team: AIRT <info@airt.nl>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -1122,217 +1122,220 @@ msgid "Incident state"
 msgstr ""
 
 msgid "Date of incident"
-msgstr ""
+msgstr "Datum van incident"
 
 msgid "Logging"
-msgstr ""
+msgstr "Logboekinformatie"
 
 msgid "Could not fetch IP address details"
-msgstr ""
+msgstr "Kon IP adres details niet ophalen"
 
 msgid "Could not find assigned IP address."
-msgstr ""
+msgstr "Kon toegekend IP adres niet vinden."
 
 msgid "IP address"
-msgstr ""
+msgstr "IP adres"
 
 msgid "Host name"
-msgstr ""
+msgstr "Machinenaam"
 
 msgid "Role in incident"
-msgstr ""
+msgstr "Rol in incident"
 
 msgid "Not set"
-msgstr ""
+msgstr "Niet ingesteld"
 
 msgid "Added"
-msgstr ""
+msgstr "Toegevoegd"
 
 msgid "Added by"
-msgstr ""
+msgstr "Toegevoegd door"
 
 msgid "Updated"
-msgstr ""
+msgstr "Bijgewerkt"
 
 msgid "Updated by"
-msgstr ""
+msgstr "Bijgewerkt door"
 
 msgid "Update"
-msgstr ""
+msgstr "Bijwerken"
 
 msgid "Could not update IP with incident"
-msgstr ""
+msgstr "Niet in staat om IP adres bij incident bij te werken"
 
 msgid "No ID given to update request."
-msgstr ""
+msgstr "Geen identificatie gegeven om verzoek bij te werken"
 
 msgid "Could not get related incidents"
-msgstr ""
+msgstr "Niet in staat om gerelateerde incidenten op te halen"
 
 msgid "Could not get address roles"
-msgstr ""
+msgstr "Niet in staat om adresrollen op te halen"
 
 #, php-format
 msgid "External identifier %extid added."
-msgstr ""
+msgstr "Externe identificatie %extid toegevoegd"
 
 #, php-format
 msgid "External identifier %extid removed."
-msgstr ""
+msgstr "Externe identificatie %extid verwijderd"
 
 msgid "Affected IP addresses"
-msgstr ""
+msgstr "Beïnvloedde IP-adressen"
 
 msgid "Hostname or IP address"
-msgstr ""
+msgstr "Computernaam of IP adres"
 
 msgid "Affected users"
-msgstr ""
+msgstr "Beïnvloedde gebruikers"
 
 msgid "E-mail address of user"
-msgstr ""
+msgstr "E-mailadres van gebruiker"
 
 msgid "If checked, create user if email address unknown"
-msgstr ""
+msgstr "Creëer gebruiker als emailadres onbekend is wanneer aangevinkt"
 
 msgid "Basic incident data"
-msgstr ""
+msgstr "Elementaire incidentgegevens"
 
 msgid "remove"
-msgstr ""
+msgstr "verwijderen"
 
 msgid "Email address of user"
-msgstr ""
+msgstr "Emailadres van gebruiker"
 
 msgid "Do not filter"
-msgstr ""
+msgstr "Niet filteren"
 
 msgid "Filter the List"
-msgstr ""
+msgstr "Filter de lijst"
 
 msgid "Incident #"
-msgstr ""
+msgstr "Incidentnummer"
 
 msgid "Previous"
-msgstr ""
+msgstr "Vorige"
 
 msgid "Next"
-msgstr ""
+msgstr "Volgende"
 
 msgid "No incidents"
-msgstr ""
+msgstr "Geen incidenten"
 
 msgid "Last updated"
-msgstr ""
+msgstr "Meest recent bijgewerkt"
 
 msgid "New State"
-msgstr ""
+msgstr "Nieuwe toestand"
 
 msgid "Leave Unchanged"
-msgstr ""
+msgstr "Laat onveranderd"
 
 msgid "New Status"
-msgstr ""
+msgstr "Nieuwe status"
 
 msgid "New Type"
-msgstr ""
+msgstr "Nieuw soort"
 
 msgid "Update All Selected"
-msgstr ""
+msgstr "Werk volledige selectie bij"
 
 msgid "Bulk mail"
 msgstr ""
 
 msgid "No templates available."
-msgstr ""
+msgstr "Geen sjablonen beschikbaar."
 
 msgid "prepare"
-msgstr ""
+msgstr "voorbereiden"
 
 msgid "Are you sure that you want to delete this message?"
-msgstr ""
+msgstr "Weet u zeker dat u dit bericht wilt verwijderen?"
 
 #, php-format
 msgid "Unable to read message."
-msgstr ""
+msgstr "Niet in staat om bericht te lezen."
 
 msgid "Send message from template."
-msgstr ""
+msgstr "Verstuur bericht van sjabloon"
 
 msgid "To:"
-msgstr ""
+msgstr "Aan:"
 
 msgid "Subject:"
-msgstr ""
+msgstr "Onderwerp:"
 
 msgid "From:"
-msgstr ""
+msgstr "Van:"
 
 msgid "Reply-To:"
-msgstr ""
+msgstr "Antwoord naar:"
 
 msgid "Sign"
-msgstr ""
+msgstr "Ondertekenen"
 
 msgid "Will be replaced with the currently active hostname"
-msgstr ""
+msgstr "Wordt vervangen door de actieve computernaam"
 
 msgid "Will be replaced with the current incident id"
-msgstr ""
+msgstr "Wordt vervangen door het actieve incidentnummer"
 
 msgid "Will be replaced with the currently active IP address"
-msgstr ""
+msgstr "Wordt vervangen door het actieve IP adres"
 
 msgid "Will be replaced with the available logging information"
-msgstr ""
+msgstr "Wordt vervangen door beschikbare logboekgegevens"
 
 msgid "Will be replaced with previous incidents"
-msgstr ""
+msgstr "Wordt vervangen door voorgaande incidenten"
 
 msgid "Delimits the subject line of the message"
-msgstr ""
+msgstr "Markeert de onderwerpsregel van het bericht"
 
 msgid "Will be replaced with the email address of the current user"
-msgstr ""
+msgstr "Wordt vervangen door het emailadres van de huidige gebruiker"
 
 msgid ""
 "Will be replaced with detailed information about the user, if that\n"
 "   information is available."
 msgstr ""
+"Wordt vervangen door gedetailleerde informatie over de gebruiker\n"
+", indien beschikbaar"
 
 msgid "Will be replaced with the name of the current user"
-msgstr ""
+msgstr "Wordt vervangen door de naam van de huidige gebruiker"
 
 msgid "Will be replaced with the incident data in XML format"
-msgstr ""
+msgstr "Wordt vervangen door de incidentgegevens in XML-formaat"
 
 msgid "External incident identifiers (if any)"
-msgstr ""
+msgstr "Externe incidentnummers (indien aanwezig)"
 
 msgid "Will be replaced with the first name of the logged in incident handler"
-msgstr ""
+msgstr "Wordt vervanger door de voornaam van de incidentafhandelaar"
 
 msgid "Will be replaced with the full name of the logged in incident handler"
-msgstr ""
+msgstr "Wordt vervangen door de volledige naam van de incidentafhandelaar"
 
 msgid "Unable to create ticket"
-msgstr ""
+msgstr "Niet in staat om kaart aan te maken"
 
+# Not in use
 msgid "Unable to query database in addUser."
 msgstr ""
 
 msgid "Preferred language"
-msgstr ""
+msgstr "Voorkeurstaal"
 
 msgid "Unable to open locale directory."
-msgstr ""
-
-msgid "Unable to open locale directory"
-msgstr ""
+msgstr "Niet in staat op localemap te openen"
 
 msgid "AIRT login page"
 msgstr "AIRT aanmeldbladzijde"
 
 msgid "Log in"
 msgstr "Aanmelden"
+
+msgid "Unable to query database"
+msgstr "Niet in staat om gegevensbestand te bevragen"
 

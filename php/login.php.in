@@ -50,7 +50,7 @@ switch ($action) {
       generateEvent('loginscreen');
 
       $out = '<p><input type="hidden" name="action" value="check">'.LF;
-      $out .= '<input type="submit" value="'._('Login').'">'.LF;
+      $out .= '<input type="submit" value="'._('Log in').'">'.LF;
       $out .= '</form></p>'.LF;
       $out .= '<HR/>'.LF;
       $out .= '<BLOCKQUOTE><small>'.LF;

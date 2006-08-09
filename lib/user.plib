@@ -26,7 +26,7 @@ function _getUser($criteria, $value) {
       SELECT id, lastname, firstname, email, phone, userid, login, language
       FROM   users
       WHERE  %s=%s", $criteria, $value))
-   or die(_('Unable to query database.'));
+   or die(_('Unable to query database'));
 
    if (db_num_rows($res) == 0) {
       return false;
@@ -118,7 +118,7 @@ function addUser($user) {
       db_masq_null(sha1($password))
    );
    $res = @db_query($query) or 
-   die(_('Unable to query database in addUser.'));
+   die(_('Unable to query database').' in addUser.'));
 }
 
 /* EOF */

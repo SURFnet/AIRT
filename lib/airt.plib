@@ -507,7 +507,7 @@ function getAvailableLanguages() {
    }
    $d = opendir($localedir);
    if ($d == false) {
-      airt_msg(_('Unable to open locale directory'));
+      airt_msg(_('Unable to open locale directory.'));
       return array();
    }
    $l = array();
