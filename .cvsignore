@@ -6,3 +6,7 @@ aclocal.m4
 Makefile.in
 Makefile
 README
+config.guess
+config.sub
+INSTALL
+ChangeLog
