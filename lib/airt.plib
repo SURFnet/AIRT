@@ -69,7 +69,10 @@ if (AIRT_RUN_MODE=='HTTP') {
    $BASEURL=$_SESSION['BASEURL'];
 
    // set default in session
-   if (!array_key_exists('language', $_SESSION)) {
+   $lang = DEFAULTLANGUAGE;
+   if (array_key_exists('language', $_SESSION)) {
+      $lang = $_SESSION['language'];
+   } else {
       if (defined('DEFAULTLANGUAGE')) {
          $lang = DEFAULTLANGUAGE;
       } else {

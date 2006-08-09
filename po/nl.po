@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-08-09 11:06+0200\n"
+"POT-Creation-Date: 2006-08-09 11:35+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -418,10 +418,10 @@ msgid "Navigation bar updated."
 msgstr ""
 
 msgid "Login"
-msgstr ""
+msgstr "Gebruikersnaam"
 
 msgid "Password"
-msgstr ""
+msgstr "Wachtwoord"
 
 msgid "AIRT version 20060807.1, Copyright (C) 2004-2006 Tilburg University "
 msgstr ""
@@ -1346,3 +1346,6 @@ msgstr ""
 
 msgid "Unable to open locale directory"
 msgstr ""
+
+msgid "AIRT login page"
+msgstr "AIRT aanmeldbladzijde"
