@@ -25,8 +25,7 @@ pofiles = $(wildcard *.po)
 install: $(script_DATA)
 	for i in $(script_DATA); do\
 	  basename=`echo $$i | sed 's|\.mo||g'`;\
-		$(mkinstalldirs) $(scriptdir)/$$basename/LC_MESSAGES;\
-	  $(install_sh_DATA) $$i $(scriptdir)/$$basename/LC_MESSAGES;\
+	  $(install_sh_DATA) $$i $(scriptdir)/$$basename/LC_MESSAGES/airt.mo;\
 		rm -f $(scriptdir)/$$i;\
 	done
 
