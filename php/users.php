@@ -34,9 +34,17 @@
     $action = "add";
     $submit = _("Add!");
 
+    if (array_key_exists('language', $_SESSION)) {
+       $language = $_SESSION['language'];
+    } elseif (defined('DEFAULTLANGUAGE')) {
+       $language = DEFAULTLANGUAGE;
+    } else {
+       $language = 'en';
+    }
     if ($id != "") {
         $res = db_query("
-        SELECT lastname, firstname, email, phone, login, userid, password
+        SELECT lastname, firstname, email, phone, login, userid, password,
+               language
         FROM   users
         WHERE  id = '$id'")
         or die(_("Unable to query database."));
@@ -55,17 +63,12 @@
             $login=$row['login'];
          if (array_key_exists('userid', $row))
             $userid=$row['userid'];
+         if (array_key_exists('language', $row))
+            $language=$row['language'];
 
             $action = "update";
             $submit = _("Update!");
         }
-    }
-    if (array_key_exists('language', $_SESSION)) {
-       $lang = $_SESSION['language'];
-    } elseif (defined('DEFAULTLANGUAGE')) {
-       $lang = DEFAULTLANGUAGE;
-    } else {
-       $lang = 'en';
     }
     print '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">'.LF;
     print '<input type="hidden" name="action" value="'.$action.'">'.LF;
@@ -103,7 +106,7 @@
     print '</tr>'.LF;
     print '<tr>'.LF;
     print '   <td>'._('Preferred language').'</td>'.LF;
-    print '   <td>'.formatAvailableLanguages('language', $lang).'</td>'.LF;
+    print '   <td>'.formatAvailableLanguages('language', $language).'</td>'.LF;
     print '</tr>'.LF;
     print '<tr>'.LF;
     print '    <td>'._('Password').'</td>'.LF;
