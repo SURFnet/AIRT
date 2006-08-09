@@ -292,8 +292,8 @@ function expand_template($template, $current) {
    }
 
    // reply to (if set)
-   if (defined(REPLYTO) && REPLYTO != '') {
-      $output['replyto'] = replace_vars(REPLYTO, $current);
+   if (defined('REPLYTO') && REPLYTO != '') {
+      $output['replyto'] = replace_vars('REPLYTO', $current);
    } else {
       $output['replyto'] = '';
    }
@@ -350,28 +350,28 @@ function prepare_message($template, $agenda=array(), $to=array()) {
    $out .= '<TABLE WIDTH="80">'.LF;
    $out .= '<TR>'.LF;
    $out .= '<TD>'._('To:').'</TD>'.LF;
-   $out .= '<TD><INPUT TYPE="text" size="50" name="to" value="'.$msgdata[receiver].'"></TD>'.LF;
+   $out .= '<TD><INPUT TYPE="text" size="50" name="to" value="'.$msgdata['receiver'].'"></TD>'.LF;
    $out .= '</TR>'.LF;
    $out .= '<TR>'.LF;
    $out .= '<TD>'._('Subject:').'</TD>'.LF;
-   $out .= '<TD><INPUT TYPE="text" size="50" name="subject" value="'.$msgdata[subject].'"></TD>'.LF;
+   $out .= '<TD><INPUT TYPE="text" size="50" name="subject" value="'.$msgdata['subject'].'"></TD>'.LF;
    $out .= '</TR>'.LF;
    $out .= '<TR>'.LF;
    $out .= '<TD>'._('From:').'</TD>'.LF;
-   $out .= '<TD><INPUT TYPE="text" size="50" name="from" value="'.$msgdata[sender].'"></TD>'.LF;
+   $out .= '<TD><INPUT TYPE="text" size="50" name="from" value="'.$msgdata['sender'].'"></TD>'.LF;
    $out .= '</TR>';
    $out .= '<TR>';
    $out .= '<TD>'._('Reply-To:').'</TD>'.LF;
-   $out .= '<TD><INPUT TYPE="text" size="50" name="replyto" value="'.$msgdata[replyto].'"></TD>'.LF;
+   $out .= '<TD><INPUT TYPE="text" size="50" name="replyto" value="'.$msgdata['replyto'].'"></TD>'.LF;
    $out .= '</TR>'.LF;
    $out .= '</TABLE>'.LF;
-   $out .= '<TEXTAREA name="msg" cols="80" rows="30">'.$msgdata[body].'</TEXTAREA>'.LF;
+   $out .= '<TEXTAREA name="msg" cols="80" rows="30">'.$msgdata['body'].'</TEXTAREA>'.LF;
    $out .= '<P>'.LF;
    $out .= '<input type="hidden" name="agenda" value="'.$agendaval.'">'.LF;
    $out .= '<input type="hidden" name="template" value="'.$template.'">'.LF;
-   $out .= '<input type="hidden" name="incidentid" value="'.$current[incidentid].'">'.LF;
-   $out .= '<input type="reset"  value="Reset">'.LF;
-   $out .= '<input type="submit" name="action" value="Send">'.LF;
+   $out .= '<input type="hidden" name="incidentid" value="'.$current['incidentid'].'">'.LF;
+   $out .= '<input type="reset"  value="'._('Reset').'">'.LF;
+   $out .= '<input type="submit" name="action" value="'._('Send').'">'.LF;
    print $out;
    if (sizeof($agenda) > 0) {
       print '<input type="submit" name="action" value="'._('Send and prepare next').'">'.LF;

@@ -118,7 +118,7 @@ function addUser($user) {
       db_masq_null(sha1($password))
    );
    $res = @db_query($query) or 
-   die(_('Unable to query database').' in addUser.'));
+   die(_('Unable to query database').' in addUser.');
 }
 
 /* EOF */
