@@ -33,7 +33,7 @@ if (array_key_exists('action', $_REQUEST)) {
 
 switch ($action) {
    case "none":
-      pageHeader("AIRT login page");
+      pageHeader(_('AIRT login page'));
       $out = '<form method="POST">'.LF;
       $out .= '<table>'.LF;
       $out .= '<tr>'.LF;
