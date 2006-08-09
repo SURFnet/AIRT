@@ -88,7 +88,19 @@ if (AIRT_RUN_MODE=='HTTP') {
       $_SESSION['language'] = $lang;
    }
 
-   # hoppie magic here
+   // We want locale $lang; try to get it.
+   $locale = setlocale(LC_ALL,$lang);
+   if ($locale===FALSE) {
+      // Serious problem that the system admin must fix. Bail out.
+      printf('Locale problem! Could not set up locale '%s'; please fix.<br>',
+             $lang);
+      printf('This is not an AIRT problem, but an operating system level problem.<br>');
+      exit;
+   }
+   // Successfully got the locale. Let gettext know where to find the message
+   // catalogs.
+   bindtextdomain ('airt', LIBDIR.'/locale');
+   textdomain('airt');
 
    if (!isset($public) || !$public) {
        if (!array_key_exists('username', $_SESSION)) {
