@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: AIRT\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2006-08-09 15:03+0200\n"
-"PO-Revision-Date: 2006-08-09 15:50+0100\n"
+"PO-Revision-Date: 2006-08-09 16:32+0100\n"
 "Last-Translator: Kees Leune <kees@airt.nl>\n"
 "Language-Team: AIRT <info@airt.nl>\n"
 "MIME-Version: 1.0\n"
@@ -244,7 +244,6 @@ msgstr "IP adres %ip toegevoegd aan incident met role %role"
 msgid "IP address details"
 msgstr "Details van IP adres"
 
-#, fuzzy
 msgid "Details of IP address %ip updated; const=%const, addressrole=%role"
 msgstr "Details van IP adres %ip bijgewerkt; const=%const, adresrol=%role"
 
@@ -286,131 +285,131 @@ msgid "Unable to query incident statuses."
 msgstr "Niet in staat om incidentstatussen op te vragen"
 
 msgid "USER ERROR: Must select one or more recipients for mail."
-msgstr ""
+msgstr "Gebruikersfout: Verplicht om één of meer ontvangers voor e-mail aan te geven."
 
 msgid "Unknown action"
-msgstr ""
+msgstr "Onbekende actie"
 
 msgid "Unable to query database."
-msgstr ""
+msgstr "Niet in staat om gegevensbestand te bevragen."
 
 msgid "Label"
-msgstr ""
+msgstr "Label"
 
 msgid "Description"
-msgstr ""
+msgstr "Omschrijving"
 
 msgid "Entry is default"
-msgstr ""
+msgstr "Keuze is standaard"
 
 msgid "Incident states"
-msgstr ""
+msgstr "Incidenttoestanden"
 
 msgid "Unable to execute query 1"
-msgstr ""
+msgstr "Niet in staat om vraag 1 uit te voeren"
 
 msgid "Short description"
-msgstr ""
+msgstr "Beknopte omschrijving"
 
 msgid "Is default"
-msgstr ""
+msgstr "Is standaardkeuze"
 
 msgid "Delete"
-msgstr ""
+msgstr "Verwijderen"
 
 #, php-format
 msgid "delete"
-msgstr ""
+msgstr "verwijderen"
 
 msgid "New incident state"
-msgstr ""
+msgstr "Nieuwe incidenttoestand"
 
 msgid "Edit incident state"
-msgstr ""
+msgstr "Incidenttoestand bewerken"
 
 msgid "Unable to execute query 4."
-msgstr ""
+msgstr "Niet in staat om vraag 4 uit te voeren."
 
 msgid "Unable to excute query 2."
-msgstr ""
+msgstr "Niet in staat om vraag 2 uit te voeren."
 
 msgid "Unable to excute query 3."
-msgstr ""
+msgstr "Niet in staat om vraag 3 uit te voeren."
 
 msgid "Incident status"
-msgstr ""
+msgstr "Incidentstatus"
 
 msgid "New incident status"
-msgstr ""
+msgstr "Nieuwe incidentstatus"
 
 msgid "Edit incident status"
-msgstr ""
+msgstr "Incidentstatus bewerken"
 
 msgid "Unable to execute query 2."
-msgstr ""
+msgstr "Niet in staat om vraag 2 uit te voeren."
 
 msgid "Unable to execute query  3."
-msgstr ""
+msgstr "Niet in staat om vraag 3 uit te voeren."
 
 msgid "Incident types"
-msgstr ""
+msgstr "Incidentsoorten"
 
 msgid "AIRT Control Center"
-msgstr ""
+msgstr "AIRT beheerscentrum"
 
 msgid "Welcome %username. Your last login was at %lastdb from %hostname."
-msgstr ""
+msgstr "Welkom %username. U meldde u de laatste keer aan op %lastdb vanaf %hostname"
 
 msgid "Do not display"
-msgstr ""
+msgstr "Niet weergeven"
 
 msgid "Main menu links"
-msgstr ""
+msgstr "Hoofdmenuverbindingen"
 
 msgid "Menu item"
-msgstr ""
+msgstr "Menu-element"
 
 msgid "Position"
-msgstr ""
+msgstr "Positie"
 
 msgid "Update main menu"
-msgstr ""
+msgstr "Hoofdmenu bijwerken"
 
 msgid "Navbar links"
-msgstr ""
+msgstr "Navigatiebalkverwijzingen"
 
 msgid "Update navigation bar"
-msgstr ""
+msgstr "Navigatiebalk bijwerken"
 
 msgid "Add new menu item"
-msgstr ""
+msgstr "Menu-element toevoegen"
 
 msgid "URL"
-msgstr ""
+msgstr "URL"
 
 msgid "Links"
-msgstr ""
+msgstr "Verbindingen"
 
 msgid "Unable to insert URL"
-msgstr ""
+msgstr "Niet in staat om URL toe te voegen"
 
 msgid "Unable to delete URL"
-msgstr ""
+msgstr "Niet in staat om URL te verwijderen"
 
 msgid "Unable to retrieve URL"
-msgstr ""
+msgstr "Niet in staat om URL op te halen"
 
 msgid "Incorrect row id"
-msgstr ""
+msgstr "Onjuiste rij-identificatie"
 
 msgid "Unable to update URL"
-msgstr ""
+msgstr "Niet in staat om URL bij te werken"
 
 msgid "Menu updated."
-msgstr ""
+msgstr "Menu bijgewerkt."
 
 msgid "Navigation bar updated."
-msgstr ""
+msgstr "Navigatiebalk bijgewerkt"
 
 msgid "Login"
 msgstr "Gebruikersnaam"
@@ -428,132 +427,135 @@ msgid "This is free software, and you are welcome to redistribute it under certa
 msgstr ""
 
 msgid "Permission denied."
-msgstr ""
+msgstr "Toestemming geweigerd."
 
 msgid "Username and/or password incorrect."
-msgstr ""
+msgstr "Gebruikersnaam en/of wachtwoord onjuist."
 
 msgid "Unknown action."
-msgstr ""
+msgstr "Onbekende bewerking"
 
 msgid "You have been logged out."
-msgstr ""
+msgstr "U bent afgemeld."
 
 msgid "Click here to <a href=\"login.php\">log in again</a>."
-msgstr ""
+msgstr "Klik hier om <a href=\"login.php\">opnieuw in te loggen</a>."
 
 msgid "Available mail templates"
-msgstr ""
+msgstr "Beschikbare e-mailsjablonen"
 
 msgid "Create a new message"
-msgstr ""
+msgstr "Creëer een nieuw bericht"
 
 msgid "Edit mail template"
-msgstr ""
+msgstr "E-mailsjabloon bewerken"
 
 #, php-format
 msgid "Template not available."
-msgstr ""
+msgstr "Sjabloon is niet beschikbaar."
 
 msgid ""
 "Update the template and press the \"Save!\" button to save it. The first\n"
 "line of the message will be used as the subject. You may use the following\n"
 "special variables in the template:"
 msgstr ""
+"Werk het sjabloon bij, en druk op de \"Bijwerken!\"-knop om te bewaren.\n"
+"De eerste regel van het bericht zal als onderwerp gebruikt worden.\n"
+"U kunt de volgende speciale variabelen gebruiken in het sjabloon:"
 
 msgid "Automatically change settings after mail based on this template is sent:"
-msgstr ""
+msgstr "Automatisch instellingen bijwerken nadat e-mail verstuurd is op basis van dit sjabloon:"
 
 msgid "Do not update"
-msgstr ""
+msgstr "Niet bijwerken"
 
 msgid "State"
-msgstr ""
+msgstr "Toestand"
 
 msgid "New mail template"
-msgstr ""
+msgstr "Nieuw e-mailsjabloon"
 
 msgid "Enter your new template in the text field below. Use the following variables in your text body:"
-msgstr ""
+msgstr "Voer uw nieuwe e-mailsjabloon in, in onderstaand tekstveld. Gebruik de volgende variabelen in uw bericht:"
 
 msgid "Template name"
-msgstr ""
+msgstr "Naam van sjabloon"
 
 msgid "Message"
-msgstr ""
+msgstr "Bericht"
 
 msgid "Save!"
-msgstr ""
+msgstr "Bewaren!"
 
 msgid "Cancel!"
-msgstr ""
+msgstr "Annuleren!"
 
 msgid "Send"
-msgstr ""
+msgstr "Verzenden"
 
 msgid "Send and prepare next"
-msgstr ""
+msgstr "Verzenden en volgende voorbereiden"
 
 msgid "Empty recipient?"
-msgstr ""
+msgstr "Lege ontvanger?"
 
 msgid "Empty message body?"
-msgstr ""
+msgstr "Leeg bericht?"
 
 msgid "Unable to read signed message."
-msgstr ""
+msgstr "Niet in staat om ondertekend bericht te lezen."
 
 msgid "Digital signature"
-msgstr ""
+msgstr "Digitale handtekening"
 
 msgid "Error sending message!"
-msgstr ""
+msgstr "Fout bij het versturen van het bericht!"
 
 #, php-format
 msgid "Email sent to %s: %s"
-msgstr ""
+msgstr "E-mail verstuurd aan %s: %s"
 
 #, php-format
 msgid "Type updated to %s"
-msgstr ""
+msgstr "Soort bijgewerkt naar: %s"
 
 #, php-format
 msgid "Status updated to %s"
-msgstr ""
+msgstr "Status bijgewerkt naar %s"
 
 #, php-format
 msgid "State updated to %s"
-msgstr ""
+msgstr "Toestand bijgewerkt naar %s"
 
 msgid "AIRT Maintenance Center"
-msgstr ""
+msgstr "AIRT onderhoudsbureau"
 
 msgid "User management"
-msgstr ""
+msgstr "Gebruikersbeheer"
 
 msgid "Edit users"
-msgstr ""
+msgstr "Bewerk gebruikers"
 
 msgid "Incident management"
-msgstr ""
+msgstr "Incidentbeheer"
 
 msgid "Edit incident states"
-msgstr ""
+msgstr "Incidenttoestanden bewerken"
 
 msgid "Edit incident statuses"
-msgstr ""
+msgstr "Incidentstatussen bewerken"
 
 msgid "Edit incident types"
-msgstr ""
+msgstr "Incidentsoorten bewerken"
 
 msgid "Edit standard messages"
-msgstr ""
+msgstr "E-mailsjablonen bewerken"
 
 msgid "Network management"
-msgstr ""
+msgstr "Netwerkbeheer"
 
 msgid "Edit networks"
-msgstr ""
+msgstr "Netwerken bewerken"
 
 msgid "Edit constituencies"
 msgstr ""
@@ -562,407 +564,407 @@ msgid "Edit constituency contacts"
 msgstr ""
 
 msgid "Appearance"
-msgstr ""
+msgstr "Vormgeving"
 
 msgid "Edit main menu links"
-msgstr ""
+msgstr "Hoofdmenuverwijzingen bijwerken"
 
 msgid "Network Address"
-msgstr ""
+msgstr "Netwerkadres"
 
 msgid "Netmask or CIDR"
-msgstr ""
+msgstr "Netmasker of CIDR"
 
 msgid "Constituency"
 msgstr ""
 
 msgid "Networks"
-msgstr ""
+msgstr "Netwerken"
 
 msgid "Network"
-msgstr ""
+msgstr "Netwerk"
 
 msgid "New network"
-msgstr ""
+msgstr "Nieuw netwerk"
 
 msgid "Edit Network"
-msgstr ""
+msgstr "Netwerk bewerken"
 
 msgid "Search for:"
-msgstr ""
+msgstr "Zoek naar:"
 
 msgid "Search"
-msgstr ""
+msgstr "Zoeken"
 
 msgid "Hostname"
-msgstr ""
+msgstr "Machinenaam"
 
 msgid "Incident"
 msgstr ""
 
 msgid "Mask"
-msgstr ""
+msgstr "Masker"
 
 msgid "Email"
-msgstr ""
+msgstr "E-mail"
 
 msgid "Detailed information for host "
-msgstr ""
+msgstr "Gedetailleerde informatie over machine"
 
 msgid "Search results for the following host:"
-msgstr ""
+msgstr "Zoekresultaten over machine:"
 
 msgid "IP Address"
-msgstr ""
+msgstr "IP adres"
 
 msgid "Constituency Contacts"
 msgstr ""
 
 msgid "Previous incidents"
-msgstr ""
+msgstr "Eerdere incidenten"
 
 msgid "Unable to query."
-msgstr ""
+msgstr "Niet in staat om vraag te stellen."
 
 msgid "Incident ID"
-msgstr ""
+msgstr "Incidentidentificatie"
 
 msgid "Created"
-msgstr ""
+msgstr "Aangemaakt"
 
 msgid "No previous incidents"
-msgstr ""
+msgstr "Geen eerdere incidenten"
 
 msgid "Search results"
-msgstr ""
+msgstr "Zoekresultaten"
 
 msgid "No results matched your query."
-msgstr ""
+msgstr "Geen resultaten voor uw vraag"
 
 msgid "Research results for incident = "
-msgstr ""
+msgstr "Onderzoeksresultaten van incidenten ="
 
 msgid "Incidentid"
-msgstr ""
+msgstr "Incidentidentificatie"
 
 msgid "Additional identifiers"
-msgstr ""
+msgstr "Aanvullende identificaties"
 
 msgid "No incidents within this range"
-msgstr ""
+msgstr "Geen incidenten in deze omgeving"
 
 msgid "is not a correct netmask, 123.45.67.89/22 for instance is"
-msgstr ""
+msgstr "is geen correct netmasker, 123.45.67.89/22 bijvoorbeeld wel"
 
 msgid "User"
-msgstr ""
+msgstr "Gebruiker"
 
 msgid "Unknown query type"
-msgstr ""
+msgstr "Onbekende soort vraag"
 
 msgid "New Search"
-msgstr ""
+msgstr "Nieuwe zoekopdracht"
 
 msgid "Incident type/Constituency matrix"
 msgstr ""
 
 #, php-format
 msgid "Printing from %startdate until %enddate."
-msgstr ""
+msgstr "Afdrukken van %startdate tot en met %enddate."
 
 msgid "Sum"
-msgstr ""
+msgstr "Som"
 
 msgid "Incidents without IP addresses"
-msgstr ""
+msgstr "Incidenten zonder IP adressen"
 
 msgid "Date"
-msgstr ""
+msgstr "Datum"
 
 msgid "Unknown"
-msgstr ""
+msgstr "Onbekend"
 
 msgid "January"
-msgstr ""
+msgstr "januari"
 
 msgid "February"
-msgstr ""
+msgstr "februari"
 
 msgid "March"
-msgstr ""
+msgstr "maart"
 
 msgid "April"
-msgstr ""
+msgstr "april"
 
 msgid "May"
-msgstr ""
+msgstr "mei"
 
 msgid "June"
-msgstr ""
+msgstr "juni"
 
 msgid "July"
-msgstr ""
+msgstr "juli"
 
 msgid "August"
-msgstr ""
+msgstr "augustus"
 
 msgid "September"
-msgstr ""
+msgstr "september"
 
 msgid "October"
-msgstr ""
+msgstr "oktober"
 
 msgid "November"
-msgstr ""
+msgstr "november"
 
 msgid "December"
-msgstr ""
+msgstr "december"
 
 msgid "Incident statistics"
-msgstr ""
+msgstr "Incidentstatistieken"
 
 msgid ""
 "Please select the reporting period of which you would like to see statistics. (note; the start date and the end date are included in the\n"
 "report."
-msgstr ""
+msgstr "Kies de rapportageperiode waarover u statistieken wenst te zien. (let op: de startdatum en de eindatum worden opgenomen in het rapport)"
 
 msgid "Start date (day-month-year)"
-msgstr ""
+msgstr "Begindatum (dag-maand-jaar)"
 
 msgid "Select day"
-msgstr ""
+msgstr "Kies dag"
 
 msgid "Select month"
-msgstr ""
+msgstr "Kies maand"
 
 msgid "End date (day-month-year)"
-msgstr ""
+msgstr "Einddatum (dag-maand-jaar)"
 
 msgid "Show statistics"
-msgstr ""
+msgstr "Toon statistieken"
 
 msgid "Organizational user id"
-msgstr ""
+msgstr "Organisatie-identificatie"
 
 msgid "Last name"
-msgstr ""
+msgstr "Achternaam"
 
 msgid "First name"
-msgstr ""
+msgstr "Voornaam"
 
 msgid "Email address"
-msgstr ""
+msgstr "E-mailadres"
 
 msgid "Phone number"
-msgstr ""
+msgstr "Telefoonnummer"
 
 msgid "Confirm password"
-msgstr ""
+msgstr "Bevestig wachtwoord"
 
 msgid "AIRT users"
-msgstr ""
+msgstr "AIRT gebruikers"
 
 msgid "User id"
-msgstr ""
+msgstr "Gebruikersidentificatie"
 
 msgid "Phone"
-msgstr ""
+msgstr "Telefoon"
 
 #, php-format
 msgid "Are you sure that you want to delete %s?"
-msgstr ""
+msgstr "Weet u zeker dat u %s wilt verwijderen?"
 
 msgid "New user"
-msgstr ""
+msgstr "Nieuwe gebruiker"
 
 msgid "Missing information (4)."
-msgstr ""
+msgstr "Ontbrekende informatie (4)."
 
 msgid "Missing information (5)."
-msgstr ""
+msgstr "Ontbrekende informatie (5)."
 
 msgid "Error"
-msgstr ""
+msgstr "Fout"
 
 msgid "The passwords that you provided do not match."
-msgstr ""
+msgstr "De wachtwoorden die u heeft verstrekt stemmen niet overeen."
 
 msgid "Please use your browser's back button to correct the problem and resend the form."
-msgstr ""
+msgstr "Gebruik uw webbladerprogramma's terugtoets om het probleem te corrigeren en opnieuw te versturen."
 
 msgid "Missing information(A)"
-msgstr ""
+msgstr "Ontbrekende informatie (A)"
 
 msgid "Error removing user."
-msgstr ""
+msgstr "Fout bij verwijderen van gebruiker"
 
 msgid "Unable to remove this user from the database."
-msgstr ""
+msgstr "Niet in staat gebruiker uit het gegevensbestand te verwijderen."
 
 msgid "The most likely cause for this failure is that the user is associated with one or more incidents."
-msgstr ""
+msgstr "De meest waarschijnlijke oorzaak is dat de gebruiker nog is geassocieerd met een bestaand incident."
 
 msgid "continue"
-msgstr ""
+msgstr "doorgaan"
 
 msgid "Edit user information"
-msgstr ""
+msgstr "Gebruikersinformatie bewerken"
 
 msgid "Unable to connect to database."
-msgstr ""
+msgstr "Kan gegevensbestand niet benaderen"
 
 msgid "Expected database version: "
-msgstr ""
+msgstr "Verwachte versie van gegevensbestand:"
 
 msgid "Actual database version:   "
-msgstr ""
+msgstr "Huidige versie van gegevensbestand:  "
 
 msgid "Cannot continue, needs database update first."
-msgstr ""
+msgstr "Kan niet doorgaan. Het gegevensbestand moet eerst worden bijgewerkt."
 
 #, php-format
 msgid "Your session has expired. Please "
-msgstr ""
+msgstr "Uw sessie is verlopen. Alstublieft"
 
 #, php-format
 msgid "log in again"
-msgstr ""
+msgstr "opnieuw aanmelden"
 
 #, php-format
 msgid "Unknown fetch source type '%s'. Script terminated."
-msgstr ""
+msgstr "Onbekende bronsoort '%s'. Draaiboek beëindigd."
 
 msgid "Jan"
-msgstr ""
+msgstr "jan"
 
 msgid "Jul"
-msgstr ""
+msgstr "jul"
 
 msgid "Feb"
-msgstr ""
+msgstr "feb"
 
 msgid "Aug"
-msgstr ""
+msgstr "aug"
 
 msgid "Mar"
-msgstr ""
+msgstr "maa"
 
 msgid "Sep"
-msgstr ""
+msgstr "sep"
 
 msgid "Apr"
-msgstr ""
+msgstr "apr"
 
 msgid "Oct"
-msgstr ""
+msgstr "okt"
 
 msgid "Nov"
-msgstr ""
+msgstr "nov"
 
 msgid "Jun"
-msgstr ""
+msgstr "jun"
 
 msgid "Dec"
-msgstr ""
+msgstr "dec"
 
 msgid "Invalid login!"
-msgstr ""
+msgstr "Ongeldige gebruikersnaam!"
 
 msgid "Incorrect login!"
-msgstr ""
+msgstr "Foute gebruikersnaam!"
 
 msgid "No contacts."
-msgstr ""
+msgstr "Geen contactpersonen."
 
 msgid "Name"
-msgstr ""
+msgstr "Naam"
 
 msgid "PHP seems not to have been compiled with PostgreSQL support."
-msgstr ""
+msgstr "PHP is niet gecompileerd met PostgreSQL ondersteuning."
 
 msgid "AIRT Unknown error %errno: %info in scope %scope"
-msgstr ""
+msgstr "AIRT onbekende fout %errno: %info in regio %scope"
 
 msgid "error"
-msgstr ""
+msgstr "fout"
 
 msgid "Task export program, part of the AIRT suite."
-msgstr ""
+msgstr "Taak exportprogramma, onderdeel van AIRT"
 
 msgid "Copyright (C) 2006   Tilburg University, The Netherlands."
 msgstr ""
 
 msgid "Usage: airt_export [--help] [--noqueue] [--verbose] [--purge]"
-msgstr ""
+msgstr "Gebruik: airt_export [--help] [--noqueue] [--verbose] [--purge]"
 
 msgid "\"message here\""
-msgstr ""
+msgstr "\"plaats bericht hier\""
 
 msgid "Available wrappers"
-msgstr ""
+msgstr "Beschikbare verpakkingen"
 
 msgid "%task is not executable."
-msgstr ""
+msgstr "%task kan niet worden uitgevoerd."
 
 msgid "Could not fork."
-msgstr ""
+msgstr "Kon niet afsplitsen"
 
 msgid "ERROR: Could not detach from terminal"
-msgstr ""
+msgstr "FOUT: Kon niet loskoppelen van terminal"
 
 msgid "ERROR: Entered the twilight zone!?"
-msgstr ""
+msgstr "FOUT: De schemerzone binnengegaan?"
 
 msgid "Refresh this page"
-msgstr ""
+msgstr "Vernieuw deze pagina"
 
 msgid "ERROR:"
-msgstr ""
+msgstr "FOUT:"
 
 msgid "No items in export queue."
-msgstr ""
+msgstr "Geen elementen in de uitvoerrij."
 
 msgid "ID"
-msgstr ""
+msgstr "Identificatie"
 
 msgid "Task"
-msgstr ""
+msgstr "Taak"
 
 msgid "Scheduled"
-msgstr ""
+msgstr "Gepland"
 
 msgid "Started"
-msgstr ""
+msgstr "Begonnen"
 
 msgid "Ended"
-msgstr ""
+msgstr "Beëindigd"
 
 msgid "Result"
-msgstr ""
+msgstr "Resultaat"
 
 msgid "Task parameters"
-msgstr ""
+msgstr "Taak parameters"
 
 msgid "Are you sure that you want to delete this queue entry?"
-msgstr ""
+msgstr "Weet u zeker dat u dit element uit de wachtrij wilt verwijderen?"
 
 msgid "Add a new task to the queue"
-msgstr ""
+msgstr "Voeg een nieuwe taak toe aan de wachtrij"
 
 msgid "Run Now"
-msgstr ""
+msgstr "Voer nu uit"
 
 msgid "Run in one hour"
-msgstr ""
+msgstr "Voor over een uur uit"
 
 msgid "Run in two hours"
-msgstr ""
+msgstr "Voer over twee uur uit"
 
 msgid "Run in five hours"
-msgstr ""
+msgstr "Voer over vijf uur uit"
 
 msgid "Add Task"
-msgstr ""
+msgstr "Taak toevoegen"
 
 msgid ""
 "For the exact functionality of the available tasks and\n"
@@ -970,49 +972,49 @@ msgid ""
 msgstr ""
 
 msgid "Could not query database for all tasks."
-msgstr ""
+msgstr "Kon niet alle taken uit het gegevensbestand opvragen"
 
 msgid "Could not query database for tasks to run."
-msgstr ""
+msgstr "Kon geen uitvoerbare taken uit gegevensbestand opvragen."
 
 msgid "Could not get next exportqueue item ID."
-msgstr ""
+msgstr "Kon volgende uitvoerrijelement niet ophalen"
 
 msgid "Could not insert queue item."
-msgstr ""
+msgstr "Kon geen nieuw element aan de rij toevoegen"
 
 msgid "Could not remove task from queue."
-msgstr ""
+msgstr "Kon geen taak uit de rij verwijderen"
 
 msgid "Not yet implemented."
-msgstr ""
+msgstr "Niet niet geïmplementeerd"
 
 msgid "taskID must be a number."
-msgstr ""
+msgstr "taakidentificatie moet een nummer zijn"
 
 msgid "Could not query database."
-msgstr ""
+msgstr "Kon gegevensbestand niet bevragen."
 
 msgid "Task %id unknown in export queue."
-msgstr ""
+msgstr "Taak %id niet bekend in uitvoerrij"
 
 msgid "Task %id already started."
-msgstr ""
+msgstr "Taak %id is al begonnen."
 
 msgid "Task %id has already completed."
-msgstr ""
+msgstr "Taak %id is al afgerond."
 
 msgid "Could not update database."
-msgstr ""
+msgstr "Kon gegevensbestand niet bijwerken."
 
 msgid "Task %id not started yet."
-msgstr ""
+msgstr "Taak %id nog niet begonnen."
 
 msgid "maxHours must be a number."
-msgstr ""
+msgstr "maxUren moet een nummer zijn"
 
 msgid "Could not purge export queue."
-msgstr ""
+msgstr "Kon uitvoerrij niet leegmaken"
 
 msgid "Incidence import program, part of the AIRT suite."
 msgstr ""
@@ -1044,82 +1046,82 @@ msgid "Unable to query database in importqueue.plib:"
 msgstr ""
 
 msgid "No items pending"
-msgstr ""
+msgstr "Geen elementen in bewerking"
 
 msgid "Decision"
-msgstr ""
+msgstr "Beslissing"
 
 msgid "Sender"
-msgstr ""
+msgstr "Verzender"
 
 msgid "Details"
-msgstr ""
+msgstr "Details"
 
 msgid "Accept"
-msgstr ""
+msgstr "Accepteren"
 
 msgid "Reject"
-msgstr ""
+msgstr "Weigeren"
 
 msgid "Do nothing"
-msgstr ""
+msgstr "Niets doen"
 
 msgid "Show incident details in new browser window"
-msgstr ""
+msgstr "Toon incidentdetails in nieuw scherm"
 
 msgid "details"
-msgstr ""
+msgstr "details"
 
 msgid "  Add to %id"
-msgstr ""
+msgstr " Toevoegen aan %id"
 
 msgid "Missing key for authentication"
-msgstr ""
+msgstr "Ontbrekende sleutel voor vaststellen identiteit\" "
 
 msgid "Missing parameter id"
-msgstr ""
+msgstr "Ontbrekende parameter id"
 
 msgid "Empty parameter"
-msgstr ""
+msgstr "Lege parameter"
 
 msgid "Cannot get next queue item ID"
-msgstr ""
+msgstr "Kan identificatie van volgend rijelement niet ophalen"
 
 msgid "Could not insert new queue item"
-msgstr ""
+msgstr "Kan geen nieuw rijelement invoegen"
 
 msgid "Unable to query database in "
-msgstr ""
+msgstr "Niet in staat om gegevensbestand te bevragen in"
 
 msgid "Request for invalid queue item"
-msgstr ""
+msgstr "Verzoek voor ongeldig rijelement"
 
 msgid "Not yet implemented"
-msgstr ""
+msgstr "Nog niet geïmplementeerd"
 
 msgid "Invalid cache data"
-msgstr ""
+msgstr "Ongeldige cache informatie"
 
 msgid "Invalid XML (no logging)"
 msgstr ""
 
 msgid "Unable to match users to incident."
-msgstr ""
+msgstr "Kan gebruiker net met incident associëren"
 
 msgid "Could not add IP to incident"
-msgstr ""
+msgstr "Kon IP adres met incident associëren"
 
 msgid "unkown"
-msgstr ""
+msgstr "onbekend"
 
 msgid "unknown"
-msgstr ""
+msgstr "onbekend"
 
 msgid "Incident type"
-msgstr ""
+msgstr "incidentsoort"
 
 msgid "Incident state"
-msgstr ""
+msgstr "incidenttoestand"
 
 msgid "Date of incident"
 msgstr "Datum van incident"
