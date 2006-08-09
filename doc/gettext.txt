@@ -1,0 +1,77 @@
+// vim: textwidth=60
+$Id$
+$URL$
+
+AIRT has support for multiple languages as of version
+20060809.1. AIRT's multilingual support was implemented
+using GNU's gettext tools.
+
+1. How does it work?
+
+   There are two ways that you can configure AIRT for
+   multilingual support. The first is a new configuration
+   option in airt.cfg, which will set the default language
+   for all users who have not set their personal preferences
+   yet. The second is a new field associated with each user
+   in which the default language can be overridden for
+   individual preferences.
+
+2. Setting the global default.
+
+   Edit 'airt.cfg' and set the value of
+     $SETTINGS['defaultlanguage'] 
+   to your preferred language. Please use the language code,
+   such as 'nl' for Dutch, or 'en' for English.
+
+3. Setting a user's preferred language.
+
+   Log in to AIRT and select Settings > Edit users. You will
+   now see a drop-down menu for selecting the language.
+
+4. Translating AIRT to your own language.
+
+   To translate AIRT to your own language, there are two
+   options. The first is to mail info@airt.nl and indicate
+   that you are willing to translate. We will send you a
+   .po-file that you can edit with GNU tools. When you are
+   done, we'll send it back and update the next release.
+
+   The other option is to check out AIRT's source via
+   Subversion, or unpack the distribution tarball. In the
+   po/ directory, follow the following instructions:
+
+   $ touch de.po
+   $ make messages
+
+   This will extract all AIRT strings. After you are done
+   translating, please send us the updated .po file, and
+   we'll make sure it gets distributed with the next
+   version.
+
+5. Troubleshooting
+
+   GNU Gettext relies on your operating system's settings.
+   AIRT's translations will only work when gettext is
+   properly installed. On Debian-based systems (such as
+   Sarge, Etch, but also Ubuntu), please make sure that the
+   'locales' package is installed. You can do this by giving
+   the command
+
+   $ dpkg -l locales
+
+   If the output begins with 'ii' (like below), proceed with
+   the next step.
+
+    ||/ Name               Version       Description
+    +++-=================-==============-===============================
+    ii  locales            2.3.18         common files for locale support
+
+    make sure that your locale is defined. On pure Debian
+    systems, this means ensuring that the locale of your
+    choice is listed in /etc/locale.gen.
+
+    Note that if you change any of the OS-level locale
+    settings, chances are pretty high that you'll have to
+    let your web server known about it.
+
+EOF
