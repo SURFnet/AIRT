@@ -70,7 +70,11 @@ if (AIRT_RUN_MODE=='HTTP') {
 
    // set default in session
    if (!array_key_exists('language', $_SESSION)) {
-      $lang = DEFAULTLANGUAGE;
+      if (defined('DEFAULTLANGUAGE')) {
+         $lang = DEFAULTLANGUAGE;
+      } else {
+         $lang = 'en';
+      }
       $userid = fetchFrom('SESSION', 'userid');
       if ($userid != '') {
          $user = getUserByUserID($userid);
@@ -78,7 +82,7 @@ if (AIRT_RUN_MODE=='HTTP') {
             $lang = $user['language'];
          }
       }
-      $_SESSION['language'] = $language;
+      $_SESSION['language'] = $lang;
    }
 
    # hoppie magic here

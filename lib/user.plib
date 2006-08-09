@@ -23,7 +23,7 @@ require_once LIBDIR."/database.plib";
 
 function _getUser($criteria, $value) {
    $res = db_query(sprintf("
-      SELECT id, lastname, firstname, email, phone, userid, login
+      SELECT id, lastname, firstname, email, phone, userid, login, language
       FROM   users
       WHERE  %s=%s", $criteria, $value))
    or die(_('Unable to query database.'));
@@ -91,6 +91,11 @@ function addUser($user) {
    } else {
       $userid = '';
    }
+   if (array_key_exists('language', $user)) {
+      $language=$user['language'];
+   } else {
+      $language = '';
+   }
    if (array_key_exists('password', $user)) {
       $password=$user['password'];
    } else {
@@ -99,16 +104,17 @@ function addUser($user) {
 
    $query = sprintf("
       INSERT INTO users
-      (id, lastname, firstname, email, phone, login, userid,
+      (id, lastname, firstname, email, phone, login, userid, language,
       password)
       VALUES
-      (nextval('users_sequence'), %s, %s, %s, %s, %s, %s, %s)",
+      (nextval('users_sequence'), %s, %s, %s, %s, %s, %s, %s, %s)",
       db_masq_null($lastname),
       db_masq_null($firstname),
       db_masq_null($email),
       db_masq_null($phone),
       db_masq_null($login),
       db_masq_null($userid),
+      db_masq_null($language),
       db_masq_null(sha1($password))
    );
    $res = @db_query($query) or 

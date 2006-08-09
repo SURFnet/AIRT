@@ -61,7 +61,7 @@
         }
     }
     if (array_key_exists('language', $_SESSION)) {
-       $lang = $_SESSION['lang'];
+       $lang = $_SESSION['language'];
     } elseif (defined('DEFAULTLANGUAGE')) {
        $lang = DEFAULTLANGUAGE;
     } else {
@@ -204,6 +204,9 @@
 
         if (array_key_exists("userid", $_POST)) $userid=$_POST["userid"];
         else $userid="";
+        
+        if (array_key_exists("language", $_POST)) $language=$_POST["language"];
+        else $language="";
 
         if (array_key_exists("id", $_POST)) $id=$_POST["id"];
         else $id="";
@@ -242,9 +245,13 @@
             "phone" => $phone,
             "login" => $login,
             "userid" => $userid,
-            "password" => $password
+            "password" => $password,
+            "language"=> $language
             ));
 
+            if ($userid == $_SESSION['userid']) {
+               @session_destroy();
+            }
             Header("Location: $_SERVER[PHP_SELF]");
         }
 
@@ -272,13 +279,15 @@
                        email=%s,
                        phone=%s,
                        login=%s,
-                       userid=%s",
+                       userid=%s,
+                       language=%s",
                     db_masq_null($lastname),
                     db_masq_null($firstname),
                     db_masq_null($email),
                     db_masq_null($phone),
                db_masq_null($login),
                db_masq_null($userid),
+               db_masq_null($language),
                     $id);
          if ($password != "") {
                 $query=sprintf("
