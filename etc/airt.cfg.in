@@ -55,6 +55,8 @@ function setup() {
    // directory for short-lived temporary files
    $SETTINGS['tmpdir'] = '/tmp';
 
+   // default language
+   $SETTINGS['defaultlanguage'] = 'en';
 
    /**** 2. EMAIL SETTINGS *****/
    // sender-from in standard emails. 

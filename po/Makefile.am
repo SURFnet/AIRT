@@ -18,20 +18,31 @@
 # $Id: Makefile.am 947 2006-08-07 09:04:35Z kees $
 
 #
-files = nl.mo en.mo
-install: $(files)
-	for i in $(files); do\
+scriptdir=@AIRT_PHPLIBDIR@/locale
+script_DATA= nl.mo en.mo
+pofiles = $(wildcard *.po)
+
+install: $(script_DATA)
+	for i in $(script_DATA); do\
 	  basename=`echo $$i | sed 's|\.mo||g'`;\
-	  $(install_sh_DATA) $$i $(AIRT_PHPLIBDIR)/locale/$$basename/LC_MESSAGES;\
+		$(mkinstalldirs) $(scriptdir)/$$basename/LC_MESSAGES;\
+	  $(install_sh_DATA) $$i $(scriptdir)/$$basename/LC_MESSAGES;\
+		rm -f $(scriptdir)/$$i;\
 	done
 
 messages: FORCE
-	xgettext --language=PHP --join-existing --no-location --output=$@ \
-	../php/*.php ../lib/*.plib
+	for i in $(pofiles); do\
+	  xgettext --language=PHP --join-existing --no-location --output=$$i \
+	  ../php/*.php ../lib/*.plib;\
+	done
 
 %.mo: %.po
 	msgfmt -o $@ $<
 
 FORCE:
 
-EXTRA_DIST = *.po
+EXTRA_DIST = $(pofiles) $(script_DATA)
+
+CLEANFILES=$(script_DATA)
+
+DISTCLEANFILES=$(CLEANFILES)
