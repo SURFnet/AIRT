@@ -6,24 +6,16 @@ This document describes how to prepare a release of AIRT
 Creating the source tarball
 ===========================
 * Update $AIRT/source/VERSION.m4 with the new version number
-* Update CHANGES with modify the database version with the same number
-* Copy the file appropriately and update $AIRT/doc/database/Makefile.am
 * Update $AIRT/source/CHANGES to relect the same version number
+* Update doc/database/00-CHANGES.sql and modify the database version 
+  with the same number
+* Copy the file appropriately and update $AIRT/doc/database/Makefile.am
 * make clean && make distcheck
 
 You now have a tarball.
 
-Creating the Subversion Branch
-==============================
-* mkdir branches/new-version
-* svn add branches/new-version
-* svn copy trunk/package branches/new-version
-* svn copy trunk/source branches/new-version
-* svn commit -m 'new release' branches/new-version
-
 Creating the Debian package
 ===========================
-
 * in package/, give the command "dch --newversion=VERSION-REVISION" and edit
   the changelog. Be terse in the changes, but summarize them well. The point of
   changelog is to allow other admins to decide if they want the upgrade, or
@@ -34,6 +26,14 @@ Creating the Debian package
 * cd into the new directory and mkdir debian
 * cp $AIRT/package/debian/* debian
 * run 'debuild' and make sure that lintian does not complain about anything
+
+Creating the Subversion Branch
+==============================
+* mkdir branches/new-version
+* svn add branches/new-version
+* svn copy trunk/package branches/new-version
+* svn copy trunk/source branches/new-version
+* svn commit -m 'new release' branches/new-version
 
 Testing
 =======
