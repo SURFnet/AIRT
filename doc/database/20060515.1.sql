@@ -1,4 +1,4 @@
--- $Id: 00-CHANGES.sql 888 2006-05-12 07:10:33Z kees $
+-- $Id$
 -- This file contains all changes applied to the database schema since the
 -- last official release. The airtschema.sql file should always contain the
 -- database schema that results from applying all changes below.
