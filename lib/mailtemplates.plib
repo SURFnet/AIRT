@@ -293,7 +293,7 @@ function expand_template($template, $current) {
 
    // reply to (if set)
    if (defined('REPLYTO') && REPLYTO != '') {
-      $output['replyto'] = replace_vars('REPLYTO', $current);
+      $output['replyto'] = replace_vars(REPLYTO, $current);
    } else {
       $output['replyto'] = '';
    }
