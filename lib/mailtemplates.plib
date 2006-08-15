@@ -418,6 +418,11 @@ function print_variables_info() {
    $out .= '<td>'._('Will be replaced with previous incidents').'</td>'.LF;
    $out .= '</tr>'.LF;
    $out .= '<tr>'.LF;
+   $out .= '<tr>'.LF;
+   $out .= '<td>@OTHER_OPEN@</td>'.LF;
+   $out .= '<td>'._('Will be replaced with still open previous incidents in the same constituency as the current incident.').'</td>'.LF;
+   $out .= '</tr>'.LF;
+   $out .= '<tr>'.LF;
    $out .= '<td nowrap>@SUBJECT@ .. @ENDSUBJECT@</td>'.LF;
    $out .= '<td>'._('Delimits the subject line of the message').'</td>'.LF;
    $out .= '</tr>'.LF;
@@ -515,7 +520,36 @@ function replace_vars($msg, $current=array()) {
          $previous = '--';
       }
       $out = ereg_replace('@PREVIOUS@',$previous,$out);
+
+      // build a list of affected constituencies
+      $previous = '';
+      $i = getIncident($incidentid);
+      $pa = array();
+      $c = array();
+      foreach ($i['ips'] as $ip) {
+         if (array_key_exists($ip['constituency'], $c)) {
+            ;
+         } else {
+            $c[$ip['constituency']] = '';
+         }
+      }
+      // retrieve previous incidents for each constituency
+      foreach ($c as $cons=>$dummy) {
+         $pa += getIncidentsByConstituency($cons);
+      }
+      $s = getIncidentStatus();
+      foreach ($pa as $id=>$val) {
+         $i = getIncident($id);
+         if ($id == $incidentid) {
+            continue;
+         }
+         if (($i['status'] == array_search('open', $s)) !== false) {
+            $previous .= $val."\n";
+         }
+      }
+      $out = ereg_replace('@OTHER_OPEN@', trim($previous), $out);
    }
+
 
    if (isset($name)) {
       $out = ereg_replace("@USERNAME@", $name, $out);

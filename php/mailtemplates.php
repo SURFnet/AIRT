@@ -75,7 +75,7 @@ special variables in the template:').'<p>'.LF;
       $update = array();
       get_template_actions($template, $update);
       print '<P>';
-      print '<form action="'.$_SERVER[PHP_SELF].'" method="POST">'.LF;
+      print '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">'.LF;
       print '<textarea wrap name="message" cols=75 rows=20>'.$msg.'</textarea>'.LF;
       print '<P>'.LF;
       print _('Automatically change settings after mail based on this template is sent:').'<P>'.LF;
@@ -155,7 +155,7 @@ special variables in the template:').'<p>'.LF;
       $update = array('state'=>-1, 'status'=>-1, 'type'=>-1);
       print_variables_info();
       print '<P>'.LF;
-      print '<form action="'.$_SERVER[PHP_SELF].'" method="POST">'.LF;
+      print '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">'.LF;
       print _('Template name').': <input type="text" size="40" name="template">'.LF;
       print '<P>'.LF;
       print _('Message').':<BR>'.LF;
@@ -219,7 +219,12 @@ special variables in the template:').'<p>'.LF;
       } elseif (array_key_exists('incidentid', $_REQUEST)) {
          $agenda = array($_REQUEST['incidentid']);
       } else {
-         $agenda = array($_SESSION['incidentid']);
+         if (array_key_exists('incidentid', $_SESSION)) {
+            $agenda = array($_SESSION['incidentid']);
+         } else {
+            echo "No active incident.";
+            break;
+         }
       }
       if (array_key_exists('to', $_REQUEST)) {
          $to = explode(',',$_REQUEST['to']);

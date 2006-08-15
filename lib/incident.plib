@@ -888,6 +888,37 @@ function getIncidentsByIP($ip) {
 }// getIncidentsByIP
 
 
+/** Return an associative array with incident IDs that belong to the 
+ * current constituency.
+ * @param $constituencyID: the ID of a constituency
+ * @return array[incidentid]='#000132  Compromised   2005-10-11 12:12'.
+ */
+function getIncidentsByConstituency($constituencyID) {
+   if (!is_numeric($constituencyID)) {
+      return array();
+   }
+   $q = q('SELECT incident as incident,
+                t.label as type,
+                to_char(i.created, \'YYYY-MM-DD HH24:MI\') as created
+         FROM   incident_addresses a
+         LEFT JOIN incidents i ON (a.incident = i.id)
+         LEFT JOIN incident_types t ON (i.type = t.id)
+         WHERE  constituency=%consid
+         ORDER BY incident', array('%consid'=>$constituencyID));
+   $res = db_query($q);
+   if (!$res) {
+      airt_error('DB_QUERY',__FILE__.':'.__LINE__);
+      return array();
+   }
+   $out = array();
+   while ($row = db_fetch_next($res)) {
+      $out[$row['incident']] = sprintf('%s  %-15s  %s', 
+         encode_incidentID($row['incident']), $row['type'], $row['created']);
+   }
+   return $out;
+}
+
+
 /* Return an associative array with address roles.
  * Input: optionally, an array with extra address roles that are not from
  * the database. Typically, "Please select a role"-like inert selections.
