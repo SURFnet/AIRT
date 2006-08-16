@@ -19,6 +19,6 @@
 
 bindir=@AIRT_PHPLIBDIR@/export_wrappers
 
-bin_SCRIPTS = wrapper_none
+bin_SCRIPTS = wrapper_none wrapper_nmap
 
 EXTRA_DIST = $(bin_SCRIPTS)

@@ -111,7 +111,7 @@ function search_host($hostname='') {
    print _('IP Address').'          : '.$ip.LF;
    print _('Hostname').'            : '.$hostname.LF;
    print _('Network').'             : '.$netname.'(<a href="'.
-      $_SERVER[PHP_SELF].'?q='.$network.'/'.$netmask.'&action=Search&qtype=zoom">'.$network.'/'.$netmask.'</a>)'.LF;
+      $_SERVER['PHP_SELF'].'?q='.$network.'/'.$netmask.'&action=Search&qtype=zoom">'.$network.'/'.$netmask.'</a>)'.LF;
    print _('Constituency').'        : '.$consname.LF;
    print '</PRE>'.LF;
    print '<H2>'._('Constituency Contacts').'</H2>'.LF;

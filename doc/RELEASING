@@ -27,6 +27,16 @@ Creating the Debian package
 * cp $AIRT/package/debian/* debian
 * run 'debuild' and make sure that lintian does not complain about anything
 
+Creating the RPM
+=========================================
+* in source/airt.spec, update the version number
+* in source/airt.spec, add the new database file (version.sql)
+* Add any new files that you might have
+* Copy the tarball to /usr/src/rpm/SOURCES
+* Run the command:  rpmbuild -ba airt.spec
+* The package will live in /usr/src/rpm/RPMS/i386/
+  and the source package will live in  /usr/src/rpm/SRPMS
+
 Creating the Subversion Branch
 ==============================
 * mkdir branches/new-version
