@@ -117,14 +117,6 @@ function search_host($hostname='') {
    print '<H2>'._('Constituency Contacts').'</H2>'.LF;
    showConstituencyContacts($consid);
 
-   // call user-defined search function. Must print in unformatted layout
-   // additional info about hostname needed to make a decision.
-   echo "<HR>";
-   if (defined('CUSTOM_FUNCTIONS') && function_exists("search_info")) {
-      search_info($ip, $networkid);
-      echo "<HR>";
-   }
-
    // include previous incidents
    print '<h2>'._('Previous incidents').'</h2>'.LF;
    $res = db_query("
@@ -178,6 +170,17 @@ function search_host($hostname='') {
    } else {
       echo "<I>"._('No previous incidents')."</I>";
    }
+   print '<H2>'._('New Search').'</H2>'.LF;
+   showSearch($qtype);
+
+   // call user-defined search function. Must print in unformatted layout
+   // additional info about hostname needed to make a decision.
+   echo "<HR>";
+   if (defined('CUSTOM_FUNCTIONS') && function_exists("search_info")) {
+      search_info($ip, $networkid);
+      echo "<HR>";
+   }
+
 
    print '<form action="incident.php" method="POST">'.LF;
    print '<input type="hidden" name="ip" value="ip">'.LF;
@@ -599,10 +602,9 @@ switch ($action) {
       print '<input type="submit" name="action" value="'._('New incident').'">'.LF;
       print '</form>'.LF;
       print '<P>'.LF;
-      generateevent('searchoutput', array('q'=>$q));
-      print '<HR>'.LF;
       print '<H2>'._('New Search').'</H2>'.LF;
       showSearch($qtype);
+      generateevent('searchoutput', array('q'=>$q));
       pageFooter();
 
       break;
