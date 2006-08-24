@@ -1766,6 +1766,30 @@ function formatListOverviewFooter() {
    return $out;
 }
 
+
+function getFormattedBasicIncidentData($incidentid='') {
+   if (!is_numeric($incidentid)) {
+      return false;
+   }
+
+   $incident = getIncident($incidentid);
+   $out = '<h2>'._('Basic incident data').'</h2>';
+   $out .= '<table>';
+   $out .= t('<tr><td>'._('Incident ID').'</td><td>%incidentid</td></tr>', array(
+      '%incidentid'=>normalize_incidentid($incidentid)));
+   $out .= t('<tr><td>'._('Type').'</td><td>%type</td></tr>', array(
+      '%type'=>getIncidentTypeDescr($incident['type'])));
+   $out .= t('<tr><td>'._('Status').'</td><td>%status</td></tr>', array(
+      '%status'=>getIncidentStatusDescr($incident['status'])));
+   $out .= t('<tr><td>'._('State').'</td><td>%state</td></tr>', array(
+      '%state'=>getIncidentStateDescr($incident['state'])));
+   $out .= t('<tr valign="top"><td>'._('Logging').'</td><td><pre>%logging</pre></td></tr>', array(
+      '%logging'=>htmlentities($incident['logging'])));
+   $out .= '</table>';
+
+   return $out;
+}
+
 /** User interface component for editing external incident ids.
  * \param [in] $incidentid  Identifier of the incident
  *
@@ -1775,29 +1799,17 @@ function formatEditExternalids($incidentid='') {
    if (!is_numeric($incidentid)) {
       return false;
    }
-   pageHeader(t('External incident identifiers of %id', array(
+   pageHeader(t(_('External incident identifiers of %id'), array(
       '%id'=>normalize_incidentid($incidentid))));
 
-   $incident = getIncident($incidentid);
-   $out = '<h2>Basic incident data</h2>';
-   $out .= '<table>';
-   $out .= t('<tr><td>Incident ID</td><td>%incidentid</td></tr>', array(
-      '%incidentid'=>normalize_incidentid($incidentid)));
-   $out .= t('<tr><td>Type</td><td>%type</td></tr>', array(
-      '%type'=>getIncidentTypeDescr($incident['type'])));
-   $out .= t('<tr><td>Status</td><td>%status</td></tr>', array(
-      '%status'=>getIncidentStatusDescr($incident['status'])));
-   $out .= t('<tr><td>State</td><td>%state</td></tr>', array(
-      '%state'=>getIncidentStateDescr($incident['state'])));
-   $out .= t('<tr valign="top"><td>Logging</td><td><pre>%logging</pre></td></tr>', array(
-      '%logging'=>htmlentities($incident['logging'])));
-   $out .= '</table>';
-   $out .= t('<a href="%url?action=details&incidentid=%id">Back to details</a>',
+   $out = getFormattedBasicIncidentData($incidentid);
+   $out .= t('<a href="%url?action=details&incidentid=%id">'.
+      _('Back to details').'</a>',
       array('%url'=>$_SERVER['PHP_SELF'], '%id'=>urlencode($incidentid)));
 
-   $out .= '<h2>External identifiers</h2>';
+   $out .= '<h2>'._('External identifiers').'</h2>';
    foreach (getExternalIncidentIDS($incidentid) as $extid) {
-      $out .= t('<a href="%url?action=delete_extid&incidentid=%id&extid=%extid">Remove</a> ', array(
+      $out .= t('<a href="%url?action=delete_extid&incidentid=%id&extid=%extid">'._('Remove').'</a> ', array(
          '%url'=>$_SERVER['PHP_SELF'], 
          '%id' => $incidentid, 
          '%extid' => urlencode($extid)));
@@ -1806,10 +1818,59 @@ function formatEditExternalids($incidentid='') {
    $out .= '<p/><form>';
    $out .= t('<input type="hidden" name="incidentid" value="%id">', array(
       '%id'=>urlencode($incidentid)));
-   $out .= 'New identifer: <input type="text" name="extid" size="25">';
-   $out .= '<input type="submit" name="action" value="Add external identifier">';
+   $out .= _('New identifer:').' <input type="text" name="extid" size="25">';
+   $out .= '<input type="submit" name="action" value="'.
+      _('Add external identifier').'">';
    $out .= '</form>';
    print $out;
    pageFooter();
 }
+
+/** Format an the edit ticket field */
+function formatEditTicket($incidentid='') {
+   if (!is_numeric($incidentid)) {
+      return false;
+   }
+   pageHeader(t(_('Ticket number of %id'), 
+      array('%id'=>normalize_incidentid($incidentid))));
+   $out = getFormattedBasicIncidentData($incidentid);
+   $out .= t('<a href="%url?action=details&incidentid=%id">'.
+      _('Back to details').'</a>',
+      array('%url'=>$_SERVER['PHP_SELF'], '%id'=>urlencode($incidentid)));
+   $out .= '<h2>'._('Ticket numbers').'</h2>';
+   foreach (getTicketNumbers($incidentid) as $tn) {
+      $out .= t('<a href="%url?action=delete_tn&incidentid=%id&tn=%tn">'._('Remove').'</a> ', array(
+         '%url'=>$_SERVER['PHP_SELF'], 
+         '%id' => $incidentid,
+         '%tn' => urlencode($tn)));
+      $out .= $tn."<br/>\n";
+   }
+   $out .= '<p/><form>';
+   $out .= t('<input type="hidden" name="incidentid" value="%id">', array(
+      '%id'=>urlencode($incidentid)));
+   $out .= _('New ticket number:').' <input type="text" name="tn" size="25">';
+   $out .= '<input type="submit" name="action" value="'.
+      _('Add ticket number').'">';
+   $out .= '</form>';
+   return $out;
+}
+
+/** Return an array containing OTRS ticket numbers for the provided incident
+ * @param $incidentid Numerical incident id
+ * @return an array containing the appropriate OTRS ticket numbers (may be empty)
+ */
+function getTicketNumbers($incidentid) {
+   if (!is_numeric($incidentid)) {
+      return false;
+   }
+   $matches = array();
+   $tn = array();
+   foreach (getExternalIncidentIDs($incidentid) as $extid) {
+      if (preg_match('/^_OTRS([0-9]+)/', $extid, $matches) > 0) {
+         $tn[] = $matches[1];
+      }
+   }
+   return $tn;
+}
+
 ?>

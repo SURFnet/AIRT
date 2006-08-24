@@ -91,7 +91,14 @@ switch ($action) {
        '%url'=>$_SERVER['PHP_SELF'], '%incidentid'=>urlencode($incidentid)));
     $output .= _('External identifiers').': ';
     $output .= implode(',', getExternalIncidentIDs($incidentid));
-    $output .= '</div>';
+    $output .= '</div><!-- externalids -->'.LF;
+    $output .= '<div class="tickets" width="100%">'.LF;
+    $output .= t('(<a href="%url?action=edit_ticket&incidentid=%incidentid">'.
+      _('Edit').'</a>) ', array('%url'=>$_SERVER['PHP_SELF'], 
+      '%incidentid'=>$incidentid));
+    $output .= _('Ticket number(s)').': ';
+    $output .= implode(',', getTicketNumbers($incidentid));
+    $output .= '</div><!-- tickets -->'.LF;
     $output .= formatEditForm();
     $output .= '<hr/>'.LF;
     $output .= '<h3>'._('History').'</h3>'.LF;
@@ -766,6 +773,56 @@ _('Continue').'...</a>'.LF,
       }
       addExternalIncidentIDs($incidentid, $extid);
       Header("Location: $_SERVER[PHP_SELF]?action=edit_extid&incidentid=".
+         urlencode($incidentid));
+      break;
+
+   //--------------------------------------------------------------------
+   case 'edit_ticket':
+      $incidentid = fetchFrom('REQUEST', 'incidentid', '%d');
+      if ($incidentid == '') {
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
+         reload();
+         return;
+      }
+      print formatEditTicket($incidentid);
+      break;
+
+   //--------------------------------------------------------------------
+   case 'delete_tn':
+      $incidentid = fetchFrom('REQUEST', 'incidentid');
+      $tn = fetchFrom('REQUEST', 'tn');
+      if ($incidentid == '') {
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
+         Header("Location: $_SERVER[PHP_SELF]");
+         return;
+      }
+      if ($tn == '') {
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
+         Header("Location: $_SERVER[PHP_SELF]");
+         return;
+      }
+      deleteExternalIncidentIDs($incidentid, '_OTRS'.$tn);
+      Header("Location: $_SERVER[PHP_SELF]?action=edit_ticket&incidentid=".
+         urlencode($incidentid));
+      break;
+
+   //--------------------------------------------------------------------
+   case _('Add ticket number'):
+   case 'add_tn':
+      $incidentid = fetchFrom('REQUEST', 'incidentid');
+      $tn = fetchFrom('REQUEST', 'tn');
+      if ($incidentid == '') {
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
+         Header("Location: $_SERVER[PHP_SELF]");
+         return;
+      }
+      if ($tn == '') {
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
+         Header("Location: $_SERVER[PHP_SELF]");
+         return;
+      }
+      addExternalIncidentIDs($incidentid, '_OTRS'.$tn);
+      Header("Location: $_SERVER[PHP_SELF]?action=edit_ticket&incidentid=".
          urlencode($incidentid));
       break;
 
