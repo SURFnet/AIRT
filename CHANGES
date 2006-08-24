@@ -1,5 +1,6 @@
 * Bug fixes
 * Added mail template macro 'OTHER_OPEN'
+* Hook for OTRS ticket ID in incident details
 
 2007-08-10
 * Multilingual infrastructure; see doc/gettext.txt for more information
