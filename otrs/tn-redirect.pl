@@ -12,14 +12,13 @@ Produce a URL that can be used to redirect a browser to a given ticket
 
 The script requires two arguments. 
 
-The first argument is the fully qualified domain name of the server on which
-OTRS is running. 
+The first argument is the base url of the OTRS installation.
 
 The second argument is the ticket number to which the URL should point.
 
 =head1 Example
 
-./tn-redirect.pl localhost 2006050910000016
+./tn-redirect.pl http://localhost/otrs 2006050910000016
 
 =cut
 
@@ -67,7 +66,7 @@ my $Ticket_ID = $TicketObject->TicketIDLookup(
   TicketNumber => $TicketNumber
 );
 
-print "$HOST/otrs/index.pl?Action=AgentTicketZoom&TicketID=$Ticket_ID";
+print "$HOST/index.pl?Action=AgentTicketZoom&TicketID=$Ticket_ID";
 
 exit(0);
 
