@@ -97,7 +97,14 @@ switch ($action) {
       _('Edit').'</a>) ', array('%url'=>$_SERVER['PHP_SELF'], 
       '%incidentid'=>$incidentid));
     $output .= _('Ticket number(s)').': ';
-    $output .= implode(',', getTicketNumbers($incidentid));
+    foreach (getTicketNumbers($incidentid) as $tn) {
+       $out = array();
+# TODO: make base url configurable
+       $cmd = LIBDIR.'/otrs/tn-redirect.pl http://localhost/otrs '.$tn;
+       $out = exec($cmd, $out, $res);
+       $output .= t('<a href="%url">%tn</a>', array('%url'=>$out,
+          '%tn'=>$tn));
+    }
     $output .= '</div><!-- tickets -->'.LF;
     $output .= formatEditForm();
     $output .= '<hr/>'.LF;
