@@ -18,7 +18,7 @@
 #
 # $Id$
 
-SUBDIRS = php lib doc etc man bin po .
+SUBDIRS = php lib doc etc man bin po otrs .
 
 docdir = $(datadir)/doc/$(PACKAGE)
 doc_DATA = AUTHORS README ChangeLog CHANGES

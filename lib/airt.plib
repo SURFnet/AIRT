@@ -147,6 +147,8 @@ if (AIRT_RUN_MODE=='HTTP') {
 ///// End init code; remaining file contains only function definitions, ////
 ///// but these are partially conditional. /////////////////////////////////
 
+# TODO: make this configurable
+putenv('PERLLIB=/usr/share/otrs');
 
 /**
  * Display the page header

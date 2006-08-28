@@ -91,6 +91,7 @@ AC_OUTPUT([Makefile
     lib/Makefile
     lib/import_filters/Makefile
     lib/export_wrappers/Makefile
+    otrs/Makefile
     php/Makefile
     php/login.php
     php/config.plib
