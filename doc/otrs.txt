@@ -1,0 +1,93 @@
+// vim: textwidth=60
+$URL$
+$Id$
+
+
+INTEGRATING AIRT WITH OTRS
+--------------------------
+
+In the integration between AIRT and OTRS, we decide that
+AIRT is the leading party. As a result, AIRT will maintain
+the associations between AIRT incidents and OTRS tickets.
+
+For this, no alterations have to be made to the AIRT
+database. OTRS ticket numbers will be stored as an external
+identifier associated with an AIRT incident. The prefix used
+for OTRS tickets is _OTRS.
+
+We propose the use of four OTRS queues:
+
+a. incidents queue. This queue must only contain tickets
+   that are (or can be) associated with AIRT incidents.
+
+b. import queue. This queue must only contain tickets that
+   have been offered to the import queue.
+
+c. informative queue. The informative queue must only
+   contain useful communication that does not directly apply to
+   AIRT incidents, or import queue messages.
+
+d. junk queue. Must contain all mail that is not categorized
+   in the other queues.
+
+
+1. Interfacing AIRT -> OTRS
+
+   The following connection points are identified:
+
+   1.1 Association between AIRT incident number and OTRS
+   ticket number.
+
+   When associating a ticket to an incident from within
+   OTRS, the user should take care to only associate tickets
+   in the incidents queue.
+
+   We will update the incident details page to list OTRS
+   tickets directly below the other external incidents.
+   The OTRS ticket associations can be edited from a
+   separate screen, similar to the screen for editing
+   external incidents.
+
+   To map an OTRS ticket number to a URL that can be used to
+   directly access the corresponding ticket, a small Perl
+   script can be used. The name of this script is
+   tn-redirect.
+
+   1.2 Updating the state of an AIRT incident to 'closed'
+   must be reflected on the state of the OTRS ticket
+   number(s) that are associated with the incident.
+
+   TODO: To close on OTRS ticket automatically, a small Perl
+   script can be used. The name of the script is tn-close.
+
+   1.3 If there are any ticket numbers associated with an
+   incident, sending an message from template must be
+   altered so that outgoing message is associated with those
+   tickets.
+
+   TODO: Find out if it is possible to create a mail header
+   that is detected by OTRS, and enables OTRS to
+   automatically associate the message with the approriate
+   ticket.
+
+   1.4 If no OTRS ticket number is created yet, sending a
+   message from the template must result in the creation of
+   a new OTRS ticket and the new ticket number must be
+   associated with the AIRT current incident.
+
+  TODO: find out how to do this.
+
+2. Interfacing OTRS -> AIRT
+
+   The following connection points are identified:
+
+   2.1 It must be possible to associate a ticket with an
+   AIRT incident. This should be made possible from within
+   the OTRS interface.
+
+   2.2 Tickets that are associated with an AIRT incident ID,
+   and reside in the incidents queue must not be closable
+   from the OTRS interface. Instead, the control must be at
+   the AIRT side.
+
+$EOF$
