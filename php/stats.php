@@ -120,13 +120,19 @@ function showMatrix($start, $end) {
     $sum += $typesum[$label];
   }
   $out .= '<td><I><B>'.$sum.'</B></I></td>'.LF;
+  $out .= '<tr><td/>'.LF;
+  foreach ($types as $t=>$label) {
+    $out .= t('<th>%t</th>'.LF, array('%t'=>$label));
+    $typesum[$label] = 0;
+  }
+  $out .= '</tr>'.LF;
   $out .= '</table>'.LF;
 
   $out .= '<H2>'._('Incidents without IP addresses').'</h2>';
   $res = db_query(q('SELECT i.id
      FROM incidents i
      LEFT JOIN incident_addresses a ON i.id = a.incident
-     WHERE i.created BETWEEN \'%start\' AND \'stop\'
+     WHERE i.created BETWEEN \'%start\' AND \'%stop\'
      GROUP BY i.id
      HAVING COUNT (ip) = 0', array(
             '%start'=>Date('d-M-Y', $start),
@@ -246,7 +252,7 @@ switch ($action) {
     $startdate = date('r', $start);
     $enddate = date('r', $stop);
 		$out = '<p>'._("Statistics from $startdate to $enddate.").'</p>';
-    showmatrix($start, $stop);
+      showmatrix($start, $stop);
 		pageFooter();
 		break;
 	default:
