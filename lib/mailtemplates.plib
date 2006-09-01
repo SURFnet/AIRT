@@ -226,7 +226,7 @@ function format_templates() {
          '%url'=>$_SERVER['PHP_SELF'],
          '%name'=>$name));
       $out .= t('<td><a onclick="return confirm(\''.
-         _('Are you sure that you want to delete this message?').'\')\" href=\"%url?action=delete&template=%name\">'.
+         _('Are you sure that you want to delete this message?').'\')" href="%url?action=delete&template=%name">'.
          _('delete').'</a></td>'.LF, array(
          '%url'=>$_SERVER['PHP_SELF'],
          '%name'=>$name));
