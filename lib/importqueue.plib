@@ -190,7 +190,7 @@ function updateQueueItem($id, $field, $value, &$error) {
    ));
    $res = db_query($query);
    if ($res == false) {
-      $error = _('Unable to query database').' in importqueue.plib:').__LINE__;
+      $error = _('Unable to query database').' in importqueue.plib:'.__LINE__;
       return 1;
    }
 
