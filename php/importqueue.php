@@ -126,7 +126,7 @@ switch ($action) {
          Header("Location: $_SERVER[PHP_SELF]");
          exit;
       }
-      pageHeader(_('Queue details for item ').$_GET[id]);
+      pageHeader(_('Queue details for item ').$_GET['id']);
       $out = '<table>'.LF;
       $out .= '<tr>'.LF;
       $out .= '  <td>'._('Status').'</td>'.LF;

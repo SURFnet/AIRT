@@ -262,7 +262,7 @@ function formatQueueOverview() {
 		if($tree = @domxml_open_mem($item['content'])) {
          $out .= t("<tr bgcolor=\"%color\">\n", array('%color'=>($count++ % 2 == 0) ? '#DDDDDD' : '#FFFFFF'));
          $out .= '  <td>'.LF;
-         $out .= '     <select name="'.$decision[$id].'">'.LF;
+         $out .= '     <select name="decision['.$id.']">'.LF;
          $out .= '     <option value="accept" SELECTED>'._('Accept').'</option>'.LF;
          $out .= '     <option value="reject">'._('Reject').'</option>'.LF;
          $out .= '     <option value="donothing">'._('Do nothing').'</option>'.LF;
@@ -273,12 +273,12 @@ function formatQueueOverview() {
          $out .= t("  <td>%ip</td>\n", array('%ip'=>$element['cache_ip']));
          $out .= t('  <td><a target="airt_queue" title="'.
             _('Show incident details in new browser window').
-            ' href="%url?action=showdetails&id=%id">'.
+            '" href="%url?action=showdetails&id=%id">'.
             _('details').'</a></td>'.LF,
             array('%url'=>$_SERVER['PHP_SELF'], '%id'=>$id));;
          $out .= '   <td>'.LF;
          if (array_key_exists($element['cache_ip'], $openips)) {
-            $out .= '  <input type="checkbox" checked name="'.$add[$id].'">'.LF;
+            $out .= '  <input type="checkbox" checked name="add['.$id.']">'.LF;
             $out .= t(_('  Add to %id').LF,
             array('%id'=>normalize_incidentid($openips[$element['cache_ip']])));
          }
