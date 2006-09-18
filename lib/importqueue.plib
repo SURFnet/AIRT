@@ -360,9 +360,13 @@ function queueToAIRT($id, &$error) {
    foreach ($AIRT_CURL_OPTIONS as $key=>$value) {
       $airt_client->setOpt('curl', $key, $value);
    }
+   $airt_client->setOpt('curl', CURLOPT_TIMEOUT, 30);
    $ans = $airt_client->call($method, $params);
    if (PEAR::isError($ans)) {
-      echo "SOAP Error";
+      echo "<PRE>";
+      echo "SOAP Error:";
+      var_dump($ans);
+      echo "</PRE>";
       exit;
    }
    return 0;
@@ -397,7 +401,6 @@ function getSAMLTicket() {
       $airt_client->setOpt('curl', $key, $value);
    }
    $ans = $airt_client->call($method, $params);
-   return($ans);
    if (PEAR::isError($ans)) {
       return "SOAP Error:$ans";
    }

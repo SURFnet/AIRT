@@ -274,7 +274,7 @@ class IncidentHandling {
             }
 
             // generate an incident id
-            $incidentid[$i] = createIncident($state,$status,$type,$logging);
+            $incidentid[$i] = createIncident($state,$status,$type,'',$logging);
             addIPtoIncident($address,$incidentid[$i],$addressrole);
 
             $networkid = categorize($address);
@@ -326,7 +326,7 @@ class IncidentHandling {
       }
       $_SESSION['userid'] = $userid;
       $logging = $incident['logging']."\n".$logging;
-      updateIncident($incidentid, '', '', '', $logging);
+      updateIncident($incidentid, '', '', '', '', $logging);
       return '';
    } // addLogging
 }
