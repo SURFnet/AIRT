@@ -33,17 +33,22 @@ $input = preg_replace('/io:/','', $input);
 		$res = $xpath->xpath_eval("ReportTime", $incidentnode);
 		$resnodes = $res->nodeset;
 		$time = trim($resnodes[0]->get_content());
-		
-		// note: the assessment class in the iodef scheme describes the technical and non-technical repercussions 			of the incident. It thus does NOT describe the state of the incident. (e.g. "open")
-		$assessments = $xpath->xpath_eval("Assessment", $incidentnode);
-		foreach ($assessments->nodeset as $assessmentnode) {
-			// not implemented yet
+	
+		// IODEF does not have a real method of suggesting an incident type
+		// The closest element that I could find is Method/Reference
+		$refs = $xpath->xpath_eval("Method/Reference/ReferenceName", $incidentnode);
+		$type='unspecified';
+		foreach ($refs->nodeset as $refnode) {
+			if ($type=='unspecified') {
+			   $type = $refnode->get_content();
+		   }
 		}
 		
 		$contacts = $xpath->xpath_eval("Contact", $incidentnode);
+		$contactname = 'unspecified';
+		$logging = '';
 		foreach ($contacts->nodeset as $contactnode) {
 			$role = $contactnode->get_attribute('role');
-			$type = $contactnode->get_attribute('type');
 				
 			$res = $xpath->xpath_eval("ContactName", $contactnode);
 			$resnodes = $res->nodeset;
@@ -51,7 +56,7 @@ $input = preg_replace('/io:/','', $input);
 				$name = trim($resnodes[0]->get_content());
 
 				//merge contact names
-				if (!$contactname) {
+				if ($contactname == 'unspecified') {
 					$contactname = $name;
 				} else {
 					$contactname .= ", ".$name;
