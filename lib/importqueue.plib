@@ -250,6 +250,7 @@ function formatQueueOverview() {
    $out .= '   <th>'._('Sender').'</th>'.LF;
    $out .= '   <th>'._('Constituency').'</th>'.LF;
    $out .= '   <th>'._('IP Address').'</th>'.LF;
+	$out .= '   <th>'._('Tag').' (<a href="http://www.airt.nl/help/tag">'._('help').'</a>)</th>'.LF;
    $out .= '   <th>'._('Details').'</th>'.LF;
    $out .= '</tr>'.LF;
    $out .= '<th></th>'.LF;
@@ -271,6 +272,8 @@ function formatQueueOverview() {
          $out .= t("  <td>%type</td>\n", array('%type'=>$element['type']));
          $out .= t("  <td>%cons</td>\n", array('%cons'=>$element['cache_constituency']));
          $out .= t("  <td>%ip</td>\n", array('%ip'=>$element['cache_ip']));
+			$out .= t('  <td>%tag</td>'.LF, array('%tag'=>
+				'<input type="text" width="5" name="tag['.$id.']">'));
          $out .= t('  <td><a target="airt_queue" title="'.
             _('Show incident details in new browser window').
             '" href="%url?action=showdetails&id=%id">'.
@@ -615,4 +618,38 @@ function fetchAuthTicket(&$ticket, &$error) {
       return 0;
    }
 }
+
+/** Accept import queue element into AIRT.
+ * @param $id ID of import queue element.
+ * Function will redirect browser. Should be done prettier some day.
+ */
+function queueElementAccept($id) {
+	$value = 'accepted';
+	$update = true;
+	print t(_('Accepting queue element %id<br/>').LF, array('%id'=>$id));
+	flush();
+	if (isset($_POST['add'][$id]) && $_POST['add'][$id] == 'on') {
+		print '  '._('Adding to existing incident<br/>').LF;
+		$error = '';
+		if (queueAddLogging($id, $error)) {
+			print t(_('Error processing item: %error'), array(
+				'%error'=>$error));
+			$update = false;
+		} else {
+			$update = true;
+		}
+	} else if (queueToAIRT($id, $error)) {
+		$update = false;
+		airt_error('ERR_FUNC', 'importqueue.plib:'.__LINE__, $error);
+		return;
+	}
+	if ($update) {
+		if (updateQueueItem($id, 'status', $value, $error)) {
+			airt_error('ERR_QUERY', 'importqueue.plib:'.__LINE__, $error);
+			Header("Location: $_SERVER[PHP_SELF]");
+			return;
+		}
+	}
+} // queueElementAccept
+
 ?>

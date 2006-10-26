@@ -49,6 +49,7 @@ function showQueue() {
 }
 
 
+
 switch ($action) {
    //----------------------------------------------------------------
    case _('Process'):
@@ -61,48 +62,62 @@ switch ($action) {
       pageHeader(_('Processing import queue'));
 
       // interpret all decision and take action if accept or reject
+		$tags=array();
       foreach ($_POST['decision'] as $id=>$value) {
          $update = false;
+			$t = '';
          switch ($value) {
             case 'accept':
-               $value = 'accepted';
-               print t(_('Accepting queue element %id<br/>').LF, array('%id'=>$id));
-               flush();
-               $update = true;
-               if (isset($_POST['add'][$id]) && $_POST['add'][$id] == 'on') {
-                  print _('Adding to existing incident<br/>').LF;
-                  $error = '';
-                  if (queueAddLogging($id, $error)) {
-                     print t(_('Error processing item: %error'), array(
-                        '%error'=>$error));
-                     $update = false;
-                  } else {
-                     $update = true;
-                  }
-               } else if (queueToAIRT($id, $error)) {
-                  $update = false;
-                  airt_error('ERR_FUNC', 'importqueue.php:'.__LINE__, $error);
-                  break;
-               }
+					if ( isset($_POST['tag'][$id]) &&
+						  (($t = trim($_POST['tag'][$id])) != '')
+					   ) {
+						print '  '.
+						   t(_('Element %id is tagged <i>%tag</i>. Postponing processing.<br/>').LF,
+							array('%id'=>$id, '%tag'=>$_POST['tag'][$id]));
+						flush();
+						$tags[$t][]=$id;
+					} else {
+						queueElementAccept($id);
+					}
                break;
             case 'reject':
                print t(_('Rejecting queue element %id<br/>').LF, array('%id'=>$id));
                flush();
                $value = 'rejected';
                $update = true;
+					if ($update) {
+						if (updateQueueItem($id, 'status', $value, $error)) {
+							airt_error('ERR_QUERY', 'importqueue.php:'.__LINE__, $error);
+							Header("Location: $_SERVER[PHP_SELF]");
+							return;
+						}
+					}
                break;
             default:
                print t(_('Ignoring queue element %id<br/>').LF, array('%id'=>$id));
                flush();
          }
-         if ($update) {
-            if (updateQueueItem($id, 'status', $value, $error)) {
-               airt_error('ERR_QUERY', 'importqueue.php:'.__LINE__, $error);
-               Header("Location: $_SERVER[PHP_SELF]");
-               return;
-            }
-         }
       }
+		print t('Processing tagged elements:').'<br/>'.LF;
+		$error = '';
+		foreach ($tags as $key => $value) {
+			$count = 0;
+			print t(_('- Merging elements with tag %tag<br/>').LF, array('%tag'=>$key));
+			foreach ($value as $element) {
+				if ($count++ == 0) {
+					if (queueToAIRT($element, $error)) {
+						airt_error('ERR_FUNC', 'importqueue.php:'.__LINE__, $error);
+					}
+				} else {
+					if (queueAddLogging($element, $error)) {
+						airt_error('ERR_FUNC', 'importqueue.php:'.__LINE__, $error);
+					}
+				}
+				if (updateQueueItem($id, 'status', 'accepted', $error)) {
+					airt_error('ERR_FUNC', 'importqueue.php:'.__LINE__, $error);
+				}
+			}
+		}
 
       // show updated queue;
       echo '<p/><a href="incident.php">'._('Done.').'</a>'.LF;
