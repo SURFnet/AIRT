@@ -1128,10 +1128,6 @@ function formatIncidentBulkForm(&$check) {
    $output .= t("<td>addressrole</td><td>%addressrole</td>\n",array('%addressrole'=>getAddressRolesSelection('addressrole', $addressrole)));
    $output .= "</tr>\n";
 
-   $output .= "<tr>\n";
-   $output .= "  <td>constituency</td>\n";
-   $output .= "  <td>".getConstituencySelection("constituency", $constituency)."</td>\n";
-   $output .= "</tr>\n";
    $output .= "</table>\n";
  
    $output .= "<p/>\n";
