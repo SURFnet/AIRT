@@ -100,7 +100,8 @@ switch ($action) {
     foreach (getTicketNumbers($incidentid) as $tn) {
        $out = array();
 # TODO: make base url configurable
-       $cmd = LIBDIR.'/otrs/tn-redirect.pl http://localhost/otrs '.$tn;
+putenv('PERL5LIB=/opt/otrs');
+       $cmd = LIBDIR.'/otrs/tn-redirect.pl http://192.168.81.129/otrs '.$tn;
        $out = exec($cmd, $out, $res);
        $output .= t('<a href="%url">%tn</a>', array('%url'=>$out,
           '%tn'=>$tn));
@@ -594,6 +595,22 @@ _('Continue').'...</a>'.LF,
       ));
 
       updateIncident($incidentid,$state,$status,$type,$date,$logging);
+		/* attempt to close corresponding OTRS tickets, if any*/
+		if (getIncidentStatusLabelByID($status) == 'closed') {
+			foreach (getTicketNumbers($incidentid) as $tn) {
+				putenv('PERL5LIB=/opt/otrs');
+				$cmd = LIBDIR.'/otrs/ticketclose.pl '.$tn;
+				$out = exec($cmd, $out, $res);
+				if ($res == 0) {
+					addIncidentComment(_('Closed OTRS ticket ').$tn);
+				} else {
+				   addIncidentComment(_('Failed to close OTRS ticket ').$tn);
+					echo "<PRE>Cmd: $cmd\n";
+					echo "Error code: $res";;
+					echo "</PRE>";
+				}
+			}
+		}
 
       addIncidentComment(sprintf(_(
         'Incident updated: state=%s, status=%s type=%s'), 
