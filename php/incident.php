@@ -90,7 +90,13 @@ switch ($action) {
             array(
        '%url'=>$_SERVER['PHP_SELF'], '%incidentid'=>urlencode($incidentid)));
     $output .= _('External identifiers').': ';
-    $output .= implode(',', getExternalIncidentIDs($incidentid));
+	 $e = array();
+	 foreach (getExternalIncidentIDs($incidentid) as $i) {
+	    if (substr($i, 0, 1) != '_') {
+		    $e[] = $i;
+		 }
+	 }
+    $output .= implode(',', $e);
     $output .= '</div><!-- externalids -->'.LF;
     $output .= '<div class="tickets" width="100%">'.LF;
     $output .= t('(<a href="%url?action=edit_ticket&incidentid=%incidentid">'.
@@ -103,7 +109,7 @@ switch ($action) {
 putenv('PERL5LIB=/opt/otrs');
        $cmd = LIBDIR.'/otrs/tn-redirect.pl http://192.168.81.129/otrs '.$tn;
        $out = exec($cmd, $out, $res);
-       $output .= t('<a href="%url">%tn</a>', array('%url'=>$out,
+       $output .= t('<a href="%url">%tn</a>&nbsp; ', array('%url'=>$out,
           '%tn'=>$tn));
     }
     $output .= '</div><!-- tickets -->'.LF;

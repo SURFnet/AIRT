@@ -24,7 +24,7 @@
 
 require_once 'config.plib';
 require_once LIBDIR.'/airt.plib';
-require_once LIBDIR.'/history.plib';
+require_once LIBDIR.'/incident.plib';
 
 
 $action = fetchFrom('REQUEST','action');
@@ -39,13 +39,15 @@ switch ($action) {
 		   print "Missing incidentnr";
 			exit;
 		}
-		$TicketID = fetchFrom('REQUEST', 'TicketID');
-		if (empty($TicketID)) {
-		   print "Missing TicketID";
+		$tn = fetchFrom('REQUEST', 'TicketID');
+		if (empty($tn)) {
+		   print _('Missing ticket number');
 			exit;
 		}
-		print "incidentid: -$incidentid-<br/>";
-		print "ticketid: -$TicketID-</br/>";
+		if (in_array('_OTRS'.$tn, getExternalIncidentIDs($incidentid)) === false) {
+			addExternalIncidentIDs($incidentid, '_OTRS'.$tn);
+		}
+		Reload($_SERVER['HTTP_REFERER']);
       break;
 
   //--------------------------------------------------------------------
