@@ -179,9 +179,6 @@ putenv('PERL5LIB=/opt/otrs');
          $addressrole=$_POST["addressrole"];
       }
 
-      if (array_key_exists("constituency", $_POST)) {
-        $constituency=$_POST["constituency"];
-      }
       if (array_key_exists("type", $_POST)) {
         $type=$_POST["type"];
       }
@@ -213,9 +210,24 @@ putenv('PERL5LIB=/opt/otrs');
             // make sure we have an IP address here
             $address = @gethostbyname($address);
             if($address) {
+
+               $networkid = categorize($address);
+               if (defined('CUSTOM_FUNCTIONS') && function_exists("custom_categorize")) {
+                  $networkid = custom_categorize($ip, $networkid);
+               }
+
+               $networks = getNetworks();
+               $constituency  = $networks[$networkid]["constituency"];
+
                $incidentid = createIncident($state,$status,$type,$date,$logging);
                if ($address!='') {
                   addIPtoIncident($address,$incidentid,$addressrole);
+                  $res = db_query("SELECT cc.userid
+                                   FROM   constituency_contacts cc
+                                   WHERE  cc.constituency = $constituency") or die (_('error: unable to query table constituency_contacts'));
+                  $row = db_fetch_next($res); 
+                  $userid = $row['userid'];
+                  addUserToIncident($userid,$incidentid);
                }
 	    }
          }
@@ -232,7 +244,7 @@ putenv('PERL5LIB=/opt/otrs');
 
       $addressrole  = fetchFrom('POST','addressrole');
       $address      = fetchFrom('POST','address');
-      $address = @gethostbyname($address);
+      $address      = @gethostbyname($address);
       $constituency = fetchFrom('POST','constituency');
       $type         = fetchFrom('POST','type');
       $state        = fetchFrom('POST','state');
