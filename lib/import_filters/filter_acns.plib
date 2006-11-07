@@ -1,0 +1,140 @@
+<?php
+/* vim: syntax=php tabstop=3 shiftwidth=3
+ *
+ * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
+ * Copyright (C) 2005   Tilburg University, The Netherlands
+
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ * $Id: filter_none.plib 696 2005-11-01 10:44:17Z kees $
+ */
+
+function parse_semi_iso8601($date) {
+    if (preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]+):([0-9]+):([0-9.]+)/', $date, $match) == 1) {
+	    $year = $match[1];
+		 $month = $match[2];
+		 $day = $match[3];
+		 $hour = $match[4];
+		 $minute = $match[5];
+		 $second = $match[6];
+
+		 $ts = gmmktime($hour, $minute, $second, $month, $day, $year);
+		 return $ts;
+	 }
+}
+
+/* Template filter function, does not do much but conforms to all standards.
+ * Great to copy and create your own, functional function.
+ *
+ * $input     = A string to process.
+ * $output    = String variable to write the result to (pass by reference).
+ * $verbosity = TRUE when verbose output is requested on stdout.
+ * Returns:
+ * 0 when successful.
+ * 1 when not successful ($output contains readable error message).
+ */
+function filter_acns($input, &$output, $verbosity=FALSE) {
+  if (($dom = domxml_open_mem($input)) === false) {
+     die(_('Unable to parse input data (invalid XML).'));
+  }
+  $xpath = $dom->xpath_new_context();
+
+  // fetch meta data
+  $nodeid = $type= $sender= '';
+  $xp = $xpath->xpath_eval('/Infringement/Case/ID');
+  if (sizeof($xp->nodeset) > 0) {
+     $nodeid = $xp->nodeset[0]->get_content();
+  } 
+  $xp = $xpath->xpath_eval('/Infringement/Source/Type');
+  if (sizeof($xp->nodeset) > 0) {
+     $type = $xp->nodeset[0]->get_content();
+  }
+  $xp = $xpath->xpath_eval('/Infringement/Complainant/Email');
+  if (sizeof($xp->nodeset) > 0) {
+     $sender = $xp->nodeset[0]->get_content();
+  }
+
+  // fetch source
+  $srcip = $srcname = $datetime = '';
+  $xp = $xpath->xpath_eval('/Infringement/Source/IP_Address', $dom);
+  if (sizeof($xp->nodeset) > 0) {
+     $srcip = $xp->nodeset[0]->get_content();
+  }  
+  $xp = $xpath->xpath_eval('/Infringement/Source/DNS_Name', $dom);
+  if (sizeof($xp->nodeset) > 0) {
+     $srcname = $xp->nodeset[0]->get_content();
+  }
+  $xp = $xpath->xpath_eval('/Infringement/Source/TimeStamp', $dom);
+  if (sizeof($xp->nodeset) > 0) {
+      $datetime = parse_semi_iso8601($xp->nodeset[0]->get_content());
+  }
+
+  // fetch items
+  $items = array();
+  $xp = $xpath->xpath_eval('/Infringement/Content/Item', $dom);
+  if (sizeof($xp->nodeset) > 0) {
+     foreach($xp->nodeset as $node) {
+        $items[] = $node;
+	  }
+  }
+
+  $out = domxml_new_doc('1.0');
+  $outroot = $out->add_root('airt');
+  $outqdata = $out->create_element('queuedata');
+  $outroot->append_child($outqdata);
+
+  $outstatus = $out->create_element('status');
+  $outstatus->set_content('open');
+  $outqdata->append_child($outstatus);
+  
+  $outsender = $out->create_element('sender');
+  $outsender->set_content($sender);
+  $outqdata->append_child($outsender);
+  
+  $outtype = $out->create_element('type');
+  $outtype->set_content('Copyright Infringement Notice');
+  $outqdata->append_child($outtype);
+  
+  $outsummary = $out->create_element('summary');
+  $outqdata->append_child($outsummary);
+
+  $outincident = $out->create_element('incident');
+  $outroot->append_child($outincident);
+
+  $outticket = $out->create_element('ticketinformation');
+  $outincident->append_child($outticket);
+
+  $prefix = $out->create_element('prefix');
+  $outticket->append_child($prefix);
+  
+  $outtech = $out->create_element('technicalinformation');
+  $outincident->append_child($outtech);
+
+  $outip = $out->create_element('ip');
+  $outip->set_content($srcip);
+  $outtech->append_child($outip);
+
+  $outtime = $out->create_element('incident_time');
+  $outtech->append_child($outtime);
+
+  $outlogging = $out->create_element('logging');
+  $outlogging->set_content($input);
+  $outtech->append_child($outlogging);
+  
+  print $out->dump_mem(true, 'utf-8');
+  return 0;
+}
+
+?>
