@@ -76,24 +76,18 @@ my $Ticket_ID = $TicketObject->TicketIDLookup(
   TicketNumber => $TicketNumber
 );
 
-print "allez hop\n\n\n";
-
 $GenericAgentObject->JobRun(
     TicketID => $Ticket_ID,
     TicketNumber => $TicketNumber,
     Job => 'JobName',
     Config => {
-                close => {
-                           New => {
-                                    State => 'closed successful'
-                                  }
-                         }
+	   New => {
+		    State => 'closed successful'
+		  }
               },
-    UserID => 2
+    UserID => 1
 );
 
-print "Hee jo, check effe in OTRS of ticket $TicketNumber inderdaad succesful geclosed is\n";
-print "O ja, nog wat: je moet wel even (opnieuw) inloggen in OTRS\n";
-
+print "Attempted close."
 
 exit;
