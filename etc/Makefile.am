@@ -20,7 +20,7 @@
 # 
 configdir=$(sysconfdir)/$(PACKAGE)
 config_DATA = airt-apache.conf airt.cfg customfunctions.plib webservice.cfg \
-    importqueue.cfg exportqueue.cfg
+    importqueue.cfg exportqueue.cfg otrs.cfg
 
 CLEANFILES = airt-apache.conf airt.cfg
 DISTCLEANFILES = $(CLEANFILES)
