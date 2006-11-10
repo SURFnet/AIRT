@@ -46,8 +46,15 @@ function parse_semi_iso8601($date) {
  * 1 when not successful ($output contains readable error message).
  */
 function filter_acns($input, &$output, $verbosity=FALSE) {
-  if (($dom = domxml_open_mem($input)) === false) {
-     die(_('Unable to parse input data (invalid XML).'));
+  $x = ereg('(<Infringement.*<\/Infringement>)', $input, $match);
+  if (!$x) {
+	  $output=_('Unable to find <Infringement> element.');
+     return 1;
+  }
+
+  if (($dom = domxml_open_mem($match[1])) === false) {
+     $output=_('Unable to parse input data (invalid XML).');
+	  return 1;
   }
   $xpath = $dom->xpath_new_context();
 

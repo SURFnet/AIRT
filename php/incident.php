@@ -23,6 +23,7 @@
  */
 
 require_once 'config.plib';
+require_once ETCDIR.'/otrs.cfg';
 require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/database.plib';
 require_once LIBDIR.'/constituency.plib';
@@ -98,21 +99,21 @@ switch ($action) {
 	 }
     $output .= implode(',', $e);
     $output .= '</div><!-- externalids -->'.LF;
-    $output .= '<div class="tickets" width="100%">'.LF;
-    $output .= t('(<a href="%url?action=edit_ticket&incidentid=%incidentid">'.
-      _('Edit').'</a>) ', array('%url'=>$_SERVER['PHP_SELF'], 
-      '%incidentid'=>$incidentid));
-    $output .= _('Ticket number(s)').': ';
-    foreach (getTicketNumbers($incidentid) as $tn) {
-       $out = array();
-# TODO: make base url configurable
-putenv('PERL5LIB=/opt/otrs');
-       $cmd = LIBDIR.'/otrs/tn-redirect.pl http://192.168.81.129/otrs '.$tn;
-       $out = exec($cmd, $out, $res);
-       $output .= t('<a href="%url">%tn</a>&nbsp; ', array('%url'=>$out,
-          '%tn'=>$tn));
-    }
-    $output .= '</div><!-- tickets -->'.LF;
+	 if (defined('OTRS_ACTIVE') && OTRS_ACTIVE === true) {
+       $output .= '<div class="tickets" width="100%">'.LF;
+       $output .= t('(<a href="%url?action=edit_ticket&incidentid=%incidentid">'.
+         _('Edit').'</a>) ', array('%url'=>$_SERVER['PHP_SELF'], 
+         '%incidentid'=>$incidentid));
+		 $output .= _('Ticket number(s)').': ';
+		 foreach (getTicketNumbers($incidentid) as $tn) {
+			 $out = array();
+			 $cmd = LIBDIR.'/otrs/tn-redirect.pl '.OTRS_BASEURL.' '.$tn;
+			 $out = exec($cmd, $out, $res);
+			 $output .= t('<a href="%url">%tn</a>&nbsp; ', array('%url'=>$out,
+				 '%tn'=>$tn));
+		 }
+		 $output .= '</div><!-- tickets -->'.LF;
+	 }
     $output .= formatEditForm();
     $output .= '<hr/>'.LF;
     $output .= '<h3>'._('History').'</h3>'.LF;
@@ -616,7 +617,6 @@ _('Continue').'...</a>'.LF,
 		/* attempt to close corresponding OTRS tickets, if any*/
 		if (getIncidentStatusLabelByID($status) == 'closed') {
 			foreach (getTicketNumbers($incidentid) as $tn) {
-				putenv('PERL5LIB=/opt/otrs');
 				$cmd = LIBDIR.'/otrs/ticketclose.pl '.$tn;
 				$out = exec($cmd, $out, $res);
 				if ($res == 0) {
