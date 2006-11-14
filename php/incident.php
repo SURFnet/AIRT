@@ -46,6 +46,9 @@ switch ($action) {
         // Nothing selected, show list again.
         reload();
      }
+     if (is_array($massincidents) && sizeof($massincidents) >= 1) {
+	     $_SESSION['incidentid'] = $massincidents[0];
+	  }
      $agenda = implode(',', $massincidents);
 
      $template = fetchFrom('REQUEST','template');
