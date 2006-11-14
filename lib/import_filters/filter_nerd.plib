@@ -96,8 +96,8 @@ function filter_nerd($input, &$output, $verbosity=FALSE) {
      $outlogging->set_content($m[0]);
      $outtech->append_child($outlogging);
   
-     $output .= $out->dump_mem(true, 'utf-8');
   }
+     $output .= $out->dump_mem(true, 'utf-8');
   if ($verbosity === true) {
      print $output;
   }
