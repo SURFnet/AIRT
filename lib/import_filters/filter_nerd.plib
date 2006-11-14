@@ -1,0 +1,107 @@
+<?php
+/* vim: syntax=php tabstop=3 shiftwidth=3
+ *
+ * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
+ * Copyright (C) 2005   Tilburg University, The Netherlands
+
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ * $Id: filter_none.plib 696 2005-11-01 10:44:17Z kees $
+ */
+
+/* Template filter function, does not do much but conforms to all standards.
+ * Great to copy and create your own, functional function.
+ *
+ * $input     = A string to process.
+ * $output    = String variable to write the result to (pass by reference).
+ * $verbosity = TRUE when verbose output is requested on stdout.
+ * Returns:
+ * 0 when successful.
+ * 1 when not successful ($output contains readable error message).
+ */
+function filter_nerd($input, &$output, $verbosity=FALSE) {
+  $match=array();
+  $sender='unknown';
+  if (preg_match('/^From: (.*)$/m', $input, $match) == 1) {
+     $sender = $match[1];
+  }
+
+  $match=array();
+  $x = preg_match_all('/^START ([0-9]+) \| ([0-9.]+) \| ([0-9.]+) \| ([0-9]+) \| ([A-Za-z]+) \| ([0-9.]+) \| ([0-9.]+) \| ([0-9: -]+) \| ([0-9: -]+)$/m', $input, $match, PREG_SET_ORDER);
+  if (!$x) {
+	  $output=_('Unable to find NERD data.');
+     return 1;
+  }
+
+  $out = domxml_new_doc('1.0');
+  $outroot = $out->add_root('airt');
+  $count = 1;
+  $output='';
+  foreach ($match as $m) {
+	  $outqdata = $out->create_element('queuedata');
+	  $outqdata->set_attribute('ref','#'.$count);
+	  $outroot->append_child($outqdata);
+
+	  $outstatus = $out->create_element('status');
+	  $outstatus->set_content('open');
+	  $outqdata->append_child($outstatus);
+  
+     $outsender = $out->create_element('sender');
+     $outsender->set_content($sender);
+     $outqdata->append_child($outsender);
+  
+     $outtype = $out->create_element('type');
+     $outtype->set_content('ddos');
+     $outqdata->append_child($outtype);
+  
+     $outsummary = $out->create_element('summary');
+     $outsummary->set_content('DDoS - NERD '.$m[2]);
+     $outqdata->append_child($outsummary);
+
+     $outincident = $out->create_element('incident');
+     $outincident->set_attribute('id', $count++);
+     $outroot->append_child($outincident);
+
+     $outticket = $out->create_element('ticketInformation');
+     $outincident->append_child($outticket);
+
+     $prefix = $out->create_element('prefix');
+     $prefix->set_content('NERD');
+     $outticket->append_child($prefix);
+  
+     $outtech = $out->create_element('technicalInformation');
+     $outincident->append_child($outtech);
+
+     $outip = $out->create_element('ip');
+     $outip->set_content($m[2]);
+     $outtech->append_child($outip);
+
+     $outtime = $out->create_element('incident_time');
+     $outtime->set_content($m[8]);
+     $outtech->append_child($outtime);
+
+     $outlogging = $out->create_element('logging');
+     $outlogging->set_content($m[0]);
+     $outtech->append_child($outlogging);
+  
+     $output .= $out->dump_mem(true, 'utf-8');
+  }
+  if ($verbosity === true) {
+     print $output;
+  }
+  return;
+}
+
+?>
