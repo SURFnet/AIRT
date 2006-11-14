@@ -39,7 +39,7 @@ function filter_spamcop($input, &$output, $verbosity=FALSE) {
          $data['logging'] .= "\n".$text[$i];
       }
    }
-   if (preg_match('/Email from ([0-9.]+) \//', $input, $matches)) {
+   if (preg_match('/(Email|Unsolicited bounce) from ([0-9.]+) \//', $input, $matches)) {
       $data['srcip'] = $matches[1];
    }
    $output = '<airt>'."\n";
