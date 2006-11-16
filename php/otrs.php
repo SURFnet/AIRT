@@ -22,9 +22,6 @@
  * $Id: incident.php 1016 2006-10-31 12:34:55Z kees $
  */
 
-require_once 'config.plib';
-require_once LIBDIR.'/airt.plib';
-require_once LIBDIR.'/incident.plib';
 
 
 $action = fetchFrom('REQUEST','action');
@@ -34,6 +31,9 @@ switch ($action) {
 
   //--------------------------------------------------------------------
   case 'assign':
+		require_once 'config.plib';
+		require_once LIBDIR.'/airt.plib';
+		require_once LIBDIR.'/incident.plib';
       $incidentid = fetchFrom('REQUEST', 'incidentnr');
 		if (empty($incidentid)) {
 		   print "Missing incidentnr";
@@ -49,6 +49,15 @@ switch ($action) {
 		}
 		Reload($_SERVER['HTTP_REFERER']);
       break;
+
+  //--------------------------------------------------------------------
+  case 'get':
+     Header('Content-Type: text/xml');
+     print '<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>'.LF;
+	  print '<response>'.LF;
+	  print '<airtref>http://www.uvt.nl</airtref>'.LF;
+	  print '</response>'.LF;
+     break;
 
   //--------------------------------------------------------------------
   default:
