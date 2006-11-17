@@ -52,15 +52,15 @@ function showheader($data) {
   }
 
   # TODO: put the inline style stuff in an external style.css file.
+  $baseurl=BASEURL;
   echo <<<EOF
 <html>
 <head>
 <title>AIRT: $data[title]</title>
 <style>
 .logo {
-  font-size: smaller;
-  font-style: italic;
-  text-align: center;
+   border-bottom-width: 2px;
+   border-bottom-style: solid;
 }
 
 .nav {
@@ -124,7 +124,8 @@ function checkKeys(event) {
 <body onKey="checkKeys()">
 <table height="100%" cellspacing="0" border="0" width="100%">
   <tr>
-    <td height="50" width="135" nowrap class="nav logo">Application for incident response teams</td>
+    <td height="50" width="135" nowrap class="nav logo"><img
+    src="$baseurl/images/airt_logo.png" alt="Application for incident response teams"></td>
     <td><h2 class="title">$data[title]</h2></td>
   </tr>
   <tr valign="top">

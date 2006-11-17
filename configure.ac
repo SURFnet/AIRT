@@ -22,7 +22,7 @@ AC_INIT([airt], [AIRT_VERSION], [airt-dev@uvt.nl])
 
 AC_PREREQ(2.59)
 AC_COPYRIGHT([
-Copyright (C) 2005 Tilburg University, The Netherlands
+Copyright (C) 2005,2006 Tilburg University, The Netherlands
 ])
 
 AM_INIT_AUTOMAKE()
@@ -95,6 +95,7 @@ AC_OUTPUT([Makefile
     php/Makefile
     php/login.php
     php/config.plib
+    php/images/Makefile
     po/Makefile
 ])
 

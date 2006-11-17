@@ -15,20 +15,11 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-# $Id$
+# $Id: Makefile.am 1017 2006-11-02 09:43:49Z kees $
 
 #
-scriptdir=@AIRT_PHPDIR@
+datadir=@AIRT_PHPDIR@/images
 
-script_DATA = constituencies.php constituency_contacts.php export.php \
-	incident.php incident_states.php incident_status.php incident_types.php \
-	index.php license.php links.php login.php logout.php maintenance.php \
-	networks.php search.php mailtemplates.php users.php config.plib \
-	server.php importqueue.php exportqueue.php stats.php otrs.php
+data_DATA = airt_logo.png
 
-CLEANFILES = config.plib login.php
-DISTCLEANFILES = $(CLEANFILES)
-
-EXTRA_DIST = $(script_DATA) config.plib.in login.php.in
-
-DIRS = . images
+EXTRA_DIST = $(data_DATA)
