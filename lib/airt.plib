@@ -102,6 +102,11 @@ if (AIRT_RUN_MODE=='HTTP') {
       textdomain('airt');
    }
 
+   airt_check_session($public);
+} // HTTP runtime environment
+
+function airt_check_session($public) {
+   $BASEURL=BASEURL;
    if (!isset($public) || !$public) {
        if (!array_key_exists('username', $_SESSION)) {
            Header("Location: $BASEURL/login.php");
@@ -142,7 +147,7 @@ if (AIRT_RUN_MODE=='HTTP') {
        // update session timestamp
        $_SESSION['last'] = $now;
    }
-} // HTTP runtime environment
+}
 
 ///// End init code; remaining file contains only function definitions, ////
 ///// but these are partially conditional. /////////////////////////////////

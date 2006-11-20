@@ -1046,6 +1046,25 @@ function deleteExternalIncidentIDs($incidentid='', $externalids) {
    return db_query('end transaction');
 }
 
+/** Find incident ID for corresponding ticket number */
+function getIncidentIDsByExternalID($externalid) {
+   $output = array();
+	if (!is_string($externalid)) {
+		return false;
+	}
+	$q = q('select incidentid from external_incidentids '.
+	       'where externalid=\'%extid\'', 
+		    array('%extid'=>db_escape_string($externalid)));
+	$res = db_query($q);
+	if ($res == false) {
+	   return false;
+	}
+	while (($row = db_fetch_next($res)) !== false) {
+	   $output[] = $row['incidentid'];
+	}
+	return $output;
+}
+
 /** Update JavaScript in incidents pages.
  * This function will output HTML containing JavaScript. The JavaScript is a
  * non-essential part of AIRT, but it can make life easier at times.

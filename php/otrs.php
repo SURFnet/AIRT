@@ -21,8 +21,10 @@
  * otrs.php -- frontend for otrs integration
  * $Id: incident.php 1016 2006-10-31 12:34:55Z kees $
  */
-
-
+$public=1;
+require_once 'config.plib';
+require_once LIBDIR.'/airt.plib';
+require_once LIBDIR.'/incident.plib';
 
 $action = fetchFrom('REQUEST','action');
 defaultTo($action,'list');
@@ -31,15 +33,14 @@ switch ($action) {
 
   //--------------------------------------------------------------------
   case 'assign':
-		require_once 'config.plib';
-		require_once LIBDIR.'/airt.plib';
-		require_once LIBDIR.'/incident.plib';
+		airt_check_session(0);
+
       $incidentid = fetchFrom('REQUEST', 'incidentnr');
 		if (empty($incidentid)) {
 		   print "Missing incidentnr";
 			exit;
 		}
-		$tn = fetchFrom('REQUEST', 'TicketID');
+		$tn = fetchFrom('REQUEST', 'tn');
 		if (empty($tn)) {
 		   print _('Missing ticket number');
 			exit;
@@ -47,16 +48,31 @@ switch ($action) {
 		if (in_array('_OTRS'.$tn, getExternalIncidentIDs($incidentid)) === false) {
 			addExternalIncidentIDs($incidentid, '_OTRS'.$tn);
 		}
-		Reload($_SERVER['HTTP_REFERER']);
+		reload($_SERVER['HTTP_REFERER']);
       break;
 
   //--------------------------------------------------------------------
   case 'get':
+     $ticketno = fetchFrom('REQUEST', 'ticketno');
+	  $html='';
+	  if ($ticketno != '') {
+	      $t = getIncidentIDsByExternalID('_OTRS'.$ticketno);
+			if (is_array($t) && sizeof($t) > 0) {
+				$ticketno = implode(',', $t);
+				foreach ($t as $tn) {
+				   $html .= '<a href="'.BASEURL.'/incident.php?action=details&incidentid='.$tn.'">'.normalize_incidentid($tn).'</a><br/>';
+			   }
+			} else {
+			   $ticketno = '';
+			} 
+	  }
+
      Header('Content-Type: text/xml');
      print '<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>'.LF;
-	  print '<response>'.LF;
-	  print '<airtref>http://www.uvt.nl</airtref>'.LF;
-	  print '</response>'.LF;
+	  print '<airt>'.LF;
+	  print '<incidentno>'.$ticketno.'</incidentno>'.LF;
+	  print '<html>'.$html.'</html>'.LF;
+	  print '</airt>'.LF;
      break;
 
   //--------------------------------------------------------------------
