@@ -3,7 +3,7 @@ var req;
 function loadXMLDoc(ticketno) {
    // Input can be added to the url
    // TODO: make this a config option
-   var url = "http://192.168.81.130/airt/otrs.php?action=get&ticketno="+ticketno;
+   var url = "/airt/otrs.php?action=get&ticketno="+ticketno;
 
    // branch for native XMLHttpRequest object
    if (window.XMLHttpRequest) {
@@ -36,10 +36,11 @@ function processReqChange() {
    if (req.readyState == 4) {
       // only if "OK"
       if (req.status == 200) {
-         if (req.responseXML == null) {
+         res = req.responseXML;
+         if (res == null) {
 	    out = "AIRT unavailable (log in first?)";
 	 } else {
-            response = req.responseXML.documentElement;
+            response = res.documentElement;
             if (response.tagName=='airt') {
                baseurl = response.getAttribute('baseurl');
                incidentlist = response.getElementsByTagName('incident');
@@ -56,9 +57,9 @@ function processReqChange() {
 	 }
 
          airt_output = document.getElementById('airt_output');
-         if (airt_output != null) {
+	 if (airt_output != null) {
             airt_output.innerHTML = out;
-         }
+         } 
       } else {
          airt_output = document.getElementById('airt_output');
          if (airt_output != null) {
