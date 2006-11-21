@@ -22,24 +22,48 @@ function loadXMLDoc(ticketno) {
 }
 
 function processReqChange() {
+   var response;
+   var baseurl;
+   var incidentlist;
+   var out = '';
+   var i;
+   var label;
+   var incidentid;
+   var incident;
+   var status;
+
    // only if req shows "complete"
    if (req.readyState == 4) {
       // only if "OK"
       if (req.status == 200) {
-         response = req.responseXML.documentElement;
-         tnelement = response.getElementsByTagName('incidentno');
-	 if (tnelement.length >= 1) {
-	    incidentnr=tnelement.item(0).firstChild.data;
+         if (req.responseXML == null) {
+	    out = "AIRT unavailable (log in first?)";
+	 } else {
+            response = req.responseXML.documentElement;
+            if (response.tagName=='airt') {
+               baseurl = response.getAttribute('baseurl');
+               incidentlist = response.getElementsByTagName('incident');
+               for (i=0; i<incidentlist.length; i++) {
+                  incident = incidentlist.item(i);
+                  incidentid = incident.getAttribute('id');
+                  label = incident.getAttribute('label');
+                  out += '<a href="'+baseurl+'/incident.php?action=details&incidentid='+incidentid+
+                         '">'+label+'</a><br/>';
+               }
+            } else {
+	       out = 'Unexpected response from server';
+	    }
 	 }
-         textfield = document.getElementById('incidentnr');
-         textfield.value=incidentnr;
-	 /*
-         htmlelement = response.getElementsByTagName('html');
-	 if (htmlelement.length >= 1) {
-	    html=htmlelement.item(0).firstChild.data;
-	    document.writeln(html);
-	 }
-	 */
+
+         airt_output = document.getElementById('airt_output');
+         if (airt_output != null) {
+            airt_output.innerHTML = out;
+         }
+      } else {
+         airt_output = document.getElementById('airt_output');
+         if (airt_output != null) {
+            airt_output.innerHTML = "AIRT unavailable";
+         }
       }
    }
 }

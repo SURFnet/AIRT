@@ -90,4 +90,39 @@ d. junk queue. Must contain all mail that is not categorized
    from the OTRS interface. Instead, the control must be at
    the AIRT side.
 
+
+3. Implementation
+   
+   To implement the OTRS-side of the integration, we have
+   chosen to use the page template mechanism of OTRS,
+   combined with some AJAX scripting. To add AIRT components
+   to an OTRS page, first include the apppropriate Java
+   Script. For example add the following code to the head to
+   the template:
+
+   <script type="text/javascript" src="/airt/otrs-airt.js"></script>
+
+   Next, where you wish to create appropriate output, call
+   the appropriate JavaScript code:
+
+   <script language="JavaScript">loadXMLDoc($Data{"TicketNumber"});</script>
+
+   The variable $Data{"TicketNumber"} is expanded by OTRS
+   before the page is sent to the user's browser. The script
+   expects a <DIV>-element with ID "airt_output" where it
+   can place its output. This can be realized as follows:
+
+   <div id="airt_output">$Text{"none"}</div><p/>
+
+   The OTRS template mechanism can also be used to insert
+   additional HTML-text into the user's screen. This can be
+   a form posting to an AIRT component:
+
+    <form  action="/airt/otrs.php" method="get">
+       <input type="text" id="incidentnr" name="incidentnr" >
+       <input type="hidden" name="action" value="assign">
+       <input type="hidden" name="tn" value="$Data{"TicketNumber"}">
+       <input class="button" type="submit" value="$Text{"Link"}">
+    </form>
+
 $EOF$

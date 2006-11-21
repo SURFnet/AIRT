@@ -21,7 +21,6 @@
  * otrs.php -- frontend for otrs integration
  * $Id: incident.php 1016 2006-10-31 12:34:55Z kees $
  */
-$public=1;
 require_once 'config.plib';
 require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/incident.plib';
@@ -33,7 +32,7 @@ switch ($action) {
 
   //--------------------------------------------------------------------
   case 'assign':
-		airt_check_session(0);
+//		airt_check_session(0);
 
       $incidentid = fetchFrom('REQUEST', 'incidentnr');
 		if (empty($incidentid)) {
@@ -54,25 +53,20 @@ switch ($action) {
   //--------------------------------------------------------------------
   case 'get':
      $ticketno = fetchFrom('REQUEST', 'ticketno');
-	  $html='';
+     Header('Content-Type: text/xml');
+     print '<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>'.LF;
+	  print '<airt baseurl="'.BASEURL.'">'.LF;
 	  if ($ticketno != '') {
 	      $t = getIncidentIDsByExternalID('_OTRS'.$ticketno);
 			if (is_array($t) && sizeof($t) > 0) {
-				$ticketno = implode(',', $t);
-				foreach ($t as $tn) {
-				   $html .= '<a href="'.BASEURL.'/incident.php?action=details&incidentid='.$tn.'">'.normalize_incidentid($tn).'</a><br/>';
-			   }
-			} else {
-			   $ticketno = '';
-			} 
+			   foreach ($t as $incidentid) {
+				   print '   <incident id="'.$incidentid.'" ';
+					print 'label="'.normalize_incidentid($incidentid).'"/>'.LF;
+				}
+			}
 	  }
-
-     Header('Content-Type: text/xml');
-     print '<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>'.LF;
-	  print '<airt>'.LF;
-	  print '<incidentno>'.$ticketno.'</incidentno>'.LF;
-	  print '<html>'.$html.'</html>'.LF;
 	  print '</airt>'.LF;
+
      break;
 
   //--------------------------------------------------------------------
