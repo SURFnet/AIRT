@@ -1172,6 +1172,15 @@ function formatIncidentForm(&$check) {
    }
 
    $output =  formatBasicIncidentData($type, $state, $status);
+	if (defined('OTRS_ACTIVE') && OTRS_ACTIVE === true) {
+	   $tn = fetchFrom('SESSION', 'otrs_tn');
+		if (!empty($tn)) {
+	      unset($_SESSION['otrs_tn']);
+		   $output .= '<input type="checkbox" CHECKED name="otrs-link">'.LF;
+			$output .= '<input type="hidden" name="otrs_tn" value="'.$tn.'">'.LF;
+			$output .= t(_('Link to OTRS ticket %tn'), array('%tn'=>$tn));
+		}
+	}
    $output .= '<hr/>'.LF;
    $output .= '<h3>'._('Affected IP addresses').'</h3>'.LF;
    $output .= '<table cellpadding=4>'.LF;

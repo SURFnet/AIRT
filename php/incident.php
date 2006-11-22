@@ -240,7 +240,7 @@ switch ($action) {
       break;
 
     //---------------------------------------------------------------------
-    case "Add":
+    case _('Add'):
       // Create a new incident from edit form.
       $address = $constituency = $type = $state = $status = $email =
 		  $addressrole = $logging = '';
@@ -274,6 +274,17 @@ switch ($action) {
 
       $incidentid   = createIncident($state,$status,$type,$date,$logging);
       addIPtoIncident($address,$incidentid,$addressrole);
+
+		
+	   if (defined('OTRS_ACTIVE') && OTRS_ACTIVE === true) {
+		   $otrsln = fetchFrom('REQUEST', 'otrs-link');
+			$otrstn = fetchFrom('REQUEST', 'otrs_tn');
+
+			defaultTo($otrsln, 'off');
+			if ($otrsln === 'on') {
+				addExternalIncidentIds($incidentid, '_OTRS'.$otrstn);
+			}
+		}
 
       if ($email != '') {
          foreach (explode(',', $email) as $addr) {

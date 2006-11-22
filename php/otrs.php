@@ -25,52 +25,69 @@ require_once 'config.plib';
 require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/incident.plib';
 
-$action = fetchFrom('REQUEST','action');
+$action = strtolower(fetchFrom('REQUEST','action'));
 defaultTo($action,'list');
 
 switch ($action) {
 
-  //--------------------------------------------------------------------
-  case 'assign':
-//		airt_check_session(0);
-
-      $incidentid = fetchFrom('REQUEST', 'incidentnr');
-		if (empty($incidentid)) {
-		   print "Missing incidentnr";
-			exit;
-		}
-		$tn = fetchFrom('REQUEST', 'tn');
-		if (empty($tn)) {
-		   print _('Missing ticket number');
-			exit;
-		}
-		if (in_array('_OTRS'.$tn, getExternalIncidentIDs($incidentid)) === false) {
-			addExternalIncidentIDs($incidentid, '_OTRS'.$tn);
-		}
-		reload($_SERVER['HTTP_REFERER']);
+   //--------------------------------------------------------------------
+   case 'search':
+      $ip = fetchFrom('REQUEST', 'ip');
+		Header('Location: '.BASEURL.'/search.php?q='.urlencode($ip).'&action=Search&qtype=host');
       break;
 
-  //--------------------------------------------------------------------
-  case 'get':
-     $ticketno = fetchFrom('REQUEST', 'ticketno');
-     Header('Content-Type: text/xml');
-     print '<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>'.LF;
-	  print '<airt baseurl="'.BASEURL.'">'.LF;
-	  if ($ticketno != '') {
-	      $t = getIncidentIDsByExternalID('_OTRS'.$ticketno);
-			if (is_array($t) && sizeof($t) > 0) {
-			   foreach ($t as $incidentid) {
-				   print '   <incident id="'.$incidentid.'" ';
-					print 'label="'.normalize_incidentid($incidentid).'"/>'.LF;
-				}
-			}
-	  }
-	  print '</airt>'.LF;
+   //--------------------------------------------------------------------
+   case 'assign':
+      $incidentid = fetchFrom('REQUEST', 'incidentnr');
+      if (empty($incidentid)) {
+         print _('Missing incidentnr');
+         exit;
+      }
+      $tn = fetchFrom('REQUEST', 'tn');
+      if (empty($tn)) {
+         print _('Missing ticket number');
+         exit;
+      }
+      if (in_array('_OTRS'.$tn, getExternalIncidentIDs($incidentid)) === false) {
+         addExternalIncidentIDs($incidentid, '_OTRS'.$tn);
+      }
+      reload($_SERVER['HTTP_REFERER']);
+      break;
+
+   //--------------------------------------------------------------------
+   case 'get':
+      $ticketno = fetchFrom('REQUEST', 'tn');
+      Header('Content-Type: text/xml');
+      print '<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>'.LF;
+      print '<airt baseurl="'.BASEURL.'">'.LF;
+      if ($ticketno != '') {
+         $t = getIncidentIDsByExternalID('_OTRS'.$ticketno);
+         if (is_array($t) && sizeof($t) > 0) {
+            foreach ($t as $incidentid) {
+               print '   <incident id="'.$incidentid.'" ';
+               print 'label="'.normalize_incidentid($incidentid).'"/>'.LF;
+            }
+         }
+     }
+     print '</airt>'.LF;
 
      break;
 
-  //--------------------------------------------------------------------
-  default:
-      die(_('Unknown action'));
+   //--------------------------------------------------------------------
+	case 'new incident':
+	   $ticketno = fetchFrom('REQUEST', 'tn');
+		$ip = fetchFrom('REQUEST', 'ip');
+		if (!empty($ticketno)) {
+		   $_SESSION['otrs_tn'] = $ticketno;
+		}
+		if (!empty($ip)) {
+		   $_SESSION['active_ip'] = $ip;
+		}
+		Header('Location: '.BASEURL.'/incident.php?action=new');
+		break;
+
+   //--------------------------------------------------------------------
+   default:
+      die(t(_('Unknown action (%action)'), array('%action'=>$action)));
 }
 ?>

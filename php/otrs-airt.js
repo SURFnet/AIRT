@@ -3,7 +3,7 @@ var req;
 function loadXMLDoc(ticketno) {
    // Input can be added to the url
    // TODO: make this a config option
-   var url = "/airt/otrs.php?action=get&ticketno="+ticketno;
+   var url = "/airt/otrs.php?action=get&tn="+ticketno;
 
    // branch for native XMLHttpRequest object
    if (window.XMLHttpRequest) {
@@ -25,7 +25,7 @@ function processReqChange() {
    var response;
    var baseurl;
    var incidentlist;
-   var out = '';
+   var out = '- none';
    var i;
    var label;
    var incidentid;
@@ -45,10 +45,11 @@ function processReqChange() {
                baseurl = response.getAttribute('baseurl');
                incidentlist = response.getElementsByTagName('incident');
                for (i=0; i<incidentlist.length; i++) {
+	          if (i==0) { out=''; }
                   incident = incidentlist.item(i);
                   incidentid = incident.getAttribute('id');
                   label = incident.getAttribute('label');
-                  out += '<a href="'+baseurl+'/incident.php?action=details&incidentid='+incidentid+
+                  out +=  '- <a href="'+baseurl+'/incident.php?action=details&incidentid='+incidentid+
                          '">'+label+'</a><br/>';
                }
             } else {
