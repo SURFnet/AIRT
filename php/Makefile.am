@@ -32,4 +32,4 @@ DISTCLEANFILES = $(CLEANFILES)
 
 EXTRA_DIST = $(script_DATA) config.plib.in login.php.in
 
-DIRS = . images
+SUBDIRS = . images
