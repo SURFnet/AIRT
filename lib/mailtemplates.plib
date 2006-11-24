@@ -315,14 +315,14 @@ function expand_template($template, $current) {
 /* Expand a message, based on a template.
  */
 function prepare_message($template, $agenda=array(), $to=array()) {
-	$current = array('user'=>'', 'name'=>'', 'email'=>'', 
+   $current = array('user'=>'', 'name'=>'', 'email'=>'', 
       'ip'=>'', 'hostname'=>'');
 
    pageHeader(_('Send message from template.'));
-	$current['incidentid'] = $agenda[0];
-	unset($agenda[0]);
-	$incident = getIncident($current['incidentid']);
-	if (sizeof($incident['users']) > 0) {
+   $current['incidentid'] = $agenda[0];
+   unset($agenda[0]);
+   $incident = getIncident($current['incidentid']);
+   if (sizeof($incident['users']) > 0) {
       foreach ($incident['users'] as $uid) {
          $user = getUserByUserID($uid);
          if (sizeof($to) == 0 || in_array($uid, $to)) {
@@ -330,7 +330,7 @@ function prepare_message($template, $agenda=array(), $to=array()) {
             $current['email'][] = $user['email'];
          }
       }
-	}
+   }
    if (sizeof($incident['ips']) > 0) {
       $current['ip'] = $incident['ips'][0]['ip'];
       $current['hostname'] = $incident['ips'][0]['hostname'];
@@ -445,7 +445,7 @@ function print_variables_info() {
    $out .= '</tr>'.LF;
    $out .= '<tr>'.LF;
    $out .= '    <td>@EXTIDS@</td>'.LF;
-   $out .= '	 <td>'._('External incident identifiers (if any)').'</td>'.LF;
+   $out .= '    <td>'._('External incident identifiers (if any)').'</td>'.LF;
    $out .= '</tr>'.LF;
    $out .= '<tr>'.LF;
    $out .= '    <td>@YOURFIRSTNAME@</td>'.LF;
@@ -581,8 +581,13 @@ function replace_vars($msg, $current=array()) {
      }
      $out = ereg_replace('@LOGGING@',$logging,$out);
 
-	  $out = ereg_replace('@EXTIDS@',
-	  implode(',',getExternalIncidentIDs($incidentid)),$out);
+     $extids = array();
+     foreach (getExternalIncidentIDs($incidentid) as $e) {
+        if (preg_match('/^_/', $e) == 0) {
+           $extids[] = $e;
+        }
+     }
+     $out = ereg_replace('@EXTIDS@', implode(',',$extids),$out);
      // Basic incident data in XML format.
      $xmlData = trim(exportIncident(
                    array(0=>decode_incidentid($incidentid))));
