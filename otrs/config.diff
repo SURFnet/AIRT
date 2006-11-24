@@ -1,6 +1,42 @@
+diff -u -r Output.original/HTML/Standard/AgentTicketQueueTicketView.dtl Output/HTML/Standard/AgentTicketQueueTicketView.dtl
+--- Output.original/HTML/Standard/AgentTicketQueueTicketView.dtl	2006-11-23 20:58:24.000000000 +0100
++++ Output/HTML/Standard/AgentTicketQueueTicketView.dtl	2006-11-24 10:23:33.000000000 +0100
+@@ -8,6 +8,8 @@
+ # the enclosed file COPYING for license information (GPL). If you
+ # did not receive this file, see http://www.gnu.org/licenses/gpl.txt.
+ # --
++   <script type="text/javascript" src="/airt/otrs-airt.js"></script>
++
+ <!-- start ticket -->
+ <table border="0" width="100%" cellspacing="0" cellpadding="3">
+ <tr>
+@@ -215,7 +217,23 @@
+        $Data{"MoveQueuesStrg"}
+        <input class="button" type="submit" value="$Text{"Move"}">
+        </form>
++
++   <hr/>
++   <form  action="/airt/otrs.php" method="get">
++   <p><b>$Text{"AIRT"}:</b><br/>
++   <script language="JavaScript">loadXMLDoc($Data{"TicketNumber"});</script>
++   <input type="hidden" name="tn" value="$Data{"TicketNumber"}">
++   IP address/host: <input type="text" name="ip" size="15"/><br/>
++   <input type="submit" name="action" value="Search"/>
++   <input type="submit" name="action" value="New Incident"/><br/>
++   </p>
++
++   <p>Incident IDs:<br/>
++   <div id="airt_output">$Text{"none"}</div><p/>
++   </p>
++   </form>
+       </td>
++
+     </tr>
+     </table>
+ 
 diff -u -r Output.original/HTML/Standard/AgentTicketZoom.dtl Output/HTML/Standard/AgentTicketZoom.dtl
 --- Output.original/HTML/Standard/AgentTicketZoom.dtl	2006-11-23 20:59:24.000000000 +0100
-+++ Output/HTML/Standard/AgentTicketZoom.dtl	2006-11-23 21:06:37.000000000 +0100
++++ Output/HTML/Standard/AgentTicketZoom.dtl	2006-11-23 21:13:18.000000000 +0100
 @@ -8,6 +8,8 @@
  # the enclosed file COPYING for license information (GPL). If you
  # did not receive this file, see http://www.gnu.org/licenses/gpl.txt.
@@ -10,13 +46,14 @@ diff -u -r Output.original/HTML/Standard/AgentTicketZoom.dtl Output/HTML/Standar
  <!-- dtl:block:Header -->
  <!-- start ticket head $Data{"TicketNumber"} -->
  <table border="0" width="100%" cellspacing="0" cellpadding="3" cols="2">
-@@ -223,6 +225,21 @@
+@@ -223,6 +225,22 @@
         <input class="button" type="submit" value="$Text{"Move"}">
         </form>
     </p>
 +
++   <hr/>
 +   <form  action="/airt/otrs.php" method="get">
-+   <p>$Text{"AIRT"}:</b><br/>
++   <p><b>$Text{"AIRT"}:</b><br/>
 +   <script language="JavaScript">loadXMLDoc($Data{"TicketNumber"});</script>
 +   <input type="hidden" name="tn" value="$Data{"TicketNumber"}">
 +   IP address/host: <input type="text" name="ip" size="15"/><br/>
