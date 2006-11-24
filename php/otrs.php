@@ -32,7 +32,14 @@ switch ($action) {
 
    //--------------------------------------------------------------------
    case 'search':
+	   $ticketno = fetchFrom('REQUEST', 'tn');
       $ip = fetchFrom('REQUEST', 'ip');
+		if (!empty($ticketno)) {
+		   $_SESSION['otrs_tn'] = $ticketno;
+		}
+		if (!empty($ip)) {
+		   $_SESSION['active_ip'] = $ip;
+		}
 		Header('Location: '.BASEURL.'/search.php?q='.urlencode($ip).'&action=Search&qtype=host');
       break;
 
