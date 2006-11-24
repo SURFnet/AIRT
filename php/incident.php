@@ -816,7 +816,7 @@ _('Continue').'...</a>'.LF,
    case 'Add external identifier':
    case 'add_extid':
       $incidentid = fetchFrom('REQUEST', 'incidentid');
-      $extid = fetchFrom('REQUEST', 'extid');
+      $extid = trim(fetchFrom('REQUEST', 'extid'));
       if ($incidentid == '') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          Header("Location: $_SERVER[PHP_SELF]");
