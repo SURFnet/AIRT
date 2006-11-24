@@ -102,6 +102,10 @@ if (AIRT_RUN_MODE=='HTTP') {
       textdomain('airt');
    }
 
+   if (!isset($public)){
+      $public = 0;
+   }
+
    airt_check_session($public);
 } // HTTP runtime environment
 
