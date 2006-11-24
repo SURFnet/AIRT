@@ -21,6 +21,10 @@ function loadXMLDoc(ticketno) {
    }
 }
 
+function getElementById(id) {
+   return document.getElementById(id);
+}
+
 function processReqChange() {
    var response;
    var baseurl;
@@ -57,12 +61,15 @@ function processReqChange() {
 	    }
 	 }
 
-         airt_output = document.getElementById('airt_output');
+         try {
+	    airt_output = getElementById("airt_output");
+	 } catch (e) {
+	 }
 	 if (airt_output != null) {
             airt_output.innerHTML = out;
          } 
       } else {
-         airt_output = document.getElementById('airt_output');
+         airt_output = getElementById('airt_output');
          if (airt_output != null) {
             airt_output.innerHTML = "AIRT unavailable";
          }
