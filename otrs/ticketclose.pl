@@ -88,6 +88,6 @@ $GenericAgentObject->JobRun(
     UserID => 1
 );
 
-print "Attempted close."
+print "Attempted close.";
 
 exit;
