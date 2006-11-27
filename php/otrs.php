@@ -71,8 +71,10 @@ switch ($action) {
          $t = getIncidentIDsByExternalID('_OTRS'.$ticketno);
          if (is_array($t) && sizeof($t) > 0) {
             foreach ($t as $incidentid) {
+               $incident = getIncident($incidentid);
                print '   <incident id="'.$incidentid.'" ';
-               print 'label="'.normalize_incidentid($incidentid).'"/>'.LF;
+               print 'label="'.normalize_incidentid($incidentid).'" ';
+               print 'status="'.getIncidentStatusLabelByID($incident['status']).'"/>'.LF;
             }
          }
      }
