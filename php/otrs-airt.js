@@ -48,13 +48,16 @@ function processReqChange() {
             if (response.tagName=='airt') {
                baseurl = response.getAttribute('baseurl');
                incidentlist = response.getElementsByTagName('incident');
+	       selectbox = document.getElementById('incidentstatus');
                for (i=0; i<incidentlist.length; i++) {
 	          if (i==0) { out=''; }
                   incident = incidentlist.item(i);
                   incidentid = incident.getAttribute('id');
                   label = incident.getAttribute('label');
+		  status = incident.getAttribute('status');
                   out +=  '- <a href="'+baseurl+'/incident.php?action=details&incidentid='+incidentid+
                          '">'+label+'</a><br/>';
+                  selectbox.options[i+1] = new Option(label + "  " + status,label,false,false);
                }
             } else {
 	       out = 'Unexpected response from server';
