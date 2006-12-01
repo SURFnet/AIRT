@@ -57,7 +57,7 @@ function processReqChange() {
 		  status = incident.getAttribute('status');
                   out +=  '- <a href="'+baseurl+'/incident.php?action=details&incidentid='+incidentid+
                          '">'+label+'</a><br/>';
-                  selectbox.options[i+1] = new Option(label + "  " + status,label,false,false);
+                  // selectbox.options[i+1] = new Option(label + "  " + status,label,false,false);
                }
             } else {
 	       out = 'Unexpected response from server';

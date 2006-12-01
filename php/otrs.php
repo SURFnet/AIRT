@@ -44,12 +44,14 @@ switch ($action) {
       break;
 
    //--------------------------------------------------------------------
-   case 'assign':
-      $incidentid = fetchFrom('REQUEST', 'incidentnr');
+   case _('link'):
+      $incidentid = fetchFrom('REQUEST', 'incidentno');
       if (empty($incidentid)) {
          print _('Missing incidentnr');
          exit;
-      }
+      } else {
+		   $incidentid=decode_incidentid($incidentid);
+		}
       $tn = fetchFrom('REQUEST', 'tn');
       if (empty($tn)) {
          print _('Missing ticket number');

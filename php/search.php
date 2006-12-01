@@ -76,6 +76,8 @@ function showSearch($qtype='') {
  * \param [in] $hostname  Hostname or IP address to search for.
  */
 function search_host($hostname='') {
+   global $qtype;
+
    // normalize to IP address
    $ip = @gethostbyname(trim($hostname));
 

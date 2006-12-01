@@ -1,4 +1,15 @@
-diff -u -r Output.original/HTML/Standard/AgentTicketQueueTicketView.dtl Output/HTML/Standard/AgentTicketQueueTicketView.dtl
+diff -ur Output.original/HTML/Standard/AgentTicketQueue.dtl Output/HTML/Standard/AgentTicketQueue.dtl
+--- Output.original/HTML/Standard/AgentTicketQueue.dtl	2006-11-23 20:58:24.000000000 +0100
++++ Output/HTML/Standard/AgentTicketQueue.dtl	2006-12-01 13:42:58.000000000 +0100
+@@ -17,6 +17,7 @@
+ </tr>
+ <tr>
+   <td class="menu">
++  <a href="/airt/incident.php">$Text{"AIRT incident overview"}</a>
+   $Text{"Tickets shown"}: $Data{"Result"} -
+   $Text{"Page"}: $Data{"PageNavBar"} -
+   $Text{"Tickets available"}: $Data{"TicketsAvail"} -
+diff -ur Output.original/HTML/Standard/AgentTicketQueueTicketView.dtl Output/HTML/Standard/AgentTicketQueueTicketView.dtl
 --- Output.original/HTML/Standard/AgentTicketQueueTicketView.dtl	2006-11-23 20:58:24.000000000 +0100
 +++ Output/HTML/Standard/AgentTicketQueueTicketView.dtl	2006-11-24 10:23:33.000000000 +0100
 @@ -8,6 +8,8 @@
@@ -34,9 +45,9 @@ diff -u -r Output.original/HTML/Standard/AgentTicketQueueTicketView.dtl Output/H
      </tr>
      </table>
  
-diff -u -r Output.original/HTML/Standard/AgentTicketZoom.dtl Output/HTML/Standard/AgentTicketZoom.dtl
+diff -ur Output.original/HTML/Standard/AgentTicketZoom.dtl Output/HTML/Standard/AgentTicketZoom.dtl
 --- Output.original/HTML/Standard/AgentTicketZoom.dtl	2006-11-23 20:59:24.000000000 +0100
-+++ Output/HTML/Standard/AgentTicketZoom.dtl	2006-11-23 21:13:18.000000000 +0100
++++ Output/HTML/Standard/AgentTicketZoom.dtl	2006-12-01 14:14:09.000000000 +0100
 @@ -8,6 +8,8 @@
  # the enclosed file COPYING for license information (GPL). If you
  # did not receive this file, see http://www.gnu.org/licenses/gpl.txt.
@@ -46,25 +57,44 @@ diff -u -r Output.original/HTML/Standard/AgentTicketZoom.dtl Output/HTML/Standar
  <!-- dtl:block:Header -->
  <!-- start ticket head $Data{"TicketNumber"} -->
  <table border="0" width="100%" cellspacing="0" cellpadding="3" cols="2">
-@@ -223,6 +225,22 @@
+@@ -25,6 +27,7 @@
+ <tr>
+   <td width="70%" class="menu">
+ 
++  <a href="/airt/incident.php">$Text{"AIRT incident overview"}</a> - 
+ <!-- dtl:block:Menu -->
+ <!-- dtl:block:MenuItemSplit -->
+  -
+@@ -223,6 +226,33 @@
         <input class="button" type="submit" value="$Text{"Move"}">
         </form>
     </p>
++   
++<script language="JavaScript" type="text/javascript">loadXMLDoc('$Data{"TicketNumber"}');</script>
 +
-+   <hr/>
++  <hr/>
 +   <form  action="/airt/otrs.php" method="get">
 +   <p><b>$Text{"AIRT"}:</b><br/>
-+   <script language="JavaScript">loadXMLDoc($Data{"TicketNumber"});</script>
++
 +   <input type="hidden" name="tn" value="$Data{"TicketNumber"}">
-+   IP address/host: <input type="text" name="ip" size="15"/><br/>
++   IP address/host: <input type="text" name="ip" size="15"/>
++   <br/>
 +   <input type="submit" name="action" value="Search"/>
-+   <input type="submit" name="action" value="New Incident"/><br/>
++   <input type="submit" name="action" value="New Incident"/>
++   <p/>
++   <input type="submit" name="action" value="Link"/> to incident <input type="text" name="incidentno" size="15"/><br/>
++   <!--
++   <select id="incidentstatus" name='incident'>
++    <option disabled selected>existing incidents</option>
++   </select>
++   -->
++   <br/>
 +   </p>
 +
 +   <p>Incident IDs:<br/>
 +   <div id="airt_output">$Text{"none"}</div><p/>
 +   </p>
-+   </form>
++  </form>
 +
    </td>
  </tr>
