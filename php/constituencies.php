@@ -50,7 +50,7 @@ function formatConstituencyForm($id="") {
          $description = $row['name'];
       }
    }
-   $out = '<form action="'.$_SERVER[PHP_SELF].'" method="POST">'.LF;
+   $out = '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">'.LF;
    $out .= '<input type="hidden" name="action" value="'.$action.'">'.LF;
    $out .= '<input type="hidden" name="consid" value="'.$id.'">'.LF;
    $out .= '<table>'.LF;
@@ -98,7 +98,7 @@ switch ($action) {
          $color = ($count++%2==0?"#FFFFFF":"#DDDDDD");
          $out .= '<tr valign="top" bgcolor="'.$color.'">'.LF;
          $out .= '<td>'.LF;
-         $out .= '<a href="'.$_SERVER[PHP_SELF].'?action=edit&cons='.$consid.
+         $out .= '<a href="'.$_SERVER['PHP_SELF'].'?action=edit&cons='.$consid.
                  '">'._('edit').'</a>'.LF;
          $out .= '</td>'.LF;
          $out .= '<td>'.$label.'</td>'.LF;

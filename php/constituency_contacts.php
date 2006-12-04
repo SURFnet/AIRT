@@ -132,7 +132,7 @@ switch ($action) {
 
       if (db_num_rows($res) > 0) {
          print '<P>'.LF;
-         print '<FORM action="'.$_SERVER[PHP_SELF].'" method="POST">'.LF;
+         print '<FORM action="'.$_SERVER['PHP_SELF'].'" method="POST">'.LF;
          print _('Assing user(s) to constituency:').LF;
          print '<SELECT name="userid">'.LF;
          while ($row = db_fetch_next($res)) {
@@ -150,7 +150,7 @@ switch ($action) {
          echo '<P><I>'._('No unassigned users.').'</I>'.LF;
       }
       print '<P><HR>'.LF;
-      print '<a href="'.$_SERVER[PHP_SELF].'">'.
+      print '<a href="'.$_SERVER['PHP_SELF'].'">'.
             _('Select another constituency').'</a> &nbsp;|&nbsp;'.
             '<a href="maintenance.php">'._('Settings').'</a>'.LF;
       pageFooter();

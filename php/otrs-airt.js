@@ -42,40 +42,43 @@ function processReqChange() {
       if (req.status == 200) {
          res = req.responseXML;
          if (res == null) {
-	    out = "AIRT unavailable (log in first?)";
-	 } else {
+            out = "AIRT unavailable (log in first?)";
+         } else {
             response = res.documentElement;
             if (response.tagName=='airt') {
                baseurl = response.getAttribute('baseurl');
                incidentlist = response.getElementsByTagName('incident');
-	       selectbox = document.getElementById('incidentstatus');
+               selectbox = document.getElementById('incidentstatus');
                for (i=0; i<incidentlist.length; i++) {
-	          if (i==0) { out=''; }
+                  if (i==0) { 
+		     out=''; 
+		  }
                   incident = incidentlist.item(i);
                   incidentid = incident.getAttribute('id');
+                  ticketno = incident.getAttribute('ticketno');
                   label = incident.getAttribute('label');
-		  status = incident.getAttribute('status');
+                  status = incident.getAttribute('status');
                   out +=  '- <a href="'+baseurl+'/incident.php?action=details&incidentid='+incidentid+
-                         '">'+label+'</a><br/>';
+                          '">'+label+'</a><br/>';
                   // selectbox.options[i+1] = new Option(label + "  " + status,label,false,false);
                }
             } else {
-	       out = 'Unexpected response from server';
-	    }
-	 }
+               out = 'Unexpected response from server';
+            }
+         }
 
          try {
-	    airt_output = getElementById("airt_output");
-	 } catch (e) {
-	 }
-	 if (airt_output != null) {
-            airt_output.innerHTML = out;
-         } 
+            airt_output = getElementById("airt_output_"+ticketno);
+            if (airt_output != null) {
+               airt_output.innerHTML = out;
+            } 
+         } catch (e) {
+         }
       } else {
          airt_output = getElementById('airt_output');
          if (airt_output != null) {
             airt_output.innerHTML = "AIRT unavailable";
          }
       }
-   }
-}
+   } // readyState == 4
+} // function ProcessReqChange

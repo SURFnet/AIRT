@@ -1162,9 +1162,19 @@ function formatIncidentForm(&$check) {
    $constituency = $name = $email = $type = $state = $status 
      = $addressrole = '';
 
+	
    $address      = fetchFrom('SESSION','active_ip');
-   $constituency = fetchFrom('SESSION','constituency_id');
-   $email        = fetchFrom('SESSION','current_email');
+	$constituency = 0;
+	$email        = '';
+	if ($address != '') {
+	   $networkid = categorize($address);
+		$constituency = getConstituencyIDbyNetworkID($networkid);
+		$cc = array();
+		foreach (getConstituencyContacts($constituency) as $c) {
+		   $cc[] = $c['email'];
+		}
+		$email = implode(',',$cc);
+	}
 
    if (defined('CUSTOM_FUNCTIONS') &&
              function_exists('custom_default_addressrole')) {

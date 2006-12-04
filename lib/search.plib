@@ -44,7 +44,10 @@ function reversesortbymask ($networks) {
    return $networks;
 }
 
-/* categorize IP address based on network */
+/** Categorize IP address based on network 
+ * @param $ip IP address in dotted notation
+ * @return The network id to which the given IP address belongs.
+ */
 function categorize($ip) {
    $networks = reversesortbymask(getNetworks());
    $category = "-1";

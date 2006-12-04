@@ -76,6 +76,7 @@ switch ($action) {
                $incident = getIncident($incidentid);
                print '   <incident id="'.$incidentid.'" ';
                print 'label="'.normalize_incidentid($incidentid).'" ';
+					print 'ticketno="'.$ticketno.'" ';
                print 'status="'.getIncidentStatusLabelByID($incident['status']).'"/>'.LF;
             }
          }
