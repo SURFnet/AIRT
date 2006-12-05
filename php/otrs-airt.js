@@ -1,4 +1,4 @@
-/* vim:syntax=php shiftwidth=3 tabstop=3
+/* vim:syntax=javascript shiftwidth=3 tabstop=3
  *
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
  * Copyright (C) 2006   Tilburg University, The Netherlands
@@ -21,7 +21,7 @@
  *
  * $Id: incident.php 1016 2006-10-31 12:34:55Z kees $
  */
-var req = new Object();
+var req=new Array();
 
 function loadXMLDoc(ticketno) {
    // Input can be added to the url
@@ -29,19 +29,23 @@ function loadXMLDoc(ticketno) {
    var url = "/airt/otrs.php?action=get&tn="+ticketno;
 
    // branch for native XMLHttpRequest object
-   if (window.XMLHttpRequest) {
-      req.ticketno = new XMLHttpRequest();
+   if (window.XMLHttpRequest != null) {
+      req[ticketno] = new XMLHttpRequest();
    }
    // branch for IE/Windows ActiveX version 
    else if (window.ActiveXObject) {
-      req.ticketno = new ActiveXObject("Microsoft.XMLHTTP");
+      req[ticketno] = new ActiveXObject("Microsoft.XMLHTTP");
    }
 
-   if (req.ticketno != null) {
-      req.ticketno.onreadystatechange = processReqChange(ticketno);
-      req.ticketno.open("GET", url, true);
-      req.ticketno.send(null);
+   if (req[ticketno] != null) {
+      req[ticketno].open("GET", url, false);
+      req[ticketno].send(null);
+      processReqChange(ticketno);
    }
+}
+
+function getElementById(id) {
+   return document.getElementById(id);
 }
 
 function processReqChange(ticketno) {
@@ -55,51 +59,41 @@ function processReqChange(ticketno) {
    var incident;
    var status;
    var tn;
+	var airt_output;
 
-   // only if req shows "complete"
-   alert(ticketno+":"+req.ticketno+":"+req.ticketno.readyState);
-   if (req.ticketno.readyState == 4) {
-      // only if "OK"
-      if (req.ticketno.status == 200) {
-         res = req.ticketno.responseXML;
-         if (res == null) {
-            out = "AIRT unavailable (log in first?)";
-         } else {
-            response = res.documentElement;
-            if (response.tagName=='airt') {
-               baseurl = response.getAttribute('baseurl');
-               incidentlist = response.getElementsByTagName('incident');
-               selectbox = document.getElementById('incidentstatus');
-               for (i=0; i<incidentlist.length; i++) {
-                  if (i==0) { 
-		     out=''; 
-		  }
-                  incident = incidentlist.item(i);
-                  incidentid = incident.getAttribute('id');
-                  tn = incident.getAttribute('ticketno');
-                  label = incident.getAttribute('label');
-                  status = incident.getAttribute('status');
-                  out +=  '- <a href="'+baseurl+'/incident.php?action=details&incidentid='+incidentid+
-                          '">'+label+'</a><br/>';
-                  // selectbox.options[i+1] = new Option(label + "  " + status,label,false,false);
-               }
-            } else {
-               out = 'Unexpected response from server';
+   res = req[ticketno].responseXML;
+   if (res == null) {
+      out = "AIRT unavailable (log in first?)";
+   } else {
+      response = res.documentElement;
+      if (response.tagName=='airt') {
+         baseurl = response.getAttribute('baseurl');
+         incidentlist = response.getElementsByTagName('incident');
+         selectbox = getElementById('incidentstatus');
+         for (i=0; i<incidentlist.length; i++) {
+            if (i==0) { 
+               out=''; 
             }
-         }
-
-         try {
-            airt_output = document.getElementById("airt_output_"+tn);
-            if (airt_output != null) {
-               airt_output.innerHTML = out;
-            } 
-         } catch (e) {
+            incident = incidentlist.item(i);
+            incidentid = incident.getAttribute('id');
+            label = incident.getAttribute('label');
+            status = incident.getAttribute('status');
+            out +=  '- <a href="'+baseurl+'/incident.php?action=details&incidentid='+incidentid+
+                    '">'+label+'</a><br/>';
+            // selectbox.options[i+1] = new Option(label + "  " + status,label,false,false);
          }
       } else {
-         airt_output = document.getElementById('airt_output');
-         if (airt_output != null) {
-            airt_output.innerHTML = "AIRT unavailable";
-         }
+         out = 'Unexpected response from server';
       }
-   } // readyState == 4
+   }
+
+   try {
+	   var label = "airt_output_"+ticketno;
+      airt_output = getElementById(label);
+      if (airt_output != null) {
+         airt_output.innerHTML = out;
+      }
+   } catch (e) {
+      // do nothing (make IE happy)
+   }
 } // function ProcessReqChange
