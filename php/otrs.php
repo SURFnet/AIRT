@@ -86,18 +86,27 @@ switch ($action) {
      break;
 
    //--------------------------------------------------------------------
-	case 'new incident':
-	   $ticketno = fetchFrom('REQUEST', 'tn');
-		$ip = fetchFrom('REQUEST', 'ip');
-		if (!empty($ticketno)) {
-		   $_SESSION['otrs_tn'] = $ticketno;
-		}
-		if (!empty($ip)) {
-		   $_SESSION['active_ip'] = $ip;
-		}
-		Header('Location: '.BASEURL.'/incident.php?action=new');
-		break;
+   case 'new incident':
+      $ticketno = fetchFrom('REQUEST', 'tn');
+      $ip = fetchFrom('REQUEST', 'ip');
+      if (!empty($ticketno)) {
+         $_SESSION['otrs_tn'] = $ticketno;
+      }
+      if (!empty($ip)) {
+         $_SESSION['active_ip'] = $ip;
+      }
+      Header('Location: '.BASEURL.'/incident.php?action=new');
+      break;
+                                 
+   //--------------------------------------------------------------------
+   case 'Close':
+      $ticketno = fetchFrom('REQUEST', 'tn');
 
+      #needs a correct directory indication !!!!!!!!!!!!!                      
+      exec('ticketclose.pl '.$ticketno)                 
+                         
+      Header('Location: '.$_SERVER['HTTP_REFERER']);
+      break;               
    //--------------------------------------------------------------------
    default:
       die(t(_('Unknown action (%action)'), array('%action'=>$action)));
