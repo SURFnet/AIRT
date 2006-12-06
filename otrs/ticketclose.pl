@@ -49,12 +49,6 @@ my $DBObject = Kernel::System::DB->new(
     LogObject => $LogObject,
 );
 
-my $QueueObject = Kernel::System::Queue->new(
-    ConfigObject => $ConfigObject,
-    LogObject => $LogObject,
-    DBObject => $DBObject
-);
-
 my $TicketObject = Kernel::System::Ticket->new(
     ConfigObject => $ConfigObject,
     LogObject => $LogObject,
@@ -62,31 +56,18 @@ my $TicketObject = Kernel::System::Ticket->new(
     TimeObject => $TimeObject
 );
 
-my $GenericAgentObject = Kernel::System::GenericAgent->new(
-    ConfigObject => $ConfigObject,
-    LogObject => $LogObject,
-    TimeObject => $TimeObject,
-    TicketObject => $TicketObject,
-    QueueObject => $QueueObject,
-    DBObject => $DBObject
-);
-
 my $TicketNumber=shift(@ARGV);
-my $Ticket_ID = $TicketObject->TicketIDLookup(
+my $TicketID = $TicketObject->TicketIDLookup(
   TicketNumber => $TicketNumber
 );
 
-$GenericAgentObject->JobRunTicket(
-    TicketID => $Ticket_ID,
-    TicketNumber => $TicketNumber,
-    Job => 'JobName',
-    Config => {
-	   New => {
-		    State => 'closed successful'
-		  }
-              },
-    UserID => 1
-);
+my ($OwnerID, $Owner) = $TicketObject->OwnerCheck(TicketID => $TicketID);
+
+$TicketObject->StateSet(
+                         StateID  => 2,
+                         TicketID => $TicketID,
+                         UserID   => $OwnerID
+                       );
 
 print "Attempted close.";
 
