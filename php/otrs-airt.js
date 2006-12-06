@@ -60,6 +60,7 @@ function processReqChange(ticketno) {
    var status;
    var tn;
 	var airt_output;
+	var selectbox;
 
    res = req[ticketno].responseXML;
    if (res == null) {
@@ -69,7 +70,7 @@ function processReqChange(ticketno) {
       if (response.tagName=='airt') {
          baseurl = response.getAttribute('baseurl');
          incidentlist = response.getElementsByTagName('incident');
-         selectbox = getElementById('incidentstatus');
+         selectbox = getElementById('incidentstatus_'+ticketno);
          for (i=0; i<incidentlist.length; i++) {
             if (i==0) { 
                out=''; 
@@ -78,9 +79,14 @@ function processReqChange(ticketno) {
             incidentid = incident.getAttribute('id');
             label = incident.getAttribute('label');
             status = incident.getAttribute('status');
-            out +=  '- <a href="'+baseurl+'/incident.php?action=details&incidentid='+incidentid+
-                    '">'+label+'</a><br/>';
-            // selectbox.options[i+1] = new Option(label + "  " + status,label,false,false);
+				t = incident.getAttribute('ticketno');
+				if (t != null && t == ticketno) {
+					out +=  '- <a href="'+baseurl+'/incident.php?action=details&incidentid='+incidentid+
+							  '">'+label+'</a><br/>';
+				}
+				if (t == null && label != "") {
+               selectbox.options[i+1] = new Option(label + "  " + status,incidentid,false,false);
+				}
          }
       } else {
          out = 'Unexpected response from server';

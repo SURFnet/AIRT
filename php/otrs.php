@@ -45,12 +45,22 @@ switch ($action) {
 
    //--------------------------------------------------------------------
    case _('link'):
-      $incidentid = fetchFrom('REQUEST', 'incidentno');
-      if (empty($incidentid)) {
+      $incidentid_s = fetchFrom('REQUEST', 'incidentno_s');
+      $incidentid_t = fetchFrom('REQUEST', 'incidentno_t');
+		
+      if (empty($incidentid_s) && empty($incidentid_t)) {
          print _('Missing incidentnr');
          exit;
       } else {
-		   $incidentid=decode_incidentid($incidentid);
+		   // incidentid_t take precendence
+		   if (empty($incidentid_t)) {
+			   $incidentid = $incidentid_s;
+			} else {
+			   $incidentid = $incidentid_t;
+			}
+			if ($incidentid != -1) {
+				$incidentid=decode_incidentid($incidentid);
+			} 
 		}
       $tn = fetchFrom('REQUEST', 'tn');
       if (empty($tn)) {
@@ -80,6 +90,11 @@ switch ($action) {
                print 'status="'.getIncidentStatusLabelByID($incident['status']).'"/>'.LF;
             }
          }
+			foreach (getOpenIncidents() as $o) {
+            print '   <incident id="'.$o['incidentid'].'" ';
+				print 'label="'.normalize_incidentid($o['incidentid']).'" ';
+            print 'status="'.$o['status'].'"/>'.LF;
+			}
      }
      print '</airt>'.LF;
 
@@ -103,7 +118,7 @@ switch ($action) {
       $ticketno = fetchFrom('REQUEST', 'tn');
 
       #needs a correct directory indication !!!!!!!!!!!!!                      
-      exec('ticketclose.pl '.$ticketno)                 
+      exec(LIBDIR.'/otrs/ticketclose.pl '.$ticketno)                 
                          
       Header('Location: '.$_SERVER['HTTP_REFERER']);
       break;               
