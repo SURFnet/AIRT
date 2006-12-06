@@ -76,7 +76,7 @@ my $Ticket_ID = $TicketObject->TicketIDLookup(
   TicketNumber => $TicketNumber
 );
 
-$GenericAgentObject->JobRun(
+$GenericAgentObject->JobRunTicket(
     TicketID => $Ticket_ID,
     TicketNumber => $TicketNumber,
     Job => 'JobName',

@@ -114,11 +114,14 @@ switch ($action) {
       break;
                                  
    //--------------------------------------------------------------------
-   case 'Close':
+   case 'close':
       $ticketno = fetchFrom('REQUEST', 'tn');
+		if (empty($ticketno)) {
+		   die(_('Missing ticket number'));
+		}
 
-      #needs a correct directory indication !!!!!!!!!!!!!                      
-      exec(LIBDIR.'/otrs/ticketclose.pl '.$ticketno)                 
+      $cmd=LIBDIR.'/otrs/ticketclose.pl '.$ticketno;
+      exec($cmd);
                          
       Header('Location: '.$_SERVER['HTTP_REFERER']);
       break;               
