@@ -691,7 +691,7 @@ function formatBasicIncidentData($type, $state, $status, $logging="", $date='') 
  * Returns a HTML formatted string.
  */
 function editIPform($incidentid,$ip) {
-   if (!is_numeric($incident)) {
+   if (!is_numeric($incidentid)) {
       return '';
    }
    // Retrieve the full address assignment data.
@@ -760,7 +760,7 @@ function editIPform($incidentid,$ip) {
    $o .= '  </tr>'.LF;
    $o .= '  <tr>'.LF;
    $o .= '    <td>'._('Updated by').'</td>'.LF;
-   $o .= '    <td>'.$udpatedby.'</td>'.LF;
+   $o .= '    <td>'.$updatedby.'</td>'.LF;
    $o .= '  </tr>'.LF;
    $o .= '  <tr>'.LF;
    $o .= '    <td>&nbsp;</td>'.LF;
