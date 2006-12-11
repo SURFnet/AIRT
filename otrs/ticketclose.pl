@@ -19,38 +19,32 @@
 #=cut
 #
 
-# use ../../ as lib location
-use FindBin qw($Bin);
-use lib "$Bin/../..";
-use lib "$Bin/../../Kernel/cpan-lib";
-
-use strict;
-
 use Kernel::Config;
 use Kernel::System::Time;
 use Kernel::System::Log;
+use Kernel::System::Main;
 use Kernel::System::DB;
 use Kernel::System::Ticket;
-use Kernel::System::GenericAgent;
-
-use vars qw($VERSION @INC);
-$VERSION = '$Revision: 1.1 $';
-$VERSION =~ s/^\$.*:\W(.*)\W.+?$/$1/;
 
 my $ConfigObject = Kernel::Config->new();
-my $TimeObject    = Kernel::System::Time->new(
+my $LogObject    = Kernel::System::Log->new(
     ConfigObject => $ConfigObject,
 );
-my $LogObject    = Kernel::System::Log->new(
+my $MainObject = Kernel::System::Main->new(
+    ConfigObject => $ConfigObject,
+    LogObject => $LogObject,
+);
+my $TimeObject    = Kernel::System::Time->new(
+    LogObject => $LogObject,
     ConfigObject => $ConfigObject,
 );
 my $DBObject = Kernel::System::DB->new(
     ConfigObject => $ConfigObject,
     LogObject => $LogObject,
 );
-
 my $TicketObject = Kernel::System::Ticket->new(
     ConfigObject => $ConfigObject,
+    MainObject => $MainObject,
     LogObject => $LogObject,
     DBObject => $DBObject,
     TimeObject => $TimeObject
@@ -64,10 +58,10 @@ my $TicketID = $TicketObject->TicketIDLookup(
 my ($OwnerID, $Owner) = $TicketObject->OwnerCheck(TicketID => $TicketID);
 
 $TicketObject->StateSet(
-                         StateID  => 2,
-                         TicketID => $TicketID,
-                         UserID   => $OwnerID
-                       );
+   StateID  => 2,
+   TicketID => $TicketID,
+   UserID   => $OwnerID
+);
 
 print "Attempted close.";
 

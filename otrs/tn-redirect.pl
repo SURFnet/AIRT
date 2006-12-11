@@ -22,29 +22,24 @@ The second argument is the ticket number to which the URL should point.
 
 =cut
 
-# use ../../ as lib location
-use FindBin qw($Bin);
-use lib "$Bin/../..";
-use lib "$Bin/../../Kernel/cpan-lib";
-
-use strict;
-
 use Kernel::Config;
 use Kernel::System::Time;
 use Kernel::System::Log;
 use Kernel::System::DB;
 use Kernel::System::Ticket;
-
-use vars qw($VERSION @INC);
-$VERSION = '$Revision: 1.1 $';
-$VERSION =~ s/^\$.*:\W(.*)\W.+?$/$1/;
+use Kernel::System::Main;
 
 my $ConfigObject = Kernel::Config->new();
-my $TimeObject    = Kernel::System::Time->new(
-    ConfigObject => $ConfigObject,
-);
 my $LogObject    = Kernel::System::Log->new(
     ConfigObject => $ConfigObject,
+);
+my $MainObject = Kernel::System::Main->new(
+    ConfigObject => $ConfigObject,
+    LogObject => $LogObject,
+);
+my $TimeObject    = Kernel::System::Time->new(
+    ConfigObject => $ConfigObject,
+    LogObject => $LogObject,
 );
 my $DBObject = Kernel::System::DB->new(
     ConfigObject => $ConfigObject,
@@ -54,6 +49,7 @@ my $TicketObject = Kernel::System::Ticket->new(
     ConfigObject => $ConfigObject,
     LogObject => $LogObject,
     DBObject => $DBObject,
+    MainObject => $MainObject,
     TimeObject => $TimeObject,
 );
 
@@ -62,11 +58,13 @@ my $TicketObject = Kernel::System::Ticket->new(
 my $HOST = shift(@ARGV);
 my $TicketNumber=shift(@ARGV);
 
-my $Ticket_ID = $TicketObject->TicketIDLookup(
+print "Using ticket number $TicketNumber\n";
+my $TicketID = $TicketObject->TicketIDLookup(
   TicketNumber => $TicketNumber
 );
+print "Using ticket ID $TicketID\n";
 
-print "$HOST/index.pl?Action=AgentTicketZoom&TicketID=$Ticket_ID";
+print "$HOST/index.pl?Action=AgentTicketZoom&TicketID=$TicketID";
 
 exit(0);
 
