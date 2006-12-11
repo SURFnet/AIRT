@@ -110,7 +110,7 @@ switch ($action) {
 		 $output .= _('Ticket number(s)').': ';
 		 foreach (getTicketNumbers($incidentid) as $tn) {
 			 $out = array();
-			 $cmd = LIBDIR.'/otrs/tn-redirect.pl '.OTRS_BASEURL.' '.$tn;
+			 $cmd = LIBDIR.'/otrs/airt_otrs_ticketurl.pl '.OTRS_BASEURL.' '.$tn;
 			 $out = exec($cmd, $out, $res);
 			 $output .= t('<a href="%url">%tn</a>&nbsp; ', array('%url'=>$out,
 				 '%tn'=>$tn));
@@ -631,7 +631,7 @@ _('Continue').'...</a>'.LF,
 		/* attempt to close corresponding OTRS tickets, if any*/
 		if (getIncidentStatusLabelByID($status) == 'closed') {
 			foreach (getTicketNumbers($incidentid) as $tn) {
-				$cmd = LIBDIR.'/otrs/ticketclose.pl '.$tn;
+				$cmd = LIBDIR.'/otrs/airt_otrs_ticketclose.pl '.$tn;
 				$out = exec($cmd, $out, $res);
 				if ($res == 0) {
 					addIncidentComment(_('Closed OTRS ticket ').$tn);

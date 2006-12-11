@@ -120,7 +120,7 @@ switch ($action) {
 		   die(_('Missing ticket number'));
 		}
 
-      $cmd=LIBDIR.'/otrs/ticketclose.pl '.$ticketno;
+      $cmd=LIBDIR.'/otrs/airt_otrs_ticketclose.pl '.$ticketno;
       exec($cmd);
                          
       Header('Location: '.$_SERVER['HTTP_REFERER']);
