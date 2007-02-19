@@ -28,6 +28,7 @@ require_once LIBDIR."/incident.plib";
 require_once LIBDIR."/export.plib";
 require_once 'Mail.php';
 require_once 'Mail/mimePart.php';
+require_once LIBDIR.'/profiler.plib';
 
 
 
@@ -37,6 +38,7 @@ require_once 'Mail/mimePart.php';
  * \return true on success, false on failure
  */
 function get_template_actions($template, &$actions) {
+	airt_profile('ENTER get_template_actions');
    $res = db_query(q("select action_type as type, action_state as state, action_status as status from mailtemplates where name='%name'", array('%name'=>db_escape_string($template))));
    if (!$res) {
       return false;
@@ -50,6 +52,7 @@ function get_template_actions($template, &$actions) {
    if ($actions['state'] == '') { $actions['state'] = -1; }
    db_free_result($res);
    return true;
+	airt_profile('EXIT get_template_actions');
 }
 
 
@@ -63,6 +66,7 @@ function get_template_actions($template, &$actions) {
  * Instead, the function will return an empty body.
  */
 function get_template($template) {
+	airt_profile('ENTER get_template');
    $res = db_query(q('SELECT body FROM mailtemplates WHERE name=\'%name\'',
       array('%name'=>$template)));
    if (!$res) {
@@ -75,6 +79,7 @@ function get_template($template) {
    } else {
       return '';
    }
+	airt_profile('EXIT get_template');
 } // read_standard_message
 
 
@@ -84,6 +89,7 @@ function get_template($template) {
  * \return Returns 0 on success, 1 on failure.
  */
 function save_template($name='', $body='', $update) {
+	airt_profile('ENTER save_template');
    if ($name == '' || $body == '') {
       return 1;
    }
@@ -128,6 +134,7 @@ function save_template($name='', $body='', $update) {
       }
       // existing template
    }
+	airt_profile('EXIT save_template');
    return 0;
 }
 
@@ -135,6 +142,7 @@ function save_template($name='', $body='', $update) {
  * \return 0 on success, 1 on failure
  */
 function delete_template($name='') {
+	airt_profile('ENTER delete_template');
    if ($name=='') {
       return 1;
    }
@@ -144,6 +152,7 @@ function delete_template($name='') {
       airt_error('DB_QUERY', 'mailtemplates.plib:'.__LINE__);
       return 1;
    }
+	airt_profile('EXIT delete_template');
    return 0;
 }
 
@@ -155,10 +164,12 @@ function delete_template($name='') {
  * return false on failure, or the subject line on success
  */
 function get_subject($msg) {
+	airt_profile('ENTER get_subject');
    $match = ereg("@SUBJECT@(.*)@ENDSUBJECT@", $msg, $regs);
    if (!$match) {
       return false;
    }
+	airt_profile('EXIT get_subject');
    return $regs[1];
 } // get_subject
 
@@ -168,6 +179,7 @@ function get_subject($msg) {
  * template and the value the body or false on failure.
  */
 function get_templates($extras=array()) {
+	airt_profile('ENTER get_templates');
    $res = db_query(q('SELECT name,body FROM mailtemplates ORDER BY name'));
    if (!$res) {
       airt_error('ERR_FUNC', 'mailtemplates.plib:'.__LINE__);
@@ -179,6 +191,7 @@ function get_templates($extras=array()) {
          $out[$row['name']] = $row['body'];
       }
    }
+	airt_profile('EXIT get_templates');
    return $out;
 }
 
@@ -186,12 +199,14 @@ function get_templates($extras=array()) {
  * Get a SELECTION dialog with mail templates
  */
 function getMailtemplateSelection($name, $default='', $extras=array()) {
+	airt_profile('ENTER getMailtemplateSelection');
    $output = sprintf("<select name=\"%s\">\n", htmlentities($name));
    $templates = get_templates($extras);
    foreach ($templates as $i=>$l) {
       $output .= sprintf("<option value=\"%s\" %s>%s</option>\n", htmlentities($i), ($i == $default) ? "SELECTED" : "", htmlentities($i));
    }
    $output .= "</select>";
+	airt_profile('EXIT getMailtemplateSelection');
    return $output;
 }
 
@@ -199,6 +214,7 @@ function getMailtemplateSelection($name, $default='', $extras=array()) {
  * \return A string containing a HTML-formatted overview of available templates.
  */
 function format_templates() {
+	airt_profile('ENTER format_templates');
    if (array_key_exists('to', $_REQUEST)) {
       $to = "&to=".urlencode($_REQUEST['to']);
    } else {
@@ -234,6 +250,7 @@ function format_templates() {
     }
     $out .= "</table>";
 
+	airt_profile('EXIT format_templates');
     return $out;
 } // format_templates();
 
@@ -242,11 +259,13 @@ function format_templates() {
  * Show a message, without processing it.
  */
 function show_message($name) {
+	airt_profile('ENTER show_message');
     if (($message = read_standard_message($name)) == false) {
         printf(_('Unable to read message.'));
         return false;
     }
     printf("%s", replace_vars($message));
+	airt_profile('EXIT show_message');
 } // show_message
 
 
@@ -264,6 +283,7 @@ function show_message($name) {
  *     $output['body']         message body
  */
 function expand_template($template, $current) {
+	airt_profile('ENTER expand_template');
    $output = array();
 
    // message sender
@@ -309,12 +329,14 @@ function expand_template($template, $current) {
    unset($m[0]);
    $output['body'] = implode("\n", $m);
 
+	airt_profile('EXIT expand_template');
    return $output;
 }
 
 /* Expand a message, based on a template.
  */
 function prepare_message($template, $agenda=array(), $to=array()) {
+	airt_profile('ENTER prepare_message');
    $current = array('user'=>'', 'name'=>'', 'email'=>'', 
       'ip'=>'', 'hostname'=>'');
 
@@ -388,10 +410,12 @@ function prepare_message($template, $agenda=array(), $to=array()) {
     'replyto'=>$msgdata['replyto'],
     'message'=>$msgdata['body']));
    pageFooter();
+	airt_profile('EXIT prepare_message');
 } // prepare_message
 
 
 function print_variables_info() {
+	airt_profile('ENTER print_variables_info');
    $out = '<table cellpadding="2">'.LF;
    $out .= '<tr>'.LF;
    $out .= '<td>@HOSTNAME@</td>'.LF;
@@ -457,6 +481,7 @@ function print_variables_info() {
    $out .= '</tr>'.LF;
    $out .= '</table>'.LF;
    print $out;
+	airt_profile('EXIT print_variables_info');
 }
 
 /** Replace @..@ macros in mail templates.
@@ -467,6 +492,7 @@ function print_variables_info() {
  * \return The expanded template.
  */
 function replace_vars($msg, $current=array()) {
+	airt_profile('ENTER replace_vars');
    $out = $msg;
 
    if (array_key_exists('incidentid', $current)) {
@@ -602,6 +628,7 @@ function replace_vars($msg, $current=array()) {
      $out = ereg_replace('@XMLDATA@',$xmlData,$out);
    }
 
+	airt_profile('EXIT replace_vars');
   return $out ;
 } // replace_vars
 

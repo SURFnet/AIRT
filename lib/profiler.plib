@@ -1,0 +1,12 @@
+<?php
+global $f;
+
+if (!isset($f)) {
+	$f = fopen('/tmp/airt_profile.log', 'a');
+}
+
+function airt_profile($function) {
+	global $f;
+	fwrite($f, date('r').'  '.$function.LF);
+}
+?>
