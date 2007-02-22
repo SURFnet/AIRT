@@ -49,11 +49,14 @@ function listTemplates() {
 switch ($action) {
    // -------------------------------------------------------------------
    case "list":
+	   airt_profile('BEGIN list');
       listTemplates();
+		airt_profile('END list');
       break;
 
    // -------------------------------------------------------------------
    case "edit":
+	   airt_profile('BEGIN edit');
       $msg = '';
       if (array_key_exists("template", $_REQUEST)) {
          $template=$_REQUEST["template"];
@@ -111,11 +114,13 @@ special variables in the template:').'<p>'.LF;
       print '</form>'.LF;
    }
    pageFooter();
+	airt_profile('END edit');
 
    break;
 
    // -------------------------------------------------------------------
    case "save":
+	   airt_profile('BEGIN save');
       if (array_key_exists("template", $_REQUEST)) {
          $template=$_REQUEST["template"];
       } else {
@@ -145,10 +150,12 @@ special variables in the template:').'<p>'.LF;
          airt_error('ERR_FUNC', 'mailtemplates.php:'.__LINE__);
       }
       listTemplates();
+	   airt_profile('END save');
       break;
 
    // -------------------------------------------------------------------
    case "new":
+		airt_profile('BEGIN new');
       pageHeader(_('New mail template'));
       print _('Enter your new template in the text field below. Use the following variables in your text body:');
       print '<P>'.LF;
@@ -188,10 +195,12 @@ special variables in the template:').'<p>'.LF;
       print '<input type="submit" value="'._('Save!').'">'.LF;
       print '<input type="reset" value="'._('Cancel!').'">'.LF;
       print '</form>'.LF;
+		airt_profile('END new');
       break;
 
    // -------------------------------------------------------------------
   case "delete":
+		airt_profile('BEGIN delete');
       if (array_key_exists("template", $_REQUEST)) {
          $template=$_REQUEST["template"];
       } else {
@@ -203,10 +212,12 @@ special variables in the template:').'<p>'.LF;
          airt_error('ERR_FUNC', 'mailtemplates.php'.__LINE__);
       }
       listTemplates();
+		airt_profile('END delete');
       break;
 
    // -------------------------------------------------------------------
    case "prepare":
+		airt_profile('BEGIN prepare');
       if (array_key_exists("template", $_REQUEST)) {
          $template=$_REQUEST["template"];
       } else {
@@ -233,12 +244,14 @@ special variables in the template:').'<p>'.LF;
       }
       prepare_message($template, $agenda, $to);
       pageFooter();
+		airt_profile('END prepare');
       break;
 
    // -------------------------------------------------------------------
    case 'send':
    case _('Send'):
    case _('Send and prepare next'):
+		airt_profile('BEGIN send');
       if (array_key_exists("from", $_POST)) {
          $from=$_POST["from"];
       } else {
@@ -438,6 +451,7 @@ special variables in the template:').'<p>'.LF;
       } else {
          Header("Location: $_SERVER[PHP_SELF]");
       }
+		airt_profile('END send');
       break;
 
 

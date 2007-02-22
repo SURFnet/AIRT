@@ -2,13 +2,14 @@
 global $f;
 
 function airt_profile($msg) {
-	global $f;
-	if (!isset($f)) {
-		$f = fopen('/tmp/airt_profile.log', 'a');
-		chmod('/tmp/airt_profile.log', 0664);
-	}
-	if (defined('PROFILING') && PROFILING===true) {
-		fwrite($f, date('r').' | '.VIRTUAL_HOST.' | '.$msg.' | '.LF);
-	}
+   global $f;
+   if (!isset($f)) {
+      $f = fopen('/tmp/airt_profile.log', 'a');
+      chmod('/tmp/airt_profile.log', 0664);
+   }
+   if (defined('PROFILING') && PROFILING===true) {
+      list($usec, $sec) = explode(" ", microtime());
+      fwrite($f, date('r',$sec).' | '.$usec.' | '.VIRTUAL_HOST.' | '.$msg.' | '.LF);
+   }
 }
 ?>
