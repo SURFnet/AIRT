@@ -486,14 +486,13 @@ function print_variables_info() {
 /** Replace @..@ macros in mail templates.
  * \param [in] $msg the mail template to expand
  * \param [in] $current an associative array containing information on the
- * current incident.
+ * current incident. keys:
+ *   user, name, email, ip, hostname, incidentid 
  *
  * \return The expanded template.
  */
 function replace_vars($msg, $current=array()) {
-   
    $out = $msg;
-
    
    if (array_key_exists('incidentid', $current)) {
       $incidentid = $current['incidentid'];
@@ -502,14 +501,12 @@ function replace_vars($msg, $current=array()) {
    }
    if (!is_numeric($incidentid)) return;
 
-   
    // IP address stuff.
    if (array_key_exists('ip', $current)) {
       $ipaddress = $current['ip'];
    } elseif (array_key_exists('active_ip', $_SESSION)) {
       $ipaddress = $_SESSION['active_ip'];
    }
-
    
    if (array_key_exists('name', $current)) {
       if (is_array($current['name'])) {
@@ -520,7 +517,6 @@ function replace_vars($msg, $current=array()) {
    } elseif ($array_key_exists('current_name', $_SESSION)) {
       $name = $_SESSION['name'];
    }
-
    
    if (array_key_exists('email', $current)) {
       $email = $current['email'];
@@ -529,16 +525,11 @@ function replace_vars($msg, $current=array()) {
    }
 
    if (isset($ipaddress)) {
-      // $hostname = @gethostbyaddr($ipaddress);
-		
       $out = ereg_replace("@IPADDRESS@", $ipaddress, $out);
-		
       $out = ereg_replace("@HOSTNAME@", $current['hostname'], $out);
-
       
       // Fetch previous incidents associated with this IP address.
       $incidents = getIncidentsByIP($ipaddress);
-
       
       // Notice that this list always includes the current incident!
       if (count($incidents)>1) {
@@ -553,52 +544,44 @@ function replace_vars($msg, $current=array()) {
          $previous = '--';
       }
       $out = ereg_replace('@PREVIOUS@',$previous,$out);
+     
+   } 
 
-      // build a list of affected constituencies
-      $previous = '';
-      $i = getIncident($incidentid);
-		if ($i['ips'][0]['constituency'] === 117 && VIRTUAL_HOST === murphy.surfnet.nl) {
-			$previous='Too many open incidents';
-		} else {
-			$pa = array();
-			$c = array();
-			foreach ($i['ips'] as $ip) {
-				if (array_key_exists($ip['constituency'], $c)) {
-					;
-				} else {
-					$c[$ip['constituency']] = '';
-				}
+   # Expand @OTHER_OPEN@
+	$open = array();
+	foreach (getAddressesForIncident($incidentid) as $key=>$data) {
+	   $c = $data['constituency'];
+		if (!array_key_exists($c, $open)) {
+		   $open[$c] = array();
+		}
+		foreach (getOpenIncidentsByConstituency($c) as $k=>$d) {
+		   if (!in_array($d, $open[$c])) {
+			   $open[$c][] = $d;
 			}
-			// retrieve previous incidents for each constituency
-			foreach ($c as $cons=>$dummy) {
-				$pa += getIncidentsByConstituency($cons);
-			}
-			$s = getIncidentStatus();
-			foreach ($pa as $id=>$val) {
-				$i = getIncident($id);
-				if ($id == $incidentid) {
-					continue;
-				}
-				if (($i['status'] == array_search('open', $s)) !== false) {
-					$previous .= $val."\n";
-				}
-			}
-		} 
-      $out = ereg_replace('@OTHER_OPEN@', trim($previous), $out);
-   }
+		}
+	}
+	// $open[] now contains one array per constituency. Each subarray contains incidentids
+	$oo = '';
+	foreach ($open as $c) {
+	   foreach ($c as $i) {
+		   $incident = getIncident($i);
+			$oo .= sprintf('%15s %s'.LF, normalize_incidentid($incident['incidentid']),
+			   getIncidentTypeLabelById($i['type']));
+		}
+	}
+	if ($oo == '') {
+	   $oo = '--';
+	}
+	$out = ereg_replace('@OTHER_OPEN@', $oo, $out);
 
-
-   
    if (isset($name)) {
       $out = ereg_replace("@USERNAME@", $name, $out);
    }
-
    
    if (isset($email)) {
       $out = ereg_replace("@USEREMAIL@", $email, $out);
    }
 
-   
    if (array_key_exists('current_info', $_SESSION)) {
       $out = ereg_replace("@USERINFO@", $_SESSION["current_info"], $out);
    }
@@ -635,7 +618,6 @@ function replace_vars($msg, $current=array()) {
 			     $otrs[] = substr($mm[1], 4);
 			  }
 		  }
-
      }
 	  
      $out = ereg_replace('@EXTIDS@', implode(',',$extids),$out);

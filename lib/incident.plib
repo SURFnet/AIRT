@@ -1922,7 +1922,6 @@ function getOpenIncidentsByConstituency($cons) {
 		and   i.status = s.id
 		and   s.label = \'open\'
 		', array('%cons'=>$cons));
-	var_dump($q);
 	$res = db_query($q);
 	while ($row = db_fetch_next($res)) {
 	   $out[] = $row['incident'];
