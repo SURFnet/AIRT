@@ -547,7 +547,7 @@ function replace_vars($msg, $current=array()) {
      
    } 
 
-   # Expand @OTHER_OPEN@
+   // Expand @OTHER_OPEN@
 	$open = array();
 	foreach (getAddressesForIncident($incidentid) as $key=>$data) {
 	   $c = $data['constituency'];
@@ -566,7 +566,7 @@ function replace_vars($msg, $current=array()) {
 	   foreach ($c as $i) {
 		   $incident = getIncident($i);
 			$oo .= sprintf('%15s %s'.LF, normalize_incidentid($incident['incidentid']),
-			   getIncidentTypeLabelById($i['type']));
+			   getIncidentTypeLabelById($incident['type']));
 		}
 	}
 	if ($oo == '') {
