@@ -37,7 +37,7 @@ $input = preg_replace('/io:/','', $input);
 	
 		// IODEF does not have a real method of suggesting an incident type
 		// The closest element that I could find is Method/Reference
-		$refs = $xpath->xpath_eval("Method/Reference/ReferenceName", $incidentnode);
+		$refs = $xpath->xpath_eval("EventData/Method/Reference/ReferenceName", $incidentnode);
 		$type='unspecified';
 		foreach ($refs->nodeset as $refnode) {
 			if ($type=='unspecified') {
@@ -50,7 +50,10 @@ $input = preg_replace('/io:/','', $input);
 		$logging = '';
 		foreach ($contacts->nodeset as $contactnode) {
 			$role = $contactnode->get_attribute('role');
-				
+			if ($role=='') {
+			   $role = 'unknown';
+			}
+
 			$res = $xpath->xpath_eval("ContactName", $contactnode);
 			$resnodes = $res->nodeset;
 			if (sizeof($resnodes) > 0) {
