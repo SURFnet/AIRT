@@ -250,7 +250,7 @@ function formatQueueOverview() {
    $out .= '   <th>'._('Sender').'</th>'.LF;
    $out .= '   <th>'._('Constituency').'</th>'.LF;
    $out .= '   <th>'._('IP Address').'</th>'.LF;
-	$out .= '   <th>'._('Tag').' (<a href="http://www.airt.nl/help/tag">'._('help').'</a>)</th>'.LF;
+	// $out .= '   <th>'._('Tag').' (<a href="http://www.airt.nl/help/tag">'._('help').'</a>)</th>'.LF;
    $out .= '   <th>'._('Details').'</th>'.LF;
    $out .= '</tr>'.LF;
    $out .= '<th></th>'.LF;
@@ -262,18 +262,17 @@ function formatQueueOverview() {
 		}
 		if($tree = @domxml_open_mem($item['content'])) {
          $out .= t("<tr bgcolor=\"%color\">\n", array('%color'=>($count++ % 2 == 0) ? '#DDDDDD' : '#FFFFFF'));
-         $out .= '  <td>'.LF;
-         $out .= '     <select name="decision['.$id.']">'.LF;
-         $out .= '     <option value="accept" SELECTED>'._('Accept').'</option>'.LF;
-         $out .= '     <option value="reject">'._('Reject').'</option>'.LF;
-         $out .= '     <option value="donothing">'._('Do nothing').'</option>'.LF;
-         $out .= '  </select>'.LF;
+         $out .= '  <td nowrap>'.LF;
+			$out .= '     <input name="decision['.$id.']" type="radio" value="accept" checked/> '._('Accept').' '.LF;
+			$out .= '     <input name="decision['.$id.']" type="radio" value="reject" /> '._('Reject').' '.LF;
+			$out .= '     <input name="decision['.$id.']" type="radio" value="donothing" /> '._('Do nothing').LF;
          $out .= '  </td>'.LF;
          $out .= t("  <td>%type</td>\n", array('%type'=>$element['type']));
          $out .= t("  <td>%cons</td>\n", array('%cons'=>$element['cache_constituency']));
          $out .= t("  <td>%ip</td>\n", array('%ip'=>$element['cache_ip']));
-			$out .= t('  <td>%tag</td>'.LF, array('%tag'=>
+			/* $out .= t('  <td>%tag</td>'.LF, array('%tag'=>
 				'<input type="text" width="5" name="tag['.$id.']">'));
+			*/
          $out .= t('  <td><a target="airt_queue" title="'.
             _('Show incident details in new browser window').
             '" href="%url?action=showdetails&id=%id">'.
