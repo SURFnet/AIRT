@@ -29,7 +29,7 @@ $input = preg_replace('/io:/','', $input);
 		
 		$res = $xpath->xpath_eval("IncidentID", $incidentnode);
 		$resnodes = $res->nodeset;
-		$id = trim($resnodes[0]->get_content());
+		$id = preg_replace('/^#/', '', trim($resnodes[0]->get_content()));
 
 		$res = $xpath->xpath_eval("ReportTime", $incidentnode);
 		$resnodes = $res->nodeset;
