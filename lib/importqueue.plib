@@ -243,9 +243,11 @@ function formatQueueOverview() {
    foreach (getOpenincidents() as $id=>$data) {
       $openips[$data['ip']] = $id;
    }
+	$used_ips = array();
    $count = 0;
    $out = '<table cellpadding="4" class="queue">'.LF;
    $out .= '<tr>'.LF;
+   $out .= '   <th>'._('No.').'</th>'.LF;
    $out .= '   <th>'._('Decision').'</th>'.LF;
    $out .= '   <th>'._('Sender').'</th>'.LF;
    $out .= '   <th>'._('Constituency').'</th>'.LF;
@@ -261,29 +263,41 @@ function formatQueueOverview() {
 			return;
 		}
 		if($tree = @domxml_open_mem($item['content'])) {
-         $out .= t("<tr bgcolor=\"%color\">\n", array('%color'=>($count++ % 2 == 0) ? '#DDDDDD' : '#FFFFFF'));
+         $out .= t('<tr valign="top" bgcolor="%color">', array('%color'=>($count++ % 2 == 0) ? '#DDDDDD' : '#FFFFFF')).LF;
+			$out .= '  <td nowrap>'.$element['id'].'</td>';
          $out .= '  <td nowrap>'.LF;
 			$out .= '     <input name="decision['.$id.']" type="radio" value="accept" checked/> '._('Accept').' '.LF;
 			$out .= '     <input name="decision['.$id.']" type="radio" value="reject" /> '._('Reject').' '.LF;
-			$out .= '     <input name="decision['.$id.']" type="radio" value="donothing" /> '._('Do nothing').LF;
+			$out .= '     <input name="decision['.$id.']" type="radio" value="donothing" /> '._('Keep').LF;
          $out .= '  </td>'.LF;
          $out .= t("  <td>%type</td>\n", array('%type'=>$element['type']));
          $out .= t("  <td>%cons</td>\n", array('%cons'=>$element['cache_constituency']));
          $out .= t("  <td>%ip</td>\n", array('%ip'=>$element['cache_ip']));
-			/* $out .= t('  <td>%tag</td>'.LF, array('%tag'=>
-				'<input type="text" width="5" name="tag['.$id.']">'));
-			*/
          $out .= t('  <td><a target="airt_queue" title="'.
             _('Show incident details in new browser window').
             '" href="%url?action=showdetails&id=%id">'.
             _('details').'</a></td>'.LF,
             array('%url'=>$_SERVER['PHP_SELF'], '%id'=>$id));;
          $out .= '   <td>'.LF;
-         if (array_key_exists($element['cache_ip'], $openips)) {
-            $out .= '  <input type="checkbox" checked name="add['.$id.']">'.LF;
-            $out .= t(_('  Add to %id').LF,
-            array('%id'=>normalize_incidentid($openips[$element['cache_ip']])));
-         }
+
+			// check for grouping within the import queue
+			$ip = $element['cache_ip'];
+			if (array_key_exists($ip, $used_ips)) {
+			   $parent = $used_ips[$ip][0];
+			   $out .= '  <input type="checkbox" checked value="'.$parent.'" name="group['.$element['id'].']">'.LF;
+				$out .=  t(_('  Group with queue item %parent<br/>'), array('%parent'=>$parent)).LF;
+				$group = true;
+			}
+			$used_ips[$ip][] = $element['id'];
+
+         if (group == false) {
+			   if (array_key_exists($element['cache_ip'], $openips)) {
+					$out .= '  <input type="checkbox" checked name="add['.$id.']">'.LF;
+					$out .= t(_('  Add to %id').LF,
+					array('%id'=>normalize_incidentid($openips[$element['cache_ip']])));
+				}
+			}
+			$group = false;
          $out .= '  </td>'.LF;
          $out .= '</tr>'.LF;
       }
@@ -503,9 +517,6 @@ function queuePeekItem($id,&$error) {
       return NULL;
    }
    $out = db_fetch_next($res);
-# NOTE: this is bad style, mangling the queue content here. If this is
-# required, do it in the calling function -- not here. JH, 2005-10-20.
-#   $out['content'] = trim(preg_replace('/^\<\?xml.*$/m', '',$out['content']));
 
    db_free_result($res);
    return $out;
@@ -651,4 +662,63 @@ function queueElementAccept($id) {
 	}
 } // queueElementAccept
 
+/** Normalize the import queue by grouping all queue items that are tagged to belong together.
+ * Parameters
+ *   @param $group array of grouping operators
+ *   @param $decision array of decisions
+ * Return
+ *   Normalized list of queue elements
+ */
+function queueNormalize($group, $decisions) {
+	foreach ($group as $sibling_id=>$parent_id) {
+	   if ($decisions[$sibling_id] == 'accept') {
+		   print t(_('Merging %sibling into %parent').'<br/>'.LF, array(
+				'%sibling'=>$sibling_id, '%parent'=>$parent_id));
+			if (updateQueueItem($sibling_id, 'status', 'merged', $error)) {
+				airt_error('ERR_QUERY', 'importqueue.plib:'.__LINE__, $error);
+				Header("Location: $_SERVER[PHP_SELF]");
+				return;
+			}
+
+			// we will only update the logging; IP addresses will be identical and AIRT does not 
+			// do anything with the time of the incident yet.
+
+			// 1. Fetch logging of sibling
+			$sibling_item = queuePeekItem($sibling_id, $error);
+			$sibling_dom = domxml_open_mem($sibling_item['content']);
+			if ($sibling_dom == false) {
+				$error = _('Unable to parse xml in sibling content');
+			} else {
+				$root = $sibling_dom->document_element();
+				$sibling_logging_elements = $root->get_elements_by_tagname('logging');
+			}
+
+			// 2. Fetch logging of parent
+			$parent_item = queuePeekItem($parent_id, $error);
+			$parent_dom = domxml_open_mem($parent_item['content']);
+			if ($parent_dom == false) {
+				$error = _('Unable to parse xml in parent content');
+			} else {
+				$root = $parent_dom->document_element();
+				$parent_logging_elements = $root->get_elements_by_tagname('logging');
+				
+				$new_element = $parent_dom->create_element('logging');
+				$new_element->set_content($parent_logging_elements[0]->get_content() . LF .  
+				   $sibling_logging_elements[0]->get_content());
+				$parent_logging_elements[0]->replace_node($new_element);
+
+				if (updateQueueItem($parent_id, 'content', $parent_dom->dump_mem(true), &$error)) {
+					airt_error('ERR_QUERY', 'importqueue.plib:'.__LINE__, $error);
+					Header("Location: $_SERVER[PHP_SELF]");
+					return;
+				} else {
+				   unset($decisions[$sibling_id]);
+				}
+				//print '<pre>'.htmlentities($parent_dom->dump_mem(true)).'</pre>';
+
+			}
+		}
+	}
+   return $decisions;
+}
 ?>

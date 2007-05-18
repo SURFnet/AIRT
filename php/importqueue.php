@@ -63,7 +63,12 @@ switch ($action) {
 
       // interpret all decision and take action if accept or reject
 		$tags=array();
-      foreach ($_POST['decision'] as $id=>$value) {
+		if (array_key_exists('group', $_POST)) {
+			$decisions = queueNormalize($_POST['group'], $_POST['decision']);
+		} else {
+		   $decisions = $_POST['decision'];
+		}
+      foreach ($decisions as $id=>$value) {
          $update = false;
 			$t = '';
          switch ($value) {
