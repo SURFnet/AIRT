@@ -275,11 +275,11 @@ function formatQueueOverview() {
 		}
 		if($tree = @domxml_open_mem($item['content'])) {
          $out .= t('<tr valign="top" bgcolor="%color">', array('%color'=>($count++ % 2 == 0) ? '#DDDDDD' : '#FFFFFF')).LF;
-			$out .= '  <td nowrap>'.$element['id'].'</td>';
          $out .= '  <td nowrap>'.LF;
 			$out .= t('     <input name="checked['.$id.']" %checked type="checkbox" /> '.LF,
 			   array('%checked'=>($toggle == 1) ? 'CHECKED' : ''));
          $out .= '  </td>'.LF;
+			$out .= '  <td nowrap>'.$element['id'].'</td>';
          $out .= t("  <td>%type</td>\n", array('%type'=>$element['type']));
          $out .= t("  <td>%cons</td>\n", array('%cons'=>$element['cache_constituency']));
          $out .= t("  <td>%ip</td>\n", array('%ip'=>$element['cache_ip']));
@@ -292,6 +292,7 @@ function formatQueueOverview() {
 
 			// check for grouping within the import queue
 			$ip = $element['cache_ip'];
+			$group = false;
 			if (array_key_exists($ip, $used_ips)) {
 			   $parent = $used_ips[$ip][0];
 			   $out .= '  <input type="checkbox" checked value="'.$parent.'" name="group['.$element['id'].']">'.LF;
@@ -300,7 +301,7 @@ function formatQueueOverview() {
 			}
 			$used_ips[$ip][] = $element['id'];
 
-         if (group == false) {
+         if ($group == false) {
 			   if (array_key_exists($element['cache_ip'], $openips)) {
 					$out .= '  <input type="checkbox" checked name="add['.$id.']">'.LF;
 					$out .= t(_('  Add to %id').LF,
