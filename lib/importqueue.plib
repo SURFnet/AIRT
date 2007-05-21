@@ -231,6 +231,9 @@ function getQueueOverview(&$elements, &$error) {
 /* show a formatted overview of the incident queue
  */
 function formatQueueOverview() {
+   global $toggle;
+
+   defaultTo($toggle, 0);
    $error = '';
    $openips=array();
    $elements = array();
@@ -240,15 +243,23 @@ function formatQueueOverview() {
    if (sizeof($elements) == 0) {
       return _('No items pending').LF;
    }
+	$urlsuffix = 'toggle='.urlencode($toggle);
    foreach (getOpenincidents() as $id=>$data) {
       $openips[$data['ip']] = $id;
    }
 	$used_ips = array();
    $count = 0;
-   $out = '<table cellpadding="4" class="queue">'.LF;
+	$out = '<SCRIPT language="JavaScript">'.LF;
+	$out .= 'function checkAll() {'.LF;
+	$out .= '   window.location = "'.$_SERVER['PHP_SELF'].'?action=toggle&'.$urlsuffix.'"'.LF;
+   $out .= '}'.LF;
+	$out .= '</SCRIPT>';
+
+   $out .= '<table cellpadding="4" class="queue">'.LF;
    $out .= '<tr>'.LF;
+   $out .= t('   <th><input type="checkbox" onChange="checkAll()" %checked></th>'.LF,
+	    array('%checked'=>($toggle == 1) ? 'CHECKED' : ''));
    $out .= '   <th>'._('No.').'</th>'.LF;
-   $out .= '   <th>'._('Decision').'</th>'.LF;
    $out .= '   <th>'._('Sender').'</th>'.LF;
    $out .= '   <th>'._('Constituency').'</th>'.LF;
    $out .= '   <th>'._('IP Address').'</th>'.LF;
@@ -266,9 +277,8 @@ function formatQueueOverview() {
          $out .= t('<tr valign="top" bgcolor="%color">', array('%color'=>($count++ % 2 == 0) ? '#DDDDDD' : '#FFFFFF')).LF;
 			$out .= '  <td nowrap>'.$element['id'].'</td>';
          $out .= '  <td nowrap>'.LF;
-			$out .= '     <input name="decision['.$id.']" type="radio" value="accept" checked/> '._('Accept').' '.LF;
-			$out .= '     <input name="decision['.$id.']" type="radio" value="reject" /> '._('Reject').' '.LF;
-			$out .= '     <input name="decision['.$id.']" type="radio" value="donothing" /> '._('Keep').LF;
+			$out .= t('     <input name="checked['.$id.']" %checked type="checkbox" /> '.LF,
+			   array('%checked'=>($toggle == 1) ? 'CHECKED' : ''));
          $out .= '  </td>'.LF;
          $out .= t("  <td>%type</td>\n", array('%type'=>$element['type']));
          $out .= t("  <td>%cons</td>\n", array('%cons'=>$element['cache_constituency']));

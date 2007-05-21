@@ -38,6 +38,12 @@ function showQueue() {
    pageHeader(_('AIRT Import queue'));
    $out = '<form method="post">'.LF;
    $out .= formatQueueOverview();
+	$out .= _('Decision: ');
+	$out .= '<select name="decision">'.LF;
+	$out .= '<option name="accept">'._('Accept').LF;
+	$out .= '<option name="reject">'._('Reject').LF;
+	$out .= '</select>'.LF;
+
    $out .= '<p><input type="submit" label="'.
       _('Commit all incidents as accept or reject').
       '" name="action" value="'._('Process').'"> ';
@@ -144,10 +150,18 @@ switch ($action) {
       pageFooter();
       break;
    // ----------------------------------------------------------------
+   case 'toggle':
+      $toggle = fetchFrom('REQUEST','toggle');
+      defaultTo($toggle,0);
+      $toggle = ($toggle == 0) ? 1 : 0;
+      // break omitted intentionally
+
+   // ----------------------------------------------------------------
    case _('Refresh'):
    case 'list':
       showQueue();
       break;
+
 
    // ----------------------------------------------------------------
    default:
