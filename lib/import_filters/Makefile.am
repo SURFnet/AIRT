@@ -22,6 +22,6 @@ scriptdir=@AIRT_PHPLIBDIR@/import_filters
 
 script_DATA = filter_none.plib filter_mynetwatchman.plib  filter_spamcop.plib \
 	filter_idmef.plib filter_iodef.plib filter_acns.plib filter_nerd.plib \
-	filter_iodef_nerd.plib
+	filter_iodef_nfsen.plib
 
 EXTRA_DIST = $(script_DATA)

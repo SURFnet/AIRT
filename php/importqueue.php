@@ -38,7 +38,7 @@ function showQueue() {
    pageHeader(_('AIRT Import queue'));
    $out = '<form method="post">'.LF;
    $out .= formatQueueOverview();
-	$out .= _('Decision: ');
+	$out .= '<p/>'._('Decision: ');
 	$out .= '<select name="decision">'.LF;
 	$out .= '<option value="accept">'._('Accept').LF;
 	$out .= '<option value="reject">'._('Reject').LF;
@@ -85,7 +85,7 @@ switch ($action) {
          switch ($value) {
             case 'on':
 				   if ($decision == 'accept') {
-						queueElementAccept($id);
+						queueElementAccept($id, $_POST['template'][$id]);
 					}
 					elseif ($decision == 'reject') {
 						print t(_('Rejecting queue element %id<br/>').LF, array('%id'=>$id));

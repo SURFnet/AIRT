@@ -10,7 +10,7 @@
  * 
  */
 
-function filter_iodef_nerd($input, &$output, $verbosity=TRUE) {
+function filter_iodef_nfsen($input, &$output, $verbosity=TRUE) {
 	// make sure we only have the XML
 
    if (preg_match('@(<io:IODEF-Document.*/io:IODEF-Document>)@ms',

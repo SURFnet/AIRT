@@ -41,6 +41,7 @@ require_once 'SOAP/Client.php';
 require_once LIBDIR.'/incident.plib';
 require_once LIBDIR.'/search.plib';
 require_once LIBDIR.'/constituency.plib';
+require_once LIBDIR.'/mailtemplates.plib';
 
 /* Produce info on stdout (when user asked for --help). */
 function printUsage() {
@@ -279,15 +280,13 @@ function formatQueueOverview() {
 			$out .= t('     <input name="checked['.$id.']" %checked type="checkbox" /> '.LF,
 			   array('%checked'=>($toggle == 1) ? 'CHECKED' : ''));
          $out .= '  </td>'.LF;
-			$out .= '  <td nowrap>'.$element['id'].'</td>';
+         $out .= t('  <td nowrap><a target="airt_queue" href="%url?action=showdetails&id=%id">'.
+            $element['id'].'</a></td>'.LF,
+            array('%url'=>$_SERVER['PHP_SELF'], '%id'=>$id));;
          $out .= t("  <td>%type</td>\n", array('%type'=>$element['type']));
          $out .= t("  <td>%cons</td>\n", array('%cons'=>$element['cache_constituency']));
          $out .= t("  <td>%ip</td>\n", array('%ip'=>$element['cache_ip']));
-         $out .= t('  <td><a target="airt_queue" title="'.
-            _('Show incident details in new browser window').
-            '" href="%url?action=showdetails&id=%id">'.
-            _('details').'</a></td>'.LF,
-            array('%url'=>$_SERVER['PHP_SELF'], '%id'=>$id));;
+         $out .= '  <td>'.getMailtemplateSelection('template['.$element['id'].']').'</td>'.LF;
          $out .= '   <td>'.LF;
 
 			// check for grouping within the import queue
@@ -326,7 +325,7 @@ function formatQueueOverview() {
  * Returns
  *   0 on success, 1 on failure
  */
-function queueToAIRT($id, &$error) {
+function queueToAIRT($id, &$error, $mailtemplate='') {
    global $AIRT_CURL_OPTIONS;
    $saml_ticket = '';
    $saml_ticket = getSAMLTicket();
@@ -362,6 +361,14 @@ function queueToAIRT($id, &$error) {
    // Fetch content from disk and clone root element;
    $content_xml = domxml_open_mem($data['content']);
    $content_root = $content_xml->document_element();
+
+	// add mail template information
+	$tmp_elements = $content_xml->get_elements_by_tagname('technicalInformation');
+	if (sizeof($tmp_elements) > 0) {
+	   $new = $content_xml->create_element('mailtemplate');
+		$new->set_content(urlencode($mailtemplate));
+		$tmp_elements[0]->append_child($new);
+	}
    $incident_data = $content_root->clone_node(true);
 
    // Create new xml document to pass to web service
@@ -642,9 +649,10 @@ function fetchAuthTicket(&$ticket, &$error) {
 
 /** Accept import queue element into AIRT.
  * @param $id ID of import queue element.
+ * @param $template mailtemplate to associate with queue submission
  * Function will redirect browser. Should be done prettier some day.
  */
-function queueElementAccept($id) {
+function queueElementAccept($id, $template) {
 	$value = 'accepted';
 	$update = true;
 	print t(_('Accepting queue element %id<br/>').LF, array('%id'=>$id));
@@ -659,7 +667,7 @@ function queueElementAccept($id) {
 		} else {
 			$update = true;
 		}
-	} else if (queueToAIRT($id, $error)) {
+	} else if (queueToAIRT($id, $error, $template)) {
 		$update = false;
 		airt_error('ERR_FUNC', 'importqueue.plib:'.__LINE__, $error);
 		return;

@@ -148,7 +148,7 @@ class IncidentHandling {
    }
 
    function importIncidentData($importXML) {
-      $dom = $state = $status = $type = $incidentid = $address = $ip = $addressrole ='';
+      $dom = $mailtemplate = $state = $status = $type = $incidentid = $address = $ip = $addressrole ='';
 
       // first check the validity of the XML
       if (!$dom = domxml_open_mem($importXML,DOMXML_LOAD_PARSING + DOMXML_LOAD_DONT_KEEP_BLANKS,$error)) {
@@ -268,6 +268,10 @@ class IncidentHandling {
                   if (sizeof($logging_element) > 0) {
                      $logging = $logging_element[0]->get_content();
                   }
+                  $mailtemplate_element = $technicalInformation->get_elements_by_tagname('mailtemplate');
+                  if (sizeof($mailtemplate_element) > 0) {
+                     $mailtemplate = $mailtemplate_element[0]->get_content();
+                  }
                }
                $address = $ip;
                $addressrole = '0';
@@ -283,6 +287,7 @@ class IncidentHandling {
             foreach ($contacts as $id=>$data) {
                addUserToIncident($data['userid'], $incidentid[$i]);
             }
+				addIncidentComment('Template: '.urldecode($mailtemplate), $incidentid[$i]);
          }
       }
 
