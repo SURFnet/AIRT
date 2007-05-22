@@ -40,8 +40,8 @@ function showQueue() {
    $out .= formatQueueOverview();
 	$out .= _('Decision: ');
 	$out .= '<select name="decision">'.LF;
-	$out .= '<option name="accept">'._('Accept').LF;
-	$out .= '<option name="reject">'._('Reject').LF;
+	$out .= '<option value="accept">'._('Accept').LF;
+	$out .= '<option value="reject">'._('Reject').LF;
 	$out .= '</select>'.LF;
 
    $out .= '<p><input type="submit" label="'.
@@ -60,37 +60,44 @@ switch ($action) {
    //----------------------------------------------------------------
    case _('Process'):
       $error = '';
-      // no decision received. Process button pushed from empty queue?
-      if (!array_key_exists('decision', $_POST)) {
+      // no queue elments checked. Process button pushed from empty queue?
+      if (!array_key_exists('checked', $_POST)) {
          showQueue();
          break;
       }
+      if (array_key_exists('decision', $_POST)) {
+         $decision = $_POST['decision'];
+      }
+		defaultTo($decision, 'donothing');
       pageHeader(_('Processing import queue'));
 
       // interpret all decision and take action if accept or reject
 		$tags=array();
 		if (array_key_exists('group', $_POST)) {
-			$decisions = queueNormalize($_POST['group'], $_POST['decision']);
+			$decisions = queueNormalize($_POST['group'], $_POST['checked'], $decision);
 		} else {
-		   $decisions = $_POST['decision'];
+		   $decisions = $_POST['checked'];
 		}
+
       foreach ($decisions as $id=>$value) {
          $update = false;
 			$t = '';
          switch ($value) {
-            case 'accept':
-					queueElementAccept($id);
-               break;
-            case 'reject':
-               print t(_('Rejecting queue element %id<br/>').LF, array('%id'=>$id));
-               flush();
-               $value = 'rejected';
-               $update = true;
-					if ($update) {
-						if (updateQueueItem($id, 'status', $value, $error)) {
-							airt_error('ERR_QUERY', 'importqueue.php:'.__LINE__, $error);
-							Header("Location: $_SERVER[PHP_SELF]");
-							return;
+            case 'on':
+				   if ($decision == 'accept') {
+						queueElementAccept($id);
+					}
+					elseif ($decision == 'reject') {
+						print t(_('Rejecting queue element %id<br/>').LF, array('%id'=>$id));
+						flush();
+						$value = 'rejected';
+						$update = true;
+						if ($update) {
+							if (updateQueueItem($id, 'status', $value, $error)) {
+								airt_error('ERR_QUERY', 'importqueue.php:'.__LINE__, $error);
+								Header("Location: $_SERVER[PHP_SELF]");
+								return;
+							}
 						}
 					}
                break;

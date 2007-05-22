@@ -241,7 +241,7 @@ function formatQueueOverview() {
       return;
    }
    if (sizeof($elements) == 0) {
-      return _('No items pending').LF;
+      return _('No items pending<p/>').LF;
    }
 	$urlsuffix = 'toggle='.urlencode($toggle);
    foreach (getOpenincidents() as $id=>$data) {
@@ -676,20 +676,18 @@ function queueElementAccept($id) {
 /** Normalize the import queue by grouping all queue items that are tagged to belong together.
  * Parameters
  *   @param $group array of grouping operators
- *   @param $decision array of decisions
+ *   @param $checked array of checked elements
+ *   @param $decision operator to be applied
  * Return
  *   Normalized list of queue elements
  */
-function queueNormalize($group, $decisions) {
+function queueNormalize($group, $checked, $decision) {
+   $output = $checked;
 	foreach ($group as $sibling_id=>$parent_id) {
-	   if ($decisions[$sibling_id] == 'accept') {
+	   if (array_key_exists($sibling_id, $checked) && $checked[$sibling_id] == 'on' &&
+		    $decision == 'accept') {
 		   print t(_('Merging %sibling into %parent').'<br/>'.LF, array(
 				'%sibling'=>$sibling_id, '%parent'=>$parent_id));
-			if (updateQueueItem($sibling_id, 'status', 'merged', $error)) {
-				airt_error('ERR_QUERY', 'importqueue.plib:'.__LINE__, $error);
-				Header("Location: $_SERVER[PHP_SELF]");
-				return;
-			}
 
 			// we will only update the logging; IP addresses will be identical and AIRT does not 
 			// do anything with the time of the incident yet.
@@ -723,13 +721,17 @@ function queueNormalize($group, $decisions) {
 					Header("Location: $_SERVER[PHP_SELF]");
 					return;
 				} else {
-				   unset($decisions[$sibling_id]);
+				   unset($output[$sibling_id]);
+					// unset sibling's new status
+					if (updateQueueItem($sibling_id, 'status', 'merged', $error)) {
+						airt_error('ERR_QUERY', 'importqueue.plib:'.__LINE__, $error);
+						Header("Location: $_SERVER[PHP_SELF]");
+						return;
+					}
 				}
-				//print '<pre>'.htmlentities($parent_dom->dump_mem(true)).'</pre>';
-
 			}
 		}
 	}
-   return $decisions;
+   return $output;
 }
 ?>
