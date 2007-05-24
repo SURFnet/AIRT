@@ -636,4 +636,24 @@ function replace_vars($msg, $current=array()) {
   return $out ;
 } // replace_vars
 
+/** Check if a mail template with the given name exists in the database.
+ * @param $template Name of the template
+ * @return true if the incident exists; false if it does not
+ */
+function templateExists($template) {
+   $q = q('SELECT name FROM mailtemplates WHERE name=\'%template\'',
+      array('%template'=>db_escape_string($template)));
+   $res = db_query($q); 
+   if ($res == false) {
+      airt_error('DB_QUERY', 'incidents.plib:'.__LINE__);
+      reload('');
+      return false;
+   }
+   if (db_num_rows($res) == 0) {
+      return false;
+   } else {
+      return true;
+   }
+}
+
 ?>

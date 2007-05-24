@@ -27,6 +27,7 @@ require_once LIBDIR.'/search.plib';
 require_once LIBDIR.'/constituency.plib';
 require_once LIBDIR.'/history.plib';
 require_once LIBDIR.'/airt.plib';
+require_once LIBDIR.'/mailtemplates.plib';
 
 /** Return an associative array with incident states.
  * @param $extras Optionally, an array with extra incident states that are
@@ -1928,5 +1929,82 @@ function getOpenIncidentsByConstituency($cons) {
 	}
 	return $out;
 }
+
+/** Fetch name of preferred template for a given incident.
+ *
+ * @param $incidentid Numerical incident id
+ * @return name of preferred mail template, or NULL if not set
+ */
+function getPreferredMailTemplateName($incidentid) {
+   if (!is_numeric($incidentid)) {
+	   return null;
+   }
+	$q = q('SELECT pref_templ FROM incidents WHERE id=%id',
+	   array('%id'=>$incidentid));
+	$res = db_query($q);
+	if ($res == false) {
+	   airt_error('DB_QUERY', 'incidents.plib:'.__LINE__);
+		reload('');
+		return null;
+	}
+	if (db_num_rows($res) == 0) {
+	   return null;
+	} else {
+	   $row = db_fetch_next($res);
+		return $row['pref_templ'];
+	}
+}
+
+/** Check if an incident with the given ID exists in the database.
+ * @param $incidentid ID of the incident
+ * @return true if the incident exists; false if it does not
+ */
+function incidentExists($incidentid) {
+   if (!is_numeric($incidentid)) {
+	   return false;
+   }
+	$q = q('SELECT id FROM incidents WHERE id=%id',
+	   array('%id'=>$incidentid));
+	$res = db_query($q);
+	if ($res == false) {
+	   airt_error('DB_QUERY', 'incidents.plib:'.__LINE__);
+		reload('');
+		return false;
+	}
+	if (db_num_rows($res) == 0) {
+	   return false;
+	} else {
+	   return true;
+	}
+}
+
+
+/** Set name of preferred template for a given incident.
+ *
+ * @param $incidentid Numerical incident id
+ * @param $template name of preferred mail template
+ * @return true on success, false on failure
+ */
+function setPreferredMailTemplateName($incidentid, $template) {
+   if (!is_numeric($incidentid)) {
+	   return false;
+   }
+	if (!incidentExists($incidentid)) {
+	   return false;
+	}
+	if (!templateExists($template)) {
+	   return false;
+	}
+	$q = q('UPDATE incidents SET pref_templ=\'%templ\' WHERE id=%id',
+	   array('%id'=>$incidentid, '%templ'=>db_escape_string($template)));
+	$res = db_query($q);
+	if ($res == false) {
+	   airt_error('DB_QUERY', 'incidents.plib:'.__LINE__);
+		reload('');
+		return false;
+	}
+	return true;
+}
+
 
 ?>

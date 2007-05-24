@@ -270,7 +270,7 @@ class IncidentHandling {
                   }
                   $mailtemplate_element = $technicalInformation->get_elements_by_tagname('mailtemplate');
                   if (sizeof($mailtemplate_element) > 0) {
-                     $mailtemplate = $mailtemplate_element[0]->get_content();
+						   $mailtemplate = urldecode($mailtemplate_element[0]->get_content());
                   }
                }
                $address = $ip;
@@ -287,7 +287,10 @@ class IncidentHandling {
             foreach ($contacts as $id=>$data) {
                addUserToIncident($data['userid'], $incidentid[$i]);
             }
-				addIncidentComment('Template: '.urldecode($mailtemplate), $incidentid[$i]);
+				if ($mailtemplate != '') {
+					setPreferredMailTemplateName($incidentid[$i], $mailtemplate);
+					addIncidentComment('Import queue set preferred template to: '.$mailtemplate, $incidentid[$i]);
+				}
          }
       }
 
