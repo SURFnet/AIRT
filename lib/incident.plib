@@ -1117,13 +1117,6 @@ function formatIncidentBulkForm(&$check) {
    $constituency = $name = $email = $type = $state = $status
      = $addressrole = "";
 
-#   if (array_key_exists("active_ip", $_SESSION)) {
-#      $address = $_SESSION["active_ip"];
-#   } else {
-#      $address = "";
-#   }
-# do we need the preceding 5 lines of code? I dont think so...
-# KL 24-jul-2006
    $address = fetchFrom('SESSION','active_ip');
 
    if (array_key_exists("constituency_id", $_SESSION)) {
@@ -1778,7 +1771,7 @@ function formatListOverviewFooter() {
       '<tr>'.LF.
       '  <td>'._('Bulk mail').'</td>'.LF.
       '  <td>'.getMailTemplateSelection('template', 'null',
-                   array(_('Do not send mail')=>'')).'</td>'.LF.
+                   array(_('Do not send mail')=>'', _('Use preferred template')=>'')).'</td>'.LF.
       '</tr>'.LF.
       '<tr>'.LF.
       '  <td>&nbsp;</td>'.LF.

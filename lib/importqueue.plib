@@ -264,8 +264,7 @@ function formatQueueOverview() {
    $out .= '   <th>'._('Sender').'</th>'.LF;
    $out .= '   <th>'._('Constituency').'</th>'.LF;
    $out .= '   <th>'._('IP Address').'</th>'.LF;
-	// $out .= '   <th>'._('Tag').' (<a href="http://www.airt.nl/help/tag">'._('help').'</a>)</th>'.LF;
-   $out .= '   <th>'._('Details').'</th>'.LF;
+   $out .= '   <th>'._('Preferred Template').'</th>'.LF;
    $out .= '</tr>'.LF;
    $out .= '<th></th>'.LF;
    foreach ($elements as $id=>$element) {
@@ -286,7 +285,9 @@ function formatQueueOverview() {
          $out .= t("  <td>%type</td>\n", array('%type'=>$element['type']));
          $out .= t("  <td>%cons</td>\n", array('%cons'=>$element['cache_constituency']));
          $out .= t("  <td>%ip</td>\n", array('%ip'=>$element['cache_ip']));
-         $out .= '  <td>'.getMailtemplateSelection('template['.$element['id'].']').'</td>'.LF;
+         $out .= '  <td>'.getMailtemplateSelection('template['.$element['id'].']', 
+			   _('No preferred template'), array(_('No preferred template')=>''))
+			   .'</td>'.LF;
          $out .= '   <td>'.LF;
 
 			// check for grouping within the import queue

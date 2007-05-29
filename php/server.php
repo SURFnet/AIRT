@@ -287,7 +287,7 @@ class IncidentHandling {
             foreach ($contacts as $id=>$data) {
                addUserToIncident($data['userid'], $incidentid[$i]);
             }
-				if ($mailtemplate != '') {
+				if ($mailtemplate != '' && $mailtemplate != _('No preferred template')) {
 					setPreferredMailTemplateName($incidentid[$i], $mailtemplate);
 					addIncidentComment('Import queue set preferred template to: '.$mailtemplate, $incidentid[$i]);
 				}

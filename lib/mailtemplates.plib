@@ -356,6 +356,9 @@ function prepare_message($template, $agenda=array(), $to=array()) {
       $current['ip'] = $incident['ips'][0]['ip'];
       $current['hostname'] = $incident['ips'][0]['hostname'];
    }
+   if ($template == _('Use preferred template')) {
+		$template = getPreferredMailTemplateName($current['incidentid']);
+	}
 
    $msgdata = expand_template($template, $current);
 
