@@ -725,7 +725,7 @@ function queueNormalize($group, $checked, $decision) {
 				   $sibling_logging_elements[0]->get_content());
 				$parent_logging_elements[0]->replace_node($new_element);
 
-				if (updateQueueItem($parent_id, 'content', $parent_dom->dump_mem(true), &$error)) {
+				if (updateQueueItem($parent_id, 'content', $parent_dom->dump_mem(true), $error)) {
 					airt_error('ERR_QUERY', 'importqueue.plib:'.__LINE__, $error);
 					Header("Location: $_SERVER[PHP_SELF]");
 					return;
