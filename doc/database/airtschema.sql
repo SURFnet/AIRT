@@ -121,6 +121,24 @@ CREATE TABLE users (  -- also contains external people linked to incidents
     primary key (id)
 );
 
+CREATE TABLE mailtemplates (
+   name varchar(80) not null,
+   body text not null,
+   createdby integer not null,
+   created timestamp not null,
+   updatedby integer,
+   updated timestamp,
+   action_status int,
+   action_state  int,
+   action_type   int,
+   primary key (name),
+   foreign key (createdby) references users(id),
+   foreign key (updatedby) references users(id),
+   foreign key (action_status) references incident_status(id),
+   foreign key (action_state) references incident_states(id),
+   foreign key (action_type) references incident_types(id)
+);
+
 CREATE TABLE incidents (
     id          integer,
     created     timestamp not null,
@@ -132,12 +150,14 @@ CREATE TABLE incidents (
     type        integer not null,
     incidentdate timestamp,
     logging     text,
+    pref_templ  varchar(80),
     primary key (id),
     foreign key (creator)   references users(id),
     foreign key (updatedby) references users(id),
     foreign key (state)     references incident_states(id),
     foreign key (status)    references incident_status(id),
-    foreign key (type)      references incident_types(id)
+    foreign key (type)      references incident_types(id),
+    foreign key (pref_templ) references mailtemplates(name)
 );
 
 CREATE TABLE address_roles (
@@ -293,23 +313,6 @@ CREATE TABLE authentication_tickets (
   foreign key (userid)   references users(id)
 );
 
-CREATE TABLE mailtemplates (
-   name varchar(80) not null,
-   body text not null,
-   createdby integer not null,
-   created timestamp not null,
-   updatedby integer,
-   updated timestamp,
-   action_status int,
-   action_state  int,
-   action_type   int,
-   primary key (name),
-   foreign key (createdby) references users(id),
-   foreign key (updatedby) references users(id),
-   foreign key (action_status) references incident_status(id),
-   foreign key (action_state) references incident_states(id),
-   foreign key (action_type) references incident_types(id)
-);
 
 CREATE TABLE versions (
   key   varchar(16) not null,
