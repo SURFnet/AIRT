@@ -399,6 +399,7 @@ function prepare_message($template, $agenda=array(), $to=array()) {
    print $out;
    if (sizeof($agenda) > 0) {
       print '<input type="submit" name="action" value="'._('Send and prepare next').'">'.LF;
+      print '<input type="submit" name="action" value="'._('Skip and prepare next').'">'.LF;
    }
    if (defined('GPG_KEYID')) {
       print '<input type="checkbox" name="sign" checked> '._('Sign').LF;

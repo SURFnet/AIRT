@@ -243,6 +243,19 @@ special variables in the template:').'<p>'.LF;
       break;
 
    // -------------------------------------------------------------------
+   case _('Skip and prepare next'):
+      if (array_key_exists('agenda', $_POST)) {
+         $agenda = $_POST['agenda'];
+      }
+      if (array_key_exists('template', $_POST)) {
+         $template = $_POST['template'];
+      }
+		Header("Location: $_SERVER[PHP_SELF]?action=prepare&template=".
+		   urlencode($template)."&agenda=".urlencode($agenda));
+		break;
+
+
+   // -------------------------------------------------------------------
    case 'send':
    case _('Send'):
    case _('Send and prepare next'):
