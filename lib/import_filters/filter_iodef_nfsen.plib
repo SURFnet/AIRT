@@ -10,6 +10,11 @@
  * 
  */
 
+function getVersion() {
+	$rev = explode(' ','$Rev$');
+	return $rev[1];
+}
+
 function filter_iodef_nfsen($input, &$output, $verbosity=TRUE) {
 	// make sure we only have the XML
 
@@ -182,7 +187,7 @@ function filter_iodef_nfsen($input, &$output, $verbosity=TRUE) {
 			}
 		}
 
-		$output .= "<airt:queuedata version=\"\$Rev$\" filter=\"filter_iodef_nfsen\" ref=\"#$id\">\n";
+		$output .= "<airt:queuedata version=\"".getVersion()."\" filter=\"filter_iodef_nfsen\" ref=\"#$id\">\n";
 		$output .= "   <airt:status>open</airt:status>\n";
 		$output .= "   <airt:sender>$contactname</airt:sender>\n";
 		$output .= "   <airt:type>$type</airt:type>\n";
