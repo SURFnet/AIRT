@@ -1,7 +1,4 @@
-2007-06-22
+todo short term
 
-mail template suggestion in import queue now processed for new incidents;
-preferred template is stored temporarily in incident comments, but this needs
-to be changed. How do we address template suggestions for import queue elements
-that are added to existing incidents? Do we just ignore them?  Also needs to be
-done: mapping from filter+version_number+event_type -> AIRT type
+* link to preftempl edit screen in settings
+* fix improtqueue.plib to actually use it

@@ -3,7 +3,7 @@
  * $Id$ 
 
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
- * Copyright (C) 2004,2005	Kees Leune <kees@uvt.nl>
+ * Copyright (C) 2004,2005   Kees Leune <kees@uvt.nl>
 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,11 +38,11 @@ function showQueue() {
    pageHeader(_('AIRT Import queue'));
    $out = '<form method="post">'.LF;
    $out .= queueFormatItems();
-	$out .= '<p/>'._('Decision: ');
-	$out .= '<select name="decision">'.LF;
-	$out .= '<option value="accept">'._('Accept').LF;
-	$out .= '<option value="reject">'._('Reject').LF;
-	$out .= '</select>'.LF;
+   $out .= '<p/>'._('Decision: ');
+   $out .= '<select name="decision">'.LF;
+   $out .= '<option value="accept">'._('Accept').LF;
+   $out .= '<option value="reject">'._('Reject').LF;
+   $out .= '</select>'.LF;
 
    $out .= '<p><input type="submit" label="'.
       _('Commit all incidents as accept or reject').
@@ -68,38 +68,38 @@ switch ($action) {
       if (array_key_exists('decision', $_POST)) {
          $decision = $_POST['decision'];
       }
-		defaultTo($decision, 'donothing');
+      defaultTo($decision, 'donothing');
       pageHeader(_('Processing import queue'));
 
       // interpret all decision and take action if accept or reject
-		$tags=array();
-		if (array_key_exists('group', $_POST)) {
-			$decisions = queueNormalize($_POST['group'], $_POST['checked'], $decision);
-		} else {
-		   $decisions = $_POST['checked'];
-		}
+      $tags=array();
+      if (array_key_exists('group', $_POST)) {
+         $decisions = queueNormalize($_POST['group'], $_POST['checked'], $decision);
+      } else {
+         $decisions = $_POST['checked'];
+      }
 
       foreach ($decisions as $id=>$value) {
          $update = false;
-			$t = '';
+         $t = '';
          switch ($value) {
             case 'on':
-				   if ($decision == 'accept') {
-						queueElementAccept($id, $_POST['template'][$id]);
-					}
-					elseif ($decision == 'reject') {
-						print t(_('Rejecting queue element %id<br/>').LF, array('%id'=>$id));
-						flush();
-						$value = 'rejected';
-						$update = true;
-						if ($update) {
-							if (updateQueueItem($id, 'status', $value, $error)) {
-								airt_error('ERR_QUERY', 'importqueue.php:'.__LINE__, $error);
-								Header("Location: $_SERVER[PHP_SELF]");
-								return;
-							}
-						}
-					}
+               if ($decision == 'accept') {
+                  queueElementAccept($id, $_POST['template'][$id]);
+               }
+               elseif ($decision == 'reject') {
+                  print t(_('Rejecting queue element %id<br/>').LF, array('%id'=>$id));
+                  flush();
+                  $value = 'rejected';
+                  $update = true;
+                  if ($update) {
+                     if (updateQueueItem($id, 'status', $value, $error)) {
+                        airt_error('ERR_QUERY', 'importqueue.php:'.__LINE__, $error);
+                        Header("Location: $_SERVER[PHP_SELF]");
+                        return;
+                     }
+                  }
+               }
                break;
             default:
                print t(_('Ignoring queue element %id<br/>').LF, array('%id'=>$id));
@@ -169,6 +169,55 @@ switch ($action) {
       showQueue();
       break;
 
+   // ----------------------------------------------------------------
+   case 'preftempl':
+      pageHeader('Preferred mail templates');
+      print importqueueTemplatesFormatItems();
+      pageFooter();
+      break;
+
+   // ----------------------------------------------------------------
+   case _('Add preferred template'):
+      $filter = fetchFrom('REQUEST', 'filter');
+      defaultTo($filter, '');
+      $version = fetchFrom('REQUEST', 'version');
+      defaultTo($version, '');
+      $mailtemplate = fetchFrom('REQUEST', 'mailtemplate');
+      defaultTo($mailtemplate, '');
+
+      if ($filter == '' || $version == '' || $mailtemplate == '') {
+         airt_error('PARAM_MISSING', 'importqueue.php:'.__LINE__);
+         reload();
+      }
+
+      if (setPreferredMailtemplate($filter, $version, $mailtemplate, $error) > 0) {
+         airt_msg('Failed to set preferred template: '.$error);
+      }
+
+      reload($_SERVER['PHP_SELF'].'?action=preftempl');
+
+      break;
+
+   // ----------------------------------------------------------------
+	case _('Removed checked preferred templates'):
+	   $check = fetchFrom('REQUEST', 'check');
+		defaultTo($check, array());
+
+      if (importqueueTemplatesGetItems($items, $error) > 0) {
+			airt_msg('Failed to retrieve preferences: '.$error);
+		} else {
+			foreach ($check as $id=>$value) {
+				if ($value == 'on') {
+					if (removePreferredMailtemplate($items[$id]['filter'],
+						$items[$id]['version'], $error) > 0) {
+						airt_msg('Removal failed: '.$error);
+						break;
+					}
+				}
+			}
+		}
+		reload($_SERVER['PHP_SELF'].'?action=preftempl');
+	   break;
 
    // ----------------------------------------------------------------
    default:

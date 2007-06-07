@@ -114,20 +114,23 @@ function import($input,&$error,$verbosity=FALSE) {
       return 0;
    }
 
-	$filter = $importqueue->get_attribute('filter');
-	if ($filter == '') {
-		$filter = 'unknown';
-	}
-	$version = $importqueue->get_attribute('version');
-	if ($version == '') {
-		$version = 'unknown';
-	}
 
    foreach ($importqueue as $element) {
+		$filter = $element->get_attribute('filter');
+		if ($filter == '') {
+			$filter = 'unknown';
+		}
+
+		$version = $element->get_attribute('version');
+		if ($version == '') {
+			$version = 'unknown';
+		}
+
       if (!$element->has_attribute('ref')) {
          $error = _('Missing ref attribute in XML');
          return 1;
       }
+
       $ref = $element->get_attribute('ref');
       # FIXME remove the # from the ref ID
       $ref = preg_replace('/^#/', '', $ref);
@@ -486,7 +489,6 @@ function queueInsertItem($status,$sender,$type,$summary,$content,$filter,
 	$filter  = trim(db_escape_string($filter));
 	$version  = trim(db_escape_string($version));
 
-
    if ($status=='' || $sender=='' || $type=='' || $summary=='' ||
        $content=='' || $filter=='' || $version='') {
       $error = _('Empty parameter');
@@ -514,7 +516,10 @@ function queueInsertItem($status,$sender,$type,$summary,$content,$filter,
          $conslist = getConstituencies();
          $cache_constituency = $conslist[$consid]['label'];
       }
-		$cache_mailtemplate = queueLookupMailtemplate($type, $sender);
+		if (getPreferredMailtemplate($filter, $version, $cache_mailtemplate,
+			$error) > 0) {
+			return false;
+		}
    }
    $cache_ip = trim(db_escape_string($cache_ip));
    $cache_constituency = trim(db_escape_string($cache_constituency));
@@ -536,13 +541,6 @@ function queueInsertItem($status,$sender,$type,$summary,$content,$filter,
    return $newID;
 }// queueInsertItem
 
-
-/**
- * @@ TODO @@@
-function queueLookupMailtemplate($type, $sender) {
-	return 'bot';
-}
-// queueLookupMailtemplate
 
 
 /* Retrieve an element from the queue. This function both queries the
@@ -775,5 +773,199 @@ function queueNormalize($group, $checked, $decision) {
       }
    }
    return $output;
+}
+
+/** Set preferred mail template for import filter
+ * @param $error Contains error message when failure
+ * Returns 0 on success, 1 on failure. 
+ */
+function setPreferredMailtemplate($filter, $version, $template, &$error) {
+   $error = '';
+   $update = true;
+   $cur_template = '';
+
+   if ($filter == '' || $version == '' || $template == '') {
+      $error = 'Missing parameter';
+      return 1;
+   }
+
+   if (getPreferredMailtemplate($filter, $version, $cur_template, $errror) > 0) {
+      return 1;
+   }
+
+   if ($cur_template == '') {
+      $update = false;
+   }
+   if ($cur_template == $template) {
+      // nothing to do
+      return 0;
+   }
+
+   if ($update) {
+      $q = q("UPDATE importqueue_templates 
+              SET    mailtemplate='%templ'
+              WHERE  filter='%filter'
+              AND    version='%version'", array(
+                 '%templ'=>db_escape_string($template),
+                 '%filter'=>db_escape_string($filter),
+                 '%version'=>db_escape_string($version)));
+   } else {
+      $q = q("INSERT INTO importqueue_templates
+              (id, filter, version, mailtemplate)
+              VALUES
+              (nextval('importqueue_templates_sequence'), 
+              '%filter', '%version', '%templ')", array(
+                 '%templ'=>db_escape_string($template),
+                 '%filter'=>db_escape_string($filter),
+                 '%version'=>db_escape_string($version)));
+   }
+   $res = db_query($q);
+   if ($res == false) {
+      $error = 'Database error in importqueue.plib:'.__LINE__;
+      return 1;
+   }
+   return 0;
+} //setPreferredMailtemplate
+
+/** Fetch the preferred mail template for a specific filter's version.
+ * @param $error Will contain an error message, if any
+ * @return 0 on success, 1 on failure
+ */
+function getPreferredMailtemplate($filter, $version, &$template, &$error) {
+   $error = '';
+   $template = '';
+
+   if ($filter == '' || $version == '') {
+      $error .= 'Missing parameter in importqueue.plib:'.__LINE__;
+		apd_croak();
+      return 1;
+   }
+
+   $q = q("SELECT mailtemplate
+           FROM   importqueue_templates
+           WHERE  filter='%filter'
+           AND    version='%version'", array(
+              '%filter'=>db_escape_string($filter),
+              '%version'=>db_escape_string($version)));
+   $res = db_query($q);
+   if ($res == false) {
+      $error = 'Database error in importqueue.plib:'.__LINE;
+      return 1;
+   }
+   if (db_num_rows($res) > 0) {
+      $row = db_fetch_next($res);
+      $template = $row['mailtemplate'];
+   }
+   return 0;
+} // getPreferredMailtemplate
+
+/** Fetch the preferred mail template for a specific filter's version.
+ * @param $error Will contain an error message, if any
+ * @return 0 on success, 1 on failure
+ */
+function removePreferredMailtemplate($filter, $version, &$error) {
+   $error = '';
+   $cur_template = '';
+
+   if ($filter == '' || $version == '') {
+      $error = 'Missing parameter in importqueue.plib:'.__LINE__;
+      return 1;
+   }
+   if (getPreferredMailtemplate($filter, $version, $cur_template, $errror) > 0) {
+      return 1;
+   }
+   if ($cur_template == '') {
+      // nothing to do.
+      return 0;
+   }
+   $q = q("DELETE FROM importqueue_templates
+           WHERE  filter='%filter'
+           AND    version='%version'", array(
+              '%filter'=>db_escape_string($filter),
+              '%version'=>db_escape_string($version)));
+   $res = db_query($q);
+   if ($res == false) {
+      $error = 'Database error in importqueue.plib:'.__LINE;
+      return 1;
+   }
+   return 0;
+} // removePreferredMailtemplate
+
+/** Retrieve a list of preferred mail templates
+ * @param $items associative array with items
+ * @param $error error msg, if any
+ * @return 0 on success, 1 on failure
+ */
+function importqueueTemplatesGetItems(&$items, &$error) {
+	$items = array();
+	$error = '';
+	$res = db_query(q("SELECT id, filter, version, mailtemplate
+	   FROM importqueue_templates
+		ORDER BY filter, version"));
+	if ($res == false) {
+		$error = 'Error querying database in importqueue.plib'.__LINE__;
+		return 1;
+	}
+	while ($row = db_fetch_next($res)) {
+		$items[$row['id']] = $row;
+	}
+	return 0;
+}
+
+/** Return a formatted list of preferred mail templates
+ */
+function importqueueTemplatesFormatItems() {
+	if (importqueueTemplatesGetItems($items, $error) > 0) {
+	   return "ERROR: ".$error;
+	}
+	$out = '<form>'.LF;
+	$out .= '<table cellpadding="4">'.LF;
+	$out .= '<tr>'.LF;
+	$out .= '  <th>&nbsp;</th>'.LF;
+	$out .= '  <th>'._('Filter').'</th>'.LF;
+	$out .= '  <th>'._('Version').'</th>'.LF;
+	$out .= '  <th>'._('Template').'</th>'.LF;
+	$out .- '</tr>'.LF;
+	$count = 0;
+	foreach ($items as $id=>$item) {
+      $out .= t('<tr valign="top" bgcolor="%color">', array('%color'=>($count++ % 2 == 0) ? '#DDDDDD' : '#FFFFFF')).LF;
+		$out .= '<td><input type="checkbox" name="check['.
+		   strip_tags($id).']"></td>'.LF;
+		$out .= t('<td>%filter</td>'.LF, 
+		   array('%filter'=>strip_tags($item['filter'])));
+		$out .= t('<td>%version</td>'.LF,
+		   array('%version'=>strip_tags($item['version'])));
+		$out .= t('<td>%template</td>'.LF,
+		   array('%template'=>strip_tags($item['mailtemplate'])));
+		$out .= '</tr>';
+	}
+	$out .= '</table>';
+	if ($count == 0) {
+		$out .= '<p/><I>'._('No preferred mail templates defined.').'</I>'.LF;
+	}
+	$out .= '<p/>'.LF;
+	$out .= '<table>'.LF;
+	$out .= '<tr>'.LF;
+	$out .= '<td>Filter name:</td>'.LF;
+	$out .= '<td><input type="text" name="filter" size="30"></td>'.LF;
+	$out .= '</tr>'.LF;
+	$out .= '<tr>'.LF;
+	$out .= '<td>Filter version:</td>'.LF;
+	$out .= '<td><input type="text" name="version" size="30"></td>'.LF;
+	$out .= '</tr>'.LF;
+	$out .= '<tr>'.LF;
+	$out .= '<td>Mail template:</td>'.LF;
+	$out .= '<td>'.LF;
+	$out .= getMailtemplateSelection('mailtemplate');
+	$out .= '</td>'.LF;
+	$out .= '</tr>'.LF;
+	$out .= '</table>'.LF;
+	$out .= '<input type="submit" name="action" value="'.
+	        _('Add preferred template').'">'.LF;
+	$out .= '<input type="submit" name="action" value="'.
+	        _('Removed checked preferred templates').'">'.LF;
+	$out .= '</form>';
+
+	return $out;
 }
 ?>
