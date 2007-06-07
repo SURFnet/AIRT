@@ -37,7 +37,7 @@ if (array_key_exists('action', $_REQUEST)) {
 function showQueue() {
    pageHeader(_('AIRT Import queue'));
    $out = '<form method="post">'.LF;
-   $out .= formatQueueOverview();
+   $out .= queueFormatItems();
 	$out .= '<p/>'._('Decision: ');
 	$out .= '<select name="decision">'.LF;
 	$out .= '<option value="accept">'._('Accept').LF;

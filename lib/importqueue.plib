@@ -114,6 +114,15 @@ function import($input,&$error,$verbosity=FALSE) {
       return 0;
    }
 
+	$filter = $importqueue->get_attribute('filter');
+	if ($filter == '') {
+		$filter = 'unknown';
+	}
+	$version = $importqueue->get_attribute('version');
+	if ($version == '') {
+		$version = 'unknown';
+	}
+
    foreach ($importqueue as $element) {
       if (!$element->has_attribute('ref')) {
          $error = _('Missing ref attribute in XML');
@@ -154,7 +163,8 @@ function import($input,&$error,$verbosity=FALSE) {
       $content = $content_xml->dump_mem();
 
       // Insert
-      $newID = queueInsertItem($status,$sender,$type,$summary,$content,$error);
+      $newID =
+		queueInsertItem($status,$sender,$type,$summary,$content,$filter,$version,$error);
       if (!$newID) {
          // $error has already been filled in by the call to queueInsertItem().
          return 1;
@@ -212,7 +222,7 @@ function updateQueueItem($id, $field, $value, &$error) {
 function queueGetItems(&$elements, &$error) {
    $error = '';
    $res = db_query(q('SELECT id, created, status, sender, type, summary,
-      cache_ip, cache_constituency
+      cache_ip, cache_constituency, cache_mailtemplate, filter, version
       FROM import_queue
       WHERE status = \'open\'
       ORDER BY cache_ip DESC'));
@@ -273,6 +283,9 @@ function queueFormatItems() {
          return;
       }
       if($tree = @domxml_open_mem($item['content'])) {
+         if ($element['cache_mailtemplate'] == '') {
+            $element['cache_mailtemplate'] =_('No preferred template');
+			}
          $out .= t('<tr valign="top" bgcolor="%color">', array('%color'=>($count++ % 2 == 0) ? '#DDDDDD' : '#FFFFFF')).LF;
          $out .= '  <td nowrap>'.LF;
          $out .= t('     <input name="checked['.$id.']" %checked type="checkbox" /> '.LF,
@@ -285,7 +298,7 @@ function queueFormatItems() {
          $out .= t("  <td>%cons</td>\n", array('%cons'=>$element['cache_constituency']));
          $out .= t("  <td>%ip</td>\n", array('%ip'=>$element['cache_ip']));
          $out .= '  <td>'.getMailtemplateSelection('template['.$element['id'].']', 
-            _('No preferred template'), array(_('No preferred template')=>''))
+            $element['cache_mailtemplate'], array(_('No preferred template')=>''))
             .'</td>'.LF;
          $out .= '   <td>'.LF;
 
@@ -452,6 +465,8 @@ function getSAMLTicket() {
  *   type    = string with queue item type.
  *   summary = string with queue item summary.
  *   content = formatted string with XML item content.
+ *   filter  = name of the filter used to import the queue element.
+ *   version = version number of the filter
  *   error   = variable to write the error string to, if any.
  * All parameters are passed on to the database without any change except
  * for trimming leading and trailing white space. Empty strings (after
@@ -460,15 +475,20 @@ function getSAMLTicket() {
  *   The queue ID of the newly added item, or FALSE in case of failure.
  *   If FALSE, the error parameter will contain an error message.
  */
-function queueInsertItem($status,$sender,$type,$summary,$content,&$error) {
+function queueInsertItem($status,$sender,$type,$summary,$content,$filter,
+   $version, &$error) {
    // Superficial sanity check of the parameters.
    $status  = trim(db_escape_string($status));
    $sender  = trim(db_escape_string($sender));
    $type    = trim(db_escape_string($type));
    $summary = trim(db_escape_string($summary));
    $content = trim(db_escape_string($content));
+	$filter  = trim(db_escape_string($filter));
+	$version  = trim(db_escape_string($version));
+
+
    if ($status=='' || $sender=='' || $type=='' || $summary=='' ||
-       $content=='') {
+       $content=='' || $filter=='' || $version='') {
       $error = _('Empty parameter');
       return FALSE;
    }
@@ -494,23 +514,20 @@ function queueInsertItem($status,$sender,$type,$summary,$content,&$error) {
          $conslist = getConstituencies();
          $cache_constituency = $conslist[$consid]['label'];
       }
-      $el = $dom->get_elements_by_tagname('mailtemplate');
-      if (sizeof($el) > 0) {
-         $cache_mailtemplate = $el[0]->get_content();
-      }
+		$cache_mailtemplate = queueLookupMailtemplate($type, $sender);
    }
    $cache_ip = trim(db_escape_string($cache_ip));
    $cache_constituency = trim(db_escape_string($cache_constituency));
    $cache_mailtemplate = trim(db_escape_string($cache_mailtemplate));
 
    // Insert the record. Strings have already been escaped.
-   $q = 'INSERT INTO import_queue
+   $q = "INSERT INTO import_queue
            (id,created,status,sender,type,summary,content, cache_ip,
-            cache_constituency, cache_mailtemplate)
+            cache_constituency, cache_mailtemplate, filter, version)
          VALUES
            ($newID,CURRENT_TIMESTAMP,'$status','$sender','$type',
             '$summary','$content','$cache_ip', '$cache_constituency',
-            '$cache_mailtemplate')";
+            '$cache_mailtemplate', '$filter', '$version')";
    if (!db_query($q)) {
       $error = _('Could not insert new queue item');
       return FALSE;
@@ -518,6 +535,14 @@ function queueInsertItem($status,$sender,$type,$summary,$content,&$error) {
 
    return $newID;
 }// queueInsertItem
+
+
+/**
+ * @@ TODO @@@
+function queueLookupMailtemplate($type, $sender) {
+	return 'bot';
+}
+// queueLookupMailtemplate
 
 
 /* Retrieve an element from the queue. This function both queries the

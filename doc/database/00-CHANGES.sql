@@ -7,6 +7,8 @@
 -- for EACH release, even if there are no changes to the database schema,
 -- because the VERSIONS table needs to be updated in all cases.
 ALTER TABLE import_queue ADD COLUMN cache_mailtemplate VARCHAR(80);
+ALTER TABLE import_queue ADD COLUMN filter VARCHAR(80);
+ALTER TABLE import_queue ADD COLUMN version VARCHAR(80);
 
 UPDATE versions SET value='----version string----' WHERE key='airtversion';
 -- Needs manual update with the AIRT_VERSION string of the release.

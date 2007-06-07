@@ -301,6 +301,8 @@ CREATE TABLE import_queue (
   cache_ip  varchar(128),
   cache_constituency varchar(128),
   cache_mailtemplate varchar(80),
+  filter    varchar(80),
+  version   varchar(80),
   primary key (id)
 );
 
