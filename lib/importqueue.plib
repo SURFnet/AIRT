@@ -163,6 +163,7 @@ function import($input,&$error,$verbosity=FALSE) {
       // Progress
       if ($verbosity) {
          echo _("Queued incident, ID=$newID").LF;
+         flush();
       }
    } // foreach
 
@@ -199,7 +200,6 @@ function updateQueueItem($id, $field, $value, &$error) {
 }
 
 
-# TODO: consider renaming to queueGetItems().
 /* retrieve open elements from database.
  *
  * Parameters
@@ -209,7 +209,7 @@ function updateQueueItem($id, $field, $value, &$error) {
  *
  * Returns 0 on success, 1 on failure
  */
-function getQueueOverview(&$elements, &$error) {
+function queueGetItems(&$elements, &$error) {
    $error = '';
    $res = db_query(q('SELECT id, created, status, sender, type, summary,
       cache_ip, cache_constituency
@@ -228,38 +228,37 @@ function getQueueOverview(&$elements, &$error) {
 }
 
 
-# TODO: consider renaming to queueFormatItems().
 /* show a formatted overview of the incident queue
  */
-function formatQueueOverview() {
+function queueFormatItems() {
    global $toggle;
 
    defaultTo($toggle, 0);
    $error = '';
    $openips=array();
    $elements = array();
-   if (getQueueOverview($elements, $error)) {
+   if (queueGetItems($elements, $error)) {
       return;
    }
    if (sizeof($elements) == 0) {
       return _('No items pending<p/>').LF;
    }
-	$urlsuffix = 'toggle='.urlencode($toggle);
+   $urlsuffix = 'toggle='.urlencode($toggle);
    foreach (getOpenincidents() as $id=>$data) {
       $openips[$data['ip']] = $id;
    }
-	$used_ips = array();
+   $used_ips = array();
    $count = 0;
-	$out = '<SCRIPT language="JavaScript">'.LF;
-	$out .= 'function checkAll() {'.LF;
-	$out .= '   window.location = "'.$_SERVER['PHP_SELF'].'?action=toggle&'.$urlsuffix.'"'.LF;
+   $out = '<SCRIPT language="JavaScript">'.LF;
+   $out .= 'function checkAll() {'.LF;
+   $out .= '   window.location = "'.$_SERVER['PHP_SELF'].'?action=toggle&'.$urlsuffix.'"'.LF;
    $out .= '}'.LF;
-	$out .= '</SCRIPT>';
+   $out .= '</SCRIPT>';
 
    $out .= '<table cellpadding="4" class="queue">'.LF;
    $out .= '<tr>'.LF;
    $out .= t('   <th><input type="checkbox" onChange="checkAll()" %checked></th>'.LF,
-	    array('%checked'=>($toggle == 1) ? 'CHECKED' : ''));
+       array('%checked'=>($toggle == 1) ? 'CHECKED' : ''));
    $out .= '   <th>'._('No.').'</th>'.LF;
    $out .= '   <th>'._('Sender').'</th>'.LF;
    $out .= '   <th>'._('Constituency').'</th>'.LF;
@@ -268,16 +267,16 @@ function formatQueueOverview() {
    $out .= '</tr>'.LF;
    $out .= '<th></th>'.LF;
    foreach ($elements as $id=>$element) {
-		$item = queuePeekItem($id,$error);
-		if ($error != '') {
+      $item = queuePeekItem($id,$error);
+      if ($error != '') {
          airt_error('ERR_FUNC', 'importqueue.plib:'.__LINE__);
-			return;
-		}
-		if($tree = @domxml_open_mem($item['content'])) {
+         return;
+      }
+      if($tree = @domxml_open_mem($item['content'])) {
          $out .= t('<tr valign="top" bgcolor="%color">', array('%color'=>($count++ % 2 == 0) ? '#DDDDDD' : '#FFFFFF')).LF;
          $out .= '  <td nowrap>'.LF;
-			$out .= t('     <input name="checked['.$id.']" %checked type="checkbox" /> '.LF,
-			   array('%checked'=>($toggle == 1) ? 'CHECKED' : ''));
+         $out .= t('     <input name="checked['.$id.']" %checked type="checkbox" /> '.LF,
+            array('%checked'=>($toggle == 1) ? 'CHECKED' : ''));
          $out .= '  </td>'.LF;
          $out .= t('  <td nowrap><a target="airt_queue" href="%url?action=showdetails&id=%id">'.
             $element['id'].'</a></td>'.LF,
@@ -286,29 +285,29 @@ function formatQueueOverview() {
          $out .= t("  <td>%cons</td>\n", array('%cons'=>$element['cache_constituency']));
          $out .= t("  <td>%ip</td>\n", array('%ip'=>$element['cache_ip']));
          $out .= '  <td>'.getMailtemplateSelection('template['.$element['id'].']', 
-			   _('No preferred template'), array(_('No preferred template')=>''))
-			   .'</td>'.LF;
+            _('No preferred template'), array(_('No preferred template')=>''))
+            .'</td>'.LF;
          $out .= '   <td>'.LF;
 
-			// check for grouping within the import queue
-			$ip = $element['cache_ip'];
-			$group = false;
-			if (array_key_exists($ip, $used_ips)) {
-			   $parent = $used_ips[$ip][0];
-			   $out .= '  <input type="checkbox" checked value="'.$parent.'" name="group['.$element['id'].']">'.LF;
-				$out .=  t(_('  Group with queue item %parent<br/>'), array('%parent'=>$parent)).LF;
-				$group = true;
-			}
-			$used_ips[$ip][] = $element['id'];
+         // check for grouping within the import queue
+         $ip = $element['cache_ip'];
+         $group = false;
+         if (array_key_exists($ip, $used_ips)) {
+            $parent = $used_ips[$ip][0];
+            $out .= '  <input type="checkbox" checked value="'.$parent.'" name="group['.$element['id'].']">'.LF;
+            $out .=  t(_('  Group with queue item %parent<br/>'), array('%parent'=>$parent)).LF;
+            $group = true;
+         }
+         $used_ips[$ip][] = $element['id'];
 
          if ($group == false) {
-			   if (array_key_exists($element['cache_ip'], $openips)) {
-					$out .= '  <input type="checkbox" checked name="add['.$id.']">'.LF;
-					$out .= t(_('  Add to %id').LF,
-					array('%id'=>normalize_incidentid($openips[$element['cache_ip']])));
-				}
-			}
-			$group = false;
+            if (array_key_exists($element['cache_ip'], $openips)) {
+               $out .= '  <input type="checkbox" checked name="add['.$id.']">'.LF;
+               $out .= t(_('  Add to %id').LF,
+               array('%id'=>normalize_incidentid($openips[$element['cache_ip']])));
+            }
+         }
+         $group = false;
          $out .= '  </td>'.LF;
          $out .= '</tr>'.LF;
       }
@@ -363,13 +362,13 @@ function queueToAIRT($id, &$error, $mailtemplate='') {
    $content_xml = domxml_open_mem($data['content']);
    $content_root = $content_xml->document_element();
 
-	// add mail template information
-	$tmp_elements = $content_xml->get_elements_by_tagname('technicalInformation');
-	if (sizeof($tmp_elements) > 0) {
-	   $new = $content_xml->create_element('mailtemplate');
-		$new->set_content(urlencode($mailtemplate));
-		$tmp_elements[0]->append_child($new);
-	}
+   // add mail template information
+   $tmp_elements = $content_xml->get_elements_by_tagname('technicalInformation');
+   if (sizeof($tmp_elements) > 0) {
+      $new = $content_xml->create_element('mailtemplate');
+      $new->set_content(urlencode($mailtemplate));
+      $tmp_elements[0]->append_child($new);
+   }
    $incident_data = $content_root->clone_node(true);
 
    // Create new xml document to pass to web service
@@ -473,6 +472,7 @@ function queueInsertItem($status,$sender,$type,$summary,$content,&$error) {
       $error = _('Empty parameter');
       return FALSE;
    }
+   $cache_ip = $cache_constituency = $cache_mailtemplate = '';
 
    // Fetch a fresh queue item ID from the database.
    $q = "select nextval('importqueue_sequence') as id";
@@ -494,15 +494,23 @@ function queueInsertItem($status,$sender,$type,$summary,$content,&$error) {
          $conslist = getConstituencies();
          $cache_constituency = $conslist[$consid]['label'];
       }
+      $el = $dom->get_elements_by_tagname('mailtemplate');
+      if (sizeof($el) > 0) {
+         $cache_mailtemplate = $el[0]->get_content();
+      }
    }
+   $cache_ip = trim(db_escape_string($cache_ip));
+   $cache_constituency = trim(db_escape_string($cache_constituency));
+   $cache_mailtemplate = trim(db_escape_string($cache_mailtemplate));
 
    // Insert the record. Strings have already been escaped.
-   $q = "INSERT INTO import_queue
+   $q = 'INSERT INTO import_queue
            (id,created,status,sender,type,summary,content, cache_ip,
-            cache_constituency)
+            cache_constituency, cache_mailtemplate)
          VALUES
            ($newID,CURRENT_TIMESTAMP,'$status','$sender','$type',
-            '$summary','$content','$cache_ip', '$cache_constituency')";
+            '$summary','$content','$cache_ip', '$cache_constituency',
+            '$cache_mailtemplate')";
    if (!db_query($q)) {
       $error = _('Could not insert new queue item');
       return FALSE;
@@ -654,32 +662,32 @@ function fetchAuthTicket(&$ticket, &$error) {
  * Function will redirect browser. Should be done prettier some day.
  */
 function queueElementAccept($id, $template) {
-	$value = 'accepted';
-	$update = true;
-	print t(_('Accepting queue element %id<br/>').LF, array('%id'=>$id));
-	flush();
-	if (isset($_POST['add'][$id]) && $_POST['add'][$id] == 'on') {
-		print '  '._('Adding to existing incident<br/>').LF;
-		$error = '';
-		if (queueAddLogging($id, $error)) {
-			print t(_('Error processing item: %error'), array(
-				'%error'=>$error));
-			$update = false;
-		} else {
-			$update = true;
-		}
-	} else if (queueToAIRT($id, $error, $template)) {
-		$update = false;
-		airt_error('ERR_FUNC', 'importqueue.plib:'.__LINE__, $error);
-		return;
-	}
-	if ($update) {
-		if (updateQueueItem($id, 'status', $value, $error)) {
-			airt_error('ERR_QUERY', 'importqueue.plib:'.__LINE__, $error);
-			Header("Location: $_SERVER[PHP_SELF]");
-			return;
-		}
-	}
+   $value = 'accepted';
+   $update = true;
+   print t(_('Accepting queue element %id<br/>').LF, array('%id'=>$id));
+   flush();
+   if (isset($_POST['add'][$id]) && $_POST['add'][$id] == 'on') {
+      print '  '._('Adding to existing incident<br/>').LF;
+      $error = '';
+      if (queueAddLogging($id, $error)) {
+         print t(_('Error processing item: %error'), array(
+            '%error'=>$error));
+         $update = false;
+      } else {
+         $update = true;
+      }
+   } else if (queueToAIRT($id, $error, $template)) {
+      $update = false;
+      airt_error('ERR_FUNC', 'importqueue.plib:'.__LINE__, $error);
+      return;
+   }
+   if ($update) {
+      if (updateQueueItem($id, 'status', $value, $error)) {
+         airt_error('ERR_QUERY', 'importqueue.plib:'.__LINE__, $error);
+         Header("Location: $_SERVER[PHP_SELF]");
+         return;
+      }
+   }
 } // queueElementAccept
 
 /** Normalize the import queue by grouping all queue items that are tagged to belong together.
@@ -692,55 +700,55 @@ function queueElementAccept($id, $template) {
  */
 function queueNormalize($group, $checked, $decision) {
    $output = $checked;
-	foreach ($group as $sibling_id=>$parent_id) {
-	   if (array_key_exists($sibling_id, $checked) && $checked[$sibling_id] == 'on' &&
-		    $decision == 'accept') {
-		   print t(_('Merging %sibling into %parent').'<br/>'.LF, array(
-				'%sibling'=>$sibling_id, '%parent'=>$parent_id));
+   foreach ($group as $sibling_id=>$parent_id) {
+      if (array_key_exists($sibling_id, $checked) && $checked[$sibling_id] == 'on' &&
+          $decision == 'accept') {
+         print t(_('Merging %sibling into %parent').'<br/>'.LF, array(
+            '%sibling'=>$sibling_id, '%parent'=>$parent_id));
 
-			// we will only update the logging; IP addresses will be identical and AIRT does not 
-			// do anything with the time of the incident yet.
+         // we will only update the logging; IP addresses will be identical and AIRT does not 
+         // do anything with the time of the incident yet.
 
-			// 1. Fetch logging of sibling
-			$sibling_item = queuePeekItem($sibling_id, $error);
-			$sibling_dom = domxml_open_mem($sibling_item['content']);
-			if ($sibling_dom == false) {
-				$error = _('Unable to parse xml in sibling content');
-			} else {
-				$root = $sibling_dom->document_element();
-				$sibling_logging_elements = $root->get_elements_by_tagname('logging');
-			}
+         // 1. Fetch logging of sibling
+         $sibling_item = queuePeekItem($sibling_id, $error);
+         $sibling_dom = domxml_open_mem($sibling_item['content']);
+         if ($sibling_dom == false) {
+            $error = _('Unable to parse xml in sibling content');
+         } else {
+            $root = $sibling_dom->document_element();
+            $sibling_logging_elements = $root->get_elements_by_tagname('logging');
+         }
 
-			// 2. Fetch logging of parent
-			$parent_item = queuePeekItem($parent_id, $error);
-			$parent_dom = domxml_open_mem($parent_item['content']);
-			if ($parent_dom == false) {
-				$error = _('Unable to parse xml in parent content');
-			} else {
-				$root = $parent_dom->document_element();
-				$parent_logging_elements = $root->get_elements_by_tagname('logging');
-				
-				$new_element = $parent_dom->create_element('logging');
-				$new_element->set_content($parent_logging_elements[0]->get_content() . LF .  
-				   $sibling_logging_elements[0]->get_content());
-				$parent_logging_elements[0]->replace_node($new_element);
+         // 2. Fetch logging of parent
+         $parent_item = queuePeekItem($parent_id, $error);
+         $parent_dom = domxml_open_mem($parent_item['content']);
+         if ($parent_dom == false) {
+            $error = _('Unable to parse xml in parent content');
+         } else {
+            $root = $parent_dom->document_element();
+            $parent_logging_elements = $root->get_elements_by_tagname('logging');
+            
+            $new_element = $parent_dom->create_element('logging');
+            $new_element->set_content($parent_logging_elements[0]->get_content() . LF .  
+               $sibling_logging_elements[0]->get_content());
+            $parent_logging_elements[0]->replace_node($new_element);
 
-				if (updateQueueItem($parent_id, 'content', $parent_dom->dump_mem(true), $error)) {
-					airt_error('ERR_QUERY', 'importqueue.plib:'.__LINE__, $error);
-					Header("Location: $_SERVER[PHP_SELF]");
-					return;
-				} else {
-				   unset($output[$sibling_id]);
-					// unset sibling's new status
-					if (updateQueueItem($sibling_id, 'status', 'merged', $error)) {
-						airt_error('ERR_QUERY', 'importqueue.plib:'.__LINE__, $error);
-						Header("Location: $_SERVER[PHP_SELF]");
-						return;
-					}
-				}
-			}
-		}
-	}
+            if (updateQueueItem($parent_id, 'content', $parent_dom->dump_mem(true), $error)) {
+               airt_error('ERR_QUERY', 'importqueue.plib:'.__LINE__, $error);
+               Header("Location: $_SERVER[PHP_SELF]");
+               return;
+            } else {
+               unset($output[$sibling_id]);
+               // unset sibling's new status
+               if (updateQueueItem($sibling_id, 'status', 'merged', $error)) {
+                  airt_error('ERR_QUERY', 'importqueue.plib:'.__LINE__, $error);
+                  Header("Location: $_SERVER[PHP_SELF]");
+                  return;
+               }
+            }
+         }
+      }
+   }
    return $output;
 }
 ?>
