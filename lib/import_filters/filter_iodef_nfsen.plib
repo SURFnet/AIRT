@@ -182,7 +182,7 @@ function filter_iodef_nfsen($input, &$output, $verbosity=TRUE) {
 			}
 		}
 
-		$output .= "<airt:queuedata version=\"\$Revision\" filter=\"filter_iodef_nfsen\" ref=\"#$id\">\n";
+		$output .= "<airt:queuedata version=\"\$Rev\" filter=\"filter_iodef_nfsen\" ref=\"#$id\">\n";
 		$output .= "   <airt:status>open</airt:status>\n";
 		$output .= "   <airt:sender>$contactname</airt:sender>\n";
 		$output .= "   <airt:type>$type</airt:type>\n";
