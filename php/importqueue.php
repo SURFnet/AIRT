@@ -36,7 +36,10 @@ if (array_key_exists('action', $_REQUEST)) {
  */
 function showQueue() {
    pageHeader(_('AIRT Import queue'));
-   $out = '<form method="post">'.LF;
+	$out = t('<a href="%url?action=preftempl">', array(
+	   '%url'=>$_SERVER['PHP_SELF'])).
+	   _('Edit preferred templates').'</a><p/>'.LF;
+   $out .= '<form method="post">'.LF;
    $out .= queueFormatItems();
    $out .= '<p/>'._('Decision: ');
    $out .= '<select name="decision">'.LF;

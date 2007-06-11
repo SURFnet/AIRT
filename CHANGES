@@ -1,3 +1,6 @@
+* Input option to associate default template with a specific version of 
+  a filter and code cleanup.
+
 2007-06-01
 * Option to "Skip and prepare next" in bulk mail handling
 

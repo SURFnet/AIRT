@@ -490,7 +490,7 @@ function queueInsertItem($status,$sender,$type,$summary,$content,$filter,
 	$version  = trim(db_escape_string($version));
 
    if ($status=='' || $sender=='' || $type=='' || $summary=='' ||
-       $content=='' || $filter=='' || $version='') {
+       $content=='' || $filter=='' || $version=='') {
       $error = _('Empty parameter');
       return FALSE;
    }
@@ -837,7 +837,6 @@ function getPreferredMailtemplate($filter, $version, &$template, &$error) {
 
    if ($filter == '' || $version == '') {
       $error .= 'Missing parameter in importqueue.plib:'.__LINE__;
-		apd_croak();
       return 1;
    }
 
