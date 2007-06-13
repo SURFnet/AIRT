@@ -11,7 +11,7 @@
  */
 
 function filter_iodef_getVersion() {
-	$rev = explode(' ','$Rev: 1096 $');
+	$rev = explode(' ','$Rev$');
 	return $rev[1];
 }
 
