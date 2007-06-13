@@ -10,6 +10,11 @@
  * 
  */
 
+function filter_iodef_getVersion() {
+	$rev = explode(' ','$Rev: 1096 $');
+	return $rev[1];
+}
+
 function filter_iodef($input, &$output, $verbosity=TRUE) {
 	// strip <?xml 
 $input = preg_replace('/io:/','', $input);
@@ -144,7 +149,8 @@ $input = preg_replace('/io:/','', $input);
 			}
 		}
 
-		$output .= "<airt:queuedata ref=\"#$id\">\n";
+		$output .= "<airt:queuedata filter=\"iodef\" version=\"".
+		   filter_iodef_getVersion()."\" ref=\"#$id\">\n";
 		$output .= "   <airt:status>open</airt:status>\n";
 		$output .= "   <airt:sender>$contactname</airt:sender>\n";
 		$output .= "   <airt:type>$type</airt:type>\n";

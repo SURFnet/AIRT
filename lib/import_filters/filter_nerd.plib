@@ -21,6 +21,11 @@
  * $Id: filter_none.plib 696 2005-11-01 10:44:17Z kees $
  */
 
+function filter_nerd_getVersion() {
+	$rev = explode(' ','$Rev: 1096 $');
+	return $rev[1];
+}
+
 /* Template filter function, does not do much but conforms to all standards.
  * Great to copy and create your own, functional function.
  *
@@ -51,6 +56,8 @@ function filter_nerd($input, &$output, $verbosity=FALSE) {
   $output='';
   foreach ($match as $m) {
 	  $outqdata = $out->create_element('queuedata');
+	  $outqdata->set_attribute('filter', 'filter_nerd');
+	  $outqdata->set_attribute('version', filter_nerd_getVersion());
 	  $outqdata->set_attribute('ref','#'.$count);
 	  $outroot->append_child($outqdata);
 

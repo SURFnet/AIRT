@@ -22,6 +22,11 @@
  */
 require_once 'Mail/mimeDecode.php';
 
+function filter_spamcop_getVersion() {
+	$rev = explode(' ','$Rev$');
+	return $rev[1];
+}
+
 function filter_spamcop($input, &$output, $verbosity=FALSE) {
    $matches = array();
    $data = array('srcip'=>'', 'logging'=>'', 'datetime'=>'');
@@ -43,7 +48,8 @@ function filter_spamcop($input, &$output, $verbosity=FALSE) {
       $data['srcip'] = $matches[2];
    }
    $output = '<airt>'."\n";
-   $output .= "  <queuedata ref=\"#1\">\n";
+   $output .= "  <queuedata filter=\"filter_spamcop\" version=\"".
+	   filter_spamcop_getVersion()."\" ref=\"#1\">\n";
    $output .= "     <status>open</status>\n";
    $output .= "     <sender>SpamCop</sender>\n";
    $output .= "     <type>SpamCop report</type>\n";

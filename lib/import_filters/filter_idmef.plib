@@ -23,6 +23,11 @@
  * $Id$
  */
 
+function filter_idmef_getVersion() {
+	$rev = explode(' ','$Rev$');
+	return $rev[1];
+}
+
 function v_print($msg, $verbosity) {
    if ($verbosity) print $msg;
 }
@@ -88,7 +93,8 @@ function filter_idmef($input, &$output, $verbosity=FALSE) {
       $logging = preg_replace('/<\?xml.*\?>/', '', $logging);
       #$input = preg_replace('/<!DOCTYPE.*>/', '', $input);
 
-      $output .= "<airt:queuedata ref=\"#$id\">\n";
+      $output .= "<airt:queuedata ref=\"#$id\" filter=\"filter_idmef\"".
+		   " version=\"".filter_idmef_getVersion()."\">\n";
       $output .= "   <airt:status>open</airt:status>\n";
       $output .= "   <airt:sender>SURFnet-IDS</airt:sender>\n";
       $output .= "   <airt:type>$type</airt:type>\n";

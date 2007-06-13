@@ -23,6 +23,11 @@
  * $Id$
  */
 
+function filter_surfnet_getVersion() {
+	$rev = explode(' ','$Rev$');
+	return $rev[1];
+}
+
 /* Import queue filter function for SURFnet reports.
  * Parameters:
  *    input     = The SURFnet report email, headers and everything.
@@ -83,7 +88,8 @@ function filter_surfnet($input, &$output, $verbosity=FALSE) {
          $date      = $matches[3];
          $time      = $matches[4];
 
-         $queue[$id]  = "    <airt:queuedata ref=\"#$id\">\n";
+         $queue[$id]  = "    <airt:queuedata filter=\"filter_surfnet\" ".
+			   "version=\"".filter_surfnet_getVersion()."\" ref=\"#$id\">\n";
          $queue[$id] .= "      <airt:status>$status</airt:status>\n";
          $queue[$id] .= "      <airt:sender>$sender</airt:sender>\n";
          $queue[$id] .= "      <airt:type>$type</airt:type>\n";

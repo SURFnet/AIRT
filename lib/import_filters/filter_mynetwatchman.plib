@@ -24,6 +24,11 @@
  */
 
 
+function filter_mynetwatchman_getVersion() {
+	$rev = explode(' ','$Rev$');
+	return $rev[1];
+}
+
 /*
 Event Date Time, Destination IP, IP Protocol, Target Port, Issue Description, So
 urce Port, Event Count
@@ -78,7 +83,8 @@ function filter_mynetwatchman($input, &$output, $verbosity=FALSE) {
    }
 
    $output = '<airt>'."\n";
-   $output .= "  <queuedata ref=\"#1\">\n";
+   $output .= "  <queuedata filter=\"filter_mynetwatchman\" version=\"".
+	   filter_mynetwatchman_getVersion()."\" ref=\"#1\">\n";
    $output .= "     <status>open</status>\n";
    $output .= "     <sender>MyNetwatchman</sender>\n";
    $output .= "     <type>MyNetwatchman report</type>\n";
