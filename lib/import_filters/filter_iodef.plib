@@ -149,7 +149,7 @@ $input = preg_replace('/io:/','', $input);
 			}
 		}
 
-		$output .= "<airt:queuedata filter=\"iodef\" version=\"".
+		$output .= "<airt:queuedata filter=\"filter_iodef\" version=\"".
 		   filter_iodef_getVersion()."\" ref=\"#$id\">\n";
 		$output .= "   <airt:status>open</airt:status>\n";
 		$output .= "   <airt:sender>$contactname</airt:sender>\n";
