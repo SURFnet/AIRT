@@ -187,7 +187,6 @@ class IncidentHandling {
             $_SESSION['userid'] = $userid;
          }
       }
-
       // get defaults
       if (!defined('WS_IMPORT_DEFAULTSTATE')) {
          $state = getIncidentStateDefault();
@@ -214,7 +213,6 @@ class IncidentHandling {
 
       foreach($root->get_elements_by_tagname('incident') as $incident_element) {
          $i = 0;
-
          if (sizeof($incident_element) > 0) {
 
             foreach($incident_element->get_elements_by_tagname('ticketInformation') as $ticketInformation) {
@@ -270,7 +268,7 @@ class IncidentHandling {
                   }
                   $mailtemplate_element = $technicalInformation->get_elements_by_tagname('mailtemplate');
                   if (sizeof($mailtemplate_element) > 0) {
-						   $mailtemplate = urldecode($mailtemplate_element[0]->get_content());
+                     $mailtemplate = urldecode($mailtemplate_element[0]->get_content());
                   }
                }
                $address = $ip;
@@ -287,10 +285,10 @@ class IncidentHandling {
             foreach ($contacts as $id=>$data) {
                addUserToIncident($data['userid'], $incidentid[$i]);
             }
-				if ($mailtemplate != '' && $mailtemplate != _('No preferred template')) {
-					setPreferredMailTemplateName($incidentid[$i], $mailtemplate);
-					addIncidentComment('Import queue set preferred template to: '.$mailtemplate, $incidentid[$i]);
-				}
+            if ($mailtemplate != '' && $mailtemplate != _('No preferred template')) {
+               setPreferredMailTemplateName($incidentid[$i], $mailtemplate);
+               addIncidentComment('Import queue set preferred template to: '.$mailtemplate, $incidentid[$i]);
+            }
          }
       }
 
