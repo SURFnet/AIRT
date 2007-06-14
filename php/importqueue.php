@@ -46,7 +46,6 @@ function showQueue() {
    $out .= '<option value="accept">'._('Accept').LF;
    $out .= '<option value="reject">'._('Reject').LF;
    $out .= '</select>'.LF;
-
    $out .= '<p><input type="submit" label="'.
       _('Commit all incidents as accept or reject').
       '" name="action" value="'._('Process').'"> ';

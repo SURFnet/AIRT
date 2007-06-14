@@ -20,7 +20,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
- 
+
 require_once 'config.plib';
 require_once LIBDIR."/mailtemplates.plib";
 
@@ -145,12 +145,12 @@ special variables in the template:').'<p>'.LF;
          airt_error('ERR_FUNC', 'mailtemplates.php:'.__LINE__);
       }
       listTemplates();
-	   
+      
       break;
 
    // -------------------------------------------------------------------
    case "new":
-		
+      
       pageHeader(_('New mail template'));
       print _('Enter your new template in the text field below. Use the following variables in your text body:');
       print '<P>'.LF;
@@ -190,12 +190,11 @@ special variables in the template:').'<p>'.LF;
       print '<input type="submit" value="'._('Save!').'">'.LF;
       print '<input type="reset" value="'._('Cancel!').'">'.LF;
       print '</form>'.LF;
-		
+
       break;
 
    // -------------------------------------------------------------------
   case "delete":
-		
       if (array_key_exists("template", $_REQUEST)) {
          $template=$_REQUEST["template"];
       } else {
@@ -207,17 +206,16 @@ special variables in the template:').'<p>'.LF;
          airt_error('ERR_FUNC', 'mailtemplates.php'.__LINE__);
       }
       listTemplates();
-		
+
       break;
 
    // -------------------------------------------------------------------
-   case "prepare":
-		
-      if (array_key_exists("template", $_REQUEST)) {
-         $template=$_REQUEST["template"];
-      } else {
+   case 'prepare':
+      $template = fetchFrom('REQUEST', 'template');
+      defaultTo($template, '');
+      if ($template == '') {
          airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
+         reload();
          return;
       }
       if (array_key_exists('agenda', $_REQUEST)) {
@@ -239,7 +237,7 @@ special variables in the template:').'<p>'.LF;
       }
       prepare_message($template, $agenda, $to);
       pageFooter();
-		
+
       break;
 
    // -------------------------------------------------------------------
@@ -250,28 +248,27 @@ special variables in the template:').'<p>'.LF;
       if (array_key_exists('template', $_POST)) {
          $template = $_POST['template'];
       }
-		Header("Location: $_SERVER[PHP_SELF]?action=prepare&template=".
-		   urlencode($template)."&agenda=".urlencode($agenda));
-		break;
+      Header("Location: $_SERVER[PHP_SELF]?action=prepare&template=".
+         urlencode($template)."&agenda=".urlencode($agenda));
+      break;
 
 
    // -------------------------------------------------------------------
    case 'send':
    case _('Send'):
    case _('Send and prepare next'):
-		
-      if (array_key_exists("from", $_POST)) {
-         $from=$_POST["from"];
-      } else {
+      $from = fetchFrom('POST', 'from');
+      defaultTo($from, '');
+      if ($from == '') {
          airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
+         reload();
          return;
       }
-      if (array_key_exists("to", $_POST)) {
-         $to=$_POST["to"];
-      } else {
+      $to = fetchFrom('POST', 'from');
+      defaultTo($to, '');
+      if ($to = '') {
          airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
+         reload();
          return;
       }
       if (array_key_exists("replyto", $_POST)) {
@@ -459,7 +456,7 @@ special variables in the template:').'<p>'.LF;
       } else {
          Header("Location: $_SERVER[PHP_SELF]");
       }
-		
+      
       break;
 
    // -------------------------------------------------------------------
