@@ -407,15 +407,15 @@ function queueToAIRT($id, &$error, $mailtemplate='') {
    $params = array('importXML'=>$content);
 
    // process CURL options
+   $airt_client->setOpt('timeout', 30);
    foreach ($AIRT_CURL_OPTIONS as $key=>$value) {
       $airt_client->setOpt('curl', $key, $value);
    }
-   $airt_client->setOpt('curl', CURLOPT_TIMEOUT, 30);
    $ans = $airt_client->call($method, $params);
    if (PEAR::isError($ans)) {
       echo "<PRE>";
       echo "SOAP Error:";
-      var_dump($ans);
+      print_r($ans->getFault());
       echo "</PRE>";
       exit;
    }
