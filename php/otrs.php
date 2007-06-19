@@ -24,6 +24,7 @@
 require_once 'config.plib';
 require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/incident.plib';
+require_once ETCDIR.'/otrs.cfg';
 
 $action = strtolower(fetchFrom('REQUEST','action'));
 defaultTo($action,'list');
