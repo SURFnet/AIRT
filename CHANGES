@@ -1,3 +1,6 @@
+* Comment in incident history while merging in import queue
+* Changed authentication method to the database
+
 2007-06-11
 * Input option to associate default template with a specific version of 
   a filter and code cleanup.
