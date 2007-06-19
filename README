@@ -137,7 +137,21 @@ Installation manual for packages
     it is possible to move the database password out of the main configuration
     file and move it to its own file by using PHP's require_once operator.
 
-    Step 4. Make sure the airt user has access to the database. Edit
+    Step 4 (preferred). Make sure that the airt user has access to the
+    database. Edit pg_ident.conf and add a map
+
+    airt-users   www-data   airt
+
+    Also, in pg_hba.conf, make sure that the airt-users have access to the
+    database.
+
+    local  airt   airt    ident airt-users
+
+    Step 4 (alternative). If you do not wish to use ident maps, you need to
+    use username/password authentication. Since the password will be available
+    in plain text in your filesystem, you will need to take precautions.
+
+    Make sure the airt user has access to the database. Edit
     pg_hba.conf. On most systems, that file can be found in /etc/postgresql,
     but your milage may vary.
 
@@ -146,7 +160,6 @@ Installation manual for packages
     user access to all databases:
 
         local   airt        airt       password
-
 
     Step 5. As root, signal postgres to reload the configuration. On most
     installations, this may be achieved by a command similar to 

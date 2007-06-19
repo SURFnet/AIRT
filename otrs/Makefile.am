@@ -19,6 +19,6 @@
 
 bindir=@AIRT_PHPLIBDIR@/otrs
 
-bin_SCRIPTS = airt_otrs_ticketurl.pl airt_otrs_ticketclose.pl
+bin_SCRIPTS = airt_otrs_ticketurl.pl airt_otrs_ticketclose.pl airt_otrs_moveto.pl
 
 EXTRA_DIST = $(bin_SCRIPTS)

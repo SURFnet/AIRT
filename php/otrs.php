@@ -71,6 +71,11 @@ switch ($action) {
       if (in_array('_OTRS'.$tn, getExternalIncidentIDs($incidentid)) === false) {
          addExternalIncidentIDs($incidentid, '_OTRS'.$tn);
       }
+      $cmd=sprintf('%s %s %s', LIBDIR.'/otrs/airt_otrs_moveto.pl',
+         escapeshellcmd($tn),
+         escapeshellcmd(OTRS_INCIDENT_QUEUE));
+      exec($cmd);
+
       reload($_SERVER['HTTP_REFERER']);
       break;
 
@@ -113,7 +118,7 @@ switch ($action) {
       }
       Header('Location: '.BASEURL.'/incident.php?action=new');
       break;
-                                 
+
    //--------------------------------------------------------------------
    case 'close':
       $ticketno = fetchFrom('REQUEST', 'tn');
@@ -123,9 +128,9 @@ switch ($action) {
 
       $cmd=LIBDIR.'/otrs/airt_otrs_ticketclose.pl '.$ticketno;
       exec($cmd);
-                         
+
       Header('Location: '.$_SERVER['HTTP_REFERER']);
-      break;               
+      break;
    //--------------------------------------------------------------------
    default:
       die(t(_('Unknown action (%action)'), array('%action'=>$action)));
