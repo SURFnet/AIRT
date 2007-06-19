@@ -647,6 +647,8 @@ function queueAddLogging($id, &$error) {
       $error = 'SOAP Error';
       return 5;
    }
+# @@
+   addIncidentComment(_('Logging added to incident from import queue'), $params['incidentid']);
    return 0;
 }
 
