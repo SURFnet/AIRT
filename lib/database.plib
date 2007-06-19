@@ -34,6 +34,15 @@ if (!function_exists('pg_query')) {
 /* connect to the database on page load and remain connected.
  */
 global $db;
+if (!defined('DBDB')) {
+    die('Configuration variable "dbdb" is required.');
+}
+if (!defined('DBUSER')) {
+    die('Configuration variable "dbuser" is required.');
+}
+if (!defined('DBPASSWD')) {
+    define('DBPASSWD', '');
+}
 $db = db_connect(DBDB, DBUSER, DBPASSWD);
 
 /* return the latest error message */
@@ -46,8 +55,15 @@ function db_errormessage() {
  * and password, and return a connection resource.
  */
 function db_connect($database, $username, $password) {
-    $connectstring = sprintf('dbname=%s user=%s password=%s',
-        $database, $username, $password);
+    if ($password='') {
+        // using trust or ident
+        $connectstring = sprintf('dbname=%s user=%s',
+            $database, $username);
+    } else {
+        // using password
+        $connectstring = sprintf('dbname=%s user=%s password=%s',
+            $database, $username, $password);
+    }
     $conn = @pg_pconnect($connectstring, PGSQL_CONNECT_FORCE_NEW);
 
     return $conn;
