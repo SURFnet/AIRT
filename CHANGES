@@ -1,3 +1,5 @@
+* Login now redirects to requested page, instead of index.php
+* Started work on wildcards
 * Comment in incident history while merging in import queue
 * Changed authentication method to the database
 

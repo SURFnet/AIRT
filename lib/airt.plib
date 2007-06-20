@@ -113,28 +113,28 @@ function airt_check_session($public) {
    $BASEURL=BASEURL;
    if (!isset($public) || !$public) {
        if (!array_key_exists('username', $_SESSION)) {
-           Header("Location: $BASEURL/login.php");
+           Header("Location: $BASEURL/login.php?ref=$_SERVER[REQUEST_URI]");
            exit;
        }
 
        if (!array_key_exists('userid', $_SESSION)) {
-           Header("Location: $BASEURL/login.php");
+           Header("Location: $BASEURL/login.php?ref=$_SERVER[REQUEST_URI]");
            exit;
        }
 
        if (!array_key_exists('ip', $_SESSION)) {
-           Header("Location: $BASEURL/login.php");
+           Header("Location: $BASEURL/login.php?ref=$_SERVER[REQUEST_URI]");
            exit;
        }
 
        if (!array_key_exists('last', $_SESSION)) {
-           Header("Location: $BASEURL/login.php");
+           Header("Location: $BASEURL/login.php?ref=$_SERVER[REQUEST_URI]");
            exit;
        }
 
        // check session ip
        if ($_SERVER['REMOTE_ADDR'] != $_SESSION['ip']) {
-           Header("Location: $BASEURL/login.php");
+           Header("Location: $BASEURL/login.php?ref=$_SERVER[REQUEST_URI]");
            exit;
        }
 
@@ -144,7 +144,7 @@ function airt_check_session($public) {
 
        if ($now - $last > SESSION_TIMEOUT) {
          printf(_('Your session has expired. Please ').
-            "<a href=\"$BASEURL/login.php\">"._('log in again').'</a>.'.LF);
+            "<a href=\"$BASEURL/login.php\"?ref=$_SERVER[REQUEST_URI]>"._('log in again').'</a>.'.LF);
            exit;
        }
 

@@ -781,12 +781,12 @@ function queueNormalize($group, $checked, $decision) {
  * @param $error Contains error message when failure
  * Returns 0 on success, 1 on failure. 
  */
-function setPreferredMailtemplate($filter, $version, $template, &$error) {
+function setPreferredMailtemplate($filter, $version='', $template, &$error) {
    $error = '';
    $update = true;
    $cur_template = '';
 
-   if ($filter == '' || $version == '' || $template == '') {
+   if (empty($filter) || empty($template)) {
       $error = 'Missing parameter';
       return 1;
    }
@@ -795,7 +795,7 @@ function setPreferredMailtemplate($filter, $version, $template, &$error) {
       return 1;
    }
 
-   if ($cur_template == '') {
+   if (empty($cur_template)) {
       $update = false;
    }
    if ($cur_template == $template) {
@@ -804,7 +804,7 @@ function setPreferredMailtemplate($filter, $version, $template, &$error) {
    }
 
    if ($update) {
-      $q = q("UPDATE importqueue_templates 
+      $q = q("UPDATE importqueue_templates
               SET    mailtemplate='%templ'
               WHERE  filter='%filter'
               AND    version='%version'", array(
@@ -837,7 +837,7 @@ function getPreferredMailtemplate($filter, $version, &$template, &$error) {
    $error = '';
    $template = '';
 
-   if ($filter == '' || $version == '') {
+   if (empty($filter) || empty($version)) {
       $error .= 'Missing parameter in importqueue.plib:'.__LINE__;
       return 1;
    }
@@ -860,6 +860,7 @@ function getPreferredMailtemplate($filter, $version, &$template, &$error) {
    return 0;
 } // getPreferredMailtemplate
 
+
 /** Fetch the preferred mail template for a specific filter's version.
  * @param $error Will contain an error message, if any
  * @return 0 on success, 1 on failure
@@ -868,14 +869,14 @@ function removePreferredMailtemplate($filter, $version, &$error) {
    $error = '';
    $cur_template = '';
 
-   if ($filter == '' || $version == '') {
+   if (empty($filter)) {
       $error = 'Missing parameter in importqueue.plib:'.__LINE__;
       return 1;
    }
    if (getPreferredMailtemplate($filter, $version, $cur_template, $errror) > 0) {
       return 1;
    }
-   if ($cur_template == '') {
+   if (empty($cur_template)) {
       // nothing to do.
       return 0;
    }
@@ -891,6 +892,7 @@ function removePreferredMailtemplate($filter, $version, &$error) {
    }
    return 0;
 } // removePreferredMailtemplate
+
 
 /** Retrieve a list of preferred mail templates
  * @param $items associative array with items
@@ -912,6 +914,7 @@ function importqueueTemplatesGetItems(&$items, &$error) {
 	}
 	return 0;
 }
+
 
 /** Return a formatted list of preferred mail templates
  */

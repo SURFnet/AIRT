@@ -104,7 +104,12 @@ function airt_initsession($userid='') {
    $res    = db_query($query)
    or die(_('Unable to query database.'));
    db_free_result($res);
-   Header("Location: $_SESSION[BASEURL]/index.php");
+   $ref = fetchFrom('REQUEST', 'ref');
+   if (!empty($ref)) {
+      Header("Location: $ref");
+   } else {
+      Header("Location: $_SESSION[BASEURL]/index.php");
+   }
 }
 
 /** Generate an event when a user offers invalid credentials.
