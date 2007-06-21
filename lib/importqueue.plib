@@ -686,7 +686,6 @@ function queueAddLogging($id, &$error) {
       $error = 'SOAP Error';
       return 5;
    }
-# @@
    addIncidentComment(_('Logging added to incident from import queue'), $params['incidentid']);
    return 0;
 }
@@ -990,7 +989,12 @@ function importqueueTemplatesFormatItems() {
 	$out .= '<table>'.LF;
 	$out .= '<tr>'.LF;
 	$out .= '<td>Filter name:</td>'.LF;
-	$out .= '<td><input type="text" name="filter" size="30"></td>'.LF;
+	$out .= '<td><input type="text" name="filter" size="30">'.LF;
+   $out .= t('<a onClick="window.open(\'%url?action=list_filters\', \''.
+      _('Available import filters').'\',
+      \'width=600,height=400\')" 
+      href="">'._('Available filters').'</a></td>',
+      array('%url'=>$_SERVER['PHP_SELF'])).LF;
 	$out .= '</tr>'.LF;
 	$out .= '<tr>'.LF;
 	$out .= '<td>Filter version:</td>'.LF;

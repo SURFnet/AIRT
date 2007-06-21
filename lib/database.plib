@@ -55,7 +55,7 @@ function db_errormessage() {
  * and password, and return a connection resource.
  */
 function db_connect($database, $username, $password) {
-    if ($password='') {
+    if ($password=='') {
         // using trust or ident
         $connectstring = sprintf('dbname=%s user=%s',
             $database, $username);
