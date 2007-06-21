@@ -222,6 +222,26 @@ switch ($action) {
 	   break;
 
    // ----------------------------------------------------------------
+   case 'list_filters':
+      print '<strong>'._('Available import filters').'</strong><p/>'.LF;
+      print '<table>';
+      print '<tr>';
+      print '  <th>'._('Filter name').'</th>'.LF;
+      print '  <th>'._('Version').'</th>'.LF;
+      print '</tr>';
+      foreach (importqueue_get_filters() as $id=>$f) {
+         print '<tr>';
+         print '   <td>'.'filter_'.strip_tags($f).'</td>'.LF;
+         if (function_exists('filter_'.$f.'_getVersion')) {
+            $func = 'filter_'.$f.'_getVersion';
+            print '   <td>'.$func().'</td>'.LF;
+         }
+         print '</tr>'.LF;
+      }
+      print '</table>'.LF;
+      break;
+
+   // ----------------------------------------------------------------
    default:
       airt_error('PARAM_INVALID', 'importqueue.php:'.__LINE__);
       Header("Location: $_SERVER[PHP_SELF]");
