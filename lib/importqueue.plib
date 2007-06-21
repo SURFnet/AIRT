@@ -43,12 +43,50 @@ require_once LIBDIR.'/search.plib';
 require_once LIBDIR.'/constituency.plib';
 require_once LIBDIR.'/mailtemplates.plib';
 
+
+function importqueue_get_filters() {
+   global $AIRT_IMPORTFILTER_DIRS;
+   $FILTERS=array();
+
+   foreach ($AIRT_IMPORTFILTER_DIRS as $dir) {
+      if (!file_exists($dir)) {
+         continue;
+      }
+      $libdir = opendir($dir);
+      while ($file = readdir($libdir)) {
+         $filter_name = basename($file,'.plib');
+         if (substr($filter_name,0,7)=='filter_') {
+            // Found a filter library file, source it. Failures to read it or parse
+            // it are not handled gracefully, but cause a proper abort with a
+            // meaningful message.
+            require_once $dir.'/'.$filter_name.'.plib';
+            // Proper function installed?
+            if (function_exists($filter_name)) {
+               // OK, register the filter if we don't have it yet.
+               if (array_search(substr($filter_name,7),$FILTERS)===FALSE) {
+                  $FILTERS[] = substr($filter_name,7);
+               }
+            } else {
+               // Bad filter, complain and quit.
+               fwrite(STDERR, t('ERROR: Bad filter definition file "%s".',
+                                array('%s'=>$filter_name)).
+                              "\n");
+               exit(1);
+            }
+         }
+      }// for each file name
+      closedir($libdir);
+   }
+
+   return $FILTERS;
+}
+
+
 /* Produce info on stdout (when user asked for --help). */
 function printUsage() {
-   global $FILTERS;
 
-   echo _('Incidence import program, part of the AIRT suite.').LF;
-   echo _('Copyright (C) 2006   Tilburg University, The Netherlands.').LF;
+   echo _('Incident import program, part of the AIRT suite.').LF;
+   echo _('Copyright (C) 2007   Tilburg University, The Netherlands.').LF;
    echo _(
 'Usage: import [--filter=<filter>] [--help] [--noqueue] [--verbose] \\
               [--virtual-host=<virtual_host>] [filename]'
@@ -58,6 +96,7 @@ function printUsage() {
      ).LF;
 
    // Enumerate all registered filters.
+   $FILTERS = importqueue_get_filters();
    if (count($FILTERS)>0) {
       echo _('Available filters:');
       foreach ($FILTERS as $filter) {
