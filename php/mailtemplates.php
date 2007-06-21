@@ -266,7 +266,7 @@ special variables in the template:').'<p>'.LF;
       }
       $to = fetchFrom('POST', 'from');
       defaultTo($to, '');
-      if ($to = '') {
+      if ($to == '') {
          airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
          reload();
          return;
