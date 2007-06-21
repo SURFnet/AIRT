@@ -1,3 +1,4 @@
+2007-06-21
 * Login now redirects to requested page, instead of index.php
 * Started work on wildcards
 * Comment in incident history while merging in import queue
