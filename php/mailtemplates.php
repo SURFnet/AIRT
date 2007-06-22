@@ -145,12 +145,12 @@ special variables in the template:').'<p>'.LF;
          airt_error('ERR_FUNC', 'mailtemplates.php:'.__LINE__);
       }
       listTemplates();
-      
+
       break;
 
    // -------------------------------------------------------------------
    case "new":
-      
+
       pageHeader(_('New mail template'));
       print _('Enter your new template in the text field below. Use the following variables in your text body:');
       print '<P>'.LF;
@@ -264,7 +264,7 @@ special variables in the template:').'<p>'.LF;
          reload();
          return;
       }
-      $to = fetchFrom('POST', 'from');
+      $to = fetchFrom('POST', 'to');
       defaultTo($to, '');
       if ($to == '') {
          airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);

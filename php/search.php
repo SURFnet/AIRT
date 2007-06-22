@@ -606,7 +606,7 @@ switch ($action) {
       print '<P>'.LF;
       print '<H2>'._('New Search').'</H2>'.LF;
       showSearch($qtype);
-      generateevent('searchoutput', array('q'=>$q));
+      generateevent('searchoutput', array('q'=>$q, 'qtype'=>$qtype));
       pageFooter();
 
       break;
