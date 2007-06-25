@@ -1241,15 +1241,18 @@ function formatEditForm() {
    $constituency = fetchFrom('SESSION','constituency_id');
 
    // Basic incident data block.
-   $output = '<form action="'.$_SERVER['PHP_SELF'].'" method="post">'.LF;
+   $output = '<div id="details-basic">'.LF;
+   $output .= '<form action="'.$_SERVER['PHP_SELF'].'" method="post">'.LF;
    $output .= '<hr/>'.LF;
    $output .= '<h3>'._('Basic incident data').'</h3>'.LF;
    $output .= formatBasicIncidentData($type, $state, $status, $logging, $date);
    $output .= '<input type="submit" name="action" value="update">'.LF;
    $output .= '</form>'.LF;
+   $output .= '</div> <!-- details-basic -->'.LF; 
 
    // Affected IP addresses block. First the header part.
    $output .= '<hr/>'.LF;
+   $output .= '<div id="details-ip">'.LF;
    $output .= '<h3>'._('Affected IP addresses').'</h3>'.LF;
    $output .= '<table cellpadding=4>'.LF;
    $output .= '<tr>'.LF;
@@ -1290,6 +1293,7 @@ function formatEditForm() {
       $output .= '</tr>'.LF;
    }
    $output .= '</table>'.LF;
+
    // And lastly, the IP address footer.
    $output .= '<p/>'.LF;
    $output .= '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">'.LF;
@@ -1305,9 +1309,11 @@ function formatEditForm() {
    $output .= '</tr>'.LF;
    $output .= '</table>'.LF;
    $output .= '</form>'.LF;
+   $output .= '</div><!-- details-ip -->'.LF;
 
    // Affected users block.
    $output .= '<hr/>'.LF;
+   $output .= '<div id="details-user">'.LF;
    $output .= '<h3>'._('Affected users').'</h3>'.LF;
    $output .= '<form>'.LF;
    $output .= t('<input type="hidden" name="incidentid" value="%incidentid">',
@@ -1370,7 +1376,7 @@ function formatEditForm() {
    $output .= '  '._('If checked, create user if email address unknown').LF;
    $output .= '<hr/>'.LF;
    $output .= '</form>'.LF;
-
+   $output .= '</div><!-- details-user -->'.LF;
    return $output;
 } // formatEditForm
 
@@ -1446,19 +1452,15 @@ function formatCreateIncidentBlock() {
 function formatListOverviewHeader() {
    // A style expression for the vertical separation lines between the
    // blocks.
-   $style = 'style="border-right-width:1px; border-right-style:solid; '.
-            'padding-left:10px; padding-right:10px"';
-
    $out = t(
-      '<table>'.LF.
+      '<table id="details-overview-header">'.LF.
       '<tr valign="top">'.LF.
-      '   <td %style>%filters</td>'.LF.
-      '   <td %style>%details</td>'.LF.
-      '   <td style="padding-left:10px">%createIncident</td>'.LF.
+      '   <td>%filters</td>'.LF.
+      '   <td>%details</td>'.LF.
+      '   <td>%createIncident</td>'.LF.
       '</tr>'.LF.
       '</table>'.LF,
       array(
-         '%style'=>$style,
          '%filters'=>formatFilterBlock(),
          '%details'=>formatDetailBlock(),
          '%createIncident'=>formatCreateIncidentBlock()));
@@ -1592,7 +1594,7 @@ function formatListOverviewBody() {
    $out = t(
       '<form name="listform" action="%url" method="POST">'.LF.
       '<INPUT TYPE="hidden" name="action" value="massupdate">'.LF.
-      '<table width="100%">'.LF.'<tr>'.LF,
+      '<table id="details-overview-body" width="100%">'.LF.'<tr>'.LF,
       array('%url'=>$_SERVER['PHP_SELF']));
 
    // 'Select all' checkbox. No <th> but <td> for visual alignment reasons.
@@ -1744,7 +1746,7 @@ function formatListOverviewFooter() {
             'padding-left:10px; padding-right:10px"';
 
    $updatetable = t(
-      '<table>'.LF.
+      '<table id="details-overview-footer">'.LF.
       '<tr>'.LF.
       '  <td>'._('New State').'</td>'.LF.
       '  <td>'.getIncidentStateSelection('massstate', 'null',

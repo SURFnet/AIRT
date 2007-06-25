@@ -88,7 +88,7 @@ switch ($action) {
     $_SESSION['incidentid'] = $incidentid;
 
     pageHeader(_('Incident details: ').$norm_incidentid);
-    $output = '<div class="externalids" width="100%">';
+    $output = '<div id="details-external-ids" width="100%">';
     $output .= t('(<a href="%url?action=edit_extid&'.
                  'incidentid=%incidentid">'._('Edit').'</a>) ',
             array(
@@ -103,7 +103,7 @@ switch ($action) {
     $output .= implode(',', $e);
     $output .= '</div><!-- externalids -->'.LF;
 	 if (defined('OTRS_ACTIVE') && OTRS_ACTIVE === true) {
-       $output .= '<div class="tickets" width="100%">'.LF;
+       $output .= '<div id="details-tickets" width="100%">'.LF;
        $output .= t('(<a href="%url?action=edit_ticket&incidentid=%incidentid">'.
          _('Edit').'</a>) ', array('%url'=>$_SERVER['PHP_SELF'], 
          '%incidentid'=>$incidentid));
@@ -119,6 +119,7 @@ switch ($action) {
 	 }
     $output .= formatEditForm();
     $output .= '<hr/>'.LF;
+    $output .= '<div id="details-history">'.LF;
     $output .= '<h3>'._('History').'</h3>'.LF;
     generateEvent('historyshowpre', array('incidentid'=>$incidentid));
     $output .= formatIncidentHistory($incidentid);
@@ -135,6 +136,7 @@ switch ($action) {
     $output .= '</tr>'.LF;
     $output .= '</table>'.LF;
     $output .= '</form>'.LF;
+    $output .= '</div><!-- details-history -->'.LF;
 
     print $output;
     break;

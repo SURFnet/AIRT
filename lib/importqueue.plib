@@ -307,7 +307,8 @@ function queueFormatItems() {
    $out .= '}'.LF;
    $out .= '</SCRIPT>';
 
-   $out .= '<table cellpadding="4" class="queue">'.LF;
+   $out .= '<div id="importqueue-overview-body">'.LF;
+   $out .= '<table cellpadding="4">'.LF;
    $out .= '<tr>'.LF;
    $out .= t('   <th><input type="checkbox" onChange="checkAll()" %checked></th>'.LF,
        array('%checked'=>($toggle == 1) ? 'CHECKED' : ''));
@@ -369,6 +370,7 @@ function queueFormatItems() {
       $count++;
    }
    $out .= "</table>\n";
+   $out .= '</div><!-- importqueue-overview-body -->'.LF;
    return $out;
 }
 
