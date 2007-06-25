@@ -118,7 +118,6 @@ switch ($action) {
 		 $output .= '</div><!-- tickets -->'.LF;
 	 }
     $output .= formatEditForm();
-    $output .= '<hr/>'.LF;
     $output .= '<div id="details-history">'.LF;
     $output .= '<h3>'._('History').'</h3>'.LF;
     generateEvent('historyshowpre', array('incidentid'=>$incidentid));
@@ -334,9 +333,7 @@ _('Continue').'...</a>'.LF,
 
       generateEvent('incidentlistpre');
       print formatListOverviewHeader();
-      print '<hr/>';
       print formatListOverviewBody();
-      print '<hr/>';
       print formatListOverviewFooter();
 
       generateEvent('incidentlistpost');

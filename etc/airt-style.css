@@ -1,0 +1,99 @@
+.logo {
+   border-bottom-width: 2px;
+   border-bottom-style: solid;
+}
+
+.nav {
+  border-right-width: 2px;
+  border-right-style: solid;
+}
+
+.content {
+  border-top-width: 2px;
+  border-top-style: solid;
+  padding-left: 10px;
+  padding-top: 10px;
+  font-size: 12px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.content .externalids {
+  font-color: red;
+}
+
+
+.content #details-overview-header {
+    border-bottom: 1px solid black;
+}
+
+.content #details-overview-header td {
+    border-right: 1px solid black;
+}
+
+.content #details-overview-header td td {
+    border-right: 0px;
+}
+
+.content #details-external-ids {
+    padding-bottom: 1ex;
+    border-bottom: 1px solid black;
+}
+
+.content #details-basic {
+    padding-bottom: 1ex;
+    border-bottom: 1px solid black;
+}
+
+.content #details-ip {
+    padding-bottom: 1ex;
+    border-bottom: 1px solid black;
+}
+
+.content #details-user {
+    padding-bottom: 1ex;
+    border-bottom: 1px solid black;
+}
+
+.content #details-history {
+    padding-bottom: 1ex;
+    border-bottom: 1px solid black;
+}
+
+.content #details-overview-body {
+    padding-bottom: 1ex;
+    border-bottom: 1px solid black;
+}
+
+.title {
+  padding-left: 10px;
+}
+
+A {
+  color: #0000FF;
+  text-decoration: none;
+}
+
+A:hover {
+  text-decoration: underline;
+}
+
+tr.odd {
+  background-color: #DDDDDD;
+}
+
+tr.even {
+  background-color: transparent;
+}
+
+.error {
+  background-color: #FF0000;
+}
+
+.warning {
+  background-color: #FFFF00;
+}
+
+.unknown {
+  background-color: #FFAA00;
+}
+

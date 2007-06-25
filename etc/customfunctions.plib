@@ -57,62 +57,7 @@ function showheader($data) {
 <html>
 <head>
 <title>AIRT: $data[title]</title>
-<style>
-.logo {
-   border-bottom-width: 2px;
-   border-bottom-style: solid;
-}
-
-.nav {
-  border-right-width: 2px;
-  border-right-style: solid;
-}
-
-.content {
-  border-top-width: 2px;
-  border-top-style: solid;
-  padding-left: 10px;
-  padding-top: 10px;
-}
-
-.content .externalids {
-  font-color: red;
-}
-
-.title {
-  padding-left: 10px;
-}
-
-A {
-  color: #0000FF;
-  text-decoration: none;
-}
-
-A:hover {
-  text-decoration: underline;
-}
-
-tr.odd {
-  background-color: #DDDDDD;
-}
-
-tr.even {
-  background-color: transparent;
-}
-
-.error {
-  background-color: #FF0000;
-}
-
-.warning {
-  background-color: #FFFF00;
-}
-
-.unknown {
-  background-color: #FFAA00;
-}
-
-</style>
+<LINK HREF="airt-style.css" REL="stylesheet" TYPE="text/css">
 <script language="JavaScript">
 function checkKeys(event) {
   document.status = 'Key pressed'+event.which;

@@ -1245,7 +1245,6 @@ function formatEditForm() {
    // Basic incident data block.
    $output = '<div id="details-basic">'.LF;
    $output .= '<form action="'.$_SERVER['PHP_SELF'].'" method="post">'.LF;
-   $output .= '<hr/>'.LF;
    $output .= '<h3>'._('Basic incident data').'</h3>'.LF;
    $output .= formatBasicIncidentData($type, $state, $status, $logging, $date);
    $output .= '<input type="submit" name="action" value="update">'.LF;
@@ -1253,7 +1252,6 @@ function formatEditForm() {
    $output .= '</div> <!-- details-basic -->'.LF; 
 
    // Affected IP addresses block. First the header part.
-   $output .= '<hr/>'.LF;
    $output .= '<div id="details-ip">'.LF;
    $output .= '<h3>'._('Affected IP addresses').'</h3>'.LF;
    $output .= '<table cellpadding=4>'.LF;
@@ -1314,7 +1312,6 @@ function formatEditForm() {
    $output .= '</div><!-- details-ip -->'.LF;
 
    // Affected users block.
-   $output .= '<hr/>'.LF;
    $output .= '<div id="details-user">'.LF;
    $output .= '<h3>'._('Affected users').'</h3>'.LF;
    $output .= '<form>'.LF;
@@ -1376,7 +1373,6 @@ function formatEditForm() {
    $output .= t('  <input onChange="updateCheckboxes()" type="checkbox" name="addifmissing" %checked>', array(
       '%checked'=>($email=='')?'':'CHECKED')).LF;
    $output .= '  '._('If checked, create user if email address unknown').LF;
-   $output .= '<hr/>'.LF;
    $output .= '</form>'.LF;
    $output .= '</div><!-- details-user -->'.LF;
    return $output;
@@ -1455,13 +1451,15 @@ function formatListOverviewHeader() {
    // A style expression for the vertical separation lines between the
    // blocks.
    $out = t(
-      '<table id="details-overview-header">'.LF.
+      '<div id="details-overview-header">'.LF.
+      '<table>'.LF.
       '<tr valign="top">'.LF.
       '   <td>%filters</td>'.LF.
       '   <td>%details</td>'.LF.
       '   <td>%createIncident</td>'.LF.
       '</tr>'.LF.
-      '</table>'.LF,
+      '</table>'.LF.
+      '</div>'.LF,
       array(
          '%filters'=>formatFilterBlock(),
          '%details'=>formatDetailBlock(),
