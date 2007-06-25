@@ -54,7 +54,8 @@ function showSearch($qtype='') {
       default:
          $hostchecked='CHECKED';
    }
-   print '<p><form>'.LF;
+   print '<div id="search-searchbox">'.LF;
+   print '<p><form method="GET">'.LF;
    print _('Search for:').'<p/>'.LF;
    print '<input type="text" name="q" size="60"/>'.LF;
    print '<input type="submit" name="action" value="'._('Search').'"/>'.LF;
@@ -69,6 +70,7 @@ function showSearch($qtype='') {
       '/>'._('Email').LF;
    print '<p/>'.LF;
    print '</form>'.LF;
+   print '</div>'.LF;
 }
 
 
@@ -108,6 +110,7 @@ function search_host($hostname='') {
 
    pageHeader(_('Detailed information for host ').$hostname, "search-info");
 
+   print '<div id="search-output-basic">'.LF;
    print _('Search results for the following host:');
    print '<PRE>';
    print _('IP Address').'          : '.$ip.LF;
@@ -116,10 +119,15 @@ function search_host($hostname='') {
       $_SERVER['PHP_SELF'].'?q='.$network.'/'.$netmask.'&action=Search&qtype=zoom">'.$network.'/'.$netmask.'</a>)'.LF;
    print _('Constituency').'        : '.$consname.LF;
    print '</PRE>'.LF;
+   print '</div>'.LF;
+
+   print '<div id="search-constituency">'.LF;
    print '<H2>'._('Constituency Contacts').'</H2>'.LF;
    showConstituencyContacts($consid);
+   print '</div>'.LF;
 
    // include previous incidents
+   print '<div id="search-previous">'.LF;
    print '<h2>'._('Previous incidents').'</h2>'.LF;
    $res = db_query("
       SELECT  i.id as incidentid,
@@ -172,6 +180,8 @@ function search_host($hostname='') {
    } else {
       echo "<I>"._('No previous incidents')."</I>";
    }
+   print '</div>'.LF;
+
    print '<H2>'._('New Search').'</H2>'.LF;
    showSearch($qtype);
 
@@ -182,7 +192,6 @@ function search_host($hostname='') {
       search_info($ip, $networkid);
       echo "<HR>";
    }
-
 
    print '<form action="incident.php" method="POST">'.LF;
    print '<input type="hidden" name="ip" value="ip">'.LF;

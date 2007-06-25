@@ -724,7 +724,8 @@ function editIPform($incidentid,$ip) {
       die(_('Could not find assigned IP address.'));
    }
 
-   $o = sprintf('<form method="POST" action="%s">'.LF, $_SERVER['PHP_SELF']);
+   $o = '<div id="details-ip-edit">'.LF;
+   $o .= sprintf('<form method="POST" action="%s">'.LF, $_SERVER['PHP_SELF']);
    $o .= '<input type="HIDDEN" name="action" value="updateip">'.LF;
    $o .= sprintf('<input type="HIDDEN" name="id" value="%d">'.LF, $id);
    $o .= sprintf('<input type="HIDDEN" name="ip" value="%s">'.LF, $ip);
@@ -769,6 +770,7 @@ function editIPform($incidentid,$ip) {
    $o .= '  </tr>'.LF;
    $o .= '</table>'.LF;
    $o .= '</form>'.LF;
+   $o .= '</div>'.LF;
 
    return $o;
 }
@@ -1832,11 +1834,14 @@ function formatEditExternalids($incidentid='') {
    pageHeader(t(_('External incident identifiers of %id'), array(
       '%id'=>normalize_incidentid($incidentid))));
 
-   $out = getFormattedBasicIncidentData($incidentid);
+   $out = '<div id="details-external-ids-edit-basic">'.LF;
+   $out .= getFormattedBasicIncidentData($incidentid);
    $out .= t('<a href="%url?action=details&incidentid=%id">'.
       _('Back to details').'</a>',
       array('%url'=>$_SERVER['PHP_SELF'], '%id'=>urlencode($incidentid)));
+   $out .= '</div><!-- details-external-ids-edit-basic -->'.LF;
 
+   $out .= '<div id="details-external-ids-extids">'.LF;
    $out .= '<h2>'._('External identifiers').'</h2>';
    foreach (getExternalIncidentIDS($incidentid) as $extid) {
       $out .= t('<a href="%url?action=delete_extid&incidentid=%id&extid=%extid">'._('Remove').'</a> ', array(
@@ -1852,6 +1857,7 @@ function formatEditExternalids($incidentid='') {
    $out .= '<input type="submit" name="action" value="'.
       _('Add external identifier').'">';
    $out .= '</form>';
+   $out .= '</div><!-- details-external-ids-extids -->'.LF;
    print $out;
    pageFooter();
 }

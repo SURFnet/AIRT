@@ -962,7 +962,8 @@ function importqueueTemplatesFormatItems() {
 	if (importqueueTemplatesGetItems($items, $error) > 0) {
 	   return "ERROR: ".$error;
 	}
-	$out = '<form>'.LF;
+	$out = '<form method="GET">'.LF;
+   $out .= '<div id="importqueue-preftempl-list">'.LF;
 	$out .= '<table cellpadding="4">'.LF;
 	$out .= '<tr>'.LF;
 	$out .= '  <th>&nbsp;</th>'.LF;
@@ -987,7 +988,9 @@ function importqueueTemplatesFormatItems() {
 	if ($count == 0) {
 		$out .= '<p/><I>'._('No preferred mail templates defined.').'</I>'.LF;
 	}
+   $out .= '</div>';
 	$out .= '<p/>'.LF;
+   $out .= '<div id="importqueue-preftempl-add">'.LF;
 	$out .= '<table>'.LF;
 	$out .= '<tr>'.LF;
 	$out .= '<td>Filter name:</td>'.LF;
@@ -1013,6 +1016,7 @@ function importqueueTemplatesFormatItems() {
 	        _('Add preferred template').'">'.LF;
 	$out .= '<input type="submit" name="action" value="'.
 	        _('Removed checked preferred templates').'">'.LF;
+   $out .= '</div>';
 	$out .= '</form>';
 
 	return $out;
