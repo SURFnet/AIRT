@@ -67,22 +67,15 @@ function checkKeys(event) {
 </head>
 
 <body onKey="checkKeys()">
-<table height="100%" cellspacing="0" border="0" width="100%">
-  <tr>
-    <td height="50" width="135" nowrap class="nav logo"><img
-    src="$baseurl/images/airt_logo.png" alt="Application for incident response teams"></td>
-    <td><h2 class="title">$data[title]</h2></td>
-  </tr>
-  <tr valign="top">
-    <td width="135" nowrap class="nav navbar">$navbar</td>
-    <td class="content"><p/>
+<div id="title">$data[title]</div>
+<div id="navbar">$navbar</div>
+<div id="content">
 EOF;
 }
 
 function showfooter($data) {
   echo <<<EOF
-</td>
-</tr>
+</div>
 </body>
 </html>
 EOF;

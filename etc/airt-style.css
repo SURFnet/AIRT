@@ -1,72 +1,95 @@
-.logo {
-   border-bottom-width: 2px;
-   border-bottom-style: solid;
+#title {
+  position: absolute;
+  left: 1px;
+  top: 1px;
+  width: 100%;
+  height: 63px;
+  padding-top: 1ex;
+  padding-left: 160px;
+  background-image: url(images/airt_logo.png);
+  background-color: transparent;
+  background-position: left-top;
+  background-repeat: no-repeat;
+  font-size: 120%;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  border-bottom: 1px solid black;
 }
 
-.nav {
-  border-right-width: 2px;
-  border-right-style: solid;
-}
-
-.content {
-  border-top-width: 2px;
-  border-top-style: solid;
-  padding-left: 10px;
-  padding-top: 10px;
+#navbar {
+  position: absolute;
+  left: 160px;
+  top: 41px; /* 61 - 2x12 */
   font-size: 12px;
+  font-family: Arial, Helvetica, sans-serif;
+  border-left: 1px solid black;
+}
+
+#navbar .navitem {
+  border-right: 1px solid black;
+  padding-left: 0.5ex;
+  padding-right: 0.5ex;
+}
+
+#content {
+  position: absolute;
+  top: 80px; /* 65px + 1px + 14px */
+  font-size: 14px;
   font-family: Arial, Helvetica, sans-serif;
 }
 
-.content .externalids {
-  font-color: red;
+#content h2 {
+  font-size: 14px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  font-style: italic;
 }
 
+#content h3 {
+  font-size: 14px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+}
 
-.content #details-overview-header {
+#details-overview-header {
     border-bottom: 1px solid black;
 }
 
-.content #details-overview-header td {
+#details-overview-header td {
+    padding-top: 1em;
     border-right: 1px solid black;
 }
 
-.content #details-overview-header td td {
+#details-overview-header td td {
     border-right: 0px;
 }
 
-.content #details-external-ids {
+#details-external-ids {
     padding-bottom: 1ex;
     border-bottom: 1px solid black;
 }
 
-.content #details-basic {
+#details-basic {
+    border-bottom: 1px solid black;
+}
+
+#details-ip {
+    border-bottom: 1px solid black;
+}
+
+#details-user {
     padding-bottom: 1ex;
     border-bottom: 1px solid black;
 }
 
-.content #details-ip {
-    padding-bottom: 1ex;
+#details-history {
     border-bottom: 1px solid black;
 }
 
-.content #details-user {
-    padding-bottom: 1ex;
+#details-overview-body {
     border-bottom: 1px solid black;
 }
 
-.content #details-history {
-    padding-bottom: 1ex;
-    border-bottom: 1px solid black;
-}
-
-.content #details-overview-body {
-    padding-bottom: 1ex;
-    border-bottom: 1px solid black;
-}
-
-.title {
-  padding-left: 10px;
-}
 
 A {
   color: #0000FF;
