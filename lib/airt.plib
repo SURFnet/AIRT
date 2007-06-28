@@ -183,12 +183,7 @@ function pageheader($title="", $helptopic="") {
  * @in pagefooter The footer of the page
  */
 function pagefooter() {
-    echo <<<EOF
-</td>
-</tr>
-</table>
-</body></html>
-EOF;
+   generateEvent('pageFooter');
 } // pagefooter()
 
 

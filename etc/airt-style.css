@@ -34,8 +34,12 @@
 #content {
   position: absolute;
   top: 80px; /* 65px + 1px + 14px */
+  padding: 1em;
+  color: grey;
+  width: 100%;
   font-size: 14px;
   font-family: Arial, Helvetica, sans-serif;
+  background-color: #F0F8FF;
 }
 
 #content h2 {
