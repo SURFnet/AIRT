@@ -46,12 +46,11 @@ function showheader($data) {
   while ($row = db_fetch_next($res)) {
     $url = $row['url'];
     $description = $row['label'];
-    $navbar .= t("<p><a href=\"%url\">%description</a></p>", array(
+    $navbar .= t("<span class=\"navitem\"><a href=\"%url\">%description</a></span>".LF, array(
       '%url'=>$url, 
       '%description'=>$description));
   }
 
-  # TODO: put the inline style stuff in an external style.css file.
   $baseurl=BASEURL;
   echo <<<EOF
 <html>
@@ -67,9 +66,9 @@ function checkKeys(event) {
 </head>
 
 <body onKey="checkKeys()">
-<div id="title">$data[title]</div>
-<div id="navbar">$navbar</div>
-<div id="content">
+<div class="title">$data[title]</div>
+<div class="navbar">$navbar</div>
+<div class="content">
 EOF;
 }
 

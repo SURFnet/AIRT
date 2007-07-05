@@ -724,7 +724,7 @@ function editIPform($incidentid,$ip) {
       die(_('Could not find assigned IP address.'));
    }
 
-   $o = '<div id="details-ip-edit">'.LF;
+   $o = '<div class="details-ip-edit">'.LF;
    $o .= sprintf('<form method="POST" action="%s">'.LF, $_SERVER['PHP_SELF']);
    $o .= '<input type="HIDDEN" name="action" value="updateip">'.LF;
    $o .= sprintf('<input type="HIDDEN" name="id" value="%d">'.LF, $id);
@@ -1243,7 +1243,7 @@ function formatEditForm() {
    $constituency = fetchFrom('SESSION','constituency_id');
 
    // Basic incident data block.
-   $output = '<div id="details-basic">'.LF;
+   $output = '<div class="details-basic">'.LF;
    $output .= '<form action="'.$_SERVER['PHP_SELF'].'" method="post">'.LF;
    $output .= '<h3>'._('Basic incident data').'</h3>'.LF;
    $output .= formatBasicIncidentData($type, $state, $status, $logging, $date);
@@ -1252,7 +1252,7 @@ function formatEditForm() {
    $output .= '</div> <!-- details-basic -->'.LF; 
 
    // Affected IP addresses block. First the header part.
-   $output .= '<div id="details-ip">'.LF;
+   $output .= '<div class="details-ip">'.LF;
    $output .= '<h3>'._('Affected IP addresses').'</h3>'.LF;
    $output .= '<table cellpadding=4>'.LF;
    $output .= '<tr>'.LF;
@@ -1312,7 +1312,7 @@ function formatEditForm() {
    $output .= '</div><!-- details-ip -->'.LF;
 
    // Affected users block.
-   $output .= '<div id="details-user">'.LF;
+   $output .= '<div class="details-user">'.LF;
    $output .= '<h3>'._('Affected users').'</h3>'.LF;
    $output .= '<form>'.LF;
    $output .= t('<input type="hidden" name="incidentid" value="%incidentid">',
@@ -1451,7 +1451,7 @@ function formatListOverviewHeader() {
    // A style expression for the vertical separation lines between the
    // blocks.
    $out = t(
-      '<div id="details-overview-header">'.LF.
+      '<div class="details-overview-header">'.LF.
       '<table>'.LF.
       '<tr valign="top">'.LF.
       '   <td>%filters</td>'.LF.
@@ -1832,14 +1832,14 @@ function formatEditExternalids($incidentid='') {
    pageHeader(t(_('External incident identifiers of %id'), array(
       '%id'=>normalize_incidentid($incidentid))));
 
-   $out = '<div id="details-external-ids-edit-basic">'.LF;
+   $out = '<div class="details-external-ids-edit-basic">'.LF;
    $out .= getFormattedBasicIncidentData($incidentid);
    $out .= t('<a href="%url?action=details&incidentid=%id">'.
       _('Back to details').'</a>',
       array('%url'=>$_SERVER['PHP_SELF'], '%id'=>urlencode($incidentid)));
    $out .= '</div><!-- details-external-ids-edit-basic -->'.LF;
 
-   $out .= '<div id="details-external-ids-extids">'.LF;
+   $out .= '<div class="details-external-ids-extids">'.LF;
    $out .= '<h2>'._('External identifiers').'</h2>';
    foreach (getExternalIncidentIDS($incidentid) as $extid) {
       $out .= t('<a href="%url?action=delete_extid&incidentid=%id&extid=%extid">'._('Remove').'</a> ', array(

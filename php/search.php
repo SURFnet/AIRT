@@ -54,7 +54,7 @@ function showSearch($qtype='') {
       default:
          $hostchecked='CHECKED';
    }
-   print '<div id="search-searchbox">'.LF;
+   print '<div class="search-searchbox">'.LF;
    print '<p><form method="GET">'.LF;
    print _('Search for:').'<p/>'.LF;
    print '<input type="text" name="q" size="60"/>'.LF;
@@ -110,7 +110,7 @@ function search_host($hostname='') {
 
    pageHeader(_('Detailed information for host ').$hostname, "search-info");
 
-   print '<div id="search-output-basic">'.LF;
+   print '<div class="search-output-basic">'.LF;
    print _('Search results for the following host:');
    print '<PRE>';
    print _('IP Address').'          : '.$ip.LF;
@@ -121,13 +121,13 @@ function search_host($hostname='') {
    print '</PRE>'.LF;
    print '</div>'.LF;
 
-   print '<div id="search-constituency">'.LF;
+   print '<div class="search-constituency">'.LF;
    print '<H2>'._('Constituency Contacts').'</H2>'.LF;
    showConstituencyContacts($consid);
    print '</div>'.LF;
 
    // include previous incidents
-   print '<div id="search-previous">'.LF;
+   print '<div class="search-previous">'.LF;
    print '<h2>'._('Previous incidents').'</h2>'.LF;
    $res = db_query("
       SELECT  i.id as incidentid,

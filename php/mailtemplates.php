@@ -307,8 +307,12 @@ special variables in the template:').'<p>'.LF;
       if (array_key_exists('agenda', $_POST)) {
          $agenda = $_POST['agenda'];
       }
-      if (array_key_exists('template', $_POST)) {
+      $template = fetchFrom('POST', 'template');
+      if (!empty($template)) {
          $template = $_POST['template'];
+         if ($template == _('Use preferred template')) {
+            $template = getPreferredMailTemplateName($incidentid);
+         }
       }
 
       /* prevent sending bogus stuff */
@@ -428,7 +432,7 @@ special variables in the template:').'<p>'.LF;
 
       /* check for default actions on template */
       $actions = array();
-      if (get_template_actions($template, $actions)) {
+      if (!empty($template) && get_template_actions($template, $actions)) {
          if ($actions['type'] == -1) {
             $actions['type'] = '';
          } else {

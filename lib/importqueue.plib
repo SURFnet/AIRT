@@ -307,7 +307,7 @@ function queueFormatItems() {
    $out .= '}'.LF;
    $out .= '</SCRIPT>';
 
-   $out .= '<div id="importqueue-overview-body">'.LF;
+   $out .= '<div class="importqueue-overview-body">'.LF;
    $out .= '<table cellpadding="4">'.LF;
    $out .= '<tr>'.LF;
    $out .= t('   <th><input type="checkbox" onChange="checkAll()" %checked></th>'.LF,
@@ -963,7 +963,7 @@ function importqueueTemplatesFormatItems() {
 	   return "ERROR: ".$error;
 	}
 	$out = '<form method="GET">'.LF;
-   $out .= '<div id="importqueue-preftempl-list">'.LF;
+   $out .= '<div class="importqueue-preftempl-list">'.LF;
 	$out .= '<table cellpadding="4">'.LF;
 	$out .= '<tr>'.LF;
 	$out .= '  <th>&nbsp;</th>'.LF;
@@ -990,7 +990,7 @@ function importqueueTemplatesFormatItems() {
 	}
    $out .= '</div>';
 	$out .= '<p/>'.LF;
-   $out .= '<div id="importqueue-preftempl-add">'.LF;
+   $out .= '<div class="importqueue-preftempl-add">'.LF;
 	$out .= '<table>'.LF;
 	$out .= '<tr>'.LF;
 	$out .= '<td>Filter name:</td>'.LF;
