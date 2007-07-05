@@ -73,7 +73,9 @@ class IncidentHandling {
 
       $this->__dispatch_map['addLogging'] = array(
          'in'  => array('incidentid' => 'integer',
-                        'logging'=>'string'),
+                        'logging'=>'string',
+                        'template'=>'string',
+                        'AuthenticationTicket'=>'string'),
          'out' => array('confirmation' => 'string')
       );
    }
@@ -311,7 +313,7 @@ class IncidentHandling {
     * Returns a string containing a descriptive error message
     * in case of failure, or the empty string in case of success.
     */
-   function addLogging($incidentid, $logging, $authticket) {
+   function addLogging($incidentid, $logging, $template, $authticket) {
       $userid = CheckCredentials($authticket);
 
       if (!is_string($logging)) {
@@ -323,6 +325,9 @@ class IncidentHandling {
       if (!is_string($authticket)) {
          return 'Invalid data type ($authticket)';
       }
+      if (!is_string($template)) {
+         return 'Invalid data type ($template)';
+      }
       $userid = CheckCredentials($authticket);
       if ($userid == -1) {
          return 'Not authorized.';
@@ -333,6 +338,11 @@ class IncidentHandling {
       $_SESSION['userid'] = $userid;
       $logging = $incident['logging']."\n".$logging;
       updateIncident($incidentid, '', '', '', '', $logging);
+      if ($template != '') {
+         setPreferredMailTemplateName($incidentid, $template);
+         addIncidentComment('Import queue set preferred template to:
+               '.$template, $incidentid);
+      }
       return '';
    } // addLogging
 }

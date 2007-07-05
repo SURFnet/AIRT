@@ -1,5 +1,5 @@
 <?php
-/* vim: syntax=php tabstop=3 shiftwidth=3 foldmethod=indent
+/* vim: syntax=php tabstop=3 shiftwidth=3
  *
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
  * Copyright (C) 2005   Tilburg University, The Netherlands
@@ -634,7 +634,7 @@ function queueRemoveItem($id,&$error) {
  * Returns
  *   0 in case of success, 1 in case of failure
  */
-function queueAddLogging($id, &$error) {
+function queueAddLogging($id, &$error, $template='') {
    global $AIRT_CURL_OPTIONS;
 
    if (fetchAuthticket($ticket, $error) != 0) {
@@ -660,6 +660,7 @@ function queueAddLogging($id, &$error) {
    // fetch logging from item
    $xml = @domxml_open_mem($item['content']);
    $root = $xml->document_element();
+
    $logging_els = $root->get_elements_by_tagname('logging');
    if (sizeof($logging_els) == 0) {
       $error = _('Invalid XML (no logging)');
@@ -676,6 +677,7 @@ function queueAddLogging($id, &$error) {
    $params = array(
       'incidentid'=>$openips[$item['cache_ip']],
       'logging'=>$logging,
+      'template'=>$template,
       'authticket'=>$ticket);
 
    // process CURL options
@@ -733,7 +735,7 @@ function queueElementAccept($id, $template) {
    if (isset($_POST['add'][$id]) && $_POST['add'][$id] == 'on') {
       print '  '._('Adding to existing incident<br/>').LF;
       $error = '';
-      if (queueAddLogging($id, $error)) {
+      if (queueAddLogging($id, $error, $template)) {
          print t(_('Error processing item: %error'), array(
             '%error'=>$error));
          $update = false;
