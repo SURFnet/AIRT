@@ -1,5 +1,5 @@
 <?php
-/* vim: syntax=php tabstop=3 shiftwidth=3
+/* vim: syntax=php tabstop=3 shiftwidth=3 foldmethod=indent
  *
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
  * Copyright (C) 2005   Tilburg University, The Netherlands
@@ -153,17 +153,16 @@ function import($input,&$error,$verbosity=FALSE) {
       return 0;
    }
 
-
    foreach ($importqueue as $element) {
-		$filter = $element->get_attribute('filter');
-		if ($filter == '') {
-			$filter = 'unknown';
-		}
+      $filter = $element->get_attribute('filter');
+      if ($filter == '') {
+         $filter = 'unknown';
+      }
 
-		$version = $element->get_attribute('version');
-		if ($version == '') {
-			$version = 'unknown';
-		}
+      $version = $element->get_attribute('version');
+      if ($version == '') {
+         $version = 'unknown';
+      }
 
       if (!$element->has_attribute('ref')) {
          $error = _('Missing ref attribute in XML');
@@ -206,7 +205,7 @@ function import($input,&$error,$verbosity=FALSE) {
 
       // Insert
       $newID =
-		queueInsertItem($status,$sender,$type,$summary,$content,$filter,$version,$error);
+      queueInsertItem($status,$sender,$type,$summary,$content,$filter,$version,$error);
       if (!$newID) {
          // $error has already been filled in by the call to queueInsertItem().
          return 1;
@@ -328,7 +327,7 @@ function queueFormatItems() {
       if($tree = @domxml_open_mem($item['content'])) {
          if ($element['cache_mailtemplate'] == '') {
             $element['cache_mailtemplate'] =_('No preferred template');
-			}
+         }
          $out .= t('<tr valign="top" bgcolor="%color">', array('%color'=>($count++ % 2 == 0) ? '#DDDDDD' : '#FFFFFF')).LF;
          $out .= '  <td nowrap>'.LF;
          $out .= t('     <input name="checked['.$id.']" %checked type="checkbox" /> '.LF,
@@ -527,8 +526,8 @@ function queueInsertItem($status,$sender,$type,$summary,$content,$filter,
    $type    = trim(db_escape_string($type));
    $summary = trim(db_escape_string($summary));
    $content = trim(db_escape_string($content));
-	$filter  = trim(db_escape_string($filter));
-	$version  = trim(db_escape_string($version));
+   $filter  = trim(db_escape_string($filter));
+   $version  = trim(db_escape_string($version));
 
    if ($status=='' || $sender=='' || $type=='' || $summary=='' ||
        $content=='' || $filter=='' || $version=='') {
@@ -557,10 +556,10 @@ function queueInsertItem($status,$sender,$type,$summary,$content,$filter,
          $conslist = getConstituencies();
          $cache_constituency = $conslist[$consid]['label'];
       }
-		if (getPreferredMailtemplate($filter, $version, $cache_mailtemplate,
-			$error) > 0) {
-			return false;
-		}
+      if (getPreferredMailtemplate($filter, $version, $cache_mailtemplate,
+         $error) > 0) {
+         return false;
+      }
    }
    $cache_ip = trim(db_escape_string($cache_ip));
    $cache_constituency = trim(db_escape_string($cache_constituency));
@@ -940,85 +939,85 @@ function removePreferredMailtemplate($filter, $version, &$error) {
  * @return 0 on success, 1 on failure
  */
 function importqueueTemplatesGetItems(&$items, &$error) {
-	$items = array();
-	$error = '';
-	$res = db_query(q("SELECT id, filter, version, mailtemplate
-	   FROM importqueue_templates
-		ORDER BY filter, version"));
-	if ($res == false) {
-		$error = 'Error querying database in importqueue.plib'.__LINE__;
-		return 1;
-	}
-	while ($row = db_fetch_next($res)) {
-		$items[$row['id']] = $row;
-	}
-	return 0;
+   $items = array();
+   $error = '';
+   $res = db_query(q("SELECT id, filter, version, mailtemplate
+      FROM importqueue_templates
+      ORDER BY filter, version"));
+   if ($res == false) {
+      $error = 'Error querying database in importqueue.plib'.__LINE__;
+      return 1;
+   }
+   while ($row = db_fetch_next($res)) {
+      $items[$row['id']] = $row;
+   }
+   return 0;
 }
 
 
 /** Return a formatted list of preferred mail templates
  */
 function importqueueTemplatesFormatItems() {
-	if (importqueueTemplatesGetItems($items, $error) > 0) {
-	   return "ERROR: ".$error;
-	}
-	$out = '<form method="GET">'.LF;
+   if (importqueueTemplatesGetItems($items, $error) > 0) {
+      return "ERROR: ".$error;
+   }
+   $out = '<form method="GET">'.LF;
    $out .= '<div class="importqueue-preftempl-list">'.LF;
-	$out .= '<table cellpadding="4">'.LF;
-	$out .= '<tr>'.LF;
-	$out .= '  <th>&nbsp;</th>'.LF;
-	$out .= '  <th>'._('Filter').'</th>'.LF;
-	$out .= '  <th>'._('Version').'</th>'.LF;
-	$out .= '  <th>'._('Template').'</th>'.LF;
-	$out .- '</tr>'.LF;
-	$count = 0;
-	foreach ($items as $id=>$item) {
+   $out .= '<table cellpadding="4">'.LF;
+   $out .= '<tr>'.LF;
+   $out .= '  <th>&nbsp;</th>'.LF;
+   $out .= '  <th>'._('Filter').'</th>'.LF;
+   $out .= '  <th>'._('Version').'</th>'.LF;
+   $out .= '  <th>'._('Template').'</th>'.LF;
+   $out .- '</tr>'.LF;
+   $count = 0;
+   foreach ($items as $id=>$item) {
       $out .= t('<tr valign="top" bgcolor="%color">', array('%color'=>($count++ % 2 == 0) ? '#DDDDDD' : '#FFFFFF')).LF;
-		$out .= '<td><input type="checkbox" name="check['.
-		   strip_tags($id).']"></td>'.LF;
-		$out .= t('<td>%filter</td>'.LF, 
-		   array('%filter'=>strip_tags($item['filter'])));
-		$out .= t('<td>%version</td>'.LF,
-		   array('%version'=>strip_tags($item['version'])));
-		$out .= t('<td>%template</td>'.LF,
-		   array('%template'=>strip_tags($item['mailtemplate'])));
-		$out .= '</tr>';
-	}
-	$out .= '</table>';
-	if ($count == 0) {
-		$out .= '<p/><I>'._('No preferred mail templates defined.').'</I>'.LF;
-	}
+      $out .= '<td><input type="checkbox" name="check['.
+         strip_tags($id).']"></td>'.LF;
+      $out .= t('<td>%filter</td>'.LF, 
+         array('%filter'=>strip_tags($item['filter'])));
+      $out .= t('<td>%version</td>'.LF,
+         array('%version'=>strip_tags($item['version'])));
+      $out .= t('<td>%template</td>'.LF,
+         array('%template'=>strip_tags($item['mailtemplate'])));
+      $out .= '</tr>';
+   }
+   $out .= '</table>';
+   if ($count == 0) {
+      $out .= '<p/><I>'._('No preferred mail templates defined.').'</I>'.LF;
+   }
    $out .= '</div>';
-	$out .= '<p/>'.LF;
+   $out .= '<p/>'.LF;
    $out .= '<div class="importqueue-preftempl-add">'.LF;
-	$out .= '<table>'.LF;
-	$out .= '<tr>'.LF;
-	$out .= '<td>Filter name:</td>'.LF;
-	$out .= '<td><input type="text" name="filter" size="30">'.LF;
+   $out .= '<table>'.LF;
+   $out .= '<tr>'.LF;
+   $out .= '<td>Filter name:</td>'.LF;
+   $out .= '<td><input type="text" name="filter" size="30">'.LF;
    $out .= t('<a onClick="window.open(\'%url?action=list_filters\', \''.
       _('Available import filters').'\',
       \'width=600,height=400\')" 
       href="">'._('Available filters').'</a></td>',
       array('%url'=>$_SERVER['PHP_SELF'])).LF;
-	$out .= '</tr>'.LF;
-	$out .= '<tr>'.LF;
-	$out .= '<td>Filter version:</td>'.LF;
-	$out .= '<td><input type="text" name="version" size="30"></td>'.LF;
-	$out .= '</tr>'.LF;
-	$out .= '<tr>'.LF;
-	$out .= '<td>Mail template:</td>'.LF;
-	$out .= '<td>'.LF;
-	$out .= getMailtemplateSelection('mailtemplate');
-	$out .= '</td>'.LF;
-	$out .= '</tr>'.LF;
-	$out .= '</table>'.LF;
-	$out .= '<input type="submit" name="action" value="'.
-	        _('Add preferred template').'">'.LF;
-	$out .= '<input type="submit" name="action" value="'.
-	        _('Removed checked preferred templates').'">'.LF;
+   $out .= '</tr>'.LF;
+   $out .= '<tr>'.LF;
+   $out .= '<td>Filter version:</td>'.LF;
+   $out .= '<td><input type="text" name="version" size="30"></td>'.LF;
+   $out .= '</tr>'.LF;
+   $out .= '<tr>'.LF;
+   $out .= '<td>Mail template:</td>'.LF;
+   $out .= '<td>'.LF;
+   $out .= getMailtemplateSelection('mailtemplate');
+   $out .= '</td>'.LF;
+   $out .= '</tr>'.LF;
+   $out .= '</table>'.LF;
+   $out .= '<input type="submit" name="action" value="'.
+           _('Add preferred template').'">'.LF;
+   $out .= '<input type="submit" name="action" value="'.
+           _('Removed checked preferred templates').'">'.LF;
    $out .= '</div>';
-	$out .= '</form>';
+   $out .= '</form>';
 
-	return $out;
+   return $out;
 }
 ?>
