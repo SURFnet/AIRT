@@ -1,3 +1,10 @@
+2007-07-05
+* Changed default layout
+* Fixed bug in automatic action in mail templates in combination with
+  preferred mail templates (FS#16)
+* Import queue merges into incident database cause preferred template
+  to be overridden (FS#17)
+
 2007-06-21
 * Login now redirects to requested page, instead of index.php
 * Started work on wildcards
