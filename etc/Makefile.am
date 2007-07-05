@@ -22,11 +22,11 @@ configdir=$(sysconfdir)/$(PACKAGE)
 scriptdir=@AIRT_PHPDIR@
 
 config_DATA = airt-apache.conf airt.cfg customfunctions.plib webservice.cfg \
-    importqueue.cfg exportqueue.cfg otrs.cfg
+    importqueue.cfg exportqueue.cfg otrs.cfg 
 
 script_DATA=airt-style.css
 
 CLEANFILES = airt-apache.conf airt.cfg
 DISTCLEANFILES = $(CLEANFILES)
 
-EXTRA_DIST = $(config_DATA)
+EXTRA_DIST = $(config_DATA) $(script_DATA)
