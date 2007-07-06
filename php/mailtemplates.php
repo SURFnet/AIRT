@@ -418,7 +418,12 @@ special variables in the template:').'<p>'.LF;
 
       /* check for default actions on template */
       $actions = array();
-      if (!empty($template) && get_template_actions($template, $actions)) {
+      if ($template == _('Use preferred template')) {
+         $t = getPreferredMailTemplateName($incidentid);
+      } else {
+         $t = $template;
+      }
+      if (!empty($t) && get_template_actions($t, $actions)) {
          if ($actions['type'] == -1) {
             $actions['type'] = '';
          } else {
@@ -446,7 +451,7 @@ special variables in the template:').'<p>'.LF;
       } else {
          Header("Location: $_SERVER[PHP_SELF]");
       }
-      
+
       break;
 
    // -------------------------------------------------------------------

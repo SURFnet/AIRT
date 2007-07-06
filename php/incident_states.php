@@ -59,7 +59,7 @@ function show_form($id="") {
    } else {
       $isdefault = '';
    }
-   echo '<form action="'.$_SERVER[PHP_SELF].'" method="POST">'.LF;
+   echo '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">'.LF;
    echo '<input type="hidden" name="action" value="'.$action.'">'.LF;
    echo '<input type="hidden" name="id" value="'.$id.'">'.LF;
    echo '<table>'.LF;
@@ -112,9 +112,9 @@ switch ($action) {
          echo '<td>'.$label.'</td>'.LF;
          echo '<td>'.$desc,'</td>'.LF;
          echo '<td>'.$isdefault.'</td>'.LF;
-         echo '<td><a href="'.$_SERVER[PHP_SELF].
+         echo '<td><a href="'.$_SERVER['PHP_SELF'].
             '?action=edit&id='.$id.'">'._('edit').'</a></td>'.LF;
-         echo '<td><a href="'.$_SERVER[PHP_SELF].
+         echo '<td><a href="'.$_SERVER['PHP_SELF'].
             '?action=delete&id='.$id.'">'._('delete').'</a></td>'.LF;
          echo '</tr>'.LF;
       } // while $row

@@ -57,7 +57,7 @@
     } else {
        $isdefault = '';
     }
-   print '<form action="'.$_SERVER[PHP_SELF].'" method="POST">'.LF;
+   print '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">'.LF;
    print '<input type="hidden" name="action" value="'.$action.'">'.LF;
    print '<input type="hidden" name="id" value="'.$id.'">'.LF;
    print '<table>'.LF;
@@ -108,9 +108,9 @@ print '<tr valign="top" bgcolor="'.$color.'">'.LF;
 print '    <td>'.$label.'</td>'.LF;
 print '    <td>'.$desc.'</td>'.LF;
 print '    <td>'.$isdefault.'</td>'.LF;
-print '    <td><a href="'.$_SERVER[PHP_SELF].
+print '    <td><a href="'.$_SERVER['PHP_SELF'].
                '?action=edit&id='.$id.'">'._('edit').'</a></td>'.LF;
-print '    <td><a href="'.$_SERVER[PHP_SELF].
+print '    <td><a href="'.$_SERVER['PHP_SELF'].
                '?action=delete&id='.$id.'">'._('delete').'</a></td>'.LF;
 print '</tr>'.LF;
         } // while $row
