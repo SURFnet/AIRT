@@ -350,6 +350,7 @@ function prepare_message($template, $agenda=array(), $to=array()) {
       $usepref = true;
       $template = getPreferredMailTemplateName($current['incidentid']);
    }
+   print _('Using mail template <em>').htmlentities($template).'</em><br/>'.LF;
 
    $msgdata = expand_template($template, $current);
 

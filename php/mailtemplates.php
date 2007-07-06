@@ -212,8 +212,7 @@ special variables in the template:').'<p>'.LF;
    // -------------------------------------------------------------------
    case 'prepare':
       $template = fetchFrom('REQUEST', 'template');
-      defaultTo($template, '');
-      if ($template == '') {
+      if (empty($template)) {
          airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
          reload();
          return;
@@ -258,62 +257,49 @@ special variables in the template:').'<p>'.LF;
    case _('Send'):
    case _('Send and prepare next'):
       $from = fetchFrom('POST', 'from');
-      defaultTo($from, '');
-      if ($from == '') {
+      if (empty($from)) {
          airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
          reload();
          return;
       }
       $to = fetchFrom('POST', 'to');
-      defaultTo($to, '');
-      if ($to == '') {
+      if (empty($to)) {
          airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
          reload();
          return;
       }
-      if (array_key_exists("replyto", $_POST)) {
-         $replyto=$_POST["replyto"];
-      } else {
+      $replyto = fetchFrom('POST', 'replyto');
+      if (empty($replyto)) {
          airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
+         reload();
          return;
       }
-      if (array_key_exists("subject", $_POST)) {
-         $subject=$_POST["subject"];
-      } else {
+      $subject = fetchFrom('POST', 'subject');
+      if (empty($subject)) {
          airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
+         reload();
          return;
       }
-      if (array_key_exists("msg", $_POST)) {
-         $msg=$_POST["msg"];
-      } else {
+      $msg = fetchFrom('POST', 'msg');
+      if (empty($msg)) {
          airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
+         reload();
          return;
       }
-      if (array_key_exists('sign', $_POST)) {
-         $sign = $_POST['sign'];
-      } else {
+      $sign = fetchFrom('POST', 'sign');
+      if (empty($sign)) {
          $sign = 'off';
       }
-      if (array_key_exists('incidentid', $_POST)) {
-         $incidentid = $_POST['incidentid'];
-      } else {
+      $incidentid = fetchFrom('POST', 'incidentid');
+      if (empty($incidentid)) {
          airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
+         reload();
          return;
       }
-      if (array_key_exists('agenda', $_POST)) {
-         $agenda = $_POST['agenda'];
-      }
+
+      $agenda = fetchFrom('POST', 'agenda');
+
       $template = fetchFrom('POST', 'template');
-      if (!empty($template)) {
-         $template = $_POST['template'];
-         if ($template == _('Use preferred template')) {
-            $template = getPreferredMailTemplateName($incidentid);
-         }
-      }
 
       /* prevent sending bogus stuff */
       if (trim($to) == '') {
