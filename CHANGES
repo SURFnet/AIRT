@@ -1,3 +1,5 @@
+* included incident created date in incidnet overview and update layout
+
 2007-07-05
 * Changed default layout
 * Fixed bug in automatic action in mail templates in combination with
