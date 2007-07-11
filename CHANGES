@@ -1,4 +1,6 @@
 * included incident created date in incidnet overview and update layout
+* code cleanup;
+* implemented WS_IMPORT_RESETSTATE configuration option
 
 2007-07-05
 * Changed default layout
