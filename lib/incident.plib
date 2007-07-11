@@ -277,7 +277,7 @@ function getIncidentTypeSelection($name, $default='',$extras=array()) {
 function getOpenIncidents($sqlfilter = "AND s1.label IN ('open','stalled')") {
    $res = db_query(
       'SELECT   i.id as incidentid,
-                extract(epoch from created),
+                extract(epoch from created) as created,
                 u1.lastname as creator_lastname,
                 u1.firstname as creator_firstname,
                 u1.email as creator_email,
@@ -1579,6 +1579,9 @@ function formatListOverviewBody() {
       case 'lastupdated':
          $sqlfilter .= ' ORDER BY updated';
          break;
+      case 'created':
+         $sqlfilter .= ' ORDER BY created';
+         break;
       default:
          // Hmmm... should not happen. Manual intervention in the URL?
          $sqlfilter .= ' ORDER BY incidentid';
@@ -1675,18 +1678,29 @@ function formatListOverviewBody() {
                '%stf'=>$filter['state']));
    }
 
+   if ($sortkey == 'created') {
+      $out .= t('   <th>'._('Created').'</th>'.LF);
+   } else {
+      $out .= t('   <th><a href="%url?sortkey=created&filter[status]=%sf'.
+                '&filter[state]=%stf&page=1">%heading</a></th>'.LF, 
+         array('%url'=>$_SERVER['PHP_SELF'],
+               '%sf'=>$filter['status'],
+               '%heading'=>_('Created'),
+               '%stf'=>$filter['state']));
+   }
+
+
    // 'Last updated' column header. Clickable if not the current sort key.
    if ($sortkey == 'lastupdated') {
-      $out .= t('   <th>'._('Last updated').'</th>'.LF);
+      $out .= t('   <th>'._('Updated').'</th>'.LF);
    } else {
       $out .= t('   <th><a href="%url?sortkey=lastupdated&filter[status]=%sf'.
                 '&filter[state]=%stf&page=1">%heading</a></th>'.LF, 
          array('%url'=>$_SERVER['PHP_SELF'],
                '%sf'=>$filter['status'],
-               '%heading'=>_('Last updated'),
+               '%heading'=>_('Updated'),
                '%stf'=>$filter['state']));
    }
-
    $out .= t('</tr>'.LF);
 
    // Prepare to run over the list of incidents that need display.
@@ -1713,6 +1727,7 @@ function formatListOverviewBody() {
          '   <td>%status</td>'.LF.
          '   <td>%state</td>'.LF.
          '   <td>%type</td>'.LF.
+         '   <td>%created</td>'.LF.
          '   <td>%updated</td>'.LF.
          '</tr>'.LF, array(
             '%color'=> ($count++%2 == 1) ? '#FFFFFF' : '#DDDDDD',
@@ -1725,6 +1740,7 @@ function formatListOverviewBody() {
             '%state' => $data['state'],
             '%type' => $data['type'],
             '%check' => ($toggle == 1) ? 'CHECKED' : '',
+            '%created' => Date('d M Y', $data['created']),
             '%updated' => Date('d M Y', $data['updated'])));
    } // foreach
 

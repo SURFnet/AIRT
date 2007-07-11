@@ -29,6 +29,7 @@
   $Id$
  */
 require_once LIBDIR.'/database.plib';
+require_once LIBDIR.'/user.plib';
 
 registerEventHandler('pageHeader', 'showheader');
 registerEventHandler('pageFooter', 'showfooter');
@@ -52,6 +53,13 @@ function showheader($data) {
   }
 
   $baseurl=BASEURL;
+  $u = getUserByUserId($_SESSION['userid']);
+  if ($u == false) {
+      $name = _('Unknown');
+  } else {
+      $name = $u['firstname'].' '.$u['lastname'];
+  }
+
   echo <<<EOF
 <html>
 <head>
@@ -67,13 +75,18 @@ function checkKeys(event) {
 
 <body onKey="checkKeys()">
 <div class="title">$data[title]</div>
+<div class="userinfo">$name ($_SESSION[username])</div>
 <div class="navbar">$navbar</div>
 <div class="content">
 EOF;
 }
 
 function showfooter($data) {
+    $VERSION=AIRT_VERSION;
   echo <<<EOF
+</div>
+<div class="footer">
+AIRT version $VERSION &copy; 2007
 </div>
 </body>
 </html>

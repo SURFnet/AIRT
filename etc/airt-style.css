@@ -1,97 +1,121 @@
-#title {
+
+body {
+    background-color: #F0F8FF;
+}
+
+.title {
   position: absolute;
   left: 1px;
   top: 1px;
-  width: 100%;
+  width: 900px;
   height: 63px;
   padding-top: 1ex;
   padding-left: 160px;
   background-image: url(images/airt_logo.png);
-  background-color: transparent;
   background-position: left-top;
+  margin: 7px;
   background-repeat: no-repeat;
   font-size: 120%;
   font-family: Arial, Helvetica, sans-serif;
   font-weight: bold;
   border-bottom: 1px solid black;
+  background-color: #87CEFA;
 }
 
-#navbar {
+.userinfo {
+    padding: 5px;
+    width: 15%;
+    position: relative;
+    left: 85%;
+    text-align: right;
+    color: white;
+}
+
+.navbar {
   position: absolute;
   left: 160px;
+  background-color: #87CEFA;
   top: 41px; /* 61 - 2x12 */
   font-size: 12px;
   font-family: Arial, Helvetica, sans-serif;
   border-left: 1px solid black;
 }
 
-#navbar .navitem {
+.navbar .navitem {
   border-right: 1px solid black;
   padding-left: 0.5ex;
   padding-right: 0.5ex;
 }
 
-#content {
+.content {
   position: absolute;
   top: 80px; /* 65px + 1px + 14px */
-  padding: 1em;
+  left: 1px;
+  margin: 7px;
   color: grey;
-  width: 100%;
-  font-size: 14px;
+  font-size: 12px;
   font-family: Arial, Helvetica, sans-serif;
-  background-color: #F0F8FF;
 }
 
-#content h2 {
+.content h2 {
   font-size: 14px;
   font-family: Arial, Helvetica, sans-serif;
   font-weight: bold;
   font-style: italic;
 }
 
-#content h3 {
+.content h3 {
   font-size: 14px;
   font-family: Arial, Helvetica, sans-serif;
   font-weight: bold;
 }
 
-#details-overview-header {
+.footer {
+    width: 100%;
+    text-align: center;
+    font-size: 8px;
+    font-family: Arial, Helvetica, sans-serif;
+    border-top: 1px solid black;
+}
+
+.details-overview-header {
     border-bottom: 1px solid black;
 }
 
-#details-overview-header td {
+.details-overview-header td {
     padding-top: 1em;
     border-right: 1px solid black;
 }
 
-#details-overview-header td td {
+.details-overview-header td td {
     border-right: 0px;
 }
 
-#details-external-ids {
+.details-external-ids {
     padding-bottom: 1ex;
     border-bottom: 1px solid black;
 }
 
-#details-basic {
+.details-basic {
     border-bottom: 1px solid black;
 }
 
-#details-ip {
+.details-ip {
     border-bottom: 1px solid black;
 }
 
-#details-user {
+.details-user {
     padding-bottom: 1ex;
     border-bottom: 1px solid black;
 }
 
-#details-history {
+.details-history {
     border-bottom: 1px solid black;
 }
 
-#details-overview-body {
+.details-overview-body {
     border-bottom: 1px solid black;
+    font-size: 12pt;
 }
 
 
