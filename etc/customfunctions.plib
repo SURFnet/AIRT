@@ -53,8 +53,8 @@ function showheader($data) {
   }
 
   $baseurl=BASEURL;
-  $u = getUserByUserId($_SESSION['userid']);
-  if ($u == false) {
+  $userid = fetchFrom('SESSION', 'userid');
+  if (empty($userid) || ($u = getUserByUserId($_SESSION['userid'])) === false) {
       $name = _('Unknown');
   } else {
       $name = $u['firstname'].' '.$u['lastname'];

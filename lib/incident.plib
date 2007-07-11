@@ -819,20 +819,20 @@ function updateIncident($id,$state='',$status='',$type='',$date='', $logging='')
 
    // Compile the variable part of the SET clause.
    $set = '';
-   if ($state!='') {
+   if (!empty($state)) {
       $set .= sprintf('state=%d,',$state);
    }
-   if ($status!='') {
+   if (!empty($status)) {
       $set .= sprintf('status=%d,',$status);
    }
-   if ($type!='') {
+   if (!empty($type)) {
       $set .= sprintf('type=%d,',$type);
    }
-   if ($date != '') {
+   if (!empty($date)) {
       $set .= sprintf('incidentdate=\'%s\',', db_escape_string(
       date('Y-m-d H:i:s', $date)));
    }
-   if ($logging!='') {
+   if (!empty($logging)) {
       $set .= sprintf('logging=\'%s\',',db_escape_string($logging));
    }
 
