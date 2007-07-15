@@ -86,8 +86,8 @@ AC_OUTPUT([Makefile
     man/airt_import.pod
     man/airt_export.pod
     etc/Makefile
-    etc/airt-apache.conf
-    etc/airt.cfg
+    etc/airt-apache.conf.dist
+    etc/airt.cfg.dist
     lib/Makefile
     lib/import_filters/Makefile
     lib/export_wrappers/Makefile
