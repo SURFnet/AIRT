@@ -811,10 +811,8 @@ function queueNormalize($group, $checked, $decision) {
             $parent_logging_elements = $parent_dom->getElementsByTagname('logging');
             $old_element = $parent_logging_elements->item(0);
             $new_element = $parent_dom->createElement('logging',
-               $parent_item['content'].LF.$sibling_item['content']);
-            //$parent_dom->removeChild($parent_logging_elements->item(0));
-            //$parent_dom->appendChild($new_element);
-            // $parent_logging_elements->item(0)->replaceNode($new_element);
+               $parent_logging_elements->item(0)->textContent.LF.
+               $sibling_logging_elements->item(0)->textContent);
             $old_element->parentNode->replaceChild($new_element, $old_element);
 
             if (updateQueueItem($parent_id, 'content', $parent_dom->saveXML(), $error)) {
