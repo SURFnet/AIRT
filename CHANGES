@@ -1,3 +1,7 @@
+* Several workflow changes
+* Bug fixes
+* Incident details defaults to 'preferred template' instead to 'no template'
+* Last updated now works more comprehesively
 * included incident created date in incidnet overview and update layout
 * code cleanup;
 * implemented WS_IMPORT_RESETSTATE configuration option
