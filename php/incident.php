@@ -576,6 +576,7 @@ _('Continue').'...</a>'.LF,
          'incidentid'=>$_SESSION['incidentid']
       ));
 
+      touchIncident($_SESSION['incidentid']);
       reload(sprintf('%s?action=details&incidentid=%s',
         $_SERVER['PHP_SELF'],
         $_SESSION['incidentid']));
@@ -827,7 +828,7 @@ _('Continue').'...</a>'.LF,
          return;
       }
       addExternalIncidentIDs($incidentid, $extid);
-      Header("Location: $_SERVER[PHP_SELF]?action=edit_extid&incidentid=".
+      reload($_SERVER['PHP_SELF'].'?action=details&incidentid='.
          urlencode($incidentid));
       break;
 

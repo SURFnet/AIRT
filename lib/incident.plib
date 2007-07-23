@@ -1789,7 +1789,7 @@ function formatListOverviewFooter() {
       '<tr>'.LF.
       '  <td>'._('Bulk mail').'</td>'.LF.
       '  <td>'.getMailTemplateSelection('template', 'null',
-                   array(_('Do not send mail')=>'', _('Use preferred template')=>'')).'</td>'.LF.
+                   array(_('Use preferred template')=>'', _('Use preferred template')=>'')).'</td>'.LF.
       '</tr>'.LF.
       '<tr>'.LF.
       '  <td>&nbsp;</td>'.LF.
@@ -2021,5 +2021,34 @@ function setPreferredMailTemplateName($incidentid, $template) {
 	return true;
 }
 
+/** Update the last_updated field of an incident 
+ *
+ * @param $incidentid ID of incident to be updated
+ * @param &$timestamp timestamp to be set (optional; defaults to 'now'). 
+ *     The value of $timestamp should be epoch seconds.
+ * @return false on failure; true on success.
+ */
+function touchIncident($incidentid, $timestamp='') {
+   if (!is_numeric($incidentid)) {
+      return false;
+   }
+   $q = 'UPDATE incidents set updated=';
+   if (empty($timestamp)) {
+      $q .= 'CURRENT_TIMESTAMP';
+   } else {
+      if (!is_numeric($timestamp)) {
+         return false;
+      }
+      $now = date('d M Y H:i:s', $timestamp);
+      $q .= "to_timestamp('$now', 'DD Mon YYYY HH24:MI:SS')";
+   }
+   $q .= ' where id='.$incidentid;
+   $res = db_query($q);
+   if ($res === false) {
+      return false;
+   } else {
+      return true;
+   }
+}
 
 ?>

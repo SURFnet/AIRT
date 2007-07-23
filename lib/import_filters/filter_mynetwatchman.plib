@@ -88,15 +88,15 @@ function filter_mynetwatchman($input, &$output, $verbosity=FALSE) {
    $output .= "     <status>open</status>\n";
    $output .= "     <sender>MyNetwatchman</sender>\n";
    $output .= "     <type>MyNetwatchman report</type>\n";
-   $output .= "     <summary>MyNetwatchman $data[srcip]</summary>\n";
+   $output .= "     <summary>MyNetwatchman ".$data['srcip']."</summary>\n";
    $output .= "  </queuedata>\n";
    $output .= "  <incident id=\"1\">\n";
    $output .="    <ticketInformation>\n";
    $output .="      <prefix>MyNetwatchman</prefix>\n";
    $output .="    </ticketInformation>\n";
    $output .="    <technicalInformation>\n";
-   $output .="      <ip>$data[srcip]</ip>\n";
-   $output .="      <incident_time>$data[datetime]</incident_time>\n";
+   $output .="      <ip>".$data['srcip']."</ip>\n";
+   $output .="      <incident_time>".$data['datetime']."</incident_time>\n";
    $output .="      <logging>";
    foreach ($data as $in) {
       if (!is_array($in)) continue;

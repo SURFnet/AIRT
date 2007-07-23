@@ -310,7 +310,7 @@ special variables in the template:').'<p>'.LF;
       }
 
       /* clean off html and stuff (only unformatted mail) */
-      $msg = strip_tags($msg);
+      // $msg = strip_tags($msg);
       $msg = stripslashes($msg);
       $msg = str_replace("\r", '', $msg);
 
@@ -449,7 +449,7 @@ special variables in the template:').'<p>'.LF;
          isset($template)) {
          Header("Location: $_SERVER[PHP_SELF]?action=prepare&template=$template&agenda=$agenda");
       } else {
-         Header("Location: $_SERVER[PHP_SELF]");
+         reload('incident.php');
       }
 
       break;

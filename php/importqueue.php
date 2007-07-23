@@ -114,7 +114,8 @@ switch ($action) {
       }
 
       // show updated queue;
-      echo '<p/><a href="incident.php">'._('Done.').'</a>'.LF;
+      echo '<a href="incident.php">'._('Done').'.</a><br/>'.LF;
+      echo '<script language="JavaScript">window.location=\'incident.php\';</script>'.LF;
       break;
 
    // ----------------------------------------------------------------
@@ -193,7 +194,7 @@ switch ($action) {
 
       if ($filter == '' || $version == '' || $mailtemplate == '') {
          airt_error('PARAM_MISSING', 'importqueue.php:'.__LINE__);
-         reload();
+         reload($_SERVER['HTTP_REFERER']);
       }
 
       if (setPreferredMailtemplate($filter, $version, $mailtemplate, $error) > 0) {
