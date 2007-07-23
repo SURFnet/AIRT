@@ -28,6 +28,7 @@ require_once LIBDIR.'/authentication.plib';
 require_once LIBDIR.'/incident.plib';
 require_once LIBDIR.'/constituency.plib';
 require_once LIBDIR.'/search.plib';
+require_once LIBDIR.'/profiler.plib';
 
 $server       = new SOAP_Server();
 $webservice   = new IncidentHandling();
@@ -80,32 +81,33 @@ class IncidentHandling {
       );
    }
 
+
    function RequestAuthentication($auth_request) {
       $dom = '';
-
-      if (!$dom = domxml_open_mem($auth_request,DOMXML_LOAD_PARSING + DOMXML_LOAD_DONT_KEEP_BLANKS,$error)) {
+      $doc = new DOMDocument();
+      $dom = $doc->loadXML($auth_request);
+      if (!$dom) {
          $error = 'Could not parse XML document';
          return $error;
          exit;
       }
-      $root = $dom->document_element();
 
-      if (sizeof($root) == 0) {
+      if ($doc->hasChildNodes() == false) {
          $error = 'XML does not contain any elements';
          return $error;
          exit;
       }
 
-      $username_element = $root->get_elements_by_tagname('username');
-      $password_element = $root->get_elements_by_tagname('password');
-      if (sizeof($username_element) == 0 || sizeof($password_element) == 0) {
+      $username_element = $doc->getElementsByTagname('username');
+      $password_element = $doc->getElementsByTagname('password');
+      if ($username_element->length == 0 || $password_element->length == 0) {
          $error = 'Username element or password element is empty';
          return $error;
          exit;
       }
 
-      $username = $username_element[0]->get_content();
-      $password = $password_element[0]->get_content();
+      $username = $username_element->item(0)->textContent;
+      $password = $password_element->item(0)->textContent;
 
       $userid = airt_authenticate($username,$password);
       if ($userid == -1) {
@@ -153,35 +155,36 @@ class IncidentHandling {
       $dom = $mailtemplate = $state = $status = $type = $incidentid = $address = $ip = $addressrole ='';
 
       // first check the validity of the XML
-      if (!$dom = domxml_open_mem($importXML,DOMXML_LOAD_PARSING + DOMXML_LOAD_DONT_KEEP_BLANKS,$error)) {
+      $doc = new DOMDocument();
+      $dom = $doc->loadXML($importXML);
+      if (!$dom) {
          $error = 'Could not parse XML document';
          return $error;
          exit;
       }
-      $root = $dom->document_element();
 
-      if (sizeof($root) == 0) {
+      if ($doc->hasChildNodes() == false) {
          $error = 'XML does not contain any elements';
          return $error;
          exit;
       }
 
       // check the credentials
-      $message_ident_el = $root->get_elements_by_tagname('messageIdentification');
-      if (sizeof($message_ident_el) == 0) {
+      $message_ident_el = $doc->getElementsByTagname('messageIdentification');
+      if ($message_ident_el->length == 0) {
          $error = 'Empty messageIdentification element';
          return $error;
          exit;
       }
-      if (sizeof($message_ident_el) > 0) {
-         $ticket_el = $message_ident_el[0]->get_elements_by_tagname('TicketID');
-         if (sizeof($ticket_el) == 0) {
+
+      if ($message_ident_el->length > 0) {
+         $ticket_el = $message_ident_el->item(0)->getElementsByTagname('TicketID');
+         if ($ticket_el->length == 0) {
             $error = 'Key element is empty';
             return $error;
             exit;
-         }
-         if (sizeof($ticket_el) > 0) {
-            $ticketid = $ticket_el[0]->get_content();
+         } else {
+            $ticketid = $ticket_el->item(0)->textContent;
             $userid = CheckCredentials($ticketid);
             if ($userid == -1) {
                return 'Not authorized';
@@ -189,6 +192,7 @@ class IncidentHandling {
             $_SESSION['userid'] = $userid;
          }
       }
+
       // get defaults
       if (!defined('WS_IMPORT_DEFAULTSTATE')) {
          $state = getIncidentStateDefault();
@@ -202,6 +206,7 @@ class IncidentHandling {
             $state = getIncidentStateDefault();
          }
       }
+
       $status = getIncidentStatusDefault();
       if($status == null) {
          setIncidentStatusDefault();
@@ -213,85 +218,92 @@ class IncidentHandling {
          $type = getIncidentTypeDefault();
       }
 
-      foreach($root->get_elements_by_tagname('incident') as $incident_element) {
-         $i = 0;
-         if (sizeof($incident_element) > 0) {
+      // parse incident data
+      $incidents = $doc->getElementsByTagname('incident');
+      for ($count=0;$count<$incidents->length;$count++) {
+         // begin ticketInformation
+         $ti = $incidents->item($count)->getElementsByTagName('ticketInformation');
+         if ($ti->length > 0) {
+            $prefixel = $ti->item(0)->getElementsByTagname('prefix');
+            if ($prefixel->length > 0) {
+               $prefix = $prefixel->item(0)->textContent;
+               if (empty($prefix)) {
+                  $prefix = '#UNKNOWN';
+               }
+            }
+            $refel = $ti->item(0)->getElementsByTagname('reference');
+            if ($refel->length > 0) {
+               $reference = $refel->item(0)->textContent;
+               if (empty($reference)) {
+                  $reference = '0';
+               }
+            }
+         } // end TicketInformation
 
-            foreach($incident_element->get_elements_by_tagname('ticketInformation') as $ticketInformation) {
-               if (sizeof($ticketInformation) > 0) {
-                  $prefix_element = $ticketInformation->get_elements_by_tagname('prefix');
-                  if (sizeof($prefix_element) > 0) {
-                     $prefix = $prefix_element[0]->get_content();
-                     if ($prefix == null) 
-                        $prefix = '#UNKNOWN';
-                  }
-                  $reference_element = $ticketInformation->get_elements_by_tagname('reference');
-                  if (sizeof($reference_element) > 0) {
-                     $reference = $reference_element[0]->get_content();
-                     if ($reference == null)
-                        $reference = '0';
-                  }
+         $techinfo = $incidents->item($count)->getElementsByTagname('technicalInformation');
+         for ($count2=0; $count2<$techinfo->length; $count2++) {
+            $ip_element = $techinfo->item($count2)->getElementsByTagname('ip');
+            if ($ip_element->length > 0) {
+               $ip = $ip_element->item(0)->textContent;
+               // default ip
+               if ($ip == null) {
+                  $ip = '127.0.0.1';
+               }
+            }
+            $hostname_element = $techinfo->item($count2)->getElementsByTagname('hostname');
+            if ($hostname_element->length > 0) {
+               $hostname = $hostname_element->item(0)->textContent;
+               // default hostname
+               if ($hostname == null) {
+                  $hostname = 'localhost';
                }
             }
 
-            foreach($incident_element->get_elements_by_tagname('technicalInformation') as $technicalInformation) {
-               if (sizeof($technicalInformation) > 0) {
-                  $ip_element = $technicalInformation->get_elements_by_tagname('ip');
-                  if (sizeof($ip_element) > 0) {
-                     $ip = $ip_element[0]->get_content();
-                     // default ip
-                     if ($ip == null) 
-                        $ip = '127.0.0.1';
-                  }
-                  $hostname_element = $technicalInformation->get_elements_by_tagname('hostname');
-                  if (sizeof($hostname_element) > 0) {
-                     $hostname = $hostname_element[0]->get_content();
-                     // default hostname
-                     if ($hostname == null) 
-                        $hostname = 'localhost';
-                  }
-                  $time_dns_resolving_element = $technicalInformation->get_elements_by_tagname('time_dns_resolving');
-                  if (sizeof($time_dns_resolving_element) > 0) {
-                     $time_dns_resolving = $time_dns_resolving_element[0]->get_content();
-                     // default time_dns_resolving
-                     if ($time_dns_resolving == null) 
-                        $time_dns_resolving = time();
-                  }
-                  $incident_time_element = $technicalInformation->get_elements_by_tagname('incident_time');
-                  if (sizeof($incident_time_element) > 0) {
-                     $incident_time = $incident_time_element[0]->get_content();
-                     // default incident_time
-                     if ($incident_time == null)
-                        $incident_time = time();
-                  }
-                  $logging_element = $technicalInformation->get_elements_by_tagname('logging');
-                  if (sizeof($logging_element) > 0) {
-                     $logging = $logging_element[0]->get_content();
-                  }
-                  $mailtemplate_element = $technicalInformation->get_elements_by_tagname('mailtemplate');
-                  if (sizeof($mailtemplate_element) > 0) {
-                     $mailtemplate = urldecode($mailtemplate_element[0]->get_content());
-                  }
+            $time_dns_resolving_element = $techinfo->item($count2)->getElementsByTagname('time_dns_resolving');
+            if ($time_dns_resolving_element->length > 0) {
+               $time_dns_resolving = $time_dns_resolving_element->item(0)->textContent;
+               // default time_dns_resolving
+               if ($time_dns_resolving == null) {
+                  $time_dns_resolving = time();
                }
-               $address = $ip;
-               $addressrole = '0';
             }
 
-            // generate an incident id
-            $incidentid[$i] = createIncident($state,$status,$type,'',$logging);
-            addIPtoIncident($address,$incidentid[$i],$addressrole);
+            $incident_time_element = $techinfo->item($count2)->getElementsByTagname('incident_time');
+            if ($incident_time_element->length > 0) {
+               $incident_time = $incident_time_element->item(0)->textContent;
+               // default incident_time
+               if ($incident_time == null) {
+                  $incident_time = time();
+               }
+            }
 
-            $networkid = categorize($address);
-            $constituencyID = getConstituencyIDbyNetworkID($networkid);
-            $contacts = getConstituencyContacts($constituencyID);
-            foreach ($contacts as $id=>$data) {
-               addUserToIncident($data['userid'], $incidentid[$i]);
+            $logging_element = $techinfo->item($count2)->getElementsByTagname('logging');
+            if ($logging_element->length > 0) {
+               $logging = $logging_element->item(0)->textContent;
             }
-            if ($mailtemplate != '' && $mailtemplate != _('No preferred template')) {
-               setPreferredMailTemplateName($incidentid[$i], $mailtemplate);
-               addIncidentComment('Import queue set preferred template to: '.$mailtemplate, $incidentid[$i]);
+
+            $mailtemplate_element = $techinfo->item($count2)->getElementsByTagname('mailtemplate');
+            if ($mailtemplate_element->length > 0) {
+               $mailtemplate = urldecode($mailtemplate_element[0]->get_content());
             }
-         }
+            $address = $ip;
+            $addressrole = '0';
+         } // end technicalInformation
+      } // end incident
+
+      // generate an incident id
+      $incidentid[$i] = createIncident($state,$status,$type,'',$logging);
+      addIPtoIncident($address,$incidentid[$i],$addressrole);
+
+      $networkid = categorize($address);
+      $constituencyID = getConstituencyIDbyNetworkID($networkid);
+      $contacts = getConstituencyContacts($constituencyID);
+      foreach ($contacts as $id=>$data) {
+         addUserToIncident($data['userid'], $incidentid[$i]);
+      }
+      if ($mailtemplate != '' && $mailtemplate != _('No preferred template')) {
+         setPreferredMailTemplateName($incidentid[$i], $mailtemplate);
+         addIncidentComment('Import queue set preferred template to: '.$mailtemplate, $incidentid[$i]);
       }
 
       if ($error == null) {
@@ -362,59 +374,58 @@ function generateSAMLTicket($ticket_details) {
    $issuer = 'AIRT';
    $digest = '';
 
-   $doc = domxml_new_doc('1.0');
-   $root = $doc->create_element('Assertions');
-   $root->add_namespace('urn:oasis:names:tc:SAML:1.0:assertion', '');
-   $root->add_namespace('http://www.w3.org/2000/09/xmldsig#', 'ds');
-   $root->set_attribute('MajorVersion', '1');
-   $root->set_attribute('MinorVersion', '0');
-   $root->set_attribute('AssertionID', $ticket_details['assertionid']);
-   $root->set_attribute('Issuer', $issuer);
-   $root->set_attribute('IssueInstant', $ticket_details['issue_time']);
-   $doc->append_child($root);
+   $doc = new DOMDocument();
+   $ass = $doc->appendChild($doc->createElementNS(
+      'urn:oasis:names:tc:SAML:1.0:assertion', 'saml:Assertions'));
+   $ass->setAttribute('MajorVersion', '1');
+   $ass->setAttribute('MinorVersion', '0');
+   $ass->setAttribute('AssertionID', $ticket_details['assertionid']);
+   $ass->setAttribute('Issuer', $issuer);
+   $ass->setAttribute('IssueInstant', $ticket_details['issue_time']);
 
-   $conditions = $doc->create_element('Conditions');
-   $conditions->set_attribute('NotBefore', $ticket_details['issuetime']);
-   $conditions->set_attribute('NotAfter', $ticket_details['exptime']);
+   $conditions = $ass->appendChild($doc->createElementNS(
+      'urn:oasis:names:tc:SAML:1.0:assertion', 'saml:Conditions'));
+   $conditions->setAttribute('NotBefore', $ticket_details['issuetime']);
+   $conditions->setAttribute('NotAfter', $ticket_details['exptime']);
 
-   $authentication_statement = $doc->create_element('AuthenticationStatement');
-   $authentication_statement->set_attribute('AuthenticationMethod', 'urn:oasis:names:tc:SAML:1.0:am:password');
-   $authentication_statement->set_attribute('AuthenticationInstant', $ticket_details['issue_time']);
+   $authentication_statement = $ass->appendChild($doc->createElementNS(
+      'urn:oasis:names:tc:SAML:1.0:assertion', 'saml:AuthenticationStatement'));
+   $authentication_statement->setAttribute('AuthenticationMethod', 'urn:oasis:names:tc:SAML:1.0:am:password');
+   $authentication_statement->setAttribute('AuthenticationInstant', $ticket_details['issue_time']);
 
-   $subject = $doc->create_element('Subject');
+   $subject = $authentication_statement->appendChild($doc->createElementNS(
+      'urn:oasis:names:tc:SAML:1.0:assertion', 'saml:Subject'));
 
-   $name_identifier = $doc->create_element('NameIdentifier');
-   $name_identifier->set_attribute('NameQualifier', $issuer);
-   $name_identifier->set_content(INCIDENTID_PREFIX);
+   $name_identifier = $subject->appendChild($doc->createElementNS(
+      'urn:oasis:names:tc:SAML:1.0:assertion', 'saml:NameIdentifier'));
+   $name_identifier->setAttribute('NameQualifier', $issuer);
+   $name_identifier->appendChild($doc->createTextNode(INCIDENTID_PREFIX));
 
-   $subject_confirmation = $doc->create_element('SubjectConfirmation');
+   $subject_confirmation = $subject->appendChild($doc->createElementNS(
+      'urn:oasis:names:tc:SAML:1.0:assertion', 'saml:SubjectConfirmation'));
 
-   $confirmation_method = $doc->create_element('ConfirmationMethod');
-   $confirmation_method->set_content('urn:oasis:names:tc:SAML:1.0:cm:holder-of-key');
+   $confirmation_method = $subject_confirmation->appendChild($doc->createElementNS(
+      'urn:oasis:names:tc:SAML:1.0:assertion', 'saml:ConfirmationMethod'));
+   $confirmation_method->appendChild($doc->createTextNode(
+      'urn:oasis:names:tc:SAML:1.0:cm:holder-of-key'));
 
-   $key_info = $doc->create_element('ds:KeyInfo');
+   $key_info = $subject_confirmation->appendChild($doc->createElementNS(
+      'http://www.w3.org/2000/09/xmldsig#', 'ds:KeyInfo'));
 
-   $key_name = $doc->create_element('ds:KeyName');
-   $key_name->set_content('AIRTKey');
+   $key_name = $key_info->appendChild($doc->createElementNS(
+      'http://www.w3.org/2000/09/xmldsig#', 'ds:KeyName'));
+   $key_name->appendChild($doc->createTextNode('AIRTKey'));
 
-   $key_value = $doc->create_element('ds:KeyValue');
-   $key_value->set_content($ticket_details['ticketid']);
+   $key_value = $key_info->appendChild($doc->createElementNS(
+      'http://www.w3.org/2000/09/xmldsig#', 'ds:KeyValue'));
+   $key_value->appendChild($doc->createTextNode($ticket_details['ticketid']));
 
-   $signature = $doc->create_element('ds:Signature');
-   $signature->set_content($digest);
+   $signature = $ass->appendChild($doc->createElementNS(
+      'http://www.w3.org/2000/09/xmldsig#', 'ds:Signature'));
+   $signature->appendChild($doc->createTextNode($digest));
 
    // Build structure
-   $root->append_child($conditions);
-   $key_info->append_child($key_name);
-   $key_info->append_child($key_value);
-   $subject_confirmation->append_child($confirmation_method);
-   $subject_confirmation->append_child($key_info);
-   $subject->append_child($name_identifier);
-   $subject->append_child($subject_confirmation);
-   $authentication_statement->append_child($subject);
-   $root->append_child($authentication_statement);
-   $root->append_child($signature);
-   $content = $doc->dump_mem();
+   $content = $doc->saveXML();
    return $content;
 
 }

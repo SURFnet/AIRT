@@ -178,14 +178,14 @@ Installation manual for packages
 
     Having psql and gunzip in your PATH, do:
 
-    postgres:~% gunzip -c /opt/airt/doc/database/airtschema.sql.gz \
+    postgres:~% gunzip -c /opt/airt/share/doc/airt/database/airtschema.sql.gz \
             |psql airt airt
 
 
     Step 7. Bootstrap the database.
 
     postgres:~% psql airt airt < \
-        /opt/airt/doc/database/airtbootstrap.sql 
+        /opt/airt/share/doc/airt/database/airtbootstrap.sql 
 
     Step 8. Configure your web server. If you are using Apache, the easiest
     way to do this is to add a symbolic link in your configuration directory
@@ -268,12 +268,12 @@ need to do this manually. However, we give you a tool to do this.
 
 Each release contains a database schema file which can be used to compare
 your current database to what it should be. This file is
-/opt/airt/doc/database/airtschema.sql. At any time, your database should be
+/opt/airt/share/doc/airt/database/airtschema.sql. At any time, your database should be
 consistent with this schema file.
 
 When relevant, a new release contains a database upgrade script to
 facilitate your database upgrade. The upgrade scripts are named:
-/opt/airt/doc/database/airtschema-from-PREVREL-to-CURRENTREL.sql
+/opt/airt/share/doc/airt/database/airtschema-from-PREVREL-to-CURRENTREL.sql
 If you run the appropriate script against a database from PREVREL, you will
 hopefully end up with a database for CURRENTREL. The development team has
 tested these upgrade scripts, but as always it is wise to first make a
@@ -284,7 +284,7 @@ Example upgrade session (first backup, then upgrade):
 
     postgres:~% pg_dump -f /var/tmp/airt-20050607.1.sql airt
     postgres:~% psql airt airt < \
-        /opt/airt/doc/database/airtschema-from-20050607.1-to-20050610.1.sql
+        /opt/airt/share/doc/airt/database/airtschema-from-20050607.1-to-20050610.1.sql
 
 Should you see any warnings or errors, please review them carefully. In
 many cases, there is no real problem, but for consistency reasons you should

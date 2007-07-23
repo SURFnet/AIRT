@@ -28,6 +28,7 @@ require_once LIBDIR.'/constituency.plib';
 require_once LIBDIR.'/history.plib';
 require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/mailtemplates.plib';
+require_once LIBDIR.'/profiler.plib';
 
 /** Return an associative array with incident states.
  * @param $extras Optionally, an array with extra incident states that are
@@ -483,11 +484,15 @@ function createIncident($state,$status,$type,$date='',$logging='') {
    db_free_result($res);
 
    addIncidentComment('Incident created', '', '');
-   addIncidentComment(sprintf('state=%s, status=%s, type=%s, date=%s',
+   if (empty($date)) {
+      $date = time();
+   }
+   $comment=sprintf('state=%s, status=%s, type=%s, date=%s',
       strip_tags(getIncidentStateLabelByID($state)),
       strip_tags(getIncidentStatusLabelByID($status)),
       strip_tags(getIncidentTypeLabelById($type)),
-      Date('d-M-Y H:i:s', $date)), '', '');
+      Date('d-M-Y H:i:s', $date));
+   addIncidentComment($comment, '', '');
    return $incidentid;
 }
 

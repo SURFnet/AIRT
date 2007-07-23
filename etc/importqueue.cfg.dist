@@ -29,7 +29,7 @@
  * to store anything but scalar values in a constant
  */
 $AIRT_CURL_OPTIONS = array(
-  CURLOPT_CAPATH=>'/etc/ssl/certs'
+  'CURLOPT_CAPATH'=>'/etc/ssl/certs'
 );
 
 $AIRT_IMPORTFILTER_DIRS = array( 

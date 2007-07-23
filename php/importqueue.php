@@ -115,7 +115,7 @@ switch ($action) {
 
       // show updated queue;
       echo '<a href="incident.php">'._('Done').'.</a><br/>'.LF;
-      echo '<script language="JavaScript">window.location=\'incident.php\';</script>'.LF;
+      #echo '<script language="JavaScript">window.location=\'incident.php\';</script>'.LF;
       break;
 
    // ----------------------------------------------------------------
