@@ -174,17 +174,17 @@ function BuildTree(&$doc, $res_array) {
       $webservice_location_element = $doc->create_element_ns(AIRTURL, 'webservice_location');
    $webservice_location_element->set_content($res_array['messageIdentification']['webservice_location']);
    $sender_details_element->append_child($webservice_location_element);
-   
+
    $sender_name_element = $doc->create_element_ns(AIRTURL, 'sender_name');
    if (isset($res_array['messageIdentification']['sender_name']))
       $sender_name_element->set_content($res_array['messageIdentification']['sender_name']);
    $sender_details_element->append_child($sender_name_element);
-   
+
    $constituency_element = $doc->create_element_ns(AIRTURL, 'constituency');
    if (isset($res_array['messageIdentification']['constituency']))
       $constituency_element->set_content($res_array['messageIdentification']['constituency']);
    $sender_details_element->append_child($constituency_element);
-   
+
    $email_element = $doc->create_element_ns(AIRTURL, 'email');
    if (isset($res_array['messageIdentification']['email'])) 
       $email_element->set_content($res_array['messageIdentification']['email']);

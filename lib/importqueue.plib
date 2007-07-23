@@ -635,7 +635,7 @@ function queueRemoveItem($id,&$error) {
  * Returns
  *   0 in case of success, 1 in case of failure
  */
-function queueAddLogging($id, &$error, $template='') {
+function queueAddLogging($id, &$error, $template='', &$incidentid) {
    global $AIRT_CURL_OPTIONS;
 
    if (fetchAuthticket($ticket, $error) != 0) {
@@ -675,8 +675,9 @@ function queueAddLogging($id, &$error, $template='') {
    // Call web service
    $airt_client = new SOAP_Client(WS_ENDPOINT);
    $method = "addLogging";
+   $incidentid = $openips[$item['cache_ip']];
    $params = array(
-      'incidentid'=>$openips[$item['cache_ip']],
+      'incidentid'=>$incidentid,
       'logging'=>$logging,
       'template'=>$template,
       'authticket'=>$ticket);
@@ -743,15 +744,17 @@ function queueElementAccept($id, $template) {
    print t(_('Accepting queue element %id<br/>').LF, array('%id'=>$id));
    flush();
    if (isset($_POST['add'][$id]) && $_POST['add'][$id] == 'on') {
-      print '  '._('Adding to existing incident<br/>').LF;
       $error = '';
-      if (queueAddLogging($id, $error, $template)) {
+      $incidentid = _('Unknown');
+      if (queueAddLogging($id, $error, $template, $incidentid)) {
          print t(_('Error processing item: %error'), array(
             '%error'=>$error));
          $update = false;
       } else {
          $update = true;
       }
+      print '  '.t(_('Adding to existing incident %s<br/>').LF, 
+         array('%s'=>normalize_incidentid($incidentid)));
    } else if (queueToAIRT($id, $error, $template)) {
       $update = false;
       airt_error('ERR_FUNC', 'importqueue.plib:'.__LINE__, $error);
