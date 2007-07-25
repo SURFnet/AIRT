@@ -57,40 +57,41 @@ function filter_acns($input, &$output, $verbosity=FALSE) {
      return 1;
   }
 
-  if (($dom = domxml_open_mem($match[1])) === false) {
+  $dom = new DOMDocument();
+  if ($dom->loadXML($match[1]) === false) {
      $output=_('Unable to parse input data (invalid XML).');
 	  return 1;
   }
-  $xpath = $dom->xpath_new_context();
+  $xpath = new DOMXPath($dom);
 
   // fetch meta data
   $nodeid = $type= $sender= '';
-  $xp = $xpath->xpath_eval('/Infringement/Case/ID');
-  if (sizeof($xp->nodeset) > 0) {
-     $nodeid = $xp->nodeset[0]->get_content();
+  $xp = $xpath->evaluate('/Infringement/Case/ID');
+  if ($xp->length > 0) {
+     $nodeid = $xp->item(0)->textContent;
   } 
-  $xp = $xpath->xpath_eval('/Infringement/Source/Type');
-  if (sizeof($xp->nodeset) > 0) {
-     $type = $xp->nodeset[0]->get_content();
+  $xp = $xpath->evaluate('/Infringement/Source/Type');
+  if ($xp->length > 0) {
+     $type = $xp->item(0)->textContent;
   }
-  $xp = $xpath->xpath_eval('/Infringement/Complainant/Email');
-  if (sizeof($xp->nodeset) > 0) {
-     $sender = $xp->nodeset[0]->get_content();
+  $xp = $xpath->evaluate('/Infringement/Complainant/Email');
+  if ($xp->length > 0) {
+     $sender = $xp->item(0)->textContent;
   }
 
   // fetch source
   $srcip = $srcname = $datetime = '';
-  $xp = $xpath->xpath_eval('/Infringement/Source/IP_Address', $dom);
-  if (sizeof($xp->nodeset) > 0) {
-     $srcip = $xp->nodeset[0]->get_content();
+  $xp = $xpath->evaluate('/Infringement/Source/IP_Address', $dom);
+  if ($xp->length > 0) {
+     $srcip = $xp->item(0)->textContent;
   }  
-  $xp = $xpath->xpath_eval('/Infringement/Source/DNS_Name', $dom);
-  if (sizeof($xp->nodeset) > 0) {
-     $srcname = $xp->nodeset[0]->get_content();
+  $xp = $xpath->evaluate('/Infringement/Source/DNS_Name', $dom);
+  if ($xp->length > 0) {
+     $srcname = $xp->item(0)->textContent;
   }
-  $xp = $xpath->xpath_eval('/Infringement/Source/TimeStamp', $dom);
-  if (sizeof($xp->nodeset) > 0) {
-		$dt = $xp->nodeset[0]->get_content();
+  $xp = $xpath->evaluate('/Infringement/Source/TimeStamp', $dom);
+  if ($xp->length > 0) {
+		$dt = $xp->item(0)->textContent;
       $datetime = parse_semi_iso8601($dt);
   }
   
@@ -102,79 +103,54 @@ function filter_acns($input, &$output, $verbosity=FALSE) {
 
   // fetch items
   $items = array();
-  $xp = $xpath->xpath_eval('/Infringement/Content/Item', $dom);
-  if (sizeof($xp->nodeset) > 0) {
-     foreach($xp->nodeset as $node) {
-		  $xpt = $xpath->xpath_eval('Title', $node);
-		  if (sizeof($xpt->nodeset) > 0) {
-			  $summary .= 'Infringed Work:'.$xpt->nodeset[0]->get_content().LF;
+  $xp = $xpath->evaluate('/Infringement/Content/Item', $dom);
+  if ($xp->length > 0) {
+     for ($i=0; $i<$xp->length; $i++) {
+		  $xpt = $xpath->evaluate('Title', $xp->item($i));
+		  if ($xmp->length > 0) {
+			  $summary .= 'Infringed Work:'.$xpt->item(0)->textContent.LF;
 		  }
-		  $xpt = $xpath->xpath_eval('FileName', $node);
-		  if (sizeof($xpt->nodeset) > 0) {
-			  $summary .= 'Infringing FileName:'.$xpt->nodeset[0]->get_content().LF;
+		  $xpt = $xpath->evaluate('FileName', $xp->item($i));
+		  if ($xpt->length > 0) {
+			  $summary .= 'Infringing FileName:'.$xpt->item($i)->textContent.LF;
 		  }
-		  $xpt = $xpath->xpath_eval('FileSize', $node);
-		  if (sizeof($xpt->nodeset) > 0) {
-			  $summary .= 'Infringing FileSize:'.$xpt->nodeset[0]->get_content().LF;
+		  $xpt = $xpath->evaluate('FileSize', $xp->item($i));
+		  if ($xpt->length > 0) {
+			  $summary .= 'Infringing FileSize:'.$xpt->item(0)->textContent.LF;
 		  }
-		  $xpt = $xpath->xpath_eval('URL', $node);
-		  if (sizeof($xpt->nodeset) > 0) {
-			  $summary .= 'Infringing URL:'.$xpt->nodeset[0]->get_content().LF;
+		  $xpt = $xpath->evaluate('URL', $xpt->item($i));
+		  if ($xpt->length > 0) {
+			  $summary .= 'Infringing URL:'.$xpt->item($i)->textContent.LF;
 		  }
 	  }
   }
 
-  $out = domxml_new_doc('1.0');
-  $outroot = $out->add_root('airt');
-  $outqdata = $out->create_element('queuedata');
-  $outqdata->set_attribute('ref','#1');
-  $outqdata->set_attribute('filter', 'filter_acns');
-  $outqdata->set_attribute('version', filter_acns_getVersion());
-  $outroot->append_child($outqdata);
+  $out = new DOMDocument();
+  $airt = $out->appendChild($out->createElement('airt'));
+  $outqdata = $airt->appendChild($out->createElement('queuedata'));
+  $outqdata->setAttribute('ref','#1');
+  $outqdata->setAttribute('filter', 'filter_acns');
+  $outqdata->setAttribute('version', filter_acns_getVersion());
 
-  $outstatus = $out->create_element('status');
-  $outstatus->set_content('open');
-  $outqdata->append_child($outstatus);
-  
-  $outsender = $out->create_element('sender');
-  $outsender->set_content($sender);
-  $outqdata->append_child($outsender);
-  
-  $outtype = $out->create_element('type');
-  $outtype->set_content('Copyright Infringement Notice');
-  $outqdata->append_child($outtype);
-  
-  $outsummary = $out->create_element('summary');
-  $outsummary->set_content('Copyright notice '.$srcip);
-  $outqdata->append_child($outsummary);
+  $outstatus = $outqdata->appendChild($out->createElement('status', 'open'));
+  $outsender = $outqdata->appendChild($out->createElement('sender', $sender));
+  $outtype = $outqdata->appendChild($out->createElement('type',
+     'Copyright Infringement Notice'));
 
-  $outincident = $out->create_element('incident');
-  $outincident->set_attribute('id', '1');
-  $outroot->append_child($outincident);
+  $outsummary = $outqdata->appendChild($out->createElement('summary',
+     'Copyright notice '.$srcip));
 
-  $outticket = $out->create_element('ticketInformation');
-  $outincident->append_child($outticket);
+  $outincident = $airt->appendChild($out->createElement('incident'));
+  $outincident->setAttribute('id', '1');
 
-  $prefix = $out->create_element('prefix');
-  $prefix->set_content($sender);
-  $outticket->append_child($prefix);
-  
-  $outtech = $out->create_element('technicalInformation');
-  $outincident->append_child($outtech);
+  $outticket  = $outincident->appendChild($out->createElement('ticketInformation'));
+  $prefix     = $outticket->appendChild($out->createElement('prefix', $sender));
+  $outtech    = $outincident->appendChild($out->createElement('technicalInformation'));
+  $outip      = $outtech->appendChild($out->createElement('ip', $srcip));
+  $outtime    = $outtech->appendChild($out->createElement('incident_time', $dt));
+  $outlogging = $outtech->appendChild($out->createElement('logging', $summary));
 
-  $outip = $out->create_element('ip');
-  $outip->set_content($srcip);
-  $outtech->append_child($outip);
-
-  $outtime = $out->create_element('incident_time');
-  $outtime->set_content($dt);
-  $outtech->append_child($outtime);
-
-  $outlogging = $out->create_element('logging');
-  $outlogging->set_content($summary);
-  $outtech->append_child($outlogging);
-  
-  $output = $out->dump_mem(true, 'utf-8');
+  $output = $out->saveXML();
   if ($verbosity === true) {
      print $output;
   }

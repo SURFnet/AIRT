@@ -50,61 +50,37 @@ function filter_nerd($input, &$output, $verbosity=FALSE) {
      return 1;
   }
 
-  $out = domxml_new_doc('1.0');
-  $outroot = $out->add_root('airt');
+  $out = new DOMDocument();
+  $airt = $out->appendChild($out->createElement('airt'));
   $count = 1;
   $output='';
   foreach ($match as $m) {
-	  $outqdata = $out->create_element('queuedata');
-	  $outqdata->set_attribute('filter', 'filter_nerd');
-	  $outqdata->set_attribute('version', filter_nerd_getVersion());
-	  $outqdata->set_attribute('ref','#'.$count);
-	  $outroot->append_child($outqdata);
+	  $outqdata = $out->createElement('queuedata');
+	  $outqdata->setAttribute('filter', 'filter_nerd');
+	  $outqdata->setAttribute('version', filter_nerd_getVersion());
+	  $outqdata->setAttribute('ref','#'.$count);
+	  $airt->appendChild($outqdata);
 
-	  $outstatus = $out->create_element('status');
-	  $outstatus->set_content('open');
-	  $outqdata->append_child($outstatus);
-  
-     $outsender = $out->create_element('sender');
-     $outsender->set_content($sender);
-     $outqdata->append_child($outsender);
-  
-     $outtype = $out->create_element('type');
-     $outtype->set_content('ddos');
-     $outqdata->append_child($outtype);
-  
-     $outsummary = $out->create_element('summary');
-     $outsummary->set_content('DDoS - NERD '.$m[2]);
-     $outqdata->append_child($outsummary);
+	  $outqdata->appendChild($out->createElement('status', 'open'));
+     $outqdata->appendChild($out->createElement('sender', $sender));
+     $outqdata->appendChild($out->createElement('type', 'ddos'));
+     $outqdata->appendChild($out->createElement('summary', 'DDoS - NERD '.$m[2]));
 
-     $outincident = $out->create_element('incident');
-     $outincident->set_attribute('id', $count++);
-     $outroot->append_child($outincident);
+     $outincident = $out->createElement('incident');
+     $outincident->setAttribute('id', $count++);
+     $airt->appendChild($outincident);
 
-     $outticket = $out->create_element('ticketInformation');
-     $outincident->append_child($outticket);
+     $outticket = $out->createElement('ticketInformation');
+     $outtech = $out->createElement('technicalInformation');
+     $outincident->appendChild($outticket);
+     $outincident->appendChild($outtech);
 
-     $prefix = $out->create_element('prefix');
-     $prefix->set_content('NERD');
-     $outticket->append_child($prefix);
-  
-     $outtech = $out->create_element('technicalInformation');
-     $outincident->append_child($outtech);
-
-     $outip = $out->create_element('ip');
-     $outip->set_content($m[2]);
-     $outtech->append_child($outip);
-
-     $outtime = $out->create_element('incident_time');
-     $outtime->set_content($m[8]);
-     $outtech->append_child($outtime);
-
-     $outlogging = $out->create_element('logging');
-     $outlogging->set_content($m[0]);
-     $outtech->append_child($outlogging);
-  
+     $outticket->appendChild($out->createElement('prefix', 'NERD'));
+     $outtech->appendChild($out->createElement('ip', $m[2]));
+     $outtech->appendChild($out->createElement('incident_time', $m[8]));
+     $outtech->appendChild($out->createElement('logging', $m[0]));
   }
-     $output .= $out->dump_mem(true, 'utf-8');
+     $output .= $out->saveXML();
   if ($verbosity === true) {
      print $output;
   }
