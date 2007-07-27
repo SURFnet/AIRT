@@ -133,13 +133,12 @@ function exportIncident($ids) {
       $res_array[$row['incident']]['technicalInformation'][$row['id']]['constituency'] = $row['constituency'];
    }
 
-   $doc = domxml_new_doc('1.0');
-   $root = $doc->create_element_ns(AIRTURL, 'airt', AIRTPREFIX);
-   $doc->append_child($root);
+   $doc = new XMLDocument();
+   $doc->appendChild($doc->createElementNS(AIRTURL, 'airt', $AIRTPREFIX);
 
    BuildTree($doc, $res_array);
 
-   return $doc->dump_mem(true, 'UTF-8');
+   return $doc->saveXML();
 }
 
 
@@ -156,53 +155,46 @@ function exportIncident($ids) {
  * source/doc directory.
  */
 function BuildTree(&$doc, $res_array) {
-   $tles       = $doc->child_nodes();
-   $root       = $tles[0];
+   $tles       = $doc->childNodes;
+   $root       = $tles->item(0);
 
-   $context    = $doc->xpath_new_context();
-   $context->xpath_register_ns('airt', 'http://infolab.uvt.nl/airt');
-   $res        = $context->xpath_eval('//airt:airt/airt:incident');
-    
+   $context    = new DOMXpath($doc);
+   $context->registerNamespace('airt', 'http://infolab.uvt.nl/airt');
+   $res        = $context->evaluate('//airt:airt/airt:incident');
+
    #messageIdentification
-   $messageIdentification_element = $doc->create_element_ns(AIRTURL, 'messageIdentification');
-   $message_time_element = $doc->create_element_ns(AIRTURL, 'message_time');
-   $message_time_element->set_content(time());
-   $messageIdentification_element->append_child($message_time_element);
-   
-   $sender_details_element = $doc->create_element_ns(AIRTURL, 'sender_details');
-   if (isset($res_array['messageIdentification']['webservice_location']))
-      $webservice_location_element = $doc->create_element_ns(AIRTURL, 'webservice_location');
-   $webservice_location_element->set_content($res_array['messageIdentification']['webservice_location']);
-   $sender_details_element->append_child($webservice_location_element);
+   $ident = $root->appendChild(
+      $doc->createElementNS(AIRTURL, 'messageIdentification'));
+   $ident->appendChild($doc->createElementNS(AIRTURL, 'message_time', time()));
+   $sender = $ident->appendChild($doc->createElementNS(AIRTURL, 'sender_details'));
+   if (isset($res_array['messageIdentification']['webservice_location'])) {
+      $sender->appendChild($doc->createElementNS(AIRTURL, 
+         'webservice_location', $res_array['messageIdentification']['webservice_location']));
+   }
+   $name = $sender->appendChild($doc->createElementNS(AIRTURL, 'sender_name'));
+   if (isset($res_array['messageIdentification']['sender_name'])) {
+      $name->appendChild($doc->createTextNode($res_array['messageIdentification']['sender_name']));
+   }
 
-   $sender_name_element = $doc->create_element_ns(AIRTURL, 'sender_name');
-   if (isset($res_array['messageIdentification']['sender_name']))
-      $sender_name_element->set_content($res_array['messageIdentification']['sender_name']);
-   $sender_details_element->append_child($sender_name_element);
+   $cons = $sender->appendChild($doc->createElementNS(AIRTURL, 'constituency'));
+   if (isset($res_array['messageIdentification']['constituency'])) {
+      $cons->appendChild($doc->createTextNode($res_array['messageIdentification']['constituency']));
+   }
 
-   $constituency_element = $doc->create_element_ns(AIRTURL, 'constituency');
-   if (isset($res_array['messageIdentification']['constituency']))
-      $constituency_element->set_content($res_array['messageIdentification']['constituency']);
-   $sender_details_element->append_child($constituency_element);
+   $email = $sender->appendChild($doc->createElementNS(AIRTURL, 'email'));
+   if (isset($res_array['messageIdentification']['email'])) {
+      $email->appendChild($doc->createTextNode($res_array['messageIdentification']['email']));
+   }
 
-   $email_element = $doc->create_element_ns(AIRTURL, 'email');
-   if (isset($res_array['messageIdentification']['email'])) 
-      $email_element->set_content($res_array['messageIdentification']['email']);
-   $sender_details_element->append_child($email_element);
-   
-   $telephone_element = $doc->create_element_ns(AIRTURL, 'telephone');
-   if (isset($res_array['messageIdentification']['telephone'])) 
-      $telephone_element->set_content($res_array['messageIdentification']['telephone']);
-   $sender_details_element->append_child($telephone_element);
-   
-   $version_element = $doc->create_element_ns(AIRTURL, 'version');
-   if (isset($res_array['messageIdentification']['version']))
-      $version_element->set_content($res_array['messageIdentification']['version']);
-   $sender_details_element->append_child($version_element);
+   $phone = $sender->appendChild($doc->createElementNS(AIRTURL, 'telephone'));
+   if (isset($res_array['messageIdentification']['telephone'])) {
+      $phone->appendChild($doc->createTextNode($res_array['messageIdentification']['telephone']));
+   }
 
-   $messageIdentification_element->append_child($sender_details_element);
-
-   $root->append_child($messageIdentification_element);
+   $version = $sender->appendChild($doc->createElementNS(AIRTURL, 'version'));
+   if (isset($res_array['messageIdentification']['version'])) {
+      $version->appendChild($doc->createTextNode($res_array['messageIdentification']['version']));
+   }
 
    #incidents
    foreach($res_array as $key => $value) {
