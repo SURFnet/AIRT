@@ -50,13 +50,13 @@ function setup() {
    $SETTINGS['etcdir'] = '@ETCDIR@';
 
    // number of incidents to show on one page
-   $SETTINGS['pagesize'] = 20;
+   $SETTINGS['pagesize'] = 50;
 
    // directory for short-lived temporary files
    $SETTINGS['tmpdir'] = '/tmp';
 
    // default language
-   $SETTINGS['defaultlanguage'] = 'en';
+   $SETTINGS['defaultlanguage'] = 'en_US.utf8';
 
    /**** 2. EMAIL SETTINGS *****/
    // sender-from in standard emails. 
@@ -82,7 +82,8 @@ function setup() {
    // connect string for the database
    $SETTINGS['dbdb'] = 'airt';
    $SETTINGS['dbuser'] = 'airt';
-   $SETTINGS['dbpasswd'] = '**********';        // <--- CHANGE THIS
+   // if you are using password authentication; uncomment the line below
+   // $SETTINGS['dbpasswd'] = '**********';
 
 
    /***** 4. GPG SETTINGS *****/
@@ -103,7 +104,7 @@ function setup() {
 
    /***** 5. SITE CUSTOMIZATION *****/
    // the session timeout in seconds
-   $SETTINGS['session_timeout'] = 600;
+   $SETTINGS['session_timeout'] = 1800;
 
    // Incident ID prefix
    $SETTINGS['incidentid_prefix'] = 'Example-CERT#';
