@@ -133,11 +133,8 @@ function exportIncident($ids) {
       $res_array[$row['incident']]['technicalInformation'][$row['id']]['constituency'] = $row['constituency'];
    }
 
-   $doc = new XMLDocument();
-   $doc->appendChild($doc->createElementNS(AIRTURL, 'airt', $AIRTPREFIX);
-
+   $doc = new DOMDocument();
    BuildTree($doc, $res_array);
-
    return $doc->saveXML();
 }
 
@@ -155,230 +152,185 @@ function exportIncident($ids) {
  * source/doc directory.
  */
 function BuildTree(&$doc, $res_array) {
-   $tles       = $doc->childNodes;
-   $root       = $tles->item(0);
+   $airt = $doc->appendChild($doc->createElementNS(AIRTURL, AIRTPREFIX));
 
    $context    = new DOMXpath($doc);
-   $context->registerNamespace('airt', 'http://infolab.uvt.nl/airt');
-   $res        = $context->evaluate('//airt:airt/airt:incident');
+   $context->registerNamespace(AIRTPREFIX, AIRTURL);
+   $res  = $context->evaluate('//airt:airt/airt:incident');
 
    #messageIdentification
-   $ident = $root->appendChild(
-      $doc->createElementNS(AIRTURL, 'messageIdentification'));
+   $ident = $airt->appendChild($doc->createElementNS(AIRTURL, 'messageIdentification'));
    $ident->appendChild($doc->createElementNS(AIRTURL, 'message_time', time()));
    $sender = $ident->appendChild($doc->createElementNS(AIRTURL, 'sender_details'));
-   if (isset($res_array['messageIdentification']['webservice_location'])) {
-      $sender->appendChild($doc->createElementNS(AIRTURL, 
-         'webservice_location', $res_array['messageIdentification']['webservice_location']));
+   if (!empty($res_array['messageIdentification']['webservice_location'])) {
+      $sender->appendChild($doc->createElementNS(AIRTURL, 'webservice_location', $res_array['messageIdentification']['webservice_location']));
    }
-   $name = $sender->appendChild($doc->createElementNS(AIRTURL, 'sender_name'));
-   if (isset($res_array['messageIdentification']['sender_name'])) {
-      $name->appendChild($doc->createTextNode($res_array['messageIdentification']['sender_name']));
+   if (!empty($res_array['messageIdentification']['sender_name'])) {
+      $sender->appendChild($doc->createElementNS(AIRTURL, 'sender_name', $res_array['messageIdentification']['sender_name']));
    }
 
-   $cons = $sender->appendChild($doc->createElementNS(AIRTURL, 'constituency'));
-   if (isset($res_array['messageIdentification']['constituency'])) {
-      $cons->appendChild($doc->createTextNode($res_array['messageIdentification']['constituency']));
+   if (!empty($res_array['messageIdentification']['constituency'])) {
+      $sender->appendChild($doc->createElementNS(AIRTURL, 'constituency', $res_array['messageIdentification']['constituency']));
    }
 
-   $email = $sender->appendChild($doc->createElementNS(AIRTURL, 'email'));
-   if (isset($res_array['messageIdentification']['email'])) {
-      $email->appendChild($doc->createTextNode($res_array['messageIdentification']['email']));
+   if (!empty($res_array['messageIdentification']['email'])) {
+      $sender->appendChild($doc->createElementNS(AIRTURL, 'email', $res_array['messageIdentification']['email']));
    }
 
-   $phone = $sender->appendChild($doc->createElementNS(AIRTURL, 'telephone'));
-   if (isset($res_array['messageIdentification']['telephone'])) {
-      $phone->appendChild($doc->createTextNode($res_array['messageIdentification']['telephone']));
+   if (!empty($res_array['messageIdentification']['telephone'])) {
+      $sender->appendChild($doc->createElementNS(AIRTURL, 'telephone', $res_array['messageIdentification']['telephone']));
    }
 
-   $version = $sender->appendChild($doc->createElementNS(AIRTURL, 'version'));
-   if (isset($res_array['messageIdentification']['version'])) {
-      $version->appendChild($doc->createTextNode($res_array['messageIdentification']['version']));
+   if (!empty($res_array['messageIdentification']['version'])) {
+      $version = $sender->appendChild($doc->createElementNS(AIRTURL, 'version',$res_array['messageIdentification']['version']));
    }
 
    #incidents
    foreach($res_array as $key => $value) {
       if($key!='messageIdentification') {
-         $incident_element = $doc->create_element_ns(AIRTURL, 'incident');
-         $ticketInformation_element = $doc->create_element_ns(AIRTURL, 'ticketInformation');
-         $technicalInformation_element = $doc->create_element_ns(AIRTURL, 'technicalInformation');
-         $computerInformation_element = $doc->create_element_ns(AIRTURL, 'computerInformation');
+         $incident = $airt->appendChild($doc->createElementNS(AIRTURL, 'incident'));
+         $ticket = $incident->appendChild($doc->createElementNS(AIRTURL, 'ticketInformation'));
+         $techinfo = $incident->appendChild($doc->createElementNS(AIRTURL, 'technicalInformation'));
 
          #TicketInformation_element
-         $ticketNumber_element = $doc->create_element_ns(AIRTURL, 'ticket_number');
-         $prefix_element = $doc->create_element_ns(AIRTURL, 'prefix');
-         $prefix_element->set_content(INCIDENTID_PREFIX);
-         $ticketNumber_element->append_child($prefix_element);
-         $reference_element = $doc->create_element_ns(AIRTURL, 'reference');
-         if (isset($key)) 
-            $reference_element->set_content($key);
-         $ticketNumber_element->append_child($reference_element);
-          
-         $ticketInformation_element->append_child($ticketNumber_element);
+         $ticketno = $ticket->appendChild($doc->createElementNS(AIRTURL, 'ticket_number'));
+         $ticketno->appendChild($doc->createElementNS(AIRTURL, 'prefix', INCIDENTID_PREFIX));
+         $ref = $ticketno->appendChild($doc->createElementNS(AIRTURL, 'reference'));
+         if (isset($key)) {
+            $ref->appendChild($doc->createTextNode($key));
+         }
 
-         $history_element = $doc->create_element_ns(AIRTURL, 'history');
+         $history = $ticket->appendChild($doc->createElementNS(AIRTURL, 'history'));
          foreach($res_array[$key]['ticketInformation']['history'] as $key2 => $value2) {
-            $history_item_element = $doc->create_element_ns(AIRTURL, 'history_item');
-                
-            $history_id_element = $doc->create_element_ns(AIRTURL, 'history_id');
-            if (isset($key2))
-               $history_id_element->set_content($key2);
-            $history_item_element->append_child($history_id_element);
-            
-            $ticket_updater_element = $doc->create_element_ns(AIRTURL, 'ticket_updater');
-            if (isset($res_array[$key]['ticketInformation']['history'][$key2]['ticket_updater'])) 
-               $ticket_updater_element->set_content($res_array[$key]['ticketInformation']['history'][$key2]['ticket_updater']);
-            $history_item_element->append_child($ticket_updater_element);
-            
-            $ticket_update_time_element = $doc->create_element_ns(AIRTURL, 'ticket_update_time');
-            if (isset($res_array[$key]['ticketInformation']['history'][$key2]['ticket_update_time'])) 
-               $ticket_update_time_element->set_content($res_array[$key]['ticketInformation']['history'][$key2]['ticket_update_time']);
-            $history_item_element->append_child($ticket_update_time_element);
-             
-            $update_action_element = $doc->create_element_ns(AIRTURL, 'update_action');
-            if (isset($res_array[$key]['ticketInformation']['history'][$key2]['update_action']))
-               $update_action_element->set_content($res_array[$key]['ticketInformation']['history'][$key2]['update_action']);
-            $history_item_element->append_child($update_action_element);
-             
-            $history_element->append_child($history_item_element);
+            $histitem = $history->appendChild($doc->createElementNS(AIRTURL, 'history_item'));
+
+            $histid = $histitem->appendChild($doc->createElementNS(AIRTURL, 'history_id'));
+            if (!empty($key2)) {
+               $histid->appendChild($doc->createTextNode($key2));
+            }
+
+            if (!empty($res_array[$key]['ticketInformation']['history'][$key2]['ticket_updater'])) {
+               $histitem->appendChild($doc->createElementNS(AIRTURL, 'ticket_updater',$res_array[$key]['ticketInformation']['history'][$key2]['ticket_updater']));
+            }
+
+            if (!empty($res_array[$key]['ticketInformation']['history'][$key2]['ticket_update_time'])) {
+               $histitem->appendChild($doc->createElementNS(AIRTURL, 'ticket_update_time', $res_array[$key]['ticketInformation']['history'][$key2]['ticket_update_time']));
+            }
+
+            if (isset($res_array[$key]['ticketInformation']['history'][$key2]['update_action'])) {
+               $histitem->appendChild($doc->createElementNS(AIRTURL, 'update_action', $res_array[$key]['ticketInformation']['history'][$key2]['update_action']));
+            }
+         } // history
+
+
+         if (!empty($res_array[$key]['ticketInformation']['creator'])) {
+            $ticket->appendChild($doc->createElementNS(AIRTURL, 'creator', $res_array[$key]['ticketInformation']['creator']));
          }
 
-         $ticketInformation_element->append_child($history_element);
-         
-         $creator_element = $doc->create_element_ns(AIRTURL, 'creator');
-         if (isset($res_array[$key]['ticketInformation']['creator']))
-            $creator_element->set_content($res_array[$key]['ticketInformation']['creator']);
-         $ticketInformation_element->append_child($creator_element);
-         $created_element = $doc->create_element_ns(AIRTURL, 'created');
-         if (isset($res_array[$key]['ticketInformation']['created']))
-            $created_element->set_content($res_array[$key]['ticketInformation']['created']);
-         $ticketInformation_element->append_child($created_element);
-         $incident_status_element = $doc->create_element_ns(AIRTURL, 'incident_status');
-         if (isset($res_array[$key]['ticketInformation']['status']))
-            $incident_status_element->set_content($res_array[$key]['ticketInformation']['status']);
-         $ticketInformation_element->append_child($incident_status_element);
-         $incident_state_element = $doc->create_element_ns(AIRTURL, 'incident_state');
-         if (isset($res_array[$key]['ticketInformation']['state'])) 
-            $incident_state_element->set_content($res_array[$key]['ticketInformation']['state']);
-         $ticketInformation_element->append_child($incident_state_element);
-         $incident_type_element = $doc->create_element_ns(AIRTURL, 'incident_type');
-         if (isset($res_array[$key]['ticketInformation']['type']))
-            $incident_type_element->set_content($res_array[$key]['ticketInformation']['type']);
-         $ticketInformation_element->append_child($incident_type_element);
-         $comment_element = $doc->create_element_ns(AIRTURL, 'comment');
-         if (isset($res_array[$key]['ticketInformation']['comment'])) 
-            $comment_element->set_content($res_array[$key]['ticketInformation']['comment']);
-         $ticketInformation_element->append_child($comment_element);
+         if (!empty($res_array[$key]['ticketInformation']['created'])) {
+            $ticket->appendChild($doc->createElementNS(AIRTURL, 'created',$res_array[$key]['ticketInformation']['created']));
+         }
 
-         #technicalInformation_element
+         if (!empty($res_array[$key]['ticketInformation']['status'])) {
+            $ticket->appendChild($doc->createElementNS(AIRTURL, 'incident_status', $res_array[$key]['ticketInformation']['status']));
+         }
+
+         if (!empty($res_array[$key]['ticketInformation']['state'])) {
+            $ticket->appendChild($doc->createElementNS(AIRTURL, 'incident_state', $res_array[$key]['ticketInformation']['state']));
+         }
+
+         if (!empty($res_array[$key]['ticketInformation']['type'])) {
+            $ticket->appendChild($doc->createElementNS(AIRTURL, 'incident_type', $res_array[$key]['ticketInformation']['type']));
+         }
+
+         if (!empty($res_array[$key]['ticketInformation']['comment'])) {
+            $ticket->appendChild($doc->createElementNS(AIRTURL, 'comment', $res_array[$key]['ticketInformation']['comment']));
+         }
+
+         #technicalInformation_element XXX
          foreach($res_array[$key]['technicalInformation'] as $key2 => $value2) {
-            $technical_item_element = $doc->create_element_ns(AIRTURL, 'technical_item');
-            $technicalInformation_element->append_child($technical_item_element);
+            $techitem = $techinfo->appendChild($doc->createElementNS(AIRTURL, 'technical_item'));
 
-            $technical_id_element = $doc->create_element_ns(AIRTURL, 'technical_id');
-            if (isset($key2))
-               $technical_id_element->set_content($key2);
-            $technical_item_element->append_child($technical_id_element);
+            if (isset($key2)) {
+               $techitem->appendChild($doc->createElementNS(AIRTURL, 'technical_id', $key2));
+            }
 
-            $technical_constituency_element = $doc->create_element_ns(AIRTURL, 'constituency');
-            if (isset($res_array[$key]['technicalInformation'][$key2]['constituency']))
-               $technical_constituency_element->set_content($res_array[$key]['technicalInformation'][$key2]['constituency']);
-            $technical_item_element->append_child($technical_constituency_element);
-         
-            $ip_element = $doc->create_element_ns(AIRTURL, 'ip');
-            if (isset($res_array[$key]['technicalInformation'][$key2]['ip']))
-               $ip_element->set_content($res_array[$key]['technicalInformation'][$key2]['ip']);
-            $technical_item_element->append_child($ip_element);
-          
-            $port_element = $doc->create_element_ns(AIRTURL, 'port');
-            if (isset($res_array[$key]['technicalInformation'][$key2]['port']))
-               $port_element->set_content($res_array[$key]['technicalInformation'][$key2]['port']);
-            $technical_item_element->append_child($port_element);
-          
-            $hostname_element = $doc->create_element_ns(AIRTURL, 'hostname');
-            if (isset($res_array[$key]['technicalInformation'][$key2]['hostname']))
-               $hostname_element->set_content($res_array[$key]['technicalInformation'][$key2]['hostname']);
-            $technical_item_element->append_child($hostname_element);
-            
-            $addressrole_element = $doc->create_element_ns(AIRTURL, 'addressrole');
-            if (isset($res_array[$key]['technicalInformation'][$key2]['addressrole']))
-               $addressrole_element->set_content($res_array[$key]['technicalInformation'][$key2]['addressrole']);
-            $technical_item_element->append_child($addressrole_element);
+            if (isset($res_array[$key]['technicalInformation'][$key2]['constituency'])) {
+               $techitem->appendChild($doc->createElementNS(AIRTURL, 'constituency', $res_array[$key]['technicalInformation'][$key2]['constituency']));
+            }
 
-            $mac_address_element = $doc->create_element_ns(AIRTURL, 'mac_address');
-            if (isset($res_array[$key]['technicalInformation'][$key2]['mac_address']))
-               $mac_address_element->set_content($res_array[$key]['technicalInformation'][$key2]['mac_address']);
-            $technical_item_element->append_child($mac_address_element);
 
-            $owner_element = $doc->create_element_ns(AIRTURL, 'owner');
-            $technical_item_element->append_child($owner_element);
-              
-            $employee_number_element = $doc->create_element_ns(AIRTURL, 'employee_number');
-            if (isset($res_array[$key]['technicalInformation'][$key2]['employee_number']))
-               $employee_number_element->set_content($res_array[$key]['technicalInformation'][$key2]['employee_number']);
-            $owner_element->append_child($employee_number_element);
+            if (isset($res_array[$key]['technicalInformation'][$key2]['ip'])) {
+               $techitem->appendChild($doc->createElementNS(AIRTURL, 'ip', $res_array[$key]['technicalInformation'][$key2]['ip']));
+            }
 
-            $email_address_element = $doc->create_element_ns(AIRTURL, 'email_address');
-            if (isset($res_array[$key]['technicalInformation'][$key2]['email_address']))
-               $employee_number_element->set_content($res_array[$key]['technicalInformation'][$key2]['email_address']);
-            $owner_element->append_child($email_address_element);
+            if (isset($res_array[$key]['technicalInformation'][$key2]['port'])) {
+               $techitem->appendChild($doc->createElementNS(AIRTURL, 'port', $res_array[$key]['technicalInformation'][$key2]['port']));
+            }
 
-            $name_element = $doc->create_element_ns(AIRTURL, 'name');
-            if (isset($res_array[$key]['technicalInformation'][$key2]['name']))
-               $name_element->set_content($res_array[$key]['technicalInformation'][$key2]['name']);
-            $owner_element->append_child($name_element);
-                
-            $region_element = $doc->create_element_ns(AIRTURL, 'region');
-            if (isset($res_array[$key]['technicalInformation'][$key2]['region']))
-               $region_element->set_content($res_array[$key]['technicalInformation'][$key2]['region']);
-            $owner_element->append_child($region_element);
-               
-            $role_element = $doc->create_element_ns(AIRTURL, 'role');
-            if (isset($res_array[$key]['technicalInformation'][$key2]['role']))
-               $role_element->set_content($res_array[$key]['technicalInformation'][$key2]['role']);
-            $owner_element->append_child($role_element);
-              
-            $number_attempts_element = $doc->create_element_ns(AIRTURL, 'number_attempts');
-            if (isset($res_array[$key]['technicalInformation'][$key2]['number_attempts']))
-               $number_attempts_element->set_content($res_array[$key]['technicalInformation'][$key2]['number_attempts']);
-            $technical_item_element->append_child($number_attempts_element);
-          
-            $protocol_element = $doc->create_element_ns(AIRTURL, 'protocol');
-            if (isset($res_array[$key]['technicalInformation'][$key2]['protocol']))
-               $protocol_element->set_content($res_array[$key]['technicalInformation'][$key2]['protocol']);
-            $technical_item_element->append_child($protocol_element);
-            
-            $incident_time_element = $doc->create_element_ns(AIRTURL, 'incident_time');
-            if (isset($res_array[$key]['technicalInformation'][$key2]['incident_time']))
-               $incident_time_element->set_content($res_array[$key]['technicalInformation'][$key2]['incident_time']);
-            $technical_item_element->append_child($incident_time_element);
-            
-            $time_dns_resolving_element = $doc->create_element_ns(AIRTURL, 'time_dns_resolving');
-            if (isset($res_array[$key]['technicalInformation'][$key2]['time_dns_resolving']))
-               $time_dns_resolving_element->set_content($res_array[$key]['technicalInformation'][$key2]['time_dns_resolving']);
-            $technical_item_element->append_child($time_dns_resolving_element);
-            
-            $logging_element = $doc->create_element_ns(AIRTURL, 'logging');
-            if (isset($res_array[$key]['technicalInformation'][$key2]['logging']))
-               $logging_element->set_content($res_array[$key]['technicalInformation'][$key2]['logging']);
-            $technical_item_element->append_child($logging_element);
+            if (isset($res_array[$key]['technicalInformation'][$key2]['hostname'])) {
+               $techitem->appendChild($doc->createElementNS(AIRTURL, 'hostname', $res_array[$key]['technicalInformation'][$key2]['hostname']));
+            }
 
-            $added_element = $doc->create_element_ns(AIRTURL, 'added');
-            if (isset($res_array[$key]['technicalInformation'][$key2]['added']))
-               $added_element->set_content($res_array[$key]['technicalInformation'][$key2]['added']);
-            $technical_item_element->append_child($added_element);
+            if (isset($res_array[$key]['technicalInformation'][$key2]['addressrole'])) {
+               $techitem->appendChild($doc->createElementNS(AIRTURL, 'addressrole', $res_array[$key]['technicalInformation'][$key2]['addressrole']));
+            }
 
-            $addedby_element = $doc->create_element_ns(AIRTURL, 'addedby');
-            if (isset($res_array[$key]['technicalInformation'][$key2]['addedby']))
-               $addedby_element->set_content($res_array[$key]['technicalInformation'][$key2]['addedby']);
-            $technical_item_element->append_child($addedby_element);
-         }
+            if (isset($res_array[$key]['technicalInformation'][$key2]['mac_address'])) {
+               $techitem->appendChild($doc->createElementNS(AIRTURL, 'mac_address', $res_array[$key]['technicalInformation'][$key2]['mac_address']));
+            }
 
-         $incident_element->append_child($ticketInformation_element);
-         $incident_element->append_child($technicalInformation_element);
-            
-         $root->append_child($incident_element);
-      } 
-   }
-}
+            if (isset($res_array[$key]['technicalInformation'][$key2]['number_attempts'])) {
+               $techitem->appendChild($doc->createElementNS(AIRTURL, 'number_attempts', $res_array[$key]['technicalInformation'][$key2]['number_attempts']));
+            }
+
+            if (isset($res_array[$key]['technicalInformation'][$key2]['protocol'])) {
+               $techitem->appendChild($doc->createElementNS(AIRTURL, 'protocol', $res_array[$key]['technicalInformation'][$key2]['protocol']));
+            }
+
+            if (isset($res_array[$key]['technicalInformation'][$key2]['incident_time'])) {
+               $techitem->appendChild($doc->createElementNS(AIRTURL, 'incident_time', $res_array[$key]['technicalInformation'][$key2]['incident_time']));
+            }
+
+            if (isset($res_array[$key]['technicalInformation'][$key2]['time_dns_resolving'])) {
+               $techitem->appendChild($doc->createElementNS(AIRTURL, 'time_dns_resolving', $res_array[$key]['technicalInformation'][$key2]['time_dns_resolving']));
+            }
+
+            if (isset($res_array[$key]['technicalInformation'][$key2]['logging'])) {
+               $techitem->appendChild($doc->createElementNS(AIRTURL, 'logging', $res_array[$key]['technicalInformation'][$key2]['logging']));
+            }
+
+            if (isset($res_array[$key]['technicalInformation'][$key2]['added'])) {
+               $techitem->appendChild($doc->createElementNS(AIRTURL, 'added', $res_array[$key]['technicalInformation'][$key2]['added']));
+            }
+
+            if (isset($res_array[$key]['technicalInformation'][$key2]['addedby'])) {
+               $techitem->appendChild($doc->createElementNS(AIRTURL, 'addedby', $res_array[$key]['technicalInformation'][$key2]['addedby']));
+            }
+
+            $owner = $techitem->appendChild($doc->createElementNS(AIRTURL, 'owner'));
+
+            if (isset($res_array[$key]['technicalInformation'][$key2]['employee_number'])) {
+               $owner->appendChild($doc->createElementNS(AIRTURL, 'employee_number', $res_array[$key]['technicalInformation'][$key2]['employee_number']));
+            }
+
+            if (isset($res_array[$key]['technicalInformation'][$key2]['email_address'])) {
+               $owner->appendChild($doc->createElementNS(AIRTURL, 'email_address', $res_array[$key]['technicalInformation'][$key2]['email_address']));
+            }
+
+            if (isset($res_array[$key]['technicalInformation'][$key2]['name'])) {
+               $owner->appendChild($doc->createElementNS(AIRTURL, 'name', $res_array[$key]['technicalInformation'][$key2]['name']));
+            }
+
+            if (isset($res_array[$key]['technicalInformation'][$key2]['region'])) {
+               $owner->appendChild($doc->createElementNS(AIRTURL, 'region', $res_array[$key]['technicalInformation'][$key2]['region']));
+            }
+
+            if (isset($res_array[$key]['technicalInformation'][$key2]['role'])) {
+               $owner->appendChild($doc->createElementNS(AIRTURL, 'role', $res_array[$key]['technicalInformation'][$key2]['role']));
+            }
+         } // technicalinformation
+      }  // !messageIdentification
+   } // Incidents
+} // function BuildTree
 ?>
