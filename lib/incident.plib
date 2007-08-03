@@ -2056,4 +2056,73 @@ function touchIncident($incidentid, $timestamp='') {
    }
 }
 
+/* return an array of prevous incident ids for a given IP address
+ */
+function getPreviousIncidents($ip, &$out, &$error='') {
+   $q = q('select i.id from incidents i, incident_addresses a 
+          where i.id = a.incident
+          and   a.ip = \'%ip\'', array('%ip'=>db_escape_string($ip)));
+   $res = db_query($q);
+   if ($res == false) {
+      $error = db_errormessage();
+      return false;
+   }
+   $out=array();
+   while ($row = db_fetch_next($res)) {
+      $out[] = $row['id'];
+   }
+   db_free_result($res);
+   return true;
+}
+
+/* filter incidents by age;
+ */
+function filterIncidentsByAge($incidents, $maxage, &$out, &$error='') {
+   if (sizeof($incidents) == 0) {
+      $out = $incidents;
+      return true;
+   }
+   $i = implode(',', $incidents);
+   $limit = Date('Y-m-d H:i:s', time()-$maxage);
+   $q = q('select id from incidents 
+      where id in (%set)
+      and updated > timestamp \'%limit\'', array('%set'=>$i, '%limit'=>$limit));
+   $res = db_query($q);
+   if ($res == false) {
+      $error = db_errormessage();
+      return false;
+   }
+   $out = array();
+   while ($row = db_fetch_next($res)) {
+      $out[] = $row['id'];
+   }
+   db_free_result($res);
+   return true;
+}
+
+function filterIncidentsByStatus($incidents, $status, &$out, &$error='') {
+   if (sizeof($incidents) == 0) {
+      $out = $incidents;
+      return true;
+   }
+   $i = implode(',', $incidents);
+   if (!is_numeric($status)) {
+      $error = 'Status must be numeric';
+      return false;
+   }
+   $q = q('select id from incidents 
+      where id in (%set)
+      and status = %status', array('%set'=>$i, '%status'=>$status));
+   $res = db_query($q);
+   if ($res == false) {
+      $error = db_errormessage();
+      return false;
+   }
+   $out = array();
+   while ($row = db_fetch_next($res)) {
+      $out[] = $row['id'];
+   }
+   db_free_result($res);
+   return true;
+}
 ?>

@@ -544,4 +544,8 @@ function formatAvailableLanguages($name, $default='', $extra=array()) {
    $out .= '</select>'.LF;
    return $out;
 }
+
+function formatRelativeDate($timestamp) {
+   return date('Y-m-d', $timestamp);
+}
 ?>

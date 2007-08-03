@@ -64,7 +64,7 @@ function showheader($data) {
 <html>
 <head>
 <title>AIRT: $data[title]</title>
-<LINK HREF="airt-style.css" REL="stylesheet" TYPE="text/css">
+<LINK HREF="$baseurl/airt-style.css" REL="stylesheet" TYPE="text/css">
 <script language="JavaScript">
 function checkKeys(event) {
   document.status = 'Key pressed'+event.which;

@@ -348,6 +348,15 @@ function queueFormatItems() {
          .'</td>'.LF;
       $out .= '   <td>'.LF;
 
+      if (getPreviousIncidents($element['cache_ip'], $prev, $error) &&
+            filterIncidentsByStatus($prev, 2, $prev2, $error) &&
+            filterIncidentsByAge($prev2, 172800, $prev3, $error)) {
+         for ($i=0; $i < sizeof($prev3); $i++) {
+            $prev = getIncident($prev3[$i]);
+            $out .= t(_('Closed %c').'<br/>'.LF, array('%c'=>formatRelativeDate($prev['updated'])));
+         }
+      }
+
       // check for grouping within the import queue
       $ip = $element['cache_ip'];
       $group = false;
