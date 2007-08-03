@@ -30,7 +30,6 @@ function filter_iodef($input, &$output, $verbosity=TRUE) {
 	$incidents = $xpath->evaluate('/IODEF-Document/Incident');
 	$output = "<airt:airt>\n";
    for ($i=0; $i < $incidents->length; $i++) {
-		$type = $incidents->item($i)->getAttribute('purpose');
 		$srcip=$dstip='';
 		
 		$res = $xpath->evaluate("IncidentID", $incidents->item($i));
@@ -40,14 +39,14 @@ function filter_iodef($input, &$output, $verbosity=TRUE) {
 		$time = trim($res->item(0)->firstChild->wholeText);
 	
 		// IODEF does not have a real method of suggesting an incident type
-		// The closest element that I could find is Method/Reference
-		$refs = $xpath->evaluate("EventData/Method/Reference/ReferenceName", $incidents->item($i));
+		// The closest element that I could find is Method/Descrption
+		$refs = $xpath->evaluate("Method/Description, $incidents->item($i));
 		$type='unspecified';
       for ($j=0; $j < $refs->length; $j++) {
 			if ($type=='unspecified') {
 			   $type = $refs->item($j)->firstChild->wholeText;
 		   }
-		} // referencename (j)
+		} // description (j)
 		
 		$contacts = $xpath->evaluate("Contact", $incidents->item($i));
 		$contactname = 'unspecified';
@@ -58,7 +57,7 @@ function filter_iodef($input, &$output, $verbosity=TRUE) {
 			   $role = 'unknown';
 			}
 
-			$res = $xpath->evaluate("ContactName", $contacts->item($j));
+			$res = $xpath->evaluate("Contact/Name", $contacts->item($j));
 			if ($res->length > 0) {
 				$name = trim($res->item(0)->firstChild->wholeText);
 
