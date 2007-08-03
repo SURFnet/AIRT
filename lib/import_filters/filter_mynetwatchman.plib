@@ -100,10 +100,10 @@ function filter_mynetwatchman($input, &$output, $verbosity=FALSE) {
    $output .="      <logging>";
    foreach ($data as $in) {
       if (!is_array($in)) continue;
-      $output .= "$in[logging]\n";
+      $output .= htmlentities($in[logging])."\n";
    }
-   $output .= "\nDetails for this incident at:\n    $detailurl\n";
-   $output .= "\nUpdate the status of this incident at:\n    $trackingurl\n";
+   $output .= "\nDetails for this incident at:\n    ".htmlentities($detailurl)."\n";
+   $output .= "\nUpdate the status of this incident at:\n ".htmlentities($trackingurl)."\n";
    $output .="      </logging>";
    $output .="   </technicalInformation>\n";
    $output .="  </incident>\n";
