@@ -268,12 +268,6 @@ special variables in the template:').'<p>'.LF;
          reload();
          return;
       }
-      $replyto = fetchFrom('POST', 'replyto');
-      if (empty($replyto)) {
-         airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
-         reload();
-         return;
-      }
       $subject = fetchFrom('POST', 'subject');
       if (empty($subject)) {
          airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
@@ -298,7 +292,7 @@ special variables in the template:').'<p>'.LF;
       }
 
       $agenda = fetchFrom('POST', 'agenda');
-
+      $replyto = fetchFrom('POST', 'replyto');
       $template = fetchFrom('POST', 'template');
 
       /* prevent sending bogus stuff */
