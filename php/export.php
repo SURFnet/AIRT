@@ -27,6 +27,10 @@ require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/export.plib';
 require_once LIBDIR.'/incident.plib';
 
+Header('Content-Type: application/xml');
+print exportIODEF(123);
+exit;
+
 $selection = array();
 foreach (getOpenIncidents() as $id=>$incident) 
    array_push($selection, $id);
