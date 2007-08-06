@@ -352,7 +352,7 @@ function exportIODEF($incidentid) {
 
 	$incidentid_el = $incident_el->appendChild($doc->createElementNS(IODEFNS, 'iodef:IncidentID'));
 	$name = $incidentid_el->appendChild($doc->createAttribute('name'));
-	$name->value=INCIDENTID_PREFIX;
+	$name->value=htmlentities(INCIDENTID_PREFIX);
 	$incidentid_el->appendChild($doc->createTextNode(htmlentities(normalize_incidentid($incidentid))));
 
 	$assessment = $incident_el->appendChild($doc->createElementNS(IODEFNS, 'iodef:Assessment'));
@@ -387,9 +387,9 @@ function exportIODEF($incidentid) {
 
    $u = getUserByUserId($_SESSION["userid"]);
 	$name = $contact->appendChild($doc->createElementNS(IODEFNS, 'iodef:name'));
-	$name->appendChild($doc->createTextNode(sprintf("%s %s", $u["firstname"], $u["lastname"])));
+	$name->appendChild($doc->createTextNode(htmlentities(sprintf("%s %s", $u["firstname"], $u["lastname"]))));
 	$email= $contact->appendChild($doc->createElementNS(IODEFNS, 'iodef:Email'));
-	$email->appendChild($doc->createTextNode(MAILFROM));
+	$email->appendChild($doc->createTextNode(htmlentities(MAILFROM)));
 
 	return $doc->saveXML();
 	

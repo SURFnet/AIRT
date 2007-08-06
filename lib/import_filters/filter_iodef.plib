@@ -16,10 +16,15 @@ function filter_iodef_getVersion() {
 }
 
 function filter_iodef($input, &$output, $verbosity=TRUE) {
-	// strip <?xml 
-   $input = preg_replace('/io:/','', $input);
+   if (preg_match('@(<\?xml version.*)@s', $input, $m) == 0) {
+	   print 'No IODEF data detected';
+	   return false;
+	}
+	$xml = $m[1];
+	v_print(_('Got XML:').$xml, $verbosity);
+
    $doc = new DOMDocument();
-   $doc->loadXML($input);
+   $doc->loadXML($xml);
 	$xpath = new DOMXPath($doc);
    $xpath->registerNamespace('io', 
 		'urn:ietf:params:xml:ns:iodef-1.0');
@@ -27,20 +32,21 @@ function filter_iodef($input, &$output, $verbosity=TRUE) {
 		'http://www.w3.org/2000/09/xmldsig#');
 	$xpath->registerNamespace('xsi',
 		'http://www.w3.org/2001/XMLSchema-instance');
-	$incidents = $xpath->evaluate('/IODEF-Document/Incident');
+	$incidents = $xpath->evaluate('/iodef:IODEF-Document/iodef:Incident');
 	$output = "<airt:airt>\n";
    for ($i=0; $i < $incidents->length; $i++) {
+	   v_print(('Adding incident').LF, $verbosity);
 		$srcip=$dstip='';
 		
-		$res = $xpath->evaluate("IncidentID", $incidents->item($i));
+		$res = $xpath->evaluate("iodef:IncidentID", $incidents->item($i));
 		$id = preg_replace('/^#/', '', trim($res->item(0)->firstChild->wholeText));
 
-		$res = $xpath->evaluate("ReportTime", $incidents->item($i));
+		$res = $xpath->evaluate("iodef:ReportTime", $incidents->item($i));
 		$time = trim($res->item(0)->firstChild->wholeText);
 	
 		// IODEF does not have a real method of suggesting an incident type
 		// The closest element that I could find is Method/Descrption
-		$refs = $xpath->evaluate("Method/Description, $incidents->item($i));
+		$refs = $xpath->evaluate("iodef:Method/iodef:Description", $incidents->item($i));
 		$type='unspecified';
       for ($j=0; $j < $refs->length; $j++) {
 			if ($type=='unspecified') {
@@ -48,7 +54,7 @@ function filter_iodef($input, &$output, $verbosity=TRUE) {
 		   }
 		} // description (j)
 		
-		$contacts = $xpath->evaluate("Contact", $incidents->item($i));
+		$contacts = $xpath->evaluate("iodef:Contact", $incidents->item($i));
 		$contactname = 'unspecified';
 		$logging = '';
       for ($j=0; $j < $contacts->length; $j++) {
@@ -57,7 +63,7 @@ function filter_iodef($input, &$output, $verbosity=TRUE) {
 			   $role = 'unknown';
 			}
 
-			$res = $xpath->evaluate("Contact/Name", $contacts->item($j));
+			$res = $xpath->evaluate("iodef:Contact/iodef:Name", $contacts->item($j));
 			if ($res->length > 0) {
 				$name = trim($res->item(0)->firstChild->wholeText);
 
@@ -69,7 +75,7 @@ function filter_iodef($input, &$output, $verbosity=TRUE) {
 				}
 			}
 				
-			$res = $xpath->evaluate("Email", $contacts->item($j));
+			$res = $xpath->evaluate("iodef:Email", $contacts->item($j));
 			if ($res->length > 0) {
 				$email = trim($res->item(0)->firstChild->wholeText);
 
@@ -78,11 +84,11 @@ function filter_iodef($input, &$output, $verbosity=TRUE) {
 			}
 		} // contacts (j)
 		
-		$eventdata = $xpath->evaluate("EventData", $incidents->item($i));
+		$eventdata = $xpath->evaluate("iodef:EventData", $incidents->item($i));
       for ($j=0; $j < $eventdata->length; $j++) {
-			$flows = $xpath->evaluate("Flow", $eventdata->item($j));
+			$flows = $xpath->evaluate("iodef:Flow", $eventdata->item($j));
          for ($k=0; $k < $flows->length; $k++) {
-				$systems = $xpath->evaluate("System", $flows->item($k));
+				$systems = $xpath->evaluate("iodef:System", $flows->item($k));
 				$nsystems = count($systems);
 				
 				//create arrays to fill
@@ -96,22 +102,22 @@ function filter_iodef($input, &$output, $verbosity=TRUE) {
 
 					$systemcategory = $systems->item($m)->getAttribute('category');
 
-					$nodenames = $xpath->evaluate("Node/NodeName", $systems->item($m));
+					$nodenames = $xpath->evaluate("iodef:Node/iodef:NodeName", $systems->item($m));
                for ($n=0; $n < $nodenames->length; $n++) {
 						$nodename = trim($nodenames->item($n)->firstChild->textContent);
 					}
-					$nodeaddresses = $xpath->evaluate("Node/Address", $systems->item($m));
+					$nodeaddresses = $xpath->evaluate("iodef:Node/iodef:Address", $systems->item($m));
                for ($n=0; $n < $nodeaddresses->length; $n++) {
 						$addresscategory = $nodeaddresses->item($n)->getAttribute('category');
 						$nodeaddress = trim($nodeaddresses->item($n)->firstChild->textContent);
 					}
 
-					$services = $xpath->evaluate("Service", $systems->item($m));
+					$services = $xpath->evaluate("iodef:Service", $systems->item($m));
                for ($n=0; $n < $services->length; $n++) {
 						$ip_version = $services->item($n)->getAttribute('ip_version');
 						$ip_protocol = $services->item($n)->getAttribute('ip_protocol');
 						
-						$ports = $xpath->evaluate("Port", $services->item($n));
+						$ports = $xpath->evaluate("iodef:Port", $services->item($n));
                   for ($o=0; $o < $services->length; $o++) {
 							$nodeport = trim($ports->item($o)->firstChild->textContent);
 						}
@@ -136,9 +142,9 @@ function filter_iodef($input, &$output, $verbosity=TRUE) {
 			} // flow (k)
 
 			/* Logging is currently extracted from Record/RecordData */
-			$recorddata = $xpath->evaluate("Record/RecordData", $eventdata->item($j));
+			$recorddata = $xpath->evaluate("iodef:Record/iodef:RecordData", $eventdata->item($j));
          for ($k=0; $k < $recorddata->length; $k++) {
-				$recorditems = $xpath->evaluate("RecordItem", $recorddata->item($k));
+				$recorditems = $xpath->evaluate("iodef:RecordItem", $recorddata->item($k));
             for ($l=0; $l < $recorditems->length; $l++) {
 					$logging .= trim($recorditems->item($l)->firstChild->textContent);
 				}
