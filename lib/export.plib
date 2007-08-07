@@ -338,8 +338,22 @@ function BuildTree(&$doc, $res_array) {
 
 define('IODEFNS', 'http://iana.org/iodef');
 
-function exportIODEF($incidentid) {
+/** Generate an IODEF export string.
+ * @param \in $incidentid; numeric incident id of the incident to be exported
+ * @param \out $iodef; string containing the IODEF xml
+ * @param \out $status; string containing a status message
+ * @return true on success; false on failure;
+ */
+function exportIODEF($incidentid, &$iodef, &$status='') {
+   if (!is_numeric($incidentid)) {
+      $status = 'Invalid incident ID';
+      return false;
+   }
    $incident = getIncident($incidentid);
+   if ($incident === false) {
+      $status = 'Unknown incident ID';
+      return false;
+   }
 
    $doc = new DOMDocument();
 	$top = $doc->appendChild($doc->createElementNS(IODEFNS, 'iodef:IODEF-Document'));
@@ -374,7 +388,9 @@ function exportIODEF($incidentid) {
 	}
 	
 	$record = $eventdata->appendChild($doc->createElementNS(IODEFNS, 'iodef:Record'));
-	$record->appendChild($doc->createTextNode(htmlentities($incident['logging'])));
+   $recorddata = $record->appendChild($doc->createElementNS(IODEFNS, 'iodef:RecordData'));
+   $recorditem = $recorddata->appendChild($doc->createElementNS(IODEFNS, 'iodef:RecordItem'));
+	$recorditem->appendChild($doc->createTextNode(htmlentities($incident['logging'])));
 
 	$reporttime = $incident_el->appendChild($doc->createElementNS(IODEFNS, 'iodef:ReportTime'));
 	$reporttime->appendChild($doc->createTextnode(Date('c', $incident['created'])));
@@ -384,14 +400,16 @@ function exportIODEF($incidentid) {
 	$role->value='creator,irt';
 	$type = $contact->appendChild($doc->createAttribute('type'));
 	$type->value='organization';
+   $name = $contact->appendChild($doc->createAttribute('name'));
+   $name->value=htmlentities(ereg_replace('#$', '', INCIDENTID_PREFIX));
 
    $u = getUserByUserId($_SESSION["userid"]);
 	$name = $contact->appendChild($doc->createElementNS(IODEFNS, 'iodef:name'));
 	$name->appendChild($doc->createTextNode(htmlentities(sprintf("%s %s", $u["firstname"], $u["lastname"]))));
 	$email= $contact->appendChild($doc->createElementNS(IODEFNS, 'iodef:Email'));
-	$email->appendChild($doc->createTextNode(htmlentities(MAILFROM)));
+	$email->appendChild($doc->createTextNode(htmlentities(MAILENVFROM)));
 
-	return $doc->saveXML();
-	
-}
+	$iodef = $doc->saveXML();
+   return true;
+} // exportIODEF
 ?>

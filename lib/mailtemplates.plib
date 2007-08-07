@@ -626,7 +626,12 @@ function replace_vars($msg, $current=array()) {
                    array(0=>decode_incidentid($incidentid))));
      $out = ereg_replace('@XMLDATA@',$xmlData,$out);
 
-	  $out = ereg_replace('@IODEF@', exportIODEF(decode_incidentid($incidentid)), $out);
+     $iodef = $status ='';
+     if (exportIODEF(decode_incidentid($incidentid), $iodef, $status)) {
+	     $out = ereg_replace('@IODEF@', $iodef, $out);
+     } else {
+        $out = $status;
+     }
 
    }
 

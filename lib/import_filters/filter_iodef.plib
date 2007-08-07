@@ -16,7 +16,7 @@ function filter_iodef_getVersion() {
 }
 
 function filter_iodef($input, &$output, $verbosity=TRUE) {
-   if (preg_match('@(<\?xml version.*)@s', $input, $m) == 0) {
+   if (preg_match('@(<\?xml version.*</iodef:IODEF-Document>)@s', $input, $m) == 0) {
 	   print 'No IODEF data detected';
 	   return false;
 	}
@@ -56,7 +56,6 @@ function filter_iodef($input, &$output, $verbosity=TRUE) {
 		
 		$contacts = $xpath->evaluate("iodef:Contact", $incidents->item($i));
 		$contactname = 'unspecified';
-		$logging = '';
       for ($j=0; $j < $contacts->length; $j++) {
 			$role = $contacts->item($j)->getAttribute('role');
 			if ($role=='') {
@@ -69,9 +68,9 @@ function filter_iodef($input, &$output, $verbosity=TRUE) {
 
 				//merge contact names
 				if ($contactname == 'unspecified') {
-					$contactname = $name;
+					$contactname = htmlentities($name);
 				} else {
-					$contactname .= ", ".$name;
+					$contactname .= ", ".htmlentities($name);
 				}
 			}
 				
@@ -80,7 +79,7 @@ function filter_iodef($input, &$output, $verbosity=TRUE) {
 				$email = trim($res->item(0)->firstChild->wholeText);
 
 				//add e-mail address
-				if ($email) $contactname .= "(".$email.")";
+				if ($email) $contactname .= "(".htmlentities($email).")";
 			}
 		} // contacts (j)
 		
@@ -143,6 +142,7 @@ function filter_iodef($input, &$output, $verbosity=TRUE) {
 
 			/* Logging is currently extracted from Record/RecordData */
 			$recorddata = $xpath->evaluate("iodef:Record/iodef:RecordData", $eventdata->item($j));
+		   $logging = '';
          for ($k=0; $k < $recorddata->length; $k++) {
 				$recorditems = $xpath->evaluate("iodef:RecordItem", $recorddata->item($k));
             for ($l=0; $l < $recorditems->length; $l++) {

@@ -28,7 +28,12 @@ require_once LIBDIR.'/export.plib';
 require_once LIBDIR.'/incident.plib';
 
 Header('Content-Type: application/xml');
-print exportIODEF(123);
+$iodef=$status='';
+if (exportIODEF(123, $iodef, $status)) {
+    print $iodef;
+} else {
+    print "Failed to get IODEF: $status";
+}
 exit;
 
 $selection = array();
