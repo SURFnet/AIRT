@@ -29,18 +29,13 @@ function filter_mynetwatchman_getVersion() {
 	return $rev[1];
 }
 
-/*
-Event Date Time, Destination IP, IP Protocol, Target Port, Issue Description, So
-urce Port, Event Count
-
-EventRecord: 13 Jul 2005 13:24:41, 137.56.x.x, 6, 1025, Lsass Vulnerability, 424
-1, 3
-*/
-
 function filter_mynetwatchman($input, &$output, $verbosity=FALSE) {
    $matches = array();
    $data = array();
-   $source = $logdate = $log = '';
+   $source = $logdate = $log;
+   if (preg_match('/^(myNetWatchman Incident.*)$/ms', $input, $matches) > 0) {
+      $data['logging'] = $matches[1];
+   }
    if (preg_match('/^Source IP: ([0-9.]+) LastEvent: (.*)$/m', $input, $matches)) {
       $data['srcip'] = $matches[1];
       $data['datetime'] = $matches[2];
@@ -70,9 +65,6 @@ function filter_mynetwatchman($input, &$output, $verbosity=FALSE) {
       foreach ($matches[8] as $key=>$value) {
          $data[$key]['count'] = $value;
       }
-      foreach ($matches[0] as $key=>$value) {
-         $data[$key]['logging'] = $value;
-      }
    }
    $trackingurl = $detailurl = '';
    if (preg_match('|(http://www.mynetwatchman.com/UI.asp.*)\s|m', $input, $matches)) {
@@ -98,12 +90,7 @@ function filter_mynetwatchman($input, &$output, $verbosity=FALSE) {
    $output .="      <ip>".$data['srcip']."</ip>\n";
    $output .="      <incident_time>".$data['datetime']."</incident_time>\n";
    $output .="      <logging>";
-   foreach ($data as $in) {
-      if (!is_array($in)) continue;
-      $output .= htmlentities($in[logging])."\n";
-   }
-   $output .= "\nDetails for this incident at:\n    ".htmlentities($detailurl)."\n";
-   $output .= "\nUpdate the status of this incident at:\n ".htmlentities($trackingurl)."\n";
+   $output .= htmlentities($data['logging']);
    $output .="      </logging>";
    $output .="   </technicalInformation>\n";
    $output .="  </incident>\n";
