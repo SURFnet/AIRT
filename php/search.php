@@ -182,8 +182,10 @@ function search_host($hostname='') {
    }
    print '</div>'.LF;
 
+/*
    print '<H2>'._('New Search').'</H2>'.LF;
    showSearch($qtype);
+*/
 
    // call user-defined search function. Must print in unformatted layout
    // additional info about hostname needed to make a decision.
@@ -246,7 +248,7 @@ function search_incident($incidentid) {
               '<td>%state</td><td>%ip</td><td>%host</td><td>%extids</td></tr>', array(
          '%url'=>'incident.php',
          '%id'=>$h['incidentid'],
-         '%c'=>($c++ % 2 == 0) ? '#FFFFFF' : '#DDDDDD',
+         '%c'=>($count++ % 2 == 0) ? '#FFFFFF' : '#DDDDDD',
          '%incidentid'=>normalize_incidentid($h['incidentid']),
          '%type'=>getIncidentTypeDescr($h['type']),
          '%status'=>getIncidentStatusDescr($h['status']),

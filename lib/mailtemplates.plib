@@ -351,8 +351,12 @@ function prepare_message($template, $agenda=array(), $to=array()) {
       $template = getPreferredMailTemplateName($current['incidentid']);
    }
    print _('Using mail template <em>').htmlentities($template).'</em><br/>'.LF;
-
    $msgdata = expand_template($template, $current);
+   /* look for receiver override */
+   if (preg_match('/@TO@(.*)@ENDTO@/', $msgdata['body'], $matches) > 0) {
+      $msgdata['receiver'] = $matches[1];
+      $msgdata['body'] = preg_replace('/@TO@(.*)@ENDTO@/', '', $msgdata['body']);
+   }
 
    generateEvent('premailtemplate', array(
     'to'=>$msgdata['receiver'],
@@ -477,6 +481,11 @@ function print_variables_info() {
    $out .= '    <td>@YOURNAME@</td>'.LF;
    $out .= '    <td>'._('Will be replaced with the full name of the logged in incident handler').'</td>'.LF;
    $out .= '</tr>'.LF;
+   $out .= '<tr>'.LF;
+   $out .= '    <td>@TO@..@ENDTO@</td>'.LF;
+   $out .= '    <td>'._('Will override the To: header with the given value').'</td>'.LF;
+   $out .= '</tr>'.LF;
+
    $out .= '</table>'.LF;
    print $out;
 }

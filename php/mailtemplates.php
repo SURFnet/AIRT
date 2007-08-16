@@ -265,6 +265,7 @@ special variables in the template:').'<p>'.LF;
       $to = fetchFrom('POST', 'to');
       if (empty($to)) {
          airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
+         airt_error(_('No receiver specified (to: field is missing'));
          reload();
          return;
       }
