@@ -79,6 +79,24 @@ function filter_acns($input, &$output, $verbosity=FALSE) {
      $sender = $xp->item(0)->textContent;
   }
 
+  $compl_ent = $compl_contact = $compl_address = $compl_phone = '';
+  $xp = $xpath->evaluate('/Infringement/Complainant/Entity');
+  if ($xp->length > 0) {
+     $compl_ent = $xp->item(0)->textContent;
+  }
+  $xp = $xpath->evaluate('/Infringement/Complainant/Contact');
+  if ($xp->length > 0) {
+     $compl_contact = $xp->item(0)->textContent;
+  }
+  $xp = $xpath->evaluate('/Infringement/Complainant/Address');
+  if ($xp->length > 0) {
+     $compl_address = $xp->item(0)->textContent;
+  }
+  $xp = $xpath->evaluate('/Infringement/Complainant/Phone');
+  if ($xp->length > 0) {
+     $compl_phone = $xp->item(0)->textContent;
+  }
+
   // fetch source
   $srcip = $srcname = $datetime = '';
   $xp = $xpath->evaluate('/Infringement/Source/IP_Address', $dom);
@@ -94,12 +112,18 @@ function filter_acns($input, &$output, $verbosity=FALSE) {
 		$dt = $xp->item(0)->textContent;
       $datetime = parse_semi_iso8601($dt);
   }
-  
+
   $summary = 'Notice ID: '.$nodeid.LF;
   $summary .= 'Recent Infringement Timestamp:'.Date('r', $datetime).LF;
   $summary .= 'Infringing IP Address:'.$srcip.LF;
   $summary .= 'Infringing DNS Name:'.$srcname.LF;
-  $summary .= 'Protocol:'.$type.LF;
+  $summary .= 'Protocol:'.$type.LF.LF;
+
+  $summary .= 'Complainant Entity:'.$compl_ent.LF;
+  $summary .= 'Complainant Contact:'.$compl_contact.LF;
+  $summary .= 'Complainant Address:'.$compl_address.LF;
+  $summary .= 'Complainant Phone:'.$compl_phone.LF;
+  $summary .= 'Complainant Email:'.$sender.LF.LF;
 
   // fetch items
   $items = array();
