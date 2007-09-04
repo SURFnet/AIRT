@@ -402,16 +402,24 @@ function getIncident($id) {
  */
 function addIPtoIncident($ip, $incident,$role=0) {
    if (!is_numeric($incident)) {
+      airt_profile('addIPtoIncident: Incident ID is not numeric');
       return false;
    }
+
    if (!is_numeric($role)) {
+      airt_profile('addIPtoIncident: Role is not numeric');
       return false;
    }
+
    $networkid = categorize($ip);
    if (defined('CUSTOM_FUNCTIONS') && function_exists("custom_categorize")) {
       $networkid = custom_categorize($ip, $networkid);
    }
+   airt_profile('addIPtoIncident: networkid = '.$networkid);
+
    $constituencyID = getConstituencyIDbyNetworkID($networkid);
+   airt_profile('addIPtoIncident: constituency = '.$constituencyID);
+
    $hostname = @gethostbyaddr($ip);
    $_SESSION['active_ip'] = $ip;
 

@@ -85,6 +85,7 @@ class IncidentHandling {
    function RequestAuthentication($auth_request) {
       $dom = '';
       $doc = new DOMDocument();
+      airt_profile('RequestAuthentication: parsing request');
       $dom = $doc->loadXML($auth_request);
       if (!$dom) {
          $error = 'Could not parse XML document';
@@ -109,12 +110,15 @@ class IncidentHandling {
       $username = $username_element->item(0)->textContent;
       $password = $password_element->item(0)->textContent;
 
+      airt_profile('RequestAuthentication: authenticating user');
       $userid = airt_authenticate($username,$password);
       if ($userid == -1) {
+         airt_profile('RequestAuthentication: credentials refused');
          $error = 'Permission denied';
          return $error;
          exit;
       }
+      airt_profile('RequestAuthentication: credentials accepted');
 
       // generate a new random id
       $ticketid = genRandom();
@@ -162,12 +166,15 @@ class IncidentHandling {
          return $error;
          exit;
       }
+airt_profile('parsed');
 
       if ($doc->hasChildNodes() == false) {
          $error = 'XML does not contain any elements';
          return $error;
          exit;
       }
+
+airt_profile('xml ok');
 
       // check the credentials
       $message_ident_el = $doc->getElementsByTagname('messageIdentification');
@@ -176,6 +183,8 @@ class IncidentHandling {
          return $error;
          exit;
       }
+
+airt_profile('identification ok');
 
       if ($message_ident_el->length > 0) {
          $ticket_el = $message_ident_el->item(0)->getElementsByTagname('TicketID');
@@ -193,6 +202,8 @@ class IncidentHandling {
          }
       }
 
+airt_profile('Credentials ok');
+
       // get defaults
       if (!defined('WS_IMPORT_DEFAULTSTATE')) {
          $state = getIncidentStateDefault();
@@ -207,16 +218,23 @@ class IncidentHandling {
          }
       }
 
+airt_profile('State: '.$state);
+
       $status = getIncidentStatusDefault();
       if($status == null) {
          setIncidentStatusDefault();
          $status = getIncidentStatusDefault();
       }
+
+airt_profile('Status: '.$status);
+
       $type = getIncidentTypeDefault();
       if($type == null) {
          setIncidentTypeDefault();
          $type = getIncidentTypeDefault();
       }
+
+airt_profile('Type: '.$type);
 
       // parse incident data
       $incidents = $doc->getElementsByTagname('incident');
@@ -291,9 +309,14 @@ class IncidentHandling {
          } // end technicalInformation
       } // end incident
 
+airt_profile('Incident data parsed');
+
       // generate an incident id
       $incidentid[$i] = createIncident($state,$status,$type,'',$logging);
+airt_profile('Incident '.$incidentid[$i].' created');
+
       addIPtoIncident($address,$incidentid[$i],$addressrole);
+airt_profile('IP addresses added');
 
       $networkid = categorize($address);
       $constituencyID = getConstituencyIDbyNetworkID($networkid);
@@ -301,12 +324,17 @@ class IncidentHandling {
       foreach ($contacts as $id=>$data) {
          addUserToIncident($data['userid'], $incidentid[$i]);
       }
+airt_profile('Users added');
+
       if ($mailtemplate != '' && $mailtemplate != _('No preferred template')) {
          setPreferredMailTemplateName($incidentid[$i], $mailtemplate);
          addIncidentComment('Import queue set preferred template to: '.$mailtemplate, $incidentid[$i]);
       }
 
+airt_profile('Template added');
+
       if ($error == null) {
+         airt_profile('Success');
          $error = 'Import successful. Imported incident with id ';
          foreach ($incidentid as $i => $id)
             $id_list .= "$id, ";

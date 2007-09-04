@@ -396,10 +396,13 @@ function queueFormatItems() {
 function queueToAIRT($id, &$error, $mailtemplate='') {
    global $AIRT_CURL_OPTIONS;
    $saml_ticket = '';
+   airt_profile('queueToAIRT: fetching SAML ticket');
    $saml_ticket = getSAMLTicket();
+   airt_profile($saml_ticket);
    $saml_ticket = preg_replace('/xmlns:="urn:oasis:names:tc:SAML:1.0:assertion"/','',$saml_ticket);
    $saml_ticket = preg_replace('/xmlns:ds="http:\/\/www.w3.org\/2000\/09\/xmldsig#"/','',$saml_ticket);
    $saml_ticket = preg_replace('/ds:/','',$saml_ticket);
+   airt_profile('queueToAIRT: got SAML ticket');
    $doc = new DOMDocument();
    $dom = $doc->loadXML($saml_ticket);
    if ($dom == true) {
@@ -482,7 +485,7 @@ function queueToAIRT($id, &$error, $mailtemplate='') {
  */
 function getSAMLTicket() {
    global $AIRT_CURL_OPTIONS;
-
+   airt_profile('getSAMLTicket: start');
    // Build the XML-format for auth-request
    $doc = new DOMDocument();
    $auth = $doc->appendChild($doc->createElement('authentication'));
@@ -504,14 +507,18 @@ function getSAMLTicket() {
    foreach ($AIRT_CURL_OPTIONS as $key=>$value) {
       $airt_client->setOpt('curl', $key, $value);
    }
+   airt_profile('getSAMLTicket: calling web service');
    $ans = $airt_client->call($method, $params);
+
    if (PEAR::isError($ans)) {
-      print '<pre>';
-      return "SOAP Error";
+      echo '<pre>';
+      echo "SOAP Error:";
       print_r($ans->getFault());
       print '</pre>';
-      return;
+      airt_profile('getSAMLTicket: fail-end');
+      exit;
    } else {
+      airt_profile('getSAMLTicket: success-end');
       return $ans;
    }
 }
