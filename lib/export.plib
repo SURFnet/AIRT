@@ -404,7 +404,7 @@ function exportIODEF($incidentid, &$iodef, &$status='') {
    $name->value=htmlentities(ereg_replace('#$', '', INCIDENTID_PREFIX));
 
    $u = getUserByUserId($_SESSION["userid"]);
-	$name = $contact->appendChild($doc->createElementNS(IODEFNS, 'iodef:name'));
+	$name = $contact->appendChild($doc->createElementNS(IODEFNS, 'iodef:Name'));
 	$name->appendChild($doc->createTextNode(htmlentities(sprintf("%s %s", $u["firstname"], $u["lastname"]))));
 	$email= $contact->appendChild($doc->createElementNS(IODEFNS, 'iodef:Email'));
 	$email->appendChild($doc->createTextNode(htmlentities(MAILENVFROM)));

@@ -14,6 +14,6 @@ doc_DATA = 00-CHANGES.sql airtbootstrap.sql airtschema.sql import_queue.sql \
 	20060322.1.sql 20060324.1.sql 20060329.1.sql 20060512.1.sql 20060515.1.sql \
 	20060726.1.sql 20060807.1.sql 20060810.1.sql 20061129.1.sql 20061206.1.sql \
 	20070531.1.sql 20070601.1.sql 20070611.1.sql 20070621.1.sql 20070705.1.sql \
-	20070731.1.sql
+	20070731.1.sql 20070905.1.sql
 
 EXTRA_DIST = $(doc_DATA)

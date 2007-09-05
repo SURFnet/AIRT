@@ -62,7 +62,7 @@ function filter_iodef($input, &$output, $verbosity=TRUE) {
 			   $role = 'unknown';
 			}
 
-			$res = $xpath->evaluate("iodef:Contact/iodef:Name", $contacts->item($j));
+			$res = $xpath->evaluate("iodef:Name", $contacts->item($j));
 			if ($res->length > 0) {
 				$name = trim($res->item(0)->firstChild->wholeText);
 
