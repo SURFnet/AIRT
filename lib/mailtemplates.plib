@@ -570,6 +570,8 @@ function replace_vars($msg, $current=array()) {
    $oo = '';
    foreach ($open as $c) {
       foreach ($c as $i) {
+         if ($i == $incidentid) continue; // skip current incident
+
          $incident = getIncident($i);
          $oo .= sprintf('%15s %s'.LF, normalize_incidentid($incident['incidentid']),
             getIncidentTypeLabelById($incident['type']));
