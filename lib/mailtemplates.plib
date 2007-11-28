@@ -321,6 +321,21 @@ function expand_template($template, $current) {
    return $output;
 }
 
+/** Obtain buttons for the 'prepare message' screen
+ * \param [in] $agenda; agenda of actions to take
+ * \param [out] string containing HTML
+ */
+function template_buttons($agenda) {
+   $out = '';
+   $out .= '<input type="reset"  value="'._('Reset').'">'.LF;
+   $out .= '<input type="submit" name="action" value="'._('Send').'">'.LF;
+   if (sizeof($agenda) > 0) {
+      $out .= '<input type="submit" name="action" value="'._('Send and prepare next').'">'.LF;
+      $out .= '<input type="submit" name="action" value="'._('Skip and prepare next').'">'.LF;
+   }
+   return $out;
+}
+
 
 /* Expand a message, based on a template.
  */
@@ -371,6 +386,9 @@ function prepare_message($template, $agenda=array(), $to=array()) {
    $out .= '<TR>'.LF;
    $out .= '<TD>'._('To:').'</TD>'.LF;
    $out .= '<TD><INPUT TYPE="text" size="50" name="to" value="'.$msgdata['receiver'].'"></TD>'.LF;
+   $out .= '<TD rowspan="4" VALIGN="top">'.LF;
+   $out .= template_buttons($agenda);
+   $out .= '</TD>'.LF;
    $out .= '</TR>'.LF;
    $out .= '<TR>'.LF;
    $out .= '<TD>'._('Subject:').'</TD>'.LF;
@@ -385,7 +403,7 @@ function prepare_message($template, $agenda=array(), $to=array()) {
    $out .= '<TD><INPUT TYPE="text" size="50" name="replyto" value="'.$msgdata['replyto'].'"></TD>'.LF;
    $out .= '</TR>'.LF;
    $out .= '</TABLE>'.LF;
-   $out .= '<TEXTAREA name="msg" cols="80" rows="30">'.$msgdata['body'].'</TEXTAREA>'.LF;
+   $out .= '<TEXTAREA name="msg" cols="80" rows="25">'.$msgdata['body'].'</TEXTAREA>'.LF;
    $out .= '<P>'.LF;
    $out .= '<input type="hidden" name="agenda" value="'.$agendaval.'">'.LF;
    if ($usepref) {
@@ -395,13 +413,8 @@ function prepare_message($template, $agenda=array(), $to=array()) {
       $out .= '<input type="hidden" name="template" value="'.$template.'">'.LF;
    }
    $out .= '<input type="hidden" name="incidentid" value="'.$current['incidentid'].'">'.LF;
-   $out .= '<input type="reset"  value="'._('Reset').'">'.LF;
-   $out .= '<input type="submit" name="action" value="'._('Send').'">'.LF;
+   $out .= template_buttons($agenda);
    print $out;
-   if (sizeof($agenda) > 0) {
-      print '<input type="submit" name="action" value="'._('Send and prepare next').'">'.LF;
-      print '<input type="submit" name="action" value="'._('Skip and prepare next').'">'.LF;
-   }
    if (defined('GPG_KEYID')) {
       print '<input type="checkbox" name="sign" checked> '._('Sign').LF;
    }
