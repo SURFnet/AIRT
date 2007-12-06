@@ -294,8 +294,6 @@ function expand_template($template, $current) {
       } else {
          $output['receiver'] = $current['email'];
       }
-   } elseif (array_key_exists('current_email', $_SESSION)) {
-      $output['receiver'] = $current['current_email'];
    } else {
       $output['receiver'] = '';
    }
@@ -337,7 +335,16 @@ function template_buttons($agenda) {
 }
 
 
-/* Expand a message, based on a template.
+/* prepare a message for sending.
+ * \param $template [in] Mail template to expand
+ * \param $agenda [in] Array containing incidentids for which to send mail
+ * \param $to [in] List containing a subset of email addresses associate with
+ * the current incident. If set, only these addresses will be mailed
+ *
+ * Note: this function will also inspect $_SESSION['current_email'] for 
+ * additional email recipients
+ *
+ * \return nothing
  */
 function prepare_message($template, $agenda=array(), $to=array()) {
    $current = array('user'=>'', 'name'=>'', 'email'=>'', 
@@ -346,7 +353,12 @@ function prepare_message($template, $agenda=array(), $to=array()) {
    pageHeader(_('Send message from template.'));
    $current['incidentid'] = $agenda[0];
    unset($agenda[0]);
+
+   // fetch data from incident
    $incident = getIncident($current['incidentid']);
+
+   // allow for sending mail to a subset of the users associated with the
+   // incident
    if (sizeof($incident['users']) > 0) {
       foreach ($incident['users'] as $uid) {
          $user = getUserByUserID($uid);
@@ -356,6 +368,16 @@ function prepare_message($template, $agenda=array(), $to=array()) {
          }
       }
    }
+
+   // if additional receivers are specified in the session, add those
+   if (array_key_exists('current_email', $_SESSION)) {
+      if (is_array($_SESSION['current_email'])) {
+         $current['email'] = array_merge($current['email'], $_SESSION['current_email']);
+      } else {
+         $current['email'][] = $_SESSION['current_email'];
+      }
+   }
+
    if (sizeof($incident['ips']) > 0) {
       $current['ip'] = $incident['ips'][0]['ip'];
       $current['hostname'] = $incident['ips'][0]['hostname'];
@@ -539,9 +561,13 @@ function replace_vars($msg, $current=array()) {
    }
 
    if (array_key_exists('email', $current)) {
-      $email = $current['email'];
-   } elseif ($array_key_exists('current_email', $_SESSION)) {
-      $email = $_SESSION['current_email'];
+      if (is_array($current['email'])) {
+         $email = implode(',', $current['email']);
+      } else {
+         $email = $current['email'];
+      }
+   } else {
+      $email = '';
    }
 
    if (isset($ipaddress)) {
