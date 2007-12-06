@@ -314,7 +314,8 @@ special variables in the template:').'<p>'.LF;
          'From'     => $from,
          'Subject'  => $subject,
          'To'       => $to,
-         'X-Mailer' => 'AIRT $Revision$ http://www.airt.nl'
+         'X-Mailer' => 'AIRT $Revision$ http://www.airt.nl',
+         'MIME-Version' => '1.0',
       );
       if ($replyto != '') {
           $hdrs['Reply-To'] = $replyto;
