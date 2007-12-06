@@ -106,12 +106,14 @@ switch ($action) {
 
             printf('
 <tr>
+    <td><a href="%susers.php?action=edit&id=%s">edit</a></td>
     <td>%s (%s, %s)</td>
     <td><a href="mailto:%s">%s</a></td>
     <td>%s</td>
     <td><a href="%s?action=remove&cons=%s&user=%s">'._('Remove').'</a>
 	</td>
 </tr>',
+            BASEURL, urlencode($id),
             $login, $lastname, $firstname,
             $email, $email,
             $phone, $_SERVER['PHP_SELF'], $consid, $id);
