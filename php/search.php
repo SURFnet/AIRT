@@ -1,7 +1,7 @@
 <?php
 /* vim: syntax=php tabstop=3 shiftwidth=3
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
- * Copyright (C) 2004,2005	Tilburg University, The Netherlands
+ * Copyright (C) 2004-2008   Tilburg University, The Netherlands
 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -302,7 +302,6 @@ function mask_ok ($matches) {
 function mask_limits($matches) {
 
    if ($matches[5] < 9) {
-
       $width      = 8-$matches[5];
       $matches[1] = $matches[1] - ($matches[1] % pow(2,$width));
 
@@ -314,13 +313,11 @@ function mask_limits($matches) {
       $postmin = ".0.0.0";
       $postmax = ".255.255.255";
       $postlike = ".%.%.%";
-
    } else if ($matches[5] < 17) {
-
-      $width      = 16-$matches[5];      
+      $width      = 16-$matches[5];
       $matches[2] = $matches[2] - ($matches[2] % pow(2,$width));
 
-      $span       = pow(2,$width) - 1; 
+      $span       = pow(2,$width) - 1;
 
       $min = $matches[2];
       $max = $min + $span;
@@ -328,13 +325,11 @@ function mask_limits($matches) {
       $postmin = ".0.0";
       $postmax = ".255.255";
       $postlike = ".%.%";
-      
    } else if ($matches[5] < 25) {
-
       $width      = 24-$matches[5];
       $matches[3] = $matches[3] - ($matches[3] % pow(2,$width));
 
-      $span       = pow(2,$width) - 1; 
+      $span       = pow(2,$width) - 1;
 
       $min = $matches[3];
       $max = $min + $span;
@@ -342,10 +337,8 @@ function mask_limits($matches) {
       $postmin = ".0";
       $postmax = ".255";
       $postlike = ".%";
-
    } else {
-
-      $width      = 32-$matches[5];      
+      $width      = 32-$matches[5];
       $matches[4] = $matches[4] - ($matches[4] % pow(2,$width));
 
       $span       = pow(2,$width) - 1; 
@@ -356,9 +349,8 @@ function mask_limits($matches) {
       $postmin = "";
       $postmax = "";
       $postlike = "";
-
    }
-  
+
    return(array($min,$max,$pre,$postmin,$postmax,$postlike));
 
 } //mask_limits
@@ -368,11 +360,9 @@ function mask_limits($matches) {
  * \param [in] $mask: IP range to search within.
  */
 function search_zoom($mask) {
-  
    preg_match("/(\d+)\.(\d+)\.(\d+)\.(\d+)\/(\d+)/",$mask,$matches);
 
    if (mask_ok($matches)) {
-
       $limits = mask_limits($matches);
 
       $min      = $limits[0];
@@ -384,41 +374,28 @@ function search_zoom($mask) {
 
       $where_clause = "";
 
-      pageHeader(_("Search results from $pre$min$postmin to $pre$max$postmax"));   
+      pageHeader(_("Search results from $pre$min$postmin to $pre$max$postmax"));
 
-      if ($min < 10)
-      {
-         if ($max < 10)
-         {
-	    $where_clause  = "a.ip between '$pre$min$postmin' and '$pre$max$postmax' AND a.ip like '$pre"."_$postlike'\n";
-	 }
-         else if (9 < $max && $max < 100)
-	 {
-            $where_clause  = "((a.ip between '$pre$min$postmin' and '$pre"."9$postmax' AND a.ip like '$pre"."_$postlike')\n";
+      if ($min < 10) {
+         if ($max < 10) {
+       $where_clause  = "a.ip between '$pre$min$postmin' and '$pre$max$postmax' AND a.ip like '$pre"."_$postlike'\n";
+         } else if (9 < $max && $max < 100) {
+      $where_clause  = "((a.ip between '$pre$min$postmin' and '$pre"."9$postmax' AND a.ip like '$pre"."_$postlike')\n";
             $where_clause .= "OR (a.ip between '$pre"."10$postmin' and '$pre$max$postmax' AND a.ip like '$pre"."__$postlike'))\n";
-	 }
-         else if (99 < $max)
-	 {
-	    $where_clause  = "((a.ip between '$pre$min$postmin' and '$pre"."9$postmax' AND a.ip like '$pre"."_$postlike')\n";
+         } else if (99 < $max) {
+       $where_clause  = "((a.ip between '$pre$min$postmin' and '$pre"."9$postmax' AND a.ip like '$pre"."_$postlike')\n";
             $where_clause .= "OR (a.ip between '$pre"."10$postmin' and '$pre"."99$postmax' AND a.ip like '$pre"."__$postlike')\n";
             $where_clause .= "OR (a.ip between '$pre"."100$postmin' and '$pre$max$postmax' AND a.ip like '$pre"."___$postlike'))\n";
-	 }
-      }
-      else if (9 < $min && $min < 100)
-      {
-         if ($max < 100)
-         {
-            $where_clause  = "a.ip between '$pre$min$postmin' and '$pre$max$postmax' AND a.ip like '$pre"."__$postlike'\n";
          }
-         else
-	 {
+      } else if (9 < $min && $min < 100) {
+         if ($max < 100) {
+            $where_clause  = "a.ip between '$pre$min$postmin' and '$pre$max$postmax' AND a.ip like '$pre"."__$postlike'\n";
+         } else {
             $where_clause  = "((a.ip between '$pre$min$postmin' and '$pre"."99$postmax' AND a.ip like '$pre"."__$postlike')\n";
             $where_clause .= "OR (a.ip between '$pre"."100$postmin' and '$pre$max$postmax' AND a.ip like '$pre"."___$postlike'))\n";
-         } 
-      }
-      else
-      {
-	 $where_clause = "a.ip between '$pre$min$postmin' and '$pre$max$postmax' AND a.ip like '$pre"."___$postlike'\n";
+         }
+      } else {
+    $where_clause = "a.ip between '$pre$min$postmin' and '$pre$max$postmax' AND a.ip like '$pre"."___$postlike'\n";
       }
 
       $res = db_query("
@@ -439,7 +416,7 @@ function search_zoom($mask) {
          AND     i.type = t.id
          ORDER BY incidentid")
          or die("Unable to query.");
-    
+
       if (db_num_rows($res)) {
          print '<table cellpadding="3">'.LF;
          print '<tr>'.LF;
@@ -471,7 +448,6 @@ function search_zoom($mask) {
       } else {
          echo "<I>"._('No incidents within this range')."</I>";
       }
-
    } else {
    echo "<I>$mask "._('is not a correct netmask, 123.45.67.89/22 for instance is')."</I>";
    }
@@ -488,8 +464,8 @@ function search_zoom($mask) {
  */
 function do_search_email($email='', &$results) {
    $results = array();
-   $userids=array();
-   if ($email == '') {
+   $userids = array();
+   if ($empy(email)) {
       return 1;
    }
    /* find all matching user ids */
@@ -512,7 +488,7 @@ function do_search_email($email='', &$results) {
    }
    // fetch corresponding incidentids
    $res = db_query(q('select incidentid from incident_users where userid in (%userids) order by incidentid', array('%userids'=>implode($userids, ','))));
-   if (!$res) {
+   if ($res === false) {
       return 1;
    }
    while ($row = db_fetch_next($res)) {
@@ -579,8 +555,8 @@ switch ($action) {
    // ------------------------------------------------------------------
    case _("Search"):
    case "search":
-		unset($_SESSION["current_name"]);
-		unset($_SESSION["current_email"]);
+      unset($_SESSION["current_name"]);
+      unset($_SESSION["current_email"]);
       if (array_key_exists('qtype', $_REQUEST)) {
          $qtype = $_REQUEST['qtype'];
       } else {
