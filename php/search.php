@@ -589,6 +589,7 @@ switch ($action) {
             echo _('Unknown query type');
       }
 
+// jfkldjfdsjlkfdjfds l
       print '<input type="submit" name="action" value="'._('New incident').'">'.LF;
       print '</form>'.LF;
       print '<P>'.LF;
