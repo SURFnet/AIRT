@@ -59,7 +59,11 @@ function showheader($data) {
   } else {
       $name = $u['firstname'].' '.$u['lastname'];
   }
-
+  if (array_key_exists('username', $_SESSION)) {
+      $username=$_SESSION['username'];
+  } else {
+      $username=_('Unknown');
+  }
   echo <<<EOF
 <html>
 <head>
@@ -75,18 +79,14 @@ function checkKeys(event) {
 
 <body onKey="checkKeys()">
 <div class="title">$data[title]</div>
-<div class="userinfo">$name ($_SESSION[username])</div>
+<div class="userinfo">$name ($username)</div>
 <div class="navbar">$navbar</div>
 <div class="content">
 EOF;
 }
 
 function showfooter($data) {
-    $VERSION=AIRT_VERSION;
   echo <<<EOF
-</div>
-<div class="footer">
-AIRT version $VERSION &copy; 2007
 </div>
 </body>
 </html>
