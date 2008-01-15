@@ -564,7 +564,7 @@ switch ($action) {
          $qtype = 'host';
       }
       if (array_key_exists('q', $_REQUEST)) {
-         $q = trim($_REQUEST['q']);
+         $q = strip_tags(trim($_REQUEST['q']));
       } else {
          airt_error('PARAM_MISSING', 'search.php:'.__line__);
          Header($_SERVER['PHP_SELF']);
