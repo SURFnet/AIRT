@@ -342,10 +342,6 @@ special variables in the template:').'<p>'.LF;
       $msg_params['content_type'] = 'multipart/mixed';
       $msg_params['disposition'] = 'inline';
 
-      $body_params = array();
-      $body_params['content_type'] = 'text/plain';
-      $body_params['disposition'] = 'inline';
-      $body_params['charset'] = 'us-ascii';
 
       $attachcount=0;
 
@@ -353,30 +349,58 @@ special variables in the template:').'<p>'.LF;
          $msg_params['content_type'] = 'text/plain';
          unset($msg_params['disposition']);
          $mime = new Mail_mimePart($msg, $msg_params);
-      } else  {
+         $m = $mime->encode();
+      } else {
          // pgp signed messages are described in RFC 2015
          $msg_params['content_type'] = 'multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"';
-         $mime = new Mail_mimePart('', $msg_params);
+         $mime = new Mail_mimePart('This is an OpenPGP/MIME signed message (RFC2440 and 3156)', $msg_params);
 
-         // MIME encoding requires CR/LF
+         // MIME encoding requires CR/LF; see RFC2015
          $msg = explode("\n",$msg);
          $msg = implode("\r\n",$msg);
+
+         $body_params = array();
+         $body_params['content_type'] = 'text/plain';
+         // $body_params['disposition'] = 'inline';
+         $body_params['charset'] = 'ISO-8859-1';
          $mime->addsubpart($msg, $body_params);
 
+         /* message signature */
+         $sig_params = array();
+         $sig_params['content_type'] = 'application/pgp-signature; name="signature.asc"';
+         $sig_params['disposition'] = 'attachment; filename=" signature.asc"';
+         $sig_params['description'] = _('Digital signature');
+         $mime->addsubpart('@AIRT-SIGNATURE@', $sig_params);
+         $m = $mime->encode();
+
+         // now generate the signature and replace placeholder
+         // 1. Extract the delimiter string
+         $disp = explode(';', $m['headers']['Content-Type']);
+         if (preg_match('/="(.*)"$/', $disp[3], $match) > 0) {
+            $delimiter = $match[1];
+         } else {
+            $delimiter = 'XXX'; // this means MIME is broken!
+         }
+
+         // 2. Extract the main body part
+         $body = $m['body'];
+         $msg = split('--'.$delimiter, $body);
+         $msgbody = $msg[1];
+
+         // 3. Sign the main body part and capture the signature
          // create mime-body and remove delimiting lines. RFC 2015 requires
          // that the message is signed, including its MIME headers
-         $tmpmime=$mime;
-         $m = $tmpmime->encode();
-         unset($tmpmime);
-         $m = explode("\r\n", $m['body']);
-         $m = array_slice($m, 1, -2);
-         $m = implode("\r\n", $m);
+         $mb = explode("\r\n", $msgbody);
+         $mb = array_slice($mb, 1, -2);
+         $mb = implode("\r\n", $mb);
 
          /* write msg to temp file */
          $fname = tempnam('/tmp', 'airt_');
          $f = fopen($fname, 'w');
-         fwrite($f, $m, strlen($m));
+         fwrite($f, $mb, strlen($mb));
          fclose($f);
+
+         // 4. update the footer
 
          /* invoke gpg */
          $cmd = sprintf("%s %s --homedir %s --default-key %s %s",
@@ -389,20 +413,15 @@ special variables in the template:').'<p>'.LF;
          /* clean up */
          unlink($fname);
          unlink("$fname.asc");
-
-         /* message signature */
-         $sig_params = array();
-         $sig_params['content_type'] = 'application/pgp-signature';
-         $sig_params['disposition'] = 'inline';
-         $sig_params['description'] = _('Digital signature');
-         $sig_params['dfilename'] = 'signature.asc';
-         $mime->addsubpart($sig, $sig_params);
+         $s = explode("\n", $sig);
+         $sig = implode("\r\n", $s);
+         unset($s);
+         preg_replace("/@AIRT-SIGNATURE@/", $sig, $body);
       }
-      $m = $mime->encode();
 
       $mail = &Mail::factory('smtp', $mail_params);
       $hdrs = array_merge($hdrs, $m['headers']);
-      if (! $mail->send($mailto, $hdrs, $m['body'])) {
+      if (! $mail->send($mailto, $hdrs, $body)) {
          die(_("Error sending message!"));
       }
       addIncidentComment(sprintf(_("Email sent to %s: %s"),
