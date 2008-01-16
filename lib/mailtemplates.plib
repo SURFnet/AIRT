@@ -347,10 +347,14 @@ function template_buttons($agenda) {
  * \return nothing
  */
 function prepare_message($template, $agenda=array(), $to=array()) {
-   $current = array('user'=>'', 'name'=>'', 'email'=>'', 
-      'ip'=>'', 'hostname'=>'');
-
    pageHeader(_('Send message from template.'));
+   $current = array(
+      'user'=>'', 
+      'name'=>'', 
+      'email'=>'', 
+      'ip'=>'', 
+      'hostname'=>'');
+
    $current['incidentid'] = $agenda[0];
    unset($agenda[0]);
 
@@ -369,14 +373,18 @@ function prepare_message($template, $agenda=array(), $to=array()) {
       }
    }
 
-   // if additional receivers are specified in the session, add those
+   // if additional receivers are specified in the session, add those. Avoid
+   // a double addition
    if (array_key_exists('current_email', $_SESSION)) {
       if (is_array($_SESSION['current_email'])) {
          $current['email'] = array_merge($current['email'], $_SESSION['current_email']);
       } else {
-         $current['email'][] = $_SESSION['current_email'];
+         if (!in_array($_SESSION['current_email'], $current['email'])) {
+            $current['email'][] = $_SESSION['current_email'];
+         }
       }
    }
+
 
    if (sizeof($incident['ips']) > 0) {
       $current['ip'] = $incident['ips'][0]['ip'];
