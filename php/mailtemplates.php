@@ -229,6 +229,7 @@ special variables in the template:').'<p>'.LF;
             break;
          }
       }
+      // to contains a comma-separated string of AIRT user ids!
       if (array_key_exists('to', $_REQUEST)) {
          $to = explode(',',$_REQUEST['to']);
       } else {

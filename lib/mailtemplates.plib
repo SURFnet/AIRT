@@ -373,8 +373,12 @@ function prepare_message($template, $agenda=array(), $to=array()) {
       }
    }
 
-   // if additional receivers are specified in the session, add those. Avoid
-   // a double addition
+   /* if additional receivers are specified in the session, add those. Avoid
+    * a double addition
+    * Faulty logic: FIXME
+    * 2008-01-16: why do we want the recipients in $_SESSION['current_email']
+    * included in the first place? Code de-activated for now
+    *
    if (array_key_exists('current_email', $_SESSION)) {
       if (is_array($_SESSION['current_email'])) {
          $current['email'] = array_merge($current['email'], $_SESSION['current_email']);
@@ -384,7 +388,7 @@ function prepare_message($template, $agenda=array(), $to=array()) {
          }
       }
    }
-
+   */
 
    if (sizeof($incident['ips']) > 0) {
       $current['ip'] = $incident['ips'][0]['ip'];
