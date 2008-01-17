@@ -361,15 +361,14 @@ special variables in the template:').'<p>'.LF;
 
          $body_params = array();
          $body_params['content_type'] = 'text/plain';
-         // $body_params['disposition'] = 'inline';
+         $body_params['disposition'] = 'inline';
          $body_params['charset'] = 'ISO-8859-1';
          $mime->addsubpart($msg, $body_params);
 
          /* message signature */
          $sig_params = array();
-         $sig_params['content_type'] = 'application/pgp-signature; name="signature.asc"';
-         $sig_params['disposition'] = 'attachment; filename=" signature.asc"';
-         $sig_params['description'] = _('Digital signature');
+         $sig_params['content_type'] = 'application/pgp-signature';
+         $sig_params['description'] = _('Digital Signature');
          $mime->addsubpart('@AIRT-SIGNATURE@', $sig_params);
          $m = $mime->encode();
 
@@ -385,19 +384,17 @@ special variables in the template:').'<p>'.LF;
          // 2. Extract the main body part
          $body = $m['body'];
          $msg = split('--'.$delimiter, $body);
-         $msgbody = $msg[1];
+         $msgbody = implode("\r\n", array_slice(explode("\r\n", $msg[1]), 1));
+         $msgbody = substr($msgbody, 0, -1);
 
          // 3. Sign the main body part and capture the signature
          // create mime-body and remove delimiting lines. RFC 2015 requires
          // that the message is signed, including its MIME headers
-         $mb = explode("\r\n", $msgbody);
-         $mb = array_slice($mb, 1, -2);
-         $mb = implode("\r\n", $mb);
 
          /* write msg to temp file */
          $fname = tempnam('/tmp', 'airt_');
          $f = fopen($fname, 'w');
-         fwrite($f, $mb, strlen($mb));
+         fwrite($f, $msgbody, strlen($msgbody));
          fclose($f);
 
          // 4. update the footer
@@ -411,12 +408,11 @@ special variables in the template:').'<p>'.LF;
          }
 
          /* clean up */
+         /*
          unlink($fname);
          unlink("$fname.asc");
-         $s = explode("\n", $sig);
-         $sig = implode("\r\n", $s);
-         unset($s);
-         preg_replace("/@AIRT-SIGNATURE@/", $sig, $body);
+         */
+         $body = preg_replace("/@AIRT-SIGNATURE@/", $sig, $body);
       }
 
       $mail = &Mail::factory('smtp', $mail_params);
