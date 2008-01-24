@@ -178,24 +178,14 @@ switch ($action) {
     //---------------------------------------------------------------------
     case "Addbulk":
       $addresses = $constituency = $type = $state = $status = $email =
-		   $addressrole = $logging = '';
+		   $addressrole = $logging = $desc = '';
 
-      if (array_key_exists("addressrole", $_POST)) {
-         $addressrole=$_POST["addressrole"];
-      }
-
-      if (array_key_exists("type", $_POST)) {
-        $type=$_POST["type"];
-      }
-      if (array_key_exists("state", $_POST)) {
-        $state=$_POST["state"];
-      }
-      if (array_key_exists("status", $_POST)) {
-        $status=$_POST["status"];
-      }
-      if (array_key_exists("logging", $_POST)) {
-        $logging=trim($_POST["logging"]);
-      }
+      $addressrole = fetchFrom('POST', 'addressrole');
+      $type = fetchFrom('POST', 'type');
+      $state = fetchFrom('POST', 'state');
+      $status = fetchFrom('POST', 'status');
+      $logging = trim(fetchFrom('POST', 'logging'));
+      $desc = trim(fetchFrom('POST', 'desc'));
       $date_day = trim(fetchFrom('POST', 'date_day', '%d'));
       $date_month = trim(fetchFrom('POST', 'date_month', '%d'));
       $date_year = trim(fetchFrom('POST', 'date_year', '%d'));
@@ -207,7 +197,7 @@ switch ($action) {
          $date_hour, $date_minute, $date_second));
 
       if (array_key_exists("addresses", $_POST)) {
-         $addresses=$_POST["addresses"];      
+         $addresses=$_POST["addresses"];
          $addresslist = split("\r?\n",$addresses);
 
          foreach($addresslist as $address) {
@@ -215,26 +205,33 @@ switch ($action) {
             // make sure we have an IP address here
             $address = @gethostbyname($address);
             if($address) {
-
                $networkid = categorize($address);
-               if (defined('CUSTOM_FUNCTIONS') && function_exists("custom_categorize")) {
+               if (defined('CUSTOM_FUNCTIONS')
+                  && function_exists("custom_categorize")) {
                   $networkid = custom_categorize($ip, $networkid);
                }
 
                $networks = getNetworks();
                $constituency  = $networks[$networkid]["constituency"];
 
-               $incidentid = createIncident($state,$status,$type,$date,$logging);
+               $incidentid = createIncident(array(
+                  'state'=>$state,
+                  'status'=>$status,
+                  'type'=>$type,
+                  'date'=>$date,
+                  'logging'=>$logging,
+                  'desc'=>$desc));
                if ($address!='') {
                   addIPtoIncident($address,$incidentid,$addressrole);
                   $res = db_query("SELECT cc.userid
-                                   FROM   constituency_contacts cc
-                                   WHERE  cc.constituency = $constituency") or die (_('error: unable to query table constituency_contacts'));
-                  $row = db_fetch_next($res); 
+                     FROM   constituency_contacts cc
+                     WHERE  cc.constituency = $constituency")
+                  or die (_('error: unable to query table constituency_contacts'));
+                  $row = db_fetch_next($res);
                   $userid = $row['userid'];
                   addUserToIncident($userid,$incidentid);
                }
-	    }
+            }
          }
       }
       reload();
@@ -243,25 +240,15 @@ switch ($action) {
     //---------------------------------------------------------------------
     case _('Add'):
       // Create a new incident from edit form.
-      $address = $constituency = $type = $state = $status = $email =
-		  $addressrole = $logging = '';
-      $addifmissing = $sendmail = 'off';
+      $address = $email = '';
 
-      $addressrole  = fetchFrom('POST','addressrole');
       $address      = fetchFrom('POST','address');
       $address      = @gethostbyname($address);
-      $constituency = fetchFrom('POST','constituency');
-      $type         = fetchFrom('POST','type');
-      $state        = fetchFrom('POST','state');
-      $status       = fetchFrom('POST','status');
-      $sendmail     = fetchFrom('POST','sendmail');
       $email        = fetchFrom('POST','email');
       if ($email!='') {
 # NOTE: this may be a list of addresss; looks not good.
          $_SESSION['current_email'] = trim(strtolower($email));
       }
-      $addif        = fetchFrom('POST','addifmissing');
-      $logging      = fetchFrom('POST','logging');
 
       $date_day = trim(fetchFrom('POST', 'date_day', '%d'));
       $date_month = trim(fetchFrom('POST', 'date_month', '%d'));
@@ -273,9 +260,14 @@ switch ($action) {
          $date_year, $date_month, $date_day,
          $date_hour, $date_minute, $date_second));
 
-      $incidentid   = createIncident($state,$status,$type,$date,$logging);
-      addIPtoIncident($address,$incidentid,$addressrole);
-
+      $incidentid   = createIncident(array(
+         'state'=>fetchFrom('POST', 'state', '%d'),
+         'status'=>fetchFrom('POST', 'status', '%d'),
+         'type'=>fetchFrom('POST', 'type', '%d'),
+         'date'=>$date,
+         'logging'=>trim(fetchFrom('POST', 'logging')),
+         'desc'=>trim(fetchFrom('POST', 'desc'))));
+      addIPtoIncident($address,$incidentid,fetchFrom('POST', 'addressrole'));
 		
 	   if (defined('OTRS_ACTIVE') && OTRS_ACTIVE === true) {
 		   $otrsln = fetchFrom('REQUEST', 'otrs-link');
@@ -292,7 +284,7 @@ switch ($action) {
             $addr = trim($addr);
             $user = getUserByEmail($addr);
             if (!$user) {
-               if ($addif == 'on') {
+               if (fetchFrom('POST', 'addifmissing') == 'on') {
                   addUser(array('email'=>$addr));
                   $user = getUserByEmail($addr);
                   addUserToIncident($user['id'], $incidentid);
@@ -312,7 +304,7 @@ _('Continue').'...</a>'.LF,
          }
       }
 
-      if ($sendmail == 'on') {
+      if (fetchFrom('POST', 'sendmail') == 'on') {
          reload('mailtemplates.php');
       } else {
          reload();

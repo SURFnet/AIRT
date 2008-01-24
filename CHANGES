@@ -1,3 +1,6 @@
+* New incident field: short description
+* API changes in createIncident; formatBasicIncidentData
+
 2007-09-05
 * Minor bug fixes and feature enhancements
 * New export macro: @IODEF@

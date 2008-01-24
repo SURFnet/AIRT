@@ -312,7 +312,11 @@ airt_profile('Type: '.$type);
 airt_profile('Incident data parsed');
 
       // generate an incident id
-      $incidentid[$i] = createIncident($state,$status,$type,'',$logging);
+      $incidentid[$i] = createIncident(array(
+         'state'=>$state,
+         'status'=>$status,
+         'type'=>$type,
+         'logging'=>$logging));
 airt_profile('Incident '.$incidentid[$i].' created');
 
       addIPtoIncident($address,$incidentid[$i],$addressrole);

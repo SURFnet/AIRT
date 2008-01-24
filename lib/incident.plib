@@ -278,6 +278,7 @@ function getIncidentTypeSelection($name, $default='',$extras=array()) {
 function getOpenIncidents($sqlfilter = "AND s1.label IN ('open','stalled')") {
    $res = db_query(
       'SELECT   i.id as incidentid,
+                i.short_desc as desc,
                 extract(epoch from created) as created,
                 u1.lastname as creator_lastname,
                 u1.firstname as creator_firstname,
@@ -358,7 +359,8 @@ function getIncident($id) {
         status,
         type,
 		  logging,
-        extract(epoch from incidentdate) as incidentdate
+        extract(epoch from incidentdate) as incidentdate,
+        short_desc as desc
       FROM incidents
       WHERE id=%id', array('%id'=>$id));
    $res = db_query($q);
@@ -458,11 +460,32 @@ function addIPtoIncident($ip, $incident,$role=0) {
  *
  * \return Returns a numerical incident ID on success, or false on failure
  */
-function createIncident($state,$status,$type,$date='',$logging='') {
-   if (!is_numeric($state) || !is_numeric($status) || !is_numeric($type) ||
-       !is_numeric($type)) {
+function createIncident($params = array()) {
+   if (!is_array($params)) {
       return false;
    }
+   if (empty($params['state']) || !is_numeric($params['state'])) {
+      return false;
+   }
+   if (empty($params['status']) || !is_numeric($params['status'])) {
+      return false;
+   }
+   if (empty($params['type']) || !is_numeric($params['type'])) {
+      return false;
+   }
+   if (empty($params['logging'])) {
+      $params['logging'] = '';
+   }
+   if (empty($params['date'])) {
+      $params['date'] = '';
+   }
+   if (empty($params['desc'])) {
+      $params['desc'] = '';
+   } else {
+      // do not allow HTML or PHP tags in short description
+      $params['desc'] = strip_tags($params['desc']);
+   }
+
    $res = db_query('select nextval(\'incidents_sequence\') as incidentid');
    if ($res == false) {
       return false;
@@ -474,17 +497,20 @@ function createIncident($state,$status,$type,$date='',$logging='') {
 
    $res = db_query(sprintf(
       'insert into incidents
-      (id, created, creator, updated, updatedby, state, status, type, incidentdate, logging)
+      (id, created, creator, updated, updatedby, state, status, type,
+      incidentdate, logging, short_desc)
       values
-      (%d, CURRENT_TIMESTAMP, %d, CURRENT_TIMESTAMP, %d, %d, %d, %d, %s, %s)',
+      (%d, CURRENT_TIMESTAMP, %d, CURRENT_TIMESTAMP, %d, %d, %d, %d, %s, %s,
+      %s)',
          $incidentid,
          $_SESSION['userid'],
          $_SESSION['userid'],
-         $state == '' ? 'NULL' : $state ,
-         $status == '' ? 'NULL' : $status ,
-         $type == '' ? 'NULL' : $type,
-         $date == '' ? 'NULL' : "'".Date('Y-m-d H:i:s', $date)."'",
-         $logging == "" ? 'NULL' : "'".db_escape_string($logging)."'"
+         $params['state'] == '' ? 'NULL' : $params['state'] ,
+         $params['status'] == '' ? 'NULL' : $params['status'] ,
+         $params['type'] == '' ? 'NULL' : $params['type'],
+         $params['date'] == '' ? 'NULL' : "'".Date('Y-m-d H:i:s', $params['date'])."'",
+         $params['logging'] == '' ? 'NULL' : "'".db_escape_string($params['logging'])."'",
+         $params['desc'] == '' ? 'NULL' : "'".db_escape_string($params['desc'])."'"
    ));
    if (!$res) {
       return false;
@@ -492,17 +518,17 @@ function createIncident($state,$status,$type,$date='',$logging='') {
    db_free_result($res);
 
    addIncidentComment('Incident created', '', '');
-   if (empty($date)) {
-      $date = time();
+   if (empty($params['date'])) {
+      $params['date'] = time();
    }
    $comment=sprintf('state=%s, status=%s, type=%s, date=%s',
-      strip_tags(getIncidentStateLabelByID($state)),
-      strip_tags(getIncidentStatusLabelByID($status)),
-      strip_tags(getIncidentTypeLabelById($type)),
-      Date('d-M-Y H:i:s', $date));
+      strip_tags(getIncidentStateLabelByID($params['state'])),
+      strip_tags(getIncidentStatusLabelByID($params['status'])),
+      strip_tags(getIncidentTypeLabelById($params['type'])),
+      Date('d-M-Y H:i:s', $params['date']));
    addIncidentComment($comment, '', '');
    return $incidentid;
-}
+} // createIncident
 
 /** Remove an incident from an IP address.
  * \param $ip IP address to be removed.
@@ -670,27 +696,43 @@ function removeUserfromIncident($userid, $incident) {
  * state and status. All input variables may be '', which leads to a system
  * default selection.
  */
-function formatBasicIncidentData($type, $state, $status, $logging="", $date='') {
+function formatBasicIncidentData($params=array()) {
+   foreach (array('desc', 'date', 'logging', 'type', 'state', 'status') 
+            as $param) {
+      if (empty($params[$param])) {
+         $params[$param] = '';
+      }
+   }
    $output = '<table>'.LF;
    $output .= '  <tr>'.LF;
    $output .= '    <td>'._('Incident type').'</td>'.LF;
-   $output .= '    <td>'.getIncidentTypeSelection('type', $type).'</td>'.LF;
+   $output .= '    <td>'.getIncidentTypeSelection('type', $params['type']).
+      '</td>'.LF;
    $output .= '  </tr>'.LF;
    $output .= '  <tr>'.LF;
    $output .= '    <td>'._('Incident state').'</td>'.LF;
-   $output .= '    <td>'.getIncidentStateSelection('state', $state).'</td>'.LF;
+   $output .= '    <td>'.getIncidentStateSelection('state', $params['state']).
+      '</td>'.LF;
    $output .= '  </tr>'.LF;
    $output .= '  <tr>'.LF;
    $output .= '    <td>'._('Incident status').'</td>'.LF;
-   $output .= '    <td>'.getIncidentStatusSelection('status', $status).'</td>'.LF;
+   $output .= '    <td>'.getIncidentStatusSelection('status', $params['status']).
+      '</td>'.LF;
    $output .= '  </tr>'.LF;
    $output .= '  <tr valign="top">'.LF;
    $output .= '    <td>'._('Date of incident').'</td>'.LF;
-   $output .= '    <td>'.formatDateInput('date', $date).'</td>'.LF;
+   $output .= '    <td>'.formatDateInput('date', $params['date']).'</td>'.LF;
+   $output .= '  </tr>'.LF;
+   $output .= '  <tr valign="top">'.LF;
+   $output .= '    <td>'._('Short description').'</td>'.LF;
+   $output .= '    <td><input type="text" name="desc" size="60" value="'.
+      strip_tags($params['desc']).'"><em>'._('Leave empty for hostname').
+      '</em></td>'.LF;
    $output .= '  </tr>'.LF;
 	$output .= '  <tr valign="top">'.LF;
 	$output .= '    <td>'._('Logging').'</td>'.LF;
-	$output .= '    <td colspan="2"><textarea name="logging" cols="80" rows="8">'.strip_tags($logging).'</textarea></td>'.LF;
+	$output .= '    <td colspan="2"><textarea name="logging" cols="80" '.
+      'rows="8">'.strip_tags($params['logging']).'</textarea></td>'.LF;
 	$output .= '  </tr>'.LF;
    $output .= '</table>'.LF;
 
@@ -1129,9 +1171,7 @@ function updateCheckboxes() {
 /** Format the form for batch creation of incidents.
  */
 function formatIncidentBulkForm(&$check) {
-   $constituency = $name = $email = $type = $state = $status
-     = $addressrole = "";
-
+   $constituency = $email = $addressrole = '';
    $address = fetchFrom('SESSION','active_ip');
 
    if (array_key_exists("constituency_id", $_SESSION)) {
@@ -1144,7 +1184,7 @@ function formatIncidentBulkForm(&$check) {
    if (defined('CUSTOM_FUNCTIONS') && function_exists('custom_default_addressrole')) {
       $addressrole = custom_default_addressrole($address);
    }
-   $output =  formatBasicIncidentData($type, $state, $status);
+   $output =  formatBasicIncidentData();
    $output .= '<hr/>'.LF;
    $output .= '<h3>'._('Affected IP addresses').'</h3>'.LF;
    $output .= "<table cellpadding=\"4\">\n";
@@ -1165,7 +1205,8 @@ function formatIncidentBulkForm(&$check) {
 
 
 /** Format the incident details form.
- * This function is called only when creating a new incident report.
+ * This function is called only when creating a new incident report
+ * from scratch.
  */
 function formatIncidentForm(&$check) {
    $constituency = $name = $email = $type = $state = $status 
@@ -1190,7 +1231,11 @@ function formatIncidentForm(&$check) {
       $addressrole = custom_default_addressrole($address);
    }
 
-   $output =  formatBasicIncidentData($type, $state, $status);
+   $output =  formatBasicIncidentData(array(
+      'type'=>$type,
+      'state'=>$state,
+      'status'=>$status));
+
 	if (defined('OTRS_ACTIVE') && OTRS_ACTIVE === true) {
 	   $tn = fetchFrom('SESSION', 'otrs_tn');
 		if (!empty($tn)) {
@@ -1200,6 +1245,7 @@ function formatIncidentForm(&$check) {
 			$output .= t(_('Link to OTRS ticket %tn'), array('%tn'=>$tn));
 		}
 	}
+
    $output .= '<hr/>'.LF;
    $output .= '<h3>'._('Affected IP addresses').'</h3>'.LF;
    $output .= '<table cellpadding=4>'.LF;
@@ -1246,12 +1292,6 @@ function formatIncidentForm(&$check) {
  */
 function formatEditForm() {
    $incident = getincident(fetchFrom('SESSION','incidentid'));
-   $type    = $incident['type'];
-   $state   = $incident['state'];
-   $status  = $incident['status'];
-	$logging = $incident['logging'];
-   $date    = $incident['incidentdate'];
-
    $address = fetchFrom('SESSION','active_ip');
    $constituency = fetchFrom('SESSION','constituency_id');
 
@@ -1259,10 +1299,16 @@ function formatEditForm() {
    $output = '<div class="details-basic">'.LF;
    $output .= '<form action="'.$_SERVER['PHP_SELF'].'" method="post">'.LF;
    $output .= '<h3>'._('Basic incident data').'</h3>'.LF;
-   $output .= formatBasicIncidentData($type, $state, $status, $logging, $date);
+   $output .= formatBasicIncidentData(array(
+      'type'=>$incident['type'],
+      'state'=>$incident['state'],
+      'status'=>$incident['status'],
+      'logging'=>$incident['logging'],
+      'date'=>$incident['incidentdate'],
+      'desc'=>$incident['desc']));
    $output .= '<input type="submit" name="action" value="update">'.LF;
    $output .= '</form>'.LF;
-   $output .= '</div> <!-- details-basic -->'.LF; 
+   $output .= '</div> <!-- details-basic -->'.LF;
 
    // Affected IP addresses block. First the header part.
    $output .= '<div class="details-ip">'.LF;
@@ -1725,6 +1771,10 @@ function formatListOverviewBody() {
          continue;
       }
       $hostline= $data['hostname'];
+      $d = trim($data['desc']);
+      if (!empty($d)) {
+         $hostline = strip_tags($data['desc']);
+      }
       $addresses = getAddressesForIncident($id);
       $constituency = $conslist[$addresses[0]['constituency']]['label'];
 
