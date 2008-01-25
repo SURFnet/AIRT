@@ -601,6 +601,7 @@ _('Continue').'...</a>'.LF,
          reload();
       }
 
+      $desc = trim(fetchFrom('POST', 'desc'));
       $logging = trim(fetchFrom('POST','logging'));
       $date_day = trim(fetchFrom('POST', 'date_day', '%d'));
       $date_month = trim(fetchFrom('POST', 'date_month', '%d'));
@@ -616,10 +617,17 @@ _('Continue').'...</a>'.LF,
          'state' => $state,
          'status' => $status,
          'type' => $type,
-         'date' => $date
+         'date' => $date,
+         'desc' => $desc
       ));
 
-      updateIncident($incidentid,$state,$status,$type,$date,$logging);
+      updateIncident($incidentid,array(
+         'state'=>$state,
+         'status'=>$status,
+         'type'=>$type,
+         'date'=>$date,
+         'logging'=>$logging,
+         'desc'=>$desc));
 		/* attempt to close corresponding OTRS tickets, if any*/
 		if (getIncidentStatusLabelByID($status) == 'closed') {
 			foreach (getTicketNumbers($incidentid) as $tn) {
@@ -637,10 +645,11 @@ _('Continue').'...</a>'.LF,
 		}
 
       addIncidentComment(sprintf(_(
-        'Incident updated: state=%s, status=%s type=%s'), 
+        'Incident updated: state=%s, status=%s, type=%s, desc=%s'), 
          getIncidentStateLabelByID($state),
          getIncidentStatusLabelByID($status),
-         getIncidentTypeLabelByID($type)));
+         getIncidentTypeLabelByID($type),
+         $desc));
 
       reload();
       break;
@@ -734,7 +743,10 @@ _('Continue').'...</a>'.LF,
          $massType = '';
       }
 
-      updateIncidentList($massIncidents,$massState,$massStatus,$massType);
+      updateIncidentList($massIncidents, array(
+         'state'=>$massState,
+         'status'=>$massStatus,
+         'type'=>$massType));
 
       Header("Location: $_SERVER[PHP_SELF]");
       break;

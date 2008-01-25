@@ -861,34 +861,36 @@ function updateIPofIncident($id,$constituency,$addressrole) {
  * Relevant automatic fields will be generated accordingly.
  * Returns void.
  */
-function updateIncident($id,$state='',$status='',$type='',$date='', $logging='') {
+function updateIncident($id,$params = array()) {
    // Problem case: no ID given.
-   if ($id=='') {
+   if (empty($id)) {
       die(_('No ID given to update request.'));
-   }
-
-   // Special case: no work to be done.
-   if ($state=='' && $status=='' && $type=='' && $logging=='') {
-      return;
    }
 
    // Compile the variable part of the SET clause.
    $set = '';
-   if (!empty($state)) {
-      $set .= sprintf('state=%d,',$state);
+   if (!empty($params['state'])) {
+      $set .= sprintf('state=%d,',$params['state']);
    }
-   if (!empty($status)) {
-      $set .= sprintf('status=%d,',$status);
+   if (!empty($params['status'])) {
+      $set .= sprintf('status=%d,',$params['status']);
    }
-   if (!empty($type)) {
-      $set .= sprintf('type=%d,',$type);
+   if (!empty($params['type'])) {
+      $set .= sprintf('type=%d,',$params['type']);
    }
-   if (!empty($date)) {
+   if (!empty($params['date'])) {
       $set .= sprintf('incidentdate=\'%s\',', db_escape_string(
-      date('Y-m-d H:i:s', $date)));
+      date('Y-m-d H:i:s', $params['date'])));
    }
-   if (!empty($logging)) {
-      $set .= sprintf('logging=\'%s\',',db_escape_string($logging));
+   if (!empty($params['logging'])) {
+      $set .= sprintf('logging=\'%s\',',db_escape_string(
+         strip_tags($params['logging'])));
+   }
+   if (!empty($params['desc'])) {
+      $set .= sprintf('short_desc=\'%s\',',db_escape_string(
+         strip_tags($params['desc'])));
+   } else {
+      $set .= sprintf('short_desc=NULL,');
    }
 
    // Add the fixed part (we know for sure there is at least one variable
@@ -905,9 +907,9 @@ function updateIncident($id,$state='',$status='',$type='',$date='', $logging='')
  * will be set to each incident ID in the list.
  * Returns void.
  */
-function updateIncidentList($incidentList,$state,$status,$type) {
+function updateIncidentList($incidentList,$params) {
    foreach ($incidentList as $id) {
-      updateIncident($id,$state,$status,$type,'');
+      updateIncident($id,$params);
    }
    return;
 }
