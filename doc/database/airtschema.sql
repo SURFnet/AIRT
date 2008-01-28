@@ -379,6 +379,7 @@ CREATE SEQUENCE importqueue_sequence;
 CREATE SEQUENCE authentication_tickets_sequence;
 CREATE SEQUENCE exportqueue_sequence;
 CREATE SEQUENCE importfilter_templates_sequence;
+CREATE SEQUENCE importqueue_templates_sequence;
 
 CREATE UNIQUE INDEX incident_types_label on incident_types(upper(label));
 CREATE UNIQUE INDEX incident_states_label on incident_states(upper(label));
