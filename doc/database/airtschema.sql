@@ -152,6 +152,7 @@ CREATE TABLE incidents (
     type        integer not null,
     incidentdate timestamp,
     logging     text,
+    short_desc  text,
     pref_templ  varchar(80),
     primary key (id),
     foreign key (creator)   references users(id),
