@@ -229,7 +229,9 @@ switch ($action) {
                   or die (_('error: unable to query table constituency_contacts'));
                   $row = db_fetch_next($res);
                   $userid = $row['userid'];
-                  addUserToIncident($userid,$incidentid);
+                  if (!empty($userid)) {
+                     addUserToIncident($userid,$incidentid);
+                  }
                }
             }
          }
