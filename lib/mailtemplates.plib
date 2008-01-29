@@ -532,6 +532,10 @@ function print_variables_info() {
    $out .= '    <td>@TO@..@ENDTO@</td>'.LF;
    $out .= '    <td>'._('Will override the To: header with the given value').'</td>'.LF;
    $out .= '</tr>'.LF;
+   $out .= '<tr>'.LF;
+   $out .= '   <td>@IODEF@</td>'.LF;
+   $out .= '   <td>'._('Incident data in IODEF-format').'</td>'.LF;
+   $out .= '</tr>'.LF;
 
    $out .= '</table>'.LF;
    print $out;
