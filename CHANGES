@@ -1,5 +1,7 @@
 * New incident field: short description
 * API changes in createIncident; formatBasicIncidentData
+* Bugfixes
+* Backend rewritten to allow PHP5
 
 2007-09-05
 * Minor bug fixes and feature enhancements

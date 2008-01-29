@@ -173,7 +173,6 @@ function import($input,&$error,$verbosity=FALSE) {
       }
 
       $ref = $element->getAttribute('ref');
-      # FIXME remove the # from the ref ID
       $ref = preg_replace('/^#/', '', $ref);
 
       $status = $sender = $summary = $type = '';
@@ -409,6 +408,7 @@ function queueToAIRT($id, &$error, $mailtemplate='') {
       $ticket_element = $doc->getElementsByTagname('KeyValue');
       $ticketid = $ticket_element->item(0)->textContent;
    }
+
    if(!isset($ticketid) || $ticketid == null) {
       $error = _('Missing key for authentication');
       return 1;
@@ -435,9 +435,11 @@ function queueToAIRT($id, &$error, $mailtemplate='') {
    $dom = $doc->loadXML($data['content']);
 
    // add mail template information
+   // XXX FIXME XXX
    $tmp_elements = $doc->getElementsByTagname('technicalInformation');
    if ($tmp_elements->length > 0) {
-      $tmp_elements->item(0)->appendChild($doc->createTextNode(urlencode($mailtemplate)));
+      $tmp_elements->item(0)->appendChild($doc->createElement('mailtemplate',
+         htmlentities($mailtemplate)));
    }
 
    // Create new xml document to pass to web service
@@ -891,7 +893,7 @@ function setPreferredMailtemplate($filter, $version='', $template, &$error) {
       $q = q("INSERT INTO importqueue_templates
               (id, filter, version, mailtemplate)
               VALUES
-              (nextval('importqueue_templates_sequence'), 
+              (nextval('importqueue_templates_sequence'),
               '%filter', '%version', '%templ')", array(
                  '%templ'=>db_escape_string($template),
                  '%filter'=>db_escape_string($filter),
@@ -1012,7 +1014,7 @@ function importqueueTemplatesFormatItems() {
       $out .= t('<tr valign="top" bgcolor="%color">', array('%color'=>($count++ % 2 == 0) ? '#DDDDDD' : '#FFFFFF')).LF;
       $out .= '<td><input type="checkbox" name="check['.
          strip_tags($id).']"></td>'.LF;
-      $out .= t('<td>%filter</td>'.LF, 
+      $out .= t('<td>%filter</td>'.LF,
          array('%filter'=>strip_tags($item['filter'])));
       $out .= t('<td>%version</td>'.LF,
          array('%version'=>strip_tags($item['version'])));

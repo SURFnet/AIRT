@@ -299,11 +299,14 @@ airt_profile('Type: '.$type);
             if ($logging_element->length > 0) {
                $logging = $logging_element->item(0)->textContent;
             }
+airt_profile('Logging: ok');
 
             $mailtemplate_element = $techinfo->item($count2)->getElementsByTagname('mailtemplate');
             if ($mailtemplate_element->length > 0) {
-               $mailtemplate = urldecode($mailtemplate_element[0]->get_content());
+               $mailtemplate = $mailtemplate_element->item(0)->textContent;
             }
+airt_profile('Mailtemplate: ok');
+
             $address = $ip;
             $addressrole = '0';
          } // end technicalInformation
