@@ -39,6 +39,16 @@ $OPTIONS['--verbose']      = false;
 $OPTIONS['--virtual-host'] = '';
 
 $FILENAME = '';
+// If virtual host override, set it.
+if ($OPTIONS['--virtual-host']!='') {
+   define('VIRTUAL_HOST',$OPTIONS['--virtual-host']);
+}
+
+// Pick up standard AIRT config and required library (which pulls in the
+// other required libraries).
+require_once '@ETCDIR@/airt.cfg';
+require_once ETCDIR.'/importqueue.cfg';
+require_once LIBDIR.'/importqueue.plib';
 
 // Run over command line arguments. All arguments not starting with -- are
 // assumed to be file parameters, but only one file can be read at a time
@@ -72,17 +82,6 @@ foreach ($argv as $param) {
       $FILENAME = $param;
    }
 }// foreach parameter
-
-// If virtual host override, set it.
-if ($OPTIONS['--virtual-host']!='') {
-   define('VIRTUAL_HOST',$OPTIONS['--virtual-host']);
-}
-
-// Pick up standard AIRT config and required library (which pulls in the
-// other required libraries).
-require_once '@ETCDIR@/airt.cfg';
-require_once ETCDIR.'/importqueue.cfg';
-require_once LIBDIR.'/importqueue.plib';
 
 // Retrieve all filters installed in LIBDIR. We need this list for --help,
 // so we build it even when no actual filtering might take place.
