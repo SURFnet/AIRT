@@ -275,7 +275,7 @@ function getIncidentTypeSelection($name, $default='',$extras=array()) {
  * which incidents are returned. Without it, all open and stalled incidents
  * are retrieved.
  */
-function getOpenIncidents($sqlfilter = "AND s1.label IN ('open','stalled')") {
+function getOpenIncidents($sqlfilter = "WHERE s1.label IN ('open','stalled')") {
    $res = db_query(
       'SELECT   i.id as incidentid,
                 i.short_desc as desc,
@@ -295,14 +295,14 @@ function getOpenIncidents($sqlfilter = "AND s1.label IN ('open','stalled')") {
                 a.ip as ip,
                 a.hostname as hostname,
                 extract(epoch from i.incidentdate) as incidentdate
-         FROM   incidents i, incident_status s1, incident_states s2,
-                incident_types t, users u1, users u2, incident_addresses a
-         WHERE  i.status = s1.id
-         AND    i.state = s2.id
-         AND    i.type = t.id
-         AND    i.creator = u1.id
-         AND    i.updatedby = u2.id
-         AND    i.id = a.incident '.
+         FROM   incidents i
+         LEFT JOIN incident_addresses a on i.id = a.incident
+         LEFT JOIN incident_status s1 on s1.id = i.status
+         LEFT JOIN incident_states s2 on s2.id = i.state
+         LEFT JOIN incident_types t on t.id = i.type
+         LEFT JOIN users u1 on u1.id = i.creator
+         LEFT JOIN users u2 on u2.id = i.updatedby
+         '.
          $sqlfilter);
    if (!$res) {
       airt_error('DB_QUERY', 'incident.plib:'.__LINE__);
@@ -1607,7 +1607,7 @@ function formatListOverviewBody() {
    $statuses = getIncidentStatus();
    if (array_key_exists($filter['status'], $statuses) && 
       $filter['status'] >= 0) {
-      $sqlfilter = " AND s1.label = '".$statuses[$filter['status']]."'";
+      $sqlfilter = " WHERE s1.label = '".$statuses[$filter['status']]."'";
    } else {
       $sqlfilter = '';
    }
@@ -1615,7 +1615,7 @@ function formatListOverviewBody() {
    $states = getIncidentStates();
    if (array_key_exists($filter['state'], $states) && 
       $filter['state'] >= 0) {
-      $sqlfilter .= " AND s2.label = '".$states[$filter['state']]."'";
+      $sqlfilter .= " WHERE s2.label = '".$states[$filter['state']]."'";
    }
 
    switch ($sortkey) {
@@ -1778,7 +1778,11 @@ function formatListOverviewBody() {
          $hostline = strip_tags($data['desc']);
       }
       $addresses = getAddressesForIncident($id);
-      $constituency = $conslist[$addresses[0]['constituency']]['label'];
+      if (sizeof($addresses) > 0) {
+         $constituency = $conslist[$addresses[0]['constituency']]['label'];
+      } else {
+         $constituency = '';
+      }
 
       $out .= t('<tr bgcolor="%color">'.LF.
          '   <td>'.
