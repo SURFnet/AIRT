@@ -268,6 +268,7 @@ switch ($action) {
          'type'=>fetchFrom('POST', 'type', '%d'),
          'date'=>$date,
          'logging'=>trim(fetchFrom('POST', 'logging')),
+         'template'=>trim(fetchFrom('POST', 'template')),
          'desc'=>trim(fetchFrom('POST', 'desc'))));
       addIPtoIncident($address,$incidentid,fetchFrom('POST', 'addressrole'));
 		
@@ -605,6 +606,7 @@ _('Continue').'...</a>'.LF,
 
       $desc = trim(fetchFrom('POST', 'desc'));
       $logging = trim(fetchFrom('POST','logging'));
+      $template = trim(fetchFrom('POST','template'));
       $date_day = trim(fetchFrom('POST', 'date_day', '%d'));
       $date_month = trim(fetchFrom('POST', 'date_month', '%d'));
       $date_year = trim(fetchFrom('POST', 'date_year', '%d'));
@@ -629,6 +631,7 @@ _('Continue').'...</a>'.LF,
          'type'=>$type,
          'date'=>$date,
          'logging'=>$logging,
+         'template'=>$template,
          'desc'=>$desc));
 		/* attempt to close corresponding OTRS tickets, if any*/
 		if (getIncidentStatusLabelByID($status) == 'closed') {

@@ -360,6 +360,7 @@ function getIncident($id) {
         type,
 		  logging,
         extract(epoch from incidentdate) as incidentdate,
+        pref_templ as template,
         short_desc as desc
       FROM incidents
       WHERE id=%id', array('%id'=>$id));
@@ -485,6 +486,12 @@ function createIncident($params = array()) {
       // do not allow HTML or PHP tags in short description
       $params['desc'] = strip_tags($params['desc']);
    }
+   if (empty($params['template'])) {
+      $params['template'] = '';
+   } else {
+      // do not allow HTML or PHP tags in short description
+      $params['template'] = strip_tags($params['template']);
+   }
 
    $res = db_query('select nextval(\'incidents_sequence\') as incidentid');
    if ($res == false) {
@@ -498,10 +505,10 @@ function createIncident($params = array()) {
    $res = db_query(sprintf(
       'insert into incidents
       (id, created, creator, updated, updatedby, state, status, type,
-      incidentdate, logging, short_desc)
+      incidentdate, logging, short_desc, pref_templ)
       values
       (%d, CURRENT_TIMESTAMP, %d, CURRENT_TIMESTAMP, %d, %d, %d, %d, %s, %s,
-      %s)',
+      %s, %s)',
          $incidentid,
          $_SESSION['userid'],
          $_SESSION['userid'],
@@ -510,7 +517,8 @@ function createIncident($params = array()) {
          $params['type'] == '' ? 'NULL' : $params['type'],
          $params['date'] == '' ? 'NULL' : "'".Date('Y-m-d H:i:s', $params['date'])."'",
          $params['logging'] == '' ? 'NULL' : "'".db_escape_string($params['logging'])."'",
-         $params['desc'] == '' ? 'NULL' : "'".db_escape_string($params['desc'])."'"
+         $params['desc'] == '' ? 'NULL' : "'".db_escape_string($params['desc'])."'",
+         $params['template'] == '' ? 'NULL' : "'".db_escape_string($params['template'])."'"
    ));
    if (!$res) {
       return false;
@@ -697,7 +705,7 @@ function removeUserfromIncident($userid, $incident) {
  * default selection.
  */
 function formatBasicIncidentData($params=array()) {
-   foreach (array('desc', 'date', 'logging', 'type', 'state', 'status') 
+   foreach (array('desc', 'template', 'date', 'logging', 'type', 'state', 'status') 
             as $param) {
       if (empty($params[$param])) {
          $params[$param] = '';
@@ -722,6 +730,11 @@ function formatBasicIncidentData($params=array()) {
    $output .= '  <tr valign="top">'.LF;
    $output .= '    <td>'._('Date of incident').'</td>'.LF;
    $output .= '    <td>'.formatDateInput('date', $params['date']).'</td>'.LF;
+   $output .= '  </tr>'.LF;
+   $output .= '  <tr>'.LF;
+   $output .= '    <td>'._('Mail template').'</td>'.LF;
+   $output .= '    <td>'.getMailtemplateSelection('template',
+      $params['template']).'</td>'.LF;
    $output .= '  </tr>'.LF;
    $output .= '  <tr valign="top">'.LF;
    $output .= '    <td>'._('Short description').'</td>'.LF;
@@ -891,6 +904,12 @@ function updateIncident($id,$params = array()) {
          strip_tags($params['desc'])));
    } else {
       $set .= sprintf('short_desc=NULL,');
+   }
+   if (!empty($params['template'])) {
+      $set .= sprintf('pref_templ=\'%s\',',db_escape_string(
+         strip_tags($params['template'])));
+   } else {
+      $set .= sprintf('pref_templ=NULL,');
    }
 
    // Add the fixed part (we know for sure there is at least one variable
@@ -1307,6 +1326,7 @@ function formatEditForm() {
       'status'=>$incident['status'],
       'logging'=>$incident['logging'],
       'date'=>$incident['incidentdate'],
+      'template'=>$incident['template'],
       'desc'=>$incident['desc']));
    $output .= '<input type="submit" name="action" value="update">'.LF;
    $output .= '</form>'.LF;
