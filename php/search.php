@@ -56,21 +56,53 @@ function showSearch($qtype='') {
          $hostchecked='CHECKED';
    }
    print '<div class="search-searchbox">'.LF;
-   print '<p><form method="GET">'.LF;
    print _('Search for:').'<p/>'.LF;
+   print '<table>'.LF;
+   print '<tr>'.LF;
+   print '<td>'._('Hostname:').'</td>'.LF;
+   print '<td>'.LF;
+   print '<form method="GET">'.LF;
    print '<input type="text" name="q" size="60"/>'.LF;
+   print '<input name="qtype" value="host" type="hidden">'.LF;
    print '<input type="submit" name="action" value="'._('Search').'"/>'.LF;
-   print '<br/>'.LF;
-   print '<input type="radio" name="qtype" value="host" '.$hostchecked.
-      '/>'._('Hostname').LF;
-   print '<input type="radio" name="qtype" value="incident" '.$incidentchecked.
-      '/>'._('Incident').LF;
-   print '<input type="radio" name="qtype" value="zoom" '.$zoomchecked.
-      '/>'._('Mask').LF;
-   print '<input type="radio" name="qtype" value="email" '.$zoomchecked.
-      '/>'._('Email').LF;
-   print '<p/>'.LF;
    print '</form>'.LF;
+   print '</td>'.LF;
+   print '</tr>'.LF;
+
+   print '<tr>'.LF;
+   print '<td>'._('Incident ID:').'</td>'.LF;
+   print '<td>'.LF;
+   print '<form method="GET">'.LF;
+   print '<input type="text" name="q" size="60"/>'.LF;
+   print '<input name="qtype" value="incident" type="hidden">'.LF;
+   print '<input type="submit" name="action" value="'._('Search').'"/>'.LF;
+   print '</form>'.LF;
+   print '</td>'.LF;
+   print '</tr>'.LF;
+
+   print '<tr>'.LF;
+   print '<td>'._('Network/Netmask:').'</td>'.LF;
+   print '<td>'.LF;
+   print '<form method="GET">'.LF;
+   print '<input type="text" name="q" size="60"/>'.LF;
+   print '<input name="qtype" value="zoom" type="hidden">'.LF;
+   print '<input type="submit" name="action" value="'._('Search').'"/>'.LF;
+   print '</form>'.LF;
+   print '</td>'.LF;
+   print '</tr>'.LF;
+
+   print '<tr>'.LF;
+   print '<td>'._('Email address:').'</td>'.LF;
+   print '<td>'.LF;
+   print '<form method="GET">'.LF;
+   print '<input type="text" name="q" size="60"/>'.LF;
+   print '<input name="qtype" value="email" type="hidden">'.LF;
+   print '<input type="submit" name="action" value="'._('Search').'"/>'.LF;
+   print '</form>'.LF;
+   print '</td>'.LF;
+   print '</tr>'.LF;
+
+   print '</table>'.LF;
    print '</div>'.LF;
 }
 
@@ -466,7 +498,7 @@ function search_zoom($mask) {
 function do_search_email($email='', &$results) {
    $results = array();
    $userids = array();
-   if ($empy(email)) {
+   if (empty($email)) {
       return 1;
    }
    /* find all matching user ids */
