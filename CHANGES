@@ -2,6 +2,8 @@
 * API changes in createIncident; formatBasicIncidentData
 * Bugfixes
 * Backend rewritten to allow PHP5
+* New report in stats.php: incidents created/total per const
+* Search input area now consists of four separate fields, rather than 1.
 
 2007-09-05
 * Minor bug fixes and feature enhancements
