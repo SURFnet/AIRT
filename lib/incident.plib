@@ -1635,7 +1635,11 @@ function formatListOverviewBody() {
    $states = getIncidentStates();
    if (array_key_exists($filter['state'], $states) && 
       $filter['state'] >= 0) {
-      $sqlfilter .= " WHERE s2.label = '".$states[$filter['state']]."'";
+      if (empty($sqlfilter)) {
+         $sqlfilter = " WHERE s2.label = '".$states[$filter['state']]."'";
+      } else {
+         $sqlfilter .= " AND s2.label = '".$states[$filter['state']]."'";
+      }
    }
 
    switch ($sortkey) {
