@@ -29,21 +29,6 @@ define('AIRT_VERSION','@VERSION@');
 // Including the standard config and library files is postponed until after
 // the parameter parsing, to allow for a virtual host override.
 
-// Set up all default command line options.
-// Options are either Boolean (--option) or scalar (--option=value).
-$OPTIONS = array();
-$OPTIONS['--filter']       = 'none';
-$OPTIONS['--help']         = false;
-$OPTIONS['--noqueue']      = false;
-$OPTIONS['--verbose']      = false;
-$OPTIONS['--virtual-host'] = '';
-
-$FILENAME = '';
-// If virtual host override, set it.
-if ($OPTIONS['--virtual-host']!='') {
-   define('VIRTUAL_HOST',$OPTIONS['--virtual-host']);
-}
-
 // Pick up standard AIRT config and required library (which pulls in the
 // other required libraries).
 require_once '@ETCDIR@/airt.cfg';
@@ -82,6 +67,21 @@ foreach ($argv as $param) {
       $FILENAME = $param;
    }
 }// foreach parameter
+
+// Set up all default command line options.
+// Options are either Boolean (--option) or scalar (--option=value).
+$OPTIONS = array();
+$OPTIONS['--filter']       = 'none';
+$OPTIONS['--help']         = false;
+$OPTIONS['--noqueue']      = false;
+$OPTIONS['--verbose']      = false;
+$OPTIONS['--virtual-host'] = '';
+
+$FILENAME = '';
+// If virtual host override, set it.
+if ($OPTIONS['--virtual-host']!='') {
+   define('VIRTUAL_HOST',$OPTIONS['--virtual-host']);
+}
 
 // Retrieve all filters installed in LIBDIR. We need this list for --help,
 // so we build it even when no actual filtering might take place.
