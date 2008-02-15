@@ -1,6 +1,6 @@
 <?php
 /* $Id$
- * $URL$
+ * $URL: https://svn.airt.nl/svn/trunk/source/php/stats.php $
  * vim: syntax=php tabstop=3 shiftwidth=3
 
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS

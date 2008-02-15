@@ -19,7 +19,7 @@
  *
  * otrs-airt.js -- AJAX scripts for AIRT-OTRS integration
  *
- * $Id: incident.php 1016 2006-10-31 12:34:55Z kees $
+ * $Id$
  */
 var req=new Array();
 

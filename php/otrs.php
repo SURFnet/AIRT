@@ -19,7 +19,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * otrs.php -- frontend for otrs integration
- * $Id: incident.php 1016 2006-10-31 12:34:55Z kees $
+ * $Id$
  */
 require_once 'config.plib';
 require_once LIBDIR.'/airt.plib';

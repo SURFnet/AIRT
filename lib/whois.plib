@@ -1,6 +1,6 @@
 <?php
 /* vim:syntax=php shiftwidth=3 tabstop=3
- * $Id: error.plib 819 2005-12-07 14:10:39Z kees $ 
+ * $Id$ 
 
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
  * Copyright (C) 2004,2005	Kees Leune <kees@uvt.nl>

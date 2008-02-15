@@ -1,3 +1,6 @@
+2008-02-15
+* Bug fixes;  no new features
+
 2008-02-01
 * New incident field: short description
 * API changes in createIncident; formatBasicIncidentData
