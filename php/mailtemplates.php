@@ -435,6 +435,7 @@ special variables in the template:').'<p>'.LF;
       } else {
          $t = $template;
       }
+
       if (!empty($t) && get_template_actions($t, $actions)) {
          if ($actions['type'] == -1) {
             $actions['type'] = '';
@@ -454,8 +455,10 @@ special variables in the template:').'<p>'.LF;
             addIncidentComment(sprintf(_('State updated to %s'),
                getIncidentStateLabelByID($actions['state'])));
          }
-         updateIncident($incidentid, $actions['state'], $actions['status'],
-            $actions['type']);
+         $incident = getIncident($incidentid);
+         $actions['template'] = $incident['template'];
+         $actions['desc'] = $incident['desc'];
+         updateIncident($incidentid, $actions);
       }
       if ($action == _('Send and prepare next') && isset($agenda) &&
          isset($template)) {

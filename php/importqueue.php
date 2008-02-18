@@ -206,7 +206,7 @@ switch ($action) {
       break;
 
    // ----------------------------------------------------------------
-	case _('Remove checked preferred templates'):
+	case _('Removed checked preferred templates'):
 	   $check = fetchFrom('REQUEST', 'check');
 		defaultTo($check, array());
 

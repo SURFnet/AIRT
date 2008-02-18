@@ -384,7 +384,7 @@ airt_profile('Template added');
       }
       $_SESSION['userid'] = $userid;
       $logging = $incident['logging']."\n".$logging;
-      updateIncident($incidentid, '', '', '', '', $logging);
+      updateIncident($incidentid, array('logging'=>$logging));
       if ($template != '') {
          setPreferredMailTemplateName($incidentid, $template);
          addIncidentComment('Import queue set preferred template to:
