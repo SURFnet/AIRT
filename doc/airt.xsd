@@ -9,8 +9,7 @@
    <xs:complexType name="airtType">
       <xs:element name="queuedata" type="airt:queuedataType" 
          minOccurs="0" maxOccurs="unbounded"/>
-      <xs:element name="messageIdentification" type="airt:messageIdentificationType" 
-	    minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="messageIdentification" type="airt:messageIdentificationType" minOccurs="0" maxOccurs="unbounded" />
       <xs:sequence>
          <xs:element name="incident" type="airt:incidentType"
                             minOccurs="0" maxOccurs="unbounded"/>
@@ -29,6 +28,8 @@
             minOccurs="1" maxOccurs="1"/>
       </xs:sequence>
       <xs:attribute name="ref" type="xs:ncname"/>
+      <xs:attribute name="filter" type="xs:string"/>
+      <xs:attribute name="version" type="xs:string"/>
    </xs:complexType>
 
    <xs:complexType name="incidentType">
