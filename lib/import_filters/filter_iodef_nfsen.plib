@@ -3,28 +3,28 @@
 
 /* Import queue filter function for reports in IODEF format
  * Parameters:
- * 	input		= XML IODEF document complient with `draf-ietf-inch-iodef-08.txt`
- * 	output		= The string variable to write the XML output to
- * 	verbosity	= Optionally, boolean; TRUE = verbose output to STDOUT.
+ *    input      = XML IODEF document complient with `draf-ietf-inch-iodef-08.txt`
+ *    output      = The string variable to write the XML output to
+ *    verbosity   = Optionally, boolean; TRUE = verbose output to STDOUT.
  * Returns:
  * 
  */
 
 function filter_iodef_nfsen_getVersion() {
-	$rev = explode(' ','$Rev$');
-	return $rev[1];
+   $rev = explode(' ','$Rev$');
+   return $rev[1];
 }
 
 function filter_iodef_nfsen($input, &$output, $verbosity=TRUE) {
-	// make sure we only have the XML
+   // make sure we only have the XML
 
    if (preg_match('@(<io:IODEF-Document.*/io:IODEF-Document>)@ms',
-	   $input, $matches) == 0) {
-		return;
-	} else {
-		$input = $matches[1];
-	}
-	
+      $input, $matches) == 0) {
+      return;
+   } else {
+      $input = $matches[1];
+   }
+
    $input = preg_replace('/io:/','', $input);
 
    $doc = new DOMDocument();
@@ -35,184 +35,184 @@ function filter_iodef_nfsen($input, &$output, $verbosity=TRUE) {
    $xpath = new DOMXPath($doc);
 
    $xpath->registerNamespace('io', 'urn:ietf:params:xml:ns:iodef-1.0');
-	$xpath->registerNamespace('ds', 'http://www.w3.org/2000/09/xmldsig#');
-	$xpath->registerNamespace('xsi', 'http://www.w3.org/2001/XMLSchema-instance');
-	$incidents = $xpath->evaluate('/IODEF-Document/Incident');
-	$output = "<airt:airt>\n";
+   $xpath->registerNamespace('ds', 'http://www.w3.org/2000/09/xmldsig#');
+   $xpath->registerNamespace('xsi', 'http://www.w3.org/2001/XMLSchema-instance');
+   $incidents = $xpath->evaluate('/IODEF-Document/Incident');
+   $output = "<airt:airt>\n";
    for ($i=0; $i < $incidents->length; $i++) {
-		$type = $incidents->item($i)->getAttribute('purpose');
-		$srcip=$dstip='';
-		
-		$res = $xpath->evaluate("IncidentID", $incidents->item($i));
-		$id = trim($res->item(0)->firstChild->wholeText);
+      $type = $incidents->item($i)->getAttribute('purpose');
+      $srcip=$dstip='';
 
-		$res = $xpath->evaluate("ReportTime", $incidents->item($i));
-		$time = trim($res->item(0)->textContent);
-		
-		$res = $xpath->evaluate("StartTime", $incidents->item($i));
-		$start_time = trim($res->item(0)->textContent);
-		
-		$res = $xpath->evaluate("EndTime", $incidents->item($i));
-		$end_time = trim($res->item(0)->textContent);
-	
-		// IODEF does not have a real method of suggesting an incident type
-		// The closest element that I could find is Method/Reference
-		$refs = $xpath->evaluate("EventData/Method/Reference/ReferenceName",
+      $res = $xpath->evaluate("IncidentID", $incidents->item($i));
+      $id = trim($res->item(0)->firstChild->wholeText);
+
+      $res = $xpath->evaluate("ReportTime", $incidents->item($i));
+      $time = trim($res->item(0)->textContent);
+
+      $res = $xpath->evaluate("StartTime", $incidents->item($i));
+      $start_time = trim($res->item(0)->textContent);
+
+      $res = $xpath->evaluate("EndTime", $incidents->item($i));
+      $end_time = trim($res->item(0)->textContent);
+
+      // IODEF does not have a real method of suggesting an incident type
+      // The closest element that I could find is Method/Reference
+      $refs = $xpath->evaluate("EventData/Method/Reference/ReferenceName",
          $incidents->item($i));
-		$type='unspecified';
+      $type='unspecified';
       for ($j=0; $j < $refs->length; $j++) {
-			if ($type=='unspecified') {
-			   $type = $refs->item($j)->textContent;
-		   }
-		}
-		
-		$contacts = $xpath->evaluate("Contact", $incidents->item($i));
-		$contactname = 'unspecified';
-		$logging = '';
+         if ($type=='unspecified') {
+            $type = $refs->item($j)->textContent;
+         }
+      }
+
+      $contacts = $xpath->evaluate("Contact", $incidents->item($i));
+      $contactname = 'unspecified';
+      $logging = '';
       for ($j=0; $j < $contacts->length; $j++) {
-			$role = $contacts->item(0)->getAttribute('role');
-			if ($role=='') {
-			   $role = 'unknown';
-			}
+         $role = $contacts->item(0)->getAttribute('role');
+         if ($role=='') {
+            $role = 'unknown';
+         }
 
-			$res = $xpath->evaluate("ContactName", $contacts->item($j));
-			if ($res->length > 0) {
-				$name = trim($res->item(0)->textContent);
+         $res = $xpath->evaluate("ContactName", $contacts->item($j));
+         if ($res->length > 0) {
+            $name = trim($res->item(0)->textContent);
 
-				//merge contact names
-				if ($contactname == 'unspecified') {
-					$contactname = $name;
-				} else {
-					$contactname .= ", ".$name;
-				}
-			}
-				
-			$res = $xpath->evaluate("Email", $contacts->item($j));
-			if ($res->length > 0) {
-				$email = trim($res->item(0)->textContent);
+            //merge contact names
+            if ($contactname == 'unspecified') {
+               $contactname = $name;
+            } else {
+               $contactname .= ", ".$name;
+            }
+         }
 
-				//add e-mail address
-				if ($email) $contactname .= "(".$email.")";
-			}
-		} // contacts
-		
-		$events = $xpath->evaluate("EventData", $incidents->item($i));
+         $res = $xpath->evaluate("Email", $contacts->item($j));
+         if ($res->length > 0) {
+            $email = trim($res->item(0)->textContent);
+
+            //add e-mail address
+            if ($email) $contactname .= "(".$email.")";
+         }
+      } // contacts
+
+      $events = $xpath->evaluate("EventData", $incidents->item($i));
       for ($j=0; $j < $events->length; $j++) {
-			$flows = $xpath->evaluate("Flow", $events->item($j));
+         $flows = $xpath->evaluate("Flow", $events->item($j));
          for ($k=0; $k < $flows->length; $k++) {
-				$systems = $xpath->evaluate("System", $flows->item($k));
-				$nsystems = $systems->length;
-				
-				//create arrays to fill
-				$arr_category = array();
-				$arr_nodename = array();
-				$arr_nodeaddress  = array();
-				$arr_nodeport = array();
+            $systems = $xpath->evaluate("System", $flows->item($k));
+            $nsystems = $systems->length;
+
+            //create arrays to fill
+            $arr_category = array();
+            $arr_nodename = array();
+            $arr_nodeaddress  = array();
+            $arr_nodeport = array();
             for ($l=0; $l < $systems->length; $l++) {
-					$systemcategory = $nodename = $nodeaddress = $nodeport = null;
-					$systemcategory = $systems->item($l)->getAttribute('category');
-					$nodenames = $xpath->evaluate("Node/NodeName", $systems->item($l));
+               $systemcategory = $nodename = $nodeaddress = $nodeport = null;
+               $systemcategory = $systems->item($l)->getAttribute('category');
+               $nodenames = $xpath->evaluate("Node/NodeName", $systems->item($l));
                for ($m=0; $m < $nodenames->length; $m++) {
-						$nodename = trim($nodenames->item($m)->textContent);
-					}
-					$nodeaddresses = $xpath->evaluate("Node/Address", $systems->item($l));
+                  $nodename = trim($nodenames->item($m)->textContent);
+               }
+               $nodeaddresses = $xpath->evaluate("Node/Address", $systems->item($l));
                for ($m=0; $m < $nodeaddresses->length; $m++) {
-						$addresscategory = $nodeaddresses->item($m)->getAttribute('category');
-						$nodeaddress = trim($nodeaddresses->item($m)->textContent);
-					}
-					$counters = $xpath->evaluate('Node/Counter', $systems->item($l));
+                  $addresscategory = $nodeaddresses->item($m)->getAttribute('category');
+                  $nodeaddress = trim($nodeaddresses->item($m)->textContent);
+               }
+               $counters = $xpath->evaluate('Node/Counter', $systems->item($l));
                for ($m=0; $m < $counters->length; $m++) {
                   $counter_type=$counters->item($m)->getAttribute('type');
                   $counter_data=$counters->item($m)->textContent;
-					}
+               }
 
-					$services = $xpath->evaluate("Service", $systems->item($l));
+               $services = $xpath->evaluate("Service", $systems->item($l));
                for ($m=0; $m < $services->length; $m++) {
-						$ip_version = $services->item($m)->getAttribute('ip_version');
-						$ip_protocol = $services->item($m)->getAttribute('ip_protocol');
-						
-						$ports = $xpath->evaluate("Port", $services->item($m));
+                  $ip_version = $services->item($m)->getAttribute('ip_version');
+                  $ip_protocol = $services->item($m)->getAttribute('ip_protocol');
+
+                  $ports = $xpath->evaluate("Port", $services->item($m));
                   for ($n=0; $n < $ports->length; $n++) {
-							$nodeport = trim($ports->item($n)->textContent);
-						}
-					} // Service (m)
+                     $nodeport = trim($ports->item($n)->textContent);
+                  }
+               } // Service (m)
 
-					//fill the arrays
-					$arr_category[$l] = $systemcategory;
-					$arr_nodename[$l] = $nodename;
-					$arr_nodeaddress[$l] = $nodeaddress;
-					$arr_nodeport[$l] = $nodeport;
+               //fill the arrays
+               $arr_category[$l] = $systemcategory;
+               $arr_nodename[$l] = $nodename;
+               $arr_nodeaddress[$l] = $nodeaddress;
+               $arr_nodeport[$l] = $nodeport;
 
-					//set source and destination ip for summary
-					if ($systemcategory == "source") {
-						$srcip = $nodeaddress;
-					} elseif ($systemcategory == "target") {
-						$dstip = $nodeaddress;
-						$dstport = $nodeport;
-					}
-				} // systems(l)
-			} // flows(k)
+               //set source and destination ip for summary
+               if ($systemcategory == "source") {
+                  $srcip = $nodeaddress;
+               } elseif ($systemcategory == "target") {
+                  $dstip = $nodeaddress;
+                  $dstport = $nodeport;
+               }
+            } // systems(l)
+         } // flows(k)
 
-			/* Logging is currently extracted from Record/RecordData */
-			$recorddata = $xpath->evaluate("Record/RecordData", $events->item($j));
+         /* Logging is currently extracted from Record/RecordData */
+         $recorddata = $xpath->evaluate("Record/RecordData", $events->item($j));
          for ($k=0; $k < $recorddata->length; $k++) {
-				$recorditems = $xpath->evaluate("RecordItem", $recorddata->items($k));
+            $recorditems = $xpath->evaluate("RecordItem", $recorddata->items($k));
             for ($l=0; $l < $recorditems->length; $l++) {
-					$logging = trim($recorditems->item($l)->textContent);
-				} // RecordItem ($l)
-			} // RecordData ($k)
+               $logging = trim($recorditems->item($l)->textContent);
+            } // RecordItem ($l)
+         } // RecordData ($k)
 
-			// assemble our own logging if not explicitly provided.
-			if ($logging=='') {
-			   $logging =  sprintf("Source (ip)        : %s\n", $srcip);
-				$logging .= sprintf("Target (ip:port)   : %s:%s\n", 
-					$dstip, $dstport);
-				$logging .= sprintf("Packet (type:count): %s:%s\n", 
-					$counter_type, $counter_data);
-				$logging .= sprintf("Start time         : %s\n",
-					$start_time);
-				$logging .= sprintf("End time           : %s\n",
-				   $end_time);
-			}
-		} // eventdata (j)
+         // assemble our own logging if not explicitly provided.
+         if ($logging=='') {
+            $logging =  sprintf("Source (ip)        : %s\n", $srcip);
+            $logging .= sprintf("Target (ip:port)   : %s:%s\n", 
+               $dstip, $dstport);
+            $logging .= sprintf("Packet (type:count): %s:%s\n", 
+               $counter_type, $counter_data);
+            $logging .= sprintf("Start time         : %s\n",
+               $start_time);
+            $logging .= sprintf("End time           : %s\n",
+               $end_time);
+         }
+      } // eventdata (j)
 
-		$output .= "<airt:queuedata version=\"".
-		   filter_iodef_nfsen_getVersion().
-			"\" filter=\"filter_iodef_nfsen\" ref=\"#$id\">\n";
-		$output .= "   <airt:status>open</airt:status>\n";
-		$output .= "   <airt:sender>$contactname</airt:sender>\n";
-		$output .= "   <airt:type>$type</airt:type>\n";
-		$output .= "   <airt:summary>$contactname type: $type role: $role, attack dst: $dstip src: $srcip</airt:summary>\n";
-		$output .= "</airt:queuedata>\n";
-		$output .= "<airt:incident id=\"$id\">\n";
-		$output .= "  <airt:ticketInformation>\n";
-		$output .= "    <airt:prefix>$contactname</airt:prefix>\n";
-		$output .= "  </airt:ticketInformation>\n";
-		for ($j = 0; $j < $nsystems; $j++) {
-		   if ($arr_category[$j] == 'source') {
-				$output .= "  <airt:technicalInformation>\n";
-				$output .= "    <airt:addressrole>$arr_category[$j]</airt:addressrole>\n";
-				if ($arr_nodeaddress[$j]) {
-					$output .= "    <airt:ip>$arr_nodeaddress[$j]</airt:ip>\n";
-				}
-				if ($arr_nodeport[$j]) {
-					$output .= "    <airt:port>$arr_nodeport[$j]</airt:port>\n";
-				}
-				if ($arr_nodename[$j]) {
-					$output .= "    <airt:hostname>$arr_nodename[$j]</airt:hostname>\n";
-				}
+      $output .= "<airt:queuedata version=\"".
+         filter_iodef_nfsen_getVersion().
+         "\" filter=\"filter_iodef_nfsen\" ref=\"#$id\">\n";
+      $output .= "   <airt:status>open</airt:status>\n";
+      $output .= "   <airt:sender>$contactname</airt:sender>\n";
+      $output .= "   <airt:type>$type</airt:type>\n";
+      $output .= "   <airt:summary>$contactname type: $type role: $role, attack dst: $dstip src: $srcip</airt:summary>\n";
+      $output .= "</airt:queuedata>\n";
+      $output .= "<airt:incident id=\"$id\">\n";
+      $output .= "  <airt:ticketInformation>\n";
+      $output .= "    <airt:prefix>$contactname</airt:prefix>\n";
+      $output .= "  </airt:ticketInformation>\n";
+      for ($j = 0; $j < $nsystems; $j++) {
+         if ($arr_category[$j] == 'source') {
+            $output .= "  <airt:technicalInformation>\n";
+            $output .= "    <airt:addressrole>$arr_category[$j]</airt:addressrole>\n";
+            if ($arr_nodeaddress[$j]) {
+               $output .= "    <airt:ip>$arr_nodeaddress[$j]</airt:ip>\n";
+            }
+            if ($arr_nodeport[$j]) {
+               $output .= "    <airt:port>$arr_nodeport[$j]</airt:port>\n";
+            }
+            if ($arr_nodename[$j]) {
+               $output .= "    <airt:hostname>$arr_nodename[$j]</airt:hostname>\n";
+            }
 
-				//only print incident information in in first record
-				if ($j == 0) {
-					$output .= "    <airt:incident_time>$time</airt:incident_time>\n";
-					$output .= "    <airt:logging>$logging</airt:logging>\n";
-				}
-				$output .= "  </airt:technicalInformation>\n";
-			}
-		} // $j
-		$output .= "</airt:incident>\n";
-	} // incidents ($i)
-	$output .= "</airt:airt>";
-	v_print($output,$verbosity);
+            //only print incident information in in first record
+            if ($j == 0) {
+               $output .= "    <airt:incident_time>$time</airt:incident_time>\n";
+               $output .= "    <airt:logging>$logging</airt:logging>\n";
+            }
+            $output .= "  </airt:technicalInformation>\n";
+         }
+      } // $j
+      $output .= "</airt:incident>\n";
+   } // incidents ($i)
+   $output .= "</airt:airt>";
+   v_print($output,$verbosity);
 }
 ?>
