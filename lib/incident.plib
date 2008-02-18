@@ -358,7 +358,7 @@ function getIncident($id) {
         state,
         status,
         type,
-		  logging,
+	logging,
         extract(epoch from incidentdate) as incidentdate,
         pref_templ as template,
         short_desc as desc
@@ -915,8 +915,8 @@ function updateIncident($id,$params = array()) {
    // Add the fixed part (we know for sure there is at least one variable
    // part).
    $set .= sprintf('updated=CURRENT_TIMESTAMP,updatedBy=%d', $_SESSION['userid']);
-
    // Create the whole query.
+
    db_query(q('UPDATE incidents SET %set WHERE id=%id', array('%set'=>$set, '%id'=>$id)));
 
   return;
@@ -2045,22 +2045,22 @@ function getOpenIncidentsByConstituency($cons) {
  */
 function getPreferredMailTemplateName($incidentid) {
    if (!is_numeric($incidentid)) {
-	   return null;
+      return null;
    }
-	$q = q('SELECT pref_templ FROM incidents WHERE id=%id',
+   $q = q('SELECT pref_templ FROM incidents WHERE id=%id',
 	   array('%id'=>$incidentid));
-	$res = db_query($q);
-	if ($res == false) {
-	   airt_error('DB_QUERY', 'incidents.plib:'.__LINE__);
+   $res = db_query($q);
+   if ($res == false) {
+      airt_error('DB_QUERY', 'incidents.plib:'.__LINE__);
 		reload('');
 		return null;
-	}
-	if (db_num_rows($res) == 0) {
-	   return null;
-	} else {
-	   $row = db_fetch_next($res);
-		return $row['pref_templ'];
-	}
+   }
+   if (db_num_rows($res) == 0) {
+      return null;
+   } else {
+      $row = db_fetch_next($res);
+      return $row['pref_templ'];
+   }
 }
 
 /** Check if an incident with the given ID exists in the database.
