@@ -350,6 +350,7 @@ special variables in the template:').'<p>'.LF;
          unset($msg_params['disposition']);
          $mime = new Mail_mimePart($msg, $msg_params);
          $m = $mime->encode();
+         $body = $m['body'];
       } else {
          // pgp signed messages are described in RFC 2015
          $msg_params['content_type'] = 'multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"';
