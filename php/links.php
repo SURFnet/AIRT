@@ -117,7 +117,7 @@ switch ($action) {
          $out .= t("<tr bgcolor=\"%color\">\n", array(
             '%color' => ($count++%2==0) ? "#DDDDDD" : "#FFFFFF"));
          $out .= "<td>\n";
-         $out .= t(   '<a href="%url\">%label</a>', array(
+         $out .= t(   '<a href="%url">%label</a>', array(
             '%url'=>$row["url"], '%label'=>$row["label"]));
          $out .= t("</td>\n");
          $out .= "<td>\n";
@@ -225,7 +225,7 @@ switch ($action) {
         $url = $row["url"];
         $description = $row["label"];
 
-         print '<form action="'.$_SERVER[PHP_SELF].'" method="POST">'.LF;
+         print '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">'.LF;
          print '<input type="hidden" name="action" value="update">'.LF;
          print '<input type="hidden" name="id" value="'.$id.'">'.LF;
          print '<table>'.LF;
@@ -283,11 +283,8 @@ switch ($action) {
         if (!is_numeric($id)) {
            die(_('Invalid parameter type ').__LINE__);
         }
-        if (!is_numeric($pos)) {
-           die(_('Invalid parameter type ').__LINE__);
-        }
          $res = db_query(q("UPDATE urls SET menu_position=%pos WHERE id=%id", 
-            array('%pos'=>($pos=='')?'NULL':$pos, '%id'=>$id)));
+            array('%pos'=>($pos=='')?'NULL':sprintf("%d", $pos), '%id'=>$id)));
          if (!$res) {
             airt_error('DB_QUERY', 'links.php:'.__LINE__);
             Header("Location: $_SERVER[PHP_SELF]");
@@ -309,11 +306,8 @@ switch ($action) {
         if (!is_numeric($id)) {
            die(_('Invalid parameter type ').__LINE__);
         }
-        if (!is_numeric($pos)) {
-           die(_('Invalid parameter type ').__LINE__);
-        }
          $res = db_query(q("UPDATE urls SET navbar_position=%pos WHERE id=%id", 
-            array('%pos'=>($pos=='')?'NULL':$pos, '%id'=>$id)));
+            array('%pos'=>($pos=='')?'NULL':sprintf("%d",$pos), '%id'=>$id)));
          if (!$res) {
             airt_error('DB_QUERY', 'links.php:'.__LINE__);
             Header("Location: $_SERVER[PHP_SELF]");
