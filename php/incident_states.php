@@ -39,6 +39,9 @@ function show_form($id="") {
    $submit    = _('Add!');
 
    if ($id != "") {
+      if (!is_numeric($id)) {
+         die(_('Invalid parameter value.'));
+      }
       $res = db_query("
          SELECT label, descr, isdefault
          FROM   incident_states
@@ -131,6 +134,9 @@ switch ($action) {
    case "edit":
       if (array_key_exists("id", $_GET)) {
          $id=$_GET["id"];
+         if (!is_numeric($id)) {
+            die(_('Invalid parameter type in '.__LINE__));
+         }
       } else {
          die(_('Missing information.'));
       }
@@ -178,9 +184,9 @@ switch ($action) {
             (id, label, descr, isdefault)
             VALUES
             (nextval('incident_states_sequence'), %s, %s, %s)",
-            db_masq_null($label),
-            db_masq_null($desc),
-            db_masq_null($isdefault)))
+            db_masq_null(db_escape_string($label)),
+            db_masq_null(db_escape_string($desc)),
+            db_masq_null(db_escape_string($isdefault))))
          or die(_('Unable to excute query 2.'));
 
          Header("Location: $_SERVER[PHP_SELF]");
@@ -188,15 +194,18 @@ switch ($action) {
          if ($id=="") {
             die(_('Missing information (3).'));
          }
+         if (!is_numeric($id)) {
+            die(_('Invalid parameter type in '.__LINE__));
+         }
          $res = db_query(sprintf("
             UPDATE incident_states
             set  label=%s,
                  descr=%s,
                  isdefault=%s
             WHERE id=%s",
-            db_masq_null($label),
-            db_masq_null($desc),
-            db_masq_null($isdefault),
+            db_masq_null(db_escape_string($label)),
+            db_masq_null(db_escape_string($desc)),
+            db_masq_null(db_escape_string($isdefault)),
             $id))
          or die(_('Unable to excute query 3.'));
 
@@ -208,6 +217,9 @@ switch ($action) {
    case "delete":
       if (array_key_exists("id", $_GET)) {
          $id=$_GET["id"];
+         if (!is_numeric($id)) {
+            die(_('Invalid parameter type in '.__LINE__));
+         }
       } else {
          die(_('Missing information.'));
       }

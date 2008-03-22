@@ -25,7 +25,7 @@
  require_once 'config.plib';
  require_once LIBDIR.'/airt.plib';
  require_once LIBDIR.'/database.plib';
- 
+
  if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
  else $action = "list";
 
@@ -37,6 +37,9 @@
     $submit    = _('Add!');
 
     if ($id != "") {
+       if (!is_numeric($id)) {
+          die(_('Invalid parameter type in ').__LINE__);
+       }
         $res = db_query("
         SELECT label, descr, isdefault
         FROM   incident_status
@@ -161,23 +164,26 @@ print '</tr>'.LF;
                 (id, label, descr, isdefault)
                 VALUES
                 (nextval('incident_status_sequence'), %s, %s, %s)",
-                    db_masq_null($label),
-                    db_masq_null($desc),
-                    db_masq_null($isdefault)))
+                    db_masq_null(db_escape_string($label)),
+                    db_masq_null(db_escape_string($desc)),
+                    db_masq_null(db_escape_string($isdefault))))
             or die(_('Unable to execute query 2.'));
 
             Header("Location: $_SERVER[PHP_SELF]");
         } else if ($action=="update") {
             if ($id=="") die(_('Missing information (3).'));
+            if (!is_numeric($id)) {
+               die(_('Invalid parameter type in ').__LINE);
+            }
             $res = db_query(sprintf("
                 UPDATE incident_status
                 set label=%s,
                     descr=%s,
                     isdefault=%s
                 WHERE id=%s",
-                    db_masq_null($label),
-                    db_masq_null($desc),
-                    db_masq_null($isdefault),
+                    db_masq_null(db_escape_string($label)),
+                    db_masq_null(db_escape_string($desc)),
+                    db_masq_null(db_escape_string($isdefault)),
                     $id))
             or die(_('Unable to execute query  3.'));
 
@@ -189,6 +195,9 @@ print '</tr>'.LF;
     case "delete":
         if (array_key_exists("id", $_GET)) $id=$_GET["id"];
         else die(_('Missing information.'));
+        if (!is_numeric($id)) {
+           die(_('Invalid parameter type in ').__LINE__);
+        }
 
         $res = db_query("
             DELETE FROM incident_status
