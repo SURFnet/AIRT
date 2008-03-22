@@ -164,9 +164,9 @@ print '</tr>'.LF;
                 (id, label, descr, isdefault)
                 VALUES
                 (nextval('incident_status_sequence'), %s, %s, %s)",
-                    db_masq_null(db_escape_string($label)),
-                    db_masq_null(db_escape_string($desc)),
-                    db_masq_null(db_escape_string($isdefault))))
+                    db_masq_null($label),
+                    db_masq_null($desc),
+                    db_masq_null($isdefault)))
             or die(_('Unable to execute query 2.'));
 
             Header("Location: $_SERVER[PHP_SELF]");
@@ -180,10 +180,10 @@ print '</tr>'.LF;
                 set label=%s,
                     descr=%s,
                     isdefault=%s
-                WHERE id=%s",
-                    db_masq_null(db_escape_string($label)),
-                    db_masq_null(db_escape_string($desc)),
-                    db_masq_null(db_escape_string($isdefault)),
+                WHERE id=%d",
+                    db_masq_null($label),
+                    db_masq_null($desc),
+                    db_masq_null($isdefault),
                     $id))
             or die(_('Unable to execute query  3.'));
 
