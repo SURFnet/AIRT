@@ -27,27 +27,27 @@ require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/database.plib';
 require_once LIBDIR.'/constituency.plib';
 
-if (array_key_exists("action", $_REQUEST)) {
-   $action=$_REQUEST["action"];
-} else {
-   $action = "list";
-}
+$request = fetchFrom('REQUEST', 'action', '%s');
+defaultTo($request, 'list');
 
 /** GUI Component to show the update constituecy form. */
-function formatConstituencyForm($id="") {
+function formatConstituencyForm($id='') {
    $label = $description = '';
    $action = 'add';
    $submit = _('Add!');
 
-   if ($id != '') {
+   if (!empty($id)) {
+      if (!is_numeric($id)) {
+         die(_('Invalid parameter type ').__LINE__);
+      }
       $constituencies = getConstituencies();
 
       if (array_key_exists($id, $constituencies)) {
          $row = $constituencies[$id];
+         $label = $row['label'];
+         $description = $row['description'];
          $action = 'update';
          $submit = _('Update!');
-         $label = $row['label'];
-         $description = $row['name'];
       }
    }
    $out = '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">'.LF;
@@ -57,12 +57,12 @@ function formatConstituencyForm($id="") {
    $out .= '<tr>'.LF;
    $out .= '   <td>Label</td>'.LF;
    $out .= '   <td><input type="text" size="30" name="label" '.
-           '       value="'.$label.'"></td>'.LF;
+           '       value="'.strip_tags($label).'"></td>'.LF;
    $out .= '</tr>'.LF;
    $out .= '<tr>'.LF;
    $out .= '   <td>Description</td>'.LF;
    $out .= '   <td><input type="text" size="30" name="description" '.
-           '    value="'.$description.'"></td>'.LF;
+           '    value="'.strip_tags($description).'"></td>'.LF;
    $out .= '</tr>'.LF;
    $out .= '</table>'.LF;
    $out .= '<p>'.LF;
@@ -92,28 +92,22 @@ switch ($action) {
 
       $count=0;
       foreach ($constituencies as $id => $row) {
-         $label = $row["label"];
-         $name  = $row["name"];
          $consid = $id;
          $color = ($count++%2==0?"#FFFFFF":"#DDDDDD");
          $out .= '<tr valign="top" bgcolor="'.$color.'">'.LF;
          $out .= '<td>'.LF;
-         $out .= '<a href="'.$_SERVER['PHP_SELF'].'?action=edit&cons='.$consid.
-                 '">'._('edit').'</a>'.LF;
+         $out .= '<a href="'.$_SERVER['PHP_SELF'].'?action=edit&cons='.
+            $consid.'">'._('edit').'</a>'.LF;
          $out .= '</td>'.LF;
-         $out .= '<td>'.$label.'</td>'.LF;
-         $out .= '<td>'.$name.'</td>'.LF;
+         $out .= '<td>'.strip_tags($row['label']).'</td>'.LF;
+         $out .= '<td>'.strip_tags($row['$name']).'</td>'.LF;
          $out .= '<td>'.LF;
          foreach ($networks as $id=>$row2) {
-            if ($row2["constituency"] != $consid) {
+            if ($row2['constituency'] != $consid) {
                continue;
             }
-            $label   = $row2["label"];
-            $network = $row2["network"];
-            $netmask = $row2["netmask"];
-
-            $out .= '- '.$label.'<BR>  <small>'.$network .' / '. $netmask.
-                    '</small><BR>'.LF;
+            $out .= '- '.$row2['label'].'<BR><small>'.
+               $row2['network'].' / '.$row2['netmask'].'</small><BR>'.LF;
          }
          $out .= '</td>'.LF;
          $out .= '</tr>'.LF;
@@ -127,10 +121,9 @@ switch ($action) {
 
    //-----------------------------------------------------------------
    case "edit":
-      if (array_key_exists("cons", $_GET)) {
-         $cons=$_GET["cons"];
-      } else {
-         die(_('Missing information.'));
+      $cons = fetchFrom('GET', 'cons', '%d');
+      if (empty($cons)) {
+         die(_('Missing information in ').__LINE__);
       }
 
       pageHeader(_('Edit constituency'));
@@ -141,21 +134,18 @@ switch ($action) {
    //-----------------------------------------------------------------
    case "add":
    case "update":
-      if (array_key_exists("consid", $_POST)) {
-         $consid=$_POST["consid"];
-      } else {
-         $consid="";
+      $consid = fetchFrom('POST', 'consid', '%d');
+      defaultTo($consid, -1);
+
+      $label = fetchFrom('POST', 'label', '%s');
+      if (empty($consid)) {
+         die(_('Missing information in ').__LINE__);
       }
-      if (array_key_exists("label", $_POST)) {
-         $label=$_POST["label"];
-      } else {
-         die(_('Missing information (1).'));
+
+      if (empty($description)) {
+         die(_('Missing information in ').__LINE__);
       }
-      if (array_key_exists("description", $_POST)) {
-            $description=$_POST["description"];
-      } else {
-         die(_('Missing information (2).'));
-      }
+
       if ($action=="add") {
          $res = db_query(sprintf("
             INSERT INTO constituencies
@@ -170,12 +160,13 @@ switch ($action) {
             "label"=>$label,
             "name"=>$description
          ));
-         Header("Location: $_SERVER[PHP_SELF]");
+         reload();
       } else if ($action=="update") {
-         if ($consid=="") {
+         if ($empty(consid)) {
             die(_('Missing information (3).'));
          }
          if (!is_numeric($consid)) {
+            // should never happen
             die(_('Invalid parameter type ').__LINE__);
          }
 
@@ -193,20 +184,19 @@ switch ($action) {
             "label"=>$label,
             "name"=>$description
          ));
-         Header("Location: $_SERVER[PHP_SELF]");
-   }
+         reload();
+      }
 
-   break;
+      break;
 
    //-----------------------------------------------------------------
    case "Delete":
-      if (array_key_exists("consid", $_POST)) {
-         $cons=$_POST["consid"];
-      } else {
+      $cons = fetchFrom('POST', 'consid', '%d');
+      if (empty($cons)) {
          die(_('Missing information (1).'));
       }
       if (!is_numeric($cons)) {
-         die(_('Invalid parameter type ').__LINE__);
+         die(_('Invalid parameter type in ').__LINE__);
       }
 
       generateEvent("deleteconstituency", array(
@@ -215,16 +205,14 @@ switch ($action) {
 
       $res = db_query("
          DELETE FROM constituencies
-         WHERE  id='$cons'")
-      or die(_('Unable to execute query.'));
+         WHERE  id=$cons")
+      or die(_('Unable to execute query in ').__LINE__);
 
-      Header("Location: $_SERVER[PHP_SELF]");
-
+      reload();
       break;
 
    //-----------------------------------------------------------------
    default:
-      die(_('Unknown action: ').$action);
- } // switch
-
+      die(_('Unknown action: ').strip_tags($action));
+} // switch
 ?>

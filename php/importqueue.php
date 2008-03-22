@@ -25,11 +25,8 @@ require_once LIBDIR.'/database.plib';
 require_once LIBDIR.'/error.plib';
 require_once LIBDIR.'/importqueue.plib';
 
-if (array_key_exists('action', $_REQUEST)) {
-   $action = $_REQUEST['action'];
-} else {
-   $action = 'list';
-}
+$action = fetchFrom('REQUEST', 'action', '%s');
+defaultTo($action, 'list');
 
 
 /** Helper function to display the queue.

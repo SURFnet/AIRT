@@ -28,11 +28,8 @@ require_once 'config.plib';
 require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/database.plib';
 
-if (array_key_exists("action", $_REQUEST)) {
-   $action=$_REQUEST["action"];
-} else {
-   $action = "list";
-}
+$action = fetchFrom('REQUEST', 'action', '%s');
+defaultTo($action, 'list');
 
 switch ($action) {
    //-----------------------------------------------------------------
@@ -58,10 +55,9 @@ switch ($action) {
 
    //-----------------------------------------------------------------
    case "edit":
-      if (array_key_exists("consid", $_GET)) {
-         $consid=$_GET["consid"];
-      } else {
-         die(_('Missing information.'));
+      $consid = fetchFrom('GET', 'consid', '%d');
+      if (empty($consid)) {
+         die(_('Missing information in ').__LINE__);
       }
       if (!is_numeric($consid)) {
          die(_('Invalid format'));
@@ -72,7 +68,7 @@ switch ($action) {
          "SELECT label, name
           FROM   constituencies
           WHERE  id=$consid")
-      or die(_('Unable to execute query 1.'));
+      or die(_('Unable to execute query in ').__LINE__);
 
       if (db_num_rows($res) == 0) {
          die(_('Invalid constituency.'));
@@ -83,7 +79,8 @@ switch ($action) {
       $name  = $row["name"];
       db_free_result($res);
 
-      echo '<h3>'._('Current contacts of constituency ').$label.'</H3>'.LF;
+      echo '<h3>'._('Current contacts of constituency ').
+         strip_tags($label).'</H3>'.LF;
 
       $res = db_query(
          "SELECT u.id, login, lastname, firstname, email, phone
@@ -106,17 +103,18 @@ switch ($action) {
 
             printf('
 <tr>
-    <td><a href="%susers.php?action=edit&id=%s">edit</a></td>
+    <td><a href="%susers.php?action=edit&id=%d">edit</a></td>
     <td>%s (%s, %s)</td>
     <td><a href="mailto:%s">%s</a></td>
     <td>%s</td>
-    <td><a href="%s?action=remove&cons=%s&user=%s">'._('Remove').'</a>
+    <td><a href="%s?action=remove&cons=%d&user=%d">'._('Remove').'</a>
 	</td>
 </tr>',
             BASEURL, urlencode($id),
-            $login, $lastname, $firstname,
-            $email, $email,
-            $phone, $_SERVER['PHP_SELF'], $consid, $id);
+            strip_tags($login), strip_tags($lastname),
+            strip_tags($firstname), strip_tags($email),
+            strip_tags($email), strip_tags($phone),
+            $_SERVER['PHP_SELF'], $consid, $id);
          }
          echo '</table>'.LF;
       }
@@ -130,7 +128,7 @@ switch ($action) {
              WHERE  constituency=$consid
           )
           ORDER BY email")
-      or die(_('Unable to execute query(3).'));
+      or die(_('Unable to execute query in ').__LINE__);
 
       if (db_num_rows($res) > 0) {
          print '<P>'.LF;
@@ -138,8 +136,8 @@ switch ($action) {
          print _('Assing user(s) to constituency:').LF;
          print '<SELECT name="userid">'.LF;
          while ($row = db_fetch_next($res)) {
-            $email = $row['email'];
-            $id    = $row["id"];
+            $email = strip_tags($row['email']);
+            $id    = strip_tags($row['id']);
 
             printf("<option value=\"$id\">$email</option>\n");
          }
@@ -154,24 +152,22 @@ switch ($action) {
       print '<P><HR>'.LF;
       print '<a href="'.$_SERVER['PHP_SELF'].'">'.
             _('Select another constituency').'</a> &nbsp;|&nbsp;'.
-            '<a href="maintenance.php">'._('Settings').'</a>'.LF;
+            '<a href="'.BASEURL.'/maintenance.php">'._('Settings').'</a>'.LF;
       pageFooter();
       break;
 
    //-----------------------------------------------------------------
    case "assignuser":
-      if (array_key_exists("consid", $_POST)) {
-         $consid=$_POST["consid"];
-      } else {
-         die(_('Missing information (1).'));
+      $consid = fetchFrom('POST', 'consid', '%d');
+      if (empty($consid)) {
+         die(_('Missing information in ').__LINE__);
       }
-      if (array_key_exists("userid", $_POST)) {
-         $userid=$_POST["userid"];
-      } else {
-         die(_('Missing information (2).'));
+      $userid = fetchFrom('POST', 'userid', '%d');
+      if (empty($userid)) {
+         die(_('Missing information in ').__LINE__);
       }
       if (!is_numeric($consid) || !is_numeric($userid)) {
-         die(_('Invalid data.'));
+         die(_('Invalid data in ').__LINE__);
       }
 
       $res=db_query("
@@ -180,23 +176,21 @@ switch ($action) {
          VALUES
          (nextval('constituency_contacts_sequence'), $consid, $userid)")
       or die(_('Unable to execute query'));
-      Header("Location: $_SERVER[PHP_SELF]?action=edit&consid=$consid");
+      reload("$_SERVER[PHP_SELF]?action=edit&consid=$consid");
       break;
 
    //-----------------------------------------------------------------
    case "remove":
-      if (array_key_exists("cons", $_GET)) {
-         $cons=$_GET["cons"];
-      } else {
-         die(_('Missing information (1).'));
+      $cons = fetchFrom('GET', 'cons', '%id');
+      if (empty($cons)) {
+         die(_('Missing information in ').__LINE__);
       }
-      if (array_key_exists("user", $_GET)) {
-         $id=$_GET["user"];
-      } else {
-         die(_('Missing information (2).'));
+      $id = fetchFrom('GET', 'user', '%d');
+      if (empty($id)) {
+         die(_('Missing information in ').__LINE__);
       }
       if (!is_numeric($id) || !is_numeric($cons)) {
-         die(_('Invalid format'));
+         die(_('Invalid format in ').__LINE__);
       }
 
       $res = db_query(
@@ -204,13 +198,13 @@ switch ($action) {
              WHERE  userid=$id
              AND    constituency=$cons")
       or die(_('Unable to execute query'));
-      Header("Location: $_SERVER[PHP_SELF]?action=edit&consid=$cons");
+      reload("$_SERVER[PHP_SELF]?action=edit&consid=$cons");
 
       break;
 
    //-----------------------------------------------------------------
    default:
-      die(_('Unknown action: ').$action);
+      die(_('Unknown action: ').strip_tags($action));
 } // switch
 
 ?>

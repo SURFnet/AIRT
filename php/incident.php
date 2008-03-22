@@ -223,6 +223,9 @@ switch ($action) {
                   'desc'=>$desc));
                if ($address!='') {
                   addIPtoIncident($address,$incidentid,$addressrole);
+                  if (!is_numeric($constituency)) {
+                     die(_('Invalid data type in ').__LINE__);
+                  }
                   $res = db_query("SELECT cc.userid
                      FROM   constituency_contacts cc
                      WHERE  cc.constituency = $constituency")

@@ -25,12 +25,9 @@ require_once 'config.plib';
 require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/database.plib';
 
-if (array_key_exists("action", $_REQUEST)) {
-   $action=$_REQUEST["action"];
-} else {
-   $action = "list";
-}
-
+/* Show the incident state form. Populate it with the values of the
+ * incident state, if provided
+ */
 function show_form($id="") {
    $label     = "";
    $desc      = "";
@@ -45,7 +42,7 @@ function show_form($id="") {
       $res = db_query("
          SELECT label, descr, isdefault
          FROM   incident_states
-         WHERE  id = '$id'")
+         WHERE  id = $id")
       or die(_('Unable to query database.'));
 
       if (db_num_rows($res) > 0) {
@@ -63,29 +60,37 @@ function show_form($id="") {
       $isdefault = '';
    }
    echo '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">'.LF;
-   echo '<input type="hidden" name="action" value="'.$action.'">'.LF;
-   echo '<input type="hidden" name="id" value="'.$id.'">'.LF;
+   echo '<input type="hidden" name="action" value="'.
+      strip_tags($action).'">'.LF;
+   echo '<input type="hidden" name="id" value="'.
+      strip_tags($id).'">'.LF;
    echo '<table>'.LF;
    echo '<tr>'.LF;
    echo '<td>'._('Label').'</td>'.LF;
    echo '<td>'.LF;
-   echo '<input type="text" size="30" name="label" value="'.$label.'">'.LF;
+   echo '<input type="text" size="30" name="label" value="'.
+      strip_tags($label).'">'.LF;
    echo '</td>'.LF;
    echo '</tr>'.LF;
    echo '<tr>'.LF;
    echo '<td>'._('Description').'</td>'.LF;
-   echo '<td><input type="text" size="50" name="desc" value="'.$desc.'"></td>'.LF;
+   echo '<td><input type="text" size="50" name="desc" value="'.
+      strip_tags($desc).'"></td>'.LF;
    echo '</tr>'.LF;
    echo '<tr>'.LF;
    echo '<td>'._('Entry is default').'</td>'.LF;
-   echo '<td><input type="checkbox" name="isdefault" value="1" '.$isdefault.'></td>'.LF;
+   echo '<td><input type="checkbox" name="isdefault" value="1" '.
+      strip_tags($isdefault).'></td>'.LF;
    echo '</tr>'.LF;
    echo '</table>'.LF;
    echo '<p>'.LF;
-   echo '<input type="submit" value="'.$submit.'">'.LF;
+   echo '<input type="submit" value="'.
+      strip_tags($submit).'">'.LF;
    echo '</form>'.LF;
 }
 
+$action = fetchFrom('REQUEST', 'action', '%s');
+defaultTo($action, 'list');
 switch ($action) {
    // --------------------------------------------------------------
    case "list":
@@ -112,13 +117,14 @@ switch ($action) {
          $isdefault = $row['isdefault']=='t'? 'Yes':'';
          $color = ($count++%2==0?"#FFFFFF":"#DDDDDD");
          echo '<tr valign="top" bgcolor="'.$color.'">'.LF;
-         echo '<td>'.$label.'</td>'.LF;
-         echo '<td>'.$desc,'</td>'.LF;
-         echo '<td>'.$isdefault.'</td>'.LF;
+         echo '<td>'.strip_tags($label).'</td>'.LF;
+         echo '<td>'.strip_tags($desc).'</td>'.LF;
+         echo '<td>'.strip_tags($isdefault).'</td>'.LF;
          echo '<td><a href="'.$_SERVER['PHP_SELF'].
-            '?action=edit&id='.$id.'">'._('edit').'</a></td>'.LF;
+            '?action=edit&id='.strip_tags($id).'">'._('edit').'</a></td>'.LF;
          echo '<td><a href="'.$_SERVER['PHP_SELF'].
-            '?action=delete&id='.$id.'">'._('delete').'</a></td>'.LF;
+            '?action=delete&id='.strip_tags($id).
+            '">'._('delete').'</a></td>'.LF;
          echo '</tr>'.LF;
       } // while $row
       echo '</table>'.LF;
@@ -132,13 +138,13 @@ switch ($action) {
 
    //-----------------------------------------------------------------
    case "edit":
-      if (array_key_exists("id", $_GET)) {
-         $id=$_GET["id"];
-         if (!is_numeric($id)) {
-            die(_('Invalid parameter type in '.__LINE__));
-         }
-      } else {
-         die(_('Missing information.'));
+      $id = fetchFrom('GET', 'id', '%d');
+      if (empty($id)) {
+         die(_('Missing information in ').__LINE__)
+      }
+      if (!is_numeric($id)) {
+         // should never happen
+         die(_('Invalid parameter type in '.__LINE__));
       }
 
       pageHeader(_('Edit incident state'));
@@ -149,32 +155,28 @@ switch ($action) {
    //-----------------------------------------------------------------
    case "add":
    case "update":
-      if (array_key_exists("id", $_POST)) {
-         $id=$_POST["id"];
-      } else {
-         $id="";
+      $id = fetchFrom('POST', 'id', '%d');
+      defaultTo($id, -1);
+
+      $label = fetchFrom('POST', 'label', '%s');
+      if (empty($label)) {
+         die(_('Missing information in ').__LINE__);
       }
-      if (array_key_exists("label", $_POST)) {
-         $label=$_POST["label"];
-      } else {
-         die(_('Missing information (1).'));
+
+      $desc = fetchFrom('POST', 'desc', '%s');
+      if (empty($desc)) {
+         die(_('Missing information in ').__LINE__);
       }
-      if (array_key_exists("desc", $_POST)) {
-         $desc=$_POST["desc"];
-      } else {
-         die(_('Missing information (2).'));
-      }
-      if (array_key_exists("isdefault", $_POST)) {
-         $isdefault = 't';
-      } else {
-         $isdefault = 'f';
-      }
+
+      $isdefault = fetchFrom('POST', 'isdefault', '%s');
+      defaultTo($isdefault, 'f');
 
       if ($isdefault=='t') {
          // The new/updated record is default, so all others are not.
          $q = "UPDATE incident_states
                SET isdefault = 'f'";
-         $res = db_query($q) or die(_('Unable to execute query 4.'));
+         $res = db_query($q) 
+         or die(_('Unable to execute query in ').__LINE__);
       }
 
       // Insert or update the current state record.
@@ -187,15 +189,16 @@ switch ($action) {
             db_masq_null($label),
             db_masq_null($desc),
             db_masq_null($isdefault)))
-         or die(_('Unable to excute query 2.'));
+         or die(_('Unable to excute query in ').__LINE__);
 
-         Header("Location: $_SERVER[PHP_SELF]");
+         reload();
       } else if ($action=="update") {
-         if ($id=="") {
-            die(_('Missing information (3).'));
+         if ($id == -1) {
+            die(_('Missing information in ').__LINE__);
          }
          if (!is_numeric($id)) {
-            die(_('Invalid parameter type in '.__LINE__));
+            // should never happen
+            die(_('Invalid parameter type in ').__LINE__);
          }
          $res = db_query(sprintf("
             UPDATE incident_states
@@ -207,34 +210,31 @@ switch ($action) {
             db_masq_null($desc),
             db_masq_null($isdefault),
             $id))
-         or die(_('Unable to excute query 3.'));
+         or die(_('Unable to excute query in .').__LINE__);
 
-         Header("Location: $_SERVER[PHP_SELF]");
+         reload();
       }
       break;
 
    //-----------------------------------------------------------------
    case "delete":
-      if (array_key_exists("id", $_GET)) {
-         $id=$_GET["id"];
-         if (!is_numeric($id)) {
-            die(_('Invalid parameter type in '.__LINE__));
-         }
-      } else {
-         die(_('Missing information.'));
+      $id = fetchFrom('GET', 'id', '%d');
+      if (empty($id)) {
+         die(_('Missing information in ').__LINE__);
       }
-
+      if (!is_numeric($id)) {
+         die(_('Invalid parameter type in ').__LINE__);
+      }
       $res = db_query("
          DELETE FROM incident_states
-         WHERE  id='$id'")
-      or die(_('Unable to execute query.'));
+         WHERE  id=$id")
+      or die(_('Unable to execute query in ').__LINE__);
 
-      Header("Location: $_SERVER[PHP_SELF]");
-
+      reload();
       break;
    //-----------------------------------------------------------------
    default:
-      die(_('Unknown action: ').$action);
- } // switch
+      die(_('Unknown action: ').strip_tags($action));
+} // switch
 
 ?>
