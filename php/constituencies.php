@@ -175,12 +175,15 @@ switch ($action) {
          if ($consid=="") {
             die(_('Missing information (3).'));
          }
+         if (!is_numeric($consid)) {
+            die(_('Invalid parameter type ').__LINE__);
+         }
 
          $res = db_query(sprintf("
             UPDATE constituencies
             SET  label=%s,
                  name=%s
-            WHERE id=%s",
+            WHERE id=%d",
             db_masq_null($label),
             db_masq_null($description),
             $consid))
@@ -201,6 +204,9 @@ switch ($action) {
          $cons=$_POST["consid"];
       } else {
          die(_('Missing information (1).'));
+      }
+      if (!is_numeric($cons)) {
+         die(_('Invalid parameter type ').__LINE__);
       }
 
       generateEvent("deleteconstituency", array(
