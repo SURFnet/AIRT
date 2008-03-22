@@ -28,11 +28,8 @@ require_once LIBDIR.'/database.plib';
 require_once LIBDIR.'/constituency.plib';
 require_once LIBDIR.'/network.plib';
 
-if (array_key_exists("action", $_REQUEST)) {
-   $action=$_REQUEST["action"];
-} else {
-   $action = "list";
-}
+$action = fetchFrom('REQUEST', 'action', '%s');
+defaultTo($action, 'list');
 
 function show_form($id="") {
    $label = "";
@@ -42,7 +39,10 @@ function show_form($id="") {
    $netmask = "";
    $network = "";
 
-   if ($id != "") {
+   if (!empty($id)) {
+      if (!is_numeric($id)) {
+         die(_('Invalid parameter type in ').__LINE__);
+      }
       $networks = getNetworks();
       if (array_key_exists($id, $networks)) {
          $row = $networks["$id"];
@@ -56,7 +56,7 @@ function show_form($id="") {
    }
    print '<form method="POST">'.LF;
    print t('<input type="hidden" name="action" value="%action">', array(
-      '%action'=>$action)).LF;
+      '%action'=>strip_tags($action))).LF;
    print t('<input type="hidden" name="id" value="%id">', array(
       '%id'=>$id)).LF;
    print '<table>'.LF;
@@ -130,12 +130,14 @@ switch ($action) {
 
    //-----------------------------------------------------------------
    case "edit":
-      if (array_key_exists("id", $_GET)) {
-         $id=$_GET["id"];
-      } else {
+      $id = fetchFrom('GET', 'id', '%d');
+      if (empty($id)) {
          airt_error(PARAM_MISSING, 'networks.php'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
+         reload();
          break;
+      }
+      if (!is_numeric($id)) {
+         die(_('Invalid parameter type in ').__LINE__);
       }
       pageHeader(_('Edit Network'));
       show_form($id);
@@ -143,70 +145,57 @@ switch ($action) {
       break;
 
    //-----------------------------------------------------------------
+   // XXX
    case "add":
    case "update":
-      $missing = false;
-      if (array_key_exists("id", $_POST)) {
-         $id=$_POST["id"];
-      } else {
-         $id="";
-      }
+      $id = fetchFrom('POST', 'id', '%d');
+      defaultTo($id, -1);
       if (!is_numeric($id)) {
          die(_('Invalid parameter type ').__LINE__);
       }
-      if (array_key_exists("network", $_POST)) {
-         $network=$_POST["network"];
-      } else {
-         $missing = true;
+      $network = fetchFrom('POST', 'network', '%s');
+      if (empty($network)) {
+         die(_('Missing parameter value in ').__LINE__);
       }
-      if (array_key_exists("netmask", $_POST)) {
-         $netmask=$_POST["netmask"];
-         $res = array();
-         if (sscanf($netmask, "/%s", $res) == 1) {
-            $netmask = cidr2netmask(substr($netmask, 1));
-         }
-      } else {
-         $missing = true;
+      $netmask = fetchFrom('POST', 'netmask', '%s');
+      if (empty($netmask)) {
+         die(_('Missing parameter value in ').__LINE__);
       }
-      if (array_key_exists("label", $_POST)) {
-         $label=$_POST["label"];
-      } else {
-         $missing = true;
+      $res = array();
+      if (sscanf($netmask, "/%s", $res) == 1) {
+         $netmask = cidr2netmask(substr($netmask, 1));
       }
-      if (array_key_exists("constituency", $_POST)) {
-         $constituency=$_POST["constituency"];
-      } else {
-         $missing = true;
+      $label = fetchFrom('POST', 'label', '%s');
+      if (empty($label)) {
+         die(_('Missing parameter value in ').__LINE__);
+      }
+      $constituency = fetchFrom('POST', 'constituency', '%s');
+      if (empty($constituency)) {
+         die(_('Missing parameter value in ').__LINE__);
       }
       if (!is_numeric($constituency)) {
          die(_('Invalid parameter type ').__LINE__);
       }
-      if ($missing) {
-         airt_error(PARAM_MISSING, 'networks.php'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
-         return;
-      }
       if ($action=="add") {
          $res = db_query(q('
-         INSERT INTO networks
-         (id, network, netmask, label, constituency)
-         VALUES
-         (nextval(\'networks_sequence\'), %network, %netmask, %label, %cons)',
+            INSERT INTO networks
+            (id, network, netmask, label, constituency)
+            VALUES
+           (nextval(\'networks_sequence\'), %network, %netmask, %label, %cons)',
             array("%network"=>db_masq_null($network),
                '%netmask'=>db_masq_null($netmask),
                '%label'=>db_masq_null($label),
                '%cons'=>$constituency)));
          if (!$res) {
             airt_error(DB_QUERY, 'networks.php'.__LINE__);
-            Header("Location: $_SERVER[PHP_SELF]");
+            reload();
             return;
          }
-
-         Header("Location: $_SERVER[PHP_SELF]");
+         reload();
       } elseif ($action=="update") {
-         if ($id=="") {
+         if (empty($id)) {
             airt_error(PARAM_MISSING, 'networks.php'.__LINE__);
-            Header("Location: $_SERVER[PHP_SELF]");
+            reload();
             return;
          }
          $res = db_query(q('
@@ -226,17 +215,16 @@ switch ($action) {
             Header("Location: $_SERVER[PHP_SELF]");
             return;
          }
-         Header("Location: $_SERVER[PHP_SELF]");
+         reload();
       }
       break;
 
    //-----------------------------------------------------------------
    case "delete":
-      if (array_key_exists("id", $_GET)) {
-         $id=$_GET["id"];
-      } else {
+      $id = fetchFrom('GET', 'id' '%d');
+      if (empty($id)) {
          airt_error(PARAM_MISSING, 'networks.php'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
+         reload();
          return;
       }
       if (!is_numeric($id)) {
@@ -248,14 +236,14 @@ switch ($action) {
             '%id'=>$id)));
       if (!$res) {
          airt_error(DB_QUERY, 'networks.php'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
+         reload();
          return;
       }
-      Header("Location: $_SERVER[PHP_SELF]");
+      reload();
 
       break;
    //-----------------------------------------------------------------
    default:
-      die(_('Unknown action: ').$action);
+      die(_('Unknown action: ').strip_tags($action));
 } // switch
 ?>

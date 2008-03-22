@@ -30,9 +30,9 @@ require_once LIBDIR."/database.plib";
 pageHeader(_('AIRT Control Center'));
 
 $out = t('<small>'._('Welcome %username. Your last login was at %lastdb from %hostname.').'</small>', array(
-   '%username'=>$_SESSION['username'],
-   '%lastdb'=>$_SESSION['lastdb'],
-   '%hostname'=>$_SESSION['hostnamelast']));
+   '%username'=>strip_tags($_SESSION['username']),
+   '%lastdb'=>strip_tags($_SESSION['lastdb']),
+   '%hostname'=>strip_tags($_SESSION['hostnamelast'])));
 
 $out .= "<HR/>\n";
 print $out;
@@ -51,7 +51,7 @@ while ($row = db_fetch_next($res)) {
    $description = $row['label'];
    $out .= t("<p><a href=\"%url\">%description</a></p>", array(
       '%url'=>$url, 
-      '%description'=>$description));
+      '%description'=>strip_tags($description)));
 }
 
 print $out;

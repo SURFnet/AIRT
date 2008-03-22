@@ -27,11 +27,9 @@ require_once 'config.plib';
 require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/database.plib';
 
-if (array_key_exists("action", $_REQUEST)) {
-   $action=$_REQUEST["action"];
-} else {
-   $action = "list";
-}
+$action = fetchFrom('REQUEST', 'action', '%s');
+defaultTo($action, 'list');
+
 
 function format_position_select($current_value, $max) {
    $out = choice(_('Do not display'), '', $current_value);
@@ -55,7 +53,7 @@ switch ($action) {
          ORDER BY menu_position"));
       if (!$res) {
          airt_error('DB_QUERY', 'links.php:'.__LINE__);
-         Header("Location: index.php");
+         reload('index.php');
          return;
       }
       $out = '<p><strong>'._('Main menu links').'</strong></p>'.LF;
@@ -73,7 +71,7 @@ switch ($action) {
             '%color' => ($count++%2==0) ? "#DDDDDD" : "#FFFFFF"));
          $out .= "<td>\n";
          $out .= t(   '<a href="%url">%label</a>', array(
-            '%url'=>$row["url"], '%label'=>$row["label"]));
+            '%url'=>$row["url"], '%label'=>strip_tags($row["label"])));
          $out .= t("</td>\n");
          $out .= "<td>\n";
          $out .= t("  <select name=\"menu_pos[%id]\">\n", array(

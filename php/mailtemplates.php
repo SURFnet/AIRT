@@ -24,17 +24,11 @@
 require_once 'config.plib';
 require_once LIBDIR."/mailtemplates.plib";
 
-if (array_key_exists('action', $_REQUEST)) {
-   $action=$_REQUEST['action'];
-} else {
-   $action = "list";
-}
-
 function listTemplates() {
   pageHeader(_('Available mail templates'));
 
-   print format_templates();
-   print t('<P><a href="%url?action=new">'.
+  print format_templates();
+  print t('<P><a href="%url?action=new">'.
       _('Create a new message').'</a></P>'.LF,
       array('%url'=>$_SERVER['PHP_SELF']));
    // If a current_email parameter has been passed along, put it in the
@@ -46,6 +40,9 @@ function listTemplates() {
    pageFooter();
 }
 
+$action = fetchFrom('REQUEST', 'action', '%s');
+defaultTo($action, 'list');
+
 switch ($action) {
    // -------------------------------------------------------------------
    case "list":
@@ -55,14 +52,12 @@ switch ($action) {
    // -------------------------------------------------------------------
    case "edit":
       $msg = '';
-      if (array_key_exists("template", $_REQUEST)) {
-         $template=$_REQUEST["template"];
-      } else {
+      $template = fetchFrom('REQUEST', 'template', '%s');
+      if (empty($template)) {
          airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
          Header("Location: $_SERVER[PHP_SELF]");
          return;
       }
-
       pageHeader(_('Edit mail template'));
 
       if (($msg = get_template($template)) == false) {
@@ -76,7 +71,9 @@ special variables in the template:').'<p>'.LF;
       get_template_actions($template, $update);
       print '<P>';
       print '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">'.LF;
-      print '<textarea wrap name="message" cols="75" rows="15">'.$msg.'</textarea>'.LF;
+      // note: potential danger here; html and php tags are NOT scrubbed
+      print '<textarea wrap name="message" cols="75" rows="15">'.$msg.
+         '</textarea>'.LF;
       print '<P>'.LF;
       print _('Automatically change settings after mail based on this template is sent:').'<P>'.LF;
       print '<table cellpadding="3">'.LF;
@@ -116,25 +113,22 @@ special variables in the template:').'<p>'.LF;
 
    // -------------------------------------------------------------------
    case "save":
-      if (array_key_exists("template", $_REQUEST)) {
-         $template=$_REQUEST["template"];
-      } else {
+      $template = fetchFrom('REQUEST', 'template', '%s');
+      if (empty($template)) {
          airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
+         reload();
          return;
       }
-      if (array_key_exists("message", $_REQUEST)) {
-            $message=$_REQUEST["message"];
-      } else {
+      $message = fetchFrom('REQUEST', 'message', '%s');
+      if (empty($message)) {
          airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
+         reload();
          return;
       }
-      if (array_key_exists("update", $_REQUEST)) {
-            $update=$_REQUEST["update"];
-      } else {
+      $update = fetchFrom('REQUEST', 'update', '%s');
+      if (empty($update)) {
          airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
+         reload();
          return;
       }
 
@@ -195,11 +189,10 @@ special variables in the template:').'<p>'.LF;
 
    // -------------------------------------------------------------------
   case "delete":
-      if (array_key_exists("template", $_REQUEST)) {
-         $template=$_REQUEST["template"];
-      } else {
+     $template = fetchFrom('REQUEST', 'template', '%s');
+     if (empty($template)) {
          airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
+         reload();
          return;
       }
       if (delete_template($template)) {
@@ -225,7 +218,7 @@ special variables in the template:').'<p>'.LF;
          if (array_key_exists('incidentid', $_SESSION)) {
             $agenda = array($_SESSION['incidentid']);
          } else {
-            echo "No active incident.";
+            echo _("No active incident.");
             break;
          }
       }

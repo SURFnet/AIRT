@@ -64,36 +64,33 @@ switch ($action) {
     break;
 
     case "check":
-       if (array_key_exists("login", $_REQUEST)) {
-          $login = $_REQUEST["login"];
-       } else {
+       $login = fetchFrom('REQUEST', 'login');
+       if (empty($login) {
           airt_error("PARAM_MISSING", "login.php:".__LINE__);
-          Header("Location: .");
+          reload();
           break;
        }
 
-        // password must be HTTP post
-        if (array_key_exists("password", $_POST)) {
-            $password = $_POST["password"];
-        } else {
+       $password = fetchFrom('REQUEST', 'password');
+       if (empty($password)) {
           airt_error("PARAM_MISSING", "login.php:".__LINE__);
-          Header("Location: .");
+          reload()/
           break;
-        }
+       }
 
-        $userid = airt_authenticate($login, $password);
-        if ($userid == -1) {
-            pageHeader(_('Permission denied.'));
-            print _('Username and/or password incorrect.');
-			   airt_invalidCredentials();
-            pageFooter();
-			   exit();
-		  }
+       $userid = airt_authenticate($login, $password);
+       if ($userid == -1) {
+          pageHeader(_('Permission denied.'));
+          print _('Username and/or password incorrect.');
+			 airt_invalidCredentials();
+          pageFooter();
+			 exit();
+		 }
 
-		  airt_initSession($userid);
-        break;
+		 airt_initSession($userid);
+       break;
 
     default:
-        die(_('Unknown action.'));
+       die(_('Unknown action.'));
 } // switch
 ?>
