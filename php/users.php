@@ -42,29 +42,32 @@
        $language = 'en';
     }
     if ($id != "") {
-        $res = db_query("
-        SELECT lastname, firstname, email, phone, login, userid, password,
+       if (!is_numeric($id)) {
+          die(_('Invalid parameter type ').__LINE__);
+       }
+       $res = db_query("
+          SELECT lastname, firstname, email, phone, login, userid, password,
                language
         FROM   users
-        WHERE  id = '$id'")
+        WHERE  id = $id")
         or die(_("Unable to query database."));
 
         if (db_num_rows($res) > 0) {
             $row = db_fetch_next($res);
-         if (array_key_exists('lastname', $row))
-            $lastname=$row['lastname'];
-         if (array_key_exists('firstname', $row))
-            $firstname=$row['firstname'];
-         if (array_key_exists('email', $row))
-            $email=$row['email'];
-         if (array_key_exists('phone', $row))
-            $phone=$row['phone'];
-         if (array_key_exists('login', $row))
-            $login=$row['login'];
-         if (array_key_exists('userid', $row))
-            $userid=$row['userid'];
-         if (array_key_exists('language', $row))
-            $language=$row['language'];
+            if (array_key_exists('lastname', $row))
+               $lastname=$row['lastname'];
+            if (array_key_exists('firstname', $row))
+               $firstname=$row['firstname'];
+            if (array_key_exists('email', $row))
+               $email=$row['email'];
+            if (array_key_exists('phone', $row))
+               $phone=$row['phone'];
+            if (array_key_exists('login', $row))
+               $login=$row['login'];
+            if (array_key_exists('userid', $row))
+               $userid=$row['userid'];
+            if (array_key_exists('language', $row))
+               $language=$row['language'];
 
             $action = "update";
             $submit = _("Update!");
@@ -228,7 +231,7 @@
             $res = db_query(
                 "SELECT id
                  FROM   users
-                 WHERE  login='$login'")
+                 WHERE  login='".db_escape_string($login)."'")
             or die(_("Unable to query database."));
 
             if (db_num_rows($res) > 0) {
@@ -309,7 +312,6 @@
          $res = db_query($query)
          or die(_("Unable to execute query 1"));
 
-         # db_close($conn);
          Header("Location: $_SERVER[PHP_SELF]");
    }
 
@@ -319,6 +321,9 @@
     case "delete":
         if (array_key_exists("id", $_GET)) $id=$_GET["id"];
         else $id="";
+        if (!is_numeric($id)) {
+           die(_('Invalid parameter type ').__LINE__);
+        }
 
         $res = db_query(
             "DELETE FROM users
@@ -343,6 +348,9 @@
     case "edit":
         if (array_key_exists("id", $_GET)) $id=$_GET["id"];
         else die(_("Missing information (1)."));
+        if (!is_numeric($id)) {
+           die(_('Invalid parameter type ').__LINE__);
+        }
 
         pageHeader(_("Edit user information"));
         show_form($id);

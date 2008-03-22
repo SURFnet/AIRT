@@ -151,6 +151,9 @@ switch ($action) {
       } else {
          $id="";
       }
+      if (!is_numeric($id)) {
+         die(_('Invalid parameter type ').__LINE__);
+      }
       if (array_key_exists("network", $_POST)) {
          $network=$_POST["network"];
       } else {
@@ -174,6 +177,9 @@ switch ($action) {
          $constituency=$_POST["constituency"];
       } else {
          $missing = true;
+      }
+      if (!is_numeric($constituency)) {
+         die(_('Invalid parameter type ').__LINE__);
       }
       if ($missing) {
          airt_error(PARAM_MISSING, 'networks.php'.__LINE__);
@@ -233,9 +239,12 @@ switch ($action) {
          Header("Location: $_SERVER[PHP_SELF]");
          return;
       }
+      if (!is_numeric($id)) {
+         die(_('Invalid parameter type ').__LINE__);
+      }
       $res = db_query(q('
          DELETE FROM networks
-         WHERE  id=\'%id\'', array(
+         WHERE  id=%id', array(
             '%id'=>$id)));
       if (!$res) {
          airt_error(DB_QUERY, 'networks.php'.__LINE__);

@@ -21,8 +21,6 @@
  * 
  * $Id$
  */
-
-// fh djfjsdfhdhkds fhkfd789fe r42e
 require_once 'config.plib';
 require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/search.plib';
@@ -168,7 +166,7 @@ function search_host($hostname='') {
             t.label as type,
             s.label as state,
             s2.label as status
-      FROM  incidents i, 
+      FROM  incidents i,
             incident_addresses a,
             incident_types t,
             incident_status s2,
@@ -177,7 +175,7 @@ function search_host($hostname='') {
       AND     i.status = s2.id
       AND     i.state = s.id
       AND     i.type = t.id
-      AND     a.ip = '$ip'
+      AND     a.ip = '".db_escape_string($ip)."'
 
       ORDER BY incidentid")
    or die(_('Unable to query.'));
@@ -437,7 +435,7 @@ function search_zoom($mask) {
                  t.label as type,
                  s.label as state,
                  s2.label as status
-         FROM  incidents i, 
+         FROM  incidents i,
                incident_addresses a,
                incident_types t,
                incident_status s2,
