@@ -192,10 +192,13 @@ switch ($action) {
     case "delete":
         if (array_key_exists("id", $_REQUEST)) $id = $_REQUEST["id"]
         or die(_("Missing information (1)."));
+        if (!is_numeric($id)) {
+           die(_('Invalid parameter type ').__LINE__);
+        }
 
         $res = db_query(sprintf("
             DELETE FROM urls
-            WHERE ID=%s", $id))
+            WHERE ID=%d", $id))
         or die(_("Unable to delete URL"));
 
         Header("Location: $_SERVER[PHP_SELF]");
@@ -206,11 +209,14 @@ switch ($action) {
         if (array_key_exists("id", $_REQUEST))
             $id = $_REQUEST["id"]
         or die(_("Missing information (3)."));
+        if (!is_numeric($id)) {
+           die(_('Invalid parameter type ').__LINE__);
+        }
 
         $res = db_query(sprintf("
             SELECT url, label
             FROM   urls
-            WHERE  id=%s", $id))
+            WHERE  id=%d", $id))
         or die(_("Unable to retrieve URL"));
 
         if (db_num_rows($res) == 0) die(_("Incorrect row id"));
@@ -251,12 +257,15 @@ switch ($action) {
         if (array_key_exists("id", $_REQUEST))
             $id = $_REQUEST["id"]
         or die(_("Missing information (3)."));
+        if (!is_numeric($id)) {
+           die(_('Invalid parameter type ').__LINE__);
+        }
 
         $res = db_query(sprintf("
             UPDATE URLs
             SET    label=%s,
                    url=%s
-            WHERE  id=%s", 
+            WHERE  id=%d", 
             db_masq_null($description),
             db_masq_null($url),
             $id))
@@ -273,6 +282,12 @@ switch ($action) {
          break;
       }
       foreach ($_POST['menu_pos'] as $id=>$pos) {
+        if (!is_numeric($id)) {
+           die(_('Invalid parameter type ').__LINE__);
+        }
+        if (!is_numeric($pos)) {
+           die(_('Invalid parameter type ').__LINE__);
+        }
          $res = db_query(q("UPDATE urls SET menu_position=%pos WHERE id=%id", 
             array('%pos'=>($pos=='')?'NULL':$pos, '%id'=>$id)));
          if (!$res) {
@@ -293,6 +308,12 @@ switch ($action) {
          break;
       }
       foreach ($_POST['menu_pos'] as $id=>$pos) {
+        if (!is_numeric($id)) {
+           die(_('Invalid parameter type ').__LINE__);
+        }
+        if (!is_numeric($pos)) {
+           die(_('Invalid parameter type ').__LINE__);
+        }
          $res = db_query(q("UPDATE urls SET navbar_position=%pos WHERE id=%id", 
             array('%pos'=>($pos=='')?'NULL':$pos, '%id'=>$id)));
          if (!$res) {
