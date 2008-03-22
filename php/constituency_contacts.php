@@ -181,7 +181,7 @@ switch ($action) {
 
    //-----------------------------------------------------------------
    case "remove":
-      $cons = fetchFrom('GET', 'cons', '%id');
+      $cons = fetchFrom('GET', 'cons', '%d');
       if (empty($cons)) {
          die(_('Missing information in ').__LINE__);
       }

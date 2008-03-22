@@ -27,8 +27,6 @@ require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/database.plib';
 require_once LIBDIR.'/constituency.plib';
 
-$request = fetchFrom('REQUEST', 'action', '%s');
-defaultTo($request, 'list');
 
 /** GUI Component to show the update constituecy form. */
 function formatConstituencyForm($id='') {
@@ -45,7 +43,7 @@ function formatConstituencyForm($id='') {
       if (array_key_exists($id, $constituencies)) {
          $row = $constituencies[$id];
          $label = $row['label'];
-         $description = $row['description'];
+         $description = $row['name'];
          $action = 'update';
          $submit = _('Update!');
       }
@@ -74,6 +72,8 @@ function formatConstituencyForm($id='') {
    return $out;
 }
 
+$action = fetchFrom('REQUEST', 'action', '%s');
+defaultTo($action, 'list');
 
 switch ($action) {
    // --------------------------------------------------------------
@@ -100,7 +100,7 @@ switch ($action) {
             $consid.'">'._('edit').'</a>'.LF;
          $out .= '</td>'.LF;
          $out .= '<td>'.strip_tags($row['label']).'</td>'.LF;
-         $out .= '<td>'.strip_tags($row['$name']).'</td>'.LF;
+         $out .= '<td>'.strip_tags($row['name']).'</td>'.LF;
          $out .= '<td>'.LF;
          foreach ($networks as $id=>$row2) {
             if ($row2['constituency'] != $consid) {
@@ -141,7 +141,7 @@ switch ($action) {
       if (empty($consid)) {
          die(_('Missing information in ').__LINE__);
       }
-
+      $description = fetchFrom('POST', 'description', '%s');
       if (empty($description)) {
          die(_('Missing information in ').__LINE__);
       }
@@ -162,7 +162,7 @@ switch ($action) {
          ));
          reload();
       } else if ($action=="update") {
-         if ($empty(consid)) {
+         if (empty($consid)) {
             die(_('Missing information (3).'));
          }
          if (!is_numeric($consid)) {

@@ -65,7 +65,7 @@ switch ($action) {
 
     case "check":
        $login = fetchFrom('REQUEST', 'login');
-       if (empty($login) {
+       if (empty($login)) {
           airt_error("PARAM_MISSING", "login.php:".__LINE__);
           reload();
           break;
@@ -74,7 +74,7 @@ switch ($action) {
        $password = fetchFrom('REQUEST', 'password');
        if (empty($password)) {
           airt_error("PARAM_MISSING", "login.php:".__LINE__);
-          reload()/
+          reload();
           break;
        }
 

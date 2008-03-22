@@ -140,7 +140,7 @@ switch ($action) {
    case "edit":
       $id = fetchFrom('GET', 'id', '%d');
       if (empty($id)) {
-         die(_('Missing information in ').__LINE__)
+         die(_('Missing information in ').__LINE__);
       }
       if (!is_numeric($id)) {
          // should never happen
@@ -171,11 +171,11 @@ switch ($action) {
       $isdefault = fetchFrom('POST', 'isdefault', '%s');
       defaultTo($isdefault, 'f');
 
-      if ($isdefault=='t') {
+      if ($isdefault!='f') {
          // The new/updated record is default, so all others are not.
          $q = "UPDATE incident_states
                SET isdefault = 'f'";
-         $res = db_query($q) 
+         $res = db_query($q)
          or die(_('Unable to execute query in ').__LINE__);
       }
 

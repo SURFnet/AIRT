@@ -221,7 +221,7 @@ switch ($action) {
 
    //-----------------------------------------------------------------
    case "delete":
-      $id = fetchFrom('GET', 'id' '%d');
+      $id = fetchFrom('GET', 'id', '%d');
       if (empty($id)) {
          airt_error(PARAM_MISSING, 'networks.php'.__LINE__);
          reload();

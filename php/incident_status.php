@@ -158,7 +158,7 @@ switch ($action) {
       }
       $isdefault = fetchFrom('POST', 'isdefault', '%s');
       defaultTo($isdefault, 'f');
-      if ($isdefault=='t') {
+      if ($isdefault!='f') {
          // The new/updated record is default, so all others are not.
          $q = "UPDATE incident_status
                 SET isdefault = 'f'";

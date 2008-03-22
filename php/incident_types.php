@@ -27,7 +27,6 @@ require_once 'config.plib';
 require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/database.plib';
 
-
 function show_form($id="") {
    $label     = '';
    $desc      = '';
@@ -165,7 +164,7 @@ switch ($action) {
        $isdefault = fetchFrom('POST', 'isdefault', '%s');
        defaultTo($isdefault,'f');
 
-       if ($isdefault=='t') {
+       if ($isdefault!='f') {
           // The new/updated record is default, so all others are not.
           $q = "UPDATE incident_types
                 SET isdefault = 'f'";
