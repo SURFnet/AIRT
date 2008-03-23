@@ -128,7 +128,7 @@ switch ($action) {
     $output .= '<form action="'.$_SERVER['PHP_SELF'].'" method="post">'.LF;
     $output .= '<input type="hidden" name="action" value="addcomment">'.LF;
     $output .= '<input type="hidden" name="incidentid" value="'.
-        strip_tags($incidentid).'addcomment">'.LF;
+        strip_tags($incidentid).'">'.LF;
     $output .= '<table bgcolor="#DDDDDD" border=0 cellpadding=2>'.LF;
     $output .= '<tr>'.LF;
     $output .= '  <td>'._('New comment').': </td>'.LF;

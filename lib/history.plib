@@ -36,10 +36,10 @@ function addIncidentComment($params = array(), &$error='') {
       $error = _('Missing required parameter: comment in ').__LINE__;
       return false;
    }
-   if (!array_key_exsists('incidentid', $params)) {
+   if (!array_key_exists('incidentid', $params)) {
       $params['incidentid'] = $_SESSION["incidentid"];
    }
-   if (!array_key_exsists('userid', $params)) {
+   if (!array_key_exists('userid', $params)) {
       $params['userid'] = $_SESSION["userid"];
    }
    if (!is_numeric($params['incidentid'])) {
@@ -56,9 +56,9 @@ function addIncidentComment($params = array(), &$error='') {
       (id, incident, comment, added, addedby)
       VALUES
       (nextval('incident_comments_sequence'), %s, %s, CURRENT_TIMESTAMP, %s)",
-         $incidentid,
-         db_masq_null($comment),
-         $userid))
+         $params['incidentid'],
+         db_masq_null($params['comment']),
+         $params['userid']))
    or die(_("Unable to execute query."));
 }
 
