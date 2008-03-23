@@ -127,6 +127,8 @@ switch ($action) {
     $output .= '<p/>'.LF;
     $output .= '<form action="'.$_SERVER['PHP_SELF'].'" method="post">'.LF;
     $output .= '<input type="hidden" name="action" value="addcomment">'.LF;
+    $output .= '<input type="hidden" name="incidentid" value="'.
+        strip_tags($incidentid).'addcomment">'.LF;
     $output .= '<table bgcolor="#DDDDDD" border=0 cellpadding=2>'.LF;
     $output .= '<tr>'.LF;
     $output .= '  <td>'._('New comment').': </td>'.LF;
@@ -367,11 +369,13 @@ _('Continue').'...</a>'.LF,
 
       if (trim($ip) != '') {
          addIpToIncident(trim($ip), $incidentid, $addressrole);
-         addIncidentComment(t(
-           _('IP address %ip added to incident with role %role'),
-           array(
-            '%ip'=>$ip,
-            '%role'=>getAddressRoleByID($addressrole))
+         addIncidentComment(array(
+            'comment'=>t(_('IP address %ip added to incident with role %role'),
+               array(
+                  '%ip'=>$ip,
+                  '%role'=>getAddressRoleByID($addressrole)
+               )),
+            'incidentid'=>$incidentid
          ));
       }
 
@@ -442,12 +446,15 @@ _('Continue').'...</a>'.LF,
       $addressRoleLabel = $addressroles[$addressrole];
 
       // Generate comment and event.
-      addIncidentComment(t(
-  _('Details of IP address %ip updated; const=%const, addressrole=%role'),
-         array(
-           '%ip'=>$ip,
-           '%const'=>$constLabel,
-           '%role'=>$addressRoleLabel)
+      addIncidentComment(array(
+         'comment'=>t( _('Details of IP address %ip updated; const=%const, addressrole=%role'),
+            array(
+               '%ip'=>$ip,
+               '%const'=>$constLabel,
+               '%role'=>$addressRoleLabel
+            )
+         ),
+         'incidentid'=>$incidentid
       ));
       generateEvent('updateipdetails', array(
          'incidentid' => $incidentid,
@@ -481,12 +488,14 @@ _('Continue').'...</a>'.LF,
       }
 
       removeIpFromIncident($ip, $incidentid, $addressrole);
-      addIncidentComment(t(
-         _('IP address %address (%role) removed from incident.'),
-         array(
-            '%address'=>$ip,
-            '%role'=>getAddressRolebyID($addressrole)
-         )));
+      addIncidentComment(array(
+         'comment'=>t(_('IP address %address (%role) removed from incident.'),
+            array('%address'=>$ip,
+               '%role'=>getAddressRolebyID($addressrole)
+            )
+         ),
+         'incidentid'=>$incidentid
+      ));
 
       generateEvent('removeipfromincident', array(
          'incidentid' => $incidentid,
@@ -528,8 +537,10 @@ _('Continue').'...</a>'.LF,
 
       $user = getUserByUserID($id['id']);
       addUserToIncident($id['id'], $incidentid);
-      addIncidentComment(sprintf(_('User %s added to incident.'),
-                                 $user['email']));
+      addIncidentComment(array(
+         'comment'=>sprintf(_('User %s added to incident.'), $user['email']),
+         'incidentid'=>$incidentid
+      ));
 
       reload(sprintf('%s?action=details&incidentid=%s',
          $_SERVER['PHP_SELF'],
@@ -552,8 +563,11 @@ _('Continue').'...</a>'.LF,
 
       removeUserFromIncident($userid, $incidentid);
       $user = getUserByUserID($userid);
-      addIncidentComment(sprintf(_('User %s removed from incident.'), 
-         $user['email']));
+      addIncidentComment(array(
+         'comment'=>sprintf(_('User %s removed from incident.'), 
+            $user['email']),
+         'incidentid'=>$incidentid
+      ));
 
       reload(sprintf('%s?action=details&incidentid=%s',
          $_SERVER['PHP_SELF'],
@@ -563,21 +577,33 @@ _('Continue').'...</a>'.LF,
    //--------------------------------------------------------------------
    case 'addcomment':
       $comment = fetchFrom('REQUEST','comment');
-      if ($comment=='') {
+      if (empty($comment)) {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
+      $incidentid = fetchFrom('REQUEST', 'incidentid');
+      if (empty($incidentid)) {
+         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
+         reload();
+      }
+      if (!is_numeric($incidentid)) {
+         airt_error('PARAM_MISC', _('Incorrect parameter type in ').__LINE__);
+         reload();
+      }
 
-      addIncidentComment($comment);
+      addIncidentComment(array(
+         'comment'=>$comment,
+         'incidentid'=>$incidentid,
+      ));
       generateEvent('incidentcommentadd', array(
          'comment'=>$comment,
-         'incidentid'=>$_SESSION['incidentid']
+         'incidentid'=>$incidentid,
       ));
 
-      touchIncident($_SESSION['incidentid']);
-      reload(sprintf('%s?action=details&incidentid=%s',
+      touchIncident($incidentid);
+      reload(sprintf('%s?action=details&incidentid=%d',
         $_SERVER['PHP_SELF'],
-        $_SESSION['incidentid']));
+        $incidentid));
       break;
 
     //--------------------------------------------------------------------
@@ -642,9 +668,15 @@ _('Continue').'...</a>'.LF,
 				$cmd = LIBDIR.'/otrs/airt_otrs_ticketclose.pl '.$tn;
 				$out = exec($cmd, $out, $res);
 				if ($res == 0) {
-					addIncidentComment(_('Closed OTRS ticket ').$tn);
+					addIncidentComment(array(
+                  'comment'=>_('Closed OTRS ticket ').$tn,
+                  'incidentid'=>$incidentid
+               ));
 				} else {
-				   addIncidentComment(_('Failed to close OTRS ticket ').$tn);
+				   addIncidentComment(array(
+                  'comment'=>_('Failed to close OTRS ticket ').$tn,
+                  'incidentid'=>$incidentid
+               ));
 					echo "<PRE>Cmd: $cmd\n";
 					echo "Error code: $res";;
 					echo "</PRE>";
@@ -652,12 +684,15 @@ _('Continue').'...</a>'.LF,
 			}
 		}
 
-      addIncidentComment(sprintf(_(
-        'Incident updated: state=%s, status=%s, type=%s, desc=%s'), 
-         getIncidentStateLabelByID($state),
-         getIncidentStatusLabelByID($status),
-         getIncidentTypeLabelByID($type),
-         $desc));
+      addIncidentComment(array(
+         'comment'=>sprintf(_(
+            'Incident updated: state=%s, status=%s, type=%s, desc=%s'), 
+            getIncidentStateLabelByID($state),
+            getIncidentStatusLabelByID($status),
+            getIncidentTypeLabelByID($type),
+            $desc),
+         'incidentid'=>$incidentid
+      ));
 
       reload();
       break;
@@ -788,10 +823,13 @@ _('Continue').'...</a>'.LF,
       foreach ($agenda as $userid) {
          $user = getUserByUserId($userid);
          removeUserFromIncident($userid, $incidentid);
-         addIncidentComment(sprintf(_('User %s removed from incident.'), 
-            $user["email"]));
+         addIncidentComment(array(
+            'comment'=>sprintf(_('User %s removed from incident.'), 
+               $user["email"]),
+            'incidentid'=>$incidentid
+         ));
       }
-      Header("Location: $_SERVER[HTTP_REFERER]");
+      reload($_SERVER[HTTP_REFERER]);
       break;
 
    //--------------------------------------------------------------------

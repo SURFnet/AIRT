@@ -174,10 +174,10 @@ CREATE TABLE address_roles (
 CREATE TABLE incident_addresses (
     id           integer,
     incident     integer not null,
-    ip           varchar(128) not null,
+    ip           varchar(128),
     addressrole  integer,
-    hostname     varchar(128) not null,
-    constituency integer not null,
+    hostname     varchar(128),
+    constituency integer,
     added        timestamp not null,
     addedby      integer not null,
     updated      timestamp,

@@ -24,18 +24,31 @@
 require_once LIBDIR.'/database.plib';
 
 /** Add a comment to an incident.
- * @param $comment Comment to be added
- * @param $incidentid ID of the incident to which comment will be added. 
- *   defaults to the current incident.
- * @param $userid ID of the user causing the comment. Defaults to the current
- *   user.
+ * @param Array containing parameters
+ * @m
  */
-function addIncidentComment($comment, $incidentid="", $userid="") {
-   if ($incidentid=="") {
-       $incidentid=$_SESSION["incidentid"];
+function addIncidentComment($params = array(), &$error='') {
+   if (!is_array($params)) {
+      $error = _('Invalid parameter error in ').__LINE__;
+      return false;
    }
-   if ($userid=="") {
-       $userid=$_SESSION["userid"];
+   if (!array_key_exists('comment', $params)) {
+      $error = _('Missing required parameter: comment in ').__LINE__;
+      return false;
+   }
+   if (!array_key_exsists('incidentid', $params)) {
+      $params['incidentid'] = $_SESSION["incidentid"];
+   }
+   if (!array_key_exsists('userid', $params)) {
+      $params['userid'] = $_SESSION["userid"];
+   }
+   if (!is_numeric($params['incidentid'])) {
+      $error = _('Invalid parameter type in ').__LINE__;
+      return false;
+   }
+   if (!is_numeric($params['userid'])) {
+      $error = _('Invalid parameter type in ').__LINE__;
+      return false;
    }
 
    $res = db_query(sprintf("
@@ -46,7 +59,7 @@ function addIncidentComment($comment, $incidentid="", $userid="") {
          $incidentid,
          db_masq_null($comment),
          $userid))
-  or die(_("Unable to execute query."));
+   or die(_("Unable to execute query."));
 }
 
 /* retrieve the history of an incidentid as an array of associative arrays.
@@ -54,6 +67,9 @@ function addIncidentComment($comment, $incidentid="", $userid="") {
  * associative array contains the following keys: comment, added, login
  */
 function getIncidentHistory($incidentid) {
+   if (!is_numeric($incidentid)) {
+      return '';
+   }
    $res = db_query(sprintf("
       SELECT comment, extract(epoch from added) as added, login
       FROM   incident_comments i, users u
@@ -74,7 +90,9 @@ function formatIncidentHistory($incidentid="") {
    if ($incidentid=="") {
       $incidentid=$_SESSION["incidentid"];
    }
-
+   if (!is_numeric($incidentid)) {
+      return _('Invalid parameter type in ').__LINE__;
+   }
    $history = getIncidentHistory($incidentid);
 
    $output = '<table cellpadding="3">'.LF;

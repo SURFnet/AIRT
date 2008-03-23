@@ -7,5 +7,8 @@
 -- for EACH release, even if there are no changes to the database schema,
 -- because the VERSIONS table needs to be updated in all cases.
 UPDATE versions SET value='----version----' WHERE key='airtversion';
+alter table incident_addresses alter column ip drop not null;
+alter table incident_addresses alter column hostname drop not null;
+alter table incident_addresses alter column constituency drop not null;
 -- Needs manual update with the AIRT_VERSION string of the release.
 -- Cannot rely on .in expansion as it needs to stay fixed in history.

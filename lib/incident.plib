@@ -525,7 +525,10 @@ function createIncident($params = array()) {
    }
    db_free_result($res);
 
-   addIncidentComment('Incident created', '', '');
+   addIncidentComment(array(
+      'comment'=>'Incident created',
+      'incidentid'=>$incidentid
+   ));
    if (empty($params['date'])) {
       $params['date'] = time();
    }
@@ -534,7 +537,10 @@ function createIncident($params = array()) {
       strip_tags(getIncidentStatusLabelByID($params['status'])),
       strip_tags(getIncidentTypeLabelById($params['type'])),
       Date('d-M-Y H:i:s', $params['date']));
-   addIncidentComment($comment, '', '');
+   addIncidentComment(array(
+      'comment'=>$comment,
+      'incidentid'=>$incidentid
+   ));
    return $incidentid;
 } // createIncident
 
@@ -1619,7 +1625,7 @@ function formatListOverviewBody() {
              array('status'=>getIncidentStatusDefault(), 'state'=>-1));
 
    $sortkey = fetchFrom('REQUEST','sortkey');
-   defaultTo($sortkey,'incidentid');
+   defaultTo($sortkey, 'incidentid');
 
    $page = fetchFrom('REQUEST','page','%d');
    defaultTo($page,1);
@@ -1641,7 +1647,9 @@ function formatListOverviewBody() {
          $sqlfilter .= " AND s2.label = '".$states[$filter['state']]."'";
       }
    }
-
+   if (empty($sqlfilter)) {
+      $sqlfilter = " WHERE s1.label in ('open', 'stalled')";
+   }
    switch ($sortkey) {
       case 'incidentid':
          $sqlfilter .= ' ORDER BY incidentid';
@@ -1672,7 +1680,6 @@ function formatListOverviewBody() {
          $sqlfilter .= ' ORDER BY incidentid';
          $sortkey = 'incidentid';
    }
-
    $incidents = getOpenIncidents($sqlfilter);
    if (sizeof($incidents) == 0) {
         return '<I>'._('No incidents').'</I>';

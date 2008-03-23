@@ -716,22 +716,26 @@ function queueAddLogging($id, &$error, $template='', &$incidentid) {
       $error = 'SOAP Error';
       return 5;
    }
-   addIncidentComment(_('Logging added to incident from import queue'), $params['incidentid']);
+   addIncidentComment(array(
+      'comment'=>_('Logging added to incident from import queue'),
+      'incidentid'=>$params['incidentid']));
    if (defined('WS_IMPORT_RESETSTATE') && WS_IMPORT_RESETSTATE === true) {
       $state = array_search(WS_IMPORT_DEFAULTSTATE, getIncidentStates());
       if ($state == false) {
          $state = getIncidentStateDefault();
       }
       updateIncident($params['incidentid'], $state);
-      addIncidentComment(t(_('State reset to %state.'),
-         array('%state'=>getIncidentStateLabelByID($state))), $params['incidentid']);
+      addIncidentComment(array(
+         'comment'=>t(_('State reset to %state.'),
+            array('%state'=>getIncidentStateLabelByID($state))),
+         'incidentid'=>$params['incidentid']));
    }
    return 0;
 }
 
 
 /* Fetch an authentication ticket from the web service
- * 
+ *
  * Parameters:
  *    ticket (string); variable to write the ticket to, if sucessfully retrieved
  *    error (string); variable to write error message in, if any
