@@ -42,6 +42,7 @@ function listTemplates() {
 
 $action = fetchFrom('REQUEST', 'action', '%s');
 defaultTo($action, 'list');
+$action = strip_tags($action);
 
 switch ($action) {
    // -------------------------------------------------------------------

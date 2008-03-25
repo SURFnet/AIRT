@@ -210,10 +210,9 @@ EOF;
         Header("Location: $SELF");
 
         break;
-    
     //-----------------------------------------------------------------
     default:
-        die("Unknown action: $action");
+        die("Unknown action: $strip_tags(action)");
  } // switch
 
 ?>

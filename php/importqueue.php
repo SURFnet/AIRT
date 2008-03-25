@@ -246,6 +246,6 @@ switch ($action) {
    // ----------------------------------------------------------------
    default:
       airt_error('PARAM_INVALID', 'importqueue.php:'.__LINE__);
-      Header("Location: $_SERVER[PHP_SELF]");
+      reload();
 }
 ?>

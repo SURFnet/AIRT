@@ -133,6 +133,7 @@ switch ($action) {
       break;
    //--------------------------------------------------------------------
    default:
-      die(t(_('Unknown action (%action)'), array('%action'=>$action)));
+      die(t(_('Unknown action (%action)'), array('%action'=>
+         strip_tags($action))));
 }
 ?>

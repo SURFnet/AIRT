@@ -359,6 +359,6 @@
 
     // --------------------------------------------------------------
     default:
-        die(_("Unknown action: $action"));
+        die(_("Unknown action: ".strip_tags($action)));
 } // switch
 ?>
