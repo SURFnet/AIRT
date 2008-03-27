@@ -27,6 +27,7 @@ grant select,insert,update,delete on roles to airt;
 grant select,insert,update,delete on urls to airt;
 grant select,insert,update,delete on user_comments to airt;
 grant select,insert,update,delete on users to airt;
+grant select on versions to airt;
 
 grant select,update on address_roles_sequence to airt;
 grant select,update on authentication_tickets_sequence to airt;

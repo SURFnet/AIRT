@@ -391,4 +391,7 @@ CREATE UNIQUE INDEX urls_label on urls(upper(label));
 CREATE UNIQUE INDEX permissions_label on permissions(upper(label));
 CREATE UNIQUE INDEX address_roles_label on address_roles(upper(label));
 
+INSERT INTO versions (key, value)
+    VALUES ('airtversion','20080229.1');
+
 end transaction;

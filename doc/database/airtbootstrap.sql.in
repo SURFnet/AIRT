@@ -177,7 +177,4 @@ INSERT INTO role_assignments
 --
 -- Create the database schema version record.
 --
-INSERT INTO versions (key, value) 
-    VALUES ('airtversion','@VERSION@');
-
 end transaction;
