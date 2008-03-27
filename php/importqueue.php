@@ -25,7 +25,7 @@ require_once LIBDIR.'/database.plib';
 require_once LIBDIR.'/error.plib';
 require_once LIBDIR.'/importqueue.plib';
 
-$action = fetchFrom('REQUEST', 'action', '%s');
+$action = strip_tags(fetchFrom('REQUEST', 'action', '%s'));
 defaultTo($action, 'list');
 
 
@@ -162,7 +162,7 @@ switch ($action) {
       break;
    // ----------------------------------------------------------------
    case 'toggle':
-      $toggle = fetchFrom('REQUEST','toggle');
+      $toggle = fetchFrom('REQUEST','toggle', '%d');
       defaultTo($toggle,0);
       $toggle = ($toggle == 0) ? 1 : 0;
       // break omitted intentionally
@@ -182,11 +182,11 @@ switch ($action) {
 
    // ----------------------------------------------------------------
    case _('Add preferred template'):
-      $filter = fetchFrom('REQUEST', 'filter');
+      $filter = strip_tags(fetchFrom('REQUEST', 'filter'));
       defaultTo($filter, '');
-      $version = fetchFrom('REQUEST', 'version');
+      $version = strip_tags(fetchFrom('REQUEST', 'version'));
       defaultTo($version, '');
-      $mailtemplate = fetchFrom('REQUEST', 'mailtemplate');
+      $mailtemplate = strip_tags(fetchFrom('REQUEST', 'mailtemplate'));
       defaultTo($mailtemplate, '');
 
       if ($filter == '' || $version == '' || $mailtemplate == '') {

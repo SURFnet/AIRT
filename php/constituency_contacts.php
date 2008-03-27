@@ -28,7 +28,7 @@ require_once 'config.plib';
 require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/database.plib';
 
-$action = fetchFrom('REQUEST', 'action', '%s');
+$action = strip_tags(fetchFrom('REQUEST', 'action', '%s'));
 defaultTo($action, 'list');
 
 switch ($action) {
@@ -167,6 +167,7 @@ switch ($action) {
          die(_('Missing information in ').__LINE__);
       }
       if (!is_numeric($consid) || !is_numeric($userid)) {
+         // should not happen
          die(_('Invalid data in ').__LINE__);
       }
 

@@ -33,7 +33,7 @@ require_once LIBDIR.'/user.plib';
 require_once LIBDIR.'/mailtemplates.plib';
 
 
-$action = fetchFrom('REQUEST','action');
+$action = strip_tags(fetchFrom('REQUEST','action'));
 defaultTo($action,'list');
 
 switch ($action) {
@@ -47,11 +47,13 @@ switch ($action) {
         reload();
      }
      if (is_array($massincidents) && sizeof($massincidents) >= 1) {
+        // filter out non-numeric elements
+        $massincidents = array_filter($massincidents, is_numeric);
 	     $_SESSION['incidentid'] = $massincidents[0];
 	  }
      $agenda = implode(',', $massincidents);
 
-     $template = fetchFrom('REQUEST','template');
+     $template = strip_tags(fetchFrom('REQUEST','template'));
      defaultTo($template,_('Do not send mail'));
      if ($template==_('Do not send mail')) {
         // No template selected, show list again.
@@ -65,7 +67,7 @@ switch ($action) {
   //--------------------------------------------------------------------
   case _('Show Details'):
   case 'details':
-    $incidentid = fetchFrom('REQUEST','incidentid');
+    $incidentid = fetchFrom('REQUEST','incidentid', '%d');
     if ($incidentid=='') {
        airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
        reload();
@@ -74,8 +76,6 @@ switch ($action) {
     print updateCheckboxes();
 
     /* Prevent cross site scripting in incidentid. */
-# TODO This thing still does not cope well with non-integers. It breaks some
-# SQL statement down the line.
     $norm_incidentid = normalize_incidentid($incidentid);
     $incidentid = decode_incidentid($norm_incidentid);
     if (!getIncident($incidentid)) {
@@ -182,12 +182,16 @@ switch ($action) {
       $addresses = $constituency = $type = $state = $status = $email =
 		   $addressrole = $logging = $desc = '';
 
-      $addressrole = fetchFrom('POST', 'addressrole');
-      $type = fetchFrom('POST', 'type');
-      $state = fetchFrom('POST', 'state');
-      $status = fetchFrom('POST', 'status');
+      $addressrole = fetchFrom('POST', 'addressrole', '%d');
+      defaultTo($addressrole, 0);
+      $type = fetchFrom('POST', 'type', '%d');
+      defaultTo($type, 1);
+      $state = fetchFrom('POST', 'state', '%d');
+      defaultTo($type, 1);
+      $status = fetchFrom('POST', 'status', '%d');
+      defaultTo($type, 1);
       $logging = trim(fetchFrom('POST', 'logging'));
-      $desc = trim(fetchFrom('POST', 'desc'));
+      $desc = strip_tags(trim(fetchFrom('POST', 'desc')));
       $date_day = trim(fetchFrom('POST', 'date_day', '%d'));
       $date_month = trim(fetchFrom('POST', 'date_month', '%d'));
       $date_year = trim(fetchFrom('POST', 'date_year', '%d'));
@@ -249,9 +253,9 @@ switch ($action) {
       // Create a new incident from edit form.
       $address = $email = '';
 
-      $address      = fetchFrom('POST','address');
+      $address      = strip_tags(fetchFrom('POST','address'));
       $address      = @gethostbyname($address);
-      $email        = fetchFrom('POST','email');
+      $email        = strip_tags(fetchFrom('POST','email'));
       if ($email!='') {
 # NOTE: this may be a list of addresss; looks not good.
          $_SESSION['current_email'] = trim(strtolower($email));
@@ -275,7 +279,8 @@ switch ($action) {
          'logging'=>trim(fetchFrom('POST', 'logging')),
          'template'=>trim(fetchFrom('POST', 'template')),
          'desc'=>trim(fetchFrom('POST', 'desc'))));
-      addIPtoIncident($address,$incidentid,fetchFrom('POST', 'addressrole'));
+      addIPtoIncident($address,$incidentid,
+         fetchFrom('POST', 'addressrole', '%d'));
 		
 	   if (defined('OTRS_ACTIVE') && OTRS_ACTIVE === true) {
 		   $otrsln = fetchFrom('REQUEST', 'otrs-link');
@@ -292,7 +297,7 @@ switch ($action) {
             $addr = trim($addr);
             $user = getUserByEmail($addr);
             if (!$user) {
-               if (fetchFrom('POST', 'addifmissing') == 'on') {
+               if (strip_tags(fetchFrom('POST', 'addifmissing')) == 'on') {
                   addUser(array('email'=>$addr));
                   $user = getUserByEmail($addr);
                   addUserToIncident($user['id'], $incidentid);
@@ -312,7 +317,7 @@ _('Continue').'...</a>'.LF,
          }
       }
 
-      if (fetchFrom('POST', 'sendmail') == 'on') {
+      if (strip_tags(fetchFrom('POST', 'sendmail')) == 'on') {
          reload('mailtemplates.php');
       } else {
          reload();
@@ -321,7 +326,7 @@ _('Continue').'...</a>'.LF,
    //--------------------------------------------------------------------
    case 'toggle':
       // Flip the column of check boxes.
-      $toggle = fetchFrom('REQUEST','toggle');
+      $toggle = fetchFrom('REQUEST','toggle', '%d');
       defaultTo($toggle,0);
       $toggle = ($toggle == 0) ? 1 : 0;
       // Break omitted on purpose.
@@ -342,20 +347,20 @@ _('Continue').'...</a>'.LF,
 
    //--------------------------------------------------------------------
    case 'addip':
-      $incidentid = fetchFrom('SESSION','incidentid');
+      $incidentid = fetchFrom('SESSION','incidentid', '%d');
       if ($incidentid=='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
 
-      $ip = fetchFrom('POST','ip');
+      $ip = strip_tags(fetchFrom('POST','ip'));
       if ($ip=='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
       $ip = gethostbyname($ip);
 
-      $addressrole = fetchFrom('POST','addressrole');
+      $addressrole = fetchFrom('POST','addressrole', '%d');
       if ($addressrole=='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
@@ -386,13 +391,13 @@ _('Continue').'...</a>'.LF,
 
     //--------------------------------------------------------------------
    case 'editip':
-      $incidentid = fetchFrom('SESSION','incidentid');
+      $incidentid = fetchFrom('SESSION','incidentid', '%d');
       if ($incidentid=='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
 
-      $ip = fetchFrom('REQUEST','ip');
+      $ip = strip_tags(fetchFrom('REQUEST','ip'));
       if ($ip=='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
@@ -405,31 +410,31 @@ _('Continue').'...</a>'.LF,
 
     //--------------------------------------------------------------------
    case 'updateip':
-      $id = fetchFrom('POST','id');
+      $id = fetchFrom('POST','id', '%d');
       if ($id=='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
 
-      $constituency = fetchFrom('POST','constituency');
+      $constituency = fetchFrom('POST','constituency', '%d');
       if ($constituency=='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
 
-      $ip = fetchFrom('POST','ip');
+      $ip = strip_tags(fetchFrom('POST','ip'));
       if ($ip=='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
 
-      $incidentid = fetchFrom('POST','incidentid');
+      $incidentid = fetchFrom('POST','incidentid', '%d');
       if ($incidentid=='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
 
-      $addressrole = fetchFrom('POST','addressrole');
+      $addressrole = fetchFrom('POST','addressrole', '%d');
       if ($addressrole=='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
@@ -469,19 +474,19 @@ _('Continue').'...</a>'.LF,
 
     //--------------------------------------------------------------------
    case 'deleteip':
-      $incidentid = fetchFrom('SESSION','incidentid');
+      $incidentid = fetchFrom('SESSION','incidentid', '%d');
       if ($incidentid=='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
 
-      $ip = fetchFrom('GET','ip');
+      $ip = strip_tags(fetchFrom('GET','ip'));
       if ($ip=='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
 
-      $addressrole = fetchFrom('GET','addressrole');
+      $addressrole = fetchFrom('GET','addressrole', '%d');
       if ($addressrole=='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
@@ -509,16 +514,16 @@ _('Continue').'...</a>'.LF,
 
     //--------------------------------------------------------------------
    case 'adduser':
-      $email = fetchFrom('REQUEST','email');
+      $email = strip_tags(fetchFrom('REQUEST','email'));
       if ($email=='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
 
-      $add = fetchFrom('REQUEST','addifmissing');
+      $add = strip_tags(fetchFrom('REQUEST','addifmissing'));
       defaultTo($add,'off');
 
-      $incidentid = fetchFrom('SESSION','incidentid');
+      $incidentid = fetchFrom('SESSION','incidentid', '%d');
       if ($incidentid=='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
@@ -549,13 +554,13 @@ _('Continue').'...</a>'.LF,
       break;
    //--------------------------------------------------------------------
    case 'deluser':
-      $incidentid = fetchFrom('SESSION','incidentid');
+      $incidentid = fetchFrom('SESSION','incidentid', '%d');
       if ($incidentid=='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
 
-      $userid = fetchFrom('GET','userid');
+      $userid = fetchFrom('GET','userid', '%d');
       if ($userid=='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
@@ -576,12 +581,12 @@ _('Continue').'...</a>'.LF,
 
    //--------------------------------------------------------------------
    case 'addcomment':
-      $comment = fetchFrom('REQUEST','comment');
+      $comment = strip_tags(fetchFrom('REQUEST','comment'));
       if (empty($comment)) {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
-      $incidentid = fetchFrom('REQUEST', 'incidentid');
+      $incidentid = fetchFrom('REQUEST', 'incidentid', '%d');
       if (empty($incidentid)) {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
@@ -609,33 +614,33 @@ _('Continue').'...</a>'.LF,
     //--------------------------------------------------------------------
    case 'Update':
    case 'update':
-      $incidentid = fetchFrom('SESSION','incidentid');
+      $incidentid = fetchFrom('SESSION','incidentid', '%d');
       if ($incidentid=='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
 
-      $state = fetchFrom('POST','state');
+      $state = fetchFrom('POST','state', '%d');
       if ($state=='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
 
-      $status = fetchFrom('POST','status');
+      $status = fetchFrom('POST','status', '%d');
       if ($status=='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
 
-      $type = fetchFrom('POST','type');
+      $type = fetchFrom('POST','type', '%d');
       if ($type=='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
 
-      $desc = trim(fetchFrom('POST', 'desc'));
+      $desc = strip_tags(trim(fetchFrom('POST', 'desc')));
       $logging = trim(fetchFrom('POST','logging'));
-      $template = trim(fetchFrom('POST','template'));
+      $template = trim(strip_tags(fetchFrom('POST','template')));
       $date_day = trim(fetchFrom('POST', 'date_day', '%d'));
       $date_month = trim(fetchFrom('POST', 'date_month', '%d'));
       $date_year = trim(fetchFrom('POST', 'date_year', '%d'));
@@ -773,15 +778,16 @@ _('Continue').'...</a>'.LF,
          // Nothing checked, nothing to do; disregard command.
          Header("Location: $_SERVER[PHP_SELF]");
       }
-      $massState = fetchFrom('POST', 'massstate');
+      $massIncidents = array_filter($massIncidents, is_numeric);
+      $massState = fetchFrom('POST', 'massstate', '%d');
       if ($massState == 'null') {
          $massState = '';
       }
-      $massStatus = fetchFrom('POST', 'massstatus');
+      $massStatus = fetchFrom('POST', 'massstatus', '%d');
       if ($massStatus=='null') {
          $massStatus = '';
       }
-      $massType = fetchFrom('POST', 'masstype');
+      $massType = fetchFrom('POST', 'masstype', '%d');
       if ($massType=='null') {
          $massType = '';
       }
@@ -803,12 +809,13 @@ _('Continue').'...</a>'.LF,
          Header("Location: $_SERVER[PHP_SELF]?action=details&incidentid=$_SESSION[incidentid]");
          return;
       }
-      Header("Location: mailtemplates.php?to=".urlencode(implode(',',$agenda)));
+      Header("Location: mailtemplates.php?to=".urlencode(implode(',',
+         strip_tags($agenda))));
       break;
 
    //--------------------------------------------------------------------
    case 'Remove':
-      $incidentid = fetchFrom('REQUEST', 'incidentid');
+      $incidentid = fetchFrom('REQUEST', 'incidentid', '%d');
       $agenda = fetchFrom('REQUEST', 'agenda');
       if ($incidentid == '') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
@@ -821,6 +828,9 @@ _('Continue').'...</a>'.LF,
          return;
       }
       foreach ($agenda as $userid) {
+         if (!is_numeric($userid)) {
+            die(_('Invalid parameter type in ').__LINE__);
+         }
          $user = getUserByUserId($userid);
          removeUserFromIncident($userid, $incidentid);
          addIncidentComment(array(

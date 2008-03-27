@@ -81,6 +81,7 @@ AC_OUTPUT([Makefile
     doc/examples/Makefile
     doc/database/Makefile
     doc/database/airtbootstrap.sql
+    doc/database/airtschema.sql
     man/Makefile
     man/airt.pod
     man/airt_import.pod

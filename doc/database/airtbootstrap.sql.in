@@ -155,7 +155,14 @@ INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_posi
   (nextval('urls_sequence'), 'search.php', 'Search', currval('users_sequence'), CURRENT_TIMESTAMP, NULL, 3);
 INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position)
   VALUES
-  (nextval('urls_sequence'), 'importqueue.php', 'Import Queue', currval('users_sequence'), CURRENT_TIMESTAMP , NULL, 3);
+  (nextval('urls_sequence'), 'importqueue.php', 'Import Queue', currval('users_sequence'), CURRENT_TIMESTAMP , 3, 3);
+INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position)
+  VALUES
+  (nextval('urls_sequence'), 'exportqueue.php', 'Export Queue', currval('users_sequence'), CURRENT_TIMESTAMP , 3, 3);
+INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position)
+  VALUES
+  (nextval('urls_sequence'), 'stats.php', 'Reports', currval('users_sequence'), CURRENT_TIMESTAMP , 5, 5);
+
 
 ---
 --- web service; must be created AFTER the menu urls

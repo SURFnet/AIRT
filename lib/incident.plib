@@ -1158,7 +1158,7 @@ function updateCheckboxes() {
    // Used to compile some JavaScript that is needed in many places.
    global $toggle;
 
-   $sortkey = fetchFrom('REQUEST','sortkey');
+   $sortkey = strip_tags(fetchFrom('REQUEST','sortkey'));
    defaultTo($sortkey,'incidentid');
 
    $page = fetchFrom('REQUEST','page','%d');
@@ -1168,7 +1168,19 @@ function updateCheckboxes() {
 
    $filter = fetchFrom('REQUEST','filter[]');
    defaultTo($filter,array('state'=>-1, 'status'=>getIncidentStatusDefault()));
+   if (!is_numeric($filter['state'])) {
+      die(_('Invalid parameter type in ').__LINE__);
+   }
+   if (!is_numeric($filter['status'])) {
+      die(_('Invalid parameter type in ').__LINE__);
+   }
 
+   // check for valid values of sortkey
+   if (!array_search($sortkey, array(
+      'constituency', 'hostname', 'status', 'state', 'type', 'created',
+      'lastupdated', 'incidentid'))) {
+      die(_('Invalid value for parameter in ').__LINE__);
+   }
    $urlsuffix=strtr(
      '&page=%p&filter[state]=%sf&filter[status]=%stf&sortkey=%sk&toggle=%t',
      array(
@@ -1199,7 +1211,7 @@ function updateCheckboxes() {
  */
 function formatIncidentBulkForm(&$check) {
    $constituency = $email = $addressrole = '';
-   $address = fetchFrom('SESSION','active_ip');
+   $address = strip_tags(fetchFrom('SESSION','active_ip'));
 
    if (array_key_exists("constituency_id", $_SESSION)) {
       $constituency = $_SESSION["constituency_id"];
@@ -1240,7 +1252,7 @@ function formatIncidentForm(&$check) {
      = $addressrole = '';
 
 	
-   $address      = fetchFrom('SESSION','active_ip');
+   $address      = strip_tags(fetchFrom('SESSION','active_ip'));
 	$constituency = 0;
 	$email        = '';
 	if ($address != '') {
@@ -1264,7 +1276,7 @@ function formatIncidentForm(&$check) {
       'status'=>$status));
 
 	if (defined('OTRS_ACTIVE') && OTRS_ACTIVE === true) {
-	   $tn = fetchFrom('SESSION', 'otrs_tn');
+	   $tn = strip_tags(fetchFrom('SESSION', 'otrs_tn'));
 		if (!empty($tn)) {
 	      unset($_SESSION['otrs_tn']);
 		   $output .= '<input type="checkbox" CHECKED name="otrs-link">'.LF;
@@ -1318,9 +1330,9 @@ function formatIncidentForm(&$check) {
  * details.
  */
 function formatEditForm() {
-   $incident = getincident(fetchFrom('SESSION','incidentid'));
-   $address = fetchFrom('SESSION','active_ip');
-   $constituency = fetchFrom('SESSION','constituency_id');
+   $incident = getincident(fetchFrom('SESSION','incidentid', '%d'));
+   $address = strip_tags(fetchFrom('SESSION','active_ip'));
+   $constituency = fetchFrom('SESSION','constituency_id', '%d');
 
    // Basic incident data block.
    $output = '<div class="details-basic">'.LF;
@@ -1436,7 +1448,7 @@ function formatEditForm() {
    $output .= '</form>'.LF;
    $output .= '<p/>'.LF;
    // Affected user list footer. First get som data.
-   $userid = fetchFrom('SESSION','current_userid');
+   $userid = fetchFrom('SESSION','current_userid', '%d');
    if ($userid!='') {
       $u = getUserByUserID($userid);    // Cannot cope with empty userids.
       if (sizeof($u) > 0) {
@@ -1444,7 +1456,7 @@ function formatEditForm() {
          $email = $u[0]['email'];
       }
    }
-   $email = fetchFrom('SESSION','current_email');
+   $email = strip_tags(fetchFrom('SESSION','current_email'));
    // Then build the form.
    $output .= '<form name="jsform" action="'.$_SERVER['PHP_SELF'].
               '" method="POST">'.LF;
@@ -1471,6 +1483,12 @@ function formatFilterBlock() {
    $filter = fetchFrom('REQUEST','filter[]');
 # TODO These defaults need to come from the database.
    defaultTo($filter, array('state'=>-1, 'status'=>getIncidentStatusDefault()));
+   if (!is_numeric($filter['state'])) {
+      die(_('Invalid parameter type in ').__LINE__);
+   }
+   if (!is_numeric($filter['status'])) {
+      die(_('Invalid parameter type in ').__LINE__);
+   }
 
    $out = t(
       '<FORM method="POST">'.LF.
@@ -1624,7 +1642,7 @@ function formatListOverviewBody() {
    defaultTo($filter,
              array('status'=>getIncidentStatusDefault(), 'state'=>-1));
 
-   $sortkey = fetchFrom('REQUEST','sortkey');
+   $sortkey = strip_tags(fetchFrom('REQUEST','sortkey'));
    defaultTo($sortkey, 'incidentid');
 
    $page = fetchFrom('REQUEST','page','%d');

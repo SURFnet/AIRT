@@ -28,7 +28,7 @@ require_once LIBDIR.'/database.plib';
 require_once LIBDIR.'/constituency.plib';
 require_once LIBDIR.'/network.plib';
 
-$action = fetchFrom('REQUEST', 'action', '%s');
+$action = strip_tags(fetchFrom('REQUEST', 'action', '%s'));
 defaultTo($action, 'list');
 
 function show_form($id="") {
@@ -145,7 +145,6 @@ switch ($action) {
       break;
 
    //-----------------------------------------------------------------
-   // XXX
    case "add":
    case "update":
       $id = fetchFrom('POST', 'id', '%d');
@@ -153,11 +152,11 @@ switch ($action) {
       if (!is_numeric($id)) {
          die(_('Invalid parameter type ').__LINE__);
       }
-      $network = fetchFrom('POST', 'network', '%s');
+      $network = strip_tags(fetchFrom('POST', 'network', '%s'));
       if (empty($network)) {
          die(_('Missing parameter value in ').__LINE__);
       }
-      $netmask = fetchFrom('POST', 'netmask', '%s');
+      $netmask = strip_tags(fetchFrom('POST', 'netmask', '%s'));
       if (empty($netmask)) {
          die(_('Missing parameter value in ').__LINE__);
       }
@@ -165,11 +164,11 @@ switch ($action) {
       if (sscanf($netmask, "/%s", $res) == 1) {
          $netmask = cidr2netmask(substr($netmask, 1));
       }
-      $label = fetchFrom('POST', 'label', '%s');
+      $label = strip_tags(fetchFrom('POST', 'label', '%s'));
       if (empty($label)) {
          die(_('Missing parameter value in ').__LINE__);
       }
-      $constituency = fetchFrom('POST', 'constituency', '%s');
+      $constituency = fetchFrom('POST', 'constituency', '%d');
       if (empty($constituency)) {
          die(_('Missing parameter value in ').__LINE__);
       }

@@ -85,7 +85,7 @@ function show_form($id="") {
    print '</form>'.LF;
  }
 
-$action = fetchFrom('REQUEST', 'action', '%s');
+$action = strip_tags(fetchFrom('REQUEST', 'action', '%s'));
 defaultTo($action, 'list');
 switch ($action) {
    // --------------------------------------------------------------
@@ -148,15 +148,15 @@ switch ($action) {
    case "update":
       $id = fetchFrom('POST', 'id', '%d');
       defaultTo($id, -1);
-      $label = fetchFrom('POST', 'label', '%s');
+      $label = strip_tags(fetchFrom('POST', 'label', '%s'));
       if (empty($label)) {
          die(_('Missing information in ').__LINE__);
       }
-      $desc = fetchFrom('POST', 'desc', '%s');
+      $desc = strip_tags(fetchFrom('POST', 'desc', '%s'));
       if (empty($desc)) {
          die(_('Missing information in ').__LINE__);
       }
-      $isdefault = fetchFrom('POST', 'isdefault', '%s');
+      $isdefault = strip_tags(fetchFrom('POST', 'isdefault', '%s'));
       defaultTo($isdefault, 'f');
       if ($isdefault!='f') {
          // The new/updated record is default, so all others are not.

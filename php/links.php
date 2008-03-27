@@ -27,10 +27,6 @@ require_once 'config.plib';
 require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/database.plib';
 
-$action = fetchFrom('REQUEST', 'action', '%s');
-defaultTo($action, 'list');
-
-
 function format_position_select($current_value, $max) {
    $out = choice(_('Do not display'), '', $current_value);
    for ($i=1; $i <= $max; $i++) {
@@ -38,6 +34,9 @@ function format_position_select($current_value, $max) {
    }
    return $out;
 }
+
+$action = strip_tags(fetchFrom('REQUEST', 'action', '%s'));
+defaultTo($action, 'list');
 
 switch ($action) {
    // --------------------------------------------------------------
@@ -164,13 +163,14 @@ switch ($action) {
 
    // --------------------------------------------------------------
    case "add":
-        if (array_key_exists("url", $_REQUEST)) $url = $_REQUEST["url"]
-        or die(_("Missing information (1)."));
-
-        if (array_key_exists("description", $_REQUEST))
-            $description = $_REQUEST["description"]
-        or die(_("Missing information (2)."));
-
+        $url = strip_tags(fetchFrom('REQUEST', 'url'));
+        if (empty($url)) {
+           die(_('Missing information ').__LINE__);
+        }
+        $description = strip_tags(fetchFrom('REQUEST', 'description'));
+        if (empty($description)) {
+           die(_('Missing information ').__LINE__);
+        }
         $now = Date("Y-m-d H:i:s");
         $res = db_query(sprintf("
             INSERT INTO urls
@@ -183,83 +183,88 @@ switch ($action) {
             $_SESSION["userid"]))
         or die(_("Unable to insert URL"));
 
-        Header("Location: $_SERVER[PHP_SELF]");
+        reload();
         break;
 
     // --------------------------------------------------------------
     case "delete":
-        if (array_key_exists("id", $_REQUEST)) $id = $_REQUEST["id"]
-        or die(_("Missing information (1)."));
-        if (!is_numeric($id)) {
-           die(_('Invalid parameter type ').__LINE__);
-        }
+       $id = fetchFrom('REQUEST', 'id', '%d');
+       if (empty($id)) {
+          die(_('Missing information in ').__LINE__);
+       }
+       if (!is_numeric($id)) {
+          // should not happen
+          die(_('Invalid parameter type ').__LINE__);
+       }
 
-        $res = db_query(sprintf("
+       $res = db_query(sprintf("
             DELETE FROM urls
             WHERE ID=%d", $id))
-        or die(_("Unable to delete URL"));
+       or die(_("Unable to delete URL"));
 
-        Header("Location: $_SERVER[PHP_SELF]");
-        break;
+       reload();
+       break;
 
     // --------------------------------------------------------------
     case "edit":
-        if (array_key_exists("id", $_REQUEST))
-            $id = $_REQUEST["id"]
-        or die(_("Missing information (3)."));
-        if (!is_numeric($id)) {
+       $id = fetchFrom('REQUEST', 'id', '%d');
+       if (empty($id)) {
+          die(_("Missing information in ").__LINE__);
+       }
+       if (!is_numeric($id)) {
+           // should not happen
            die(_('Invalid parameter type ').__LINE__);
-        }
+       }
 
-        $res = db_query(sprintf("
+       $res = db_query(sprintf("
             SELECT url, label
             FROM   urls
             WHERE  id=%d", $id))
-        or die(_("Unable to retrieve URL"));
+       or die(_("Unable to retrieve URL"));
 
-        if (db_num_rows($res) == 0) die(_("Incorrect row id"));
+       if (db_num_rows($res) == 0) die(_("Incorrect row id"));
 
-        pageHeader("Edit link");
-        $row = db_fetch_next($res);
+       pageHeader("Edit link");
+       $row = db_fetch_next($res);
 
-        $url = $row["url"];
-        $description = $row["label"];
-
-         print '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">'.LF;
-         print '<input type="hidden" name="action" value="update">'.LF;
-         print '<input type="hidden" name="id" value="'.$id.'">'.LF;
-         print '<table>'.LF;
-         print '<tr>'.LF;
-         print '    <td>URL</td>'.LF;
-         print '    <td><input type="text" name="url" size="50" value="'.$url.'"></td>'.LF;
-         print '</tr>'.LF;
-         print '<tr>'.LF;
-         print '    <td>Description</td>'.LF;
-         print '    <td><input type="text" name="description" size="50"'.LF;
-         print '         value="'.$description.'"></td>'.LF;
-         print '</tr>'.LF;
-         print '</table>'.LF;
-         print '<input type="submit" value="Update">'.LF;
-         print '</form>'.LF;
+        print '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">'.LF;
+        print '<input type="hidden" name="action" value="update">'.LF;
+        print '<input type="hidden" name="id" value="'.$id.'">'.LF;
+        print '<table>'.LF;
+        print '<tr>'.LF;
+        print '    <td>URL</td>'.LF;
+        print '    <td><input type="text" name="url" size="50" value="'.
+           strip_tags($row['url']).'"></td>'.LF;
+        print '</tr>'.LF;
+        print '<tr>'.LF;
+        print '    <td>Description</td>'.LF;
+        print '    <td><input type="text" name="description" size="50"'.LF;
+        print '         value="'.strip_tags($row['label']).'"></td>'.LF;
+        print '</tr>'.LF;
+        print '</table>'.LF;
+        print '<input type="submit" value="Update">'.LF;
+        print '</form>'.LF;
         break;
 
     // --------------------------------------------------------------
     case "update":
-        if (array_key_exists("url", $_REQUEST)) $url = $_REQUEST["url"]
-        or die(_("Missing information (1)."));
+       $url = strip_tags(fetchFrom('REQUEST', 'url'));
+       if (empty($url)) {
+          die(_("Missing information ").__LINE__);
+       }
+       $description = strip_tags(fetchFrom('REQUEST', 'url'));
+       if (empty($description)) {
+          die(_("Missing information ").__LINE__);
+       }
+       $id = fetchFrom('REQUEST', 'id', '%d');
+       if (empty($id)) {
+          die(_("Missing information ").__LINE__);
+       }
+       if (!is_numeric($id)) {
+          die(_('Invalid parameter type ').__LINE__);
+       }
 
-        if (array_key_exists("description", $_REQUEST))
-            $description = $_REQUEST["description"]
-        or die(_("Missing information (2)."));
-
-        if (array_key_exists("id", $_REQUEST))
-            $id = $_REQUEST["id"]
-        or die(_("Missing information (3)."));
-        if (!is_numeric($id)) {
-           die(_('Invalid parameter type ').__LINE__);
-        }
-
-        $res = db_query(sprintf("
+       $res = db_query(sprintf("
             UPDATE URLs
             SET    label=%s,
                    url=%s
@@ -269,53 +274,61 @@ switch ($action) {
             $id))
         or die(_("Unable to update URL"));
 
-        Header("Location: $_SERVER[PHP_SELF]");
+        reload();
         break;
 
     // --------------------------------------------------------------
     case _("Update main menu"):
-      if (!array_key_exists('menu_pos', $_POST)) {
+      $menu_pos = fetchFrom('POST', 'menu_pos');
+      if (empty($menu_pos)) {
          airt_error('PARAM_MISSING', 'links.php:'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
+         reload();
          break;
       }
-      foreach ($_POST['menu_pos'] as $id=>$pos) {
+      foreach ($menu_pos as $id=>$pos) {
         if (!is_numeric($id)) {
            die(_('Invalid parameter type ').__LINE__);
         }
-         $res = db_query(q("UPDATE urls SET menu_position=%pos WHERE id=%id", 
+        if (!is_numeric($pos)) {
+           die(_('Invalid parameter type ').__LINE__);
+        }
+        $res = db_query(q("UPDATE urls SET menu_position=%pos WHERE id=%id", 
             array('%pos'=>($pos=='')?'NULL':sprintf("%d", $pos), '%id'=>$id)));
-         if (!$res) {
+        if (!$res) {
             airt_error('DB_QUERY', 'links.php:'.__LINE__);
-            Header("Location: $_SERVER[PHP_SELF]");
+            reload();
             break;
-         }
+        }
       }
       airt_msg(_("Menu updated."));
-      Header("Location: $_SERVER[PHP_SELF]");
+      reload();
       break;
 
     // --------------------------------------------------------------
     case _("Update navigation bar"):
-      if (!array_key_exists('menu_pos', $_POST)) {
+      $menu_pos = fetchFrom('POST', 'menu_pos');
+      if (empty($menu_pos)) {
          airt_error('PARAM_MISSING', 'links.php:'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
+         reload();
          break;
       }
-      foreach ($_POST['menu_pos'] as $id=>$pos) {
+      foreach ($menu_pos as $id=>$pos) {
         if (!is_numeric($id)) {
            die(_('Invalid parameter type ').__LINE__);
         }
-         $res = db_query(q("UPDATE urls SET navbar_position=%pos WHERE id=%id", 
+        if (!is_numeric($pos)) {
+           die(_('Invalid parameter type ').__LINE__);
+        }
+        $res = db_query(q("UPDATE urls SET navbar_position=%pos WHERE id=%id", 
             array('%pos'=>($pos=='')?'NULL':sprintf("%d",$pos), '%id'=>$id)));
-         if (!$res) {
+        if (!$res) {
             airt_error('DB_QUERY', 'links.php:'.__LINE__);
-            Header("Location: $_SERVER[PHP_SELF]");
+            reload();
             break;
          }
       }
       airt_msg(_("Navigation bar updated."));
-      Header("Location: $_SERVER[PHP_SELF]");
+      reload();
       break;
    // --------------------------------------------------------------
     default:

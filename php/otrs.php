@@ -26,15 +26,15 @@ require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/incident.plib';
 require_once ETCDIR.'/otrs.cfg';
 
-$action = strtolower(fetchFrom('REQUEST','action'));
+$action = strip_tags(strtolower(fetchFrom('REQUEST','action')));
 defaultTo($action,'list');
 
 switch ($action) {
 
    //--------------------------------------------------------------------
    case 'search':
-	   $ticketno = fetchFrom('REQUEST', 'tn');
-      $ip = fetchFrom('REQUEST', 'ip');
+	   $ticketno = strip_tags(fetchFrom('REQUEST', 'tn'));
+      $ip = strip_tags(fetchFrom('REQUEST', 'ip'));
 		if (!empty($ticketno)) {
 		   $_SESSION['otrs_tn'] = $ticketno;
 		}

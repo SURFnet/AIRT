@@ -26,8 +26,8 @@
  require_once LIBDIR.'/database.plib';
  require_once LIBDIR.'/user.plib';
 
- if (array_key_exists("action", $_REQUEST)) $action=$_REQUEST["action"];
- else $action = "list";
+ $action=strip_tags(fetchFrom('REQUEST', 'action'));
+ defaultTo($action, 'list');
 
  function show_form($id="") {
     $lastname = $firstname = $email = $phone = $login = $userid = '';
@@ -55,57 +55,59 @@
         if (db_num_rows($res) > 0) {
             $row = db_fetch_next($res);
             if (array_key_exists('lastname', $row))
-               $lastname=$row['lastname'];
+               $lastname=strip_tags($row['lastname']);
             if (array_key_exists('firstname', $row))
-               $firstname=$row['firstname'];
+               $firstname=strip_tags($row['firstname']);
             if (array_key_exists('email', $row))
-               $email=$row['email'];
+               $email=strip_tags($row['email']);
             if (array_key_exists('phone', $row))
-               $phone=$row['phone'];
+               $phone=strip_tags($row['phone']);
             if (array_key_exists('login', $row))
-               $login=$row['login'];
+               $login=strip_tags($row['login']);
             if (array_key_exists('userid', $row))
-               $userid=$row['userid'];
+               $userid=strip_tags($row['userid']);
             if (array_key_exists('language', $row))
-               $language=$row['language'];
+               $language=strip_tags($row['language']);
 
             $action = "update";
             $submit = _("Update!");
         }
     }
     print '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">'.LF;
-    print '<input type="hidden" name="action" value="'.$action.'">'.LF;
-    print '<input type="hidden" name="id" value="'.$id.'">'.LF;
+    print '<input type="hidden" name="action" value="'.
+       strip_tags($action).'">'.LF;
+    print '<input type="hidden" name="id" value="'.
+       strip_tags($id).'">'.LF;
     print '<table>'.LF;
     print '<tr>'.LF;
     print '    <td>'._('Login').'</td>'.LF;
     print '    <td><input type="text" size="30" name="login" value="'.
-       $login.'"></td>'.LF;
+       strip_tags($login).'"></td>'.LF;
     print '</tr>'.LF;
     print '<tr>'.LF;
     print '    <td>'._('Organizational user id').'</td>'.LF;
     print '    <td><input type="text" size="30" name="userid" value="'.
-      $userid.'"></td>'.LF;
+      strip_tags($userid).'"></td>'.LF;
     print '</tr>'.LF;
     print '<tr>'.LF;
     print '    <td>'._('Last name').'</td>'.LF;
     print '    <td><input type="text" size="30" name="lastname" value="'.
-      $lastname.'"></td>'.LF;
+      strip_tags($lastname).'"></td>'.LF;
     print '</tr>'.LF;
     print '<tr>'.LF;
     print '    <td>'._('First name').'</td>'.LF;
     print '    <td><input type="text" size="30" name="firstname" value="'.
-      $firstname.'"></td>'.LF;
+      strip_tags($firstname).'"></td>'.LF;
     print '</tr>'.LF;
     print '<tr>'.LF;
     print '    <td>'._('Email address').'</td>'.LF;
     print '    <td><input type="text" size="30" name="email" value="'.
-      $email.'"></td>'.LF;
+      strip_tags($email).'"></td>'.LF;
     print '</tr>'.LF;
     print '<tr>'.LF;
     print '    <td>'._('Phone number').'</td>'.LF;
     print '    <td><input type="text" size="30" name="phone" value="'.
-      $phone.'"></td>'.LF;
+      strip_tags($phone).'"></td>'.LF;
     print '</tr>'.LF;
     print '<tr>'.LF;
     print '   <td>'._('Preferred language').'</td>'.LF;
@@ -121,7 +123,7 @@
     print '</tr>'.LF;
     print '</table>'.LF;
     print '<p>'.LF;
-    print '<input type="submit" value="'.$submit.'">'.LF;
+    print '<input type="submit" value="'.strip_tags($submit).'">'.LF;
     print '</form>'.LF;
  }
 
@@ -148,13 +150,13 @@
       print '</tr>'.LF;
       $count=0;
       while ($row = db_fetch_next($res)) {
-         $id = $row["id"];
-         $login = $row["login"];
-         $lastname = $row["lastname"];
-         $firstname = $row["firstname"];
-         $email = $row["email"];
-         $phone = $row["phone"];
-         $userid = $row["userid"];
+         $id = strip_tags($row["id"]);
+         $login = strip_tags($row["login"]);
+         $lastname = strip_tags($row["lastname"]);
+         $firstname = strip_tags($row["firstname"]);
+         $email = strip_tags($row["email"]);
+         $phone = strip_tags($row["phone"]);
+         $userid = strip_tags($row["userid"]);
 
          printf("
 <tr bgcolor='%s'>
@@ -184,38 +186,30 @@
     // --------------------------------------------------------------
     case "add":
     case "update":
-        if (array_key_exists("login", $_POST)) $login=$_POST["login"];
-        else die(_("Missing information (1)."));
-
-        if (array_key_exists("lastname", $_POST)) $lastname=$_POST["lastname"];
-        else die(_("Missing information (2)."));
-
-        if (array_key_exists("firstname", $_POST)) 
-           $firstname=$_POST["firstname"];
-        else die(_("Missing information (3)."));
-
-        if (array_key_exists("email", $_POST)) 
-           $email=strtolower($_POST["email"]);
-        else die(_("Missing information (4)."));
-
-        if (array_key_exists("phone", $_POST)) $phone=$_POST["phone"];
-        else die(_("Missing information (5)."));
-
-        if (array_key_exists("password", $_POST)) $password=$_POST["password"];
-        else $password="";
-
-        if (array_key_exists("password2", $_POST))
-            $password2=$_POST["password2"];
-        else $password2="";
-
-        if (array_key_exists("userid", $_POST)) $userid=$_POST["userid"];
-        else $userid="";
-        
-        if (array_key_exists("language", $_POST)) $language=$_POST["language"];
-        else $language="";
-
-        if (array_key_exists("id", $_POST)) $id=$_POST["id"];
-        else $id="";
+        $login = strip_tags(fetchFrom('POST', 'login'));
+        if (empty($login)) {
+           die(_("Missing information ").__LINE__);
+        }
+        $lastname = strip_tags(fetchFrom('POST', 'lastname'));
+        defaultTo($lastname, '');
+        $firstname = strip_tags(fetchFrom('POST', 'firstname'));
+        defaultTo($firstname, '');
+        $email = strtolower(strip_tags(fetchFrom('POST', 'email')));
+        if (empty($email)) {
+           die(_('Missing information ').__LINE__);
+        }
+        $phone = strip_tags(fetchFrom('POST', 'phone'));
+        defaultTo($phone, '');
+        $password = strip_tags(fetchFrom('POST', 'password'));
+        defaultTo($password, '');
+        $password2 = strip_tags(fetchFrom('POST', 'password2'));
+        defaultTo($password2, '');
+        $userid = fetchFrom('POST', 'userid', '%d');
+        defaultTo($userid, '');
+        $language = strip_tags(fetchFrom('POST', 'language'));
+        defaultTo($language, '');
+        $id = strip_tags(fetchFrom('POST', 'id', '%d'));
+        defaultTo($id, '');
 
         // ========= ADD ==========
         if ($action == "add") {
@@ -258,17 +252,15 @@
             if ($userid == $_SESSION['userid']) {
                @session_destroy();
             }
-            Header("Location: $_SERVER[PHP_SELF]");
+            reload();
         }
 
         // ========== UPDATE ===========
         else if ($action == "update")
         {
-            if ($id=="") die(_("Missing information(A)"));
-            if ($password != "")
-            {
-                if ($password != $password2)
-                {
+            if ($id=="") die(_("Missing information ").__LINE__);
+            if ($password != "") {
+                if ($password != $password2) {
                     pageHeader(_("Error"));
                     print _('The passwords that you provided do not match.').LF;
                     print '<P>'.LF;
@@ -319,11 +311,11 @@
 
     // --------------------------------------------------------------
     case "delete":
-        if (array_key_exists("id", $_GET)) $id=$_GET["id"];
-        else $id="";
-        if (!is_numeric($id)) {
+       $id = fetchFrom('GET', 'id', '%d');
+       defaultTo($id, '');
+       if (!is_numeric($id)) {
            die(_('Invalid parameter type ').__LINE__);
-        }
+       }
 
         $res = db_query(
             "DELETE FROM users
@@ -346,16 +338,18 @@
 
     // --------------------------------------------------------------
     case "edit":
-        if (array_key_exists("id", $_GET)) $id=$_GET["id"];
-        else die(_("Missing information (1)."));
-        if (!is_numeric($id)) {
+       $id = fetchFrom('GET', 'id', '%d');
+       if (empty($id)) {
+          die(_("Missing information ").__LINE__);
+       }
+       if (!is_numeric($id)) {
            die(_('Invalid parameter type ').__LINE__);
-        }
+       }
 
-        pageHeader(_("Edit user information"));
-        show_form($id);
-        pageFooter();
-        break;
+       pageHeader(_("Edit user information"));
+       show_form($id);
+       pageFooter();
+       break;
 
     // --------------------------------------------------------------
     default:

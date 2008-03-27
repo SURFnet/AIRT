@@ -19,7 +19,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * constituencies.php -- manage constituency data
- * 
+ *
  * $Id$
  */
 require_once 'config.plib';
@@ -72,7 +72,7 @@ function formatConstituencyForm($id='') {
    return $out;
 }
 
-$action = fetchFrom('REQUEST', 'action', '%s');
+$action = strip_tags(fetchFrom('REQUEST', 'action', '%s'));
 defaultTo($action, 'list');
 
 switch ($action) {
@@ -137,11 +137,11 @@ switch ($action) {
       $consid = fetchFrom('POST', 'consid', '%d');
       defaultTo($consid, -1);
 
-      $label = fetchFrom('POST', 'label', '%s');
+      $label = strip_tags(fetchFrom('POST', 'label', '%s'));
       if (empty($consid)) {
          die(_('Missing information in ').__LINE__);
       }
-      $description = fetchFrom('POST', 'description', '%s');
+      $description = strip_tags(fetchFrom('POST', 'description', '%s'));
       if (empty($description)) {
          die(_('Missing information in ').__LINE__);
       }
@@ -213,6 +213,6 @@ switch ($action) {
 
    //-----------------------------------------------------------------
    default:
-      die(_('Unknown action: ').strip_tags($action));
+      die(_('Unknown action: ').$action);
 } // switch
 ?>

@@ -32,19 +32,19 @@ require_once LIBDIR.'/exportqueue.plib';
 // All explicit actions are silently completed and end with a default action
 // reload.
 
-switch (fetchFrom('REQUEST','action')) {
+switch (strip_tags(fetchFrom('REQUEST','action'))) {
    case 'add':
       // Add new item to the queue.
-      if (queueItemInsert(fetchFrom('REQUEST','task'),
-                          fetchFrom('REQUEST','params'),
-                          fetchFrom('REQUEST','scheduled'),
+      if (queueItemInsert(fetchFrom('REQUEST','task', '%d'),
+                          strip_tags(fetchFrom('REQUEST','params')),
+                          strip_tags(fetchFrom('REQUEST','scheduled')),
                           $error)) {
          airt_error('DB_QUERY','exportqueue.php:'.__LINE__,$error);
       }
       header('Location: exportqueue.php');
       exit;
    case 'remove':
-      if (queueItemRemove(fetchFrom('REQUEST','taskid'),
+      if (queueItemRemove(fetchFrom('REQUEST','taskid', '%d'),
                           $error)) {
          airt_error('DB_QUERY','exportqueue.php:'.__LINE__,$error);
       }

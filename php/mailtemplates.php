@@ -40,7 +40,7 @@ function listTemplates() {
    pageFooter();
 }
 
-$action = fetchFrom('REQUEST', 'action', '%s');
+$action = strip_tags(fetchFrom('REQUEST', 'action', '%s'));
 defaultTo($action, 'list');
 $action = strip_tags($action);
 
@@ -53,7 +53,7 @@ switch ($action) {
    // -------------------------------------------------------------------
    case "edit":
       $msg = '';
-      $template = fetchFrom('REQUEST', 'template', '%s');
+      $template = strip_tags(fetchFrom('REQUEST', 'template', '%s'));
       if (empty($template)) {
          airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
          Header("Location: $_SERVER[PHP_SELF]");
@@ -114,7 +114,7 @@ special variables in the template:').'<p>'.LF;
 
    // -------------------------------------------------------------------
    case "save":
-      $template = fetchFrom('REQUEST', 'template', '%s');
+      $template = strip_tags(fetchFrom('REQUEST', 'template', '%s'));
       if (empty($template)) {
          airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
          reload();
@@ -190,7 +190,7 @@ special variables in the template:').'<p>'.LF;
 
    // -------------------------------------------------------------------
   case "delete":
-     $template = fetchFrom('REQUEST', 'template', '%s');
+     $template = strip_tags(fetchFrom('REQUEST', 'template', '%s'));
      if (empty($template)) {
          airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
          reload();
@@ -205,7 +205,7 @@ special variables in the template:').'<p>'.LF;
 
    // -------------------------------------------------------------------
    case 'prepare':
-      $template = fetchFrom('REQUEST', 'template');
+      $template = strip_tags(fetchFrom('REQUEST', 'template'));
       if (empty($template)) {
          airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
          reload();
@@ -251,20 +251,20 @@ special variables in the template:').'<p>'.LF;
    case 'send':
    case _('Send'):
    case _('Send and prepare next'):
-      $from = fetchFrom('POST', 'from');
+      $from = strip_tags(fetchFrom('POST', 'from'));
       if (empty($from)) {
          airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
          reload();
          return;
       }
-      $to = fetchFrom('POST', 'to');
+      $to = strip_tags(fetchFrom('POST', 'to'));
       if (empty($to)) {
          airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
          airt_error(_('No receiver specified (to: field is missing'));
          reload();
          return;
       }
-      $subject = fetchFrom('POST', 'subject');
+      $subject = strip_tags(fetchFrom('POST', 'subject'));
       if (empty($subject)) {
          airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
          reload();
@@ -276,11 +276,11 @@ special variables in the template:').'<p>'.LF;
          reload();
          return;
       }
-      $sign = fetchFrom('POST', 'sign');
+      $sign = strip_tags(fetchFrom('POST', 'sign'));
       if (empty($sign)) {
          $sign = 'off';
       }
-      $incidentid = fetchFrom('POST', 'incidentid');
+      $incidentid = fetchFrom('POST', 'incidentid', '%d');
       if (empty($incidentid)) {
          airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
          reload();
@@ -288,8 +288,8 @@ special variables in the template:').'<p>'.LF;
       }
 
       $agenda = fetchFrom('POST', 'agenda');
-      $replyto = fetchFrom('POST', 'replyto');
-      $template = fetchFrom('POST', 'template');
+      $replyto = strip_tags(fetchFrom('POST', 'replyto'));
+      $template = strip_tags(fetchFrom('POST', 'template'));
 
       /* prevent sending bogus stuff */
       if (trim($to) == '') {
@@ -300,7 +300,6 @@ special variables in the template:').'<p>'.LF;
       }
 
       /* clean off html and stuff (only unformatted mail) */
-      // $msg = strip_tags($msg);
       $msg = stripslashes($msg);
       $msg = str_replace("\r", '', $msg);
 
