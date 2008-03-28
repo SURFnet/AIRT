@@ -57,5 +57,4 @@ switch (strip_tags(fetchFrom('REQUEST','action'))) {
       printf(formatQueueItemInsert());
       pageFooter();
 }
-
 ?>

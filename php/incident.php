@@ -48,7 +48,7 @@ switch ($action) {
      }
      if (is_array($massincidents) && sizeof($massincidents) >= 1) {
         // filter out non-numeric elements
-        $massincidents = array_filter($massincidents, is_numeric);
+        $massincidents = array_filter($massincidents, 'is_numeric');
 	     $_SESSION['incidentid'] = $massincidents[0];
 	  }
      $agenda = implode(',', $massincidents);
@@ -778,7 +778,7 @@ _('Continue').'...</a>'.LF,
          // Nothing checked, nothing to do; disregard command.
          Header("Location: $_SERVER[PHP_SELF]");
       }
-      $massIncidents = array_filter($massIncidents, is_numeric);
+      $massIncidents = array_filter($massIncidents, 'is_numeric');
       $massState = fetchFrom('POST', 'massstate', '%d');
       if ($massState == 'null') {
          $massState = '';
@@ -810,7 +810,7 @@ _('Continue').'...</a>'.LF,
          return;
       }
       Header("Location: mailtemplates.php?to=".urlencode(implode(',',
-         strip_tags($agenda))));
+         $agenda)));
       break;
 
    //--------------------------------------------------------------------
@@ -839,7 +839,7 @@ _('Continue').'...</a>'.LF,
             'incidentid'=>$incidentid
          ));
       }
-      reload($_SERVER[HTTP_REFERER]);
+      reload($_SERVER['HTTP_REFERER']);
       break;
 
    //--------------------------------------------------------------------

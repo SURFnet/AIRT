@@ -29,8 +29,9 @@ require_once LIBDIR.'/database.plib';
  */
 function addIncidentComment($params = array(), &$error='') {
    if (!is_array($params)) {
-      $error = _('Invalid parameter error in ').__LINE__;
-      return false;
+      $p = $params;
+      $params = array();
+      $params['comment'] = strip_tags($p);
    }
    if (!array_key_exists('comment', $params)) {
       $error = _('Missing required parameter: comment in ').__LINE__;
