@@ -1,3 +1,7 @@
+2008-03-28
+* Code enhancement; fix of several potential SQL injection and cross-site
+  scripting vulnerabilities.
+
 2008-02-29
 * Bug fixes;  no new features
 
