@@ -251,7 +251,7 @@ special variables in the template:').'<p>'.LF;
    case 'send':
    case _('Send'):
    case _('Send and prepare next'):
-      $from = strip_tags(fetchFrom('POST', 'from'));
+      $from = fetchFrom('POST', 'from');
       if (empty($from)) {
          airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
          reload();
@@ -414,11 +414,12 @@ special variables in the template:').'<p>'.LF;
       if (! $mail->send($mailto, $hdrs, $body)) {
          die(_("Error sending message!"));
       }
+
       addIncidentComment(sprintf(_("Email sent to %s: %s"),
          $to, $subject), $incidentid);
       generateEvent('postsendmail', array(
          'incidentid'=>$incidentid,
-         'sender'=>$from,
+         'sender'=>htmlentities($from),
          'recipient'=>$to,
          'subject'=>$subject));
 
