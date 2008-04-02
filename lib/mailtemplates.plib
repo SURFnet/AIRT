@@ -207,12 +207,7 @@ function getMailtemplateSelection($name, $default='', $extras=array()) {
 /** Retrieve a formatted overview of mail templates.
  * \return A string containing a HTML-formatted overview of available templates.
  */
-function format_templates() {
-   if (array_key_exists('to', $_REQUEST)) {
-      $to = "&to=".urlencode($_REQUEST['to']);
-   } else {
-      $to = '';
-   }
+function format_templates($recipients=array(), $incidentids=array()) {
    $out = "<table>";
    $count=0;
    $templates = get_templates();
@@ -223,11 +218,16 @@ function format_templates() {
       $subject = get_subject($body);
       $out .= t("<tr bgcolor=\"%color\">", array(
          '%color'=>($count++%2==0?"#DDDDDD":"#FFFFFF")));
-      $out .= t('<td><a href="%url?action=prepare&template=%name%to">'.
-                _('prepare').'</a></td>'.LF, array(
-         '%url'=>$_SERVER['PHP_SELF'],
-         '%name'=>$name,
-         '%to'=>$to));
+      if (sizeof($recipients) > 0 && sizeof($incidentids) > 0) {
+         // we have something to send
+         $querystr = '&to='.urlencode(implode(',', $recipients)).
+                     '&incidentids='.urlencode(implode(',', $incidentids));
+         $out .= t('<td><a href="%url?action=prepare&template=%name%query">'.
+                   _('prepare').'</a></td>'.LF, array(
+            '%url'=>$_SERVER['PHP_SELF'],
+            '%name'=>$name,
+            '%query'=>$querystr));
+      }
       $out .= t("<td>%name</td>".LF, array('%name'=>$name));
       $out .= t("<td>%subject</td>".LF, array('%subject'=>$subject));
       $out .= t('<td><a href="%url?action=edit&template=%name">'.
@@ -320,14 +320,14 @@ function expand_template($template, $current) {
 }
 
 /** Obtain buttons for the 'prepare message' screen
- * \param [in] $agenda; agenda of actions to take
+ * \param [in] $incidentids; agenda of actions to take
  * \param [out] string containing HTML
  */
-function template_buttons($agenda) {
+function template_buttons($incidentids) {
    $out = '';
    $out .= '<input type="reset"  value="'._('Reset').'">'.LF;
    $out .= '<input type="submit" name="action" value="'._('Send').'">'.LF;
-   if (sizeof($agenda) > 0) {
+   if (sizeof($incidentids) > 0) {
       $out .= '<input type="submit" name="action" value="'._('Send and prepare next').'">'.LF;
       $out .= '<input type="submit" name="action" value="'._('Skip and prepare next').'">'.LF;
    }
@@ -337,7 +337,7 @@ function template_buttons($agenda) {
 
 /* prepare a message for sending.
  * \param $template [in] Mail template to expand
- * \param $agenda [in] Array containing incidentids for which to send mail
+ * \param $incidentids [in] Array containing incidentids for which to send mail
  * \param $to [in] List containing a subset of email addresses associate with
  * the current incident. If set, only these addresses will be mailed
  *
@@ -346,17 +346,17 @@ function template_buttons($agenda) {
  *
  * \return nothing
  */
-function prepare_message($template, $agenda=array(), $to=array()) {
+function prepare_message($template, $incidentids=array(), $to=array()) {
    pageHeader(_('Send message from template.'));
    $current = array(
-      'user'=>'', 
-      'name'=>'', 
-      'email'=>'', 
-      'ip'=>'', 
+      'user'=>'',
+      'name'=>'',
+      'email'=>'',
+      'ip'=>'',
       'hostname'=>'');
 
-   $current['incidentid'] = $agenda[0];
-   unset($agenda[0]);
+   $current['incidentid'] = $incidentids[0];
+   unset($incidentids[0]);
 
    // fetch data from incident
    $incident = getIncident($current['incidentid']);
@@ -414,14 +414,14 @@ function prepare_message($template, $agenda=array(), $to=array()) {
     'replyto'=>$msgdata['replyto'],
     'message'=>$msgdata['body']));
 
-   $agendaval=implode(',', $agenda);
+   $agendaval=implode(',', $incidentids);
    $out = '<FORM method="POST">'.LF;
    $out .= '<TABLE WIDTH="80">'.LF;
    $out .= '<TR>'.LF;
    $out .= '<TD>'._('To:').'</TD>'.LF;
    $out .= '<TD><INPUT TYPE="text" size="50" name="to" value="'.$msgdata['receiver'].'"></TD>'.LF;
    $out .= '<TD rowspan="4" VALIGN="top">'.LF;
-   $out .= template_buttons($agenda);
+   $out .= template_buttons($incidentids);
    $out .= '</TD>'.LF;
    $out .= '</TR>'.LF;
    $out .= '<TR>'.LF;
@@ -439,7 +439,7 @@ function prepare_message($template, $agenda=array(), $to=array()) {
    $out .= '</TABLE>'.LF;
    $out .= '<TEXTAREA name="msg" cols="80" rows="25">'.$msgdata['body'].'</TEXTAREA>'.LF;
    $out .= '<P>'.LF;
-   $out .= '<input type="hidden" name="agenda" value="'.$agendaval.'">'.LF;
+   $out .= '<input type="hidden" name="incidentids" value="'.$agendaval.'">'.LF;
    if ($usepref) {
       $out .= '<input type="hidden" name="template" value="'.
          _('Use preferred template').'">'.LF;
@@ -447,7 +447,7 @@ function prepare_message($template, $agenda=array(), $to=array()) {
       $out .= '<input type="hidden" name="template" value="'.$template.'">'.LF;
    }
    $out .= '<input type="hidden" name="incidentid" value="'.$current['incidentid'].'">'.LF;
-   $out .= template_buttons($agenda);
+   $out .= template_buttons($incidentids);
    print $out;
    if (defined('GPG_KEYID')) {
       print '<input type="checkbox" name="sign" checked> '._('Sign').LF;

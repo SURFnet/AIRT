@@ -1438,7 +1438,7 @@ function formatEditForm() {
          $_SESSION['current_name'] .= ','.$name;
       }
       $output .= t('<tr >'.LF);
-      $output .= t('  <td><input type="checkbox" name="agenda[]" value="%userid"></td>', array('%userid'=>$user));
+      $output .= t('  <td><input type="checkbox" name="to[]" value="%userid"></td>', array('%userid'=>$user));
       $output .= t('  <td>%email</td>', array('%email'=>$u['email'])).LF;
       $output .= '</tr>'.LF;
    }

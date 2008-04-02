@@ -2,7 +2,6 @@
 /* vim: syntax=php tabstop=3 shiftwidth=3
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
  * Copyright (C) 2004,2005   Tilburg University, The Netherlands
- * TODO Codingstyle
 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

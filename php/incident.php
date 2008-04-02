@@ -49,9 +49,8 @@ switch ($action) {
      if (is_array($massincidents) && sizeof($massincidents) >= 1) {
         // filter out non-numeric elements
         $massincidents = array_filter($massincidents, 'is_numeric');
-	     $_SESSION['incidentid'] = $massincidents[0];
 	  }
-     $agenda = implode(',', $massincidents);
+     $incidentids = implode(',', $massincidents);
 
      $template = strip_tags(fetchFrom('REQUEST','template'));
      defaultTo($template,_('Do not send mail'));
@@ -60,8 +59,9 @@ switch ($action) {
         reload();
      }
 
-     reload("mailtemplates.php?action=prepare&".
-               "template=$template&agenda=$agenda");
+     reload("mailtemplates.php?action=prepare".
+               "&template=".urlencode($template).
+               "&incidentids=".urlencode($incidentids));
      break;
 
   //--------------------------------------------------------------------
@@ -257,7 +257,7 @@ switch ($action) {
       $address      = @gethostbyname($address);
       $email        = strip_tags(fetchFrom('POST','email'));
       if ($email!='') {
-# NOTE: this may be a list of addresss; looks not good.
+         # NOTE: this may be a list of addresss; looks not good.
          $_SESSION['current_email'] = trim(strtolower($email));
       }
 
@@ -277,7 +277,7 @@ switch ($action) {
          'type'=>fetchFrom('POST', 'type', '%d'),
          'date'=>$date,
          'logging'=>trim(fetchFrom('POST', 'logging')),
-         'template'=>trim(fetchFrom('POST', 'template')),
+         'template'=>trim(strip_tags(fetchFrom('POST', 'template'))),
          'desc'=>trim(fetchFrom('POST', 'desc'))));
       addIPtoIncident($address,$incidentid,
          fetchFrom('POST', 'addressrole', '%d'));
@@ -292,6 +292,7 @@ switch ($action) {
 			}
 		}
 
+      $incident_userids = array();
       if ($email != '') {
          foreach (explode(',', $email) as $addr) {
             $addr = trim($addr);
@@ -301,6 +302,7 @@ switch ($action) {
                   addUser(array('email'=>$addr));
                   $user = getUserByEmail($addr);
                   addUserToIncident($user['id'], $incidentid);
+                  $incident_userids[] = $user['id'];
                } else {
                   pageHeader(_('Unable to add user to incident.'));
                   printf('<p>'.LF.
@@ -313,12 +315,19 @@ _('Continue').'...</a>'.LF,
                   pageFooter();
                   exit;
                }
-           } else addUserToIncident($user['id'], $incidentid);
+           } else {
+              addUserToIncident($user['id'], $incidentid);
+              $incident_userids[] = $user['id'];
+           }
          }
       }
 
       if (strip_tags(fetchFrom('POST', 'sendmail')) == 'on') {
-         reload('mailtemplates.php');
+         $template = strip_tags(fetchFrom('POST', 'template'));
+         defaultTo($template, '');
+         reload('mailtemplates.php?incidentid='.$incidentid.
+                     '&to='.implode(',', $incident_userids).
+                     ($template='' ? '' : '&template='.$template&action=prepare));
       } else {
          reload();
       }
@@ -802,33 +811,47 @@ _('Continue').'...</a>'.LF,
 
    //--------------------------------------------------------------------
    case 'Mail':
-      $agenda = fetchFrom('REQUEST', 'agenda');
-      if ($agenda == '') {
+      $recipients = fetchFrom('REQUEST', 'to');
+      if (!is_array($recipients)) {
+         $recipients = explode(',', $recipients);
+      }
+      $recipients = array_filter($recipients, 'is_numeric');
+
+      $incidentid = fetchFrom('REQUEST', 'incidentid', '%d');
+      if (empty($incidentid)) {
+         die(_('Invalid parameter value in ').__LINE__);
+      }
+      if (empty($recipients)) {
          airt_msg(_(
            'USER ERROR: Must select one or more recipients for mail.'));
-         Header("Location: $_SERVER[PHP_SELF]?action=details&incidentid=$_SESSION[incidentid]");
+         reload("$_SERVER[PHP_SELF]?action=details&incidentid=$incidentid");
          return;
       }
-      Header("Location: mailtemplates.php?to=".urlencode(implode(',',
-         $agenda)));
+      reload("mailtemplates.php?to=".
+         urlencode(implode(',', $recipients)).'&incidentid='.$incidentid);
       break;
 
    //--------------------------------------------------------------------
    case 'Remove':
       $incidentid = fetchFrom('REQUEST', 'incidentid', '%d');
-      $agenda = fetchFrom('REQUEST', 'agenda');
-      if ($incidentid == '') {
+      if (empty($incidentid)) {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
+         reload($_SERVER['PHP_SELF']);
          return;
       }
-      if ($agenda == '') {
+      $recipients = fetchFrom('REQUEST', 'to');
+      if (empty($recipients)) {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
+         reload("$_SERVER[PHP_SELF]?action=details&incidentid=$incidentid");
          return;
       }
-      foreach ($agenda as $userid) {
+      if (!is_array($recipients)) {
+         $recipients = explode(',', $recipients);
+      }
+      $recipients = array_filter($recipients, 'is_numeric');
+      foreach ($recipients as $userid) {
          if (!is_numeric($userid)) {
+            // should not happen
             die(_('Invalid parameter type in ').__LINE__);
          }
          $user = getUserByUserId($userid);

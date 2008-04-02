@@ -1,6 +1,5 @@
 <?php
 /* vim: syntax=php tabstop=3 shiftwidth=3
-   TODO: codingstyle
 
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
  * Copyright (C) 2004,2005	Tilburg University, The Netherlands

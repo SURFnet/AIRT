@@ -24,20 +24,15 @@
 require_once 'config.plib';
 require_once LIBDIR."/mailtemplates.plib";
 
-function listTemplates() {
+function listTemplates($recipients=array(), $incidentids=array()) {
   pageHeader(_('Available mail templates'));
-
-  print format_templates();
+  $show_prepare = true;
+  print format_templates($recipients, $incidentids);
   print t('<P><a href="%url?action=new">'.
       _('Create a new message').'</a></P>'.LF,
       array('%url'=>$_SERVER['PHP_SELF']));
-   // If a current_email parameter has been passed along, put it in the
-   // session for later use by "prepare".
-   if (array_key_exists('current_email', $_REQUEST)) {
-      $_SESSION['current_email'] = $_REQUEST['current_email'];
-   }
 
-   pageFooter();
+  pageFooter();
 }
 
 $action = strip_tags(fetchFrom('REQUEST', 'action', '%s'));
@@ -47,7 +42,32 @@ $action = strip_tags($action);
 switch ($action) {
    // -------------------------------------------------------------------
    case "list":
-      listTemplates();
+      /* $to is a comma-separated list of recipient email addresses, or
+       * an array contain email addresses
+       */
+      $recipients = fetchFrom('REQUEST', 'to');
+      if (empty($recipients)) {
+         $recipients = array();
+      }
+      if (!is_array($recipients)) {
+         $recipients = explode(',', $recipients);
+      }
+
+      /* $incidentids is a comma-separated list of incident ids, or
+       * an array contain incident ids
+       */
+      $incidentids = fetchFrom('REQUEST', 'incidentids');
+      if (empty($incidentids)) {
+         $incidentid = fetchFrom('REQUEST', 'incidentid', '%d');
+         if (!empty($incidentid)) {
+            $incidentids = array($incidentid);
+         }
+      }
+      if (!is_array($incidentids)) {
+         $incidentids = explode(',', $incidentids);
+      }
+      $incidentids = array_filter($incidentids, 'is_numeric');
+      listTemplates($recipients, $incidentids);
       break;
 
    // -------------------------------------------------------------------
@@ -211,39 +231,42 @@ special variables in the template:').'<p>'.LF;
          reload();
          return;
       }
-      if (array_key_exists('agenda', $_REQUEST)) {
-         $agenda = explode(',',$_REQUEST['agenda']);
-      } elseif (array_key_exists('incidentid', $_REQUEST)) {
-         $agenda = array($_REQUEST['incidentid']);
-      } else {
-         if (array_key_exists('incidentid', $_SESSION)) {
-            $agenda = array($_SESSION['incidentid']);
+
+      /* $incidentids will contain a comma-separated list of incident ids to
+       * work on
+       */
+      $incidentids = strip_tags(fetchFrom('REQUEST', 'incidentids'));
+      if (empty($incidentids)) {
+         $incidentid = fetchFrom('REQUEST', 'incidentid', '%d');
+         if (empty($incidentid)) {
+            die(_('No incident to work on.'));
          } else {
-            echo _("No active incident.");
-            break;
+            $incidentids = array($incidentid);
          }
-      }
-      // to contains a comma-separated string of AIRT user ids!
-      if (array_key_exists('to', $_REQUEST)) {
-         $to = explode(',',$_REQUEST['to']);
       } else {
-         $to = array();
+         $incidentids = explode(',', $incidentids);
       }
-      prepare_message($template, $agenda, $to);
+
+      /* to contains the user ids of the recipient email addresss.
+       */
+      $to = fetchFrom('REQUEST', 'to');
+      if (empty($to)) {
+         $to = array();
+      } else {
+         $to = explode(',', $to);
+      }
+      $to = array_filter($to, 'is_numeric');
+      prepare_message($template, $incidentids, $to);
       pageFooter();
 
       break;
 
    // -------------------------------------------------------------------
    case _('Skip and prepare next'):
-      if (array_key_exists('agenda', $_POST)) {
-         $agenda = $_POST['agenda'];
-      }
-      if (array_key_exists('template', $_POST)) {
-         $template = $_POST['template'];
-      }
-      Header("Location: $_SERVER[PHP_SELF]?action=prepare&template=".
-         urlencode($template)."&agenda=".urlencode($agenda));
+      $incidentids = array_filter(explode(',', fetchFrom('POST', 'incidentids')), 'is_numeric');
+      $template = strip_tags(fetchFrom('POST', 'template'));
+      reload("$_SERVER[PHP_SELF]?action=prepare&template=".
+         urlencode($template)."&incidentids=".implode(',',$incidentids));
       break;
 
 
@@ -287,8 +310,10 @@ special variables in the template:').'<p>'.LF;
          return;
       }
 
-      $agenda = fetchFrom('POST', 'agenda');
-      $replyto = strip_tags(fetchFrom('POST', 'replyto'));
+      $incidentids = fetchFrom('POST', 'incidentids');
+      // do not strip_tags here; it will break the email address
+      $replyto = fetchFrom('POST', 'replyto');
+      defaultTo($replyTo, '');
       $template = strip_tags(fetchFrom('POST', 'template'));
 
       /* prevent sending bogus stuff */
@@ -455,9 +480,10 @@ special variables in the template:').'<p>'.LF;
          $actions['desc'] = $incident['desc'];
          updateIncident($incidentid, $actions);
       }
-      if ($action == _('Send and prepare next') && isset($agenda) &&
+      if ($action == _('Send and prepare next') && isset($incidentids) &&
          isset($template)) {
-         Header("Location: $_SERVER[PHP_SELF]?action=prepare&template=$template&agenda=$agenda");
+         reload("$_SERVER[PHP_SELF]?action=prepare&template=$template&incidentids=".
+            urlencode($incidentids));
       } else {
          reload('incident.php');
       }
