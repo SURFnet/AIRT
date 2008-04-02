@@ -59,7 +59,14 @@ switch ($action) {
       $incidentids = fetchFrom('REQUEST', 'incidentids');
       if (empty($incidentids)) {
          $incidentid = fetchFrom('REQUEST', 'incidentid', '%d');
-         if (!empty($incidentid)) {
+         if (empty($incidentid)) {
+            $sess = fetchFrom('SESSION', 'incidentid');
+	    if (empty($sess)) {
+                $incidentids = array();
+            } else {
+	       $incidentids = array($sess);
+            }
+         } else {
             $incidentids = array($incidentid);
          }
       }
@@ -239,10 +246,12 @@ special variables in the template:').'<p>'.LF;
       if (empty($incidentids)) {
          $incidentid = fetchFrom('REQUEST', 'incidentid', '%d');
          if (empty($incidentid)) {
-            die(_('No incident to work on.'));
-         } else {
-            $incidentids = array($incidentid);
-         }
+	    $incidentid = $_SESSION['incidentid'];
+	    if(empty($incidentid)) {
+               die(_('No incident to work on.'));
+            }
+         } 
+         $incidentids = array($incidentid);
       } else {
          $incidentids = explode(',', $incidentids);
       }

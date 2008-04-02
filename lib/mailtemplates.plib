@@ -218,16 +218,13 @@ function format_templates($recipients=array(), $incidentids=array()) {
       $subject = get_subject($body);
       $out .= t("<tr bgcolor=\"%color\">", array(
          '%color'=>($count++%2==0?"#DDDDDD":"#FFFFFF")));
-      if (sizeof($recipients) > 0 && sizeof($incidentids) > 0) {
-         // we have something to send
-         $querystr = '&to='.urlencode(implode(',', $recipients)).
-                     '&incidentids='.urlencode(implode(',', $incidentids));
-         $out .= t('<td><a href="%url?action=prepare&template=%name%query">'.
+      $querystr = '&to='.urlencode(implode(',', $recipients)).
+         '&incidentids='.urlencode(implode(',', $incidentids));
+      $out .= t('<td><a href="%url?action=prepare&template=%name%query">'.
                    _('prepare').'</a></td>'.LF, array(
             '%url'=>$_SERVER['PHP_SELF'],
             '%name'=>$name,
             '%query'=>$querystr));
-      }
       $out .= t("<td>%name</td>".LF, array('%name'=>$name));
       $out .= t("<td>%subject</td>".LF, array('%subject'=>$subject));
       $out .= t('<td><a href="%url?action=edit&template=%name">'.
@@ -354,7 +351,14 @@ function prepare_message($template, $incidentids=array(), $to=array()) {
       'email'=>'',
       'ip'=>'',
       'hostname'=>'');
-
+   if (sizeof($incidentids) == 0) {
+      $sess = fetchFrom('SESSION', 'incidentid');
+      if (empty($sess)) {
+         die(_('Cannot prepare message without incident in ').__LINE__);
+      } else {
+         $incidentids = array($sess);
+      }
+   }
    $current['incidentid'] = $incidentids[0];
    unset($incidentids[0]);
 
