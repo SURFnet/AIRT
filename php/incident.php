@@ -327,7 +327,8 @@ _('Continue').'...</a>'.LF,
          defaultTo($template, '');
          reload('mailtemplates.php?incidentid='.$incidentid.
                      '&to='.implode(',', $incident_userids).
-                     ($template='' ? '' : '&template='.$template&action=prepare));
+                     ($template='' ? '' : '&template='.$template.
+                        '&action=prepare'));
       } else {
          reload();
       }
