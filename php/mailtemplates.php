@@ -449,8 +449,10 @@ special variables in the template:').'<p>'.LF;
          die(_("Error sending message!"));
       }
 
-      addIncidentComment(sprintf(_("Email sent to %s: %s"),
-         $to, $subject), $incidentid);
+      addIncidentComment(array(
+         'comment'=>sprintf(_("Email sent to %s: %s"),
+            $to, $subject),
+         'incidentid'=>$incidentid));
       generateEvent('postsendmail', array(
          'incidentid'=>$incidentid,
          'sender'=>htmlentities($from),
@@ -469,20 +471,26 @@ special variables in the template:').'<p>'.LF;
          if ($actions['type'] == -1) {
             $actions['type'] = '';
          } else {
-            addIncidentComment(sprintf(_('Type updated to %s'),
-               getIncidentTypeLabelByID($actions['type'])));
+            addIncidentComment(array(
+               'comment'=>sprintf(_('Type updated to %s'),
+                  getIncidentTypeLabelByID($actions['type'])),
+               'incidentid=>$incidentid));
          }
          if ($actions['status'] == -1) {
             $actions['status'] = '';
          } else {
-            addIncidentComment(sprintf(_('Status updated to %s'),
-               getIncidentStatusLabelByID($actions['status'])));
+            addIncidentComment(array(
+               'comment'=>sprintf(_('Status updated to %s'),
+                  getIncidentStatusLabelByID($actions['status'])),
+               'incidentid'=>$incidentid));
          }
          if ($actions['state'] == -1) {
             $actions['state'] = '';
          } else {
-            addIncidentComment(sprintf(_('State updated to %s'),
-               getIncidentStateLabelByID($actions['state'])));
+            addIncidentComment(array(
+               'comment'=>sprintf(_('State updated to %s'),
+                  getIncidentStateLabelByID($actions['state'])),
+               'incidentid'=>$incidentid));
          }
          $incident = getIncident($incidentid);
          $actions['template'] = $incident['template'];

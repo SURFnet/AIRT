@@ -335,7 +335,9 @@ airt_profile('Users added');
 
       if ($mailtemplate != '' && $mailtemplate != _('No preferred template')) {
          setPreferredMailTemplateName($incidentid[$i], $mailtemplate);
-         addIncidentComment('Import queue set preferred template to: '.$mailtemplate, $incidentid[$i]);
+         addIncidentComment(array(
+            'comment'=>'Import queue set preferred template to: '.$mailtemplate,
+            'incidentid'=>$incidentid[$i]));
       }
 
 airt_profile('Template added');
@@ -387,8 +389,9 @@ airt_profile('Template added');
       updateIncident($incidentid, array('logging'=>$logging));
       if ($template != '') {
          setPreferredMailTemplateName($incidentid, $template);
-         addIncidentComment('Import queue set preferred template to:
-               '.$template, $incidentid);
+         addIncidentComment(array(
+            'comment'=>'Import queue set preferred template to: '.$template,
+            'incidentid'=>$incidentid));
       }
       return '';
    } // addLogging

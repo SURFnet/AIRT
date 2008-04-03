@@ -1098,8 +1098,10 @@ function addExternalIncidentIDs($incidentid='', $externalids) {
          db_query('rollback');
          return false;
       }
-      addincidentcomment(t(_('External identifier %extid added.'),
-      array('%extid'=>$extid)),$incidentid);
+      addincidentcomment(array(
+         'comment'=>t(_('External identifier %extid added.'),
+            array('%extid'=>$extid)),
+         'incidentid'=>$incidentid));
 
    }
    return db_query('end transaction');
@@ -1125,8 +1127,10 @@ function deleteExternalIncidentIDs($incidentid='', $externalids) {
          db_query('rollback');
          return false;
       }
-      addincidentcomment(t(_('External identifier %extid removed.'),
-      array('%extid'=>$extid)),$incidentid);
+      addincidentcomment(array(
+         'comment'=>t(_('External identifier %extid removed.'),
+            array('%extid'=>$extid)),
+         'incidentid'=>$incidentid));
    }
    return db_query('end transaction');
 }
