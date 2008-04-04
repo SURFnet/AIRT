@@ -474,7 +474,7 @@ special variables in the template:').'<p>'.LF;
             addIncidentComment(array(
                'comment'=>sprintf(_('Type updated to %s'),
                   getIncidentTypeLabelByID($actions['type'])),
-               'incidentid=>$incidentid));
+               'incidentid'=>$incidentid));
          }
          if ($actions['status'] == -1) {
             $actions['status'] = '';
