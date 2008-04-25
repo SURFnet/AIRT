@@ -187,9 +187,7 @@
     case "add":
     case "update":
         $login = strip_tags(fetchFrom('POST', 'login'));
-        if (empty($login)) {
-           die(_("Missing information ").__LINE__);
-        }
+        defaultTo($login, '');
         $lastname = strip_tags(fetchFrom('POST', 'lastname'));
         defaultTo($lastname, '');
         $firstname = strip_tags(fetchFrom('POST', 'firstname'));
