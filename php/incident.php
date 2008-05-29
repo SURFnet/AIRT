@@ -279,8 +279,10 @@ switch ($action) {
          'logging'=>trim(fetchFrom('POST', 'logging')),
          'template'=>trim(strip_tags(fetchFrom('POST', 'template'))),
          'desc'=>trim(fetchFrom('POST', 'desc'))));
-      addIPtoIncident($address,$incidentid,
-         fetchFrom('POST', 'addressrole', '%d'));
+      if ($address != '') {
+         addIPtoIncident($address,$incidentid,
+            fetchFrom('POST', 'addressrole', '%d'));
+      }
 		
 	   if (defined('OTRS_ACTIVE') && OTRS_ACTIVE === true) {
 		   $otrsln = fetchFrom('REQUEST', 'otrs-link');
@@ -484,7 +486,10 @@ _('Continue').'...</a>'.LF,
 
     //--------------------------------------------------------------------
    case 'deleteip':
-      $incidentid = fetchFrom('SESSION','incidentid', '%d');
+      $incidentid = fetchFrom('REQUEST', 'incidentid', '%d');
+      if (empty($incidentid)) {
+         $incidentid = fetchFrom('SESSION','incidentid', '%d');
+      }
       if ($incidentid=='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
@@ -709,7 +714,11 @@ _('Continue').'...</a>'.LF,
          'incidentid'=>$incidentid
       ));
 
-      reload();
+      airt_msg(_('Incident updated.'));
+      reload(t('%url?action=details&incidentid=%id', array(
+         '%url'=>BASEURL.'/incident.php',
+         '%id'=>$incidentid
+      )));
       break;
 
     //--------------------------------------------------------------------

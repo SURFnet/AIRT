@@ -1385,10 +1385,11 @@ function formatEditForm() {
                          '?action=editip&ip=%s">'._('edit').'</a></td>'.LF,
          urlencode($address['ip']));
       $output .= t('  <td><a href="'.$_SERVER['PHP_SELF'].
-                   '?action=deleteip&ip=%ip&addressrole=%addressrole">'.
+                   '?action=deleteip&incidentid=%incident&ip=%ip&addressrole=%addressrole">'.
                    _('remove').'</a></td>'.LF,
          array(
             '%ip'=>urlencode($address['ip']),
+            '%incident'=>urlencode($incident['incidentid']),
             '%addressrole'=>urlencode($address['addressrole'])));
       $output .= '</tr>'.LF;
    }
