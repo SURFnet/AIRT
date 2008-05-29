@@ -1228,7 +1228,6 @@ function formatIncidentBulkForm(&$check) {
       $addressrole = custom_default_addressrole($address);
    }
    $output =  formatBasicIncidentData();
-   $output .= '<hr/>'.LF;
    $output .= '<h3>'._('Affected IP addresses').'</h3>'.LF;
    $output .= "<table cellpadding=\"4\">\n";
    $output .= "<tr>\n";
@@ -1289,7 +1288,6 @@ function formatIncidentForm(&$check) {
 		}
 	}
 
-   $output .= '<hr/>'.LF;
    $output .= '<h3>'._('Affected IP addresses').'</h3>'.LF;
    $output .= '<table cellpadding=4>'.LF;
    $output .= '<tr>'.LF;
@@ -1307,7 +1305,6 @@ function formatIncidentForm(&$check) {
    $output .= '</tr>'.LF;
    $output .= '</table>'.LF;
  
-   $output .= '<hr/>'.LF;
    $output .= '<h3>'._('Affected users').'</h3>'.LF;
    $output .= '<table bgcolor="#dddddd" cellpadding=2 border=0>'.LF;
    $output .= '<tr>'.LF;
@@ -1478,6 +1475,34 @@ function formatEditForm() {
    $output .= '  '._('If checked, create user if email address unknown').LF;
    $output .= '</form>'.LF;
    $output .= '</div><!-- details-user -->'.LF;
+
+   $output .= '<h3>'._('Attachments').'</h3>'.LF;
+   if (fetchAttachments($incident['incidentid'], $attachments, $error) ==
+      false) {
+      die($error);
+   }
+   $output .= '<table>'.LF;
+   foreach ($attachments as $aid=>$a) {
+      $output .= '<tr>'.LF;
+      $output .= '<td>'.$a['filename'].' ('.$a['content-type'].')</td>'.LF;
+      $output .= t('<td><a href="%url?action=download&attachment=%id">'._('download').'</a></td>'.LF, array(
+         '%url' => BASEURL.'/incident.php',
+         '%id' => $aid
+      ));
+      $output .= t('<td><a onclick="return confirm(\'Are you sure that you want to delete this attachment?\')" href="%url?action=rmattach&attachment=%id">'._('delete').'</a></td>'.LF, array(
+         '%url' => BASEURL.'/incident.php',
+         '%id' => $aid
+      ));
+      $output .= '</tr>'.LF;
+   }
+   $output .= '</table>'.LF;
+   $output .= '<form enctype="multipart/form-data" method="POST">'.LF;
+   $output .= '<input type="hidden" name="action" value="upload">'.LF;
+   $output .= '<input type="hidden" name="incidentid" value="'.
+      strip_tags($incident['incidentid']).'">'.LF;
+   $output .= '<input type="file" name="file">'.LF;
+   $output .= '<input type="submit" value="Upload">'.LF;
+   $output .= '</form>'.LF;
    return $output;
 } // formatEditForm
 
@@ -2224,7 +2249,7 @@ function filterIncidentsByStatus($incidents, $status, &$out, &$error='') {
    }
    $i = implode(',', $incidents);
    if (!is_numeric($status)) {
-      $error = 'Status must be numeric';
+      $error = _('Status must be numeric');
       return false;
    }
    $q = q('select id from incidents 
@@ -2240,6 +2265,161 @@ function filterIncidentsByStatus($incidents, $status, &$out, &$error='') {
       $out[] = $row['id'];
    }
    db_free_result($res);
+   return true;
+}
+
+/* Retrieve attachments for a given file upload.
+ *
+ * $incidentid is the incidentid to which the file will be attached
+ * $attachments will be an associative array containing a number of 
+ *    attachments. Each attachments will be an associative array with
+ *    indexes content-type, filename.
+ * $error will contain an error message, if any
+ *
+ * note: the function will not return the content-body; fetch that with the
+ * fetchAttachment function.
+ *
+ * The function will return true on success and false on failure
+ */
+function fetchAttachments($incidentid, &$attachments=array(), &$error='') {
+   if (!is_numeric($incidentid)) {
+      $error = _("Invalid parameter type");
+      return false;
+   }
+   $attachments = array();
+   $q = q("select id, incident, content_type, filename from incident_attachments where incident=%id", array(
+      '%id' => $incidentid
+   ));
+   $res = db_query($q);
+   if ($res == false) {
+      $error = _('Database query failed in ').'fetchAttachments:'.__LINE__;
+      return false;
+   }
+   while (($row = db_fetch_next($res)) !== false) {
+      $attachments[$row['id']] = array(
+         'content-type' => $row['content_type'],
+         'filename' => $row['filename']
+      );
+   }
+   return true;
+}
+
+/* Receive a file upload
+ *
+ * $incidentid is the incidentid to which the file will be attached
+ * $error will be an error message, if any
+ *
+ * The function will return true on success or false on failure
+ */
+function receiveUpload($incidentid, &$error='') {
+   // note: we are looking for the hard-code filename: file
+   $upload = fetchFrom('FILES', 'file');
+   if (empty($upload)) {
+      $error = _("Unable to retrieve upload");
+      return false;
+   }
+   if (!is_uploaded_file($upload['tmp_name'])) {
+      $error = _("Unable to validate upload");
+      return false;
+   }
+   if (!is_numeric($incidentid)) {
+      $error = _("Invalid parameter type (incidentid)");
+      return false;
+   }
+   $fh = fopen($upload['tmp_name'], 'r');
+   $f = fread($fh, filesize($upload['tmp_name']));
+   fclose($fh);
+   $md5sum = md5($f);
+   $file_content = pg_escape_bytea($f);
+
+   $q = q("insert into incident_attachments (id, incident, content_type, content_body, filename) values (nextval('generic_sequence'), %id, '%type', '%content', '%filename')", array(
+      '%id' => $incidentid,
+      '%type' => $upload['type'],
+      '%content' => $file_content,
+      '%filename' => $upload['name']
+   ));
+   $res = db_query($q);
+   if ($res == false) {
+      $error = _("Upload rejected by database");
+      return false;
+   }
+   db_free_result($res);
+   unset($f);
+   unset($file_content);
+   unlink($upload['tmp_name']);
+   addIncidentComment(array(
+      'incidentid'=>$incidentid,
+      'comment'=>'File '.strip_tags($upload['name']).' uploaded ('.
+         $upload['size'].' bytes). Content type:'.
+         strip_tags($upload['type'].' MD5sum:'.$md5sum)));
+   return true;
+}
+
+/* Retrieve an attachment
+ *
+ * $id is the identifier of the attachment
+ * $data is an associative array containing the following fields
+ *   content-type
+ *   content-body
+ *   filename
+ * $error will contain an error message, if any
+ *
+ * The function will return true on success or false on failure.
+ */
+function fetchAttachment($id, &$data=array(), &$error) {
+   if (!is_numeric($id)) {
+      $error = _("Invalid parameter type");
+      return false;
+   }
+   $data = array();
+   $q = q("select incident, content_type, content_body, filename from incident_attachments where id=%id", array(
+      '%id' => $id
+   ));
+   $res = db_query($q);
+   if ($res == false) {
+      $error = _('Database query failed in ').'fetchAttachment:'.__LINE__;
+      return false;
+   }
+   if (($row = db_fetch_next($res)) === false) {
+      $error = _('Unable to fetch attachment in ').'fetchAttachment:'.__LINE__;
+      return false;
+   }
+   unset($res);
+   $data['content_type'] = $row['content_type'];
+   $data['content_body'] = pg_unescape_bytea($row['content_body']);
+   $data['filename'] = $row['filename'];
+   unset($row);
+   return true;
+}
+
+/* Delete an attachment
+ *
+ * $id is the identifier of the attachment
+ * $error will contain an error message, if any
+ *
+ * The function will return true on success or false on failure.
+ */
+function deleteAttachment($id, &$error='') {
+   if (!is_numeric($id)) {
+      $error = _('Invalid parameter type');
+      return false;
+   }
+   if (fetchAttachment($id, $a, $error) == false || sizeof($a) == 0) {
+      $error = _('No such attachment');
+      return false;
+   }
+   $q = q("delete from incident_attachments where id='%id'", array(
+      '%id' => $id
+   ));
+   $res = db_query($q);
+   if ($res == false) {
+      $error = _('Unable to delete attachment ').strip_tags($id);
+      return false;
+   }
+   addIncidentComment(array(
+      'comment'=>t(_('Attachment deleted. Filename=%file, Type=%type.'),
+         array('%file'=>$a['filename'], '%type'=>$a['content_type']))
+   ));
    return true;
 }
 ?>

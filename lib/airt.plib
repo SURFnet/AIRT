@@ -375,6 +375,11 @@ function fetchFrom($source,$name,$format='') {
         $value = $_SESSION[$name];
       }
       break;
+    case 'FILES':
+      if (isset($_FILES[$name])) {
+         $value = $_FILES[$name];
+      }
+      break;
     default:
       die(sprintf(_(
         "Unknown fetch source type '%s'. Script terminated."),
@@ -546,6 +551,6 @@ function formatAvailableLanguages($name, $default='', $extra=array()) {
 }
 
 function formatRelativeDate($timestamp) {
-   return date('Y-m-d', $timestamp);
+   return date('Y-m-d H:i:s', $timestamp);
 }
 ?>

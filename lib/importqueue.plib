@@ -352,7 +352,11 @@ function queueFormatItems() {
             filterIncidentsByAge($prev2, 172800, $prev3, $error)) {
          for ($i=0; $i < sizeof($prev3); $i++) {
             $prev = getIncident($prev3[$i]);
-            $out .= t(_('Closed %c').'<br/>'.LF, array('%c'=>formatRelativeDate($prev['updated'])));
+            $out .= t(_('<a href="%u?incidentid=%I&action=details">%i</a> closed %c').'<br/>'.LF, 
+               array('%i'=>normalize_incidentid(strip_tags($prev['incidentid'])),
+               '%u'=>BASEURL.'/incident.php',
+               '%I'=>urlencode($prev['incidentid']),
+               '%c'=>formatRelativeDate($prev['updated'])));
          }
       }
 

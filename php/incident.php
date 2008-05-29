@@ -966,6 +966,57 @@ _('Continue').'...</a>'.LF,
          urlencode($incidentid));
       break;
 
+   case 'upload':
+      $incidentid = fetchFrom('REQUEST', 'incidentid', '%d');
+      defaultTo($incidentid, 0);
+      if ($incidentid == 0) {
+         airt_error('PARAM_FORMAT', 'incident.php:'.__LINE__);
+         reload();
+         break;
+      }
+      if (receiveUpload($incidentid, $error) == false) {
+         echo "Upload failed: $error";
+      } else {
+         echo "Upload successful";
+      }
+      break;
+
+   case 'download':
+      $id = fetchFrom('REQUEST', 'attachment', '%d');
+      defaultTo($id, 0);
+      if ($id == 0) {
+         airt_error('PARAM_FORMAT', 'incident.php:'.__LINE__);
+         reload();
+         break;
+      }
+      if (fetchAttachment($id, $attachment, $error) == false) {
+         airt_error('ERR_FUNC', $error);
+         reload();
+         break;
+      }
+      Header('Content-Type: '.$attachment['content_type']);
+      Header('Content-disposition: attachment;
+           filename="'.$attachment['filename'].'"');
+      echo $attachment['content_body'];
+      break;
+
+   case 'rmattach':
+      $id = fetchFrom('REQUEST', 'attachment', '%d');
+      defaultTo($id, 0);
+      if ($id == 0) {
+         airt_error('PARAM_FORMAT', 'incident.php:'.__LINE__);
+         reload();
+         break;
+      }
+      if (deleteAttachment($id, $error) == false) {
+         airt_error('ERR_FUNC', $error);
+         reload();
+         break;
+      }
+      airt_msg('Attachment successfully deleted.');
+      reload($_SERVER['HTTP_REFERER']);
+      break;
+
    //--------------------------------------------------------------------
    default:
       die(_('Unknown action'));
