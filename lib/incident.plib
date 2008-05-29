@@ -1500,7 +1500,7 @@ function formatEditForm() {
    $output .= '<input type="hidden" name="action" value="upload">'.LF;
    $output .= '<input type="hidden" name="incidentid" value="'.
       strip_tags($incident['incidentid']).'">'.LF;
-   $output .= '<input type="file" name="file">'.LF;
+   $output .= '<input size="40" type="file" name="file">'.LF;
    $output .= '<input type="submit" value="Upload">'.LF;
    $output .= '</form>'.LF;
    return $output;

@@ -977,7 +977,11 @@ _('Continue').'...</a>'.LF,
       if (receiveUpload($incidentid, $error) == false) {
          echo "Upload failed: $error";
       } else {
-         echo "Upload successful";
+         airt_msg(_('File successfully uploaded'));
+         reload(t('%url?action=details&incidentid=%id', array(
+            '%url' => BASEURL.'/incident.php',
+            '%id' => $incidentid
+         )));
       }
       break;
 

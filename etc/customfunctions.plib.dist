@@ -64,25 +64,27 @@ function showheader($data) {
   } else {
       $username=_('Unknown');
   }
-  echo <<<EOF
-<html>
-<head>
-<title>AIRT: $data[title]</title>
-<LINK HREF="$baseurl/airt-style.css" REL="stylesheet" TYPE="text/css">
-<script language="JavaScript">
-function checkKeys(event) {
-  document.status = 'Key pressed'+event.which;
-}
+  echo '<html>'.LF;
+  echo '<head>'.LF;
+  echo '<title>AIRT: '.strip_tags($data['title']).'</title>'.LF;
+  echo '<link href="'.$baseurl.'/airt-style.css" rel="stylesheet" type="text/css">'.LF;
+  echo '</head>'.LF;
 
-</script>
-</head>
-
-<body onKey="checkKeys()">
-<div class="title">$data[title]</div>
-<div class="userinfo">$name ($username)</div>
-<div class="navbar">$navbar</div>
-<div class="content">
-EOF;
+  echo '<body>'.LF;
+  echo '<div class="titlebar">'.LF;
+  echo '  <div class="userinfo">'.strip_tags($name).' ('.
+     strip_tags($username).')</div>'.LF;
+  echo '  <div class="titlebox">'.LF;
+  echo '    <div class="pagetitle">'.strip_tags($data['title']).'</div>'.LF;
+  echo '  </div> <!-- titlebox -->'.LF;
+  echo '  <div class="navbox">'.LF;
+  echo '    <div class="navbar">'.$navbar.'</div>'.LF;
+  echo '  </div> <!-- navbox -->'.LF;
+  echo '</div> <!-- titlebar -->'.LF;
+  if ($messages != '') {
+    echo '<div class="messages">'.strip_tags($messages).'</div>'.LF;
+  }
+  echo '<div class="content">'.LF;
 }
 
 function showfooter($data) {

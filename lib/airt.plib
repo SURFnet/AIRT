@@ -165,11 +165,6 @@ putenv('PERLLIB=/usr/share/otrs');
  */
 function pageheader($title="", $helptopic="") {
 	global $public;
-
-   if (isset($_SESSION['msg'])) {
-      printf(t('<I>%msg</I><P/>', array('%msg'=>$_SESSION['msg'])));
-      unset($_SESSION['msg']);
-   }
 	generateEvent("pageHeader", array(
 		"title"     => $title,
 		"helptopic" => $helptopic
