@@ -54,4 +54,5 @@ grant select,update on roles_sequence to airt;
 grant select,update on urls_sequence to airt;
 grant select,update on user_comments_sequence to airt;
 grant select,update on users_sequence to airt;
-
+grant select,insert,update,delete on incident_attachments to airt;
+grant select,update on generic_sequence to airt;

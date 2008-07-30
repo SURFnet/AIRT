@@ -286,11 +286,13 @@ switch ($action) {
          break;
       }
       foreach ($menu_pos as $id=>$pos) {
-        if (!is_numeric($id)) {
-           die(_('Invalid parameter type ').__LINE__);
+        if (!empty($id) && !is_numeric($id)) {
+           airt_msg(_('Invalid parameter type in ').__LINE__);
+           reload();
         }
-        if (!is_numeric($pos)) {
-           die(_('Invalid parameter type ').__LINE__);
+        if (!empty($pos) && !is_numeric($pos)) {
+           airt_msg(_('Invalid parameter type in ').__LINE__);
+           reload();
         }
         $res = db_query(q("UPDATE urls SET menu_position=%pos WHERE id=%id", 
             array('%pos'=>($pos=='')?'NULL':sprintf("%d", $pos), '%id'=>$id)));
@@ -313,11 +315,13 @@ switch ($action) {
          break;
       }
       foreach ($menu_pos as $id=>$pos) {
-        if (!is_numeric($id)) {
-           die(_('Invalid parameter type ').__LINE__);
+        if (!empty($id) && !is_numeric($id)) {
+           airt_msg(_('Invalid parameter type in ').__LINE__);
+           reload();
         }
-        if (!is_numeric($pos)) {
-           die(_('Invalid parameter type ').__LINE__);
+        if (!empty($pos) && !is_numeric($pos)) {
+           airt_msg(_('Invalid parameter type in ').__LINE__);
+           reload();
         }
         $res = db_query(q("UPDATE urls SET navbar_position=%pos WHERE id=%id", 
             array('%pos'=>($pos=='')?'NULL':sprintf("%d",$pos), '%id'=>$id)));
