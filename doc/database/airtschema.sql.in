@@ -42,6 +42,9 @@ DROP SEQUENCE importqueue_sequence;
 DROP SEQUENCE authentication_tickets_sequence;
 DROP SEQUENCE exportqueue_sequence;
 DROP SEQUENCE importqueue_templates_sequence;
+DROP SEQUENCE generic_sequence;
+DROP SEQUENCE address_roles_sequence;
+DROP SEQUENCE importfilter_templates_sequence;
 
 DROP TABLE importqueue_templates;
 DROP TABLE external_incidentids CASCADE;
@@ -68,6 +71,8 @@ DROP TABLE authentication_tickets CASCADE;
 DROP TABLE versions CASCADE;
 DROP TABLE mailtemplates CASCADE;
 DROP TABLE export_queue CASCADE;
+DROP TABLE incident_attachments CASCADE;
+DROP TABLE address_roles CASCADE;
 
 begin transaction;
 
@@ -311,7 +316,7 @@ CREATE TABLE import_queue (
 
 CREATE TABLE authentication_tickets (
   id        integer      not null,
-  userid    varchar(100) not null,
+  userid    integer      not null,
   created   timestamp    not null,
   expiration timestamp   not null,
   ticketid  varchar(3000) not null,
@@ -355,6 +360,17 @@ CREATE TABLE importqueue_templates (
 );
 
 
+CREATE TABLE incident_attachments (
+   id integer,
+   content_type text not null,
+   content_body bytea not null,
+   incident integer,
+   filename text,
+   primary key (id),
+   foreign key (incident) references incidents(id)
+);
+
+
 CREATE SEQUENCE incident_types_sequence;
 CREATE SEQUENCE incident_states_sequence;
 CREATE SEQUENCE incident_status_sequence;
@@ -390,6 +406,7 @@ CREATE UNIQUE INDEX users_email on users(upper(email));
 CREATE UNIQUE INDEX urls_label on urls(upper(label));
 CREATE UNIQUE INDEX permissions_label on permissions(upper(label));
 CREATE UNIQUE INDEX address_roles_label on address_roles(upper(label));
+CREATE SEQUENCE generic_sequence;
 
 INSERT INTO versions (key, value)
     VALUES ('airtversion','@VERSION@');
