@@ -32,6 +32,9 @@
  function show_form($id="") {
     $lastname = $firstname = $email = $phone = $login = $userid = '';
     $action = "add";
+    $caps = array();
+    $cap_iodef='';
+    $cap_login='';
     $submit = _("Add!");
 
     if (array_key_exists('language', $_SESSION)) {
@@ -71,6 +74,13 @@
 
             $action = "update";
             $submit = _("Update!");
+        }
+        if (getUserCapabilities($id, $caps, $error) == false) {
+           airt_msg(_('Error retrieving user capabilities:'). $error);
+           return false;
+        } else {
+           $cap_iodef = ($caps[AIRT_CAP_IODEF] == 1) ? 'checked' : '';
+           $cap_login = ($caps[AIRT_CAP_LOGIN] == 1) ? 'checked' : '';
         }
     }
     print '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">'.LF;
@@ -123,7 +133,14 @@
     print '</tr>'.LF;
     print '</table>'.LF;
     print '<p>'.LF;
+    print '<p>'.LF;
+    print '<b>User capabilities</b><br/>'.LF;
+    print '<input type="checkbox" name="cap_iodef" '.$cap_iodef.'">'.
+       _('IODEF capable').'</input><br/>'.LF;
+    print '<input type="checkbox" name="cap_login" '.$cap_login.'">'.
+       _('Interactive login allowed').'</input><br/>'.LF;
     print '<input type="submit" value="'.strip_tags($submit).'">'.LF;
+    print '<p/>'.LF;
     print '</form>'.LF;
  }
 
@@ -208,6 +225,10 @@
         defaultTo($language, '');
         $id = strip_tags(fetchFrom('POST', 'id', '%d'));
         defaultTo($id, '');
+        $cap_login = fetchFrom('POST', 'cap_login');
+        defaultTo($cap_login, 'off');
+        $cap_iodef = fetchFrom('POST', 'cap_iodef');
+        defaultTo($cap_iodef, 'off');
 
         // ========= ADD ==========
         if ($action == "add") {
@@ -246,6 +267,14 @@
             "password" => $password,
             "language"=> $language
             ));
+            $u = getUserByEmail($email);
+            if ($cap_iodef == 'on') $cap_iodef = 1;
+            else $cap_iodef = 0;
+            if ($cap_login == 'on') $cap_login = 1;
+            else $cap_login = 0;
+            setUserCapabilities($u['id'], array(
+                AIRT_CAP_IODEF => $cap_iodef,
+                AIRT_CAP_LOGIN => $cap_login), $error);
 
             if ($userid == $_SESSION['userid']) {
                @session_destroy();
@@ -287,8 +316,8 @@
                     $id);
          if ($password != "") {
                 $query=sprintf("
-                    %s, 
-                    password=%s", 
+                    %s,
+                    password=%s",
                         $query,
                         db_masq_null(sha1($password))
             );
@@ -302,6 +331,13 @@
          $res = db_query($query)
          or die(_("Unable to execute query 1"));
 
+         if ($cap_iodef == 'on') $cap_iodef = 1;
+         else $cap_iodef = 0;
+         if ($cap_login == 'on') $cap_login = 1;
+         else $cap_login = 0;
+         setUserCapabilities($id, array(
+            AIRT_CAP_LOGIN=>$cap_login,
+            AIRT_CAP_IODEF=>$cap_iodef), $error);
          Header("Location: $_SERVER[PHP_SELF]");
    }
 

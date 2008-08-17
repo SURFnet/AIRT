@@ -21,6 +21,16 @@
  */
 require_once LIBDIR."/database.plib";
 
+/* define AIRT capabilities and their corresponding database strings */
+define('AIRT_CAP_IODEF', 'iodef');
+define('AIRT_CAP_LOGIN', 'login');
+
+/* associative array containing default user capabilities. */
+$airt_user_capabilities = array(
+   AIRT_CAP_IODEF => 0,
+   AIRT_CAP_LOGIN  => 0
+);
+
 function _getUser($criteria, $value) {
    $res = db_query(sprintf("
       SELECT id, lastname, firstname, email, phone, userid, login, language
@@ -36,6 +46,7 @@ function _getUser($criteria, $value) {
    while ($row = db_fetch_next($res)) {
       array_push($out, $row);
    }
+
    return $out;
 }
 
@@ -59,6 +70,33 @@ function getUserByEmail($email) {
    return $temp[0];
 }
 
+/* Get a user's capabilities.
+ * $userid  userid to retrieve
+ * &$capabilities associative array of capabilities
+ * $error   error (if any)
+ *
+ * returns true on success, false on failure
+ */
+function getUserCapabilities($userid, &$capabilities=array(), &$error='') {
+   global $airt_user_capabilities;
+   if (!is_numeric($userid)) {
+      $error = _('Invalid parameter type in user.plib:').__LINE__;
+      return false;
+   }
+   foreach ($airt_user_capabilities as $key=>$value) {
+      $capabilities[$key] = $value;
+   }
+   $res = db_query(q("select captype, capvalue from user_capabilities where
+   userid=%userid", array('%userid'=>$userid)));
+   if (!$res) {
+      $error = _('Unable to query database in user.plib:').__LINE__;
+      return false;
+   }
+   while ($row = db_fetch_next($res)) {
+      $capabilities[$row['captype']] = $row['capvalue'];
+   }
+   return true;
+}
 
 function addUser($user) {
    if (array_key_exists('lastname', $user)) {
@@ -119,6 +157,65 @@ function addUser($user) {
    );
    $res = @db_query($query) or 
    die(_('Unable to query database').' in addUser.');
+}
+
+// setUserCapabilities($userid, $capabilities, $error);
+/* Set the user's capabilities.
+ *
+ * $userid = userid to set capabilities for
+ * $capabilties = associative array containing capabilities and value
+ * $error = descriptive error message, if any
+ *
+ * returns true on success, false on failure
+ */
+function setUserCapabilities($userid, $capabilities, &$error='') {
+   if (!is_numeric($userid)) {
+      $error = _('Invalid parameter type in user.plib:').__LINE__;
+      return false;
+   }
+   $res = db_query(q('select distinct captype from user_capabilities where
+   userid=%userid', array('%userid'=>$userid)));
+   if (!$res) {
+      $error = _('Database error in user.plib:').__LINE__;
+      return false;
+   }
+   $caps=array();
+   while ($row = db_fetch_next($res)) {
+      $caps[] = $row['captype'];
+   }
+   $inserts = array();
+   $updates = array();
+   foreach ($capabilities as $key=>$value) {
+      if (array_search($key, $caps) !== false) {
+         $updates[] = q('update user_capabilities set captype=\'%key\',
+         capvalue=%value where userid=%userid and captype=\'%key\'', array(
+            '%key'=>db_escape_string($key),
+            '%value'=>$value,
+            '%userid'=>$userid));
+      } else {
+         $inserts[] = q('insert into user_capabilities (id, userid, captype,
+         capvalue) values (nextval(\'generic_sequence\'), %userid,
+         \'%captype\', %capvalue)', array(
+            '%userid'=>$userid,
+            '%captype'=>db_escape_string($key),
+            '%capvalue'=>$value));
+      }
+   }
+   $query = "begin transaction;";
+   if (sizeof($updates) > 0) {
+      $query .= implode(';', $updates).';';
+   }
+   if (sizeof($inserts) > 0) {
+      $query .= implode(';', $inserts).';';
+   }
+   $query .= "commit;";
+
+   $res = db_query($query);
+   if (!$res) {
+      $error = _('Database error in user.plib:').__LINE__;
+      return false;
+   }
+   return true;
 }
 
 /* EOF */
