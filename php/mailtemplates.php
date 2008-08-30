@@ -246,11 +246,11 @@ special variables in the template:').'<p>'.LF;
       if (empty($incidentids)) {
          $incidentid = fetchFrom('REQUEST', 'incidentid', '%d');
          if (empty($incidentid)) {
-	    $incidentid = $_SESSION['incidentid'];
-	    if(empty($incidentid)) {
+	         $incidentid = $_SESSION['incidentid'];
+	         if(empty($incidentid)) {
                die(_('No incident to work on.'));
             }
-         } 
+         }
          $incidentids = array($incidentid);
       } else {
          $incidentids = explode(',', $incidentids);

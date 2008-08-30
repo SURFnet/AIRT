@@ -14,6 +14,11 @@ create table user_capabilities (
    primary key (id),
    foreign key (userid) references users(id)
 );
+alter table incident_users
+add column mailtemplate_override char(80);
+alter table incident_users
+add foreign key (mailtemplate_override) foreign key mailtemplates(name);
+
 UPDATE versions SET value='----version----' WHERE key='airtversion';
 -- Needs manual update with the AIRT_VERSION string of the release.
 -- Cannot rely on .in expansion as it needs to stay fixed in history.

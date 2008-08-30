@@ -1311,6 +1311,7 @@ function formatIncidentForm(&$check) {
    $output .= '  <td>'._('E-mail address of user').':</td>'.LF;
    $output .= '  <td><input onChange="updateCheckboxes()" type="text" '.
               'size=40 name="email" value="'.$email.'"></td>'.LF;
+   $output .= '  <td>'.getMailtemplateSelection('template').'</td>'.LF;
    $output .= '</tr>'.LF;
    $output .= '</table>'.LF;
 
@@ -1439,9 +1440,22 @@ function formatEditForm() {
       } else {
          $_SESSION['current_name'] .= ','.$name;
       }
-      $output .= t('<tr >'.LF);
+      $override = getMailtemplateOverride($incident['incidentid'], $u['id']);
+      $output .= t('<tr>'.LF);
       $output .= t('  <td><input type="checkbox" name="to[]" value="%userid"></td>', array('%userid'=>$user));
       $output .= t('  <td>%email</td>', array('%email'=>$u['email'])).LF;
+      $output .= t(' <td><form method="post" action="%url">',
+         array('%url'=>'incident.php'));
+      $output .= getMailtemplateSelection('template', 
+         $override=='' ? $incident['template'] : $override).LF;
+      $output .= t('<input type="hidden" name="incidentid" value="%id">',
+         array('%id'=>htmlentities($incident['incidentid']))).LF;
+      $output .= t('<input type="hidden" name="userid" value="%id">',
+         array('%id'=>htmlentities($user))).LF;
+      $output .= t('<input type="hidden" name="action" '.
+         'value="setMailtemplateOverride">', 
+         array('%id'=>htmlentities($user))).LF;
+      $output .= '<input type="submit" value="'._('Update').'"></form></td>'.LF;
       $output .= '</tr>'.LF;
    }
    $output .= '</table>'.LF;
@@ -1468,9 +1482,15 @@ function formatEditForm() {
    $output .= '    <td>'._('Email address of user').':</td>'.LF;
    $output .= '    <td><input onChange="updateCheckboxes()" type="text" '.
               'size=40 name="email" value="'.$email.'"></td>'.LF;
-   $output .= '    <td><input type="submit" value="'._('Add').'"></td>'.LF;
    $output .= '  </tr>'.LF;
-   $output .= '  </table>'.LF;
+   $output .= '  <tr>'.LF;
+   $output .= '    <td>'._('Mail template override').':</td>'.LF;
+   $output .= ' <td>'.
+      getMailtemplateSelection('template',$incident['template']).'</td>'.LF;
+   $output .= '  </tr>'.LF;
+   $output .= ' <tr>'.LF;
+   $output .= '</table>'.LF;
+   $output .= '<input type="submit" value="'._('Add').'">'.LF;
    $output .= t('  <input onChange="updateCheckboxes()" type="checkbox" name="addifmissing" %checked>', array(
       '%checked'=>($email=='')?'':'CHECKED')).LF;
    $output .= '  '._('If checked, create user if email address unknown').LF;
@@ -2421,6 +2441,54 @@ function deleteAttachment($id, &$error='') {
       'comment'=>t(_('Attachment deleted. Filename=%file, Type=%type.'),
          array('%file'=>$a['filename'], '%type'=>$a['content_type']))
    ));
+   return true;
+}
+
+function getMailTemplateOverride($incidentid, $userid) {
+   if (!is_numeric($incidentid)) {
+      return false;
+   }
+   if (!is_numeric($userid)) {
+      return false;
+   }
+   $res = db_query(q('SELECT mailtemplate_override FROM incident_users WHERE incidentid=%incidentid AND userid=%userid', array(
+      '%incidentid'=>$incidentid,
+      '%userid'=>$userid
+   )));
+   if ($res == false) {
+      return false;
+   }
+   $row = db_fetch_next($res);
+   if (db_num_rows($res) == 0) {
+      return false;
+   }
+   return $row['mailtemplate_override'];
+}
+
+function setMailTemplateOverride($incidentid, $userid, $template) {
+   if (!is_numeric($incidentid)) {
+      return false;
+   }
+   if (!is_numeric($userid)) {
+      return false;
+   }
+   $res = db_query(q('SELECT id FROM incident_users WHERE incidentid=%incidentid AND userid=%userid', array(
+      '%incidentid'=>$incidentid,
+      '%userid'=>$userid
+   )));
+   if ($res == false) {
+      return false;
+   }
+   $row = db_fetch_next($res);
+   if (db_num_rows($res) == 0) {
+      return false;
+   }
+   db_free_result($res);
+   $res = db_query(q('UPDATE incident_users SET mailtemplate_override=\'%t\'
+   WHERE id=%id', array(
+      '%t'=>db_escape_string($template),
+      '%id'=>$row['id']
+   )));
    return true;
 }
 ?>

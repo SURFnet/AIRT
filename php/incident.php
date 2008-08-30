@@ -534,6 +534,8 @@ _('Continue').'...</a>'.LF,
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
+      $template = fetchFrom('REQUEST', 'template');
+      defaultTo($template, '');
 
       $add = strip_tags(fetchFrom('REQUEST','addifmissing'));
       defaultTo($add,'off');
@@ -557,6 +559,9 @@ _('Continue').'...</a>'.LF,
 
       $user = getUserByUserID($id['id']);
       addUserToIncident($id['id'], $incidentid);
+      if ($template != '') {
+         setMailTemplateOverride($incidentid, $id['id'], $template);
+      }
       addIncidentComment(array(
          'comment'=>sprintf(_('User %s added to incident.'), $user['email']),
          'incidentid'=>$incidentid
@@ -1028,6 +1033,31 @@ _('Continue').'...</a>'.LF,
       }
       airt_msg('Attachment successfully deleted.');
       reload($_SERVER['HTTP_REFERER']);
+      break;
+
+   case 'setMailtemplateOverride':
+      $incidentid = fetchFrom('REQUEST', 'incidentid', '%d');
+      defaultTo($incidentid, -1);
+      $userid = fetchFrom('REQUEST', 'userid', '%d');
+      defaultTo($userid, -1);
+      $template = fetchFrom('REQUEST', 'template');
+      defaultTo($template, '');
+      if ($incidentid == -1) {
+         echo "Error message here"; # XXX
+         break;
+      }
+      if ($userid == -1) {
+         echo "Error message here"; # XXX
+         break;
+      }
+      if ($template == '') {
+         echo "Error message here"; # XXX
+         break;
+      }
+      setMailtemplateOverride($incidentid, $userid, $template);
+      airt_msg(_('Mail template override updated'));
+      reload($_SERVER['PHP_SELF'].'?action=details&incidentid='.
+         urlencode($incidentid));
       break;
 
    //--------------------------------------------------------------------

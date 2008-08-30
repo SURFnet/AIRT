@@ -370,29 +370,13 @@ function prepare_message($template, $incidentids=array(), $to=array()) {
    if (sizeof($incident['users']) > 0) {
       foreach ($incident['users'] as $uid) {
          $user = getUserByUserID($uid);
+### XXX HERE XXX ###
          if (sizeof($to) == 0 || in_array($uid, $to)) {
             $current['name'][] = $user['lastname'];
             $current['email'][] = $user['email'];
          }
       }
    }
-
-   /* if additional receivers are specified in the session, add those. Avoid
-    * a double addition
-    * Faulty logic: FIXME
-    * 2008-01-16: why do we want the recipients in $_SESSION['current_email']
-    * included in the first place? Code de-activated for now
-    *
-   if (array_key_exists('current_email', $_SESSION)) {
-      if (is_array($_SESSION['current_email'])) {
-         $current['email'] = array_merge($current['email'], $_SESSION['current_email']);
-      } else {
-         if (!in_array($_SESSION['current_email'], $current['email'])) {
-            $current['email'][] = $_SESSION['current_email'];
-         }
-      }
-   }
-   */
 
    if (sizeof($incident['ips']) > 0) {
       $current['ip'] = $incident['ips'][0]['ip'];
