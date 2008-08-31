@@ -296,19 +296,24 @@ switch ($action) {
 
       $incident_userids = array();
       if ($email != '') {
+         /* email addresses can be specified as a comma-separated list.
+          * process them one by one.
+          */
          foreach (explode(',', $email) as $addr) {
             $addr = trim($addr);
             $override = fetchFrom('REQUEST', 'mailtemplate_override');
             $user = getUserByEmail($addr);
+
+            /* user does not yet exist; check if we need to add it */
             if (!$user) {
                if (strip_tags(fetchFrom('POST', 'addifmissing')) == 'on') {
+                  /* create new user */
                   addUser(array('email'=>$addr));
                   $user = getUserByEmail($addr);
-                  addUserToIncident($user['id'], $incidentid);
-                  if ($override != '--'._('none').'--') {
-                     setMailtemplateOverride($incidentid, $user['id'],
-                     $override);
-                  }
+
+                  /* add new user to existing incident */
+                  addUserToIncident($user['id'], $incidentid, $override);
+
                   $incident_userids[] = $user['id'];
                } else {
                   pageHeader(_('Unable to add user to incident.'));
@@ -323,10 +328,7 @@ _('Continue').'...</a>'.LF,
                   exit;
                }
            } else {
-              addUserToIncident($user['id'], $incidentid);
-              if ($override != '--'._('none').'--') {
-                 setMailtemplateOverride($incidentid, $user['id'], $override);
-              }
+              addUserToIncident($user['id'], $incidentid, $override);
               $incident_userids[] = $user['id'];
            }
          }

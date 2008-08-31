@@ -661,7 +661,7 @@ function getIncidentTypeLabelByID($id) {
  * @param $incident ID of the incident
  * @return false on failure, true on success
  */
-function addUsertoIncident($userid, $incident) {
+function addUsertoIncident($userid, $incident, $override='') {
    $res = db_query(q('
       INSERT INTO incident_users
       (id, incidentid, userid, added, addedby)
@@ -673,6 +673,12 @@ function addUsertoIncident($userid, $incident) {
          '%logger'=>db_masq_null($_SESSION['userid']))));
    if ($res == false) {
       return false;
+   }
+   # IODEF capability override
+   if ($override == '' || $override == '--'._('none').'--') {
+      ; # do nothing
+   } else {
+      setMailtemplateOverride($incident, $userid, $override);
    }
 
    generateEvent('incidentadduser', array(
