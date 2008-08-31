@@ -1254,7 +1254,6 @@ function formatIncidentForm(&$check) {
    $constituency = $name = $email = $type = $state = $status 
      = $addressrole = '';
 
-	
    $address      = strip_tags(fetchFrom('SESSION','active_ip'));
 	$constituency = 0;
 	$email        = '';
@@ -1311,7 +1310,8 @@ function formatIncidentForm(&$check) {
    $output .= '  <td>'._('E-mail address of user').':</td>'.LF;
    $output .= '  <td><input onChange="updateCheckboxes()" type="text" '.
               'size=40 name="email" value="'.$email.'"></td>'.LF;
-   $output .= '  <td>'.getMailtemplateSelection('template').'</td>'.LF;
+   $output .= '  <td>'.getMailtemplateSelection('mailtemplate_override',
+      array('--'._('none').'--'=>_('Do not override'))).'</td>'.LF;
    $output .= '</tr>'.LF;
    $output .= '</table>'.LF;
 
@@ -1482,13 +1482,9 @@ function formatEditForm() {
    $output .= '    <td>'._('Email address of user').':</td>'.LF;
    $output .= '    <td><input onChange="updateCheckboxes()" type="text" '.
               'size=40 name="email" value="'.$email.'"></td>'.LF;
-   $output .= '  </tr>'.LF;
-   $output .= '  <tr>'.LF;
-   $output .= '    <td>'._('Mail template override').':</td>'.LF;
    $output .= ' <td>'.
       getMailtemplateSelection('template',$incident['template']).'</td>'.LF;
    $output .= '  </tr>'.LF;
-   $output .= ' <tr>'.LF;
    $output .= '</table>'.LF;
    $output .= '<input type="submit" value="'._('Add').'">'.LF;
    $output .= t('  <input onChange="updateCheckboxes()" type="checkbox" name="addifmissing" %checked>', array(
@@ -2444,6 +2440,16 @@ function deleteAttachment($id, &$error='') {
    return true;
 }
 
+/**
+ * Check for the presence of a mail template override.
+ * 
+ * @param incidentid numeric
+ * @param userid     numeric
+ *
+ * @return the name of the template that overrides the incident template,
+ * or false if that value has not been set. Also return 'false' if an
+ * invalid value was passed.
+ */
 function getMailTemplateOverride($incidentid, $userid) {
    if (!is_numeric($incidentid)) {
       return false;
@@ -2465,6 +2471,15 @@ function getMailTemplateOverride($incidentid, $userid) {
    return $row['mailtemplate_override'];
 }
 
+/**
+ * Set a mail template override
+ *
+ * @param incidentid numeric
+ * @param userid numeric
+ * @param template string
+ *
+ * return true on success, or false on failure
+ */
 function setMailTemplateOverride($incidentid, $userid, $template) {
    if (!is_numeric($incidentid)) {
       return false;
