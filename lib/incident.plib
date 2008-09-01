@@ -656,12 +656,19 @@ function getIncidentTypeLabelByID($id) {
    return $out;
 }
 
-/** Associate a user with an incident.
+/** 
+ * Associate a user with an incident.
  * @param $userid ID of the user
  * @param $incident ID of the incident
+ *
  * @return false on failure, true on success
  */
-function addUsertoIncident($userid, $incident, $override='') {
+function addUserToIncident($userid, $incident, $override='') {
+   if (!is_numeric($userid) || !is_numeric($incident)) {
+      airt_msg(_('Unable to add user to incident.'));
+      return false;
+   }
+
    $res = db_query(q('
       INSERT INTO incident_users
       (id, incidentid, userid, added, addedby)
@@ -675,6 +682,21 @@ function addUsertoIncident($userid, $incident, $override='') {
       return false;
    }
    # IODEF capability override
+   $u = getUserByUserID($userid);
+   if ($u == false) {
+      return false;
+   }
+   $caps = array();
+   $err = '';
+   if (getUserCapabilities($userid, $caps, $err) === false) {
+      airt_msg($err);
+      return false;
+   }
+   if (in_array($caps, AIRT_USER_CAPABILITY_IODEF)) {
+      // find matching mail template
+# XXX
+   }
+
    if ($override == '' || $override == '--'._('none').'--') {
       ; # do nothing
    } else {

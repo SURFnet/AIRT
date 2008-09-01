@@ -22,13 +22,13 @@
 require_once LIBDIR."/database.plib";
 
 /* define AIRT capabilities and their corresponding database strings */
-define('AIRT_CAP_IODEF', 'iodef');
-define('AIRT_CAP_LOGIN', 'login');
+define('AIRT_USER_CAPABILITY_IODEF', 'iodef');
+define('AIRT_USER_CAPABILITY_LOGIN', 'login');
 
 /* associative array containing default user capabilities. */
 $airt_user_capabilities = array(
-   AIRT_CAP_IODEF => 0,
-   AIRT_CAP_LOGIN  => 0
+   AIRT_USER_CAPABILITY_IODEF => 0,
+   AIRT_USER_CAPABILITY_LOGIN  => 0
 );
 
 function _getUser($criteria, $value) {

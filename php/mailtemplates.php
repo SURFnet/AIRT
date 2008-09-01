@@ -127,7 +127,13 @@ special variables in the template:').'<p>'.LF;
       print '   </td>'.LF;
       print '</tr>'.LF;
       print '</table>'.LF;
-      print ''.LF;
+      print '<p/>'.LF;
+      print _('Select capabilities provided by this template:').'<P/>'.LF;
+      print '<input type="hidden" name="update[capability]"'.LF;
+      foreach ($AIRT_MAIL_CAPABILITIES as $c) {
+         echo '<input type="checkbox" name="capability['.$c.']">
+         '.$c.'<br/>'.LF;
+      }
       print ''.LF;
       print '<input type="hidden" name="action" value="save">'.LF;
       print '<input type="hidden" name="template" value="'.$template.'">'.LF;
@@ -158,6 +164,14 @@ special variables in the template:').'<p>'.LF;
          airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
          reload();
          return;
+      }
+      $capability = fetchFrom('REQUEST', 'capability');
+      if (empty($capability)) {
+         $capability = array();
+      }
+      $update['capability'] = array();
+      foreach ($capability as $key=>$value) {
+         $update['capability'][$key] = $value;
       }
 
       $message = strip_tags($message);

@@ -14,6 +14,16 @@ create table user_capabilities (
    primary key (id),
    foreign key (userid) references users(id)
 );
+
+create table mailtemplate_capabilities (
+   id        integer not null,
+   template  varchar not null,
+   captype   varchar not null,
+   capvalue  integer not null, -- do not use boolean here for cross-db compat
+   primary key (id),
+   foreign key (template) references mailtemplates(name)
+);
+
 alter table incident_users
 add column mailtemplate_override char(80);
 alter table incident_users
