@@ -694,7 +694,17 @@ function addUserToIncident($userid, $incident, $override='') {
    }
    if (in_array(AIRT_USER_CAPABILITY_IODEF, $caps)) {
       // find matching mail template
-# XXX
+      $templates = array();
+      $err = '';
+      if (getCapabilityMailtemplates(AIRT_MAIL_CAPABILITY_IODEF, $templates, $err)
+          === true ) {
+         /* safe to get the first template in the array, since only one
+          * template should be set to iodef-provider at any time
+          */
+         if (sizeof($templates) > 0) {
+            $override = $templates[0];
+         }
+      }
    }
 
    if ($override == '' || $override == '--'._('none').'--') {

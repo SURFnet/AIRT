@@ -137,18 +137,19 @@ function save_template($name='', $body='', $update) {
    
    /* does this mail template provide any capabilities? */
    if (array_key_exists('capability', $update)) {
-      if (array_key_exists('capability['.AIRT_MAIL_CAPABILITY_IODEF.']', 
-         $update)) {
+      if (array_key_exists(AIRT_MAIL_CAPABILITY_IODEF,
+         $update['capability'])) {
+         $err = '';
          if ($update['capability'][AIRT_MAIL_CAPABILITY_IODEF] == 'on') {
             // toggle the capability 'on' if selected
-            toggleMailCapabilityIODEF($template, true);
+            toggleMailCapabilityIODEF($name, true, $err);
          } else {
             // this should not happen, but toggle off nevertheless
-            toggleMailCapabilityIODEF($template, false);
+            toggleMailCapabilityIODEF($name, false, $err);
          }
       } else {
          // not present => toggle off
-         toggleMailCapabilityIODEF($template, false);
+         toggleMailCapabilityIODEF($name, false, $err);
       }
    }
    return 0;
@@ -755,6 +756,37 @@ function templateExists($template) {
 }
 
 
+/**
+ * Get all mail templates with a specific capability set.
+ * 
+ * @capability string
+ * @templates array of template names
+ * @error string
+ *
+ * @return true on success, false on failure
+ */
+function getCapabilityMailtemplates($capability, &$templates, &$error) {
+   global $AIRT_MAIL_CAPABILITIES;
+   $error = '';
+   if (!in_array($capability, $AIRT_MAIL_CAPABILITIES)) {
+      $error = _('Invalid mail template capability');
+      return false;
+   }
+   $templates = array();
+   $res = db_query(q('select distinct template '.
+      'from mailtemplate_capabilities '.
+      'where captype=\'%type\' and capvalue=1', array(
+      '%type'=>AIRT_MAIL_CAPABILITY_IODEF)));
+   if ($res === false) {
+      $error = _('Error querying database in mailtemplates.plib:').__LINE__;
+      return false;
+   }
+   while ($row = db_fetch_next($res)) {
+      $templates[] = $row['template'];
+   }
+   return true;
+}
+ 
 /* Get a template's capabilities.
  * $template  template name to retrieve
  * &$capabilities associative array of capabilities
@@ -765,12 +797,12 @@ function templateExists($template) {
 function getMailtemplateCapabilities($template, &$capabilities=array(), 
    &$error='') 
 {
-   global $airt_mail_capabilities;
-   foreach ($airt_mail_capabilities as $key=>$value) {
+   global $AIRT_MAIL_CAPABILITIES;
+   foreach ($AIRT_MAIL_CAPABILITIES as $key=>$value) {
       $capabilities[$key] = $value;
    }
    $res = db_query(q("select captype, capvalue from ".
-      "mailtemplate_capabilities where template=%template", array(
+      "mailtemplate_capabilities where template='%template'", array(
       '%template'=>db_escape_string($template))));
    if (!$res) {
       $error = _('Unable to query database in mailtemplates.plib:').__LINE__;
@@ -793,7 +825,7 @@ function getMailtemplateCapabilities($template, &$capabilities=array(),
 function setMailtemplateCapabilities($template, $capabilities, &$error='') 
 {
    $res = db_query(q('select distinct captype from '.
-      'mailtemplate_capabilities where template=%template', array(
+      'mailtemplate_capabilities where template=\'%template\'', array(
       '%template'=>db_escape_string($template))));
    if (!$res) {
       $error = _('Database error in mailtemplates.plib:').__LINE__;
@@ -808,13 +840,14 @@ function setMailtemplateCapabilities($template, $capabilities, &$error='')
    foreach ($capabilities as $key=>$value) {
       if (array_search($key, $caps) !== false) {
          $updates[] = q('update mailtemplate_capabilities set captype=\'%key\',
-         capvalue=%value where template=%template and captype=\'%key\'', array(
+         capvalue=%value where template=\'%template\' and captype=\'%key\'', 
+         array(
             '%key'=>db_escape_string($key),
             '%value'=>$value,
             '%template'=>db_escape_string($template)));
       } else {
-         $inserts[] = q('insert into user_capabilities (id, template, captype,
-         capvalue) values (nextval(\'generic_sequence\'), %template,
+         $inserts[] = q('insert into mailtemplate_capabilities (id, template, captype,
+         capvalue) values (nextval(\'generic_sequence\'), \'%template\',
          \'%captype\', %capvalue)', array(
             '%template'=>db_escape_string($template),
             '%captype'=>db_escape_string($key),
@@ -854,7 +887,7 @@ function toggleMailCapabilityIODEF($template, $toggle, &$err)
       return false;
    }
    if ($toggle === false) {
-      if (setMailtemplateCapability($template, array(
+      if (setMailtemplateCapabilities($template, array(
          AIRT_MAIL_CAPABILITY_IODEF => 0), $err) === false) {
          return false;
       }
@@ -862,7 +895,7 @@ function toggleMailCapabilityIODEF($template, $toggle, &$err)
       /* reset the IODEF capability for all templates that have it set */
        $res = db_query(q('select distinct template from '.
          'mailtemplate_capabilities where '.  
-         'captype=%type and capvalue=1', array(
+         'captype=\'%type\' and capvalue=1', array(
             '%type'=>AIRT_MAIL_CAPABILITY_IODEF)));
       if ($res == false) {
          $err = _('Unable to select capabilities in mailtemplates.plib:').
@@ -876,7 +909,7 @@ function toggleMailCapabilityIODEF($template, $toggle, &$err)
          }
       }
       /* set it for the current one */
-      if (setMailtemplateCapability($template, array(
+      if (setMailtemplateCapabilities($template, array(
          AIRT_MAIL_CAPABILITY_IODEF => 1), $err) === false) {
          return false;
       }

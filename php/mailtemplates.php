@@ -97,6 +97,10 @@ special variables in the template:').'<p>'.LF;
       print_variables_info();
       $update = array();
       get_template_actions($template, $update);
+      if (getMailtemplateCapabilities($template, $caps, $err) === false) {
+         airt_msg($err);
+         reload();
+      }
       print '<P>';
       print '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">'.LF;
       // note: potential danger here; html and php tags are NOT scrubbed
@@ -131,8 +135,13 @@ special variables in the template:').'<p>'.LF;
       print _('Select capabilities provided by this template:').'<P/>'.LF;
       print '<input type="hidden" name="update[capability]"'.LF;
       foreach ($AIRT_MAIL_CAPABILITIES as $c) {
-         echo '<input type="checkbox" name="capability['.$c.']">
-         '.$c.'<br/>'.LF;
+         if (array_key_exists($c, $caps) && $caps[$c] == 1) {
+            $checked = 'CHECKED';
+         } else {
+            $checked = '';
+         }
+         echo '<input type="checkbox" '.$checked.' name="capability['.$c.
+            ']"> '.$c.'<br/>'.LF;
       }
       print ''.LF;
       print '<input type="hidden" name="action" value="save">'.LF;
