@@ -790,7 +790,8 @@ function getMailtemplateCapabilities($template, &$capabilities=array(),
  *
  * returns true on success, false on failure
  */
-function setMailtemplateCapabilities($template, $capabilities, &$error='') {
+function setMailtemplateCapabilities($template, $capabilities, &$error='') 
+{
    $res = db_query(q('select distinct captype from '.
       'mailtemplate_capabilities where template=%template', array(
       '%template'=>db_escape_string($template))));

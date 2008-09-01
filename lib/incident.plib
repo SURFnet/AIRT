@@ -692,7 +692,7 @@ function addUserToIncident($userid, $incident, $override='') {
       airt_msg($err);
       return false;
    }
-   if (in_array($caps, AIRT_USER_CAPABILITY_IODEF)) {
+   if (in_array(AIRT_USER_CAPABILITY_IODEF, $caps)) {
       // find matching mail template
 # XXX
    }

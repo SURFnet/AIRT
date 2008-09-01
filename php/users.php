@@ -79,8 +79,8 @@
            airt_msg(_('Error retrieving user capabilities:'). $error);
            return false;
         } else {
-           $cap_iodef = ($caps[AIRT_CAP_IODEF] == 1) ? 'checked' : '';
-           $cap_login = ($caps[AIRT_CAP_LOGIN] == 1) ? 'checked' : '';
+           $cap_iodef = ($caps[AIRT_USER_CAPABILITY_IODEF] == 1) ? 'checked' : '';
+           $cap_login = ($caps[AIRT_USER_CAPABILITY_LOGIN] == 1) ? 'checked' : '';
         }
     }
     print '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">'.LF;
@@ -336,8 +336,8 @@
          if ($cap_login == 'on') $cap_login = 1;
          else $cap_login = 0;
          setUserCapabilities($id, array(
-            AIRT_CAP_LOGIN=>$cap_login,
-            AIRT_CAP_IODEF=>$cap_iodef), $error);
+            AIRT_USER_CAPABILITY_LOGIN=>$cap_login,
+            AIRT_USER_CAPABILITY_IODEF=>$cap_iodef), $error);
          Header("Location: $_SERVER[PHP_SELF]");
    }
 
