@@ -439,7 +439,6 @@ function queueToAIRT($id, &$error, $mailtemplate='') {
    $dom = $doc->loadXML($data['content']);
 
    // add mail template information
-   // XXX FIXME XXX
    $tmp_elements = $doc->getElementsByTagname('technicalInformation');
    if ($tmp_elements->length > 0) {
       $tmp_elements->item(0)->appendChild($doc->createElement('mailtemplate',

@@ -842,13 +842,45 @@ function setMailtemplateCapabilities($template, $capabilities, &$error='') {
  *
  * @param $template string 
  * @param $toggle bool
+ * @param $err string
  * @return true on success, false on failure
  */
-function toggleMailCapabilityIODEF($template, $toggle) {
+function toggleMailCapabilityIODEF($template, $toggle, &$err) 
+{
+   $err='';
    if (!templateExists($template)) {
+      $err = _('No such template in mailtemplates.plib:').__LINE__;
       return false;
    }
    if ($toggle === false) {
-# XXX
-      $q = 'update mailtemplates set captype
+      if (setMailtemplateCapability($template, array(
+         AIRT_MAIL_CAPABILITY_IODEF => 0), $err) === false) {
+         return false;
+      }
+   } else {
+      /* reset the IODEF capability for all templates that have it set */
+       $res = db_query(q('select distinct template from '.
+         'mailtemplate_capabilities where '.  
+         'captype=%type and capvalue=1', array(
+            '%type'=>AIRT_MAIL_CAPABILITY_IODEF)));
+      if ($res == false) {
+         $err = _('Unable to select capabilities in mailtemplates.plib:').
+            __LINE__;
+         return false;
+      }
+      while ($row = db_fetch_next($res)) {
+         if (setMailtemplateCapabiity($row['template'], array(
+            AIRT_MAIL_CAPABILITY_IODEF => 0), $err) === false) {
+            return false;
+         }
+      }
+      /* set it for the current one */
+      if (setMailtemplateCapability($template, array(
+         AIRT_MAIL_CAPABILITY_IODEF => 1), $err) === false) {
+         return false;
+      }
+   }
+   return true;
+}
+
 ?>
