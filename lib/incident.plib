@@ -681,7 +681,8 @@ function addUserToIncident($userid, $incident, $override='') {
    if ($res == false) {
       return false;
    }
-   # IODEF capability override
+
+   /* IODEF capability override */
    $u = getUserByUserID($userid);
    if ($u == false) {
       return false;
@@ -692,8 +693,9 @@ function addUserToIncident($userid, $incident, $override='') {
       airt_msg($err);
       return false;
    }
-   if (in_array(AIRT_USER_CAPABILITY_IODEF, $caps)) {
-      // find matching mail template
+   if (array_key_exists(AIRT_USER_CAPABILITY_IODEF, $caps) &&
+       $caps[AIRT_USER_CAPABILITY_IODEF] == 1) {
+      /* find matching mail template */
       $templates = array();
       $err = '';
       if (getCapabilityMailtemplates(AIRT_MAIL_CAPABILITY_IODEF, $templates, $err)
@@ -1484,8 +1486,9 @@ function formatEditForm() {
       $output .= t('  <td>%email</td>', array('%email'=>$u['email'])).LF;
       $output .= t(' <td><form method="post" action="%url">',
          array('%url'=>'incident.php'));
+# XXX
       $output .= getMailtemplateSelection('template', 
-         $override=='' ? $incident['template'] : $override).LF;
+         $override==false ? $incident['template'] : $override).LF;
       $output .= t('<input type="hidden" name="incidentid" value="%id">',
          array('%id'=>htmlentities($incident['incidentid']))).LF;
       $output .= t('<input type="hidden" name="userid" value="%id">',
@@ -2499,7 +2502,7 @@ function getMailTemplateOverride($incidentid, $userid) {
       '%incidentid'=>$incidentid,
       '%userid'=>$userid
    )));
-   if ($res == false) {
+   if ($res === false) {
       return false;
    }
    $row = db_fetch_next($res);
@@ -2539,7 +2542,7 @@ function setMailTemplateOverride($incidentid, $userid, $template) {
    db_free_result($res);
    $res = db_query(q('UPDATE incident_users SET mailtemplate_override=\'%t\'
    WHERE id=%id', array(
-      '%t'=>db_escape_string($template),
+      '%t'=>db_masq_null(db_escape_string($template)),
       '%id'=>$row['id']
    )));
    return true;

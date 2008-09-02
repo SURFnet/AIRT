@@ -567,6 +567,7 @@ _('Continue').'...</a>'.LF,
          }
       }
 
+/* it goes wrong here! XXX */
       $user = getUserByUserID($id['id']);
       addUserToIncident($id['id'], $incidentid);
       if ($template != '') {
