@@ -567,12 +567,8 @@ _('Continue').'...</a>'.LF,
          }
       }
 
-/* it goes wrong here! XXX */
       $user = getUserByUserID($id['id']);
-      addUserToIncident($id['id'], $incidentid);
-      if ($template != '') {
-         setMailTemplateOverride($incidentid, $id['id'], $template);
-      }
+      addUserToIncident($id['id'], $incidentid, $template);
       addIncidentComment(array(
          'comment'=>sprintf(_('User %s added to incident.'), $user['email']),
          'incidentid'=>$incidentid
