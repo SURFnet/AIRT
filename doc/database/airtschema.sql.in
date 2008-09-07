@@ -46,6 +46,8 @@ DROP SEQUENCE generic_sequence;
 DROP SEQUENCE address_roles_sequence;
 DROP SEQUENCE importfilter_templates_sequence;
 
+DROP TABLE mailtemplate_capabilities CASCADE;
+DROP TABLE user_capabilities CASCADE;
 DROP TABLE importqueue_templates;
 DROP TABLE external_incidentids CASCADE;
 DROP TABLE incident_types CASCADE; 
@@ -195,16 +197,18 @@ CREATE TABLE incident_addresses (
     foreign key  (addressrole) references address_roles(id)
 );
 
-create table incident_users (
+CREATE TABLE incident_users (
     id          integer,
     incidentid  integer not null,
     userid      integer not null,
     added       timestamp not null,
     addedby     integer not null,
+    mailtemplate_override char(80),
     primary key (id),
     foreign key (incidentid) references incidents(id),
     foreign key (userid) references users(id),
-    foreign key (addedby) references users(id)
+    foreign key (addedby) references users(id),
+    foreign key (mailtemplate_override) references mailtemplates(name)
 );
 
 CREATE TABLE role_assignments (
@@ -370,6 +374,24 @@ CREATE TABLE incident_attachments (
    foreign key (incident) references incidents(id)
 );
 
+
+CREATE TABLE user_capabilities (
+   id        integer not null,
+   userid    integer not null,
+   captype   varchar not null,
+   capvalue  integer not null, -- do not use boolean here for cross-db compat
+   primary key (id),
+   foreign key (userid) references users(id)
+);
+
+CREATE TABLE mailtemplate_capabilities (
+   id        integer not null,
+   template  varchar not null,
+   captype   varchar not null,
+   capvalue  integer not null, -- do not use boolean here for cross-db compat
+   primary key (id),
+   foreign key (template) references mailtemplates(name)
+);
 
 CREATE SEQUENCE incident_types_sequence;
 CREATE SEQUENCE incident_states_sequence;
