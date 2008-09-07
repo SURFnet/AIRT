@@ -58,3 +58,4 @@ grant select,insert,update,delete on incident_attachments to airt;
 grant select,update on generic_sequence to airt;
 grant select,update,insert,delete on mailtemplate_capabilities to airt;
 grant select,update,insert,delete on user_capabilities to airt;
+grant update on versions to airt;
