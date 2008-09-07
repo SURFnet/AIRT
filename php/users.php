@@ -273,8 +273,8 @@
             if ($cap_login == 'on') $cap_login = 1;
             else $cap_login = 0;
             setUserCapabilities($u['id'], array(
-                AIRT_CAP_IODEF => $cap_iodef,
-                AIRT_CAP_LOGIN => $cap_login), $error);
+                AIRT_USER_CAPABILITY_IODEF => $cap_iodef,
+                AIRT_USER_CAPABILITY_IODEF => $cap_login), $error);
 
             if ($userid == $_SESSION['userid']) {
                @session_destroy();
