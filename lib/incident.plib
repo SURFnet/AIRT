@@ -1487,7 +1487,7 @@ function formatEditForm() {
       $output .= t(' <td><form method="post" action="%url">',
          array('%url'=>'incident.php'));
       $output .= getMailtemplateSelection('template', 
-         $override==false ? $incident['template'] : $override).LF;
+         ($override==false) ? $incident['template'] : $override).LF;
       $output .= t('<input type="hidden" name="incidentid" value="%id">',
          array('%id'=>htmlentities($incident['incidentid']))).LF;
       $output .= t('<input type="hidden" name="userid" value="%id">',
@@ -2508,7 +2508,7 @@ function getMailTemplateOverride($incidentid, $userid) {
    if (db_num_rows($res) == 0) {
       return false;
    }
-   return $row['mailtemplate_override'];
+   return trim($row['mailtemplate_override']);
 }
 
 /**
@@ -2539,9 +2539,10 @@ function setMailTemplateOverride($incidentid, $userid, $template) {
       return false;
    }
    db_free_result($res);
-   $res = db_query(q('UPDATE incident_users SET mailtemplate_override=%t
+   $res = db_query(q('UPDATE incident_users 
+   SET mailtemplate_override=%t
    WHERE id=%id', array(
-      '%t'=>db_masq_null(db_escape_string($template)),
+      '%t'=>trim(db_masq_null(db_escape_string($template))),
       '%id'=>$row['id']
    )));
    return true;
