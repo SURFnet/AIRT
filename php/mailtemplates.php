@@ -271,7 +271,8 @@ special variables in the template:').'<p>'.LF;
          if (empty($incidentid)) {
 	         $incidentid = $_SESSION['incidentid'];
 	         if(empty($incidentid)) {
-               die(_('No incident to work on.'));
+               airt_msg(_('No incident to work on.'));
+               reload();
             }
          }
          $incidentids = array($incidentid);
@@ -280,6 +281,9 @@ special variables in the template:').'<p>'.LF;
       }
 
       /* to contains the user ids of the recipient email addresss.
+       * if this array is set, only email to the email addresses
+       * explicitly mentioned in this comma-separated array will
+       * be processed
        */
       $to = fetchFrom('REQUEST', 'to');
       if (empty($to)) {
@@ -288,7 +292,12 @@ special variables in the template:').'<p>'.LF;
          $to = explode(',', $to);
       }
       $to = array_filter($to, 'is_numeric');
-      prepare_message($template, $incidentids, $to);
+
+      /* Fetch override */
+      $override = fetchFrom('REQUEST', 'override');
+      defaultTo($override, NULL);
+
+      prepare_message($template, $override, $incidentids, $to);
       pageFooter();
 
       break;

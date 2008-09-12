@@ -340,14 +340,20 @@ function expand_template($template, $current) {
    return $output;
 }
 
-/** Obtain buttons for the 'prepare message' screen
- * \param [in] $incidentids; agenda of actions to take
- * \param [out] string containing HTML
+/** 
+ * Obtain buttons for the 'prepare message' screen
+ * @param string $incidentids comma-separated agenda of actions to take
+ * @param string containing HTML
  */
-function template_buttons($incidentids) {
+function template_buttons($incidentids, $override='') {
    $out = '';
    $out .= '<input type="reset"  value="'._('Reset').'">'.LF;
    $out .= '<input type="submit" name="action" value="'._('Send').'">'.LF;
+   if ($override != '') {
+      $out .= '<input type="hidden" name="override" value="'.
+         htmlentities($override).'"/>'.LF;
+   }
+
    if (sizeof($incidentids) > 0) {
       $out .= '<input type="submit" name="action" value="'._('Send and prepare next').'">'.LF;
       $out .= '<input type="submit" name="action" value="'._('Skip and prepare next').'">'.LF;
@@ -367,7 +373,9 @@ function template_buttons($incidentids) {
  *
  * \return nothing
  */
-function prepare_message($template, $incidentids=array(), $to=array()) {
+function prepare_message($template, $override, $incidentids=array(), 
+   $to=array()) 
+{
    pageHeader(_('Send message from template.'));
    $current = array(
       'user'=>'',
@@ -375,6 +383,9 @@ function prepare_message($template, $incidentids=array(), $to=array()) {
       'email'=>'',
       'ip'=>'',
       'hostname'=>'');
+
+   /* use the incidentid from the session if none specified
+    */
    if (sizeof($incidentids) == 0) {
       $sess = fetchFrom('SESSION', 'incidentid');
       if (empty($sess)) {
@@ -383,14 +394,80 @@ function prepare_message($template, $incidentids=array(), $to=array()) {
          $incidentids = array($sess);
       }
    }
-   $current['incidentid'] = $incidentids[0];
-   unset($incidentids[0]);
 
-   // fetch data from incident
+   /* if the override is set, process that and ignore the $incidentids 
+    * array
+    */
+   if ($override == null) {
+      $current['incidentid'] = $incidentids[0];
+      unset($incidentids[0]);
+   } else {
+      $current['incidentid'] = $override;
+   }
+
    $incident = getIncident($current['incidentid']);
 
-   // allow for sending mail to a subset of the users associated with the
-   // incident
+   /* if override is set, only email the users who have an override. If it
+    * is not set, figure out if there are overrides. If so, add all users
+    * who do not have an override. $override_template will contain the name
+    * of the first template that was used in an override (or '' if none)
+    */
+   $override_template='';
+   if ($override != null) {
+      $to = array();
+      foreach ($incident['users'] as $uid) {
+         $o = getMailTemplateOverride($current['incidentid'], $uid);
+         if ($o != null) {
+            if ($override_template=='') {
+               $override_template = $o;
+            }
+            $to[] = $uid;
+         }
+      }
+   } else {
+      /* do we have any overrides that need to be addressed later?
+       * populate $olist with all uid's that have an override set.
+       */
+      $olist = array();
+      foreach ($incident['users'] as $uid) {
+         $o = getMailTemplateOverride($current['incidentid'], $uid);
+         if ($o == true) {
+            if ($override_template=='') {
+               $override_template = $o;
+            }
+            $olist[] = $uid;
+            break;
+         }
+      } // $olist now contains all uids with an override
+
+      /* Add all users to $to-list
+       */
+      foreach ($incident['users'] as $uid) {
+         if (!in_array($uid, $to)) {
+            $to[] = $uid;
+         }
+      }
+
+      /* Remove all users from $to who have an override
+       * $olist is an array containing all userids with an override.
+       */
+      if (sizeof($olist) > 0) {
+         foreach ($olist as $uid) {
+            $key = array_search($uid, $to);
+            if ($key !== false) {
+               unset($to[$key]);
+            }
+         }
+      }
+   }
+
+   /* At this point, the $to[] array should contain all the email addresses
+    * of users who are supposed to receive mail
+    */
+
+   /* allow for sending mail to a subset of the users associated with the
+    * incident
+    */
    if (sizeof($incident['users']) > 0) {
       foreach ($incident['users'] as $uid) {
          $user = getUserByUserID($uid);
@@ -401,6 +478,7 @@ function prepare_message($template, $incidentids=array(), $to=array()) {
       }
    }
 
+   /* Finish setting up the 'current' array */
    if (sizeof($incident['ips']) > 0) {
       $current['ip'] = $incident['ips'][0]['ip'];
       $current['hostname'] = $incident['ips'][0]['hostname'];
@@ -410,8 +488,13 @@ function prepare_message($template, $incidentids=array(), $to=array()) {
       $usepref = true;
       $template = getPreferredMailTemplateName($current['incidentid']);
    }
+
+   if ($override != false) {
+      $template = $override_template;
+   } 
    print _('Using mail template <em>').htmlentities($template).'</em><br/>'.LF;
    $msgdata = expand_template($template, $current);
+
    /* look for receiver override */
    if (preg_match('/@TO@(.*)@ENDTO@/', $msgdata['body'], $matches) > 0) {
       $msgdata['receiver'] = $matches[1];
@@ -432,7 +515,8 @@ function prepare_message($template, $incidentids=array(), $to=array()) {
    $out .= '<TD>'._('To:').'</TD>'.LF;
    $out .= '<TD><INPUT TYPE="text" size="50" name="to" value="'.$msgdata['receiver'].'"></TD>'.LF;
    $out .= '<TD rowspan="4" VALIGN="top">'.LF;
-   $out .= template_buttons($incidentids);
+   $out .= template_buttons($incidentids, 
+      ($override_template == '' ? '' : $current['incidentid']));
    $out .= '</TD>'.LF;
    $out .= '</TR>'.LF;
    $out .= '<TR>'.LF;
@@ -450,6 +534,8 @@ function prepare_message($template, $incidentids=array(), $to=array()) {
    $out .= '</TABLE>'.LF;
    $out .= '<TEXTAREA name="msg" cols="80" rows="25">'.$msgdata['body'].'</TEXTAREA>'.LF;
    $out .= '<P>'.LF;
+# XXX because of this, I cannot do an override on the last incident in 
+# the queue
    $out .= '<input type="hidden" name="incidentids" value="'.$agendaval.'">'.LF;
    if ($usepref) {
       $out .= '<input type="hidden" name="template" value="'.
@@ -458,7 +544,8 @@ function prepare_message($template, $incidentids=array(), $to=array()) {
       $out .= '<input type="hidden" name="template" value="'.$template.'">'.LF;
    }
    $out .= '<input type="hidden" name="incidentid" value="'.$current['incidentid'].'">'.LF;
-   $out .= template_buttons($incidentids);
+   $out .= template_buttons($incidentids,  
+      ($override_template == '' ? '' : $current['incidentid']));
    print $out;
    if (defined('GPG_KEYID')) {
       print '<input type="checkbox" name="sign" checked> '._('Sign').LF;

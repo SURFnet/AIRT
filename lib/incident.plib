@@ -2156,6 +2156,7 @@ function getOpenIncidentsByConstituency($cons) {
  */
 function getPreferredMailTemplateName($incidentid) {
    if (!is_numeric($incidentid)) {
+      airt_msg(_('non-numeric incidentid'));
       return null;
    }
    $q = q('SELECT pref_templ FROM incidents WHERE id=%id',
@@ -2163,10 +2164,12 @@ function getPreferredMailTemplateName($incidentid) {
    $res = db_query($q);
    if ($res == false) {
       airt_error('DB_QUERY', 'incidents.plib:'.__LINE__);
+      airt_msg(_('database error'));
 		reload('');
 		return null;
    }
    if (db_num_rows($res) == 0) {
+      airt_msg(_('No preferred template'));
       return null;
    } else {
       $row = db_fetch_next($res);
