@@ -373,7 +373,7 @@ function template_buttons($incidentids, $override='') {
  *
  * \return nothing
  */
-function prepare_message($template, $override, $incidentids=array(), 
+function prepare_message($template, $override_now=0, $incidentids=array(), 
    $to=array()) 
 {
    pageHeader(_('Send message from template.'));
@@ -383,6 +383,8 @@ function prepare_message($template, $override, $incidentids=array(),
       'email'=>'',
       'ip'=>'',
       'hostname'=>'');
+
+   $override_next = false;
 
    /* use the incidentid from the session if none specified
     */
@@ -395,25 +397,18 @@ function prepare_message($template, $override, $incidentids=array(),
       }
    }
 
-   /* if the override is set, process that and ignore the $incidentids 
-    * array
-    */
-   if ($override == null) {
-      $current['incidentid'] = $incidentids[0];
-      unset($incidentids[0]);
-   } else {
-      $current['incidentid'] = $override;
-   }
+   $current['incidentid'] = $incidentids[0];
+   unset($incidentids[0]);
 
    $incident = getIncident($current['incidentid']);
 
    /* if override is set, only email the users who have an override. If it
-    * is not set, figure out if there are overrides. If so, add all users
-    * who do not have an override. $override_template will contain the name
+    * is not set, figure out if there will be any. If so, add only  users
+    * who do will not have an override. $override_template will contain the name
     * of the first template that was used in an override (or '' if none)
     */
    $override_template='';
-   if ($override != null) {
+   if ($override_now == 1) {
       $to = array();
       foreach ($incident['users'] as $uid) {
          $o = getMailTemplateOverride($current['incidentid'], $uid);
@@ -424,35 +419,44 @@ function prepare_message($template, $override, $incidentids=array(),
             $to[] = $uid;
          }
       }
+      /* at this point we know if during the next pass we will have an 
+       * override ($override_template contains the name of the template 
+       * to use and $to contains the uids of the users who will receive
+       * the message based on that template 
+       */
    } else {
       /* do we have any overrides that need to be addressed later?
-       * populate $olist with all uid's that have an override set.
+       * $override_next will be true if so, else it will be false
        */
-      $olist = array();
+      $override_next_uids = array();
       foreach ($incident['users'] as $uid) {
          $o = getMailTemplateOverride($current['incidentid'], $uid);
          if ($o == true) {
-            if ($override_template=='') {
-               $override_template = $o;
-            }
-            $olist[] = $uid;
-            break;
+            $override_next_uids[] = $uid;
+            $override_next = true;
          }
-      } // $olist now contains all uids with an override
+      }
 
-      /* Add all users to $to-list
+      /* If $to is already set, leave it alone; else
+       * Add all users to $to-list who are not already on it
        */
-      foreach ($incident['users'] as $uid) {
-         if (!in_array($uid, $to)) {
-            $to[] = $uid;
+      if (sizeof($to) == 0) {
+         foreach ($incident['users'] as $uid) {
+            if (!in_array($uid, $to)) {
+               $to[] = $uid;
+            }
          }
       }
 
       /* Remove all users from $to who have an override
-       * $olist is an array containing all userids with an override.
        */
-      if (sizeof($olist) > 0) {
-         foreach ($olist as $uid) {
+      if ($override_next === true) {
+         /* We will have to process the current incidentid again;
+          * put the current incidentid back on the agenda
+          */
+         $incidentids = array_merge(array($current['incidentid']), 
+            $incidentids);
+         foreach ($override_next_uids as $uid) {
             $key = array_search($uid, $to);
             if ($key !== false) {
                unset($to[$key]);
@@ -489,7 +493,7 @@ function prepare_message($template, $override, $incidentids=array(),
       $template = getPreferredMailTemplateName($current['incidentid']);
    }
 
-   if ($override != false) {
+   if ($override_now == 1) {
       $template = $override_template;
    } 
    print _('Using mail template <em>').htmlentities($template).'</em><br/>'.LF;
@@ -515,8 +519,7 @@ function prepare_message($template, $override, $incidentids=array(),
    $out .= '<TD>'._('To:').'</TD>'.LF;
    $out .= '<TD><INPUT TYPE="text" size="50" name="to" value="'.$msgdata['receiver'].'"></TD>'.LF;
    $out .= '<TD rowspan="4" VALIGN="top">'.LF;
-   $out .= template_buttons($incidentids, 
-      ($override_template == '' ? '' : $current['incidentid']));
+   $out .= template_buttons($incidentids, ($override_next == true ? 1 : 0));
    $out .= '</TD>'.LF;
    $out .= '</TR>'.LF;
    $out .= '<TR>'.LF;
@@ -544,8 +547,7 @@ function prepare_message($template, $override, $incidentids=array(),
       $out .= '<input type="hidden" name="template" value="'.$template.'">'.LF;
    }
    $out .= '<input type="hidden" name="incidentid" value="'.$current['incidentid'].'">'.LF;
-   $out .= template_buttons($incidentids,  
-      ($override_template == '' ? '' : $current['incidentid']));
+   $out .= template_buttons($incidentids, ($override_next == true ? 1 : 0));
    print $out;
    if (defined('GPG_KEYID')) {
       print '<input type="checkbox" name="sign" checked> '._('Sign').LF;
@@ -990,7 +992,7 @@ function toggleMailCapabilityIODEF($template, $toggle, &$err)
          return false;
       }
       while ($row = db_fetch_next($res)) {
-         if (setMailtemplateCapabiity($row['template'], array(
+         if (setMailtemplateCapabilities($row['template'], array(
             AIRT_MAIL_CAPABILITY_IODEF => 0), $err) === false) {
             return false;
          }

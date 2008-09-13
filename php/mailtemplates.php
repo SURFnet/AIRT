@@ -294,8 +294,8 @@ special variables in the template:').'<p>'.LF;
       $to = array_filter($to, 'is_numeric');
 
       /* Fetch override */
-      $override = fetchFrom('REQUEST', 'override');
-      defaultTo($override, NULL);
+      $override = fetchFrom('REQUEST', 'override', '%d');
+      defaultTo($override, 0);
 
       prepare_message($template, $override, $incidentids, $to);
       pageFooter();
@@ -305,9 +305,11 @@ special variables in the template:').'<p>'.LF;
    // -------------------------------------------------------------------
    case _('Skip and prepare next'):
       $incidentids = array_filter(explode(',', fetchFrom('POST', 'incidentids')), 'is_numeric');
+      $override = fetchFrom('REQUEST', 'override', '%d');
+      defaultTo($override, 0);
       $template = strip_tags(fetchFrom('POST', 'template'));
       reload("$_SERVER[PHP_SELF]?action=prepare&template=".
-         urlencode($template)."&incidentids=".implode(',',$incidentids));
+         urlencode($template)."&override=$override&incidentids=".implode(',',$incidentids));
       break;
 
 
@@ -531,8 +533,10 @@ special variables in the template:').'<p>'.LF;
       }
       if ($action == _('Send and prepare next') && isset($incidentids) &&
          isset($template)) {
-         reload("$_SERVER[PHP_SELF]?action=prepare&template=$template&incidentids=".
-            urlencode($incidentids));
+         $override = fetchFrom('REQUEST', 'override', '%d');
+         defaultTo($override, 0);
+         reload("$_SERVER[PHP_SELF]?action=prepare&template=$template".
+            "override=$override&incidentids=".urlencode($incidentids));
       } else {
          reload('incident.php');
       }
