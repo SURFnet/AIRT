@@ -356,46 +356,64 @@ function exportIODEF($incidentid, &$iodef, &$status='') {
    }
 
    $doc = new DOMDocument();
-	$top = $doc->appendChild($doc->createElementNS(IODEFNS, 'iodef:IODEF-Document'));
+	$top = $doc->appendChild($doc->createElementNS(IODEFNS, 
+      'iodef:IODEF-Document'));
 	$version = $top->appendChild($doc->createAttribute('version'));
 	$version->value='1.0';
 	
-	$incident_el = $top->appendChild($doc->createElementNS(IODEFNS, 'iodef:Incident'));
+	$incident_el = $top->appendChild($doc->createElementNS(IODEFNS, 
+      'iodef:Incident'));
 	$purpose = $incident_el->appendChild($doc->createAttribute('purpose'));
 	$purpose->value='reporting';
 
-	$incidentid_el = $incident_el->appendChild($doc->createElementNS(IODEFNS, 'iodef:IncidentID'));
+	$incidentid_el = $incident_el->appendChild($doc->createElementNS(IODEFNS, 
+      'iodef:IncidentID'));
 	$name = $incidentid_el->appendChild($doc->createAttribute('name'));
 	$name->value=htmlentities(INCIDENTID_PREFIX);
-	$incidentid_el->appendChild($doc->createTextNode(htmlentities(normalize_incidentid($incidentid))));
+	$incidentid_el->appendChild(
+      $doc->createTextNode(htmlentities(normalize_incidentid($incidentid))));
 
-	$assessment = $incident_el->appendChild($doc->createElementNS(IODEFNS, 'iodef:Assessment'));
-	$method = $incident_el->appendChild($doc->createElementNS(IODEFNS, 'iodef:Method'));
-	$descr = $method->appendChild($doc->createElementNS(IODEFNS, 'iodef:Description'));
+	$assessment = $incident_el->appendChild($doc->createElementNS(IODEFNS,
+      'iodef:Assessment'));
+	$method = $incident_el->appendChild($doc->createElementNS(IODEFNS,
+      'iodef:Method'));
+	$descr = $method->appendChild($doc->createElementNS(IODEFNS,
+      'iodef:Description'));
 	$descr->appendChild($doc->createTextNode(htmlentities(getIncidentTypeDescr($incident['type']))));
 
-	$eventdata = $incident_el->appendChild($doc->createElementNS(IODEFNS, 'iodef:EventData'));
-	$flow = $eventdata->appendChild($doc->createElementNS(IODEFNS, 'iodef:Flow'));
+	$eventdata = $incident_el->appendChild($doc->createElementNS(IODEFNS,
+      'iodef:EventData'));
+	$flow = $eventdata->appendChild($doc->createElementNS(IODEFNS,
+      'iodef:Flow'));
 	for ($i=0; $i < sizeof($incident['ips']); $i++) {
-	   $system = $flow->appendChild($doc->createElementNS(IODEFNS, 'iodef:System'));
-		$node = $system->appendChild($doc->createElementNS(IODEFNS, 'iodef:Node'));
+	   $system = $flow->appendChild($doc->createElementNS(IODEFNS,
+         'iodef:System'));
+		$node = $system->appendChild($doc->createElementNS(IODEFNS,
+         'iodef:Node'));
 		$category = $system->appendChild($doc->createAttribute('category'));
 		$category->value='source';
-		$address = $node->appendChild($doc->createElementNS(IODEFNS, 'iodef:Address'));
+		$address = $node->appendChild($doc->createElementNS(IODEFNS,
+         'iodef:Address'));
 		$address->appendChild($doc->createTextNode(htmlentities($incident['ips'][$i]['ip'])));
 		$cat = $address->appendChild($doc->createAttribute('category'));
 		$cat->value='ipv4-addr';
 	}
 	
-	$record = $eventdata->appendChild($doc->createElementNS(IODEFNS, 'iodef:Record'));
-   $recorddata = $record->appendChild($doc->createElementNS(IODEFNS, 'iodef:RecordData'));
-   $recorditem = $recorddata->appendChild($doc->createElementNS(IODEFNS, 'iodef:RecordItem'));
+	$record = $eventdata->appendChild($doc->createElementNS(IODEFNS,
+      'iodef:Record'));
+   $recorddata = $record->appendChild($doc->createElementNS(IODEFNS,
+      'iodef:RecordData'));
+   $recorditem = $recorddata->appendChild($doc->createElementNS(IODEFNS,
+      'iodef:RecordItem'));
 	$recorditem->appendChild($doc->createTextNode(htmlentities($incident['logging'])));
 
-	$reporttime = $incident_el->appendChild($doc->createElementNS(IODEFNS, 'iodef:ReportTime'));
-	$reporttime->appendChild($doc->createTextnode(Date('c', $incident['created'])));
+	$reporttime = $incident_el->appendChild($doc->createElementNS(IODEFNS,
+      'iodef:ReportTime'));
+	$reporttime->appendChild($doc->createTextnode(Date('c',
+      $incident['created'])));
 	
-	$contact    = $incident_el->appendChild($doc->createElementNS(IODEFNS, 'iodef:Contact'));
+	$contact    = $incident_el->appendChild($doc->createElementNS(IODEFNS,
+      'iodef:Contact'));
 	$role = $contact->appendChild($doc->createAttribute('role'));
 	$role->value='creator,irt';
 	$type = $contact->appendChild($doc->createAttribute('type'));
@@ -405,7 +423,8 @@ function exportIODEF($incidentid, &$iodef, &$status='') {
 
    $u = getUserByUserId($_SESSION["userid"]);
 	$name = $contact->appendChild($doc->createElementNS(IODEFNS, 'iodef:Name'));
-	$name->appendChild($doc->createTextNode(htmlentities(sprintf("%s %s", $u["firstname"], $u["lastname"]))));
+	$name->appendChild($doc->createTextNode(
+      htmlentities(sprintf("%s %s", $u["firstname"], $u["lastname"]))));
 	$email= $contact->appendChild($doc->createElementNS(IODEFNS, 'iodef:Email'));
 	$email->appendChild($doc->createTextNode(htmlentities(MAILENVFROM)));
 

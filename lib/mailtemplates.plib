@@ -217,10 +217,17 @@ function get_templates($extras=array()) {
  * Get a SELECTION dialog with mail templates
  */
 function getMailtemplateSelection($name, $default='', $extras=array()) {
+   $o = array();
    $output = sprintf("<select name=\"%s\">\n", htmlentities($name));
-   $templates = get_templates($extras);
-   foreach ($templates as $i=>$l) {
-      $output .= sprintf("<option value=\"%s\" %s>%s</option>\n", htmlentities($i), ($i == $default) ? "SELECTED" : "", htmlentities($i));
+   $templates = get_templates();
+   foreach ($templates as $label=>$body) {
+      $o[$label] = $label;
+   }
+   $o = array_merge($extras, $o);
+   foreach ($o as $key=>$label) {
+      $output .= sprintf("<option value=\"%s\" %s>%s</option>\n", 
+         htmlentities($key), ($key == $default) ? "SELECTED" : "", 
+         htmlentities($label));
    }
    $output .= "</select>";
 
@@ -496,6 +503,10 @@ function prepare_message($template, $override_now=0, $incidentids=array(),
    if ($override_now == 1) {
       $template = $override_template;
    } 
+
+   if ($template == '') {
+      print _('NOTE: Preferred mail template requested, but not set.').'<p/>';
+   }
    print _('Using mail template <em>').htmlentities($template).'</em><br/>'.LF;
    $msgdata = expand_template($template, $current);
 

@@ -780,7 +780,8 @@ function formatBasicIncidentData($params=array()) {
    $output .= '  <tr>'.LF;
    $output .= '    <td>'._('Mail template').'</td>'.LF;
    $output .= '    <td>'.getMailtemplateSelection('template',
-      $params['template']).'</td>'.LF;
+      ($params['template'] == '') ? -1 : $params['template'], 
+      array(-1 => _('None'))).'</td>'.LF;
    $output .= '  </tr>'.LF;
    $output .= '  <tr valign="top">'.LF;
    $output .= '    <td>'._('Short description').'</td>'.LF;
@@ -1372,7 +1373,7 @@ function formatIncidentForm(&$check) {
  * details.
  */
 function formatEditForm() {
-   $incident = getincident(fetchFrom('SESSION','incidentid', '%d'));
+   $incident = getIncident(fetchFrom('SESSION','incidentid', '%d'));
    $address = strip_tags(fetchFrom('SESSION','active_ip'));
    $constituency = fetchFrom('SESSION','constituency_id', '%d');
 
@@ -1992,8 +1993,9 @@ function formatListOverviewFooter() {
       '<table>'.LF.
       '<tr>'.LF.
       '  <td>'._('Bulk mail').'</td>'.LF.
-      '  <td>'.getMailTemplateSelection('template', 'null',
-                   array(_('Use preferred template')=>'', _('Use preferred template')=>'')).'</td>'.LF.
+      '  <td>'.getMailTemplateSelection('template', 'null', array( 
+         _('Use preferred template')=>_('Use preferred template')) 
+         ).'</td>'.LF.
       '</tr>'.LF.
       '<tr>'.LF.
       '  <td>&nbsp;</td>'.LF.

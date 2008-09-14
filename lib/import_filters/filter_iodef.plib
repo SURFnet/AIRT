@@ -16,7 +16,8 @@ function filter_iodef_getVersion() {
 }
 
 function filter_iodef($input, &$output, $verbosity=TRUE) {
-   if (preg_match('@(<\?xml version.*</iodef:IODEF-Document>)@s', $input, $m) == 0) {
+   if (preg_match('@(<\?xml version.*</iodef:IODEF-Document>)@s', 
+      $input, $m) == 0) {
 	   print 'No IODEF data detected';
 	   return false;
 	}

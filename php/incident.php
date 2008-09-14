@@ -668,6 +668,7 @@ _('Continue').'...</a>'.LF,
       $desc = strip_tags(trim(fetchFrom('POST', 'desc')));
       $logging = trim(fetchFrom('POST','logging'));
       $template = trim(strip_tags(fetchFrom('POST','template')));
+      if ($template == -1) { $template = ''; }
       $date_day = trim(fetchFrom('POST', 'date_day', '%d'));
       $date_month = trim(fetchFrom('POST', 'date_month', '%d'));
       $date_year = trim(fetchFrom('POST', 'date_year', '%d'));
