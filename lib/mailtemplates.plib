@@ -356,10 +356,13 @@ function template_buttons($incidentids, $override='') {
    $out = '';
    $out .= '<input type="reset"  value="'._('Reset').'">'.LF;
    $out .= '<input type="submit" name="action" value="'._('Send').'">'.LF;
-   if ($override != '') {
-      $out .= '<input type="hidden" name="override" value="'.
-         htmlentities($override).'"/>'.LF;
+   if (empty($override) || $override === false) {
+      $override = 0;
+   } else {
+      $override = 1;
    }
+   $out .= '<input type="hidden" name="override" value="'.
+         htmlentities($override).'"/>'.LF;
 
    if (sizeof($incidentids) > 0) {
       $out .= '<input type="submit" name="action" value="'._('Send and prepare next').'">'.LF;
@@ -507,7 +510,9 @@ function prepare_message($template, $override_now=0, $incidentids=array(),
    if ($template == '') {
       print _('NOTE: Preferred mail template requested, but not set.').'<p/>';
    }
-   print _('Using mail template <em>').htmlentities($template).'</em><br/>'.LF;
+   print _('Using mail template <em>').htmlentities($template).
+      '</em> for incident <em>'.normalize_incidentid($current['incidentid']).
+      '</em>.<br/>'.LF;
    $msgdata = expand_template($template, $current);
 
    /* look for receiver override */
@@ -530,7 +535,7 @@ function prepare_message($template, $override_now=0, $incidentids=array(),
    $out .= '<TD>'._('To:').'</TD>'.LF;
    $out .= '<TD><INPUT TYPE="text" size="50" name="to" value="'.$msgdata['receiver'].'"></TD>'.LF;
    $out .= '<TD rowspan="4" VALIGN="top">'.LF;
-   $out .= template_buttons($incidentids, ($override_next == true ? 1 : 0));
+   $out .= template_buttons($incidentids, ($override_next === true) ? 1 : 0);
    $out .= '</TD>'.LF;
    $out .= '</TR>'.LF;
    $out .= '<TR>'.LF;
@@ -558,7 +563,7 @@ function prepare_message($template, $override_now=0, $incidentids=array(),
       $out .= '<input type="hidden" name="template" value="'.$template.'">'.LF;
    }
    $out .= '<input type="hidden" name="incidentid" value="'.$current['incidentid'].'">'.LF;
-   $out .= template_buttons($incidentids, ($override_next == true ? 1 : 0));
+   $out .= template_buttons($incidentids, ($override_next === true) ? 1 : 0);
    print $out;
    if (defined('GPG_KEYID')) {
       print '<input type="checkbox" name="sign" checked> '._('Sign').LF;

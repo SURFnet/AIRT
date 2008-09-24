@@ -554,6 +554,9 @@ function queueInsertItem($status,$sender,$type,$summary,$content,$filter,
    $sender  = trim(db_escape_string($sender));
    $type    = trim(db_escape_string($type));
    $summary = trim(db_escape_string($summary));
+   if (strlen($summary) > 100) {
+      $summary = substr($summary, 0, 100);
+   }
    $content = trim(db_escape_string($content));
    $filter  = trim(db_escape_string($filter));
    $version  = trim(db_escape_string($version));
