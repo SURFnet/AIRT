@@ -133,7 +133,7 @@ special variables in the template:').'<p>'.LF;
       print '</table>'.LF;
       print '<p/>'.LF;
       print _('Select capabilities provided by this template:').'<P/>'.LF;
-      print '<input type="hidden" name="update[capability]"'.LF;
+      print '<input type="hidden" name="update[capability]">'.LF;
       foreach ($AIRT_MAIL_CAPABILITIES as $c) {
          if (array_key_exists($c, $caps) && $caps[$c] == 1) {
             $checked = 'CHECKED';
@@ -536,7 +536,7 @@ special variables in the template:').'<p>'.LF;
          $override = fetchFrom('REQUEST', 'override', '%d');
          defaultTo($override, 0);
          reload("$_SERVER[PHP_SELF]?action=prepare&template=$template".
-            "override=$override&incidentids=".urlencode($incidentids));
+            "&override=$override&incidentids=".urlencode($incidentids));
       } else {
          reload('incident.php');
       }
