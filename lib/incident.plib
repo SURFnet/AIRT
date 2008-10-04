@@ -1221,10 +1221,12 @@ function updateCheckboxes() {
    }
 
    // check for valid values of sortkey
-   if (!array_search($sortkey, array(
+   if (FALSE === array_search($sortkey, array(
       'constituency', 'hostname', 'status', 'state', 'type', 'created',
       'lastupdated', 'incidentid'))) {
-      die(_('Invalid value for parameter in ').__LINE__);
+      airt_msg(t(_('Invalid sort key (%key)'), array('%key'=>
+      strip_tags($sortkey))));
+      exit;
    }
    $urlsuffix=strtr(
      '&page=%p&filter[state]=%sf&filter[status]=%stf&sortkey=%sk&toggle=%t',
