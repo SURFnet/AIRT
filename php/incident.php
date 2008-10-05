@@ -1043,27 +1043,49 @@ _('Continue').'...</a>'.LF,
       reload($_SERVER['HTTP_REFERER']);
       break;
 
-   case 'setMailtemplateOverride':
+   case _('Update overrides'):
       $incidentid = fetchFrom('REQUEST', 'incidentid', '%d');
       defaultTo($incidentid, -1);
-      $userid = fetchFrom('REQUEST', 'userid', '%d');
-      defaultTo($userid, -1);
-      $template = fetchFrom('REQUEST', 'template');
-      defaultTo($template, '');
+
       if ($incidentid == -1) {
-         echo "Error message here"; # XXX
+         airt_msg(_('Missing or invalid parameter (incidentid) in line ').
+            __LINE__);
+         reload();
          break;
       }
-      if ($userid == -1) {
-         echo "Error message here"; # XXX
+
+      $templates = fetchFrom('REQUEST', 'template');
+      $userids = array_filter(array_keys($templates), 'is_numeric');
+
+      if (!is_array($templates)) {
+         airt_msg(_('Missing or invalid parameter (template) in line ').
+            __LINE__);
+         reload();
          break;
       }
-      if ($template == '') {
-         echo "Error message here"; # XXX
-         break;
+
+      foreach ($userids as $userid) {
+         defaultTo($userid, -1);
+         $template = $templates[$userid];
+         defaultTo($template, '');
+
+         if ($userid == -1) {
+            airt_msg(_('Missing or invalid parameter (userid) in line ').
+               __LINE__);
+            reload();
+            break;
+         }
+         if ($template == '') {
+            airt_msg(_('Missing or invalid parameter (template) in line ').
+               __LINE__);
+            reload();
+            break;
+         }
+
+         setMailtemplateOverride($incidentid, $userid, $template);
+         airt_msg(_('Mail template override updated'));
       }
-      setMailtemplateOverride($incidentid, $userid, $template);
-      airt_msg(_('Mail template override updated'));
+
       reload($_SERVER['PHP_SELF'].'?action=details&incidentid='.
          urlencode($incidentid));
       break;

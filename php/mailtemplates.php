@@ -61,10 +61,10 @@ switch ($action) {
          $incidentid = fetchFrom('REQUEST', 'incidentid', '%d');
          if (empty($incidentid)) {
             $sess = fetchFrom('SESSION', 'incidentid');
-	    if (empty($sess)) {
+            if (empty($sess)) {
                 $incidentids = array();
             } else {
-	       $incidentids = array($sess);
+                $incidentids = array($sess);
             }
          } else {
             $incidentids = array($incidentid);

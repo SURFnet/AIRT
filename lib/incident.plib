@@ -1488,21 +1488,15 @@ function formatEditForm() {
       $output .= t('  <td><input type="checkbox" name="to[]" value="%userid"></td>', array('%userid'=>$user));
       $output .= t('  <td>%email</td>', array('%email'=>$u['email'])).LF;
       $output .= t('  <td>').LF;
-      $output .= getMailtemplateSelection('template', 
+      $output .= getMailtemplateSelection('template['.strip_tags($user).']', 
          ($override==false) ? $incident['template'] : $override).LF;
-      $output .= t('<input type="hidden" name="incidentid" value="%id">',
-         array('%id'=>htmlentities($incident['incidentid']))).LF;
-      $output .= t('<input type="hidden" name="userid" value="%id">',
-         array('%id'=>htmlentities($user))).LF;
-      $output .= t('<input type="hidden" name="action" '.
-         'value="setMailtemplateOverride">', 
-         array('%id'=>htmlentities($user))).LF;
-      $output .= '<input type="submit" value="'._('Update').'"></td>'.LF;
       $output .= '</tr>'.LF;
    }
    $output .= '</table>'.LF;
-   $output .= '<input type="submit" name="action" value="Mail">'.LF;
-   $output .= '<input type="submit" name="action" value="Remove">'.LF;
+   $output .= '<input type="submit" name="action" value="'._('Mail').'">'.LF;
+   $output .= '<input type="submit" name="action" value="'._('Remove').'">'.LF;
+   $output .= '<input type="submit" name="action" value="'.
+      _('Update overrides').'">'.LF;
    $output .= '</form>'.LF;
    $output .= '<p/>'.LF;
    // Affected user list footer. First get som data.
