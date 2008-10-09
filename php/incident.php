@@ -1075,15 +1075,9 @@ _('Continue').'...</a>'.LF,
             reload();
             break;
          }
-         if ($template == '') {
-            airt_msg(_('Missing or invalid parameter (template) in line ').
-               __LINE__);
-            reload();
-            break;
-         }
 
          setMailtemplateOverride($incidentid, $userid, $template);
-         airt_msg(_('Mail template override updated'));
+         airt_msg(_('Mail template override updated.').' ');
       }
 
       reload($_SERVER['PHP_SELF'].'?action=details&incidentid='.

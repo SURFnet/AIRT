@@ -223,7 +223,7 @@ function getMailtemplateSelection($name, $default='', $extras=array()) {
    foreach ($templates as $label=>$body) {
       $o[$label] = $label;
    }
-   $o = array_merge($extras, $o);
+   $o = $extras + $o;
    foreach ($o as $key=>$label) {
       $output .= sprintf("<option value=\"%s\" %s>%s</option>\n", 
          htmlentities($key), ($key == $default) ? "SELECTED" : "", 
@@ -411,6 +411,11 @@ function prepare_message($template, $override_now=0, $incidentids=array(),
    unset($incidentids[0]);
 
    $incident = getIncident($current['incidentid']);
+   if (empty($incident['template'])) {
+      if ($template != _('Use preferred template')) {
+         $incident['template'] = $template;
+      }
+   }
 
    /* if override is set, only email the users who have an override. If it
     * is not set, figure out if there will be any. If so, add only  users
@@ -422,7 +427,8 @@ function prepare_message($template, $override_now=0, $incidentids=array(),
       $to = array();
       foreach ($incident['users'] as $uid) {
          $o = getMailTemplateOverride($current['incidentid'], $uid);
-         if ($o != null) {
+         if ($o != null && $o != $template && 
+              $o != $incident['template']) {
             if ($override_template=='') {
                $override_template = $o;
             }
@@ -441,10 +447,11 @@ function prepare_message($template, $override_now=0, $incidentids=array(),
       $override_next_uids = array();
       foreach ($incident['users'] as $uid) {
          $o = getMailTemplateOverride($current['incidentid'], $uid);
-         if ($o == true) {
+         if ($o != null && $o != $template && 
+             $o != $incident['template']) {
             $override_next_uids[] = $uid;
             $override_next = true;
-         }
+         } 
       }
 
       /* If $to is already set, leave it alone; else
@@ -452,7 +459,7 @@ function prepare_message($template, $override_now=0, $incidentids=array(),
        */
       if (sizeof($to) == 0) {
          foreach ($incident['users'] as $uid) {
-            if (!in_array($uid, $to)) {
+            if (!in_array($uid, $override_next_uids)) {
                $to[] = $uid;
             }
          }
@@ -498,22 +505,23 @@ function prepare_message($template, $override_now=0, $incidentids=array(),
       $current['hostname'] = $incident['ips'][0]['hostname'];
    }
    $usepref = false;
+   $usetemplate = $template;
    if ($template == _('Use preferred template')) {
       $usepref = true;
-      $template = getPreferredMailTemplateName($current['incidentid']);
+      $usetemplate = getPreferredMailTemplateName($current['incidentid']);
    }
 
    if ($override_now == 1) {
-      $template = $override_template;
+      $usetemplate = $override_template;
    } 
 
-   if ($template == '') {
+   if ($usetemplate == '') {
       print _('NOTE: Preferred mail template requested, but not set.').'<p/>';
    }
-   print _('Using mail template <em>').htmlentities($template).
+   print _('Using mail template <em>').htmlentities($usetemplate).
       '</em> for incident <em>'.normalize_incidentid($current['incidentid']).
       '</em>.<br/>'.LF;
-   $msgdata = expand_template($template, $current);
+   $msgdata = expand_template($usetemplate, $current);
 
    /* look for receiver override */
    if (preg_match('/@TO@(.*)@ENDTO@/', $msgdata['body'], $matches) > 0) {

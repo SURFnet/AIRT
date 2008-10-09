@@ -1488,8 +1488,10 @@ function formatEditForm() {
       $output .= t('  <td><input type="checkbox" name="to[]" value="%userid"></td>', array('%userid'=>$user));
       $output .= t('  <td>%email</td>', array('%email'=>$u['email'])).LF;
       $output .= t('  <td>').LF;
-      $output .= getMailtemplateSelection('template['.strip_tags($user).']', 
-         ($override==false) ? $incident['template'] : $override).LF;
+      $output .= getMailtemplateSelection(
+         'template['.strip_tags($user).']', 
+         ($override==false) ? -1 : $override,
+         array('-1' => _('None'))).LF;
       $output .= '</tr>'.LF;
    }
    $output .= '</table>'.LF;
@@ -2520,12 +2522,15 @@ function getMailTemplateOverride($incidentid, $userid) {
  *
  * return true on success, or false on failure
  */
-function setMailTemplateOverride($incidentid, $userid, $template) {
+function setMailtemplateOverride($incidentid, $userid, $template) {
    if (!is_numeric($incidentid)) {
       return false;
    }
    if (!is_numeric($userid)) {
       return false;
+   }
+   if ($template == -1) {
+      $template = '';
    }
    $res = db_query(q('SELECT id FROM incident_users WHERE incidentid=%incidentid AND userid=%userid', array(
       '%incidentid'=>$incidentid,
@@ -2539,12 +2544,13 @@ function setMailTemplateOverride($incidentid, $userid, $template) {
       return false;
    }
    db_free_result($res);
-   $res = db_query(q('UPDATE incident_users 
+   $q = q('UPDATE incident_users 
    SET mailtemplate_override=%t
    WHERE id=%id', array(
       '%t'=>trim(db_masq_null(db_escape_string($template))),
       '%id'=>$row['id']
-   )));
+   ));
+   $res = db_query($q);
    return true;
 }
 ?>
