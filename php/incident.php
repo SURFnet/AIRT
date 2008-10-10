@@ -209,7 +209,7 @@ switch ($action) {
          foreach($addresslist as $address) {
 
             // make sure we have an IP address here
-            $address = @gethostbyname($address);
+            $address = @gethostbyname(trim($address));
             if($address) {
                $networkid = categorize($address);
                if (defined('CUSTOM_FUNCTIONS')
