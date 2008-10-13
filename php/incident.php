@@ -271,13 +271,18 @@ switch ($action) {
          $date_year, $date_month, $date_day,
          $date_hour, $date_minute, $date_second));
 
+      $template = strip_tags(fetchFrom('POST', 'template'));
+      if ($template == -1) {
+         $template = '';
+      }
+
       $incidentid   = createIncident(array(
          'state'=>fetchFrom('POST', 'state', '%d'),
          'status'=>fetchFrom('POST', 'status', '%d'),
          'type'=>fetchFrom('POST', 'type', '%d'),
          'date'=>$date,
          'logging'=>trim(fetchFrom('POST', 'logging')),
-         'template'=>trim(strip_tags(fetchFrom('POST', 'template'))),
+         'template'=>$template,
          'desc'=>trim(fetchFrom('POST', 'desc'))));
       if ($address != '') {
          addIPtoIncident($address,$incidentid,
