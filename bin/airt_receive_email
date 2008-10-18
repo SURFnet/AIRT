@@ -1,0 +1,109 @@
+#!/usr/bin/php
+<?php
+/* vim: syntax=php tabstop=3 shiftwidth=3
+ *
+ * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
+ * Copyright (C) 2005   Tilburg University, The Netherlands
+
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ * airt_export -- spawn off external tasks from the AIRT Export Queue.
+ * 
+ * $Id: airt_export.in 892 2006-05-16 09:08:27Z hoppie $
+ */
+
+
+/** 
+ * parse an array as if it were email headers
+ * 
+ * @param $input array containing headers
+ * @param $output array with attribute/value pairs
+ */
+function parse_email_headers($input, &$output) {
+   $value = '';
+   $key = '';
+   foreach ($input as $line) {
+      if (preg_match('/^From (.*)/', $line, $match) > 0) {
+         $output['envelope-from'] = $match[1];
+      }
+      if (preg_match('/^([^:]+): (.*)/', $line, $match) > 0) {
+         /* start of new key/value pair. Add the current on to the output
+          * array and re-initialise
+          */
+         if ($key != '') {
+            $output[$key] = $value;
+         }
+         $key = $match[1];
+         $value = trim($match[2]);
+      } else {
+         $value .= ' '.trim($line);
+      }
+   }
+   $output[$key] = $value;
+   return true;
+}
+
+
+/**
+ * parse the message retrieved from $stream
+ *
+ * @param $stream stream to retreive the message from
+ * @param $output an associative array containing two sub-arrays (headers and
+ * body)
+ * @param $error an optional error string
+ *
+ * @return true on success, false on failure
+ */
+function receive_email($stream, &$output, &$error='') {
+   /* read the entire stream into main memory and split it up using
+    * newline as a terminator 
+    */
+   $input = stream_get_contents(STDIN);
+   $data = explode("\n", $input);
+  
+   /* find the first blank line in the message; it separates headers
+    * from the body
+    */
+   $n=0;
+   while ($n < sizeof($data)) {
+      if ($data[$n] != '') {
+         $n++;
+      } else {
+         break;
+      }
+   }
+   
+   $headers = array_slice($data, 0, $n);
+   $body = array_slice($data, $n+1);
+  
+   parse_email_headers($headers, $output['headers']);
+   $output['body'] = implode("\n", $body);
+
+   return true;
+}
+
+$output = array();
+receive_email(STDIN, $output);
+$headers = $output['headers'];
+var_dump($headers);
+
+if (array_key_exists('From', $headers)) {
+   print "From: $headers[From]\n";
+}
+if (array_key_exists('To', $headers)) {
+   print "To: $headers[To]\n";
+}
+
+?>

@@ -19,7 +19,7 @@
 # $Id$
 bin_SCRIPTS = airt_import airt_export
 
-EXTRA_DIST= airt_import.in airt_export.in
+EXTRA_DIST= airt_import.in airt_export.in airt_receive_email.in
 
 CLEANFILES=airt_import airt_export
 DISTCLEANFILES=$(CLEANFILES)
