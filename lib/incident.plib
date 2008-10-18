@@ -944,7 +944,7 @@ function updateIncident($id,$params = array()) {
    }
    if (!empty($params['logging'])) {
       $set .= sprintf('logging=\'%s\',',db_escape_string(
-         strip_tags($params['logging'])));
+         $params['logging']));
    }
    if (!empty($params['desc'])) {
       $set .= sprintf('short_desc=\'%s\',',db_escape_string(
