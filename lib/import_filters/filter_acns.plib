@@ -51,7 +51,7 @@ function parse_semi_iso8601($date) {
  * 1 when not successful ($output contains readable error message).
  */
 function filter_acns($input, &$output, $verbosity=FALSE) {
-  $x = ereg('(<Infringement.*<\/Infringement>)', $input, $match);
+  $x = ereg('(<Infringement .*<\/Infringement>)', $input, $match);
   if (!$x) {
 	  $output=_('Unable to find <Infringement> element.');
      return 1;
