@@ -77,6 +77,7 @@ AC_OUTPUT([Makefile
     bin/Makefile
     bin/airt_import
     bin/airt_export
+    bin/airt_receive_email
     doc/Makefile
     doc/examples/Makefile
     doc/database/Makefile

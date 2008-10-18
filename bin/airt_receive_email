@@ -24,6 +24,23 @@
  * $Id: airt_export.in 892 2006-05-16 09:08:27Z hoppie $
  */
 
+define('AIRT_VERSION','20080924.1');
+require_once '/opt/airt/etc/airt/airt.cfg';
+require_once LIBDIR.'/airt.plib';
+
+/* corresponding database schema
+ *
+ *  create table mailbox (
+ *      id    integer,      -- pull from generic_sequence
+ *      messageid varchar,  -- Message-Id header
+ *      sender    varchar,  -- From header (not envelope from)
+ *      recipient varchar,  -- To header
+ *      date      varchar,  
+ *      subject   varchar,  -- Subject header
+ *      body      varchar,  -- Everything not header (no mime parsing yet)
+ *      primary key (id)
+ *  );
+ */
 
 /** 
  * parse an array as if it were email headers
@@ -94,16 +111,63 @@ function receive_email($stream, &$output, &$error='') {
    return true;
 }
 
+
+/**
+ * Move the message to the email queue.
+ * 
+ * @return true on success, false on failure
+ */
+function toMailQueue($data, &$error='') {
+   if (!is_array($data)) {
+      $error = _('Invalid parameter type.'). ' airt_receive_email.in:'.__LINE__;
+      return false;
+   }
+   if (!array_key_exists('body', $data)) {
+      $error = _('Missing body in email.'). ' airt_receive_email.in:'.__LINE__;
+      return false;
+   }
+   if (!array_key_exists('headers', $data)) {
+      $error = _('Missing headers in email.'). ' airt_receive_email.in:'.__LINE__;
+      return false;
+   }
+   $sender = $recipient = $subject = $messageid = $date = '';
+   foreach ($data['headers'] as $key=>$value) {
+      switch (strtolower($key)) {
+         case 'from':
+            $sender = $value;
+            break;
+         case 'to':
+            $recipient = $value;
+            break;
+         case 'subject':
+            $subject = $value;
+            break;
+         case 'message-id':
+            $messageid = $value;
+            break;
+         case 'date':
+            $date = $value;
+            break;
+      }
+   }
+
+   $q = q('insert into mailbox (id, messageid, sender, recipient, date, '.
+      'subject, body) values (nextval(\'generic_sequence\'), %msgid,
+      %sender, %recipient, %date, %subject, %body)', array(
+      '%msgid' => db_masq_null($messageid),
+      '%sender' => db_masq_null($sender),
+      '%recipient' => db_masq_null($recipient),
+      '%date' => db_masq_null($date),
+      '%subject' => db_masq_null($subject),
+      '%body' => db_masq_null($data['body'])
+      ));
+   db_query($q);
+
+}
+
+
 $output = array();
 receive_email(STDIN, $output);
-$headers = $output['headers'];
-var_dump($headers);
-
-if (array_key_exists('From', $headers)) {
-   print "From: $headers[From]\n";
-}
-if (array_key_exists('To', $headers)) {
-   print "To: $headers[To]\n";
-}
+toMailQueue($output);
 
 ?>
