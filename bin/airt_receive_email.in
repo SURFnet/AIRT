@@ -24,8 +24,8 @@
  * $Id: airt_export.in 892 2006-05-16 09:08:27Z hoppie $
  */
 
-define('AIRT_VERSION','20080924.1');
-require_once '/opt/airt/etc/airt/airt.cfg';
+define('AIRT_VERSION','@VERSION@');
+require_once '@ETCDIR@/airt.cfg';
 require_once LIBDIR.'/airt.plib';
 
 /* corresponding database schema
@@ -88,6 +88,10 @@ function receive_email($stream, &$output, &$error='') {
     * newline as a terminator 
     */
    $input = stream_get_contents(STDIN);
+   if (empty($input)) {
+      $error= _('No data found');
+      return false;
+   }
    $data = explode("\n", $input);
   
    /* find the first blank line in the message; it separates headers
@@ -146,7 +150,7 @@ function toMailQueue($data, &$error='') {
             $messageid = $value;
             break;
          case 'date':
-            $date = $value;
+            $date = strtotime($value);
             break;
       }
    }
@@ -157,7 +161,7 @@ function toMailQueue($data, &$error='') {
       '%msgid' => db_masq_null($messageid),
       '%sender' => db_masq_null($sender),
       '%recipient' => db_masq_null($recipient),
-      '%date' => db_masq_null($date),
+      '%date' => $date,
       '%subject' => db_masq_null($subject),
       '%body' => db_masq_null($data['body'])
       ));
@@ -167,7 +171,11 @@ function toMailQueue($data, &$error='') {
 
 
 $output = array();
-receive_email(STDIN, $output);
-toMailQueue($output);
+$error ='';
+if (receive_email(STDIN, $output, $error) == false) {
+   print "Error: $error\n";
+} else {
+   toMailQueue($output);
+}
 
 ?>
