@@ -792,7 +792,7 @@ function formatBasicIncidentData($params=array()) {
 	$output .= '  <tr valign="top">'.LF;
 	$output .= '    <td>'._('Logging').'</td>'.LF;
 	$output .= '    <td colspan="2"><textarea name="logging" cols="80" '.
-      'rows="8">'.strip_tags($params['logging']).'</textarea></td>'.LF;
+      'rows="8">'.$params['logging'].'</textarea></td>'.LF;
 	$output .= '  </tr>'.LF;
    $output .= '</table>'.LF;
 
