@@ -35,7 +35,7 @@ require_once LIBDIR.'/airt.plib';
  *      messageid varchar,  -- Message-Id header
  *      sender    varchar,  -- From header (not envelope from)
  *      recipient varchar,  -- To header
- *      date      varchar,  
+ *      date      numeric,  
  *      subject   varchar,  -- Subject header
  *      body      varchar,  -- Everything not header (no mime parsing yet)
  *      primary key (id)

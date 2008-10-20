@@ -148,3 +148,14 @@ tr.even {
   background-color: #FFAA00;
 }
 
+td.subject {
+    width: 50em;
+}
+
+td.sender {
+    color: green;
+}
+
+td.date {
+    width: 15em;
+}
