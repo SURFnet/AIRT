@@ -149,13 +149,14 @@ tr.even {
 }
 
 td.subject {
+    padding-left: 1.5em;
     width: 50em;
 }
 
 td.sender {
-    color: green;
+    color: 35em;
 }
 
 td.date {
-    width: 15em;
+    width: 19em;
 }
