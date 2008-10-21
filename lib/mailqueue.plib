@@ -24,6 +24,8 @@
 
 require_once LIBDIR.'/database.plib';
 require_once LIBDIR.'/importqueue.plib';
+define('AIRT_MAIL_UNREAD', 'unread');
+define('AIRT_MAIL_READ', 'read');
 
 /* corresponding database schema
  *
@@ -112,6 +114,20 @@ function truncString($in, $length, $truncchar='') {
 function listMailbox(&$error='') {
    $error = '';
    $mailbox = array();
+	
+	$status = fetchFrom('REQUEST', 'status');
+	defaultTo($status, '');
+	$filter = fetchFrom('REQUEST', 'filter');
+	defaultTo($filter, 0);
+	$msgid = fetchFrom('REQUEST', 'msgid', '%d');
+	defaultTo($msgid, 0);
+
+	if (!empty($status) && $msgid != 0) {
+	   if (mailSetStatus($msgid, $status, $error) === false) {
+		   airt_msg(_('Unable to update mail status in ').'mailqueue.plib'.__LINE__);
+	   }
+	}
+	   
    if (fetchMailbox($mailbox, $error) === false) {
       return false;
    }
@@ -130,7 +146,9 @@ function listMailbox(&$error='') {
    print '<th class="date">'._('Date').'</th>'.LF;
    print '</tr>'.LF;
    foreach ($mailbox as $msg) {
-      print '<tr>'.LF;
+      print t('<tr class="%status">'.LF, array(
+		   '%status' => htmlentities($msg['status'])
+		));
       print '<td nowrap class="check">'.LF;
       print '<input type="checkbox" name="mail['.$msg['id'].']">'.LF;
       print '</td>'.LF;
@@ -163,6 +181,24 @@ function listMailbox(&$error='') {
 }
 
 /**
+ * Mark a message as read 
+ */
+function mailSetStatus($id, $status, &$error='') {
+   if (!is_numeric($id)) {
+	   return false;
+	}
+	$q = q('update mailbox set status=\'%status\' where id=%id', array(
+	   '%status'=>db_escape_string($status),
+		'%id'=>$id
+	));
+	if (($res = db_query($q)) === false) {
+	   $error = _('Unable to mark message as read in ').'mailqueue.plib'.__LINE__;
+		return false;
+	}
+	return true;
+}
+
+/**
  * View a message on screen
  *
  * @param $msgid messageID to view
@@ -170,6 +206,7 @@ function listMailbox(&$error='') {
  * @return true on success, false on failure
  */
 function viewMessage() {
+   $error='';
    $id = fetchFrom('REQUEST', 'msgid', '%d');
    defaultTo($id, -1);
    if ($id == -1) {
@@ -180,6 +217,9 @@ function viewMessage() {
    if (fetchMailMessage($id, $msg, $error) === false) {
       airt_msg(_('Invalid message id in ').'mailqueue.plib:'.__LINE__);
       reload();
+   }
+	if (mailSetStatus($id, AIRT_MAIL_READ, $error) === false) {
+	   airt_msg(_('Unable to mark message as read.'));
    }
    pageHeader(_('Mail from ').htmlentities($msg['sender']));
    print '<div class="mail">'.LF;
@@ -218,6 +258,9 @@ function viewMessage() {
    print t('<form action="%url" method="post">', array(
       '%url'=>BASEURL.'/mailqueue.php?action=list'
    ));
+	print t('<input type="hidden" name="msgid" value="%msgid">', array(
+	   '%msgid'=>$id
+	));
    print '<table>'.LF;
    print '<tr>'.LF;
    print '<td>'._('Filter through').'</td>'.LF;

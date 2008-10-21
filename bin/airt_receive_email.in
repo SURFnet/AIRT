@@ -25,8 +25,10 @@
  */
 
 define('AIRT_VERSION','@VERSION@');
+
 require_once '@ETCDIR@/airt.cfg';
 require_once LIBDIR.'/airt.plib';
+require_once LIBDIR.'/mailqueue.plib';
 
 /* corresponding database schema
  *
@@ -156,8 +158,8 @@ function toMailQueue($data, &$error='') {
    }
 
    $q = q('insert into mailbox (id, messageid, sender, recipient, date, '.
-      'subject, body) values (nextval(\'generic_sequence\'), %msgid,
-      %sender, %recipient, %date, %subject, %body)', array(
+      'subject, body, status) values (nextval(\'generic_sequence\'), %msgid,
+      %sender, %recipient, %date, %subject, %body, AIRT_MAIL_UNREAD)', array(
       '%msgid' => db_masq_null($messageid),
       '%sender' => db_masq_null($sender),
       '%recipient' => db_masq_null($recipient),

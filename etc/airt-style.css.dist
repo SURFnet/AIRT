@@ -148,27 +148,27 @@ tr.even {
   background-color: #FFAA00;
 }
 
-table.mailbox {
+.mailbox {
     borderCollapse: "collapse";
     border-spacing: 0px;
 }
 
-table.mailbox th {
+.mailbox th {
     border-bottom: 1px grey dotted;
     text-align: center;
 }
 
-table.mailbox td {
+.mailbox td {
     border-bottom: 1px grey dotted;
     text-align: left;
 }
 
-td.check {
+mailbox .check {
     border-right: 1px grey dotted;
     padding-right: 0.5em;
 }
 
-td.subject {
+.mailbox .subject {
     border-left: 1px grey dotted;
     padding-left: 0.5em;
     border-right: 1px grey dotted;
@@ -176,27 +176,27 @@ td.subject {
     width: 50em;
 }
 
-td.sender {
+.mailbox .sender {
     padding-right: 0.5em;
     padding-left: 0.5em;
     color: 35em;
 }
 
-td.sender A {
+.mailbox .sender A {
     color: grey;
 }
 
-td.subject A {
+.mailbox .subject A {
     color: grey;
 }
 
-td.date A {
-    color: grey;
-}
-
-td.date {
+.mailbox .date {
     padding-left: 0.5em;
     width: 19em;
+}
+
+.mailbox .date A {
+    color: grey;
 }
 
 .mail-body {
@@ -210,11 +210,15 @@ td.date {
     border-spacing: 0px;
 }
 
-td.mail-header-name {
+.mailbox .unread {
+   font-weight: bold;
+}
+
+.mail-headers .mail-header-name {
     font-weight: bold;
 }
 
-td.mail-header-content {
+.mail-headers .mail-header-content {
     padding-left: 0.5em;
 }
 
