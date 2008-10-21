@@ -48,7 +48,7 @@ function showheader($data) {
     $url = $row['url'];
     $description = $row['label'];
     $navbar .= t("<span class=\"navitem\"><a href=\"%url\">%description</a></span>".LF, array(
-      '%url'=>$url, 
+      '%url'=>$url,
       '%description'=>$description));
   }
 
@@ -59,10 +59,14 @@ function showheader($data) {
   } else {
       $name = $u['firstname'].' '.$u['lastname'];
   }
-  if (array_key_exists('username', $_SESSION)) {
-      $username=$_SESSION['username'];
-  } else {
-      $username=_('Unknown');
+
+  $username = strip_tags(fetchFrom('SESSION', 'username'));
+  defaultTo($username,'Not logged in');
+
+  $messages = '';
+  if (isset($_SESSION['msg'])) {
+     $messages = $_SESSION['msg'];
+     unset($_SESSION['msg']);
   }
   echo '<html>'.LF;
   echo '<head>'.LF;

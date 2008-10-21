@@ -35,6 +35,9 @@ switch (strtolower(fetchFrom('REQUEST', 'action'))) {
     case 'view':
        viewMessage();
        break;
+    case 'processqueue':
+	    processQueue();
+	    break;
     default:
        listMailbox();
 }

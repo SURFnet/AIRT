@@ -109,6 +109,73 @@ function truncString($in, $length, $truncchar='') {
 }
 
 /**
+ * Update the status of a mail message
+ *
+ * @param $id ID of the message to update
+ * @param $status new status (string)
+ * @param $error contains a descriptive error message, if any
+ *
+ * @return true on success, false on failure
+ */
+function mailSetStatus($id, $status, &$error='') {
+   if (!is_numeric($id)) {
+	   return false;
+	}
+	$q = q('update mailbox set status=\'%status\' where id=%id', array(
+	   '%status'=>db_escape_string($status),
+		'%id'=>$id
+	));
+	if (($res = db_query($q)) === false) {
+	   $error = _('Unable to mark message as read in ').'mailqueue.plib'.__LINE__;
+		return false;
+	}
+	return true;
+}
+
+/**
+ * Permanently delete a message from the queue
+ *
+ * @param $id ID of the message to be deleted
+ * @param $error descriptive error message, if any
+ *
+ * @return true on success, false on failure
+ */
+function mailDelete($id, &$error) {
+   if (!is_numeric($id)) {
+	   $error = _('Invalid parameter type in ').'mailqueue.plib:'.__LINE__;
+	   return false;
+	}
+	$q = q('delete from mailbox where id=%id', array(
+		'%id'=>$id
+	));
+	if (($res = db_query($q)) === false) {
+	   $error = _('Unable to delete message in ').'mailqueue.plib'.__LINE__;
+		return false;
+	}
+	return true;
+}
+
+function mailActionSelection() {
+   $out = '';
+	$out .= '<select name="do">'.LF;
+	$out .= '<option value="0">'._('Do nothing').'</option>'.LF;
+   $filters = importqueue_get_filters();
+   sort($filters);
+	$out .= '<option value="0">-- '._('Filter with').' --</option>'.LF;
+   foreach ($filters as $key=>$filter) {
+      $out .= '<option value="filter-'.htmlentities($filter).'">'.
+		   htmlentities($filter).'</option>'.LF;
+   }
+	$out .= '<option value="0">-- '._('Other actions').' --</option>'.LF;
+	$out .= '<option value="mark-read">'._('Mark read').'</option>'.LF;
+	$out .= '<option value="mark-unread">'._('Mark unread').'</option>'.LF;
+	$out .= '<option value="delete">'._('Delete').'</option>'.LF;
+	$out .= '</select>'.LF;
+	
+	return $out;
+}
+
+/**
  * Print the contents of the entire mailbox on screen
  */
 function listMailbox(&$error='') {
@@ -137,7 +204,8 @@ function listMailbox(&$error='') {
 		pageFooter();
 		return true; 
 	}
-   print '<form>'.LF;
+   print t('<form method="GET" action="%url">'.LF, array(
+	   '%url'=>BASEURL.'/mailqueue.php'));
    print '<table class="mailbox">'.LF;
    print '<tr>'.LF;
    print '<th class="check">&nbsp;</th>'.LF;
@@ -176,27 +244,14 @@ function listMailbox(&$error='') {
       print '</tr>'.LF;
    }
    print '</table>'.LF;
+	print '<p/>'._('Perform the following action on marked messages: ').LF;
+	print '<input type="hidden" name="action" value="processQueue">'.LF;
+	print mailActionSelection();
+	print '<input type="submit" value="'._('Go').'">'.LF;
    print '</form>'.LF;
    pageFooter();
 }
 
-/**
- * Mark a message as read 
- */
-function mailSetStatus($id, $status, &$error='') {
-   if (!is_numeric($id)) {
-	   return false;
-	}
-	$q = q('update mailbox set status=\'%status\' where id=%id', array(
-	   '%status'=>db_escape_string($status),
-		'%id'=>$id
-	));
-	if (($res = db_query($q)) === false) {
-	   $error = _('Unable to mark message as read in ').'mailqueue.plib'.__LINE__;
-		return false;
-	}
-	return true;
-}
 
 /**
  * View a message on screen
@@ -255,35 +310,20 @@ function viewMessage() {
    print '<table>'.LF;
    print '<tr valign="top">'.LF;
    print '<td>'.LF;
-   print t('<form action="%url" method="post">', array(
-      '%url'=>BASEURL.'/mailqueue.php?action=list'
+   print t('<form action="%url" method="get">', array(
+      '%url'=>BASEURL.'/mailqueue.php'
    ));
-	print t('<input type="hidden" name="msgid" value="%msgid">', array(
+	print t('<input type="hidden" name="mail[%msgid]" value="on">', array(
 	   '%msgid'=>$id
 	));
    print '<table>'.LF;
    print '<tr>'.LF;
-   print '<td>'._('Filter through').'</td>'.LF;
-   print '<td><select name="filter">'.LF;
-   $filters = importqueue_get_filters();
-   sort($filters);
-   $filters = array_merge(array('0'=>_('Do not filter')), $filters);
-   foreach ($filters as $key=>$filter) {
-      print '<option value="'.(($key==0)?0:htmlentities($filter)).'">'.
-      htmlentities($filter).'</option>'.LF;
-   }
-   print '</select></td>'.LF;
-   print '</tr>'.LF;
-   print '<tr>'.LF;
-   print '<td>'._('Mark as').'</td>'.LF;
-   print '<td><select name="status">'.LF;
-   print '<option value="read">'._('Read').'</option>'.LF;
-   print '<option value="unread">'._('Unread').'</option>'.LF;
-   print '</select></td>'.LF;
+   print '<td>'._('Perform action').'</td>'.LF;
+   print '<td>'.mailActionSelection().'</td>'.LF;
    print '</tr>'.LF;
    print '</table>'.LF;
 
-   print '<input type="hidden" name="action" value="list">'.LF;
+   print '<input type="hidden" name="action" value="processQueue">'.LF;
    print '<input type="submit" value="'._('Inbox').'">'.LF;
    print '</form>'.LF;
    print '</td>'.LF;
@@ -301,5 +341,67 @@ function viewMessage() {
    print '<input type="submit" value="'._('New incident').'">'.LF;
    print '</form>'.LF;
    print '</td>'.LF;
+}
+
+/**
+ * Handle actions to be performed on selected messages in the overview screen
+ */
+function processQueue() {
+   $mails = fetchFrom('REQUEST', 'mail');
+	defaultTo($mails, array());
+	if (!is_array($mails)) {
+	   airt_msg(_('Invalid parameter type in ').'mailqueue.plib:'.__LINE__);
+	} else {
+	   $do = fetchFrom('REQUEST', 'do');
+	   defaultTo($do, '');
+	   switch ($do) {
+	      case 'mark-read':
+			   $count=0;
+			   foreach ($mails as $id=>$value) {
+				   if (strtolower($value) == 'on') {
+					   if (mailSetStatus($id, AIRT_MAIL_READ, $error) === false) {
+						   airt_msg($error);
+						} else {
+						   $count++;
+						}
+					}
+				}
+				airt_msg(t(_('%n messages updated.'), array('%n'=>$count)));
+	   	   break;
+
+	      case 'mark-unread':
+			   $count=0;
+			   foreach ($mails as $id=>$value) {
+				   if (strtolower($value) == 'on') {
+					   if (mailSetStatus($id, AIRT_MAIL_UNREAD, $error) === false) {
+						   airt_msg($error);
+						} else {
+						   $count++;
+						}
+					}
+				}
+				airt_msg(t(_('%n messages updated.'), array('%n'=>$count)));
+	   	   break;
+
+	   	case 'delete':
+			   $count=0;
+			   foreach ($mails as $id=>$value) {
+				   if (strtolower($value) == 'on') {
+					   if (mailDelete($id, $error) === false) {
+						   airt_msg($error);
+						} else {
+							$count++;
+						}
+					}
+				}
+				airt_msg(t(_('%n messaged deleted.'), array('%n'=>$count)));
+	   	   break;
+
+	   	default:
+	   	   airt_msg(_('Invalid parameter value in ').
+				   'mailqueue.plib:'.__LINE__);
+	   }
+	}
+	reload();
 }
 ?>

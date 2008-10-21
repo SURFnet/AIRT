@@ -159,19 +159,19 @@ function toMailQueue($data, &$error='') {
 
    $q = q('insert into mailbox (id, messageid, sender, recipient, date, '.
       'subject, body, status) values (nextval(\'generic_sequence\'), %msgid,
-      %sender, %recipient, %date, %subject, %body, AIRT_MAIL_UNREAD)', array(
+      %sender, %recipient, %date, %subject, %body, %status)', array(
       '%msgid' => db_masq_null($messageid),
       '%sender' => db_masq_null($sender),
       '%recipient' => db_masq_null($recipient),
       '%date' => $date,
       '%subject' => db_masq_null($subject),
-      '%body' => db_masq_null($data['body'])
+      '%body' => db_masq_null($data['body']),
+		'%status' => db_masq_null(AIRT_MAIL_UNREAD),
       ));
    db_query($q);
 
 }
 
-var_dump($_ENV);
 $output = array();
 $error ='';
 if (receive_email(STDIN, $output, $error) == false) {
