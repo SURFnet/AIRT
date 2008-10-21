@@ -169,7 +169,7 @@ function toMailQueue($data, &$error='') {
 
 }
 
-
+var_dump($_ENV);
 $output = array();
 $error ='';
 if (receive_email(STDIN, $output, $error) == false) {

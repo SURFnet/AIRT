@@ -116,6 +116,11 @@ function listMailbox(&$error='') {
       return false;
    }
    pageHeader('Inbox');
+	if (sizeof($mailbox) == 0) {
+	   print _('No incoming messages.');
+		pageFooter();
+		return true; 
+	}
    print '<form>'.LF;
    print '<table class="mailbox">'.LF;
    print '<tr>'.LF;
