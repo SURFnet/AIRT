@@ -23,6 +23,8 @@
  */
 
 require_once LIBDIR.'/database.plib';
+require_once LIBDIR.'/importqueue.plib';
+
 /* corresponding database schema
  *
  *  create table mailbox (
@@ -37,6 +39,33 @@ require_once LIBDIR.'/database.plib';
  *      primary key (id)
  *  );
  */
+
+/**
+ * Fetch a single message
+ */
+function fetchMailMessage($msgid, &$msg, &$error='') {
+   if (!is_numeric($msgid)) {
+      $error = _('Invalid parameter type in ').'mailqueue.plib'.__LINE__;
+      return false;
+   }
+   $msg = array();
+   $error = '';
+   $q = q('select id, messageid, sender, recipient, date, subject, body, '.
+      'status from mailbox where id=%msgid', array(
+      '%msgid'=>$msgid));
+   $res = db_query($q);
+   if ($res === false) {
+      $error = _('Database error in ').'mailqueue.plib:'.__LINE__;
+      return false;
+   }
+   if (($row = db_fetch_next($res)) === false) {
+      $error = _('Unable to fetch results in ').'mailqueue.plib:'.__LINE__;
+      return false;
+   }
+   $msg = $row;
+   
+   return true;
+}
 
 /**
  * Fetch the contents of the mailbox
@@ -61,6 +90,22 @@ function fetchMailbox(&$mailbox, &$error) {
    return true;
 }
 
+/** 
+ * Truncate a string
+ *
+ * @in input string to truncate
+ * @length length at which to truncate
+ * @truncchar character(s) to truncate with (optional)
+ * @return truncated string
+ */
+function truncString($in, $length, $truncchar='') {
+   $out = $in;
+   if (strlen($in) > $length) {
+      $out = substr($out, 0, $length-strlen($truncchar)).$truncchar;
+   }
+   return $out;
+}
+
 /**
  * Print the contents of the entire mailbox on screen
  */
@@ -74,28 +119,139 @@ function listMailbox(&$error='') {
    print '<form>'.LF;
    print '<table class="mailbox">'.LF;
    print '<tr>'.LF;
-   print '<th>&nbsp;</th>'.LF;
+   print '<th class="check">&nbsp;</th>'.LF;
    print '<th class="sender">'._('Sender').'</th>'.LF;
    print '<th class="subject">'._('Subject').'</th>'.LF;
    print '<th class="date">'._('Date').'</th>'.LF;
    print '</tr>'.LF;
    foreach ($mailbox as $msg) {
       print '<tr>'.LF;
-      print '<td><input type="checkbox" name="mail['.$msg['id'].']"></td>'.LF;
+      print '<td nowrap class="check">'.LF;
+      print '<input type="checkbox" name="mail['.$msg['id'].']">'.LF;
+      print '</td>'.LF;
       print '<td nowrap class="sender">';
-      $out = $msg['sender'];
-      if (strlen($out) > 35) {
-         $out = substr($out, 0, 32).'...';
-      }
-      print htmlentities($out).'</td>'.LF;
-      print '<td class="subject">'.
-         htmlentities(substr($msg['subject'], 0, 50)).'</td>'.LF;
-      print '<td class="date">'.
-         substr(date('M d Y H:i', $msg['date']), 0, 19).'</td>'.LF;
+      print t('<a href="%url">%label</a>'.LF, array(
+         '%label'=>htmlentities(truncString($msg['sender'], 35, '...')),
+         '%url'=>BASEURL.'/mailqueue.php?action=view&msgid='.
+             urlencode($msg['id'])
+      ));
+      print '</td>'.LF;
+      print '<td class="subject">';
+      print t('<a href="%url">%label</a>'.LF, array(
+         '%label'=>htmlentities(truncString($msg['subject'], 50, '...')),
+         '%url'=>BASEURL.'/mailqueue.php?action=view&msgid='.
+             urlencode($msg['id'])
+      ));
+      print '</td>'.LF;
+      print '<td class="date">';
+      print t('<a href="%url">%label</a>'.LF, array(
+         '%label'=>truncString(date('M d Y H:i', $msg['date']), 19, '...'),
+         '%url'=>BASEURL.'/mailqueue.php?action=view&msgid='.
+             urlencode($msg['id'])
+      ));
+      print '</td>'.LF;
       print '</tr>'.LF;
    }
    print '</table>'.LF;
    print '</form>'.LF;
    pageFooter();
+}
+
+/**
+ * View a message on screen
+ *
+ * @param $msgid messageID to view
+ * @param &$error error message, if any
+ * @return true on success, false on failure
+ */
+function viewMessage() {
+   $id = fetchFrom('REQUEST', 'msgid', '%d');
+   defaultTo($id, -1);
+   if ($id == -1) {
+      airt_msg(_('Invalid parameter type in ').'mailqueue.plib:'.__LINE__);
+      reload();
+   }
+   $msg = array();
+   if (fetchMailMessage($id, $msg, $error) === false) {
+      airt_msg(_('Invalid message id in ').'mailqueue.plib:'.__LINE__);
+      reload();
+   }
+   pageHeader(_('Mail from ').htmlentities($msg['sender']));
+   print '<div class="mail">'.LF;
+   print '<div class="mail-headers">'.LF;
+   print '<table>'.LF;
+   print '<tr class="mail-header">'.LF;
+   print '<td class="mail-header-name">'._('Sender').'</td>'.LF;
+   print '<td class="mail-header-content">'.
+      htmlentities($msg['sender']).'</td>'.LF;
+   print '</tr>'.LF;
+   print '<tr class="mail-header">'.LF;
+   print '<td class="mail-header-name">'._('Date').'</td>'.LF;
+   print '<td class="mail-header-content">'.
+      date('r', $msg['date']).'</td>'.LF;
+   print '</tr>'.LF;
+   print '<tr class="mail-header">'.LF;
+   print '<td class="mail-header-name">'._('Message-ID').'</td>'.LF;
+   print '<td class="mail-header-content">'.
+      htmlentities($msg['messageid']).'</td>'.LF;
+   print '</tr>'.LF;
+   print '<tr class="mail-header">'.LF;
+   print '<td class="mail-header-name">'._('Subject').'</td>'.LF;
+   print '<td class="mail-header-content">'.
+      htmlentities($msg['subject']).'</td>'.LF;
+   print '</tr>'.LF;
+   print '</table>'.LF;
+   print '</div><!-- mail-headers -->'.LF;
+   print '<div class="mail-body">'.LF;
+   print nl2br(htmlentities(trim($msg['body']))).LF;
+   print '</div><!-- mail-body -->'.LF;
+   print '</div><!-- mail -->'.LF;
+   
+   print '<table>'.LF;
+   print '<tr valign="top">'.LF;
+   print '<td>'.LF;
+   print t('<form action="%url" method="post">', array(
+      '%url'=>BASEURL.'/mailqueue.php?action=list'
+   ));
+   print '<table>'.LF;
+   print '<tr>'.LF;
+   print '<td>'._('Filter through').'</td>'.LF;
+   print '<td><select name="filter">'.LF;
+   $filters = importqueue_get_filters();
+   sort($filters);
+   $filters = array_merge(array('0'=>_('Do not filter')), $filters);
+   foreach ($filters as $key=>$filter) {
+      print '<option value="'.(($key==0)?0:htmlentities($filter)).'">'.
+      htmlentities($filter).'</option>'.LF;
+   }
+   print '</select></td>'.LF;
+   print '</tr>'.LF;
+   print '<tr>'.LF;
+   print '<td>'._('Mark as').'</td>'.LF;
+   print '<td><select name="status">'.LF;
+   print '<option value="read">'._('Read').'</option>'.LF;
+   print '<option value="unread">'._('Unread').'</option>'.LF;
+   print '</select></td>'.LF;
+   print '</tr>'.LF;
+   print '</table>'.LF;
+
+   print '<input type="hidden" name="action" value="list">'.LF;
+   print '<input type="submit" value="'._('Inbox').'">'.LF;
+   print '</form>'.LF;
+   print '</td>'.LF;
+
+   print '<td>'.LF;
+   print t('<form action="%url" method="post">'.LF, array(
+      '%url'=>BASEURL.'/mailqueue.php?action=incident'
+   ));
+   print '<input type="checkbox" name="use_sender">'.
+      _('Use sender as contact').'<br/>'.LF;
+   print '<input type="checkbox" name="use_date">'.
+      _('Use date as incident date').'<br/>'.LF;
+   print '<input type="checkbox" name="use_logging">'.
+      _('Use body as logging').'<br/>'.LF;
+   print '<input type="submit" value="'._('New incident').'">'.LF;
+   print '</form>'.LF;
+   print '</td>'.LF;
 }
 ?>

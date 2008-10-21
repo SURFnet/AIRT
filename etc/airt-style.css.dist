@@ -148,15 +148,73 @@ tr.even {
   background-color: #FFAA00;
 }
 
+table.mailbox {
+    borderCollapse: "collapse";
+    border-spacing: 0px;
+}
+
+table.mailbox th {
+    border-bottom: 1px grey dotted;
+    text-align: center;
+}
+
+table.mailbox td {
+    border-bottom: 1px grey dotted;
+    text-align: left;
+}
+
+td.check {
+    border-right: 1px grey dotted;
+    padding-right: 0.5em;
+}
+
 td.subject {
-    padding-left: 1.5em;
+    border-left: 1px grey dotted;
+    padding-left: 0.5em;
+    border-right: 1px grey dotted;
+    padding-right: 0.5em;
     width: 50em;
 }
 
 td.sender {
+    padding-right: 0.5em;
+    padding-left: 0.5em;
     color: 35em;
 }
 
+td.sender A {
+    color: grey;
+}
+
+td.subject A {
+    color: grey;
+}
+
+td.date A {
+    color: grey;
+}
+
 td.date {
+    padding-left: 0.5em;
     width: 19em;
 }
+
+.mail-body {
+    border-top: 1px grey dotted;
+    border-bottom: 1px grey dotted;
+    padding-top: 1.5ex;
+    padding-bottom: 1.5ex;
+}
+
+.mail-headers table {
+    border-spacing: 0px;
+}
+
+td.mail-header-name {
+    font-weight: bold;
+}
+
+td.mail-header-content {
+    padding-left: 0.5em;
+}
+

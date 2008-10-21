@@ -32,6 +32,9 @@ switch (strtolower(fetchFrom('REQUEST', 'action'))) {
     case 'list':
        listMailbox();
        break;
+    case 'view':
+       viewMessage();
+       break;
     default:
        listMailbox();
 }
