@@ -307,6 +307,10 @@ switch ($action) {
          foreach (explode(',', $email) as $addr) {
             $addr = trim($addr);
             $override = fetchFrom('REQUEST', 'mailtemplate_override');
+            defaultTo($override, '');
+            if ($override == -1) {
+               $override = '';
+            }
             $user = getUserByEmail($addr);
 
             /* user does not yet exist; check if we need to add it */

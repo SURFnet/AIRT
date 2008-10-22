@@ -709,7 +709,7 @@ function addUserToIncident($userid, $incident, $override='') {
       }
    }
 
-   if ($override == '' || $override == '--'._('none').'--') {
+   if ($override == '') {
       ; # do nothing
    } else {
       setMailtemplateOverride($incident, $userid, $override);
@@ -1353,8 +1353,8 @@ function formatIncidentForm(&$check) {
    $output .= '  <td>'._('E-mail address of user').':</td>'.LF;
    $output .= '  <td><input onChange="updateCheckboxes()" type="text" '.
               'size=40 name="email" value="'.$email.'"></td>'.LF;
-   $output .= '  <td>'.getMailtemplateSelection('mailtemplate_override',
-      array('--'._('none').'--'=>_('Do not override'))).'</td>'.LF;
+   $output .= '  <td>'.getMailtemplateSelection('mailtemplate_override', -1,
+      array(-1 => _('Do not override'))).'</td>'.LF;
    $output .= '</tr>'.LF;
    $output .= '</table>'.LF;
 
