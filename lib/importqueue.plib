@@ -34,6 +34,9 @@ if (!defined('ETCDIR') || !file_exists(ETCDIR.'/importqueue.cfg')) {
    print("Import queue depends on web service. Missing configuration file.\n");
    exit;
 }
+if (!defined('AIRT_IMPORT_CONTACT')) {
+   define('AIRT_IMPORT_CONTACT', 'AIRT Contact Data');
+}
 
 require_once LIBDIR.'/airt.plib';
 require_once ETCDIR.'/importqueue.cfg';
@@ -110,6 +113,154 @@ function printUsage() {
 }// printUsage
 
 
+/**
+ * Process an AIRT incident
+ */
+function importIncident($importqueue, &$error='') {
+   for ($count=0; $count < $importqueue->length; $count++) {
+      $element = $importqueue->item($count);
+      $filter = $element->getattribute('filter');
+      if (empty($filter)) {
+         $filter = 'unknown';
+      }
+
+      $version = $element->getattribute('version');
+      if (empty($version)) {
+         $version = 'unknown';
+      }
+
+      if (!$element->hasattribute('ref')) {
+         $error = _('missing ref attribute in xml');
+         return 1;
+      }
+
+      $ref = $element->getattribute('ref');
+      $ref = preg_replace('/^#/', '', $ref);
+
+      $status = $sender = $summary = $type = '';
+      $e = $element->getelementsbytagname('status');
+      if ($e->length > 0) {
+         $status = $e->item(0)->textcontent;
+      }
+      $e = $element->getelementsbytagname('sender');
+      if ($e->length > 0) {
+         $sender = $e->item(0)->textcontent;
+      }
+      $e = $element->getelementsbytagname('type');
+      if ($e->length > 0) {
+         $type = $e->item(0)->textcontent;
+      }
+      $e = $element->getelementsbytagname('summary');
+      if ($e->length > 0) {
+         $summary = $e->item(0)->textcontent;
+      }
+
+      // fetch appropriate incident
+      $xpath = new domxpath($doc);
+      $objs = $xpath->evaluate("//incident[@id='$ref']");
+      $incident = $objs->item(0);
+
+      // create new xml doc of it (can this be done better?)
+      $out_dom = new domdocument();
+      $out_airt = $out_dom->appendchild($out_dom->createelement('airt'));
+      $out_airt->appendchild($out_dom->importnode($incident, true));
+      $content = $out_dom->savexml();
+
+      // insert
+      $newid =
+      queueinsertitem($status,$sender,$type,$summary,$content,$filter,$version,$error);
+      if ($newid === false) {
+         // $error has already been filled in by the call to queueinsertitem().
+         return false;
+      }
+
+      // progress
+      if ($verbosity) {
+         echo _("queued incident, id=$newid").LF;
+         flush();
+      }
+   } // for
+
+   return true;
+} // importIncident
+
+
+/**
+ * Import contact information
+ */
+function importContact($contactData, &$error='') {
+   foreach ($contactData as $data) {
+      $filter = $data->getattribute('filter');
+      if (empty($filter)) {
+         $filter = 'unknown';
+      }
+
+      $version = $data->getattribute('version');
+      if (empty($version)) {
+         $version = 'unknown';
+      }
+      $res = $data->getElementsByTagName('sender');
+      if ($res->length == 0) {
+         $error = _('Missing field sender');
+         return false;
+      }
+      $sender = $res->item(0)->textContent;
+      $res = $data->getElementsByTagName('constituency');
+      if ($res->length == 0) {
+         $error = _('Missing field constituency');
+         return false;
+      }
+      $constituency = $res->item(0)->textContent;
+      $res = $data->getElementsByTagName('contact');
+      foreach ($res as $contact) {
+         $res2 = $contact->getElementsByTagName('name');
+         if ($res->length == 0) {
+            $error = _('Missing contact name');
+            return false;
+         }
+         $name = $res2->item(0)->textContent;
+         $res2 = $contact->getElementsByTagName('email');
+         if ($res->length == 0) {
+            $error = _('Missing contact email');
+            return false;
+         }
+         $email = $res2->item(0)->textContent;
+      }
+
+      $res = $data->getElementsByTagName('networks');
+      foreach ($res as $n) {
+         $res2 = $n->getElementsByTagName('network');
+         if ($res2->length == 0) {
+            $error = _('Missing network data');
+            return false;
+         }
+         $res3 = $res2->item(0)->getElementsByTagName('address');
+         if ($res3->length == 0) {
+            $error = _('Missing network address');
+            return false;
+         }
+         $network = $res3->item(0)->textContent;
+         $res3 = $res2->item(0)->getElementsByTagName('netmask');
+         if ($res3->length == 0) {
+            $error = _('Missing netmask');
+            return false;
+         }
+         $netmask = $res3->item(0)->textContent;
+      }
+      $out_dom = new DOMDocument();
+      $out_airt = $out_dom->appendChild($out_dom->createElement('airt'));
+      $out_airt->appendChild($out_dom->importnode($data, true));
+      $content = $out_dom->savexml();
+      $newid = queueinsertitem('open', 
+         htmlentities($sender), AIRT_IMPORT_CONTACT, 'New contact: '.
+         htmlentities($constituency), $content, $filter, $version, $error);
+      if ($newid === false) {
+         return false;
+      }
+   } // for
+}
+
+
 /* Actual import function, which presents the standardised XML to the AIRT
  * core.
  * $input      = Standard XML string to import.
@@ -150,76 +301,17 @@ function import($input,&$error,$verbosity=FALSE) {
    }
 
    $importqueue = $doc->getElementsByTagName('queuedata');
-   if ($importqueue->length == 0) {
-      // This is not an error. There just is no work for us.
-      return 0;
+   if ($importqueue->length > 0) {
+      return importIncident($importqueue, $error);
    }
 
-   for ($count=0; $count < $importqueue->length; $count++) {
-      $element = $importqueue->item($count);
-      $filter = $element->getAttribute('filter');
-      if (empty($filter)) {
-         $filter = 'unknown';
-      }
+   $importqueue = $doc->getElementsByTagName('contactData');
+   if ($importqueue->length > 0) {
+      return importContact($importqueue, $error);
+   }
 
-      $version = $element->getAttribute('version');
-      if (empty($version)) {
-         $version = 'unknown';
-      }
-
-      if (!$element->hasAttribute('ref')) {
-         $error = _('Missing ref attribute in XML');
-         return 1;
-      }
-
-      $ref = $element->getAttribute('ref');
-      $ref = preg_replace('/^#/', '', $ref);
-
-      $status = $sender = $summary = $type = '';
-      $e = $element->getElementsByTagname('status');
-      if ($e->length > 0) {
-         $status = $e->item(0)->textContent;
-      }
-      $e = $element->getElementsByTagname('sender');
-      if ($e->length > 0) {
-         $sender = $e->item(0)->textContent;
-      }
-      $e = $element->getElementsByTagname('type');
-      if ($e->length > 0) {
-         $type = $e->item(0)->textContent;
-      }
-      $e = $element->getElementsByTagname('summary');
-      if ($e->length > 0) {
-         $summary = $e->item(0)->textContent;
-      }
-
-      // Fetch appropriate incident
-      $xpath = new DOMXpath($doc);
-      $objs = $xpath->evaluate("//incident[@id='$ref']");
-      $incident = $objs->item(0);
-
-      // Create new XML doc of it (can this be done better?)
-      $out_dom = new DOMDocument();
-      $out_airt = $out_dom->appendChild($out_dom->createElement('airt'));
-      $out_airt->appendChild($out_dom->importNode($incident, true));
-      $content = $out_dom->saveXML();
-
-      // Insert
-      $newID =
-      queueInsertItem($status,$sender,$type,$summary,$content,$filter,$version,$error);
-      if (!$newID) {
-         // $error has already been filled in by the call to queueInsertItem().
-         return 1;
-      }
-
-      // Progress
-      if ($verbosity) {
-         echo _("Queued incident, ID=$newID").LF;
-         flush();
-      }
-   } // for
-
-   return 0;
+   // This is not an error. There just is no work for us.
+   return true;
 }// import
 
 
@@ -313,7 +405,7 @@ function queueFormatItems() {
    $out .= t('   <th><input type="checkbox" onChange="checkAll()" %checked></th>'.LF,
        array('%checked'=>($toggle == 1) ? 'CHECKED' : ''));
    $out .= '   <th>'._('No.').'</th>'.LF;
-   $out .= '   <th>'._('Sender').'</th>'.LF;
+   $out .= '   <th>'._('Type').'</th>'.LF;
    $out .= '   <th>'._('Constituency').'</th>'.LF;
    $out .= '   <th>'._('IP Address').'</th>'.LF;
    $out .= '   <th>'._('Preferred Template').'</th>'.LF;
@@ -609,7 +701,6 @@ function queueInsertItem($status,$sender,$type,$summary,$content,$filter,
       $error = _('Could not insert new queue item');
       return FALSE;
    }
-
    return $newID;
 }// queueInsertItem
 
