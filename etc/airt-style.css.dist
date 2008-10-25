@@ -15,11 +15,11 @@ A:hover {
 }
 
 tr.odd {
-  background-color: #DDDDDD;
+  background-color: transparent;
 }
 
 tr.even {
-  background-color: transparent;
+  background-color: #DDDDDD;
 }
 
 .titlebar {

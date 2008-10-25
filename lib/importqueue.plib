@@ -1,5 +1,6 @@
 <?php
 /* vim: syntax=php tabstop=3 shiftwidth=3
+ * $Id$
  *
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
  * Copyright (C) 2005   Tilburg University, The Netherlands
@@ -34,9 +35,16 @@ if (!defined('ETCDIR') || !file_exists(ETCDIR.'/importqueue.cfg')) {
    print("Import queue depends on web service. Missing configuration file.\n");
    exit;
 }
-if (!defined('AIRT_IMPORT_CONTACT')) {
-   define('AIRT_IMPORT_CONTACT', 'AIRT Contact Data');
+if (!defined('AIRT_IMPORTQUEUE_METATYPE_INCIDENT')) {
+   define('AIRT_IMPORTQUEUE_METATYPE_INCIDENT', 'incident');
 }
+if (!defined('AIRT_IMPORTQUEUE_METATYPE_CONTACT')) {
+   define('AIRT_IMPORTQUEUE_METATYPE_CONTACT', 'contact');
+}
+$AIRT_IMPORTQUEUE_METATYPES = Array(
+   AIRT_IMPORTQUEUE_METATYPE_INCIDENT,
+   AIRT_IMPORTQUEUE_METATYPE_CONTACT
+);
 
 require_once LIBDIR.'/airt.plib';
 require_once ETCDIR.'/importqueue.cfg';
@@ -116,7 +124,7 @@ function printUsage() {
 /**
  * Process an AIRT incident
  */
-function importIncident($importqueue, &$error='') {
+function importIncident($doc, $importqueue, &$error='') {
    for ($count=0; $count < $importqueue->length; $count++) {
       $element = $importqueue->item($count);
       $filter = $element->getattribute('filter');
@@ -131,7 +139,7 @@ function importIncident($importqueue, &$error='') {
 
       if (!$element->hasattribute('ref')) {
          $error = _('missing ref attribute in xml');
-         return 1;
+         return false;
       }
 
       $ref = $element->getattribute('ref');
@@ -140,23 +148,23 @@ function importIncident($importqueue, &$error='') {
       $status = $sender = $summary = $type = '';
       $e = $element->getelementsbytagname('status');
       if ($e->length > 0) {
-         $status = $e->item(0)->textcontent;
+         $status = $e->item(0)->textContent;
       }
       $e = $element->getelementsbytagname('sender');
       if ($e->length > 0) {
-         $sender = $e->item(0)->textcontent;
+         $sender = $e->item(0)->textContent;
       }
       $e = $element->getelementsbytagname('type');
       if ($e->length > 0) {
-         $type = $e->item(0)->textcontent;
+         $type = $e->item(0)->textContent;
       }
       $e = $element->getelementsbytagname('summary');
       if ($e->length > 0) {
-         $summary = $e->item(0)->textcontent;
+         $summary = $e->item(0)->textContent;
       }
 
       // fetch appropriate incident
-      $xpath = new domxpath($doc);
+      $xpath = new DOMXPath($doc);
       $objs = $xpath->evaluate("//incident[@id='$ref']");
       $incident = $objs->item(0);
 
@@ -168,7 +176,10 @@ function importIncident($importqueue, &$error='') {
 
       // insert
       $newid =
-      queueinsertitem($status,$sender,$type,$summary,$content,$filter,$version,$error);
+      queueinsertitem(array( 'status'=>$status, 'sender'=>$sender, 'type'=>$type,
+         'summary'=>$summary, 'content'=>$content, 'filter'=>$filter, 
+         'version'=>$version, 'metatype'=>AIRT_IMPORTQUEUE_METATYPE_INCIDENT),
+         $error);
       if ($newid === false) {
          // $error has already been filled in by the call to queueinsertitem().
          return false;
@@ -188,7 +199,7 @@ function importIncident($importqueue, &$error='') {
 /**
  * Import contact information
  */
-function importContact($contactData, &$error='') {
+function importContact($doc, $contactData, &$error='') {
    foreach ($contactData as $data) {
       $filter = $data->getattribute('filter');
       if (empty($filter)) {
@@ -251,9 +262,11 @@ function importContact($contactData, &$error='') {
       $out_airt = $out_dom->appendChild($out_dom->createElement('airt'));
       $out_airt->appendChild($out_dom->importnode($data, true));
       $content = $out_dom->savexml();
-      $newid = queueinsertitem('open', 
-         htmlentities($sender), AIRT_IMPORT_CONTACT, 'New contact: '.
-         htmlentities($constituency), $content, $filter, $version, $error);
+      $newid = queueinsertitem(array('status'=>'open', 'sender'=>htmlentities($sender), 
+         'type'=>'Contact import',
+         'summary'=>'New contact: '.htmlentities($constituency), 
+         'content'=>$content, 'filter'=>$filter, 'version'=>$version,
+         'metatype'=>AIRT_IMPORTQUEUE_METATYPE_CONTACT), $error);
       if ($newid === false) {
          return false;
       }
@@ -302,12 +315,12 @@ function import($input,&$error,$verbosity=FALSE) {
 
    $importqueue = $doc->getElementsByTagName('queuedata');
    if ($importqueue->length > 0) {
-      return importIncident($importqueue, $error);
+      return importIncident($doc, $importqueue, $error);
    }
 
    $importqueue = $doc->getElementsByTagName('contactData');
    if ($importqueue->length > 0) {
-      return importContact($importqueue, $error);
+      return importContact($doc, $importqueue, $error);
    }
 
    // This is not an error. There just is no work for us.
@@ -351,24 +364,25 @@ function updateQueueItem($id, $field, $value, &$error) {
  *           keyed by id.
  * $error will contain an error message, if any
  *
- * Returns 0 on success, 1 on failure
+ * Returns true on success, false on failure
  */
 function queueGetItems(&$elements, &$error) {
    $error = '';
    $res = db_query(q('SELECT id, created, status, sender, type, summary,
-      cache_ip, cache_constituency, cache_mailtemplate, filter, version
+      cache_ip, cache_constituency, cache_mailtemplate, filter, 
+      metatype, version
       FROM import_queue
       WHERE status = \'open\'
       ORDER BY cache_ip DESC'));
    if ($res == false) {
       $error = _('Unable to query database').' in importqueue.plib:'.__LINE__;
-      return 1;
+      return false;
    }
    $elements = array();
    while ($row = db_fetch_next($res)) {
       $elements[$row['id']] = $row;
    }
-   return 0;
+   return true;
 }
 
 
@@ -381,7 +395,8 @@ function queueFormatItems() {
    $error = '';
    $openips=array();
    $elements = array();
-   if (queueGetItems($elements, $error)) {
+
+   if (queueGetItems($elements, $error) === false) {
       return;
    }
    if (sizeof($elements) == 0) {
@@ -392,7 +407,6 @@ function queueFormatItems() {
       $openips[$data['ip']] = $id;
    }
    $used_ips = array();
-   $count = 0;
    $out = '<SCRIPT language="JavaScript">'.LF;
    $out .= 'function checkAll() {'.LF;
    $out .= '   window.location = "'.$_SERVER['PHP_SELF'].'?action=toggle&'.$urlsuffix.'"'.LF;
@@ -410,9 +424,15 @@ function queueFormatItems() {
    $out .= '   <th>'._('IP Address').'</th>'.LF;
    $out .= '   <th>'._('Preferred Template').'</th>'.LF;
    $out .= '</tr>'.LF;
-   $out .= '<th></th>'.LF;
+   // process incidents first
+   $count = 0;
+
    foreach ($elements as $id=>$element) {
-      $item = queuePeekItem($id,$error);
+      /* only look at metatype incidnet */
+      if ($element['metatype'] != AIRT_IMPORTQUEUE_METATYPE_INCIDENT) {
+         continue;
+      }
+      $item = queuePeekItem($id, $error);
       if ($error != '') {
          airt_error('ERR_FUNC', 'importqueue.plib:'.__LINE__);
          return;
@@ -420,7 +440,8 @@ function queueFormatItems() {
       if ($element['cache_mailtemplate'] == '') {
          $element['cache_mailtemplate'] =_('No preferred template');
       }
-      $out .= t('<tr valign="top" bgcolor="%color">', array('%color'=>($count++ % 2 == 0) ? '#DDDDDD' : '#FFFFFF')).LF;
+      $out .= t('<tr valign="top" bgcolor="%color">', 
+         array('%color'=>($count++ % 2 == 0) ? '#DDDDDD' : '#FFFFFF')).LF;
       $out .= '  <td nowrap>'.LF;
       $out .= t('     <input name="checked['.$id.']" %checked type="checkbox" /> '.LF,
          array('%checked'=>($toggle == 1) ? 'CHECKED' : ''));
@@ -476,6 +497,54 @@ function queueFormatItems() {
       $count++;
    }
    $out .= "</table>\n";
+   $out .= '<p/>'.LF;
+   if ($count == 0) {
+      $out .= '<em>'._('No incidents pending.').'</em><p/>';
+   }
+
+   /* now, only worry about contact updates
+    */
+   $out .= '<table cellpadding="4">'.LF;
+   $out .= '<tr>'.LF;
+   $out .= '<th>&nbsp;</th>'.LF;
+   $out .= '<th>'._('No.').'</th>'.LF;
+   $out .= '<th>'._('Constituency').'</th>'.LF;
+   $out .= '</tr>'.LF;
+   $count = 0;
+   foreach ($elements as $id=>$element) {
+      if ($element['metatype'] != AIRT_IMPORTQUEUE_METATYPE_CONTACT) {
+         continue;
+      }
+      $item = queuePeekItem($id, $error);
+      if ($item === false) {
+         airt_msg(_('Error retrieve queue item in').
+            'importqueue.plib'.__LINE__);
+         continue;
+      }
+      $doc = new DOMDocument();
+      $doc->loadXML($item['content']);
+      $xpath = new DOMXPath($doc);
+      $res = $xpath->query('//airt/contactData/constituency');
+      $constituency = $res->item(0)->textContent;
+
+      $out .= t('<tr class="%class">', array(
+         '%class'=>(($count++ % 2 == 0) ? 'even' : 'odd'))).LF;
+      $out .= '   <td>';
+      $out .= t('  <input type="checkbox" name="checked[%id]"></td>'.LF,
+         array('%id'=>$id));
+      $out .= '  <td>'; 
+      $out .= t('  <a target="airt_queue" href="%url?action=showdetails&id=%id">%id</a></td>'.LF, array(
+         '%url'=>BASEURL.'/importqueue.php',
+         '%id'=>$id
+      ));
+      $out .= '  <td>'.t(_('New contact: %con').'</td>'.LF, array(
+         '%con'=>htmlentities($constituency)));
+      $out .= '</tr>'.LF;
+   }
+   $out .= '</table>'.LF;
+   if ($count == 0) {
+      $out .= '<em>'._('No contacts pending.').'</em><p/>';
+   }
    $out .= '</div><!-- importqueue-overview-body -->'.LF;
    return $out;
 }
@@ -529,37 +598,45 @@ function queueToAIRT($id, &$error, $mailtemplate='') {
    // Fetch content from disk and clone root element;
    $doc = new DOMDocument();
    $dom = $doc->loadXML($data['content']);
+   
+   $airt_client = new SOAP_Client(WS_ENDPOINT);
+   $xpath = new DOMXPath($doc);
+   if ($xpath->query('//airt/incident')->length > 0) {
+      // add mail template information
+      $tmp_elements = $doc->getElementsByTagname('technicalInformation');
+      if ($tmp_elements->length > 0) {
+         $tmp_elements->item(0)->appendChild($doc->createElement('mailtemplate',
+            htmlentities($mailtemplate)));
+      }
+   
+      // Create new xml document to pass to web service
+      $newdoc = new DOMDocument();
+      $airt = $newdoc->appendChild($newdoc->createElement('airt'));
+      $ident = $airt->appendChild($newdoc->createElement('messageIdentification'));
+      $ticketid = $ident->appendChild($newdoc->createElement('TicketID', $ticketid));
+   
+      $incident_element = $doc->getElementsByTagName('incident');
+      if ($incident_element->length > 0) {
+         $data = $incident_element->item(0);
+         $airt->appendChild($newdoc->importNode($data, true));
+      } else {
+         $error = 'Could not find <incident> element';
+         return 1;
+      }
+   
+      // Build structure
+      $method = 'importIncidentData';
+      $params = array('importXML'=>$newdoc->saveXML());
 
-   // add mail template information
-   $tmp_elements = $doc->getElementsByTagname('technicalInformation');
-   if ($tmp_elements->length > 0) {
-      $tmp_elements->item(0)->appendChild($doc->createElement('mailtemplate',
-         htmlentities($mailtemplate)));
+   } elseif ($xpath->query('//airt/contactData')->length > 0) {
+# XXX XXX
+      $method = 'importContact';
+      $params = array('importXML'=>$data['content']);
    }
-
-   // Create new xml document to pass to web service
-   $newdoc = new DOMDocument();
-   $airt = $newdoc->appendChild($newdoc->createElement('airt'));
-   $ident = $airt->appendChild($newdoc->createElement('messageIdentification'));
-   $ticketid = $ident->appendChild($newdoc->createElement('TicketID', $ticketid));
-
-   $incident_element = $doc->getElementsByTagName('incident');
-   if ($incident_element->length > 0) {
-      $data = $incident_element->item(0);
-      $airt->appendChild($newdoc->importNode($data, true));
-   } else {
-      $error = 'Could not find <incident> element';
-      return 1;
-   }
-
-   // Build structure
-   $content = $newdoc->saveXML();
 
    // Call web service
-   $airt_client = new SOAP_Client(WS_ENDPOINT);
-   $method = "importIncidentData";
-   $params = array('importXML'=>$content);
 
+#########################################################################
    // process CURL options
    $airt_client->setOpt('timeout', 30);
    foreach ($AIRT_CURL_OPTIONS as $key=>$value) {
@@ -639,25 +716,73 @@ function getSAMLTicket() {
  *   The queue ID of the newly added item, or FALSE in case of failure.
  *   If FALSE, the error parameter will contain an error message.
  */
-function queueInsertItem($status,$sender,$type,$summary,$content,$filter,
-   $version, &$error) {
-   // Superficial sanity check of the parameters.
-   $status  = trim(db_escape_string($status));
-   $sender  = trim(db_escape_string($sender));
-   $type    = trim(db_escape_string($type));
-   $summary = trim(db_escape_string($summary));
-   if (strlen($summary) > 100) {
-      $summary = substr($summary, 0, 100);
-   }
-   $content = trim(db_escape_string($content));
-   $filter  = trim(db_escape_string($filter));
-   $version  = trim(db_escape_string($version));
+function queueInsertItem($data, &$error) {
+   global $AIRT_IMPORTQUEUE_METATYPES;
 
-   if ($status=='' || $sender=='' || $type=='' || $summary=='' ||
-       $content=='' || $filter=='' || $version=='') {
-      $error = _('Empty parameter');
-      return FALSE;
+   // Superficial sanity check of the parameters.
+   if (array_key_exists('status', $data)) {
+      $status  = trim(db_escape_string($data['status']));
+   } else {
+      $error = _('Missing parameter status in').
+         ' importqueue.plib:'.__LINE__;
+      return false;
    }
+   if (array_key_exists('sender', $data)) {
+      $sender  = trim(db_escape_string($data['sender']));
+   } else {
+      $error = _('Missing parameter sender in').
+         ' importqueue.plib:'.__LINE__;
+      return false;
+   }
+   if (array_key_exists('type', $data)) {
+      $type    = trim(db_escape_string($data['type']));
+   } else {
+      $error = _('Missing parameter type in').
+         ' importqueue.plib:'.__LINE__;
+      return false;
+   }
+   if (array_key_exists('summary', $data)) {
+      $summary = trim(db_escape_string($data['summary']));
+      if (strlen($summary) > 100) {
+         $summary = substr($summary, 0, 100);
+      }
+   } else {
+      $error = _('Missing parameter summary in').
+         ' importqueue.plib:'.__LINE__;
+      return false;
+   }
+   if (array_key_exists('content', $data)) {
+      $content = trim(db_escape_string($data['content']));
+   } else {
+      $error = _('Missing parameter content in').
+         ' importqueue.plib:'.__LINE__;
+      return false;
+   }
+   if (array_key_exists('filter', $data)) {
+      $filter  = trim(db_escape_string($data['filter']));
+   } else {
+      $error = _('Missing parameter filter in').
+         ' importqueue.plib:'.__LINE__;
+      return false;
+   }
+   if (array_key_exists('version', $data)) {
+      $version  = trim(db_escape_string($data['version']));
+   } else {
+      $error = _('Missing parameter version in').
+         ' importqueue.plib:'.__LINE__;
+      return false;
+   }
+   if (array_key_exists('metatype', $data)) {
+      $metatype = trim(db_escape_string($data['metatype']));
+      if (!in_array($metatype, $AIRT_IMPORTQUEUE_METATYPES)) {
+         $error = _('Invalid import queue meta type in').
+            ' importqueue.plib:'.__LINE__;
+         return false;
+      }
+   } else {
+      $metatype = AIRT_IMPORTQUEUE_METATYPE_INCIDENT;
+   }
+
    $cache_ip = $cache_constituency = $cache_mailtemplate = '';
 
    // Fetch a fresh queue item ID from the database.
@@ -685,6 +810,7 @@ function queueInsertItem($status,$sender,$type,$summary,$content,$filter,
          return false;
       }
    }
+
    $cache_ip = trim(db_escape_string($cache_ip));
    $cache_constituency = trim(db_escape_string($cache_constituency));
    $cache_mailtemplate = trim(db_escape_string($cache_mailtemplate));
@@ -692,11 +818,12 @@ function queueInsertItem($status,$sender,$type,$summary,$content,$filter,
    // Insert the record. Strings have already been escaped.
    $q = "INSERT INTO import_queue
            (id,created,status,sender,type,summary,content, cache_ip,
-            cache_constituency, cache_mailtemplate, filter, version)
+            cache_constituency, cache_mailtemplate, filter, version,
+            metatype)
          VALUES
-           ($newID,CURRENT_TIMESTAMP,'$status','$sender','$type',
+           ($newID,CURRENT_TIMESTAMP,'open','$sender','$type',
             '$summary','$content','$cache_ip', '$cache_constituency',
-            '$cache_mailtemplate', '$filter', '$version')";
+            '$cache_mailtemplate', '$filter', '$version', '$metatype')";
    if (!db_query($q)) {
       $error = _('Could not insert new queue item');
       return FALSE;
@@ -706,8 +833,7 @@ function queueInsertItem($status,$sender,$type,$summary,$content,$filter,
 
 
 
-/* Retrieve an element from the queue. This function both queries the
- * database and reads the file system. The element is not touched, to remove
+/* Retrieve an element from the queue. The element is not touched, to remove
  * it from the queue it needs to be queueRemove()d.
  * Parameters:
  *   id    = The queue item ID to be retrieved.
@@ -723,11 +849,11 @@ function queuePeekItem($id,&$error) {
       WHERE id=%id', array('%id'=>$id)));
    if ($res == false) {
       $error = _('Unable to query database').' in importqueue.plib:'.__LINE__;
-      return NULL;
+      return false;
    }
    if (db_num_rows($res) == 0) {
       $error = _('Request for invalid queue item');
-      return NULL;
+      return false;
    }
    $out = db_fetch_next($res);
 
@@ -865,7 +991,7 @@ function fetchAuthTicket(&$ticket, &$error) {
  * @param $template mailtemplate to associate with queue submission
  * Function will redirect browser. Should be done prettier some day.
  */
-function queueElementAccept($id, $template) {
+function queueElementAccept($id, $template='') {
    $value = 'accepted';
    $update = true;
    print t(_('Accepting queue element %id<br/>').LF, array('%id'=>$id));

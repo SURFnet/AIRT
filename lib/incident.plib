@@ -1521,7 +1521,8 @@ function formatEditForm() {
    $output .= '    <td><input onChange="updateCheckboxes()" type="text" '.
               'size=40 name="email" value="'.$email.'"></td>'.LF;
    $output .= ' <td>'.
-      getMailtemplateSelection('template',$incident['template']).'</td>'.LF;
+      getMailtemplateSelection('template', '-1',
+      array('-1'=>_('Do not override'))).'</td>'.LF;
    $output .= '  </tr>'.LF;
    $output .= '</table>'.LF;
    $output .= '<input type="submit" value="'._('Add').'">'.LF;

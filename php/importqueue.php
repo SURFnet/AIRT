@@ -84,11 +84,16 @@ switch ($action) {
 
       foreach ($decisions as $id=>$value) {
          $update = false;
-         $t = '';
          switch ($value) {
             case 'on':
                if ($decision == 'accept') {
-                  queueElementAccept($id, $_POST['template'][$id]);
+                  if (array_key_exists('template', $_POST) &&
+                      array_key_exists($id, $_POST['template'])) {
+                     $template = $_POST['template'][$id];
+                  } else {
+                     $template = '';
+                  }
+                  queueElementAccept($id, $template);
                }
                elseif ($decision == 'reject') {
                   print t(_('Rejecting queue element %id<br/>').LF, array('%id'=>$id));
