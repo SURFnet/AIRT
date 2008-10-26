@@ -72,6 +72,11 @@ class IncidentHandling {
          'out' => array('confirmation' => 'string')
       );
 
+      $this->__dispatch_map['importContact'] = array(
+         'in'  => array('importXML' => 'string'),
+         'out' => array('confirmation' => 'string')
+      );
+
       $this->__dispatch_map['addLogging'] = array(
          'in'  => array('incidentid' => 'integer',
                         'logging'=>'string',
@@ -395,7 +400,141 @@ airt_profile('Template added');
       }
       return '';
    } // addLogging
+
+   /**
+    * Import new contact information. If the constituency already exists,
+    * the networks and/or constituency contacts will be created (if 
+    * necesarry) and associated with the constituency
+    *
+    * @param $importXML XML describing networks, constituency
+    *        and constituency contacts. 
+    * <airt>
+    *    <contactData>
+    *       <constituency>My Constituency</constituency>
+    *       <contact><!-- element may be repeated 0 or more times -->
+    *          <name>...</name>
+    *          <email>...</email>
+    *          <phone>...</phone>
+    *       </contact>
+    *       <network><!-- element may be repeated 0 or more times -->
+    *          <address>...</address>
+    *          <netmask>...</netmask>
+    *       </network>
+    *   </contactData>
+    * </airt>
+    *       
+    *        
+    */
+   function importContact($importXML) {
+      airt_profile('begin importContact');
+      airt_profile('xml: '.$importXML);
+      $doc = new DOMDocument();
+      $doc->loadXML($importXML);
+      $xpath = new DOMXPath($doc);
+
+      $res = $xpath->query('//airt/contactData/constituency');
+      /* We cannot do anything if we do not know what the constituency is.
+       * Only one constituency is allowed per contactData element.
+       */
+      if ($res->length == 0) {
+         airt_profile('Could not find constituency');
+         return '';
+      }
+      $constituency = $res->item(0)->textContent;
+      if (constituencyExists($constituency)) {
+         $addToExisting = true;
+      } else {
+         $addToExisting = false;
+      }
+
+      $contactlist = $xpath->query('//airt/contactData/contact');
+      $contacts = array();
+      foreach ($contactlist as $contact) {
+         airt_profile('Begin processing contact');
+         $name = $xpath->query('name', $contact);
+         if ($name->length == 0) {
+            $name = '';
+         } else {
+            $name = $name->item(0)->textContent;
+         }
+         $email = $xpath->query('email', $contact);
+         if ($email->length == 0) {
+            $email = '';
+         } else {
+            $email = $email->item(0)->textContent;
+         }
+         $phone = $xpath->query('phone', $contact);
+         if ($phone->length == 0) {
+            $phone = '';
+         } else {
+            $phone = $phone->item(0)->textContent;
+         }
+         airt_profile('Z');
+         $contacts[] = array(
+            'name'=>$name,
+            'email'=>$email,
+            'phone'=>$phone
+         );
+         airt_profile('End processing contact');
+      }
+
+      $networklist = $xpath->query('//airt/contactData/network');
+      if ($network->length == 0) {
+         continue;
+      }
+      foreach ($networklist as $network) {
+         $address = $xpath->query('address', $network);
+         if ($address->length == 0) {
+            continue;
+         } else {
+            $address = $address->item(0)->textContent;
+         }
+         $netmask = $xpath->query('netmask', $network);
+         if ($netmask->length == 0) {
+            continue;
+         } else {
+            $netmask = $netmask->item(0)->textContent;
+         }
+         $networks[] = array(
+            'address'=>$address,
+            'netmask'=>$netmask
+         );
+      }
+      
+      $error = '';
+      
+      // only proceed if constituency does not exist
+      if (constituencyExists($constituency)) {
+         return 'Constituency exists';
+      }
+
+      addConstituency($constituency, $constituency, $error);
+      $c = getConstituencies();
+      $consid = array_search($constituency, $c);
+
+      // only add network if it does not yet exist
+      foreach ($networks as $network) {
+         if (networkExists($network['address'], $network['netmask'])) {
+            continue;
+         }
+         if (addNetwork(array(
+            'network'=>$network['address'],
+            'netmask'=>$network['netmask'],
+            'label'=>'net-'.$network['address'],
+            'name'=>'Network '.$network['address'].'/'.$network['netmask']
+         ) === false)) {
+            return 'Failed to add network';
+         }
+      }
+
+      foreach ($contacts as $contact) {
+         airt_profile('contact: '.$contact['name'].':'.$contact['email'].':'.
+            $contact['phone']);
+      }
+      return 'SUCCESS';
+   }
 }
+
 
 function genRandom() {
    $ticketid = '';

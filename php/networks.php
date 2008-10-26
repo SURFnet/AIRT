@@ -159,10 +159,6 @@ switch ($action) {
       if (empty($netmask)) {
          die(_('Missing parameter value in ').__LINE__);
       }
-      $res = array();
-      if (sscanf($netmask, "/%s", $res) == 1) {
-         $netmask = cidr2netmask(substr($netmask, 1));
-      }
       $label = strip_tags(fetchFrom('POST', 'label', '%s'));
       if (empty($label)) {
          die(_('Missing parameter value in ').__LINE__);
@@ -171,50 +167,34 @@ switch ($action) {
       if (empty($constituency)) {
          die(_('Missing parameter value in ').__LINE__);
       }
-      if (!is_numeric($constituency)) {
-         die(_('Invalid parameter type ').__LINE__);
-      }
       if ($action=="add") {
-         $res = db_query(q('
-            INSERT INTO networks
-            (id, network, netmask, label, constituency)
-            VALUES
-           (nextval(\'networks_sequence\'), %network, %netmask, %label, %cons)',
-            array("%network"=>db_masq_null($network),
-               '%netmask'=>db_masq_null($netmask),
-               '%label'=>db_masq_null($label),
-               '%cons'=>$constituency)));
-         if (!$res) {
-            airt_error(DB_QUERY, 'networks.php'.__LINE__);
-            reload();
-            return;
+         if (addNetwork(array(
+            'network'=>$network,
+            'netmask'=>$netmask,
+            'label'=>$label,
+            'constituency'=>$constituency
+         ), $error) === false) {
+            airt_msg(_('Unable to add network in').' networks.php:'.__LINE__.
+               ';'.$error);
          }
-         reload();
       } elseif ($action=="update") {
          if (empty($id)) {
             airt_error(PARAM_MISSING, 'networks.php'.__LINE__);
             reload();
             return;
          }
-         $res = db_query(q('
-            UPDATE networks
-            SET    network=%network,
-                   netmask=%netmask,
-                   label=%label,
-                   constituency=%cons
-            WHERE id=%id', array(
-               '%network'=>db_masq_null($network),
-               '%netmask'=>db_masq_null($netmask),
-               '%label'=>db_masq_null($label),
-               '%cons'=>$constituency,
-               '%id'=>$id)));
-         if (!$res) {
-            airt_error(DB_QUERY, 'networks.php'.__LINE__);
-            Header("Location: $_SERVER[PHP_SELF]");
-            return;
+         if (updateNetwork(array(
+               'id'=>$id,
+               'network'=>$network,
+               'netmask'=>$netmask,
+               'label'=>$label,
+               'constituency'=>$constituency
+         ), $error) === false) {
+            airt_msg(_('Unable to update network in').' network.php:'.__LINE__.
+               ';'.$error);
          }
-         reload();
       }
+      reload();
       break;
 
    //-----------------------------------------------------------------

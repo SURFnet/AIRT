@@ -127,38 +127,38 @@ function printUsage() {
 function importIncident($doc, $importqueue, &$error='') {
    for ($count=0; $count < $importqueue->length; $count++) {
       $element = $importqueue->item($count);
-      $filter = $element->getattribute('filter');
+      $filter = $element->getAttribute('filter');
       if (empty($filter)) {
          $filter = 'unknown';
       }
 
-      $version = $element->getattribute('version');
+      $version = $element->getAttribute('version');
       if (empty($version)) {
          $version = 'unknown';
       }
 
-      if (!$element->hasattribute('ref')) {
+      if (!$element->hasAttribute('ref')) {
          $error = _('missing ref attribute in xml');
          return false;
       }
 
-      $ref = $element->getattribute('ref');
+      $ref = $element->getAttribute('ref');
       $ref = preg_replace('/^#/', '', $ref);
 
       $status = $sender = $summary = $type = '';
-      $e = $element->getelementsbytagname('status');
+      $e = $element->getElementsByTagname('status');
       if ($e->length > 0) {
          $status = $e->item(0)->textContent;
       }
-      $e = $element->getelementsbytagname('sender');
+      $e = $element->getElementsByTagname('sender');
       if ($e->length > 0) {
          $sender = $e->item(0)->textContent;
       }
-      $e = $element->getelementsbytagname('type');
+      $e = $element->getElementsByTagname('type');
       if ($e->length > 0) {
          $type = $e->item(0)->textContent;
       }
-      $e = $element->getelementsbytagname('summary');
+      $e = $element->getElementsByTagname('summary');
       if ($e->length > 0) {
          $summary = $e->item(0)->textContent;
       }
@@ -169,14 +169,15 @@ function importIncident($doc, $importqueue, &$error='') {
       $incident = $objs->item(0);
 
       // create new xml doc of it (can this be done better?)
-      $out_dom = new domdocument();
-      $out_airt = $out_dom->appendchild($out_dom->createelement('airt'));
-      $out_airt->appendchild($out_dom->importnode($incident, true));
-      $content = $out_dom->savexml();
+      $out_dom = new DOMDocument();
+      $out_airt = $out_dom->appendChild($out_dom->createElement('airt'));
+      $out_airt->appendChild($out_dom->imporTnode($incident, true));
+      $content = $out_dom->saveXML();
 
       // insert
       $newid =
-      queueinsertitem(array( 'status'=>$status, 'sender'=>$sender, 'type'=>$type,
+      queueInsertItem(array( 
+         'status'=>$status, 'sender'=>$sender, 'type'=>$type,
          'summary'=>$summary, 'content'=>$content, 'filter'=>$filter, 
          'version'=>$version, 'metatype'=>AIRT_IMPORTQUEUE_METATYPE_INCIDENT),
          $error);
@@ -262,11 +263,14 @@ function importContact($doc, $contactData, &$error='') {
       $out_airt = $out_dom->appendChild($out_dom->createElement('airt'));
       $out_airt->appendChild($out_dom->importnode($data, true));
       $content = $out_dom->savexml();
-      $newid = queueinsertitem(array('status'=>'open', 'sender'=>htmlentities($sender), 
+      $newid = queueinsertitem(array(
+         'status'=>'open', 
+         'sender'=>htmlentities($sender), 
          'type'=>'Contact import',
          'summary'=>'New contact: '.htmlentities($constituency), 
          'content'=>$content, 'filter'=>$filter, 'version'=>$version,
-         'metatype'=>AIRT_IMPORTQUEUE_METATYPE_CONTACT), $error);
+         'metatype'=>AIRT_IMPORTQUEUE_METATYPE_CONTACT
+      ), $error);
       if ($newid === false) {
          return false;
       }
@@ -602,6 +606,7 @@ function queueToAIRT($id, &$error, $mailtemplate='') {
    $airt_client = new SOAP_Client(WS_ENDPOINT);
    $xpath = new DOMXPath($doc);
    if ($xpath->query('//airt/incident')->length > 0) {
+      airt_profile('Processing //airt/incident');
       // add mail template information
       $tmp_elements = $doc->getElementsByTagname('technicalInformation');
       if ($tmp_elements->length > 0) {
@@ -630,18 +635,19 @@ function queueToAIRT($id, &$error, $mailtemplate='') {
 
    } elseif ($xpath->query('//airt/contactData')->length > 0) {
 # XXX XXX
+      airt_profile('Processing //airt/contactData');
       $method = 'importContact';
       $params = array('importXML'=>$data['content']);
    }
 
    // Call web service
 
-#########################################################################
    // process CURL options
    $airt_client->setOpt('timeout', 30);
    foreach ($AIRT_CURL_OPTIONS as $key=>$value) {
       $airt_client->setOpt('curl', $key, $value);
    }
+   airt_profile('Calling web service method: '.$method);
    $ans = $airt_client->call($method, $params);
    if (PEAR::isError($ans)) {
       echo "<PRE>";

@@ -147,14 +147,10 @@ switch ($action) {
       }
 
       if ($action=="add") {
-         $res = db_query(sprintf("
-            INSERT INTO constituencies
-            (id, label, name)
-            VALUES
-            (nextval('constituencies_sequence'), %s, %s)",
-            db_masq_null($label),
-            db_masq_null($description)))
-         or die(_('Unable to excute query.'));
+         if (addConstituency($label, $description, $error) === false) {
+            airt_msg(_('Database error in ').'constituencies.plib:'.__LINE__);
+            reload();
+         }
 
          generateEvent("newconstituency", array(
             "label"=>$label,
@@ -163,22 +159,22 @@ switch ($action) {
          reload();
       } else if ($action=="update") {
          if (empty($consid)) {
-            die(_('Missing information (3).'));
+            airt_msg(_('Missing constituency in').' constituencies.php:'.
+               __LINE__);
+            reload();
+            exit;
          }
          if (!is_numeric($consid)) {
-            // should never happen
-            die(_('Invalid parameter type ').__LINE__);
+            airt_msg(_('Invalid parameter type in').' constituencies.php:'.
+               __LINE__);
+            reload();
+            exit;
          }
-
-         $res = db_query(sprintf("
-            UPDATE constituencies
-            SET  label=%s,
-                 name=%s
-            WHERE id=%d",
-            db_masq_null($label),
-            db_masq_null($description),
-            $consid))
-         or die(_('Unable to excute query.'));
+         if (updateConstituency($consid, $label, $description, $error) === false) {
+            airt_msg(_('Database error:').$error);
+            reload();
+            exit;
+         } 
 
          generateEvent("updateconstituency", array(
             "label"=>$label,

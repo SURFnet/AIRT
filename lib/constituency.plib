@@ -46,6 +46,27 @@ function getConstituencies() {
 }
 
 
+/**
+ * Check if a constituency with the given name or label exists
+ *
+ * @param $check
+ * 
+ */
+function constituencyExists($check) {
+   $check = strtolower($check);
+
+   foreach (getConstituencies() as $id=>$value) {
+      if (strtolower($value['label']) == $check ||
+          strtolower($value['name']) == $check) {
+         return true;
+      }
+   }
+
+   return false;
+}
+
+
+
 /** GUI component that returns an HTML <SELECT> box containing constituencies.
  * @param $name Name of the <SELECT> element. Defaults to 'constituency'
  * @param $default Value of the default constituency.
@@ -62,32 +83,6 @@ function getConstituencySelection($name="constituency", $default=-1) {
    }
    $output .= '</select>'.LF;
    return $output;
-}
-
-/** Return a list of networks.
- * @return Returns an associative array of network information. They key of
- *    the array is the network ID. The value is an associative array with
- *    keys: 'id', 'network', 'netmask', 'label', 'constituency'. The value
- *    of the constituency is the numerical ID of the constituency.
- */
-function getNetworks() {
-   $res = db_query(
-      'SELECT   id, network, netmask, label, constituency
-       FROM     networks
-       ORDER BY network,netmask')
-   or die('Unable to connect to database.');
-
-   $networks=array();
-   while ($row = db_fetch_next($res)) {
-      $networks[$row['id']]=array(
-         'id'          => $row['id'],
-         'network'     => $row['network'],
-         'netmask'     => $row['netmask'],
-         'label'       => $row['label'],
-         'constituency'=> $row['constituency']
-      );
-   }
-   return $networks;
 }
 
 /** GUI Component that returns an HTML <SELECT> box of networks.
@@ -205,4 +200,54 @@ function getConstituencyIDbyNetworkID($networkID) {
    }
 }// getConstituencyIDbyNetworkID
 
+/**
+ * Add a new constituency
+ * @param $label Label of the constituency
+ * @param $name  Name of the constituency
+ * @param $error error message, if any
+ * @return true on success, false on failure
+ */
+function addConstituency($label, $name, &$error) {
+   $res = db_query(sprintf("
+      INSERT INTO constituencies
+      (id, label, name)
+      VALUES
+      (nextval('constituencies_sequence'), %s, %s)",
+      db_masq_null($label),
+      db_masq_null($description)));
+   if ($res === null) {
+      $error = db_errormessage();
+      return false;
+   }
+   return true;
+}
+
+/**
+ * Update a constituency
+ * @param $id ID of the constituency
+ * @param $label Label of the constituency
+ * @param $name  Name of the constituency
+ * @param $error error message, if any
+ * @return true on success, false on failure
+ */
+function updateConstituency($id, $label, $name, &$error) {
+   if (!is_numeric($id)) {
+      $error = _('Invalid parameter type $id in').' constituency.plib:'.
+         __LINE__;
+      return false;
+   }
+   $res = db_query(sprintf("
+      UPDATE constituencies
+      SET  label=%s,
+           name=%s
+      WHERE id=%d",
+      db_masq_null($label),
+      db_masq_null($name),
+      $id));
+   if ($res === false) {
+      $error = db_errormessage();
+      return false;
+   }
+   return true;
+}
 ?>

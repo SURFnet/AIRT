@@ -89,4 +89,147 @@ function airt_netsort($a, $b) {
    }
 }
 
+/** 
+ * Return a list of networks.
+ * @return Returns an associative array of network information. They key of
+ *    the array is the network ID. The value is an associative array with
+ *    keys: 'id', 'network', 'netmask', 'label', 'constituency'. The value
+ *    of the constituency is the numerical ID of the constituency.
+ */
+function getNetworks() {
+   $res = db_query(
+      'SELECT   id, network, netmask, label, constituency
+       FROM     networks
+       ORDER BY network,netmask')
+   or die('Unable to connect to database.');
+
+   $networks=array();
+   while ($row = db_fetch_next($res)) {
+      $networks[$row['id']]=array(
+         'id'          => $row['id'],
+         'network'     => $row['network'],
+         'netmask'     => $row['netmask'],
+         'label'       => $row['label'],
+         'constituency'=> $row['constituency']
+      );
+   }
+   return $networks;
+}
+
+/**
+ * Check if a given network exists
+ * @param network network address
+ * @param netmask
+ * @return true if the network exist, false if it does not
+ */
+function networkExists($network, $netmask) {
+   foreach (getNetworks as $net) {
+      if ($net['network'] == $network && $net['netmask'] == $netmask) {
+         return true;
+      }
+   }
+   return false;
+}
+
+function addNetwork($data, &$error) {
+   if (!array_key_exists('network', $data)) {
+      $error = _('Missing parameter in').' network.plib:'.__LINE__;
+      return false;
+   }
+   $network = $data['network'];
+   if (!array_key_exists('netmask', $data)) {
+      $error = _('Missing parameter in').' netmask.plib:'.__LINE__;
+      return false;
+   }
+   $netmask = $data['netmask'];
+   $res = array();
+   if (sscanf($netmask, "/%s", $res) == 1) {
+      $netmask = cidr2netmask(substr($netmask, 1));
+   }
+   if (!array_key_exists('label', $data)) {
+      $error = _('Missing parameter in').' netmask.plib:'.__LINE__;
+      return false;
+   }
+   $label = $data['label'];
+   if (!array_key_exists('constituency', $data)) {
+      $error = _('Missing parameter in').' netmask.plib:'.__LINE__;
+      return false;
+   }
+   $constituency = $data['constituency'];
+   if (!is_numeric($constituency)) {
+      $error = _('Invalid parameter type in').' netmask.plib:'.__LINE__;
+      return false;
+   }
+   
+   $res = db_query(q('INSERT INTO networks
+      (id, network, netmask, label, constituency)
+      VALUES
+     (nextval(\'networks_sequence\'), %network, %netmask, %label, %cons)',
+      array("%network"=>db_masq_null($network),
+         '%netmask'=>db_masq_null($netmask),
+         '%label'=>db_masq_null($label),
+         '%cons'=>$constituency)));
+   if ($res === false) {
+      $error = db_errormessage();
+      return false;
+   }
+   return true;
+}
+
+function updateNetwork($data, &$error) {
+   if (!array_key_exists('network', $data)) {
+      $error = _('Missing parameter in').' network.plib:'.__LINE__;
+      return false;
+   }
+   $network = $data['network'];
+   if (!array_key_exists('netmask', $data)) {
+      $error = _('Missing parameter in').' netmask.plib:'.__LINE__;
+      return false;
+   }
+   $netmask = $data['netmask'];
+   $res = array();
+   if (sscanf($netmask, "/%s", $res) == 1) {
+      $netmask = cidr2netmask(substr($netmask, 1));
+   }
+   if (!array_key_exists('label', $data)) {
+      $error = _('Missing parameter in').' netmask.plib:'.__LINE__;
+      return false;
+   }
+   $label = $data['label'];
+   if (!array_key_exists('constituency', $data)) {
+      $error = _('Missing parameter in').' netmask.plib:'.__LINE__;
+      return false;
+   }
+   $constituency = $data['constituency'];
+   if (!is_numeric($constituency)) {
+      $error = _('Invalid parameter type in').' netmask.plib:'.__LINE__;
+      return false;
+   }
+   if (!array_key_exists('id', $data)) {
+      $error = _('Missing parameter in').' netmask.plib:'.__LINE__;
+      return false;
+   }
+   $id = $data['id'];
+   if (!is_numeric($id)) {
+      $error = _('Invalid parameter type in').' netmask.plib:'.__LINE__;
+      return false;
+   }
+   $res = db_query(q('
+      UPDATE networks
+      SET    network=%network,
+             netmask=%netmask,
+             label=%label,
+             constituency=%cons
+      WHERE id=%id', array(
+         '%network'=>db_masq_null($network),
+         '%netmask'=>db_masq_null($netmask),
+         '%label'=>db_masq_null($label),
+         '%cons'=>$constituency,
+         '%id'=>$id)));
+   if ($res === false) {
+      $error = db_errormessage();
+      return false;
+   }
+   return true;
+}
 ?>
