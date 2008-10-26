@@ -176,6 +176,12 @@ function addNetwork($data, &$error) {
    return true;
 }
 
+/**
+ * Update network details
+ * @param $data associative array containing new data
+ * @error $error error message, if any
+ * @return true on success, false on failure
+ */
 function updateNetwork($data, &$error) {
    if (!array_key_exists('network', $data)) {
       $error = _('Missing parameter in').' network.plib:'.__LINE__;
@@ -205,11 +211,22 @@ function updateNetwork($data, &$error) {
       $error = _('Invalid parameter type in').' netmask.plib:'.__LINE__;
       return false;
    }
-   if (!array_key_exists('id', $data)) {
-      $error = _('Missing parameter in').' netmask.plib:'.__LINE__;
+   if (array_key_exists('id', $data)) {
+      $id = $data['id'];
+   } else {
+      // no id given, try finding it through netmask/network
+      foreach (getNetworks() as $network) {
+         if ($network['netmask'] == $netmask && $network['network'] ==
+            $network) {
+            $id = $network['id'];
+            break;
+         }
+      }
+   }
+   if (!isset($id)) {
+      $error = _('Unable to determine id in').' netmask.plib:'.__LINE__;
       return false;
    }
-   $id = $data['id'];
    if (!is_numeric($id)) {
       $error = _('Invalid parameter type in').' netmask.plib:'.__LINE__;
       return false;
