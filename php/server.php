@@ -515,15 +515,23 @@ airt_profile('Template added');
       // only add network if it does not yet exist
       foreach ($networks as $network) {
          if (networkExists($network['address'], $network['netmask'])) {
-            continue;
-         }
-         if (addNetwork(array(
-            'network'=>$network['address'],
-            'netmask'=>$network['netmask'],
-            'label'=>'net-'.$network['address'],
-            'name'=>'Network '.$network['address'].'/'.$network['netmask']
-         ) === false)) {
-            return 'Failed to add network';
+            if (updateNetwork(array(
+               'network'=>$network['address'],
+               'netmask'=>$network['netmask'],
+               'label'=>'net-'.$network['address'],
+               'name'=>'Network '.$network['address'].'/'.$network['netmask']
+            )) === false) {
+               return 'Failed to update network';
+            }
+         } else {
+            if (addNetwork(array(
+               'network'=>$network['address'],
+               'netmask'=>$network['netmask'],
+               'label'=>'net-'.$network['address'],
+               'name'=>'Network '.$network['address'].'/'.$network['netmask']
+            )) === false) {
+               return 'Failed to add network';
+            }
          }
       }
 
