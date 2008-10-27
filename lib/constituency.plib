@@ -214,7 +214,7 @@ function addConstituency($label, $name, &$error) {
       VALUES
       (nextval('constituencies_sequence'), %s, %s)",
       db_masq_null($label),
-      db_masq_null($description)));
+      db_masq_null($name)));
    if ($res === null) {
       $error = db_errormessage();
       return false;
@@ -249,5 +249,82 @@ function updateConstituency($id, $label, $name, &$error) {
       return false;
    }
    return true;
+}
+
+/**
+ * Associate a user with a constituency 
+ * @param $userid User's id
+ * @param $constituencyid Constituency's id
+ * @param $error Error message, if any
+ * @return true if successful, false if unsuccessful
+ */
+function assignUser($userid, $constituencyid, &$error) {
+   if (!is_numeric($userid)) {
+      $error = _('Invalid parameter type').' in constituency.plib:'.__LINE__;
+      return false;
+   }
+   if (!is_numeric($constituencyid)) {
+      $error = _('Invalid parameter type').' in constituency.plib:'.__LINE__;
+      return false;
+   }
+   $u = getUserByUserID($userid);
+   if ($u == false) {
+      $error = _('Invalid user id').' in constituency.plib:'.__LINE__;
+      return false;
+   }
+   if (!array_key_exists($constituencyid, getConstituencies())) {
+      $error = _('Invalid constituency id').' in constituency.plib:'.__LINE__;
+      return false;
+   }
+   if (isConstituencyContact($userid, $constituencyid, $error) === null) {
+      return false;
+   }
+
+   $q = q('insert into constituency_contacts (id, constituency, userid) '.
+      'values (nextval(\'constituency_contacts_sequence\'), %con, %uid)',
+      array('%con'=>$constituencyid, '%uid'=>$userid));
+   if (($res = db_query($q)) === false) {
+      $error = db_errormessage();
+      return false;
+   }
+   return true;
+}
+
+/**
+ * @return true if $userid is a contact for $constituencyid,
+ *    false if s/he is not, null in case of an error
+ */
+function isConstituencyContact($userid, $constituencyid, &$error='') {
+   if (!is_numeric($userid)) {
+      $error = _('Invalid parameter type').' in constituency.plib:'.__LINE__;
+      return null;
+   }
+   if (!is_numeric($constituencyid)) {
+      $error = _('Invalid parameter type').' in constituency.plib:'.__LINE__;
+      return null;
+   }
+   $u = getUserByUserID($userid);
+   if ($u == false) {
+      $error = _('Invalid user').' in constituency.plib:'.__LINE__;
+      return null;
+   }
+   if (!array_key_exists($constituencyid, getConstituencies())) {
+      $error = _('Invalid constituency').' in constituency.plib:'.__LINE__;
+      return null;
+   }
+   $q = q('select id from constituency_contacts where userid=%userid and '.
+      'constituency = %con', array(
+      '%userid'=>$userid,
+      '%con'=>$constituencyid,
+   ));
+   if (($res = db_query($q)) === false) {
+      $error = db_errormessage();
+      return null;
+   }
+   if (db_num_rows($res) > 0) {
+      return true;
+   }
+   return false;
+
 }
 ?>

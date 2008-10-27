@@ -535,13 +535,24 @@ airt_profile('Template added');
          }
       }
 
+// XXX
       foreach ($contacts as $contact) {
-         airt_profile('contact: '.$contact['name'].':'.$contact['email'].':'.
-            $contact['phone']);
+         $email = strtolower($contact['email']);
+         if (($user = getUserByEmail($email)) === false) {
+            addUser(array(
+               'email'=>$contact['email'],
+               'phone'=>$contact['phone'],
+               'name'=>$contact['lastname']
+            ));
+            if (($user == getUserByEmail($email)) === false) {
+               return _('Unable to add user');
+            }
+         }
+         $userid = $user['id'];
       }
       return 'SUCCESS';
    }
-}
+} // end of class IncidentHandling
 
 
 function genRandom() {

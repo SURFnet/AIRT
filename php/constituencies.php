@@ -26,6 +26,7 @@ require_once 'config.plib';
 require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/database.plib';
 require_once LIBDIR.'/constituency.plib';
+require_once LIBDIR.'/network.plib';
 
 
 /** GUI Component to show the update constituecy form. */
