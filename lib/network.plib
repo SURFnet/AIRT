@@ -123,7 +123,7 @@ function getNetworks() {
  * @return true if the network exist, false if it does not
  */
 function networkExists($network, $netmask) {
-   foreach (getNetworks as $net) {
+   foreach (getNetworks() as $net) {
       if ($net['network'] == $network && $net['netmask'] == $netmask) {
          return true;
       }
@@ -131,14 +131,14 @@ function networkExists($network, $netmask) {
    return false;
 }
 
-function addNetwork($data, &$error) {
+function addNetwork($data, &$error='') {
    if (!array_key_exists('network', $data)) {
       $error = _('Missing parameter in').' network.plib:'.__LINE__;
       return false;
    }
    $network = $data['network'];
    if (!array_key_exists('netmask', $data)) {
-      $error = _('Missing parameter in').' netmask.plib:'.__LINE__;
+      $error = _('Missing parameter in').' network.plib:'.__LINE__;
       return false;
    }
    $netmask = $data['netmask'];
@@ -147,17 +147,17 @@ function addNetwork($data, &$error) {
       $netmask = cidr2netmask(substr($netmask, 1));
    }
    if (!array_key_exists('label', $data)) {
-      $error = _('Missing parameter in').' netmask.plib:'.__LINE__;
+      $error = _('Missing parameter in').' network.plib:'.__LINE__;
       return false;
    }
    $label = $data['label'];
    if (!array_key_exists('constituency', $data)) {
-      $error = _('Missing parameter in').' netmask.plib:'.__LINE__;
+      $error = _('Missing parameter in').' network.plib:'.__LINE__;
       return false;
    }
    $constituency = $data['constituency'];
    if (!is_numeric($constituency)) {
-      $error = _('Invalid parameter type in').' netmask.plib:'.__LINE__;
+      $error = _('Invalid parameter type in').' network.plib:'.__LINE__;
       return false;
    }
    
@@ -215,10 +215,9 @@ function updateNetwork($data, &$error) {
       $id = $data['id'];
    } else {
       // no id given, try finding it through netmask/network
-      foreach (getNetworks() as $network) {
-         if ($network['netmask'] == $netmask && $network['network'] ==
-            $network) {
-            $id = $network['id'];
+      foreach (getNetworks() as $nid=>$netw) {
+         if ($netw['netmask'] == $netmask && $netw['network'] == $network) {
+            $id = $nid;
             break;
          }
       }

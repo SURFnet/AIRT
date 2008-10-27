@@ -361,7 +361,7 @@
          print '<p>'.LF;
          print _('The most likely cause for this failure is that the user is associated with one or more incidents.').'</p>'.LF;
          print '<p>'.LF;
-         print '<a href="'.$_SERVER[PHP_SELF].'">'._('continue').'...</a></p>'.LF;
+         print '<a href="'.$_SERVER['PHP_SELF'].'">'._('continue').'...</a></p>'.LF;
          pageFooter();
          exit;
       }

@@ -29,6 +29,7 @@ require_once LIBDIR.'/incident.plib';
 require_once LIBDIR.'/constituency.plib';
 require_once LIBDIR.'/search.plib';
 require_once LIBDIR.'/profiler.plib';
+require_once LIBDIR.'/network.plib';
 
 $server       = new SOAP_Server();
 $webservice   = new IncidentHandling();
@@ -437,20 +438,36 @@ airt_profile('Template added');
        * Only one constituency is allowed per contactData element.
        */
       if ($res->length == 0) {
-         airt_profile('Could not find constituency');
+         airt_profile('Could not find constituency in XML');
          return '';
       }
       $constituency = $res->item(0)->textContent;
-      if (constituencyExists($constituency)) {
-         $addToExisting = true;
+      if (!constituencyExists($constituency)) {
+         airt_profile('New constituency');
+         if ((addConstituency($constituency, $constituency, $error)) ===
+            false) {
+            airt_profile('Could not add constituency');
+            return _('Error adding constituency');
+         }
+         airt_profile('Constituency added');
       } else {
-         $addToExisting = false;
+         airt_profile('Existing constituency');
       }
+      foreach (getConstituencies() as $id=>$con) {
+         if ($con['label'] == $constituency || $con['name'] == $constituency) {
+            $conid = $id;
+            break;
+         }
+      }
+      if (!isset($conid)) {
+         airt_profile('Unable to determine constituency');
+         return _('Unable to determine constituency');
+      }
+      airt_profile('Constituency id: '.$conid);
 
       $contactlist = $xpath->query('//airt/contactData/contact');
       $contacts = array();
       foreach ($contactlist as $contact) {
-         airt_profile('Begin processing contact');
          $name = $xpath->query('name', $contact);
          if ($name->length == 0) {
             $name = '';
@@ -469,28 +486,26 @@ airt_profile('Template added');
          } else {
             $phone = $phone->item(0)->textContent;
          }
-         airt_profile('Z');
          $contacts[] = array(
             'name'=>$name,
             'email'=>$email,
             'phone'=>$phone
          );
-         airt_profile('End processing contact');
       }
 
+      $networks = array();
       $networklist = $xpath->query('//airt/contactData/network');
-      if ($network->length == 0) {
-         continue;
-      }
       foreach ($networklist as $network) {
          $address = $xpath->query('address', $network);
          if ($address->length == 0) {
+            airt_profile('Address not found');
             continue;
          } else {
             $address = $address->item(0)->textContent;
          }
          $netmask = $xpath->query('netmask', $network);
          if ($netmask->length == 0) {
+            airt_profile('Netmask not found');
             continue;
          } else {
             $netmask = $netmask->item(0)->textContent;
@@ -503,52 +518,67 @@ airt_profile('Template added');
       
       $error = '';
       
-      // only proceed if constituency does not exist
-      if (constituencyExists($constituency)) {
-         return 'Constituency exists';
-      }
-
-      addConstituency($constituency, $constituency, $error);
-      $c = getConstituencies();
-      $consid = array_search($constituency, $c);
-
       // only add network if it does not yet exist
       foreach ($networks as $network) {
-         if (networkExists($network['address'], $network['netmask'])) {
+         airt_profile('Begin processing network '.
+            "$network[address]/$network[netmask]");
+         if (networkExists($network['address'], $network['netmask'])==true) {
+            airt_profile('Found existing network');
             if (updateNetwork(array(
                'network'=>$network['address'],
                'netmask'=>$network['netmask'],
                'label'=>'net-'.$network['address'],
-               'name'=>'Network '.$network['address'].'/'.$network['netmask']
-            )) === false) {
+               'name'=>'Network '.$network['address'].'/'.$network['netmask'],
+               'constituency'=>$conid
+            ), $error) === false) {
+               airt_profile('Unable to update network:'.$error);
                return 'Failed to update network';
             }
+            airt_profile('Network updated');
          } else {
+            airt_profile('Adding new network');
             if (addNetwork(array(
                'network'=>$network['address'],
                'netmask'=>$network['netmask'],
                'label'=>'net-'.$network['address'],
-               'name'=>'Network '.$network['address'].'/'.$network['netmask']
-            )) === false) {
+               'name'=>'Network '.$network['address'].'/'.$network['netmask'],
+               'constituency'=>$conid
+            ), $error) === false) {
+               airt_profile('Unable to add network:'.$error);
                return 'Failed to add network';
             }
+            airt_profile('Network added');
          }
+         airt_profile('End processing network');
       }
 
-// XXX
       foreach ($contacts as $contact) {
+         airt_profile('Begin processing contact '.$contact['email']);
          $email = strtolower($contact['email']);
-         if (($user = getUserByEmail($email)) === false) {
+         if (($user = getUserByEmail($email)) == false) {
+            airt_profile('User not found');
             addUser(array(
                'email'=>$contact['email'],
                'phone'=>$contact['phone'],
-               'name'=>$contact['lastname']
+               'lastname'=>$contact['name']
             ));
-            if (($user == getUserByEmail($email)) === false) {
+            if (($user = getUserByEmail($email)) == false) {
+               airt_profile('Unable to add user');
                return _('Unable to add user');
             }
+            airt_profile('User added');
+         } else {
+            airt_profile('Existing user');
+         }
+         foreach ($user as $key=>$value) {
+            airt_profile("$key=$value");
          }
          $userid = $user['id'];
+         if (assignUser($userid, $conid, $error) === false) {
+            airt_profile("Unable to assign user $userid:$conid:$error");
+            return _('Unable to assign user');
+         } 
+         airt_profile('User assigned');
       }
       return 'SUCCESS';
    }
