@@ -23,6 +23,7 @@
  */
 require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/constituency.plib';
+require_once LIBDIR.'/network.plib';
 
 /* used by reversesortbymask-- do not call directly */
 function netmaskcmp($a, $b) {
