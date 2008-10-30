@@ -1045,6 +1045,36 @@ function getIncidentsByConstituency($constituencyID) {
 }
 
 
+/**
+ * Fetch a list of all incidents associated with a given userid
+ *
+ * @param $user userid
+ * @param $incidents Incidents associated with user
+ * @param $error error message, if any
+ * @return false on failure, true on success
+ */
+function getIncidentsByUserID($userid, &$incidents, &$error='') {
+   $incidents = array();
+   $error = '';
+   if (!is_numeric($userid)) {
+      $error = _('Bad parameter type in').' incident.plib:'.__LINE__;
+      return false;
+   }
+   $q = q('SELECT incidentid
+           FROM   incident_users
+           WHERE  userid=%uid', array('%uid'=>$userid));
+   $res = db_query($q);
+   if ($res === false) {
+      $error = _('Error querying database in').' incident.plib:'.__LINE__;
+      return false;
+   }
+   while (($row = db_fetch_next($res)) !== false) {
+      $incidents[] = $row['incidentid'];
+   }
+   db_free_result($res);
+   return true;
+}
+
 /* Return an associative array with address roles.
  * Input: optionally, an array with extra address roles that are not from
  * the database. Typically, "Please select a role"-like inert selections.

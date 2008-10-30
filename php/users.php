@@ -25,6 +25,7 @@
  require_once LIBDIR.'/airt.plib';
  require_once LIBDIR.'/database.plib';
  require_once LIBDIR.'/user.plib';
+ require_once LIBDIR.'/incident.plib';
 
  $action=strip_tags(fetchFrom('REQUEST', 'action'));
  defaultTo($action, 'list');
@@ -190,7 +191,7 @@
 </tr>",
             ($count++%2==0?"#FFFFFF":"#DDDDDD"),
             $login, $userid, $lastname, $firstname, $email, $email, $phone,
-            $id, $login, $id);
+            $id, $email, $id);
       }
       db_free_result($res);
       print '</table>'.LF;
@@ -274,7 +275,7 @@
             else $cap_login = 0;
             setUserCapabilities($u['id'], array(
                 AIRT_USER_CAPABILITY_IODEF => $cap_iodef,
-                AIRT_USER_CAPABILITY_IODEF => $cap_login), $error);
+                AIRT_USER_CAPABILITY_LOGIN => $cap_login), $error);
 
             if ($userid == $_SESSION['userid']) {
                @session_destroy();
@@ -349,6 +350,33 @@
        defaultTo($id, '');
        if (!is_numeric($id)) {
            die(_('Invalid parameter type ').__LINE__);
+       }
+       /* cascade down if user is not associated with any existing
+        * incidents
+        */
+       $caps = array();
+       if (getUserCapabilities($id, $caps, $error) === false) {
+          airt_msg(_('Error fetching user capabilities in').
+            ' users.php:'.__LINE__);
+          reload();
+       }
+       if (sizeof($caps) > 0) {
+          $incidents = array();
+          if (getIncidentsByUserID($id, $incidents, $error) === false) {
+             airt_msg(_('Error fetching incidents in:').
+               ' users.php'.__LINE__);
+             reload();
+          }
+          if (sizeof($incidents) == 0) {
+             $res = db_query(q('delete from user_capabilities
+                where userid=%uid', array('%uid'=>$id)));
+             if ($res === false) {
+                airt_msg(_('Unable to unset user capabilities in').
+                   ' users.php:'.__LINE__);
+                reload();
+             }
+             db_free_result($res);
+          }
        }
 
         $res = db_query(
