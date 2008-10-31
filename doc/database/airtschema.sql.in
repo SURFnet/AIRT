@@ -46,6 +46,7 @@ DROP SEQUENCE generic_sequence;
 DROP SEQUENCE address_roles_sequence;
 DROP SEQUENCE importfilter_templates_sequence;
 
+DROP TABLE mailbox CASCADE;
 DROP TABLE mailtemplate_capabilities CASCADE;
 DROP TABLE user_capabilities CASCADE;
 DROP TABLE importqueue_templates;
@@ -308,6 +309,7 @@ CREATE TABLE import_queue (
   status    varchar(16)  not null default 'open',
   sender    varchar(50)  not null,
   type      varchar(50)  not null,
+  metatype  varchar not null, -- 'incident' or 'contact'
   summary   varchar(100) not null,
   content   text         not null,
   cache_ip  varchar(128),
@@ -391,6 +393,18 @@ CREATE TABLE mailtemplate_capabilities (
    capvalue  integer not null, -- do not use boolean here for cross-db compat
    primary key (id),
    foreign key (template) references mailtemplates(name)
+);
+
+CREATE TABLE mailbox (
+    id    integer,      -- pull from generic_sequence
+    messageid varchar,  -- Message-Id header
+    sender    varchar,  -- From header (not envelope from)
+    recipient varchar,  -- To header
+    date      numeric,
+    subject   varchar,  -- Subject header
+    body      varchar,  -- Everything not header (no mime parsing yet)
+    status    varchar,
+    PRIMARY KEY (id)
 );
 
 CREATE SEQUENCE incident_types_sequence;
