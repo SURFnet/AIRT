@@ -26,6 +26,33 @@
 
 define('AIRT_VERSION','@VERSION@');
 
+$OPTIONS=array();
+$OPTIONS['--virtual-host']='';
+array_shift($argv);               // get rid of argument 0, the command itself.
+foreach ($argv as $param) {
+   if (substr($param,0,2)=='--') {
+      // Option parameter.
+      @list($option,$value) = split('=',$param);
+      if (isset($OPTIONS[$option])) {
+         // Known option, get new value of the correct type.
+         if (is_bool($OPTIONS[$option])) {
+            $OPTIONS[$option] = true;
+         } else {
+            $OPTIONS[$option] = $value;
+         }
+      } else {
+         // Unknown option, quit.
+         fwrite(STDERR, t('ERROR: Unknown option "%s".',
+                          array('%s'=>$option)).
+                        "\n");
+         exit(1);
+      }
+   } 
+}// foreach parameter
+
+if ($OPTIONS['--virtual-host']!='') {
+   define('VIRTUAL_HOST',$OPTIONS['--virtual-host']);
+}
 require_once '@ETCDIR@/airt.cfg';
 require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/mailqueue.plib';
