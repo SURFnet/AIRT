@@ -38,6 +38,9 @@ switch (strtolower(fetchFrom('REQUEST', 'action'))) {
     case 'processqueue':
 	    processQueue();
 	    break;
+    case 'attachment';
+       viewAttachment();
+       break;
     default:
        listMailbox();
 }

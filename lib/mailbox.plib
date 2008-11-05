@@ -48,7 +48,7 @@ define('AIRT_MAIL_READ', 'read');
  */
 function fetchMailMessage($msgid, &$msg, &$error='') {
    if (!is_numeric($msgid)) {
-      $error = _('Invalid parameter type in ').'mailqueue.plib'.__LINE__;
+      $error = _('Invalid parameter type in ').'mailbox.plib'.__LINE__;
       return false;
    }
    $msg = array();
@@ -58,11 +58,11 @@ function fetchMailMessage($msgid, &$msg, &$error='') {
       '%msgid'=>$msgid));
    $res = db_query($q);
    if ($res === false) {
-      $error = _('Database error in ').'mailqueue.plib:'.__LINE__;
+      $error = _('Database error in ').'mailbox.plib:'.__LINE__;
       return false;
    }
    if (($row = db_fetch_next($res)) === false) {
-      $error = _('Unable to fetch results in ').'mailqueue.plib:'.__LINE__;
+      $error = _('Unable to fetch results in ').'mailbox.plib:'.__LINE__;
       return false;
    }
    $msg = $row;
@@ -84,7 +84,7 @@ function fetchMailbox(&$mailbox, &$error) {
       'status, raw from mailbox order by date asc');
    $res = db_query($q);
    if ($res === false) {
-      $error = _('Database error in ').'mailqueue.plib:'.__LINE__;
+      $error = _('Database error in ').'mailbox.plib:'.__LINE__;
       return false;
    }
    while (($row = db_fetch_next($res)) !== false) {
@@ -127,7 +127,7 @@ function mailSetStatus($id, $status, &$error='') {
 		'%id'=>$id
 	));
 	if (($res = db_query($q)) === false) {
-	   $error = _('Unable to mark message as read in ').'mailqueue.plib'.__LINE__;
+	   $error = _('Unable to mark message as read in ').'mailbox.plib'.__LINE__;
 		return false;
 	}
 	return true;
@@ -143,14 +143,14 @@ function mailSetStatus($id, $status, &$error='') {
  */
 function mailDelete($id, &$error) {
    if (!is_numeric($id)) {
-	   $error = _('Invalid parameter type in ').'mailqueue.plib:'.__LINE__;
+	   $error = _('Invalid parameter type in ').'mailbox.plib:'.__LINE__;
 	   return false;
 	}
 	$q = q('delete from mailbox where id=%id', array(
 		'%id'=>$id
 	));
 	if (($res = db_query($q)) === false) {
-	   $error = _('Unable to delete message in ').'mailqueue.plib'.__LINE__;
+	   $error = _('Unable to delete message in ').'mailbox.plib'.__LINE__;
 		return false;
 	}
 	return true;
@@ -192,7 +192,7 @@ function listMailbox(&$error='') {
 
 	if (!empty($status) && $msgid != 0) {
 	   if (mailSetStatus($msgid, $status, $error) === false) {
-		   airt_msg(_('Unable to update mail status in ').'mailqueue.plib'.__LINE__);
+		   airt_msg(_('Unable to update mail status in ').'mailbox.plib'.__LINE__);
 	   }
 	}
 	   
@@ -206,7 +206,7 @@ function listMailbox(&$error='') {
 		return true; 
 	}
    print t('<form method="GET" action="%url">'.LF, array(
-	   '%url'=>BASEURL.'/mailqueue.php'));
+	   '%url'=>BASEURL.'/mailbox.php'));
    print '<table class="mailbox">'.LF;
    print '<tr>'.LF;
    print '<th class="check">&nbsp;</th>'.LF;
@@ -224,21 +224,21 @@ function listMailbox(&$error='') {
       print '<td nowrap class="sender">';
       print t('<a href="%url">%label</a>'.LF, array(
          '%label'=>htmlentities(truncString($msg['sender'], 35, '...')),
-         '%url'=>BASEURL.'/mailqueue.php?action=view&msgid='.
+         '%url'=>BASEURL.'/mailbox.php?action=view&msgid='.
              urlencode($msg['id'])
       ));
       print '</td>'.LF;
       print '<td class="subject">';
       print t('<a href="%url">%label</a>'.LF, array(
          '%label'=>htmlentities(truncString($msg['subject'], 50, '...')),
-         '%url'=>BASEURL.'/mailqueue.php?action=view&msgid='.
+         '%url'=>BASEURL.'/mailbox.php?action=view&msgid='.
              urlencode($msg['id'])
       ));
       print '</td>'.LF;
       print '<td class="date">';
       print t('<a href="%url">%label</a>'.LF, array(
          '%label'=>truncString(date('M d Y H:i', $msg['date']), 19, '...'),
-         '%url'=>BASEURL.'/mailqueue.php?action=view&msgid='.
+         '%url'=>BASEURL.'/mailbox.php?action=view&msgid='.
              urlencode($msg['id'])
       ));
       print '</td>'.LF;
@@ -266,12 +266,12 @@ function viewMessage() {
    $id = fetchFrom('REQUEST', 'msgid', '%d');
    defaultTo($id, -1);
    if ($id == -1) {
-      airt_msg(_('Invalid parameter type in ').'mailqueue.plib:'.__LINE__);
+      airt_msg(_('Invalid parameter type in ').'mailbox.plib:'.__LINE__);
       reload();
    }
    $msg = array();
    if (fetchMailMessage($id, $msg, $error) === false) {
-      airt_msg(_('Invalid message id in ').'mailqueue.plib:'.__LINE__);
+      airt_msg(_('Invalid message id in ').'mailbox.plib:'.__LINE__);
       reload();
    }
 	if (mailSetStatus($id, AIRT_MAIL_READ, $error) === false) {
@@ -320,7 +320,7 @@ function viewMessage() {
                print '<span class="attachment">'._('Attachment').' '.$n++.
                   ': '.LF;
                print t('<a href="%url">%filename</a> (%type)<p/>', array(
-                  '%url'=>BASEURL.'mailbox.php?action=attachment&msgid='.
+                  '%url'=>BASEURL.'/mailbox.php?action=attachment&msgid='.
                      $id.'&part='.$index,
                   '%filename'=>$part->d_parameters['filename'],
                   '%type'=>$part->headers['content-type']
@@ -341,7 +341,7 @@ function viewMessage() {
    print '<tr valign="top">'.LF;
    print '<td>'.LF;
    print t('<form action="%url" method="get">', array(
-      '%url'=>BASEURL.'/mailqueue.php'
+      '%url'=>BASEURL.'/mailbox.php'
    ));
 	print t('<input type="hidden" name="mail[%msgid]" value="on">', array(
 	   '%msgid'=>$id
@@ -360,7 +360,7 @@ function viewMessage() {
 
    print '<td>'.LF;
    print t('<form action="%url" method="post">'.LF, array(
-      '%url'=>BASEURL.'/mailqueue.php?action=incident'
+      '%url'=>BASEURL.'/mailbox.php?action=incident'
    ));
    print '<input type="checkbox" name="use_sender">'.
       _('Use sender as contact').'<br/>'.LF;
@@ -380,7 +380,7 @@ function processQueue() {
    $mails = fetchFrom('REQUEST', 'mail');
 	defaultTo($mails, array());
 	if (!is_array($mails)) {
-	   airt_msg(_('Invalid parameter type in ').'mailqueue.plib:'.__LINE__);
+	   airt_msg(_('Invalid parameter type in ').'mailbox.plib:'.__LINE__);
 	} else {
 	   $do = fetchFrom('REQUEST', 'do');
 	   defaultTo($do, '');
@@ -429,9 +429,65 @@ function processQueue() {
 
 	   	default:
 	   	   airt_msg(_('Invalid parameter value in ').
-				   'mailqueue.plib:'.__LINE__);
+				   'mailbox.plib:'.__LINE__);
 	   }
 	}
 	reload();
+}
+
+/**
+ * Handle attachment viewing
+ */
+function viewAttachment() {
+   $msgid = fetchFrom('REQUEST', 'msgid', '%d');
+   defaultTo($msgid, -1);
+   if ($msgid == -1) {
+      airt_msg(_('Invalid parameter type in').' mailbox.plib:'.__LINE__);
+      reload();
+      return;
+   }
+   $part = fetchFrom('REQUEST', 'part', '%d');
+   defaultTo($part, -1);
+   if ($part == -1) {
+      airt_msg(_('Invalid parameter type in').' mailbox.plib:'.__LINE__);
+      reload();
+      return;
+   }
+   $msg = array();
+   if (fetchMailMessage($msgid, $msg, $error) === false) {
+      airt_msg(_('Invalid message id in'). 'mailbox.plib:'.__LINE__);
+      reload();
+      return;
+   }
+   $decode = new Mail_mimeDecode($msg['raw'], "\r\n");
+   $struct = $decode->decode(array(
+      'include_bodies'=>true,
+      'decode_bodies'=>true
+   ));
+   if (!isset($struct->parts)) {
+      airt_msg(_('Message is not MIME in').' mailbox.plib:'.__LINE__);
+      reload();
+      return;
+   }
+   if (array_key_exists($part, $struct->parts)) {
+      $p = $struct->parts[$part];
+      if (!array_key_exists('content-transfer-encoding', $p->headers)) {
+         airt_msg(_('Could not determine encoding in').
+            ' mailbox.plib:'.__LINE__);
+         reload();
+         return;
+      }
+      Header('Content-Type: '.$p->headers['content-type']);
+      if (isset($p->d_parameters) &&
+          array_key_exists('filename', $p->d_parameters)) {
+         Header('Content-disposition: attachment; '.
+                'filename="'.$p->d_parameters['filename'].'"');
+      }
+      print $p->body;
+   } else {
+      airt_msg(_('Invalid MIME-part in').' mailbox.plib:'.__LINE__);
+      reload();
+      return;
+   }
 }
 ?>
