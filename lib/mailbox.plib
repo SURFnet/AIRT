@@ -313,6 +313,7 @@ function viewMessage() {
       $n=1;
       foreach ($struct->parts as $index=>$part) {
          switch ($part->disposition) {
+            case '':
             case 'inline':
                print '<pre>'.htmlentities(trim($part->body)).'</pre>';
                break;
