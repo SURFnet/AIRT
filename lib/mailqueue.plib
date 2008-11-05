@@ -37,6 +37,7 @@ define('AIRT_MAIL_READ', 'read');
  *      date      numeric,
  *      subject   varchar,  -- Subject header
  *      body      varchar,  -- Everything not header (no mime parsing yet)
+ *      raw       varchar,  -- original message, as received
  *      status    varchar,
  *      primary key (id)
  *  );
@@ -53,7 +54,7 @@ function fetchMailMessage($msgid, &$msg, &$error='') {
    $msg = array();
    $error = '';
    $q = q('select id, messageid, sender, recipient, date, subject, body, '.
-      'status from mailbox where id=%msgid', array(
+      'status, raw from mailbox where id=%msgid', array(
       '%msgid'=>$msgid));
    $res = db_query($q);
    if ($res === false) {
@@ -80,7 +81,7 @@ function fetchMailbox(&$mailbox, &$error) {
    $mailbox = array();
    $error = '';
    $q = q('select id, messageid, sender, recipient, date, subject, body, '.
-      'status from mailbox order by date asc');
+      'status, raw from mailbox order by date asc');
    $res = db_query($q);
    if ($res === false) {
       $error = _('Database error in ').'mailqueue.plib:'.__LINE__;
@@ -276,6 +277,11 @@ function viewMessage() {
 	if (mailSetStatus($id, AIRT_MAIL_READ, $error) === false) {
 	   airt_msg(_('Unable to mark message as read.'));
    }
+   $decode = new Mail_mimeDecode($msg['raw'], "\r\n");
+   $struct = $decode->decode(array(
+      'include_bodies'=>true,
+      'decode_bodies'=>true));
+
    pageHeader(_('Mail from ').htmlentities($msg['sender']));
    print '<div class="mail">'.LF;
    print '<div class="mail-headers">'.LF;
@@ -303,7 +309,31 @@ function viewMessage() {
    print '</table>'.LF;
    print '</div><!-- mail-headers -->'.LF;
    print '<div class="mail-body">'.LF;
-   print nl2br(htmlentities(trim($msg['body']))).LF;
+   if (isset($struct->parts)) {
+      $n=1;
+      foreach ($struct->parts as $index=>$part) {
+         switch ($part->disposition) {
+            case 'inline':
+               print '<pre>'.htmlentities(trim($part->body)).'</pre>';
+               break;
+            case 'attachment':
+               print '<span class="attachment">'._('Attachment').' '.$n++.
+                  ': '.LF;
+               print t('<a href="%url">%filename</a> (%type)<p/>', array(
+                  '%url'=>BASEURL.'mailbox.php?action=attachment&msgid='.
+                     $id.'&part='.$index,
+                  '%filename'=>$part->d_parameters['filename'],
+                  '%type'=>$part->headers['content-type']
+               ));
+               print '</span><br/>';
+               break;
+            default:
+               print _('Unknown disposition:').$part->disposition;
+         }
+      }
+   } else {
+      print nl2br(htmlentities(trim($msg['body']))).LF;
+   }
    print '</div><!-- mail-body -->'.LF;
    print '</div><!-- mail -->'.LF;
    
