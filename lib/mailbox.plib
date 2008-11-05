@@ -19,7 +19,7 @@
  *
  * incident.plib - Incident management application logic
  *
- * $Id: incident.plib 1297 2008-10-19 02:17:38Z kees $
+ * $Id$
  */
 
 require_once LIBDIR.'/database.plib';

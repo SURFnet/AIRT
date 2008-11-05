@@ -19,14 +19,14 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * Incidents.php - incident management interface
- * $Id: incident.php 1292 2008-10-13 12:35:29Z kees $
+ * $Id$
  */
 
 require_once 'config.plib';
 require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/database.plib';
 require_once LIBDIR.'/history.plib';
-require_once LIBDIR.'/mailqueue.plib';
+require_once LIBDIR.'/mailbox.plib';
 
 switch (strtolower(fetchFrom('REQUEST', 'action'))) {
     case 'list':
