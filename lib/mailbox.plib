@@ -156,22 +156,50 @@ function mailDelete($id, &$error) {
 	return true;
 }
 
-function mailActionSelection() {
+
+/**
+ * Return a drop-down with possible actions.
+ * @param $limit array with elements to display. Valid values are
+ *    'filters', 'mailops', 'incidents'. Elements will be added in
+ *    the order listed.
+ */
+function mailActionSelection($limit=array()) {
    $out = '';
 	$out .= '<select name="do">'.LF;
 	$out .= '<option value="0">'._('Do nothing').'</option>'.LF;
-   $filters = importqueue_get_filters();
-   sort($filters);
-	$out .= '<option value="0">-- '._('Filter with').' --</option>'.LF;
-   foreach ($filters as $key=>$filter) {
-      $out .= '<option value="filter-'.htmlentities($filter).'">'.
-		   htmlentities($filter).'</option>'.LF;
+   if (sizeof($limit) == 0) {
+      $limit = array('filters', 'mailops', 'other');
    }
-	$out .= '<option value="0">-- '._('Other actions').' --</option>'.LF;
-	$out .= '<option value="mark-read">'._('Mark read').'</option>'.LF;
-	$out .= '<option value="mark-unread">'._('Mark unread').'</option>'.LF;
-	$out .= '<option value="delete">'._('Delete').'</option>'.LF;
-	$out .= '</select>'.LF;
+   foreach ($limit as $l) {
+      switch ($l) {
+         case 'filters':
+            $filters = importqueue_get_filters();
+            sort($filters);
+            $out .= '<option value="0">-- '._('Filter with').
+                    ' --</option>'.LF;
+            foreach ($filters as $key=>$filter) {
+               $out .= '<option value="filter-'.htmlentities($filter).'">'.
+                  htmlentities($filter).'</option>'.LF;
+            }
+            break;
+         case 'mailops':
+	         $out .= '<option value="0">-- '._('Message status').
+                    ' --</option>'.LF;
+	         $out .= '<option value="mark-read">'._('Mark read').
+                    '</option>'.LF;
+	         $out .= '<option value="mark-unread">'._('Mark unread').
+                    '</option>'.LF;
+	         $out .= '<option value="delete">'._('Delete').'</option>'.LF;
+            break;
+         case 'other':
+            $out .= '<option value="0">-- '._('Other').' --</option>'.LF;
+            $out .= '<option value="msg-new">'._('New incident').
+                    '</option>'.LF;
+            $out .= '<option value="msg-src">'._('View message source').
+                    '</option>'.LF;
+      } // switch
+   } // foreach
+   $out .= '</select>'.LF;
 	
 	return $out;
 }
@@ -256,7 +284,7 @@ function listMailbox(&$error='') {
    $out .= '</table>'.LF;
 	$out .= '<p/>'._('Perform the following action on marked messages: ').LF;
 	$out .= '<input type="hidden" name="action" value="processQueue">'.LF;
-	$out .= mailActionSelection();
+	$out .= mailActionSelection(array('mailops'));
 	$out .= '<input type="submit" value="'._('Go').'">'.LF;
    $out .= '</form>'.LF;
 
@@ -364,7 +392,8 @@ function viewMessage() {
    print '<table>'.LF;
    print '<tr>'.LF;
    print '<td>'._('Perform action').'</td>'.LF;
-   print '<td>'.mailActionSelection().'</td>'.LF;
+   print '<td>'.mailActionSelection(array('mailops', 'other', 'filters')).
+         '</td>'.LF;
    print '</tr>'.LF;
    print '</table>'.LF;
 
@@ -374,17 +403,6 @@ function viewMessage() {
    print '</td>'.LF;
 
    print '<td>'.LF;
-   print t('<form action="%url" method="post">'.LF, array(
-      '%url'=>BASEURL.'/mailbox.php?action=incident'
-   ));
-   print '<input type="checkbox" name="use_sender">'.
-      _('Use sender as contact').'<br/>'.LF;
-   print '<input type="checkbox" name="use_date">'.
-      _('Use date as incident date').'<br/>'.LF;
-   print '<input type="checkbox" name="use_logging">'.
-      _('Use body as logging').'<br/>'.LF;
-   print '<input type="submit" value="'._('New incident').'">'.LF;
-   print '</form>'.LF;
    print '</td>'.LF;
 }
 
