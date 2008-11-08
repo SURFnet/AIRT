@@ -205,51 +205,65 @@ function listMailbox(&$error='') {
 		pageFooter();
 		return true; 
 	}
-   print t('<form method="GET" action="%url">'.LF, array(
+   // genereate javascript
+   $script = '<script language="JavaScript">'.LF;
+   $script .= 'function checkAll() {'.LF;
+   $script .= '  var check = document.forms[0].elements[0].checked;'.LF;
+   $count = 1;
+
+   $out = t('<form method="GET" action="%url">'.LF, array(
 	   '%url'=>BASEURL.'/mailbox.php'));
-   print '<table class="mailbox">'.LF;
-   print '<tr>'.LF;
-   print '<th class="check">&nbsp;</th>'.LF;
-   print '<th class="sender">'._('Sender').'</th>'.LF;
-   print '<th class="subject">'._('Subject').'</th>'.LF;
-   print '<th class="date">'._('Date').'</th>'.LF;
-   print '</tr>'.LF;
+   $out .= '<table class="mailbox">'.LF;
+   $out .= '<tr>'.LF;
+   $out .= '<th class="check"><input type="checkbox" name="check" '.
+         'onChange="checkAll()"></th>'.LF;
+   $out .= '<th class="sender">'._('Sender').'</th>'.LF;
+   $out .= '<th class="subject">'._('Subject').'</th>'.LF;
+   $out .= '<th class="date">'._('Date').'</th>'.LF;
+   $out .= '</tr>'.LF;
    foreach ($mailbox as $msg) {
-      print t('<tr class="%status">'.LF, array(
+      $out .= t('<tr class="%status">'.LF, array(
 		   '%status' => htmlentities($msg['status'])
 		));
-      print '<td nowrap class="check">'.LF;
-      print '<input type="checkbox" name="mail['.$msg['id'].']">'.LF;
-      print '</td>'.LF;
-      print '<td nowrap class="sender">';
-      print t('<a href="%url">%label</a>'.LF, array(
+      $out .= '<td nowrap class="check">'.LF;
+      $out .= '<input type="checkbox" name="mail['.$msg['id'].']">'.LF;
+      $out .= '</td>'.LF;
+
+      $script .= '  document.forms[0].elements['.$count++.'].checked = check;'.LF;
+      $out .= '<td nowrap class="sender">';
+      $out .= t('<a href="%url">%label</a>'.LF, array(
          '%label'=>htmlentities(truncString($msg['sender'], 35, '...')),
          '%url'=>BASEURL.'/mailbox.php?action=view&msgid='.
              urlencode($msg['id'])
       ));
-      print '</td>'.LF;
-      print '<td class="subject">';
-      print t('<a href="%url">%label</a>'.LF, array(
+      $out .= '</td>'.LF;
+      $out .= '<td class="subject">';
+      $out .= t('<a href="%url">%label</a>'.LF, array(
          '%label'=>htmlentities(truncString($msg['subject'], 50, '...')),
          '%url'=>BASEURL.'/mailbox.php?action=view&msgid='.
              urlencode($msg['id'])
       ));
-      print '</td>'.LF;
-      print '<td class="date">';
-      print t('<a href="%url">%label</a>'.LF, array(
+      $out .= '</td>'.LF;
+      $out .= '<td class="date">';
+      $out .= t('<a href="%url">%label</a>'.LF, array(
          '%label'=>truncString(date('M d Y H:i', $msg['date']), 19, '...'),
          '%url'=>BASEURL.'/mailbox.php?action=view&msgid='.
              urlencode($msg['id'])
       ));
-      print '</td>'.LF;
-      print '</tr>'.LF;
+      $out .= '</td>'.LF;
+      $out .= '</tr>'.LF;
    }
-   print '</table>'.LF;
-	print '<p/>'._('Perform the following action on marked messages: ').LF;
-	print '<input type="hidden" name="action" value="processQueue">'.LF;
-	print mailActionSelection();
-	print '<input type="submit" value="'._('Go').'">'.LF;
-   print '</form>'.LF;
+   $out .= '</table>'.LF;
+	$out .= '<p/>'._('Perform the following action on marked messages: ').LF;
+	$out .= '<input type="hidden" name="action" value="processQueue">'.LF;
+	$out .= mailActionSelection();
+	$out .= '<input type="submit" value="'._('Go').'">'.LF;
+   $out .= '</form>'.LF;
+
+   $script .= '}'.LF;
+   $script .= '</script>'.LF;
+
+   print $script.$out;
    pageFooter();
 }
 
