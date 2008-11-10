@@ -168,7 +168,7 @@ function mailActionSelection($limit=array()) {
 	$out .= '<select name="do">'.LF;
 	$out .= '<option value="0">'._('Do nothing').'</option>'.LF;
    if (sizeof($limit) == 0) {
-      $limit = array('filters', 'mailops', 'other');
+      $limit = array('filters', 'mailops', 'new', 'src');
    }
    foreach ($limit as $l) {
       switch ($l) {
@@ -183,18 +183,17 @@ function mailActionSelection($limit=array()) {
             }
             break;
          case 'mailops':
-	         $out .= '<option value="0">-- '._('Message status').
-                    ' --</option>'.LF;
 	         $out .= '<option value="mark-read">'._('Mark read').
                     '</option>'.LF;
 	         $out .= '<option value="mark-unread">'._('Mark unread').
                     '</option>'.LF;
 	         $out .= '<option value="delete">'._('Delete').'</option>'.LF;
             break;
-         case 'other':
-            $out .= '<option value="0">-- '._('Other').' --</option>'.LF;
+         case 'new':
             $out .= '<option value="msg-new">'._('New incident').
                     '</option>'.LF;
+            break;
+         case 'src':
             $out .= '<option value="msg-src">'._('View message source').
                     '</option>'.LF;
       } // switch
@@ -284,7 +283,7 @@ function listMailbox(&$error='') {
    $out .= '</table>'.LF;
 	$out .= '<p/>'._('Perform the following action on marked messages: ').LF;
 	$out .= '<input type="hidden" name="action" value="processQueue">'.LF;
-	$out .= mailActionSelection(array('mailops'));
+	$out .= mailActionSelection(array('mailops', 'new'));
 	$out .= '<input type="submit" value="'._('Go').'">'.LF;
    $out .= '</form>'.LF;
 
@@ -392,7 +391,8 @@ function viewMessage() {
    print '<table>'.LF;
    print '<tr>'.LF;
    print '<td>'._('Perform action').'</td>'.LF;
-   print '<td>'.mailActionSelection(array('mailops', 'other', 'filters')).
+   print '<td>'.mailActionSelection(array('src', 'mailops', 'new', 
+      'filters')).
          '</td>'.LF;
    print '</tr>'.LF;
    print '</table>'.LF;
@@ -400,11 +400,26 @@ function viewMessage() {
    print '<input type="hidden" name="action" value="processQueue">'.LF;
    print '<input type="submit" value="'._('Inbox').'">'.LF;
    print '</form>'.LF;
-   print '</td>'.LF;
+} // viewMessage();
 
-   print '<td>'.LF;
-   print '</td>'.LF;
+
+/**
+ * View message source in a new window.
+ * @param $error Errormessage, if any
+ */
+function viewSource($msgid='', &$error) {
+   if (!is_numeric($msgid) || $msgid == -1) {
+      $error = _('Invalid parameter type in').' mailbox.plib:'.__LINE__;
+      return false;
+   }
+   if (fetchMailMessage($msgid, $msg, $error) === false) {
+      return false;
+   }
+   print '<pre>'.LF;
+   print $msg['raw'];
+   print '</pre>'.LF;
 }
+
 
 /**
  * Handle actions to be performed on selected messages in the overview screen
@@ -430,6 +445,7 @@ function processQueue() {
 					}
 				}
 				airt_msg(t(_('%n messages updated.'), array('%n'=>$count)));
+            reload();
 	   	   break;
 
 	      case 'mark-unread':
@@ -444,6 +460,7 @@ function processQueue() {
 					}
 				}
 				airt_msg(t(_('%n messages updated.'), array('%n'=>$count)));
+            reload();
 	   	   break;
 
 	   	case 'delete':
@@ -458,14 +475,29 @@ function processQueue() {
 					}
 				}
 				airt_msg(t(_('%n messaged deleted.'), array('%n'=>$count)));
+            reload();
 	   	   break;
+
+         case 'msg-src':
+            foreach ($mails as $id=>$value) {
+               if (strtolower($value) == 'on') {
+                  if (viewSource($id, $error) === false) {
+                     airt_msg($error);
+                  }
+               }
+            }
+            break;
+
+         case 'msg-new':
+            print "New message.";
+            break;
 
 	   	default:
 	   	   airt_msg(_('Invalid parameter value in ').
 				   'mailbox.plib:'.__LINE__);
+            reload();
 	   }
 	}
-	reload();
 }
 
 /**
