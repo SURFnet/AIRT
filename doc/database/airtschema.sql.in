@@ -46,6 +46,7 @@ DROP SEQUENCE generic_sequence;
 DROP SEQUENCE address_roles_sequence;
 DROP SEQUENCE importfilter_templates_sequence;
 
+DROP TABLE incident_mail CASCADE;
 DROP TABLE mailbox CASCADE;
 DROP TABLE mailtemplate_capabilities CASCADE;
 DROP TABLE user_capabilities CASCADE;
@@ -405,6 +406,15 @@ CREATE TABLE mailbox (
     body      varchar,  -- Everything not header (no mime parsing yet)
     status    varchar,
     PRIMARY KEY (id)
+);
+
+CREATE TABLE incident_mail (
+    id integer,
+    messageid integer,
+    incidentid integer,
+    PRIMARY KEY (id),
+    FOREIGN KEY (messageid) REFERENCES mailbox(id),
+    FOREIGN KEY (incidentid) REFERENCES incidents(id)
 );
 
 CREATE SEQUENCE incident_types_sequence;

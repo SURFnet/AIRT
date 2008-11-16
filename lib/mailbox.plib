@@ -156,6 +156,144 @@ function mailDelete($id, &$error) {
 	return true;
 }
 
+/**
+ * Associate an email message with an incident
+ *
+ * @param incidentid 
+ * @param messageid
+ * @param error message, if any
+ * 
+ * @return true on success, false on failure
+ */
+function addEmailToIncident($incidentid, $messageid, &$error='') {
+   if (!is_numeric($incidentid)) {
+      $error = _('Invalid parameter type in').' mailbox.plib:'.__LINE__;
+      return false;
+   }
+   if (!is_numeric($messageid)) {
+      $error = _('Invalid parameter type in').' mailbox.plib:'.__LINE__;
+      return false;
+   }
+   if (($incident = getIncident($incidentid)) == false) {
+      $error = _('Invalid incident id in').' mailbox.plib:'.__LINE__;
+      return false;
+   }
+   if (($message = fetchMailMessage($messageid, $msg, $error)) == false) {
+      return false;
+   }
+   $q = q('INSERT INTO incident_mail 
+      id, messageid, incidentid
+      VALUES
+      (nextval(\'generic_sequence\'), %msgid, %incidentid)', array(
+      '%msgid'=>$messageid,
+      '%incidentid'=>$incidentid)
+   );
+   if (($res = db_query($q)) === false) {
+      $error = _('Database error:').db_errormessage().
+         ' in mailbox.plib:'.__LINE__;
+      return false;
+   }
+   return true;
+}
+
+/**
+ * Remove the association between email message and an incident
+ *
+ * @param incidentid 
+ * @param messageid
+ * @param error message, if any
+ * 
+ * @return true on success, false on failure
+ */
+function removeEmailToIncident($incidentid, $messageid, &$error='') {
+   if (!is_numeric($incidentid)) {
+      $error = _('Invalid parameter type in').' mailbox.plib:'.__LINE__;
+      return false;
+   }
+   if (!is_numeric($messageid)) {
+      $error = _('Invalid parameter type in').' mailbox.plib:'.__LINE__;
+      return false;
+   }
+   $q = q('DELETE FROM incident_email
+      WHERE incidentid=%incidentid
+      AND   messageid=%msgid', array(
+      '%incidentid'=>$incidentid,
+      '%msgid'=>$messageid)
+   );
+   if (($res = db_query($q)) === false) {
+      $error = _('Database error:').db_errormessage().
+         ' in mailbox.plib:'.__LINE__;
+      return false;
+   }
+   return true;
+}
+
+/**
+ * Fetch emails for incident
+ *
+ * @param incidentid 
+ * @param error message, if any
+ * @param messages Array to which the found message ids will be added.
+ * 
+ * @return true on success, false on failure
+ */
+function fetchEmailsForIncident($incidentid, &$messages, &$error='') {
+   if (!is_numeric($incidentid)) {
+      $error = _('Invalid parameter type in').' mailbox.plib:'.__LINE__;
+      return false;
+   }
+   $q = q('SELECT messageid
+      FROM  incident_email
+      WHERE incidentid=%incidentid', array(
+      '%incidentid'=>$incidentid)
+   );
+   if (($res = db_query($q)) === false) {
+      $error = _('Database error:').db_errormessage().
+         ' in mailbox.plib:'.__LINE__;
+      return false;
+   }
+   while (($row = db_fetch_next($res)) !== false) {
+      $messages[] = $row['messageid'];
+   }
+   return true;
+}
+
+/**
+ * Fetch incidents for email
+ *
+ * @param messageid 
+ * @param error message, if any
+ * @param messages Array to which the found incidents ids will be added.
+ * 
+ * @return true on success, false on failure
+ */
+function fetchEmailsForIncident($messageid, &$messages, &$error='') {
+   if (!is_numeric($messageid)) {
+      $error = _('Invalid parameter type in').' mailbox.plib:'.__LINE__;
+      return false;
+   }
+   $q = q('SELECT incidentid
+      FROM  incident_email
+      WHERE messageid=%messageid', array(
+      '%messageid'=>$messageid)
+   );
+   if (($res = db_query($q)) === false) {
+      $error = _('Database error:').db_errormessage().
+         ' in mailbox.plib:'.__LINE__;
+      return false;
+   }
+   while (($row = db_fetch_next($res)) !== false) {
+      $messages[] = $row['incidentid'];
+   }
+   return true;
+}
+
+
+/*****************************************************************
+ *
+ * FRONTEND FUNCTIONS BELOW
+ *
+ *****************************************************************/
 
 /**
  * Return a drop-down with possible actions.
