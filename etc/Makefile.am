@@ -22,8 +22,8 @@ configdir=$(sysconfdir)/$(PACKAGE)
 scriptdir=@AIRT_PHPDIR@
 
 config_DATA = airt-apache.conf.dist airt.cfg.dist customfunctions.plib.dist \
-   webservice.cfg.dist importqueue.cfg.dist exportqueue.cfg.dist \
-   otrs.cfg.dist 
+   webservice.cfg.dist importqueue.cfg.dist exportqueue.cfg.dist 
+   
 
 script_DATA=airt-style.css.dist
 

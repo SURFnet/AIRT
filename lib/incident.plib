@@ -1350,16 +1350,6 @@ function formatIncidentForm(&$check) {
       'state'=>$state,
       'status'=>$status));
 
-	if (defined('OTRS_ACTIVE') && OTRS_ACTIVE === true) {
-	   $tn = strip_tags(fetchFrom('SESSION', 'otrs_tn'));
-		if (!empty($tn)) {
-	      unset($_SESSION['otrs_tn']);
-		   $output .= '<input type="checkbox" CHECKED name="otrs-link">'.LF;
-			$output .= '<input type="hidden" name="otrs_tn" value="'.$tn.'">'.LF;
-			$output .= t(_('Link to OTRS ticket %tn'), array('%tn'=>$tn));
-		}
-	}
-
    $output .= '<h3>'._('Affected IP addresses').'</h3>'.LF;
    $output .= '<table cellpadding=4>'.LF;
    $output .= '<tr>'.LF;
@@ -2137,24 +2127,6 @@ function formatEditTicket($incidentid='') {
       _('Add ticket number').'">';
    $out .= '</form>';
    return $out;
-}
-
-/** Return an array containing OTRS ticket numbers for the provided incident
- * @param $incidentid Numerical incident id
- * @return an array containing the appropriate OTRS ticket numbers (may be empty)
- */
-function getTicketNumbers($incidentid) {
-   if (!is_numeric($incidentid)) {
-      return false;
-   }
-   $matches = array();
-   $tn = array();
-   foreach (getExternalIncidentIDs($incidentid) as $extid) {
-      if (preg_match('/^_OTRS([0-9]+)/', $extid, $matches) > 0) {
-         $tn[] = $matches[1];
-      }
-   }
-   return $tn;
 }
 
 /** Return an array containing incidents.

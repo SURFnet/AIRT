@@ -156,9 +156,6 @@ function airt_check_session($public) {
 ///// End init code; remaining file contains only function definitions, ////
 ///// but these are partially conditional. /////////////////////////////////
 
-# TODO: make this configurable
-putenv('PERLLIB=/usr/share/otrs');
-
 /**
  * Display the page header
  * @in title The title of the page

@@ -807,24 +807,14 @@ function replace_vars($msg, $current=array()) {
      }
 
      $extids = array();
-     $otrs = array();
      foreach (getExternalIncidentIDs($incidentid) as $e) {
         if (preg_match('/^_(.*)/', $e, $mm) == 0) {
            $extids[] = $e;
-        } else {
-           if (substr($mm[1], 0, 4) == 'OTRS') {
-              $otrs[] = substr($mm[1], 4);
-           }
-        }
+        } 
      }
 
      if (strpos($out, '@EXTIDS@') !== FALSE) {
         $out = ereg_replace('@EXTIDS@', implode(',',$extids),$out);
-     }
-     if (strpos($out, '@OTRS') !== FALSE) {
-        $out = ereg_replace('@OTRS@', 
-              _('Please leave this line intact: ').'[Ticket#'.
-              implode(',',$otrs).']', $out);
      }
 
      // Basic incident data in XML format.

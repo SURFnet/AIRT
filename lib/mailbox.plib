@@ -267,7 +267,7 @@ function fetchEmailsForIncident($incidentid, &$messages, &$error='') {
  * 
  * @return true on success, false on failure
  */
-function fetchEmailsForIncident($messageid, &$messages, &$error='') {
+function fetchIncidentsForEmail($messageid, &$messages, &$error='') {
    if (!is_numeric($messageid)) {
       $error = _('Invalid parameter type in').' mailbox.plib:'.__LINE__;
       return false;

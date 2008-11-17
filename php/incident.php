@@ -23,7 +23,6 @@
  */
 
 require_once 'config.plib';
-require_once ETCDIR.'/otrs.cfg';
 require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/database.plib';
 require_once LIBDIR.'/constituency.plib';
@@ -102,21 +101,6 @@ switch ($action) {
 	 }
     $output .= implode(',', $e);
     $output .= '</div><!-- externalids -->'.LF;
-	 if (defined('OTRS_ACTIVE') && OTRS_ACTIVE === true) {
-       $output .= '<div class="details-tickets" width="100%">'.LF;
-       $output .= t('(<a href="%url?action=edit_ticket&incidentid=%incidentid">'.
-         _('Edit').'</a>) ', array('%url'=>$_SERVER['PHP_SELF'], 
-         '%incidentid'=>$incidentid));
-		 $output .= _('Ticket number(s)').': ';
-		 foreach (getTicketNumbers($incidentid) as $tn) {
-			 $out = array();
-			 $cmd = LIBDIR.'/otrs/airt_otrs_ticketurl.pl '.OTRS_BASEURL.' '.$tn;
-			 $out = exec($cmd, $out, $res);
-			 $output .= t('<a href="%url">%tn</a>&nbsp; ', array('%url'=>$out,
-				 '%tn'=>$tn));
-		 }
-		 $output .= '</div><!-- tickets -->'.LF;
-	 }
     $output .= formatEditForm();
     $output .= '<div class="details-history">'.LF;
     $output .= '<h3>'._('History').'</h3>'.LF;
@@ -289,16 +273,6 @@ switch ($action) {
             fetchFrom('POST', 'addressrole', '%d'));
       }
 		
-	   if (defined('OTRS_ACTIVE') && OTRS_ACTIVE === true) {
-		   $otrsln = fetchFrom('REQUEST', 'otrs-link');
-			$otrstn = fetchFrom('REQUEST', 'otrs_tn');
-
-			defaultTo($otrsln, 'off');
-			if ($otrsln === 'on') {
-				addExternalIncidentIds($incidentid, '_OTRS'.$otrstn);
-			}
-		}
-
       $incident_userids = array();
       if ($email != '') {
          /* email addresses can be specified as a comma-separated list.
@@ -704,27 +678,6 @@ _('Continue').'...</a>'.LF,
          'logging'=>$logging,
          'template'=>$template,
          'desc'=>$desc));
-		/* attempt to close corresponding OTRS tickets, if any*/
-		if (getIncidentStatusLabelByID($status) == 'closed') {
-			foreach (getTicketNumbers($incidentid) as $tn) {
-				$cmd = LIBDIR.'/otrs/airt_otrs_ticketclose.pl '.$tn;
-				$out = exec($cmd, $out, $res);
-				if ($res == 0) {
-					addIncidentComment(array(
-                  'comment'=>_('Closed OTRS ticket ').$tn,
-                  'incidentid'=>$incidentid
-               ));
-				} else {
-				   addIncidentComment(array(
-                  'comment'=>_('Failed to close OTRS ticket ').$tn,
-                  'incidentid'=>$incidentid
-               ));
-					echo "<PRE>Cmd: $cmd\n";
-					echo "Error code: $res";;
-					echo "</PRE>";
-				}
-			}
-		}
 
       addIncidentComment(array(
          'comment'=>sprintf(_(
@@ -972,7 +925,6 @@ _('Continue').'...</a>'.LF,
          Header("Location: $_SERVER[PHP_SELF]");
          return;
       }
-      deleteExternalIncidentIDs($incidentid, '_OTRS'.$tn);
       Header("Location: $_SERVER[PHP_SELF]?action=edit_ticket&incidentid=".
          urlencode($incidentid));
       break;
@@ -992,7 +944,6 @@ _('Continue').'...</a>'.LF,
          Header("Location: $_SERVER[PHP_SELF]");
          return;
       }
-      addExternalIncidentIDs($incidentid, '_OTRS'.$tn);
       Header("Location: $_SERVER[PHP_SELF]?action=edit_ticket&incidentid=".
          urlencode($incidentid));
       break;
