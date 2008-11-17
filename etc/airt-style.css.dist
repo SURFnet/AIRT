@@ -2,10 +2,12 @@
 body {
   background-color: #F0F8FF;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: medium;
+  font-size: 12px;
+  margin: 0;
+  padding: 0;
 }
 
-A {
+.navbar a {
   color: #0000FF;
   text-decoration: none;
 }
@@ -14,57 +16,29 @@ A:hover {
   text-decoration: underline;
 }
 
+table{
+font: 12px Verdana, Arial, sans-serif;
+}
+
 tr.odd {
-  background-color: transparent;
+  background-color: #EEEEEE;
 }
 
 tr.even {
-  background-color: #DDDDDD;
+  background-color: #FFF;
 }
 
 .titlebar {
-  margin-top: 2px;
-  width: 100%;
-  height: 61px; /* height of logo */
+  height: 63px;
+  padding-top: 1ex;
+  padding-left: 160px;
   background-image: url(images/airt_logo.png);
   background-position: left-top;
   background-repeat: no-repeat;
+  font-size: 22px;
+  font-weight: bold;
   border-bottom: 1px solid black;
   background-color: #87CEFA;
-}
-
-.titlebox {
-    position: absolute;
-    left: 160px;
-    top: 1ex;
-}
-
-.titlebar {
-    font-size: 120%;
-    font-weight: bold;
-}
-
-.userinfo {
-   top: 1em;
-   right: 0px;
-   position: absolute;
-   color: white;
-   font-size: small;
-}
-
-
-.navbar {
-  position: absolute;
-  left: 160px;
-  top: 36;
-  border-left: 1px solid black;
-  font-size: small;
-}
-
-.navbar .navitem {
-  border-right: 1px solid black;
-  padding-left: 0.5ex;
-  padding-right: 0.5ex;
 }
 
 .messages {
@@ -72,8 +46,30 @@ tr.even {
     background-color: yellow;
 }
 
+.userinfo {
+position: absolute;
+top: 0;
+right: 0;
+    padding: 5px;
+    text-align: right;
+}
+
+.navbar {
+  position: absolute;
+  background-color: #87CEFA;
+  left: 160px;
+  top: 56px;
+  font-size: small;
+}
+
+.navbar .navitem {
+border: 1px solid black;
+  padding: 3px 5px;
+}
+
 .content {
-  color: grey;
+padding: 20px 10px 10px 10px;
+font: 12px Verdana, Arial, sans-serif;
 }
 
 .content h2 {
@@ -83,8 +79,7 @@ tr.even {
 }
 
 .content h3 {
-  font-size: large;
-  font-weight: bold;
+  font: bold 18px Arial, Verdana, sans-serif;
 }
 
 .footer {
