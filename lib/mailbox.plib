@@ -371,7 +371,8 @@ function listMailbox(&$error='') {
 		return true; 
 	}
    // genereate javascript
-   $script = '<script language="JavaScript">'.LF;
+   $script = '<div id="mbox-content">'.LF;
+   $script .= '<script language="JavaScript">'.LF;
    $script .= 'function checkAll() {'.LF;
    $script .= '  var check = document.forms[0].elements[0].checked;'.LF;
    $count = 1;
@@ -424,11 +425,23 @@ function listMailbox(&$error='') {
 	$out .= mailActionSelection(array('mailops', 'new'));
 	$out .= '<input type="submit" value="'._('Go').'">'.LF;
    $out .= '</form>'.LF;
+   $out .= '</div><!-- mbox-content -->'.LF;
+
+   $side = '<div id="mbox-sidebar">'.LF;
+   $side .= '<strong>'._('Operations').'</strong>'.LF;
+   $side .= '<form>'.LF;
+   $side .= '2<br/>'.LF;
+   $side .= '3<br/>'.LF;
+   $side .= '4<br/>'.LF;
+   $side .= '</form>'.LF;
+   $side .= '</div><!-- mbox-sidebar -->'.LF;
 
    $script .= '}'.LF;
    $script .= '</script>'.LF;
 
-   print $script.$out;
+   print '<div id="mbox-container">'.$script.$out.'</div>'.
+         '<!-- mbox-container -->'.LF;
+   print $side;
    pageFooter();
 }
 
