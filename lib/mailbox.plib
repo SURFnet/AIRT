@@ -371,8 +371,7 @@ function listMailbox(&$error='') {
 		return true; 
 	}
    // genereate javascript
-   $script = '<div id="mbox-content">'.LF;
-   $script .= '<script language="JavaScript">'.LF;
+   $script = '<script language="JavaScript">'.LF;
    $script .= 'function checkAll() {'.LF;
    $script .= '  var check = document.forms[0].elements[0].checked;'.LF;
    $count = 1;
@@ -425,23 +424,11 @@ function listMailbox(&$error='') {
 	$out .= mailActionSelection(array('mailops', 'new'));
 	$out .= '<input type="submit" value="'._('Go').'">'.LF;
    $out .= '</form>'.LF;
-   $out .= '</div><!-- mbox-content -->'.LF;
-
-   $side = '<div id="mbox-sidebar">'.LF;
-   $side .= '<strong>'._('Operations').'</strong>'.LF;
-   $side .= '<form>'.LF;
-   $side .= '2<br/>'.LF;
-   $side .= '3<br/>'.LF;
-   $side .= '4<br/>'.LF;
-   $side .= '</form>'.LF;
-   $side .= '</div><!-- mbox-sidebar -->'.LF;
 
    $script .= '}'.LF;
    $script .= '</script>'.LF;
 
-   print '<div id="mbox-container">'.$script.$out.'</div>'.
-         '<!-- mbox-container -->'.LF;
-   print $side;
+   print $script.$out;
    pageFooter();
 }
 
@@ -475,6 +462,9 @@ function viewMessage() {
       'decode_bodies'=>true));
 
    pageHeader(_('Mail from ').htmlentities($msg['sender']));
+   print '<div id="mbox">'.LF;
+   print '<div id="mbox-container">'.LF;
+   print '<div id="mbox-content">'.LF;
    print '<div class="mail">'.LF;
    print '<div class="mail-headers">'.LF;
    print '<table>'.LF;
@@ -529,7 +519,26 @@ function viewMessage() {
    }
    print '</div><!-- mail-body -->'.LF;
    print '</div><!-- mail -->'.LF;
+   print '</div><!-- mbox-content -->'.LF;
+   print '</div><!-- mbox-container -->'.LF;
+
+   print '<div id="mbox-sidebar">'.LF;
+   print '<strong>'._('Operations').'</strong><br/><br/>'.LF;
+
+
+
+   print _('Link to incident:').'<br/>'.LF;
+   print '<form>'.LF;
+   print '<select name="incident">'.LF;
+   print '<option value="@">--'._('Use value below').'--</option>'.LF;
+   print '</select><br/>'.LF;
+   print _('Incident number:').'<br/>'.LF;
+   print '<input type="text" name="incident" size="10"><br/>'.LF;
+   print '<input type="submit" value="'._('Go').'">'.LF;
+   print '</form>'.LF;
+   print '</div><!-- mbox-sidebar -->'.LF;
    
+   print '</div><!-- mbox -->'.LF;
    print '<table>'.LF;
    print '<tr valign="top">'.LF;
    print '<td>'.LF;
