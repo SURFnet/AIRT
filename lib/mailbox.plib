@@ -214,7 +214,7 @@ function removeEmailToIncident($incidentid, $messageid, &$error='') {
       $error = _('Invalid parameter type in').' mailbox.plib:'.__LINE__;
       return false;
    }
-   $q = q('DELETE FROM incident_email
+   $q = q('DELETE FROM incident_mail
       WHERE incidentid=%incidentid
       AND   messageid=%msgid', array(
       '%incidentid'=>$incidentid,
@@ -243,7 +243,7 @@ function fetchEmailsForIncident($incidentid, &$messages, &$error='') {
       return false;
    }
    $q = q('SELECT messageid
-      FROM  incident_email
+      FROM  incident_mail
       WHERE incidentid=%incidentid', array(
       '%incidentid'=>$incidentid)
    );
@@ -273,7 +273,7 @@ function fetchIncidentsForEmail($messageid, &$messages, &$error='') {
       return false;
    }
    $q = q('SELECT incidentid
-      FROM  incident_email
+      FROM  incident_mail
       WHERE messageid=%messageid', array(
       '%messageid'=>$messageid)
    );
@@ -525,19 +525,64 @@ function viewMessage() {
    print '<div id="mbox-sidebar">'.LF;
    print '<strong>'._('Operations').'</strong><br/><br/>'.LF;
 
+   print '<div class="sidebar-element">'.LF;
+   print '<div class="sidebar-content">'.LF;
+   print t('<form action="%url" method="get">'.LF, array(
+      '%url'=>BASEURL.'/search.php'));
+   print _('Search IP:').'<br/>'.LF;
+   print '<input type="hidden" name="qtype" value="host">'.LF;
+   print '<input type="hidden" name="action" value="Search">'.LF;
+   print '<input type="text" name="q" width="10">'.LF;
+   print '<input type="submit" value="Search">'.LF;
+   print '</form>'.LF;
+   print '</div><!-- sidebar-content -->'.LF;
+   print '</div><!-- sidebar-element -->'.LF;
 
 
+   print '<div class="sidebar-element">'.LF;
+   print '<div class="sidebar-content">'.LF;
+   print t('<form action="%url" method="GET">'.LF, array(
+      '%url'=>BASEURL.'/mailbox.php'));
+   print '<input type="hidden" name="action" value="link">'.LF;
+   print t('<input type="hidden" name="msgid" value="%id">'.LF, array(
+      '%id'=>htmlentities($id)));
    print _('Link to incident:').'<br/>'.LF;
-   print '<form>'.LF;
-   print '<select name="incident">'.LF;
-   print '<option value="@">--'._('Use value below').'--</option>'.LF;
+   print '<select name="incidentselection">'.LF;
+   print '<option value="@">---'._('Use value below').'---</option>'.LF;
+   foreach (getOpenincidents() as $id=>$data) {
+      print t('<option value="%id">%no</option>'.LF, array(
+         '%id'=>$id,
+         '%no'=>normalize_incidentid($id)));
+   }
+
    print '</select><br/>'.LF;
    print _('Incident number:').'<br/>'.LF;
-   print '<input type="text" name="incident" size="10"><br/>'.LF;
+   print '<input type="text" name="incidenttext" size="10"><br/>'.LF;
    print '<input type="submit" value="'._('Go').'">'.LF;
    print '</form>'.LF;
+   print '</div><!-- sidebar-content -->'.LF;
+   print '</div><!-- sidebar-element -->'.LF;
+
+   print '<div class="sidebar-element">'.LF;
+   print '<div class="sidebar-content">'.LF;
+   print _('Linked incidents:').'<br/>'.LF;
+   $incidents = array();
+   if (fetchIncidentsForEmail($id, $incidents, $error) === false) {
+      airt_msg($error);
+   } else {
+      $count = 0;
+      foreach ($incidents as $incident) {
+         print normalize_incidentid($incident);
+         $count++;
+      }
+      if ($count == 0) {
+         print '<em>'._('No links').'</em><br/>'.LF;
+      }
+   }
+   print '</div><!-- sidebar-content -->'.LF;
+   print '</div><!-- sidebar-element -->'.LF;
+
    print '</div><!-- mbox-sidebar -->'.LF;
-   
    print '</div><!-- mbox -->'.LF;
    print '<table>'.LF;
    print '<tr valign="top">'.LF;
@@ -714,5 +759,9 @@ function viewAttachment() {
       reload();
       return;
    }
+}
+
+function linkMessage() {
+   var_dump($_REQUEST);
 }
 ?>

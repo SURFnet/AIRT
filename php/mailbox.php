@@ -41,6 +41,9 @@ switch (strtolower(fetchFrom('REQUEST', 'action'))) {
     case 'attachment';
        viewAttachment();
        break;
+    case 'link':
+       linkMessage();
+       break;
     default:
        listMailbox();
 }
