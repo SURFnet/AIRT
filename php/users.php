@@ -147,15 +147,54 @@
 
  switch ($action) {
    // --------------------------------------------------------------
-   case "list":
+   case 'list':
+   case 'Show':
       pageHeader(_("AIRT users"));
 
-      $res = db_query("
-            SELECT id, login, lastname, firstname, email, phone,
-                   userid
-            FROM   users
-            ORDER BY login")
-      or die(_('Unable to query database.'));
+      $interactive = fetchFrom('REQUEST', 'interactive', '%s');
+      defaultTo($interactive, 'on');
+
+      $contacts = fetchFrom('REQUEST', 'contacts', '%s');
+      defaultTo($contacts, 'off');
+
+      $all = fetchFrom('REQUEST', 'all', '%s');
+      defaultTo($all, 'off');
+
+      print t('<form action="%url" method="GET">'.LF, array(
+         '%url'=>BASEURL.'/users.php'));
+      print _('Display: ').LF;
+      print t('<input type="checkbox" name="interactive" %checked>'.LF, array(
+         '%checked'=>$interactive == 'on' ? 'CHECKED' : ''));
+      print _('Interactive users').' '.LF;
+      print t('<input type="checkbox" name="contacts" %checked>'.LF, array(
+         '%checked'=>$contacts == 'on' ? 'CHECKED' : ''));
+      print _('Constituency contacts').' '.LF;
+      print t('<input type="checkbox" name="all" %checked>'.LF, array(
+         '%checked'=>$all == 'on' ? 'CHECKED' : ''));
+      print _('All contacts').LF;
+      print '<input type="submit" name="action" value="Show">'.LF;
+      print '</form>';
+
+      $query = q('SELECT id, login, lastname, firstname, email, phone,
+                userid FROM users ');
+      if ($all != 'on') {
+         $mods = array();
+         if ($interactive == 'on') {
+            $mods[] = 'NOT login IS NULL';
+         }
+         if ($contacts == 'on') {
+            $mods[] = 'id IN (select distinct userid from constituency_contacts)';
+         }
+         if (sizeof($mods) > 0) {
+            $query .= 'WHERE ';
+            $query .= implode(' OR ', $mods);
+         }
+      }
+      $query .= ' ORDER  BY login,email';
+
+      if (($res = db_query($query)) === false) {
+         die(_('Unable to query database.'));
+      }
 
       print '<table width="100%" cellpadding=3>'.LF;
       print '<tr>'.LF;
@@ -195,6 +234,7 @@
       }
       db_free_result($res);
       print '</table>'.LF;
+
       print '<P>'.LF;
       print '<h3>'._('New user').'</h3>'.LF;
       show_form();
