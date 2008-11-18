@@ -57,7 +57,7 @@ function fetchMailMessage($msgid, &$msg, &$error='') {
       'status, raw from mailbox where id=%msgid', array(
       '%msgid'=>$msgid));
    $res = db_query($q);
-   if ($res === false) {
+   if (($res = db_query($q)) === false) {
       $error = _('Database error in ').'mailbox.plib:'.__LINE__;
       return false;
    }
@@ -549,12 +549,11 @@ function viewMessage() {
    print _('Link to incident:').'<br/>'.LF;
    print '<select name="incidentselection">'.LF;
    print '<option value="@">---'._('Use value below').'---</option>'.LF;
-   foreach (getOpenincidents() as $id=>$data) {
+   foreach (getOpenincidents() as $incidentid=>$data) {
       print t('<option value="%id">%no</option>'.LF, array(
-         '%id'=>$id,
-         '%no'=>normalize_incidentid($id)));
+         '%id'=>$incidentid,
+         '%no'=>normalize_incidentid($incidentid)));
    }
-
    print '</select><br/>'.LF;
    print _('Incident number:').'<br/>'.LF;
    print '<input type="text" name="incidenttext" size="10"><br/>'.LF;
