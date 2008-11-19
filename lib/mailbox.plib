@@ -465,6 +465,23 @@ function viewMessage() {
    pageHeader(_('Mail from ').htmlentities($msg['sender']));
    print '<div id="mbox">'.LF;
    print '<div id="mbox-container">'.LF;
+   print t('<form action="%url" method="get">', array(
+      '%url'=>BASEURL.'/mailbox.php'
+   ));
+	print t('<input type="hidden" name="mail[%msgid]" value="on">', array(
+	   '%msgid'=>$id
+	));
+	print '<input type="hidden" name="action" value="processQueue">'.LF;
+   print '<input type="submit" name="do" value="'._('Archive').'">'.LF;
+   print '<input type="submit" name="do" value="'._('Delete').'">'.LF;
+   print '<input type="submit" name="do" value="'._('Reply').'">'.LF;
+   print '<input type="submit" name="do" value="'._('Forward').'">'.LF;
+   print '<input type="submit" name="do" value="'._('Mark read').'">'.LF;
+   print '<input type="submit" name="do" value="'._('Mark unread').'">'.LF;
+   print '<input type="submit" name="do" value="'._('New incident').'">'.LF;
+   print '<input type="submit" name="do" value="'._('View Source').'">'.LF;
+
+   print '</form>'.LF;
    print '<div id="mbox-content">'.LF;
    print '<div class="mail">'.LF;
    print '<div class="mail-headers">'.LF;
@@ -610,9 +627,7 @@ function viewMessage() {
    print '<table>'.LF;
    print '<tr>'.LF;
    print '<td>'._('Perform action').'</td>'.LF;
-   print '<td>'.mailActionSelection(array('src', 'mailops', 'new', 
-      'filters')).
-         '</td>'.LF;
+   print '<td>'.mailActionSelection(array('filters')).'</td>'.LF;
    print '</tr>'.LF;
    print '</table>'.LF;
 
@@ -651,8 +666,8 @@ function processQueue() {
 	} else {
 	   $do = fetchFrom('REQUEST', 'do');
 	   defaultTo($do, '');
-	   switch ($do) {
-	      case 'mark-read':
+	   switch (strtolower($do)) {
+	      case _('mark read'):
 			   $count=0;
 			   foreach ($mails as $id=>$value) {
 				   if (strtolower($value) == 'on') {
@@ -667,7 +682,7 @@ function processQueue() {
             reload();
 	   	   break;
 
-	      case 'mark-unread':
+	      case _('mark unread'):
 			   $count=0;
 			   foreach ($mails as $id=>$value) {
 				   if (strtolower($value) == 'on') {
@@ -682,7 +697,7 @@ function processQueue() {
             reload();
 	   	   break;
 
-	   	case 'delete':
+	   	case _('delete'):
 			   $count=0;
 			   foreach ($mails as $id=>$value) {
 				   if (strtolower($value) == 'on') {
@@ -697,7 +712,7 @@ function processQueue() {
             reload();
 	   	   break;
 
-         case 'msg-src':
+         case _('view source'):
             foreach ($mails as $id=>$value) {
                if (strtolower($value) == 'on') {
                   if (viewSource($id, $error) === false) {
@@ -707,7 +722,7 @@ function processQueue() {
             }
             break;
 
-         case 'msg-new':
+         case _('new incident'):
             foreach ($mails as $id=>$value) {
                if (strtolower($value) == 'on') {
                   if (fetchMailMessage($id, $msg, $error) == false) {
