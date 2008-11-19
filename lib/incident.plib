@@ -29,6 +29,7 @@ require_once LIBDIR.'/history.plib';
 require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/mailtemplates.plib';
 require_once LIBDIR.'/profiler.plib';
+require_once LIBDIR.'/mailbox.plib';
 
 /** Return an associative array with incident states.
  * @param $extras Optionally, an array with extra incident states that are
@@ -65,8 +66,10 @@ function getIncidentStateDescr($id='') {
    }
 }
 
-/* Return the current incident state ID system default. If there is no
- * explicit default set, return an empty string. */
+/**
+ * Return the current incident state ID system default. If there is no
+ * explicit default set, return an empty string. 
+ */
 function getIncidentStateDefault() {
    $res = db_query('SELECT id FROM incident_states WHERE isdefault')
    or die(_('Unable to execute query.'));
@@ -1579,6 +1582,57 @@ function formatEditForm() {
    $output .= '<input size="40" type="file" name="file">'.LF;
    $output .= '<input type="submit" value="Upload">'.LF;
    $output .= '</form>'.LF;
+
+   $output .= '<div class="details-mails">'.LF;
+   $output .= '<h3>'._('Linked email messages').'</h3>'.LF;
+   if (fetchEmailsForIncident($incident['incidentid'], $msgs, $err) == false){
+      airt_msg($err);
+   } else {
+      if (sizeof($msgs) == 0) {
+         $output .= '<em>'._('No linked messages').'</em>'.LF;
+      } else {
+         $output .= '<table border="1">';
+         $output .= '<tr>'.LF;
+         $output .= '<th>'._('Unlink').'</th>'.LF;
+         $output .= '<th>'._('View').'</th>'.LF;
+         $output .= '<th>'._('Sender').'</th>'.LF;
+         $output .= '<th>'._('Subject').'</th>'.LF;
+         $output .= '<th>'._('Date').'</th>'.LF;
+         $output .= '</tr>'.LF;
+
+         $count=0;
+         foreach ($msgs as $msgid) {
+            if ( fetchMailMessage($msgid, $msg, $err) == false) {
+               airt_msg($err);
+            } else {
+               $output .= '<tr>'.LF;
+               $output .= '<td>'.LF;
+               $output .= t('<a href="%u?action=unlink&msgid=%m&incidentid=%i">'.
+                  _('unlink').'</a>'.LF, array(
+                  '%u'=>BASEURL.'/incident.php',
+                  '%m'=>$msgid,
+                  '%i'=>$incident['incidentid']));
+               $output .= '</td>'.LF;
+               $output .= '<td>'.LF;
+               $output .= t('<a href="%u?action=view&msgid=%m">'.
+                  _('view').'</a>'.LF, array(
+                  '%u'=>BASEURL.'/mailbox.php',
+                  '%m'=>$msgid));
+               $output .= '</td>'.LF;
+               $output .= t('<td>%sender</td>'.LF, array(
+                  '%sender'=>$msg['sender']));
+               $output .= t('<td>%subject</td>'.LF, array(
+                  '%subject'=>$msg['subject']));
+               $output .= t('<td>%date</td>'.LF, array(
+                  '%date'=>date('r', $msg['date'])));
+               $output .= '</tr>'.LF;
+            }
+         }
+         $output .= '</table>';
+      }
+   }
+      
+   $output .= '</div>'.LF;
    return $output;
 } // formatEditForm
 

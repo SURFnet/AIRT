@@ -44,6 +44,9 @@ switch (strtolower(fetchFrom('REQUEST', 'action'))) {
     case 'link':
        linkMessage();
        break;
+    case 'unlink':
+       unlinkMessage();
+       break;
     default:
        listMailbox();
 }

@@ -182,7 +182,7 @@ function addEmailToIncident($incidentid, $messageid, &$error='') {
       return false;
    }
    $q = q('INSERT INTO incident_mail 
-      id, messageid, incidentid
+      (id, messageid, incidentid)
       VALUES
       (nextval(\'generic_sequence\'), %msgid, %incidentid)', array(
       '%msgid'=>$messageid,
@@ -205,7 +205,7 @@ function addEmailToIncident($incidentid, $messageid, &$error='') {
  * 
  * @return true on success, false on failure
  */
-function removeEmailToIncident($incidentid, $messageid, &$error='') {
+function removeEmailFromIncident($incidentid, $messageid, &$error='') {
    if (!is_numeric($incidentid)) {
       $error = _('Invalid parameter type in').' mailbox.plib:'.__LINE__;
       return false;
@@ -274,7 +274,8 @@ function fetchIncidentsForEmail($messageid, &$messages, &$error='') {
    }
    $q = q('SELECT incidentid
       FROM  incident_mail
-      WHERE messageid=%messageid', array(
+      WHERE messageid=%messageid
+      ORDER BY incidentid', array(
       '%messageid'=>$messageid)
    );
    if (($res = db_query($q)) === false) {
@@ -555,7 +556,7 @@ function viewMessage() {
          '%no'=>normalize_incidentid($incidentid)));
    }
    print '</select><br/>'.LF;
-   print _('Incident number:').'<br/>'.LF;
+   print _('or provide incident number:').'<br/>'.LF;
    print '<input type="text" name="incidenttext" size="10"><br/>'.LF;
    print '<input type="submit" value="'._('Go').'">'.LF;
    print '</form>'.LF;
@@ -571,8 +572,22 @@ function viewMessage() {
    } else {
       $count = 0;
       foreach ($incidents as $incident) {
-         print normalize_incidentid($incident);
-         $count++;
+         if ($count++ > 0) {
+            print '<br/>';
+         }
+         print t('<a href="%u?action=unlink&msgid=%m&incidentid=%i">%t</a>'.LF,
+            array(
+            '%u'=>BASEURL.'/mailbox.php',
+            '%m'=>$id,
+            '%i'=>$incident,
+            '%t'=>_('undo')
+         ));
+         print t(' <a href="%u?action=details&incidentid=%i">%t</a>'.LF,
+            array(
+            '%u'=>BASEURL.'/incident.php',
+            '%i'=>$incident,
+            '%t'=>normalize_incidentid($incident)
+         ));
       }
       if ($count == 0) {
          print '<em>'._('No links').'</em><br/>'.LF;
@@ -693,7 +708,33 @@ function processQueue() {
             break;
 
          case 'msg-new':
-            print "New message.";
+            foreach ($mails as $id=>$value) {
+               if (strtolower($value) == 'on') {
+                  if (fetchMailMessage($id, $msg, $error) == false) {
+                     airt_msg(_('Unable to fetch mail in').' mailbox.plib:'.
+                        __LINE__);
+                     continue;
+                  }
+                  $incidentid = createIncident(array(
+                     'state'=>getIncidentStateDefault(),
+                     'status'=>getIncidentStatusDefault(),
+                     'type'=>getIncidentTypeDefault(),
+                     'logging'=>$msg['body']
+                  ));
+                  if ($incidentid === false) {
+                     airt_msg(_('Unable to create incident'));
+                  } else {
+                     if (addEmailToIncident($incidentid, $id, $error) ==
+                        false) {
+                        airt_msg($error);
+                     } else {
+                        airt_msg(t(_('Incident %n created.'),
+                           array('%n'=>$incidentid)));
+                     }
+                  }
+               }
+            }
+            reload();
             break;
 
 	   	default:
@@ -760,7 +801,48 @@ function viewAttachment() {
    }
 }
 
+function unlinkMessage() {
+   $msgid = fetchFrom('REQUEST', 'msgid', '%d');
+   defaultTo($msgid, -1);
+   if ($msgid == -1) {
+      airt_msg(_('Invalid parameter type in').' mailbox.plib:'.__LINE__);
+      reload();
+      return;
+   }
+   $incidentid = fetchFrom('REQUEST', 'incidentid', '%d');
+   defaultTo($incidentid, -1);
+   if ($incidentid == -1) {
+      airt_msg(_('Invalid parameter type in').' mailbox.plib:'.__LINE__);
+      reload();
+      return;
+   }
+   if (removeEmailFromIncident($incidentid, $msgid, $error) == false) {
+      airt_msg($error);
+   }
+   reload(BASEURL.'/mailbox.php?action=view&msgid='.$msgid);
+   return;
+}
+
 function linkMessage() {
-   var_dump($_REQUEST);
+   $msgid = fetchFrom('REQUEST', 'msgid', '%d');
+   defaultTo($msgid, -1);
+   if ($msgid == -1) {
+      airt_msg(_('Invalid parameter type in').' mailbox.plib:'.__LINE__);
+      reload();
+      return;
+   }
+   $incidentselection = fetchFrom('REQUEST', 'incidentselection', '%d');
+   defaultTo($incidentselection, '@');
+   if ($incidentselection == '@') {
+      $incidenttext = fetchFrom('REQUEST', 'incidenttext', '%s');
+      $incidentid = decode_incidentid($incidenttext);
+   } else {
+      $incidentid = decode_incidentid($incidentselection);
+   }
+   if (addEmailToIncident($incidentid, $msgid, $error) == false) {
+      airt_msg($error);
+   }
+   reload(BASEURL.'/mailbox.php?action=view&msgid='.$msgid);
+   return;
 }
 ?>

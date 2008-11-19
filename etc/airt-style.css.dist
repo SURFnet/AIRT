@@ -79,7 +79,7 @@ border: 1px solid black;
 }
 
 .content h3 {
-  font: bold 18px Arial, Verdana, sans-serif;
+  font: bold Verdana, Arial, sans-serif;
 }
 
 .details-overview-header {
@@ -137,16 +137,16 @@ border: 1px solid black;
 #mbox-container {
   width: 100%;
   float: left;
-  margin-right: -150px;
+  margin-right: -200px;
 }
 
 #mbox-sidebar {
-  width: 145px;
+  width: 190px;
   float: right;
 }
 
 #mbox-content {
-  margin-right: 150px;
+  margin-right: 200px;
   margin-left: 0px;
   border-right: 1px dotted black;
   border-left: 1px dotted black;

@@ -1044,6 +1044,29 @@ _('Continue').'...</a>'.LF,
          urlencode($incidentid));
       break;
 
+   case 'unlink':
+      $msgid = fetchFrom('REQUEST', 'msgid', '%d');
+      defaultTo($msgid, -1);
+      if ($msgid == -1) {
+         airt_msg(_('Invalid parameter type in').' mailbox.plib:'.__LINE__);
+         reload();
+         return;
+      }
+      $incidentid = fetchFrom('REQUEST', 'incidentid', '%d');
+      defaultTo($incidentid, -1);
+      if ($incidentid == -1) {
+         airt_msg(_('Invalid parameter type in').' mailbox.plib:'.__LINE__);
+         reload();
+         return;
+      }
+      if (removeEmailFromIncident($incidentid, $msgid, $error) == false) {
+         airt_msg($error);
+      }
+      airt_msg(_('Message removed from incident.'));
+      reload(BASEURL.'/incident.php?action=details&incidentid='.$incidentid);
+
+      break;
+
    //--------------------------------------------------------------------
    default:
       die(_('Unknown action'));
