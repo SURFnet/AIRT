@@ -252,7 +252,7 @@ switch ($action) {
        if (empty($url)) {
           die(_("Missing information ").__LINE__);
        }
-       $description = strip_tags(fetchFrom('REQUEST', 'url'));
+       $description = strip_tags(fetchFrom('REQUEST', 'description'));
        if (empty($description)) {
           die(_("Missing information ").__LINE__);
        }
