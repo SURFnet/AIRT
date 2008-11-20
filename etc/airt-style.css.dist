@@ -137,16 +137,16 @@ border: 1px solid black;
 #mbox-container {
   width: 100%;
   float: left;
-  margin-right: -200px;
+  margin-right: -215px;
 }
 
 #mbox-sidebar {
-  width: 190px;
+  width: 205px;
   float: right;
 }
 
 #mbox-content {
-  margin-right: 200px;
+  margin-right: 215px;
   margin-left: 0px;
   border-right: 1px dotted black;
   border-left: 1px dotted black;
@@ -176,12 +176,12 @@ mailbox .check {
 .mailbox .subject {
     border-left: 1px grey dotted;
     padding-left: 0.5em;
-    border-right: 1px grey dotted;
     padding-right: 0.5em;
     width: 50em;
 }
 
 .mailbox .sender {
+    border-left: 1px grey dotted;
     padding-right: 0.5em;
     padding-left: 0.5em;
     color: 35em;
@@ -196,8 +196,15 @@ mailbox .check {
 }
 
 .mailbox .date {
+    border-left: 1px grey dotted;
     padding-left: 0.5em;
     width: 19em;
+}
+
+.mailbox .status {
+    border-left: 1px grey dotted;
+    padding-left: 0.5em;
+    width: 8em;
 }
 
 .mailbox .date A {
