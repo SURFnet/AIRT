@@ -369,7 +369,7 @@ function listMailbox(&$error='') {
 	defaultTo($showArchived, 'off');
 
 	$showRead = fetchFrom('REQUEST', 'showRead');
-	defaultTo($showRead, 'off');
+	defaultTo($showRead, 'on');
 
 	$showUnread = fetchFrom('REQUEST', 'showUnread');
 	defaultTo($showUnread, 'on');
@@ -381,6 +381,7 @@ function listMailbox(&$error='') {
       return false;
    }
    pageHeader('Inbox');
+   print '<h1>BETA</h1>'.LF;
 	if (sizeof($mailbox) == 0) {
 	   print _('No incoming messages.');
 		pageFooter();
@@ -664,7 +665,20 @@ function viewMessage() {
    print '</div><!-- sidebar-element -->'.LF;
 
    print '</div><!-- mbox-sidebar -->'.LF;
+
    print '</div><!-- mbox -->'.LF;
+
+   print '<div class="prevnext">'.LF;
+   print t('<form action="%url" method="GET">'.LF, array(
+      '%url'=>BASEURL.'/mailbox.php'));
+   print t('<input type="hidden" name="msgid" value="%msgid">', array(
+      '%msgid'=>$id));
+   print '<input type="hidden" name="action" value="nav">'.LF;
+   print '<input type="submit" name="direction" value="'._('Previous').'"/>'.LF;
+   print '<input type="submit" name="direction" value="'._('Next').'"/>'.LF;
+   print '<div class="sidebar-content">'.LF;
+   print '</form>'.LF;
+   print '</div><!-- prevnext -->';
 } // viewMessage();
 
 
@@ -911,4 +925,63 @@ function linkMessage() {
    reload(BASEURL.'/mailbox.php?action=view&msgid='.$msgid);
    return;
 }
+
+function navigate() {
+   $msgid = fetchFrom('REQUEST', 'msgid', '%d');
+   defaultTo($msgid, -1);
+   if ($msgid == -1) {
+      airt_msg(_('Invalid parameter type in').' mailbox.plib:'.__LINE__);
+      reload();
+      return;
+   }
+   $direction = fetchFrom('REQUEST', 'direction', '%s');
+   if (empty($direction)) {
+      airt_msg(_('Invalid parameter type in').' mailbox.plib:'.__LINE__);
+      reload();
+      return;
+   }
+   switch ($direction) {
+      case 'Previous':
+         $q = q('select max(id) as id from mailbox where id < %msgid', array(
+            '%msgid'=>$msgid));
+         if (($res = db_query($q)) == false) {
+            airt_msg(_('Database error in ').' mailbox.plib:'.__LINE__);
+            reload();
+            return;
+         }
+         $row = db_fetch_next($res);
+         if (empty($row['id'])) {
+            airt_msg(_('Already on first message'));
+            reload(BASEURL.'/mailbox.php?action=view&msgid='.$msgid);
+            return;
+         }
+         reload(BASEURL.'/mailbox.php?action=view&msgid='.$row['id']);
+         return;
+         break;
+      case 'Next':
+         $q = q('select min(id) as id from mailbox where id > %msgid', array(
+            '%msgid'=>$msgid));
+         if (($res = db_query($q)) == false) {
+            airt_msg(_('Database error in ').' mailbox.plib:'.__LINE__);
+            reload();
+            return;
+         }
+         $row = db_fetch_next($res);
+         if (empty($row['id'])) {
+            airt_msg(_('Already on last message'));
+            reload(BASEURL.'/mailbox.php?action=view&msgid='.$msgid);
+            return;
+         }
+         reload(BASEURL.'/mailbox.php?action=view&msgid='.$row['id']);
+         return;
+         break;
+         break;
+      default:
+         airt_msg(_('Invalid parameter value in').' mailbox.plib:'.__LINE__);
+         $newid=$msgid;
+         reload();
+         return;
+   }
+}
+
 ?>

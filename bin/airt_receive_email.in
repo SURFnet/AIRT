@@ -55,7 +55,7 @@ if ($OPTIONS['--virtual-host']!='') {
 }
 require_once '@ETCDIR@/airt.cfg';
 require_once LIBDIR.'/airt.plib';
-require_once LIBDIR.'/mailqueue.plib';
+require_once LIBDIR.'/mailbox.plib';
 
 /* corresponding database schema
  *
@@ -196,7 +196,7 @@ function toMailQueue($data, &$error='') {
          '%subject' => db_masq_null($subject),
          '%body' => db_masq_null($data['body']),
          '%raw' => db_masq_null($data['raw']),
-		   '%status' => db_masq_null(AIRT_MAIL_UNREAD),
+		   '%status' => db_masq_null(AIRT_MAIL_STATUS_UNREAD),
       )
    );
    db_query($q);

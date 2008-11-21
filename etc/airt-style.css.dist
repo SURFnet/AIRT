@@ -145,6 +145,13 @@ border: 1px solid black;
   float: right;
 }
 
+.prevnext {
+   position: absolute;
+   width: 205px;
+   right: 0;
+   bottom: 0;
+}
+
 #mbox-content {
   margin-right: 215px;
   margin-left: 0px;
