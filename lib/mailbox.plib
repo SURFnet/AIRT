@@ -302,6 +302,52 @@ function fetchIncidentsForEmail($messageid, &$messages, &$error='') {
    return true;
 }
 
+/**
+ * Fetch the archive age
+ */
+function fetchArchiveAge(&$age, &$error) {
+   $res = db_query('select value from settings where key=\'archiveage\'');
+   if ($res === false) {
+      $error = db_error_message().' in mailbox.plib:'.__LINE__;
+      return false;
+   }
+   $row = db_fetch_next($res);
+   $age = $row['value'];
+   return true;
+}
+
+/**
+ * Update the mail archive
+ * 
+ * @param $age age to set
+ * @param $error error message, if any
+ * @return true on success, false on failure
+ */
+function updateArchive($age, &$error) {
+   if (fetchArchiveAge($maxage, $error) === false) {
+      return false;
+   }
+   if ($maxage != $age) {
+      $res = db_query(
+         q('update settings set value=%age where key=\'archiveage\'', array(
+         '%age'=>db_masq_null($age))));
+      if ($res === false) {
+         $error = db_error_message().' in mailbox.plib:'.__LINE__;
+         return false;
+      }
+   }
+   // 60*60*24
+   $t= time() - 86400*$age;
+   $res = db_query(q('update mailbox set status=%s '.
+      ' where date < %d', array(
+      '%s'=>db_masq_null(AIRT_MAIL_STATUS_ARCHIVED),
+      '%d'=>$t)));
+   if ($res === false) {
+      $error = db_error_message().' in mailbox.plib:'.__LINE__;
+      return false;
+   }
+   return true;
+}
 
 /*****************************************************************
  *
@@ -377,11 +423,19 @@ function listMailbox(&$error='') {
 	$msgid = fetchFrom('REQUEST', 'msgid', '%d');
 	defaultTo($msgid, 0);
 
+   if (fetchArchiveAge($maxage, $error) === false) {
+      return false;
+   }
+   $age = trim(fetchFrom('REQUEST', 'age', '%s'));
+   defaultTo($age, $maxage);
+
+   if (updateArchive($age, $error) === false) {
+      return false;
+   }
    if (fetchMailbox($mailbox, $error) === false) {
       return false;
    }
    pageHeader('Inbox');
-   print '<h1>BETA</h1>'.LF;
 	if (sizeof($mailbox) == 0) {
 	   print _('No incoming messages.');
 		pageFooter();
@@ -393,8 +447,11 @@ function listMailbox(&$error='') {
    $script .= '  var check = document.forms[0].elements[0].checked;'.LF;
    $count = 1;
 
+   /* input form containing message archive and message filters */
    $f = t('<form method="GET" action="%url">'.LF, array(
-	   '%url'=>BASEURL.'/mailbox.php'));
+      '%url'=>BASEURL.'/mailbox.php'));
+   $f .= t( _('Archive messages older than %in days.<br/>').LF, array(
+      '%in'=>'<input type="text" size="3" name="age" value="'.$age.'">'));
    $f .= _('Show message that are: ');
    $f .= t('<input type="checkbox" name="showUnread" %checked>'. LF, array(
       '%checked' => ($showUnread == 'on') ? 'CHECKED' : ''));
@@ -717,6 +774,7 @@ function processQueue() {
          defaultTo($do, '');
       }
 	   switch (strtolower($do)) {
+         case 'mark-read':
 	      case _('mark read'):
 			   $count=0;
 			   foreach ($mails as $id=>$value) {
@@ -731,7 +789,9 @@ function processQueue() {
 				airt_msg(t(_('%n messages updated.'), array('%n'=>$count)));
             reload();
 	   	   break;
+   
 
+         case 'mark-unread':
 	      case _('mark unread'):
 			   $count=0;
 			   foreach ($mails as $id=>$value) {
@@ -788,6 +848,7 @@ function processQueue() {
             break;
 
          case _('new incident'):
+         case 'msg-new':
             foreach ($mails as $id=>$value) {
                if (strtolower($value) == 'on') {
                   if (fetchMailMessage($id, $msg, $error) == false) {
