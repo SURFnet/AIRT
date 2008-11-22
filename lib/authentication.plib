@@ -23,6 +23,7 @@
  */
 require_once LIBDIR."/database.plib";
 require_once LIBDIR."/user.plib";
+require_once LIBDIR."/mailbox.plib";
 
 /** Authenticate a user by username and password.
  * @param $username Username provided by authentication frontend
@@ -70,6 +71,9 @@ function airt_initsession($userid='') {
       die(_('Incorrect login!'));
    }
 
+   if (updateMailArchive($error) == false) {
+      airt_msg(_('Unable to update mailbox archive:').$error);
+   }
 	generateEvent("goodlogin", array(
 		'login' => $user['login'],
 		'remoteip' => $_SERVER['REMOTE_ADDR']

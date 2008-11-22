@@ -15,6 +15,14 @@ CREATE TABLE incident_mail (
     FOREIGN KEY (incidentid) REFERENCES incidents(id)
 );
 
+CREATE TABLE settings (
+   key varchar,
+   value varchar,
+   PRIMARY KEY (key)
+);
+
+INSERT INTO settings (key, value) VALUES ('archiveage', '20');
+
 UPDATE versions SET value='----version----' WHERE key='airtversion';
 -- Needs manual update with the AIRT_VERSION string of the release.
 -- Cannot rely on .in expansion as it needs to stay fixed in history.

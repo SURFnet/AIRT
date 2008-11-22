@@ -317,27 +317,35 @@ function fetchArchiveAge(&$age, &$error) {
 }
 
 /**
+ * Set the archive age
+ */
+function setArchiveAge(&$age, &$error) {
+   if (!is_numeric($age)) {
+      $error = _('Invalid parameter type in').' mailbox.plib:'.__LINE__;
+      return false;
+   }
+   $res = db_query(
+      q('update settings set value=%age where key=\'archiveage\'', array(
+      '%age'=>db_masq_null($age))));
+   if ($res === false) {
+      $error = db_error_message().' in mailbox.plib:'.__LINE__;
+      return false;
+   }
+}
+
+/**
  * Update the mail archive
  * 
  * @param $age age to set
  * @param $error error message, if any
  * @return true on success, false on failure
  */
-function updateArchive($age, &$error) {
+function updateMailArchive(&$error) {
    if (fetchArchiveAge($maxage, $error) === false) {
       return false;
    }
-   if ($maxage != $age) {
-      $res = db_query(
-         q('update settings set value=%age where key=\'archiveage\'', array(
-         '%age'=>db_masq_null($age))));
-      if ($res === false) {
-         $error = db_error_message().' in mailbox.plib:'.__LINE__;
-         return false;
-      }
-   }
    // 60*60*24
-   $t= time() - 86400*$age;
+   $t= time() - 86400*$maxage;
    $res = db_query(q('update mailbox set status=%s '.
       ' where date < %d', array(
       '%s'=>db_masq_null(AIRT_MAIL_STATUS_ARCHIVED),
@@ -428,9 +436,17 @@ function listMailbox(&$error='') {
    }
    $age = trim(fetchFrom('REQUEST', 'age', '%s'));
    defaultTo($age, $maxage);
-
-   if (updateArchive($age, $error) === false) {
+   
+   if (fetchArchiveAge($maxage, $error) === false) {
       return false;
+   }
+   if ($maxage != $age) {
+      if (setArchiveAge($age, $error) === false) {
+         return false;
+      }
+      if (updateMailArchive($error) == false) {
+         return false;
+      }
    }
    if (fetchMailbox($mailbox, $error) === false) {
       return false;
