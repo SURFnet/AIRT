@@ -474,7 +474,7 @@ function listMailbox(&$error='') {
    // genereate javascript
    $script = '<script language="JavaScript">'.LF;
    $script .= 'function checkAll() {'.LF;
-   $script .= '  var check = document.forms[0].elements[0].checked;'.LF;
+   $script .= '  var check = document.forms[1].elements[0].checked;'.LF;
    $count = 1;
 
    /* input form containing message archive and message filters */
@@ -520,7 +520,7 @@ function listMailbox(&$error='') {
          $out .= '<input type="checkbox" name="mail['.$msg['id'].']">'.LF;
          $out .= '</td>'.LF;
 
-         $script .= '  document.forms[0].elements['.$count++.'].checked = check;'.LF;
+         $script .= '  document.forms[1].elements['.$count++.'].checked = check;'.LF;
          $out .= '<td nowrap class="sender">';
          $out .= t('<a href="%url">%label</a>'.LF, array(
             '%label'=>htmlentities(truncString($msg['sender'], 35, '...')),

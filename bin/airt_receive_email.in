@@ -56,6 +56,7 @@ if ($OPTIONS['--virtual-host']!='') {
 require_once '@ETCDIR@/airt.cfg';
 require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/mailbox.plib';
+require_once LIBDIR.'/incident.plib';
 
 /* corresponding database schema
  *
@@ -199,8 +200,33 @@ function toMailQueue($data, &$error='') {
 		   '%status' => db_masq_null(AIRT_MAIL_STATUS_UNREAD),
       )
    );
-   db_query($q);
-
+   if (($res = db_query($q)) === false) {
+      $error = db_error_message()._(' in ').'airt_reive_email.in:'.
+         __LINE_NUMBER__;
+      return false;
+   }
+   db_free_result($res);
+ 
+   /* if we find out incidentid in the subject, link it to the message
+    * just imported. Don't throw error messages when the message does
+    * not exist, or when the link fails.
+    */
+   if (preg_match('/'.INCIDENTID_PREFIX.'([0-9]+)/', $subject, $match) > 0) {
+      $incidentid = $match[1];
+      $incident = getIncident($incidentid);
+      if ($incident !== false) {
+         $q = 'select max(id) as latest from mailbox';
+         if (($res = db_query($q)) === false) {
+            $error = db_error_message()._(' in ').'airt_reive_email.in:'.
+               __LINE_NUMBER__;
+            return false;
+         }
+         $row = db_fetch_next($res);
+         $msgid = $row['latest'];
+         db_free_result($res);
+         addEmailToIncident($incidentid, $msgid, $error);
+      }
+   }
 }
 
 $output = array();
