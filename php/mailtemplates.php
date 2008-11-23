@@ -269,7 +269,9 @@ special variables in the template:').'<p>'.LF;
       if (empty($incidentids)) {
          $incidentid = fetchFrom('REQUEST', 'incidentid', '%d');
          if (empty($incidentid)) {
-	         $incidentid = $_SESSION['incidentid'];
+            if (array_key_exists('incidentid', $_SESSION)) {
+               $incidentid = $_SESSION['incidentid'];
+            }
 	         if(empty($incidentid)) {
                airt_msg(_('No incident to work on.'));
                reload();

@@ -404,7 +404,7 @@ function mailActionSelection($limit=array()) {
             break;
          case 'mailops':
 	         $out .= '<option value="delete">'._('Delete').'</option>'.LF;
-	         $out .= '<option value="forward">'._('* Forward').'</option>'.LF;
+	         // $out .= '<option value="forward">'._('* Forward').'</option>'.LF;
             $out .= '<option value="view source">'.
                _('View source').'</option>'.LF;
 	         $out .= '<option value="mark-read">'._('Mark read').
@@ -607,11 +607,11 @@ function viewMessage() {
 	print '<input type="hidden" name="action" value="processQueue">'.LF;
    print '<input type="submit" name="do-act" value="'._('Archive').'">'.LF;
    print '<input type="submit" name="do-act" value="'._('Delete').'">'.LF;
-   print '<input type="submit" name="do-act" value="'._('* Reply').'">'.LF;
+   // print '<input type="submit" name="do-act" value="'._('* Reply').'">'.LF;
    print '<input type="submit" name="do-act" value="'._('Mark unread').'">'.LF;
    print '<input type="submit" name="do-act" value="'._('New incident').'">'.LF;
    print _('More actions:').LF;
-   print mailActionSelection(array('mailops', 'filters')).LF;
+   print mailActionSelection(array('mailops')).LF;
    print '<input type="submit" value="'._('Go').'">'.LF;
 
    print '</form>'.LF;

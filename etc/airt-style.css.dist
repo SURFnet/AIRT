@@ -47,11 +47,12 @@ tr.even {
 }
 
 .userinfo {
-position: absolute;
-top: 0;
-right: 0;
-    padding: 5px;
-    text-align: right;
+   position: absolute;
+   font-size: 18px;
+   top: 0;
+   right: 0;
+   padding: 5px;
+   text-align: right;
 }
 
 .navbar {
@@ -63,7 +64,7 @@ right: 0;
 }
 
 .navbar .navitem {
-border: 1px solid black;
+  border: 1px solid black;
   padding: 3px 5px;
 }
 
