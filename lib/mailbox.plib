@@ -27,6 +27,8 @@ require_once LIBDIR.'/importqueue.plib';
 define('AIRT_MAIL_STATUS_UNREAD', 'unread');
 define('AIRT_MAIL_STATUS_READ', 'read');
 define('AIRT_MAIL_STATUS_ARCHIVED', 'archived');
+define('AIRT_MAIL_SORT_DATE_ASC', 1);
+define('AIRT_MAIL_SORT_DATE_DESC', 2);
 $AIRT_VALID_MAIL_STATUSES = Array(
    AIRT_MAIL_STATUS_UNREAD,
    AIRT_MAIL_STATUS_READ,
@@ -77,17 +79,29 @@ function fetchMailMessage($msgid, &$msg, &$error='') {
 }
 
 /**
- * Fetch the contents of the mailbox
+ * Fetch the contents of the mailbo
  *
  * @param &$mailbox associative array that will contain the mailbox
  * @param &$error error message, if any
+ * @param $sortorder (optional): AIRT_MAIL_SORT_DATE_ASC to sort ascending or
+ *        AIRT_MAIL_SORT_DATE_DESC to sort descendin
  * @return true on success, false on failure
  */
-function fetchMailbox(&$mailbox, &$error) {
+function fetchMailbox(&$mailbox, &$error, $sortorder=AIRT_MAIL_SORT_DATE_DESC) {
+
    $mailbox = array();
    $error = '';
    $q = q('select id, messageid, sender, recipient, date, subject, body, '.
-      'status, raw from mailbox order by date asc');
+      'status, raw from mailbox order by ');
+   $order = array();
+   if (($sortorder & AIRT_MAIL_SORT_DATE_ASC) == AIRT_MAIL_SORT_DATE_ASC) {
+      $order[] = 'date ASC';
+   }
+   if (($sortorder & AIRT_MAIL_SORT_DATE_DESC) == AIRT_MAIL_SORT_DATE_DESC) {
+      $order[] = 'date DESC';
+   }
+   $q .= implode(',', $order);
+
    $res = db_query($q);
    if ($res === false) {
       $error = _('Database error in ').'mailbox.plib:'.__LINE__;
