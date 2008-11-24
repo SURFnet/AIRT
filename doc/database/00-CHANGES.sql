@@ -21,7 +21,12 @@ CREATE TABLE settings (
    PRIMARY KEY (key)
 );
 
+ALTER TABLE mailbox ADD COLUMN raw text;
+
 INSERT INTO settings (key, value) VALUES ('archiveage', '20');
+
+GRANT ALL ON incident_mail TO airt;
+GRANT ALL ON settings TO airt;
 
 UPDATE versions SET value='----version----' WHERE key='airtversion';
 -- Needs manual update with the AIRT_VERSION string of the release.

@@ -449,7 +449,6 @@ CREATE UNIQUE INDEX incident_status_label on incident_status(upper(label));
 CREATE UNIQUE INDEX constituencies_label on constituencies(upper(label));
 CREATE UNIQUE INDEX roles_label on roles(upper(label));
 CREATE UNIQUE INDEX users_email on users(upper(email));
-CREATE UNIQUE INDEX urls_label on urls(upper(label));
 CREATE UNIQUE INDEX permissions_label on permissions(upper(label));
 CREATE UNIQUE INDEX address_roles_label on address_roles(upper(label));
 CREATE SEQUENCE generic_sequence;

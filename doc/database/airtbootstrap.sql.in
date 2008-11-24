@@ -133,6 +133,9 @@ INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_posi
   (nextval('urls_sequence'), 'index.php', 'Main menu', currval('users_sequence'), CURRENT_TIMESTAMP, NULL, 1);
 INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position)
   VALUES
+  (nextval('urls_sequence'), 'mailbox.php', 'Mailbox', currval('users_sequence'), CURRENT_TIMESTAMP, 2, 1);
+INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position)
+  VALUES
   (nextval('urls_sequence'), 'search.php', 'Search', currval('users_sequence'), CURRENT_TIMESTAMP, 3, NULL);
 INSERT INTO urls (id, url, label, createdby, created, menu_position,
 navbar_position)

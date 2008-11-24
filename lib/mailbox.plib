@@ -322,7 +322,7 @@ function fetchIncidentsForEmail($messageid, &$messages, &$error='') {
 function fetchArchiveAge(&$age, &$error) {
    $res = db_query('select value from settings where key=\'archiveage\'');
    if ($res === false) {
-      $error = db_error_message().' in mailbox.plib:'.__LINE__;
+      $error = db_errormessage().' in mailbox.plib:'.__LINE__;
       return false;
    }
    $row = db_fetch_next($res);

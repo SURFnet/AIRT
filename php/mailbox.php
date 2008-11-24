@@ -51,6 +51,8 @@ switch (strtolower(fetchFrom('REQUEST', 'action'))) {
        navigate();
        break;
     default:
-       listMailbox();
+       if (listMailbox($error) == false) {
+          print $error;
+       }
 }
 ?>

@@ -30,7 +30,7 @@ EOT
 	exit 1
    fi
 }
-aclocal-1.8 \
-&& automake-1.8 --gnu --add-missing \
+aclocal \
+&& automake --gnu --add-missing \
 && autoconf
 

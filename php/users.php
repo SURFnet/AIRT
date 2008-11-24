@@ -155,7 +155,7 @@
       defaultTo($interactive, 'on');
 
       $contacts = fetchFrom('REQUEST', 'contacts', '%s');
-      defaultTo($contacts, 'off');
+      defaultTo($contacts, 'on');
 
       $all = fetchFrom('REQUEST', 'all', '%s');
       defaultTo($all, 'off');
