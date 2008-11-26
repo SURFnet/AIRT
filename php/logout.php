@@ -24,11 +24,7 @@ $public=1;
 require_once 'config.plib';
 require_once LIBDIR.'/airt.plib';
 
-pageHeader(_('AIRT Control Center'));
-
 session_destroy();
-
-   print _('You have been logged out.');
-   print '<P>';
-   print _('Click here to <a href="login.php">log in again</a>.');
+airt_msg(_('You have successfully been logged out.'));
+reload(BASEURL.'/login.php');
 ?>

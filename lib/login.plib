@@ -1,0 +1,97 @@
+<?php
+/* vim: syntax=php tabstop=3 shiftwidth=3
+ * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
+ * Copyright (C) AIRT Project
+
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ * $Id$
+ */
+require_once LIBDIR."/authentication.plib";
+
+function airtLoginScreen() {
+   pageHeader();
+   $out = '<div class="loginbox"><!-- loginbox -->'.LF;
+   $out .= '<div class="loginbox-inner"><!-- loginbox-inner -->'.LF;
+   $out .= '<div class="loginbox-title">'.INSTANCE_NAME.'</div>'.LF;
+   $out .= '<div class="loginbox-subtitle">';
+   $out .= 'Application for Incident Response Teams';
+   $out .= '</div>'.LF;
+
+   $out .= '<form method="POST" class="loginbox-form">'.LF;
+   $out .= '<table>'.LF;
+   $out .= '<tr>'.LF;
+   $out .= '  <td>'._('Login').'</td>'.LF;
+   $out .= '  <td><input type="text" name="login" size="25"></td>'.LF;
+   $out .= '</tr>'.LF;
+   $out .= '<tr>'.LF;
+   $out .= '  <td>'._('Password').'</td>'.LF;
+   $out .= '  <td><input type="password" name="password" size="25"></td>'.LF;
+   $out .= '</tr>'.LF;
+   $out .= '<tr>'.LF;
+   $out .= '  <td/>'.LF;
+   $out .= '  <td>';
+   $out .= '  <input type="submit" value="'._('Log in').'">';
+   $out .= '  </td>'.LF;
+   $out .= '</tr>'.LF;
+   $out .= '</table>'.LF;
+   $out .= '<input type="hidden" class="login" name="action" value="check">'.LF;
+   $out .= '</form>'.LF;
+   $out .= '<div class="loginbox-custom">'.LF;
+
+   print $out;
+
+   generateEvent('loginscreen');
+
+   $out = '</div>'.LF;
+   $out .= '<div class="loginbox-footer">'.LF;
+   $out .= _('AIRT version 20081031.1, Copyright (C) 2004-2006 Tilburg University ').LF;
+   $out .= '&lt;<a href="mailto:info@airt.nl">airt-dev@uvt.nl</a>&gt;<BR/>'.LF;
+   $out .= _('AIRT comes with ABSOLUTELY NO WARRANTY; for details <a href="license.php">click here</a>.').'<BR/>'.LF;
+   $out .= _('This is free software, and you are welcome to redistribute it under certain conditions; See the license for more details.').LF;
+   $out .= '</div><!-- loginbox-footer -->'.LF;
+   $out .= '</div><!-- loginbox-inner -->'.LF;
+   $out .= '</div><!-- loginbox -->'.LF;
+
+   print $out;
+}
+
+
+function airtCheckLogin() {
+   $login = fetchFrom('REQUEST', 'login');
+   if (empty($login)) {
+      airt_error("PARAM_MISSING", "login.php:".__LINE__);
+      reload();
+      break;
+   }
+    
+   $password = fetchFrom('REQUEST', 'password');
+   if (empty($password)) {
+      airt_error("PARAM_MISSING", "login.php:".__LINE__);
+      reload();
+      break;
+   }
+    
+   $userid = airt_authenticate($login, $password);
+   if ($userid == -1) {
+      pageHeader(_('Permission denied.'));
+      print _('Username and/or password incorrect.');
+      airt_invalidCredentials();
+      pageFooter();
+      exit();
+   }
+    
+   airt_initSession($userid);
+}

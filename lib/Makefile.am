@@ -25,6 +25,6 @@ scriptdir=@AIRT_PHPLIBDIR@
 script_DATA = airt.plib authentication.plib constituency.plib database.plib \
 	export.plib history.plib incident.plib mailtemplates.plib search.plib \
 	user.plib error.plib network.plib importqueue.plib exportqueue.plib \
-	server.plib profiler.plib mailbox.plib
+	server.plib profiler.plib mailbox.plib login.plib
 
 EXTRA_DIST = $(script_DATA)

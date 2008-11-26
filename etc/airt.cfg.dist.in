@@ -109,6 +109,9 @@ function setup() {
    // Incident ID prefix
    $SETTINGS['incidentid_prefix'] = 'Example-CERT#';
 
+   // instance name
+   $SETTINGS['incident_name'] = "Example AIRT Site";
+
    // local customization can be found in this file. If undefined, no local
    // additions are done
    $SETTINGS['custom_functions'] = $SETTINGS['etcdir'].'/customfunctions.plib';

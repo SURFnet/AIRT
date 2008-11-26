@@ -242,3 +242,46 @@ mailbox .check {
     padding-left: 0.5em;
 }
 
+/*****************************************************************
+ * login screen
+ *****************************************************************/
+
+.loginbox {
+   text-align: center;
+   width: 100%;
+   height: 100%;
+}
+
+.loginbox-inner {
+   width: 60%;
+   height: 50%;
+   margin-left: 20%;
+   margin-right: 20%;
+   margin-top: 50px;
+   border: 1px solid black;
+}
+
+.loginbox-title {
+    font-size: 24px;
+    padding-bottom: 10px;
+}
+
+.loginbox-subtitle {
+    padding-bottom: 10px;
+}
+
+.loginbox-form {
+    display: inline-table;
+    text-align: center;
+}
+
+.loginbox-form input.login {
+    width: 10;
+    text-align: center;
+}
+
+.loginbox-footer {
+    margin-top: 15ex;
+    font-size: 80%;
+    text-align: left;
+}
