@@ -22,7 +22,7 @@
 require_once LIBDIR."/authentication.plib";
 
 function airtLoginScreen() {
-   pageHeader();
+   pageHeader(INSTANCE_NAME, array('event'=>false));
    $out = '<div class="loginbox"><!-- loginbox -->'.LF;
    $out .= '<div class="loginbox-inner"><!-- loginbox-inner -->'.LF;
    $out .= '<div class="loginbox-title">'.INSTANCE_NAME.'</div>'.LF;
@@ -33,11 +33,11 @@ function airtLoginScreen() {
    $out .= '<form method="POST" class="loginbox-form">'.LF;
    $out .= '<table>'.LF;
    $out .= '<tr>'.LF;
-   $out .= '  <td>'._('Login').'</td>'.LF;
+   $out .= '  <td>'._('Login').': </td>'.LF;
    $out .= '  <td><input type="text" name="login" size="25"></td>'.LF;
    $out .= '</tr>'.LF;
    $out .= '<tr>'.LF;
-   $out .= '  <td>'._('Password').'</td>'.LF;
+   $out .= '  <td>'._('Password').': </td>'.LF;
    $out .= '  <td><input type="password" name="password" size="25"></td>'.LF;
    $out .= '</tr>'.LF;
    $out .= '<tr>'.LF;

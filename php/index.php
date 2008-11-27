@@ -29,13 +29,14 @@ require_once LIBDIR."/database.plib";
 
 pageHeader(_('AIRT Control Center'));
 
+/*
 $out = t('<small>'._('Welcome %username. Your last login was at %lastdb from %hostname.').'</small>', array(
    '%username'=>strip_tags($_SESSION['username']),
    '%lastdb'=>strip_tags($_SESSION['lastdb']),
    '%hostname'=>strip_tags($_SESSION['hostnamelast'])));
 
-$out .= "<HR/>\n";
 print $out;
+*/
 generateEvent('mainmenutop');
 
 $out='';

@@ -36,23 +36,6 @@ registerEventHandler('pageFooter', 'showfooter');
 registerEventHandler('searchoutput','searchoutput');
 
 function showheader($data) {
-  $navbar='';
-  $res = db_query(q("
-      SELECT url, label
-      FROM   urls
-      WHERE  NOT navbar_position IS NULL
-      ORDER BY navbar_position"))
-  or die("Unable to query database.");
-
-  while ($row = db_fetch_next($res)) {
-    $url = $row['url'];
-    $description = $row['label'];
-    $navbar .= t("<span class=\"navitem\"><a href=\"%url\">%description</a></span>".LF, array(
-      '%url'=>$url,
-      '%description'=>$description));
-  }
-
-  $baseurl=BASEURL;
   $userid = fetchFrom('SESSION', 'userid');
   if (empty($userid) || ($u = getUserByUserId($_SESSION['userid'])) === false) {
       $name = _('Unknown');
@@ -68,27 +51,31 @@ function showheader($data) {
      $messages = $_SESSION['msg'];
      unset($_SESSION['msg']);
   }
-  echo '<html>'.LF;
-  echo '<head>'.LF;
-  echo '<title>AIRT: '.strip_tags($data['title']).'</title>'.LF;
-  echo '<link href="'.$baseurl.'/airt-style.css" rel="stylesheet" type="text/css">'.LF;
-  echo '</head>'.LF;
 
-  echo '<body>'.LF;
   echo '<div class="titlebar">'.LF;
-  echo '  <div class="userinfo">'.strip_tags($name).' ('.
-     strip_tags($username).')</div>'.LF;
-  echo '  <div class="titlebox">'.LF;
-  echo '    <div class="pagetitle">'.strip_tags($data['title']).'</div>'.LF;
-  echo '  </div> <!-- titlebox -->'.LF;
-  echo '  <div class="navbox">'.LF;
-  echo '    <div class="navbar">'.$navbar.'</div>'.LF;
-  echo '  </div> <!-- navbox -->'.LF;
-  echo '</div> <!-- titlebar -->'.LF;
+
+  echo '<div class="titlepanel">'.LF;
+  echo '<div class="title">'.LF;
+  echo 'Application for Incident Response Teams'.LF;
+  echo '</div><!-- title -->'.LF;
+
+  echo '<div class="subtitle">'.LF;
+  echo INSTANCE_NAME;
+  echo '</div><!-- subtitle -->'.LF;
+  echo '</div><!-- titlepanel -->'.LF;
+
+  echo '<div class="userpanel">';
+  echo _('Logged in as ').htmlentities($name);
+  echo t(' (<a href="%url">%label</a>)', array(
+     '%url'=>BASEURL.'/logout.php',
+     '%label'=>_('Logout')
+  ));
+  echo '</div><!-- userpanel -->'.LF;
+
+  echo '</div><!-- titlebar -->'.LF;
   if ($messages != '') {
     echo '<div class="messages">'.strip_tags($messages).'</div>'.LF;
   }
-  echo '<div class="content">'.LF;
 }
 
 function showfooter($data) {

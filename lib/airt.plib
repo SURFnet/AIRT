@@ -160,12 +160,29 @@ function airt_check_session($public) {
  * Display the page header
  * @in title The title of the page
  */
-function pageheader($title="", $helptopic="") {
+function pageHeader($title='', $options=array()) {
 	global $public;
-	generateEvent("pageHeader", array(
-		"title"     => $title,
-		"helptopic" => $helptopic
-	));
+
+    if (array_key_exists('event', $options)) {
+        $event = $options['event'];
+    } else {
+        $event = true;
+    }
+
+    echo '<html>'.LF;
+    echo '<head>'.LF;
+    echo t('<title>AIRT: %title</title>'.LF, array(
+      '%title'=>strip_tags($title)));
+    echo t('<link href="%url/airt-style.css" rel="stylesheet" '.
+      'type="text/css">', array(
+      '%url'=>BASEURL));
+    echo '</head>'.LF;
+
+    echo '<body>'.LF;
+    if ($event) {
+        generateEvent("pageHeader", array("title" => $title));
+    }
+    echo '<div class="content">'.LF;
 
 } // pageheader()
 
@@ -175,7 +192,7 @@ function pageheader($title="", $helptopic="") {
  * @in pagefooter The footer of the page
  */
 function pagefooter() {
-   generateEvent('pageFooter');
+  generateEvent('pageFooter');
 } // pagefooter()
 
 
