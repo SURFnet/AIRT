@@ -112,7 +112,7 @@ function airt_initsession($userid='') {
    if (!empty($ref)) {
       Header("Location: $ref");
    } else {
-      Header("Location: $_SESSION[BASEURL]/index.php");
+      Header("Location: ".BASEURL.'/index.php');
    }
 }
 

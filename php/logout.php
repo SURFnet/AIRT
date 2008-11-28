@@ -23,8 +23,7 @@ session_start();
 $public=1;
 require_once 'config.plib';
 require_once LIBDIR.'/airt.plib';
+require_once LIBDIR.'/login.plib';
 
-session_destroy();
-airt_msg(_('You have successfully been logged out.'));
-reload(BASEURL.'/login.php');
+airtLogout();
 ?>

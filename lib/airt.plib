@@ -143,8 +143,7 @@ function airt_check_session($public) {
        $now = time();
 
        if ($now - $last > SESSION_TIMEOUT) {
-         printf(_('Your session has expired. Please ').
-            "<a href=\"$BASEURL/login.php\"?ref=$_SERVER[REQUEST_URI]>"._('log in again').'</a>.'.LF);
+           reload(BASEURL.'/logout.php');
            exit;
        }
 

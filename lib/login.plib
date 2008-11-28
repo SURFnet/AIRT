@@ -95,3 +95,11 @@ function airtCheckLogin() {
     
    airt_initSession($userid);
 }
+
+
+function airtLogout() {
+    require_once LIBDIR.'/airt.plib';
+    session_destroy();
+    reload(BASEURL.'/login.php');
+}
+?>
