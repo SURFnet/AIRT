@@ -24,6 +24,7 @@ $public=1;
 require_once 'config.plib';
 require_once LIBDIR."/authentication.plib";
 require_once LIBDIR."/airt.plib";
+require_once LIBDIR."/login.plib";
 
 if (array_key_exists('action', $_REQUEST)) {
    $action=$_REQUEST['action'];
@@ -33,51 +34,8 @@ if (array_key_exists('action', $_REQUEST)) {
 
 switch ($action) {
    case "none":
-      pageHeader();
-      $out = '<div class="loginbox"><!-- loginbox -->'.LF;
-      $out .= '<div class="loginbox-inner"><!-- loginbox-inner -->'.LF;
-      $out .= '<div class="loginbox-title">'.INSTANCE_NAME.'</div>'.LF;
-      $out .= '<div class="loginbox-subtitle">';
-      $out .= 'Application for Incident Response Teams';
-      $out .= '</div>'.LF;
-
-      $out .= '<form method="POST" class="loginbox-form">'.LF;
-      $out .= '<table>'.LF;
-      $out .= '<tr>'.LF;
-      $out .= '  <td>'._('Login').'</td>'.LF;
-      $out .= '  <td><input type="text" name="login" size="25"></td>'.LF;
-      $out .= '</tr>'.LF;
-      $out .= '<tr>'.LF;
-      $out .= '  <td>'._('Password').'</td>'.LF;
-      $out .= '  <td><input type="password" name="password" size="25"></td>'.LF;
-      $out .= '</tr>'.LF;
-      $out .= '<tr>'.LF;
-      $out .= '  <td/>'.LF;
-      $out .= '  <td>';
-      $out .= '  <input type="submit" value="'._('Log in').'">';
-      $out .= '  </td>'.LF;
-      $out .= '</tr>'.LF;
-      $out .= '</table>'.LF;
-      $out .= '<input type="hidden" name="action" value="check">'.LF;
-      $out .= '</form>'.LF;
-      $out .= '<div class="loginbox-custom">'.LF;
-
-      print $out;
-
-      generateEvent('loginscreen');
-
-      $out = '</div>'.LF;
-      $out .= '<div class="loginbox-footer">'.LF;
-      $out .= _('AIRT version @VERSION@, Copyright (C) 2004-2006 Tilburg University ').LF;
-      $out .= '&lt;<a href="mailto:info@airt.nl">airt-dev@uvt.nl</a>&gt;<BR/>'.LF;
-      $out .= _('AIRT comes with ABSOLUTELY NO WARRANTY; for details <a href="license.php">click here</a>.').'<BR/>'.LF;
-      $out .= _('This is free software, and you are welcome to redistribute it under certain conditions; See the license for more details.').LF;
-      $out .= '</div><!-- loginbox-footer -->'.LF;
-      $out .= '</div><!-- loginbox-inner -->'.LF;
-      $out .= '</div><!-- loginbox -->'.LF;
-
-      print $out;
-    break;
+      airtLoginScreen();
+      break;
 
     case "check":
        $login = fetchFrom('REQUEST', 'login');

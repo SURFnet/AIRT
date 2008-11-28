@@ -161,7 +161,6 @@ function airt_check_session($public) {
  */
 function pageHeader($title='', $options=array()) {
 	global $public;
-
     if (array_key_exists('event', $options)) {
         $event = $options['event'];
     } else {
