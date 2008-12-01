@@ -2728,16 +2728,18 @@ function listIncidents() {
             '%url'=>BASEURL.'/incident.php',
             '%id'=>$id,
             '%incidentid'=>encode_incidentid($id)));
-      $out .= t('   <td>%constituency</td>'.LF, array(
-         '%constituency'=>htmlentities($constituency)));
       $out .= t('   <td>%hostline</td>'.LF, array(
          '%hostline'=>htmlentities($hostline)));
-      $out .= t('   <td>%status</td>'.LF, array(
-         '%status'=>htmlentities($data['status'])));
-      $out .= t('   <td>%state</td>'.LF, array(
-         '%state'=>htmlentities($data['state'])));
+      $out .= t('   <td>%constituency</td>'.LF, array(
+         '%constituency'=>htmlentities($constituency)));
       $out .= t('   <td>%type</td>'.LF, array(
          '%type'=>htmlentities($data['type'])));
+      $out .= t('   <td>%status</td>'.LF, array(
+         '%status'=>htmlentities($data['status'])));
+			/*
+      $out .= t('   <td>%state</td>'.LF, array(
+         '%state'=>htmlentities($data['state'])));
+			*/
       $out .= t('   <td>%created</td>'.LF, array(
          '%created'=>Date('d M Y', $data['created'])));
       $out .= t('   <td>%updated</td>'.LF, array(
