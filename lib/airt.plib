@@ -3,7 +3,7 @@
  * $Id$ 
 
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
- * Copyright (C) 2004,2005	Kees Leune <kees@uvt.nl>
+ * Copyright (C) 2004,2005   Kees Leune <kees@uvt.nl>
 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -224,14 +224,25 @@ function pageHeader($title='', $options=array()) {
    print '    <ul>'.LF;
    print t('    <li>%l'.LF, array(
       '%l'=>_('Tools')));
-   print '    <ul>'.LF;
-   print t('      <li><a href="%url">%label</a></li>', array(
-      '%url'=>BASEURL,
-      '%label'=>_('NFSEN')));
-   print t('      <li><a href="%url">%label</a></li>', array(
-      '%url'=>BASEURL,
-      '%label'=>_('Wikiwespje')));
-   print '    </ul></li>'.LF;
+
+   print '      <ul>'.LF;
+
+   $res = db_query(q("
+      SELECT url, label
+      FROM   urls
+      WHERE  NOT menu_position IS NULL
+      ORDER BY menu_position"))
+   or die(_('Unable to query database.'));
+
+   while (($row = db_fetch_next($res)) !== false) {
+      $url = $row['url'];
+      $description = $row['label'];
+      print t('<li><a href="%url">%description</a></li>'.LF, array(
+         '%url'=>$url,
+         '%description'=>strip_tags($description)));
+   }
+
+   print '    </ul>'.LF;
    print '    </ul>'.LF;
    print '  </div><!-- right -->'.LF;
    print '</div><!-- header -->'.LF;
@@ -328,14 +339,14 @@ function choice($label, $value, $default) {
  * @param $function Function to call when $event is generated.
  */
 function registerEventHandler($event, $function) {
-	global $glEventHandlers;
+   global $glEventHandlers;
 
-	if (!isset($glEventHandlers)) $glEventHandlers = array();
+   if (!isset($glEventHandlers)) $glEventHandlers = array();
 
-	if (array_key_exists($event, $glEventHandlers))
-		array_push($glEventHandlers[$event], $function);
-	else
-		$glEventHandlers[$event] = array($function);
+   if (array_key_exists($event, $glEventHandlers))
+      array_push($glEventHandlers[$event], $function);
+   else
+      $glEventHandlers[$event] = array($function);
 }
 
 /** Generate an event.
@@ -343,13 +354,13 @@ function registerEventHandler($event, $function) {
  * @param $data Associative array containing additional information about event
  */
 function generateEvent($event, $data=array()) {
-	global $glEventHandlers;
+   global $glEventHandlers;
 
-	if (isset($glEventHandlers) &&
-		 array_key_exists($event, $glEventHandlers)) {
-		foreach ($glEventHandlers[$event] as $fun) 
-			call_user_func($fun, $data);
-	}
+   if (isset($glEventHandlers) &&
+       array_key_exists($event, $glEventHandlers)) {
+      foreach ($glEventHandlers[$event] as $fun) 
+         call_user_func($fun, $data);
+   }
 }
 
 /* based on Drupal code; format the given string for output, making pattern
