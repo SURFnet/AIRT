@@ -24,6 +24,7 @@
 
 require_once LIBDIR.'/database.plib';
 require_once LIBDIR.'/error.plib';
+require_once LIBDIR.'/user.plib';
 
 define('LF',"\n");
 
@@ -186,8 +187,11 @@ function pageHeader($title='', $options=array()) {
          '   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'.LF;
    print '<html>'.LF;
    print '  <head>'.LF;
+   /*
    print t('    <title>AIRT: %title</title>'.LF, array(
      '%title'=>strip_tags($title)));
+   */
+   print '      <title>AIRT</title>'.LF;
    print t('    <link href="%url/airt-style.css" rel="stylesheet" '.
      'type="text/css">', array(
      '%url'=>BASEURL));
@@ -197,6 +201,9 @@ function pageHeader($title='', $options=array()) {
    print '<div id="wrapper">'.LF;
    print '  <div id="header">'.LF;
    print '  <div id="left">'.LF;
+   print t('  <a href="%url/index.php" title="'._('Back to the first page').
+      '"><img src="images/airt_logo.png" alt="AIRT" id="logo" /></a>'.LF, 
+      array('%url'=>BASEURL));
    print '    <div id="title">Application for Incident Response Teams</div>'.
       LF;
    print '    <div id="navigation">'.LF;
@@ -211,8 +218,8 @@ function pageHeader($title='', $options=array()) {
    print '    </div><!-- navigation -->'.LF;
    print '  </div><!-- left -->'.LF;
    print '  <div class="right">'.LF;
-   print t('    <div id="userinfo">%name (<a href="%url/logout.php">%l</a>)'.
-      '</div>'.LF, array(
+   print t('    <div id="userinfo">'._('Logged in as %name').
+      '(<a href="%url/logout.php">%l</a>)</div>'.LF, array(
       '%name'=>htmlentities($name),
       '%url'=>BASEURL,
       '%l'=>_('Log out')));
@@ -275,6 +282,8 @@ function pageHeader($title='', $options=array()) {
 function pageFooter() {
     print '</div><!-- content -->'.LF;
     print '</div><!-- wrapper -->'.LF;
+    print '<div id="footer">'.LF;
+    print '</div><!-- footer -->'.LF;
     print '</body>'.LF;
     print '</html>'.LF;
 

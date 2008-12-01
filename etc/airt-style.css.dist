@@ -11,14 +11,32 @@ body {
 	line-height: 1em;
 }
 
+a img{
+border: 0;
+}
+
 #wrapper{
 	width: 970px;
 	margin: 0 auto;
 	text-align: left; 
 }
 
-a.hover{
-	border-bottom: 1px dotted #000; 
+#footer{
+	width: 970px;
+	margin: 0 auto;
+	text-align: center;
+	color: #FFF;
+	font: 11px Arial, Verdana, sans-serif;
+}
+
+#footer a{
+color: #FFF;
+text-decoration: underline;
+}
+
+a{
+color: #0000EE;
+text-decoration: underline;
 }
 
 
@@ -33,15 +51,19 @@ text-align: left;
 
 #header {
 	margin-top: 10px;
-	padding-left: 160px;
-	background: #87CEFA url(images/airt_logo.png) no-repeat top left;
+	background: #87CEFA url(airt_logo.png) no-repeat top left;
 	border-bottom: 1px solid black;
 	height: 80px;
 }
 
+#header #logo{
+float: left;
+margin-right: 10px;
+}
+
 #header .left{
 float: left;
-width: 550px;
+width: 600px;
 }
 
 #title{
@@ -106,19 +128,26 @@ background-color: #DDD;
 #navigation{
 margin-top: 20px;
 float: left;
-clear: left;
 }
 
 #navigation a{
-display: inline-block;
-background-color: #E0E8EF; /*F0F8FF;*/
-  border: 1px solid black;
-  
-  padding: 7px 9px;
-  color: #AAAAAA;
-  text-decoration: none;
-    font: 18px Arial;
+	display: inline-block;
+	background-color: #E0E8EF;
+	border: 1px solid black;
+	padding: 7px 9px;
+	color: #AAAAAA;
+	text-decoration: none;
+	font: 18px Arial;
 	line-height: 1em;
+}
+
+#navigation a.settings{
+	margin: 0;
+	padding: 0 0 8px 10px;
+	border: 0;
+	background: none;
+	color: #00E;
+	font: normal 12px Arial, Verdana, sans-serif;
 }
 
 #navigation a.active{
@@ -138,8 +167,7 @@ color: #000;
 padding: 10px 20px;
 width: 928px;
 border: 1px solid #000;
-border-bottom: 0;
-border-top: 0;
+border-width: 0 1px;
   background-color: #F0F8FF;
 }
 
@@ -152,27 +180,40 @@ margin: 0px 10px;
 font-weight: bold;
 }
 
-.content {
-   padding: 0 10px;
-   width: 948px;
-   font: 12px Verdana, Arial, sans-serif;
-   border: 1px solid #000;
+.content{
+	margin: 0;
+	padding: 0 10px 10px 10px;
+	width: 948px;
+	font: 12px Verdana, Arial, sans-serif;
+	border: 1px solid #000;
 	border-top: 0;
-  background-color: #F0F8FF;
+	background-color: #F0F8FF;
 }
 
 .content h1{
-	margin: 10px 0;
-  font: bold 22px Arial;
+
+	margin: 0 0 10px 0;
+	font: bold 22px Arial;
 }
 
 .content h3 {
-  font: bold Verdana, Arial, sans-serif;
+	font: bold Verdana, Arial, sans-serif;
+}
+
+.left{
+float: left;
+clear: left;
+text-align: left;
+width: 450px;
+display: inline;
 }
 
 .right{
 float: right;
+clear: right;
 text-align: right;
+width: 450px;
+display: inline;
 }
 
 .right a.button{
@@ -223,6 +264,7 @@ float: right;
 table#details-overview-body{
 width: 100%;
 clear: both;
+margin: 10px 0;
 }
 
 #details-overview-body td, table#details-overview-body th{

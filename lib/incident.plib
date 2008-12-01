@@ -1956,11 +1956,9 @@ function formatListOverviewBody() {
          $count++;
          continue;
       }
-      $hostline= $data['hostname'];
+      $hostline = $data['hostname'];
       $d = trim($data['desc']);
-      if (!empty($d)) {
-         $hostline = strip_tags($data['desc']);
-      }
+      $hostdesc = strip_tags($data['desc']);
       $addresses = getAddressesForIncident($id);
       if (sizeof($addresses) > 0) {
          $constituency = $conslist[$addresses[0]['constituency']]['label'];
@@ -1988,7 +1986,10 @@ function formatListOverviewBody() {
             '%id' => $id,
             '%incidentid' => encode_incidentid($id),
             '%constituency' => $constituency,
-            '%hostline' => $hostline,
+            '%hostline' => 
+               (empty($hostdec) ? $hostline : t('<a title="%d"
+               class="hover">%l</abbr>', array(
+               '%d'=>$hostdesc, '%l'=>$hostline))),
             '%status' => $data['status'],
             '%state' => $data['state'],
             '%type' => $data['type'],
@@ -2663,12 +2664,14 @@ function listIncidents() {
    $out = '';
    $out .= '<h1>'._('Incidents').'</h1>'.LF;
    $out .= _('Filters: ');
-   $out .= '<select name="filter">'.LF;
+   $out .= '<span class="left"><select name="filter">'.LF;
    $out .= '<option value="">['._('Choose a state').']</option>'.LF;
-   $out .= '</select>'.LF;
-   $out .= '<div class="right">'.LF;
-   $out .= '<a href="" class="button">'._('Add incident').'</a>'.LF;
-   $out .= '</div><!-- right -->'.LF;
+   $out .= '</select></span>'.LF;
+   $out .= '<span class="right">'.LF;
+   $out .= t('<a href="%url/incident.php?action=new" class="button">'.
+      _('Add incident').'</a>'.LF, array(
+      '%url'=>BASEURL));
+   $out .= '</span><!-- right -->'.LF;
    $out .= t('<form name="listform" action="%url/incident.php" method="POST">',
       array('%url'=>BASEURL)).LF;
    $out .= '<input type="hidden" name="action" value="massupdate">'.LF;
@@ -2707,10 +2710,7 @@ function listIncidents() {
          continue;
       }
       $hostline= $data['hostname'];
-      $d = trim($data['desc']);
-      if (!empty($d)) {
-         $hostline = strip_tags($data['desc']);
-      }
+      $hostdesc = strip_tags($data['desc']);
       $addresses = getAddressesForIncident($id);
       if (sizeof($addresses) > 0) {
          $constituency = $conslist[$addresses[0]['constituency']]['label'];
@@ -2728,16 +2728,18 @@ function listIncidents() {
             '%url'=>BASEURL.'/incident.php',
             '%id'=>$id,
             '%incidentid'=>encode_incidentid($id)));
-      $out .= t('   <td>%hostline</td>'.LF, array(
-         '%hostline'=>htmlentities($hostline)));
+      if (empty($hostdesc)) {
+          $out .= t('   <td>%hostline</td>'.LF, array(
+             '%hostline'=>$hostline));
+      } else {
+          $out .= t('   <td><a title="%d" class="hover">%l</addr></td>'.LF, 
+           array('%d'=>htmlentities($hostdesc),
+                 '%l'=>htmlentities($hostline)));
+      }
       $out .= t('   <td>%constituency</td>'.LF, array(
          '%constituency'=>htmlentities($constituency)));
       $out .= t('   <td>%type</td>'.LF, array(
          '%type'=>htmlentities($data['type'])));
-			/*
-      $out .= t('   <td>%status</td>'.LF, array(
-         '%status'=>htmlentities($data['status'])));
-			*/
       $out .= t('   <td>%state</td>'.LF, array(
          '%state'=>htmlentities($data['state'])));
       $out .= t('   <td>%created</td>'.LF, array(
