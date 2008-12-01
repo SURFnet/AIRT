@@ -1708,30 +1708,6 @@ function formatCreateIncidentBlock() {
 }
 
 
-/* return a string containing the list overview page header, which contains
- * a few blocks horizontally next to each other.
- */
-function formatListOverviewHeader() {
-   // A style expression for the vertical separation lines between the
-   // blocks.
-   $out = t(
-      '<div class="details-overview-header">'.LF.
-      '<table>'.LF.
-      '<tr valign="top">'.LF.
-      '   <td>%filters</td>'.LF.
-      '   <td>%details</td>'.LF.
-      '   <td>%createIncident</td>'.LF.
-      '</tr>'.LF.
-      '</table>'.LF.
-      '</div>'.LF,
-      array(
-         '%filters'=>formatFilterBlock(),
-         '%details'=>formatDetailBlock(),
-         '%createIncident'=>formatCreateIncidentBlock()));
-
-   return $out;
-}// formatListOverviewHeader
-
 
 /* User interface component which formats a pager line. Take the total number
  * of incidents, the current page, and the number of incidents per page as
@@ -2609,5 +2585,194 @@ function setMailtemplateOverride($incidentid, $userid, $template) {
    ));
    $res = db_query($q);
    return true;
+}
+
+/**
+ * Formatted overview of open incidents
+ */
+function listIncidents() {
+   global $sortkey;
+   global $filter;
+   global $toggle;
+
+   $filter = fetchFrom('REQUEST','filter[]');
+   // NOTE: the $filter itself has a default, but if somebody manipulates
+   // the $filter and e.g. removes the 'status' index, things go wrong here.
+   // It looks secure, but it breaks.
+   defaultTo($filter,
+             array('status'=>getIncidentStatusDefault(), 'state'=>-1));
+
+   $sortkey = strip_tags(fetchFrom('REQUEST','sortkey'));
+   defaultTo($sortkey, 'incidentid');
+
+   $page = fetchFrom('REQUEST','page','%d');
+   defaultTo($page,1);
+
+   $statuses = getIncidentStatus();
+   if (array_key_exists($filter['status'], $statuses) && 
+      $filter['status'] >= 0) {
+      $sqlfilter = " WHERE s1.label = '".$statuses[$filter['status']]."'";
+   } else {
+      $sqlfilter = '';
+   }
+
+   $states = getIncidentStates();
+   if (array_key_exists($filter['state'], $states) && 
+      $filter['state'] >= 0) {
+      if (empty($sqlfilter)) {
+         $sqlfilter = " WHERE s2.label = '".$states[$filter['state']]."'";
+      } else {
+         $sqlfilter .= " AND s2.label = '".$states[$filter['state']]."'";
+      }
+   }
+   if (empty($sqlfilter)) {
+      $sqlfilter = " WHERE s1.label in ('open', 'stalled')";
+   }
+   switch ($sortkey) {
+      case 'incidentid':
+         $sqlfilter .= ' ORDER BY incidentid';
+         break;
+      case 'constituency':
+         $sqlfilter .= ' ORDER BY constituency';
+         break;
+      case 'hostname':
+         $sqlfilter .= ' ORDER BY hostname';
+         break;
+      case 'status':
+         $sqlfilter .= ' ORDER BY status';
+         break;
+      case 'state':
+         $sqlfilter .= ' ORDER BY state';
+         break;
+      case 'type':
+         $sqlfilter .= ' ORDER BY type';
+         break;
+      case 'lastupdated':
+         $sqlfilter .= ' ORDER BY updated';
+         break;
+      case 'created':
+         $sqlfilter .= ' ORDER BY created';
+         break;
+      default:
+         // Hmmm... should not happen. Manual intervention in the URL?
+         $sqlfilter .= ' ORDER BY incidentid';
+         $sortkey = 'incidentid';
+   }
+   $incidents = getOpenIncidents($sqlfilter);
+
+   $out = '';
+   $out .= '<h1>'._('Incidents').'</h1>'.LF;
+   $out .= _('Filters: ');
+   $out .= '<select name="filter">'.LF;
+   $out .= '<option value="">['._('Choose a state').']</option>'.LF;
+   $out .= '</select>'.LF;
+   $out .= '<div class="right">'.LF;
+   $out .= '<a href="" class="button">'._('Add incident').'</a>'.LF;
+   $out .= '</div><!-- right -->'.LF;
+   $out .= t('<form name="listform" action="%url/incident.php" method="POST">',
+      array('%url'=>BASEURL)).LF;
+   $out .= '<input type="hidden" name="action" value="massupdate">'.LF;
+   $out .= '<table id="details-overview-body">'.LF;
+   $out .= '<tr>'.LF;
+   $out .= '  <th><input type="checkbox" onChange="checkAll()"></th>'.LF;
+   $out .= '  <th>'._('Incident ID').'</th>'.LF;
+   $out .= t('  <th><a href="%url/incident.php">%l</a></th>'.LF, array(
+      '%url'=>BASEURL,
+      '%l'=>_('IP Address')));
+   $out .= t('  <th><a href="%url/incident.php">%l</a></th>'.LF, array(
+      '%url'=>BASEURL,
+      '%l'=>_('Constituency')));
+   $out .= t('  <th><a href="%url/incident.php">%l</a></th>'.LF, array(
+      '%url'=>BASEURL,
+      '%l'=>_('Type')));
+   $out .= t('  <th><a href="%url/incident.php">%l</a></th>'.LF, array(
+      '%url'=>BASEURL,
+      '%l'=>_('Status')));
+   $out .= t('  <th><a href="%url/incident.php">%l</a></th>'.LF, array(
+      '%url'=>BASEURL,
+      '%l'=>_('Created')));
+   $out .= t('  <th><a href="%url/incident.php">%l</a></th>'.LF, array(
+      '%url'=>BASEURL,
+      '%l'=>_('Updated')));
+   $out .= '</tr>'.LF;
+   
+
+
+   // Prepare to run over the list of incidents that need display.
+   $count = 0;
+   $conslist = getConstituencies();
+   foreach ($incidents as $id=>$data) {
+      if ($count < PAGESIZE*($page-1) || $count >= PAGESIZE*($page)) {
+         $count++;
+         continue;
+      }
+      $hostline= $data['hostname'];
+      $d = trim($data['desc']);
+      if (!empty($d)) {
+         $hostline = strip_tags($data['desc']);
+      }
+      $addresses = getAddressesForIncident($id);
+      if (sizeof($addresses) > 0) {
+         $constituency = $conslist[$addresses[0]['constituency']]['label'];
+      } else {
+         $constituency = '';
+      }
+
+      $out .= '<tr>'.LF;
+      $out .= t('  <td><input type="checkbox" name="massincidents[]" '.
+         '%check value="%id"></td>'.LF, array(
+            '%check' => ($toggle == 1) ? 'CHECKED' : '',
+            '%id' => $id));
+      $out .= t('  <td><a href="%url?action=details&incidentid=%id">'.
+         '%incidentid</a></td>'.LF, array(
+            '%url'=>BASEURL.'/incident.php',
+            '%id'=>$id,
+            '%incidentid'=>encode_incidentid($id)));
+      $out .= t('   <td>%constituency</td>'.LF, array(
+         '%constituency'=>htmlentities($constituency)));
+      $out .= t('   <td>%hostline</td>'.LF, array(
+         '%hostline'=>htmlentities($hostline)));
+      $out .= t('   <td>%status</td>'.LF, array(
+         '%status'=>htmlentities($data['status'])));
+      $out .= t('   <td>%state</td>'.LF, array(
+         '%state'=>htmlentities($data['state'])));
+      $out .= t('   <td>%type</td>'.LF, array(
+         '%type'=>htmlentities($data['type'])));
+      $out .= t('   <td>%created</td>'.LF, array(
+         '%created'=>Date('d M Y', $data['created'])));
+      $out .= t('   <td>%updated</td>'.LF, array(
+            '%updated' => Date('d M Y', $data['updated'])));
+      $out .= '</tr>'.LF;
+   } // foreach
+   $out .= '</table>'.LF;
+
+   $out .= '<p>'._('With selected:').'</p>'.LF;
+   $out .= '<table>'.LF;
+   $out .= '<tr>'.LF;
+   $out .= '  <td>'._('New State');
+   $out .= getIncidentStateSelection('massstate', 'null',
+      array('null'=>_('Leave Unchanged')));
+   $out .= '  <br/>'.LF;
+   $out .=_('New Status');
+   $out .= getIncidentStatusSelection('massstatus', 'null',
+      array('null'=>_('Leave Unchanged')));
+   $out .= '  <br/>'.LF;
+   $out .= _('New Type');
+   $out .= getIncidentTypeSelection('masstype', 'null',
+      array('null'=>_('Leave Unchanged')));
+   $out .= '<input type="submit" value="'._('Update').'">'.LF;
+   $out .= '</td>'.LF;
+   $out .= '</tr>'.LF;
+   $out .= '<tr>'.LF;
+   $out .= '  <td>'._('OR').'<br/>'._('Compose mail with ');
+   $out .= getMailTemplateSelection('template', 'null', array(
+         _('Use preferred template')=>_('Use preferred template')));
+   $out .= '</tr>'.LF;
+   $out .= '</table>'.LF;
+   $out .= '</form>'.LF;
+
+   pageHeader(_('Incident overview'));
+   print $out;
+   pageFooter();
 }
 ?>

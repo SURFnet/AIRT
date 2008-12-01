@@ -160,93 +160,100 @@ function airt_check_session($public) {
  * @in title The title of the page
  */
 function pageHeader($title='', $options=array()) {
-	global $public;
-    if (array_key_exists('event', $options)) {
-        $event = $options['event'];
-    } else {
-        $event = true;
-    }
-    $userid = fetchFrom('SESSION', 'userid');
-    if (empty($userid) || 
-       ($u = getUserByUserId($_SESSION['userid'])) === false) {
-        $name = _('Unknown');
-    } else {
-        $name = $u['firstname'].' '.$u['lastname'];
-    }
+   global $public;
+   if (array_key_exists('event', $options)) {
+       $event = $options['event'];
+   } else {
+       $event = true;
+   }
+   $userid = fetchFrom('SESSION', 'userid');
+   if (empty($userid) || 
+      ($u = getUserByUserId($_SESSION['userid'])) === false) {
+       $name = _('Unknown');
+   } else {
+       $name = $u['firstname'].' '.$u['lastname'];
+   }
+   $username = strip_tags(fetchFrom('SESSION', 'username'));
+   defaultTo($username,'Not logged in');
+   $messages = '';
+   if (isset($_SESSION['msg'])) {
+      $messages = $_SESSION['msg'];
+      unset($_SESSION['msg']);
+   }
 
-    $username = strip_tags(fetchFrom('SESSION', 'username'));
-    defaultTo($username,'Not logged in');
 
-    print '<!DOCTYPE html PUBLIC "-//W3C/DTD XHTML 1.0 Transitional//EN" '.
-          '   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'.LF;
-    print '<html>'.LF;
-    print '  <head>'.LF;
-    print t('    <title>AIRT: %title</title>'.LF, array(
-      '%title'=>strip_tags($title)));
-    print t('    <link href="%url/airt-style.css" rel="stylesheet" '.
-      'type="text/css">', array(
-      '%url'=>BASEURL));
-    print '  </head>'.LF;
+   print '<!DOCTYPE html PUBLIC "-//W3C/DTD XHTML 1.0 Transitional//EN" '.
+         '   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'.LF;
+   print '<html>'.LF;
+   print '  <head>'.LF;
+   print t('    <title>AIRT: %title</title>'.LF, array(
+     '%title'=>strip_tags($title)));
+   print t('    <link href="%url/airt-style.css" rel="stylesheet" '.
+     'type="text/css">', array(
+     '%url'=>BASEURL));
+   print '  </head>'.LF;
 
-    print '<body>'.LF;
-    print '<div id="wrapper">'.LF;
-    print '  <div id="header">'.LF;
-    print '  <div id="left">'.LF;
-    print '    <div id="title">Application for Incident Response Teams</div>'.
-       LF;
-    print '    <div id="navigation">'.LF;
-    print t('       <a href="%url/incidents.php" class="active">%i</a>'.LF,
-       array('%url'=>BASEURL, '%i'=>_('Incidents')));
-    print t('       <a href="%url/constituencies.php">%i</a>'.LF, array(
-       '%url'=>BASEURL,
-       '%i'=>_('Constituencies')));
-    print t('       <a href="%url/mailtemplates.php">%i</a>'.LF, array(
-       '%url'=>BASEURL,
-       '%i'=>_('Mail')));
-    print '    </div><!-- navigation -->'.LF;
-    print '  </div><!-- left -->'.LF;
-    print '  <div class="right">'.LF;
-    print t('    <div id="userinfo">%name (<a href="%url/logout.php">%l</a>)'.
-       '</div>'.LF, array(
-       '%name'=>htmlentities($name),
-       '%url'=>BASEURL,
-       '%l'=>_('Log out')));
-    print '    <form action="" method="post">'.LF;
-    print '      <input type="text" name="searchquery" />'.LF;
-    print t('      <input type="submit" value="%l" />', array(
-       '%l'=>_('Search')));
-    print '    </form>'.LF;
-    print '    <ul>'.LF;
-    print t('    <li>%l'.LF, array(
-       '%l'=>_('Tools')));
-    print '    <ul>'.LF;
-    print t('      <li><a href="%url">%label</a></li>', array(
-       '%url'=>BASEURL,
-       '%label'=>_('NFSEN')));
-    print t('      <li><a href="%url">%label</a></li>', array(
-       '%url'=>BASEURL,
-       '%label'=>_('Wikiwespje')));
-    print '    </ul></li>'.LF;
-    print '    </ul>'.LF;
-    print '  </div><!-- right -->'.LF;
-    print '</div><!-- header -->'.LF;
+   print '<body>'.LF;
+   print '<div id="wrapper">'.LF;
+   print '  <div id="header">'.LF;
+   print '  <div id="left">'.LF;
+   print '    <div id="title">Application for Incident Response Teams</div>'.
+      LF;
+   print '    <div id="navigation">'.LF;
+   print t('       <a href="%url/incidents.php" class="active">%i</a>'.LF,
+      array('%url'=>BASEURL, '%i'=>_('Incidents')));
+   print t('       <a href="%url/constituencies.php">%i</a>'.LF, array(
+      '%url'=>BASEURL,
+      '%i'=>_('Constituencies')));
+   print t('       <a href="%url/mailtemplates.php">%i</a>'.LF, array(
+      '%url'=>BASEURL,
+      '%i'=>_('Mail')));
+   print '    </div><!-- navigation -->'.LF;
+   print '  </div><!-- left -->'.LF;
+   print '  <div class="right">'.LF;
+   print t('    <div id="userinfo">%name (<a href="%url/logout.php">%l</a>)'.
+      '</div>'.LF, array(
+      '%name'=>htmlentities($name),
+      '%url'=>BASEURL,
+      '%l'=>_('Log out')));
+   print '    <form action="" method="post">'.LF;
+   print '      <input type="text" name="searchquery" />'.LF;
+   print t('      <input type="submit" value="%l" />', array(
+      '%l'=>_('Search')));
+   print '    </form>'.LF;
+   print '    <ul>'.LF;
+   print t('    <li>%l'.LF, array(
+      '%l'=>_('Tools')));
+   print '    <ul>'.LF;
+   print t('      <li><a href="%url">%label</a></li>', array(
+      '%url'=>BASEURL,
+      '%label'=>_('NFSEN')));
+   print t('      <li><a href="%url">%label</a></li>', array(
+      '%url'=>BASEURL,
+      '%label'=>_('Wikiwespje')));
+   print '    </ul></li>'.LF;
+   print '    </ul>'.LF;
+   print '  </div><!-- right -->'.LF;
+   print '</div><!-- header -->'.LF;
 
-    print '<div id="submenu">'.LF;
-    print t('  <a href="%url/incident.php" class="active">%l</a>'.LF, array(
-       '%url'=>BASEURL,
-       '%l'=>_('Incidents (14)')));
-    print t('  <a href="%url/importqueue.php">%l</a>'.LF, array(
-       '%url'=>BASEURL,
-       '%l'=>_('Import queue (9)')));
-    print t('  <a href="%url/incidents.php">%l</a>'.LF, array(
-       '%url'=>BASEURL,
-       '%l'=>_('Incident Archive')));
-    print t('  <a href="%url/stats.php">%l</a>'.LF, array(
-       '%url'=>BASEURL,
-       '%l'=>_('Reports')));
-    print '</div><!-- submenu -->'.LF;
+   print '<div id="submenu">'.LF;
+   print t('  <a href="%url/incident.php" class="active">%l</a>'.LF, array(
+      '%url'=>BASEURL,
+      '%l'=>_('Incidents (14)')));
+   print t('  <a href="%url/importqueue.php">%l</a>'.LF, array(
+      '%url'=>BASEURL,
+      '%l'=>_('Import queue (9)')));
+   print t('  <a href="%url/incidents.php">%l</a>'.LF, array(
+      '%url'=>BASEURL,
+      '%l'=>_('Incident Archive')));
+   print t('  <a href="%url/stats.php">%l</a>'.LF, array(
+      '%url'=>BASEURL,
+      '%l'=>_('Reports')));
+   print '</div><!-- submenu -->'.LF;
 
-    print '<div class="content">'.LF;
+   print '<div class="content">'.LF;
+   print t('<div class="messages">%msg</div>'.LF, array(
+      '%msg'=>htmlentities($messages)));
 } // pageheader()
 
 

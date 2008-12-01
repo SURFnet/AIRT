@@ -338,17 +338,8 @@ _('Continue').'...</a>'.LF,
 
     //--------------------------------------------------------------------
     case 'list':
-      pageHeader(_('Incident Overview'));
-      print updateCheckboxes();
-
-      generateEvent('incidentlistpre');
-      print formatListOverviewHeader();
-      print formatListOverviewBody();
-      print formatListOverviewFooter();
-
-      generateEvent('incidentlistpost');
-      pageFooter();
-      break;
+       listIncidents();
+       break;
 
    //--------------------------------------------------------------------
    case 'addip':
