@@ -1,89 +1,188 @@
+/*div{
+border: 1px solid red;
+}*/
 
 body {
-  /* background-color: #F0F8FF; */
-  background-color: white;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 12px;
-  margin: 0;
-  padding: 0;
+	margin: 0;
+	padding: 0;
+	background-color: #87CEFA;
+	font: 12px Verdana, Arial, Helvetica, sans-serif;
+	text-align: center;
+	line-height: 1em;
 }
 
-.navbar a {
-  color: #0000FF;
-  text-decoration: none;
+#wrapper{
+	width: 970px;
+	margin: 0 auto;
+	text-align: left; 
 }
 
-A:hover {
-  text-decoration: underline;
+a.hover{
+	border-bottom: 1px dotted #000; 
 }
+
 
 table{
-   font: 12px Verdana, Arial, sans-serif;
+border-collapse: collapse;
+font: 12px Verdana, Arial, Helvetica, sans-serif;
 }
 
-tr.odd {
-  background-color: #EEEEEE;
+table th{
+text-align: left;
 }
 
-tr.even {
-  background-color: #FFF;
+#header {
+	margin-top: 10px;
+	padding-left: 160px;
+	background: #87CEFA url(images/airt_logo.png) no-repeat top left;
+	border-bottom: 1px solid black;
+	height: 80px;
 }
 
-/*
- * titlebar
- */
-.titlebar {
-   position: absolute;
-   top: 10px;
-   left: 0px;
-   font: 12px Arial, sans-serif;
-   width: 100%;
-   vertical-align: top;
+#header .left{
+float: left;
+width: 550px;
 }
 
-.titlepanel {
-   position: absolute;
-   font-weight: bold;
-   top: 0px;
-   left: 0px;
+#title{
+	margin: 0;
+	padding: 0;
+	height: 27px;
+	font: bold 22px Arial, Verdana, sans-serif;
 }
 
-.title {
-   font-size: 21px;
+#header .right{
+float: right;
+text-align: right;
+width: 250px;
 }
 
-.subtitle {
-   font-size: 13px;
+#header .right #userinfo{
+float: right;
+margin-bottom: 5px;
 }
 
-.userpanel {
-   position: absolute;
-   top: 0px;
-   right: 0px;
+#header .right form{
+margin: 0;
+padding: 5px 0;
 }
 
-.messages {
-   padding: 3px;
-   background-color: yellow;
+#header .right ul{
+float: right;
+list-style: none;
+margin: 0;
+padding: 0;
+width: 100px;
 }
 
-/*
- * content
- */
+#header .right ul li{
+padding: 5px;
+background-color: #F0F8FF;
+border-bottom: 1px solid #dddddd;
+}
+
+#header .right ul ul{
+z-index: 100;
+border: 1px solid #DDD;
+border-bottom: 0;
+display: none;
+}
+
+#header .right ul:hover ul{
+display: inline;
+}
+
+#header .right ul ul li{
+padding: 5px;
+
+}
+
+#header .right ul ul li:hover{
+background-color: #DDD;
+}
+
+
+
+#navigation{
+margin-top: 20px;
+float: left;
+clear: left;
+}
+
+#navigation a{
+display: inline-block;
+background-color: #E0E8EF; /*F0F8FF;*/
+  border: 1px solid black;
+  
+  padding: 7px 9px;
+  color: #AAAAAA;
+  text-decoration: none;
+    font: 18px Arial;
+	line-height: 1em;
+}
+
+#navigation a.active{
+color: #000;
+	background-color: #F0F8FF;
+  border-bottom: 0;
+  padding-bottom: 8px;
+}
+
+.messages{
+    padding: 10px;
+    background-color: #EF8A4D;
+	border: 1px solid #E78347;
+	margin-bottom: 10px;
+}
+#submenu{
+padding: 10px 20px;
+width: 928px;
+border: 1px solid #000;
+border-bottom: 0;
+border-top: 0;
+  background-color: #F0F8FF;
+}
+
+#submenu a{
+font: 14px Arial;
+margin: 0px 10px;
+}
+
+#submenu a.active{
+font-weight: bold;
+}
+
 .content {
-   position: absolute;
-   top: 55px;
+   padding: 0 10px;
+   width: 948px;
    font: 12px Verdana, Arial, sans-serif;
+   border: 1px solid #000;
+	border-top: 0;
+  background-color: #F0F8FF;
 }
 
-.content h2 {
-  font-size: large;
-  font-weight: bold;
-  font-style: italic;
+.content h1{
+	margin: 10px 0;
+  font: bold 22px Arial;
 }
 
 .content h3 {
   font: bold Verdana, Arial, sans-serif;
+}
+
+.right{
+float: right;
+text-align: right;
+}
+
+.right a.button{
+background-color: #FFF;
+padding: 5px 10px;
+text-decoration: none;
+font: 12px Arial, Verdana, sans-serif;
+color: #000;
+float: right;
+
 }
 
 .details-overview-header {
@@ -91,7 +190,7 @@ tr.even {
 }
 
 .details-overview-header td {
-    padding-top: 1em;
+    padding-top: 5px;
     border-right: 1px solid black;
 }
 
@@ -121,8 +220,17 @@ tr.even {
     border-bottom: 1px solid black;
 }
 
-.details-overview-body {
-    border-bottom: 1px solid black;
+table#details-overview-body{
+width: 100%;
+clear: both;
+}
+
+#details-overview-body td, table#details-overview-body th{
+    border-bottom: 1px solid #E0E8EF;
+}
+
+table#details-overview-body th{
+background-color: #E0E8EF;
 }
 
 
@@ -252,38 +360,30 @@ mailbox .check {
 .loginbox {
    text-align: center;
    width: 100%;
-   margin-top: 50px;
-   font-family: Arial, Helvetica, sans-serif;
+   height: 100%;
 }
 
 .loginbox-inner {
    width: 60%;
+   height: 50%;
    margin-left: 20%;
    margin-right: 20%;
-   padding-bottom: 1ex;
+   margin-top: 50px;
    border: 1px solid black;
 }
 
 .loginbox-title {
     font-size: 24px;
-    font-weight: bold;
     padding-bottom: 10px;
-    padding-top: 1ex;
-    letter-spacing: 1px;
 }
 
 .loginbox-subtitle {
     padding-bottom: 10px;
-    font-size: 10pt;
 }
 
 .loginbox-form {
     display: inline-table;
     text-align: center;
-}
-
-.loginbox-form table {
-    text-align: right;
 }
 
 .loginbox-form input.login {
@@ -294,5 +394,5 @@ mailbox .check {
 .loginbox-footer {
     margin-top: 15ex;
     font-size: 80%;
-    text-align: center;
+    text-align: left;
 }

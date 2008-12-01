@@ -25,9 +25,10 @@ config_DATA = airt-apache.conf.dist airt.cfg.dist customfunctions.plib.dist \
    webservice.cfg.dist importqueue.cfg.dist exportqueue.cfg.dist 
    
 
-script_DATA=airt-style.css.dist
+script_DATA=airt-style.css.dist airt-additional-styles.css.dist
 
 CLEANFILES = airt-apache.conf.dist airt.cfg.dist
+
 DISTCLEANFILES = $(CLEANFILES)
 
 EXTRA_DIST = $(config_DATA) $(script_DATA)
