@@ -187,19 +187,15 @@ function pageHeader($title='', $options=array()) {
          '   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'.LF;
    print '<html>'.LF;
    print '  <head>'.LF;
-   /*
-   print t('    <title>AIRT: %title</title>'.LF, array(
-     '%title'=>strip_tags($title)));
-   */
    print '      <title>AIRT</title>'.LF;
-   print t('    <link href="%url/airt-style.css" rel="stylesheet" '.
-     'type="text/css">', array(
+   print t('     <link href="%url/airt-style.css" rel="stylesheet" '.
+     'type="text/css">'.LF, array(
      '%url'=>BASEURL));
    print '  </head>'.LF;
 
    print '<body>'.LF;
    print '<div id="wrapper">'.LF;
-   print '  <div id="header">'.LF;
+   print '  <div id="header">'.LF.LF;
    print '  <div id="left">'.LF;
    print t('  <a href="%url/index.php" title="'._('Back to the first page').
       '"><img src="images/airt_logo.png" alt="AIRT" id="logo" /></a>'.LF, 
@@ -207,7 +203,7 @@ function pageHeader($title='', $options=array()) {
    print '    <div id="title">Application for Incident Response Teams</div>'.
       LF;
    print '    <div id="navigation">'.LF;
-   print t('       <a href="%url/incidents.php" class="active">%i</a>'.LF,
+   print t('       <a href="%url/incident.php" class="active">%i</a>'.LF,
       array('%url'=>BASEURL, '%i'=>_('Incidents')));
    print t('       <a href="%url/constituencies.php">%i</a>'.LF, array(
       '%url'=>BASEURL,
@@ -215,6 +211,10 @@ function pageHeader($title='', $options=array()) {
    print t('       <a href="%url/mailtemplates.php">%i</a>'.LF, array(
       '%url'=>BASEURL,
       '%i'=>_('Mail')));
+   print t('       <a href="%url/settings.php" class="settings">%i</a>'.LF, 
+      array('%url'=>BASEURL,
+      '%i'=>_('Settings')));
+
    print '    </div><!-- navigation -->'.LF;
    print '  </div><!-- left -->'.LF;
    print '  <div class="right">'.LF;
@@ -223,13 +223,16 @@ function pageHeader($title='', $options=array()) {
       '%name'=>htmlentities($name),
       '%url'=>BASEURL,
       '%l'=>_('Log out')));
+# XXX XXX TODO XXX XXX
    print '    <form action="" method="post">'.LF;
    print '      <input type="text" name="searchquery" />'.LF;
    print t('      <input type="submit" value="%l" />', array(
       '%l'=>_('Search')));
    print '    </form>'.LF;
+# XXX XXX TODO XXX XXX
+   print LF.'    <div id="tools">'.LF;
    print '    <ul>'.LF;
-   print t('    <li>%l'.LF, array(
+   print t('    <li><span>%l</span>'.LF, array(
       '%l'=>_('Tools')));
 
    print '      <ul>'.LF;
@@ -249,15 +252,18 @@ function pageHeader($title='', $options=array()) {
          '%description'=>strip_tags($description)));
    }
 
+   print '    </ul></li>'.LF;
    print '    </ul>'.LF;
-   print '    </ul>'.LF;
+   print '  </div><!-- tools -->'.LF;
    print '  </div><!-- right -->'.LF;
    print '</div><!-- header -->'.LF;
 
-   print '<div id="submenu">'.LF;
+   print LF.'<div id="submenu">'.LF;
+# XXX XXX TODO XXX XXX XXX
    print t('  <a href="%url/incident.php" class="active">%l</a>'.LF, array(
       '%url'=>BASEURL,
       '%l'=>_('Incidents (14)')));
+# XXX XXX TODO XXX XXX XXX
    print t('  <a href="%url/importqueue.php">%l</a>'.LF, array(
       '%url'=>BASEURL,
       '%l'=>_('Import queue (9)')));
@@ -269,9 +275,12 @@ function pageHeader($title='', $options=array()) {
       '%l'=>_('Reports')));
    print '</div><!-- submenu -->'.LF;
 
-   print '<div class="content">'.LF;
-   print t('<div class="messages">%msg</div>'.LF, array(
-      '%msg'=>htmlentities($messages)));
+   print LF.'<div class="content">'.LF;
+   if (!empty($messages)) {
+       print t('<div class="messages">%msg</div>'.LF, array(
+          '%msg'=>htmlentities($messages)));
+   }
+   print t('<h1>%title</h1>'.LF, array('%title'=>htmlentities($title)));
 } // pageheader()
 
 

@@ -2662,16 +2662,18 @@ function listIncidents() {
    $incidents = getOpenIncidents($sqlfilter);
 
    $out = '';
-   $out .= '<h1>'._('Incidents').'</h1>'.LF;
+   $out .= '<div class="left">'.LF;
    $out .= _('Filters: ');
-   $out .= '<span class="left"><select name="filter">'.LF;
+   $out .= '<select name="filter">'.LF;
    $out .= '<option value="">['._('Choose a state').']</option>'.LF;
-   $out .= '</select></span>'.LF;
-   $out .= '<span class="right">'.LF;
+   $out .= '</select></div>'.LF;
+
+   $out .= LF.'<div class="right">'.LF;
    $out .= t('<a href="%url/incident.php?action=new" class="button">'.
       _('Add incident').'</a>'.LF, array(
       '%url'=>BASEURL));
-   $out .= '</span><!-- right -->'.LF;
+   $out .= '</div><!-- right -->'.LF.LF;
+
    $out .= t('<form name="listform" action="%url/incident.php" method="POST">',
       array('%url'=>BASEURL)).LF;
    $out .= '<input type="hidden" name="action" value="massupdate">'.LF;
@@ -2679,6 +2681,7 @@ function listIncidents() {
    $out .= '<tr>'.LF;
    $out .= '  <th><input type="checkbox" onChange="checkAll()"></th>'.LF;
    $out .= '  <th>'._('Incident ID').'</th>'.LF;
+# XXX TODO XXX SORTKEYS XXX
    $out .= t('  <th><a href="%url/incident.php">%l</a></th>'.LF, array(
       '%url'=>BASEURL,
       '%l'=>_('IP Address')));
@@ -2750,7 +2753,7 @@ function listIncidents() {
    } // foreach
    $out .= '</table>'.LF;
 
-   $out .= '<p>'._('With selected:').'</p>'.LF;
+   $out .= LF.'<p>'._('With selected:').'</p>'.LF.LF;
    $out .= '<table>'.LF;
    $out .= '<tr>'.LF;
    $out .= '  <td>'._('New State');
