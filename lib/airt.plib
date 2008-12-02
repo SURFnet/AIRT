@@ -201,7 +201,7 @@ function pageHeader($title='', $options=array()) {
    print '<body>'.LF;
    print '<div id="wrapper">'.LF;
    print '  <div id="header">'.LF.LF;
-   print '  <div id="left">'.LF;
+   print '  <div class="left">'.LF;
    print t('  <a href="%url/index.php" title="'._('Back to the first page').
       '"><img src="images/airt_logo.png" alt="AIRT" id="logo" /></a>'.LF, 
       array('%url'=>BASEURL));

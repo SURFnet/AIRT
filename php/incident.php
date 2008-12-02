@@ -72,8 +72,6 @@ switch ($action) {
        reload();
     }
 
-    print updateCheckboxes();
-
     /* Prevent cross site scripting in incidentid. */
     $norm_incidentid = normalize_incidentid($incidentid);
     $incidentid = decode_incidentid($norm_incidentid);
@@ -892,52 +890,6 @@ _('Continue').'...</a>'.LF,
       break;
 
    //--------------------------------------------------------------------
-   case 'edit_ticket':
-      $incidentid = fetchFrom('REQUEST', 'incidentid', '%d');
-      if ($incidentid == '') {
-         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
-         reload();
-         return;
-      }
-      print formatEditTicket($incidentid);
-      break;
-
-   //--------------------------------------------------------------------
-   case 'delete_tn':
-      $incidentid = fetchFrom('REQUEST', 'incidentid');
-      $tn = fetchFrom('REQUEST', 'tn');
-      if ($incidentid == '') {
-         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
-         return;
-      }
-      if ($tn == '') {
-         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
-         return;
-      }
-      Header("Location: $_SERVER[PHP_SELF]?action=edit_ticket&incidentid=".
-         urlencode($incidentid));
-      break;
-
-   //--------------------------------------------------------------------
-   case _('Add ticket number'):
-   case 'add_tn':
-      $incidentid = fetchFrom('REQUEST', 'incidentid');
-      $tn = fetchFrom('REQUEST', 'tn');
-      if ($incidentid == '') {
-         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
-         return;
-      }
-      if ($tn == '') {
-         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
-         return;
-      }
-      Header("Location: $_SERVER[PHP_SELF]?action=edit_ticket&incidentid=".
-         urlencode($incidentid));
-      break;
 
    case 'upload':
       $incidentid = fetchFrom('REQUEST', 'incidentid', '%d');
