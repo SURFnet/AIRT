@@ -2314,7 +2314,7 @@ function listIncidents() {
    $out .= '</table>'.LF;
    $out .= '</form>'.LF;
 
-   pageHeader(_('Incident overview'));
+   pageHeader(_('Incidents'), array('page'=>'incidents'));
    print $out;
    pageFooter();
 }

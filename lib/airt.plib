@@ -167,6 +167,11 @@ function pageHeader($title='', $options=array()) {
    } else {
        $event = true;
    }
+   if (array_key_exists('page', $options)) {
+       $page = $options['page'];
+   } else {
+       $page = 'unknown';
+   }
    $userid = fetchFrom('SESSION', 'userid');
    if (empty($userid) || 
       ($u = getUserByUserId($_SESSION['userid'])) === false) {
@@ -203,14 +208,18 @@ function pageHeader($title='', $options=array()) {
    print '    <div id="title">Application for Incident Response Teams</div>'.
       LF;
    print '    <div id="navigation">'.LF;
-   print t('       <a href="%url/incident.php" class="active">%i</a>'.LF,
-      array('%url'=>BASEURL, '%i'=>_('Incidents')));
-   print t('       <a href="%url/constituencies.php">%i</a>'.LF, array(
-      '%url'=>BASEURL,
-      '%i'=>_('Constituencies')));
-   print t('       <a href="%url/mailtemplates.php">%i</a>'.LF, array(
-      '%url'=>BASEURL,
-      '%i'=>_('Mail')));
+   print t('       <a href="%url/incident.php" %active>%i</a>'.LF,
+      array('%url'=>BASEURL, 
+            '%i'=>_('Incidents'),
+            '%active'=>($page == 'incidents') ? 'class="active"' : ''));
+   print t('       <a href="%url/constituencies.php" %active>%i</a>'.LF, 
+      array('%url'=>BASEURL,
+            '%i'=>_('Constituencies'),
+            '%active'=>($page == 'constituencies') ? 'class="active"' : ''));
+   print t('       <a href="%url/mailtemplates.php" %active>%i</a>'.LF, 
+      array('%url'=>BASEURL,
+            '%i'=>_('Mail'),
+            '%active'=>($page == 'mail') ? 'class="active"' : ''));
    print t('       <a href="%url/settings.php" class="settings">%i</a>'.LF, 
       array('%url'=>BASEURL,
       '%i'=>_('Settings')));
