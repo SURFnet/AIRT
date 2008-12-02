@@ -79,7 +79,9 @@ defaultTo($action, 'list');
 switch ($action) {
    // --------------------------------------------------------------
    case "list":
-      pageHeader(_('Constituencies'));
+      pageHeader(_('Constituencies'), array(
+         'menu'=>'constituencies',
+         'submenu'=>'constituencies'));
 
       $out = '<table width="100%" cellpadding="3">'.LF;
       $out .= '<tr>'.LF;

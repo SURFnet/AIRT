@@ -85,7 +85,9 @@ function show_form($id="") {
 switch ($action) {
    // --------------------------------------------------------------
    case "list":
-      pageHeader(_('Networks'));
+      pageHeader(_('Networks'), array(
+         'menu'=>'constituencies',
+         'submenu'=>'networks'));
 
       print '<table cellpadding="3">'.LF;
       print '<tr>'.LF;

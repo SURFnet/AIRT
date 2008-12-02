@@ -34,7 +34,9 @@ defaultTo($action, 'list');
 switch ($action) {
    //-----------------------------------------------------------------
    case "list":
-      pageHeader(_('Constituency contacts'));
+      pageHeader(_('Constituency contacts'), array(
+         'menu'=>'constituencies',
+         'submenu'=>'contacts'));
 
       $res = db_query("SELECT   id, label, name
              FROM     constituencies

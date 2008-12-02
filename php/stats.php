@@ -177,7 +177,9 @@ function printStatsInputForm() {
   );
 
   $year = Date('Y');
-  pageHeader(_('Incident statistics'));
+  pageHeader(_('Incident statistics'), array(
+     'menu'=>'incidents',
+     'submenu'=>'reports'));
   $out = '<P>'._('Please select the reporting period of which you would like to see statistics. (note; the start date and the end date are included in the
 report.').'</P>';
 

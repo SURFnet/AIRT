@@ -2237,8 +2237,6 @@ function listIncidents() {
       '%url'=>BASEURL,
       '%l'=>_('Updated')));
    $out .= '</tr>'.LF;
-   
-
 
    // Prepare to run over the list of incidents that need display.
    $count = 0;
@@ -2314,7 +2312,9 @@ function listIncidents() {
    $out .= '</table>'.LF;
    $out .= '</form>'.LF;
 
-   pageHeader(_('Incidents'), array('page'=>'incidents'));
+   pageHeader(_('Incidents'), array(
+      'menu'=>'incidents',
+      'submenu'=>'incidents'));
    print $out;
    pageFooter();
 }

@@ -156,6 +156,81 @@ function airt_check_session($public) {
 ///// End init code; remaining file contains only function definitions, ////
 ///// but these are partially conditional. /////////////////////////////////
 
+function mainMenu($active) {
+   $out = '';
+   $out .= t('       <a href="%url/incident.php" %active>%i</a>'.LF,
+      array('%url'=>BASEURL, 
+            '%i'=>_('Incidents'),
+            '%active'=>($active == 'incidents') ? 'class="active"' : ''));
+   $out .= t('       <a href="%url/constituencies.php" %active>%i</a>'.LF, 
+      array('%url'=>BASEURL,
+            '%i'=>_('Constituencies'),
+            '%active'=>($active == 'constituencies') ? 'class="active"' : ''));
+   $out .= t('       <a href="%url/mailtemplates.php" %active>%i</a>'.LF, 
+      array('%url'=>BASEURL,
+            '%i'=>_('Mail'),
+            '%active'=>($active == 'mail') ? 'class="active"' : ''));
+   $out .= t('       <a href="%url/settings.php" class="settings">%i</a>'.LF, 
+      array('%url'=>BASEURL,
+      '%i'=>_('Settings')));
+   return $out;
+}
+
+
+function subMenu($menu, $submenu) {
+# XXX XXX TODO XXX XXX XXX
+   $out = '';
+   switch ($menu) {
+       case 'incidents':
+           $out .= t('  <a href="%url/incident.php" %active>%l</a>'.LF, 
+           array(
+              '%url'=>BASEURL,
+              '%l'=>_('Incidents (14)'),
+              '%active'=>($submenu == 'incidents' ? 'class="active"' : '')));
+# XXX XXX TODO XXX XXX XXX
+           $out .= t('  <a href="%url/importqueue.php" %active>%l</a>'.LF, 
+           array(
+              '%url'=>BASEURL,
+              '%l'=>_('Import queue (9)'),
+              '%active'=>($submenu == 'importqueue' ? 'class="active"' : '')));
+           $out .= t('  <a href="%url/incidents.php">%l</a>'.LF, 
+           array(
+              '%url'=>BASEURL,
+              '%l'=>_('Incident Archive'),
+              '%active'=>($submenu == 'archive' ? 'class="active"' : '')));
+           $out .= t('  <a href="%url/stats.php" %active>%l</a>'.LF, 
+           array(
+              '%url'=>BASEURL,
+              '%l'=>_('Reports'),
+              '%active'=>($submenu == 'reports' ? 'class="active"' : '')));
+           break;
+
+        case 'constituencies':
+           $out .= t('  <a href="%url/constituencies.php" %active>%l</a>'.LF, 
+           array(
+              '%url'=>BASEURL,
+              '%l'=>_('Constituencies'),
+              '%active'=>($submenu == 'constituencies'?'class="active"' : '')));
+           $out .= t('  <a href="%url/networks.php" %active>%l</a>'.LF, 
+           array(
+              '%url'=>BASEURL,
+              '%l'=>_('Networks'),
+              '%active'=>($submenu == 'networks' ? 'class="active"' : '')));
+           $out .= t('  <a href="%url/constituency_contacts.php" %active>%l</a>'.LF, 
+           array(
+              '%url'=>BASEURL,
+              '%l'=>_('Constituency Contacts'),
+              '%active'=>($submenu == 'contacts' ? 'class="active"' : '')));
+           break;
+
+        case 'mail':
+           $out .= 'mail';
+           break;
+   }
+   return $out;
+}
+
+
 /**
  * Display the page header
  * @in title The title of the page
@@ -167,10 +242,15 @@ function pageHeader($title='', $options=array()) {
    } else {
        $event = true;
    }
-   if (array_key_exists('page', $options)) {
-       $page = $options['page'];
+   if (array_key_exists('menu', $options)) {
+       $menu = $options['menu'];
    } else {
-       $page = 'unknown';
+       $menu = 'unknown';
+   }
+   if (array_key_exists('submenu', $options)) {
+       $submenu = $options['submenu'];
+   } else {
+       $submenu = 'unknown';
    }
    $userid = fetchFrom('SESSION', 'userid');
    if (empty($userid) || 
@@ -208,22 +288,7 @@ function pageHeader($title='', $options=array()) {
    print '    <div id="title">Application for Incident Response Teams</div>'.
       LF;
    print '    <div id="navigation">'.LF;
-   print t('       <a href="%url/incident.php" %active>%i</a>'.LF,
-      array('%url'=>BASEURL, 
-            '%i'=>_('Incidents'),
-            '%active'=>($page == 'incidents') ? 'class="active"' : ''));
-   print t('       <a href="%url/constituencies.php" %active>%i</a>'.LF, 
-      array('%url'=>BASEURL,
-            '%i'=>_('Constituencies'),
-            '%active'=>($page == 'constituencies') ? 'class="active"' : ''));
-   print t('       <a href="%url/mailtemplates.php" %active>%i</a>'.LF, 
-      array('%url'=>BASEURL,
-            '%i'=>_('Mail'),
-            '%active'=>($page == 'mail') ? 'class="active"' : ''));
-   print t('       <a href="%url/settings.php" class="settings">%i</a>'.LF, 
-      array('%url'=>BASEURL,
-      '%i'=>_('Settings')));
-
+   print mainMenu($menu);
    print '    </div><!-- navigation -->'.LF;
    print '  </div><!-- left -->'.LF;
    print '  <div class="right">'.LF;
@@ -268,20 +333,7 @@ function pageHeader($title='', $options=array()) {
    print '</div><!-- header -->'.LF;
 
    print LF.'<div id="submenu">'.LF;
-# XXX XXX TODO XXX XXX XXX
-   print t('  <a href="%url/incident.php" class="active">%l</a>'.LF, array(
-      '%url'=>BASEURL,
-      '%l'=>_('Incidents (14)')));
-# XXX XXX TODO XXX XXX XXX
-   print t('  <a href="%url/importqueue.php">%l</a>'.LF, array(
-      '%url'=>BASEURL,
-      '%l'=>_('Import queue (9)')));
-   print t('  <a href="%url/incidents.php">%l</a>'.LF, array(
-      '%url'=>BASEURL,
-      '%l'=>_('Incident Archive')));
-   print t('  <a href="%url/stats.php">%l</a>'.LF, array(
-      '%url'=>BASEURL,
-      '%l'=>_('Reports')));
+   print subMenu($menu, $submenu);
    print '</div><!-- submenu -->'.LF;
 
    print LF.'<div class="content">'.LF;

@@ -32,7 +32,9 @@ defaultTo($action, 'list');
 /** Helper function to display the queue.
  */
 function showQueue() {
-   pageHeader(_('AIRT Import queue'));
+   pageHeader(_('AIRT Import queue'), array(
+      'menu'=>'incidents',
+      'submenu'=>'importqueue'));
    $out = '<div class="importqueue-overview-header">'.LF;
 	$out .= t('<a href="%url?action=preftempl">', array(
 	   '%url'=>$_SERVER['PHP_SELF'])).
