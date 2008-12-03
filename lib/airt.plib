@@ -245,6 +245,11 @@ function pageHeader($title='', $options=array()) {
    if (array_key_exists('menu', $options)) {
        $menu = $options['menu'];
    } else {
+       $menu = true;
+   }
+   if (array_key_exists('menu', $options)) {
+       $menu = $options['menu'];
+   } else {
        $menu = 'unknown';
    }
    if (array_key_exists('submenu', $options)) {
@@ -252,6 +257,7 @@ function pageHeader($title='', $options=array()) {
    } else {
        $submenu = 'unknown';
    }
+
    $userid = fetchFrom('SESSION', 'userid');
    if (empty($userid) || 
       ($u = getUserByUserId($_SESSION['userid'])) === false) {
@@ -280,62 +286,63 @@ function pageHeader($title='', $options=array()) {
 
    print '<body>'.LF;
    print '<div id="wrapper">'.LF;
-   print '  <div id="header">'.LF.LF;
-   print '  <div class="left">'.LF;
-   print t('  <a href="%url/index.php" title="'._('Back to the first page').
-      '"><img src="images/airt_logo.png" alt="AIRT" id="logo" /></a>'.LF, 
-      array('%url'=>BASEURL));
-   print '    <div id="title">Application for Incident Response Teams</div>'.
-      LF;
-   print '    <div id="navigation">'.LF;
-   print mainMenu($menu);
-   print '    </div><!-- navigation -->'.LF;
-   print '  </div><!-- left -->'.LF;
-   print '  <div class="right">'.LF;
-   print t('    <div id="userinfo">'._('Logged in as %name').
-      '(<a href="%url/logout.php">%l</a>)</div>'.LF, array(
-      '%name'=>htmlentities($name),
-      '%url'=>BASEURL,
-      '%l'=>_('Log out')));
-# XXX XXX TODO XXX XXX
-   print '    <form action="" method="post">'.LF;
-   print '      <input type="text" name="searchquery" />'.LF;
-   print t('      <input type="submit" value="%l" />', array(
-      '%l'=>_('Search')));
-   print '    </form>'.LF;
-# XXX XXX TODO XXX XXX
-   print LF.'    <div id="tools">'.LF;
-   print '    <ul>'.LF;
-   print t('    <li><span>%l</span>'.LF, array(
-      '%l'=>_('Tools')));
+   if ($menu === true) {
+      print '  <div id="header">'.LF.LF;
+      print '  <div class="left">'.LF;
+      print t('  <a href="%url/index.php" title="'._('Back to the first page').
+         '"><img src="images/airt_logo.png" alt="AIRT" id="logo" /></a>'.LF, 
+         array('%url'=>BASEURL));
+      print '    <div id="title">Application for Incident Response Teams</div>'.
+         LF;
+      print '    <div id="navigation">'.LF;
+      print mainMenu($menu);
+      print '    </div><!-- navigation -->'.LF;
+      print '  </div><!-- left -->'.LF;
+      print '  <div class="right">'.LF;
+      print t('    <div id="userinfo">'._('Logged in as %name').
+         '(<a href="%url/logout.php">%l</a>)</div>'.LF, array(
+         '%name'=>htmlentities($name),
+         '%url'=>BASEURL,
+         '%l'=>_('Log out')));
+# X   XX XXX TODO XXX XXX
+      print '    <form action="" method="post">'.LF;
+      print '      <input type="text" name="searchquery" />'.LF;
+      print t('      <input type="submit" value="%l" />', array(
+         '%l'=>_('Search')));
+      print '    </form>'.LF;
+# X   XX XXX TODO XXX XXX
+      print LF.'    <div id="tools">'.LF;
+      print '    <ul>'.LF;
+      print t('    <li><span>%l</span>'.LF, array(
+         '%l'=>_('Tools')));
 
-   print '      <ul>'.LF;
+      print '      <ul>'.LF;
 
-   $res = db_query(q("
-      SELECT url, label
-      FROM   urls
-      WHERE  NOT menu_position IS NULL
-      ORDER BY menu_position"))
-   or die(_('Unable to query database.'));
+      $res = db_query(q("
+         SELECT url, label
+         FROM   urls
+         WHERE  NOT menu_position IS NULL
+         ORDER BY menu_position"))
+      or die(_('Unable to query database.'));
 
-   while (($row = db_fetch_next($res)) !== false) {
-      $url = $row['url'];
-      $description = $row['label'];
-      print t('<li><a href="%url">%description</a></li>'.LF, array(
-         '%url'=>$url,
-         '%description'=>strip_tags($description)));
-   }
+      while (($row = db_fetch_next($res)) !== false) {
+         $url = $row['url'];
+         $description = $row['label'];
+         print t('<li><a href="%url">%description</a></li>'.LF, array(
+            '%url'=>$url,
+            '%description'=>strip_tags($description)));
+      }
 
-   print '    </ul></li>'.LF;
-   print '    </ul>'.LF;
-   print '  </div><!-- tools -->'.LF;
-   print '  </div><!-- right -->'.LF;
-   print '</div><!-- header -->'.LF;
+      print '    </ul></li>'.LF;
+      print '    </ul>'.LF;
+      print '  </div><!-- tools -->'.LF;
+      print '  </div><!-- right -->'.LF;
+      print '</div><!-- header -->'.LF;
 
-   print LF.'<div id="submenu">'.LF;
-   print subMenu($menu, $submenu);
-   print '</div><!-- submenu -->'.LF;
-
+      print LF.'<div id="submenu">'.LF;
+      print subMenu($menu, $submenu);
+      print '</div><!-- submenu -->'.LF;
+   } // menu is true
    print LF.'<div class="content">'.LF;
    if (!empty($messages)) {
        print t('<div class="messages">%msg</div>'.LF, array(
