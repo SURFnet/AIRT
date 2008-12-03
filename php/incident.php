@@ -111,7 +111,7 @@ switch ($action) {
     $output .= '<input type="hidden" name="action" value="addcomment">'.LF;
     $output .= '<input type="hidden" name="incidentid" value="'.
         strip_tags($incidentid).'">'.LF;
-    $output .= '<table bgcolor="#DDDDDD" border=0 cellpadding=2>'.LF;
+    $output .= '<table>'.LF;
     $output .= '<tr>'.LF;
     $output .= '  <td>'._('New comment').': </td>'.LF;
     $output .= '  <td><input type="text" size=45 name="comment"></td>'.LF;

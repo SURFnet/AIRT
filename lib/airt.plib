@@ -242,10 +242,10 @@ function pageHeader($title='', $options=array()) {
    } else {
        $event = true;
    }
-   if (array_key_exists('menu', $options)) {
-       $menu = $options['menu'];
+   if (array_key_exists('showmenu', $options)) {
+       $showmenu = $options['showmenu'];
    } else {
-       $menu = true;
+       $showmenu = true;
    }
    if (array_key_exists('menu', $options)) {
        $menu = $options['menu'];
@@ -286,7 +286,7 @@ function pageHeader($title='', $options=array()) {
 
    print '<body>'.LF;
    print '<div id="wrapper">'.LF;
-   if ($menu === true) {
+   if ($showmenu === true) {
       print '  <div id="header">'.LF.LF;
       print '  <div class="left">'.LF;
       print t('  <a href="%url/index.php" title="'._('Back to the first page').

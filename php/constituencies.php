@@ -96,8 +96,7 @@ switch ($action) {
       $count=0;
       foreach ($constituencies as $id => $row) {
          $consid = $id;
-         $color = ($count++%2==0?"#FFFFFF":"#DDDDDD");
-         $out .= '<tr valign="top" bgcolor="'.$color.'">'.LF;
+         $out .= '<tr>'.LF;
          $out .= '<td>'.LF;
          $out .= '<a href="'.$_SERVER['PHP_SELF'].'?action=edit&cons='.
             $consid.'">'._('edit').'</a>'.LF;

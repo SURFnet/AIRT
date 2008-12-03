@@ -1313,7 +1313,7 @@ function formatIncidentForm(&$check) {
    $output .= '</table>'.LF;
  
    $output .= '<h3>'._('Affected users').'</h3>'.LF;
-   $output .= '<table bgcolor="#dddddd" cellpadding=2 border=0>'.LF;
+   $output .= '<table>'.LF;
    $output .= '<tr>'.LF;
    $output .= '  <td>'._('E-mail address of user').':</td>'.LF;
    $output .= '  <td><input onChange="updateCheckboxes()" type="text" '.
@@ -1408,7 +1408,7 @@ function formatEditForm() {
    $output .= '<p/>'.LF;
    $output .= '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">'.LF;
    $output .= '<input type="hidden" name="action" value="addip">'.LF;
-   $output .= '<table bgColor="#DDDDDD" cellpadding=2>'.LF;
+   $output .= '<table>'.LF;
    $output .= '<tr>'.LF;
    $output .= '  <td>'._('IP Address').'</td>'.LF;
    $output .= '  <td><input type="text" name="ip" size=40></td>'.LF;
@@ -1480,7 +1480,7 @@ function formatEditForm() {
    $output .= '<form name="jsform" action="'.$_SERVER['PHP_SELF'].
               '" method="POST">'.LF;
    $output .= '  <input type="hidden" name="action" value="adduser">'.LF;
-   $output .= '  <table bgColor="#DDDDDD" cellpadding=2 border=0>'.LF;
+   $output .= '  <table>'.LF;
    $output .= '  <tr>'.LF;
    $output .= '    <td>'._('Email address of user').':</td>'.LF;
    $output .= '    <td><input onChange="updateCheckboxes()" type="text" '.

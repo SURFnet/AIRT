@@ -115,8 +115,7 @@ switch ($action) {
          $id    = $row["id"];
          $desc  = $row['descr'];
          $isdefault = $row['isdefault']=='t'? 'Yes':'';
-         $color = ($count++%2==0?"#FFFFFF":"#DDDDDD");
-         echo '<tr valign="top" bgcolor="'.$color.'">'.LF;
+         echo '<tr>'.LF;
          echo '<td>'.strip_tags($label).'</td>'.LF;
          echo '<td>'.strip_tags($desc).'</td>'.LF;
          echo '<td>'.strip_tags($isdefault).'</td>'.LF;

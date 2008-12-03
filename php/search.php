@@ -192,14 +192,13 @@ function search_host($hostname='') {
       $count = 0;
       while ($row = db_fetch_next($res)) {
          printf("
-<tr bgcolor=\"%s\">
+<tr>
    <td><a href=\"incident.php?action=details&incidentid=%s\">%s</a></td>
    <td>%s</td>
    <td>%s</td>
    <td>%s</td>
    <td>%s</td>
 </tr>",
-               ($count++ % 2 == 0 ? "#DDDDDD" : "#FFFFFF"),
                $row["incidentid"],
                normalize_incidentid($row["incidentid"]),
                Date("d M Y", $row["created"]),
@@ -275,11 +274,10 @@ function search_incident($incidentid) {
    $count = 0;
    foreach ($hits as $h) {
       $ip = $h['ips'][0];
-      $out .= t('<tr valign="top" bgcolor=%c><td><a href="%url?action=details&incidentid=%id">%incidentid</a></td><td>%type</td><td>%status</td>'.
+      $out .= t('<tr valign="top"><td><a href="%url?action=details&incidentid=%id">%incidentid</a></td><td>%type</td><td>%status</td>'.
               '<td>%state</td><td>%ip</td><td>%host</td><td>%extids</td></tr>', array(
          '%url'=>'incident.php',
          '%id'=>$h['incidentid'],
-         '%c'=>($count++ % 2 == 0) ? '#FFFFFF' : '#DDDDDD',
          '%incidentid'=>normalize_incidentid($h['incidentid']),
          '%type'=>getIncidentTypeDescr($h['type']),
          '%status'=>getIncidentStatusDescr($h['status']),
@@ -460,14 +458,13 @@ function search_zoom($mask) {
          $count = 0;
          while ($row = db_fetch_next($res)) {
             printf("
-<tr bgcolor=\"%s\">
+<tr>
    <td><a href=\"incident.php?action=details&incidentid=%s\">%s</a></td>
    <td>%s</td>
    <td>%s</td>
    <td>%s</td>
    <td>%s</td>
 </tr>",
-                ($count++ % 2 == 0 ? "#DDDDDD" : "#FFFFFF"),
                 $row["incidentid"],
                 normalize_incidentid($row["incidentid"]),
                 Date("d M Y", $row["created"]),
@@ -552,7 +549,7 @@ function show_search_email($incidentids) {
    $constituencies = getConstituencies();
    $count=0;
    foreach ($incidentids as $incidentid) {
-      $out .= t('<tr valign="top" bgColor="%bg">', array('%bg'=>($count++ % 2) == 0 ? '#FFFFFF' : '#DDDDDD'));
+      $out .= '<tr>'.LF;
       $out .= t('   <td><a href="incident.php?action=details&incidentid=%id">%iid</a></td>', array('%id'=>$incidentid, '%iid'=>normalize_incidentid($incidentid)));
       $incident = getIncident($incidentid);
       foreach ($incident['ips'] as $node) {

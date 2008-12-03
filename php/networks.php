@@ -111,7 +111,7 @@ switch ($action) {
          $constituency = $data["constituency"];
          $constituency_name  = $constituencies["$constituency"]["name"];
          $color = ($count++%2==0?"#FFFFFF":"#DDDDDD");
-         print t('<tr valign="top" bgcolor="%color">', array(
+         print t('<tr>', array(
             '%color'=>$color)).LF;
          print t('<td>%network/%netmask</td>', array(
             '%network'=>$network,

@@ -97,8 +97,7 @@ function formatIncidentHistory($incidentid="") {
    $output = '<table cellpadding="3">'.LF;
    $count = 0;
    foreach ($history as $i=>$data) {
-      $output .= sprintf('<tr bgcolor="%s">'.LF, 
-          ($count++%2==1) ? "#FFFFFF" : "#DDDDDD");
+      $output .= '<tr>'.LF;
       $output .= sprintf("  <td>%s</td>\n", 
           Date("d-M-Y H:i:s", $data["added"]));
       $output .= "  <td>$data[login]</td>\n";

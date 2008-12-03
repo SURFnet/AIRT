@@ -216,7 +216,7 @@
          $userid = strip_tags($row["userid"]);
 
          printf("
-<tr bgcolor='%s'>
+<tr>
     <td>%s</td>
     <td>%s</td>
     <td>%s</td>
@@ -228,7 +228,6 @@
        onclick=\"return confirm('"._('Are you sure that you want to delete %s?')."')\"
        href='$_SERVER[PHP_SELF]?action=delete&id=%s'>"._('delete')."</a></td>
 </tr>",
-            ($count++%2==0?"#FFFFFF":"#DDDDDD"),
             $login, $userid, $lastname, $firstname, $email, $email, $phone,
             $id, $email, $id);
       }

@@ -444,8 +444,7 @@ function queueFormatItems() {
       if ($element['cache_mailtemplate'] == '') {
          $element['cache_mailtemplate'] =_('No preferred template');
       }
-      $out .= t('<tr valign="top" bgcolor="%color">', 
-         array('%color'=>($count++ % 2 == 0) ? '#DDDDDD' : '#FFFFFF')).LF;
+      $out .= '<tr valign="top">'.LF;
       $out .= '  <td nowrap>'.LF;
       $out .= t('     <input name="checked['.$id.']" %checked type="checkbox" /> '.LF,
          array('%checked'=>($toggle == 1) ? 'CHECKED' : ''));
@@ -1244,7 +1243,7 @@ function importqueueTemplatesFormatItems() {
    $out .- '</tr>'.LF;
    $count = 0;
    foreach ($items as $id=>$item) {
-      $out .= t('<tr valign="top" bgcolor="%color">', array('%color'=>($count++ % 2 == 0) ? '#DDDDDD' : '#FFFFFF')).LF;
+      $out .= '<tr>'.LF;
       $out .= '<td><input type="checkbox" name="check['.
          strip_tags($id).']"></td>'.LF;
       $out .= t('<td>%filter</td>'.LF,

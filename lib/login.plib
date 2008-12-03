@@ -22,7 +22,7 @@
 require_once LIBDIR."/authentication.plib";
 
 function airtLoginScreen() {
-   pageHeader(INSTANCE_NAME, array('menu'=>false));
+   pageHeader(INSTANCE_NAME, array('showmenu'=>false));
    $out = '<div class="loginbox"><!-- loginbox -->'.LF;
    $out .= '<div class="loginbox-inner"><!-- loginbox-inner -->'.LF;
    $out .= '<div class="loginbox-title">'.INSTANCE_NAME.'</div>'.LF;

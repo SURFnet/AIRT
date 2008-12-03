@@ -247,8 +247,7 @@ function format_templates($recipients=array(), $incidentids=array()) {
    }
    foreach ($templates as $name=>$body) {
       $subject = get_subject($body);
-      $out .= t("<tr bgcolor=\"%color\">", array(
-         '%color'=>($count++%2==0?"#DDDDDD":"#FFFFFF")));
+      $out .= '<tr>'.LF;
       $querystr = '&to='.urlencode(implode(',', $recipients)).
          '&incidentids='.urlencode(implode(',', $incidentids));
       $out .= t('<td><a href="%url?action=prepare&template=%name%query">'.
