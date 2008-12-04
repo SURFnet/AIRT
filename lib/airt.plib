@@ -25,6 +25,7 @@
 require_once LIBDIR.'/database.plib';
 require_once LIBDIR.'/error.plib';
 require_once LIBDIR.'/user.plib';
+require_once LIBDIR.'/incident.plib';
 
 define('LF',"\n");
 
@@ -178,8 +179,13 @@ function mainMenu($active) {
 
 
 function subMenu($menu, $submenu) {
-# XXX XXX TODO XXX XXX XXX
    $out = '';
+   $closed = array_search('closed', getIncidentStatus());
+   if ($closed === false) {
+       airt_msg(_('Unable to locate ID for incident status closed'));
+       $closed = getIncidentStatusDefault();
+   }
+
    switch ($menu) {
        case 'incidents':
            $out .= t('  <a href="%url/incident.php" %active>%l</a>'.LF, 
@@ -187,17 +193,20 @@ function subMenu($menu, $submenu) {
               '%url'=>BASEURL,
               '%l'=>_('Incidents (14)'),
               '%active'=>($submenu == 'incidents' ? 'class="active"' : '')));
-# XXX XXX TODO XXX XXX XXX
+
            $out .= t('  <a href="%url/importqueue.php" %active>%l</a>'.LF, 
            array(
               '%url'=>BASEURL,
               '%l'=>_('Import queue (9)'),
               '%active'=>($submenu == 'importqueue' ? 'class="active"' : '')));
-           $out .= t('  <a href="%url/incidents.php">%l</a>'.LF, 
+ 
+           $out .= t('  <a href="%url/incident.php?status=%s" %active>%l</a>'.LF, 
            array(
+              '%s'=>$closed,
               '%url'=>BASEURL,
               '%l'=>_('Incident Archive'),
               '%active'=>($submenu == 'archive' ? 'class="active"' : '')));
+
            $out .= t('  <a href="%url/stats.php" %active>%l</a>'.LF, 
            array(
               '%url'=>BASEURL,
@@ -212,6 +221,7 @@ function subMenu($menu, $submenu) {
               '%l'=>_('Constituencies'),
               '%active'=>($submenu == 'constituencies'?'class="active"' : '')));
            $out .= t('  <a href="%url/networks.php" %active>%l</a>'.LF, 
+
            array(
               '%url'=>BASEURL,
               '%l'=>_('Networks'),

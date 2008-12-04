@@ -2136,6 +2136,11 @@ function listIncidents() {
    /* by default, only list open */
    $status = fetchFrom('REQUEST','status');
    defaultTo($status, '');
+   if (!empty($status)) {
+       $archive = true;
+   } else {
+       $archive = false;
+   }
 
    $sortkey = strip_tags(fetchFrom('REQUEST','sortkey'));
    defaultTo($sortkey, 'incidentid');
@@ -2301,9 +2306,15 @@ function listIncidents() {
    $out .= '</table>'.LF;
    $out .= '</form>'.LF;
 
-   pageHeader(_('Incidents'), array(
-      'menu'=>'incidents',
-      'submenu'=>'incidents'));
+   if ($archive) {
+       pageHeader(_('Incident Archive'), array(
+          'menu'=>'incidents',
+          'submenu'=>'archive'));
+   } else {
+       pageHeader(_('Incidents'), array(
+          'menu'=>'incidents',
+          'submenu'=>'incidents'));
+   }
    print $out;
    pageFooter();
 }
