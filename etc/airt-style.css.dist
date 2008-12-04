@@ -198,16 +198,24 @@ color: #000;
 display: none;
 }
 
-.details-external-ids, .details-mails, .details_attachments, .details-basic, .details-ip, .details-user, .details-history {
-    background-color: #E0E8EF;
-	padding: 10px;
-	width: 46%;
-	margin: 0 10px 10px 0;
+#incident-details{
+clear: both;
+width: 100%;
+}
+
+.column{
+	width: 50%;
 	float: left;
 	
 }
 
-.details-external-ids h3, .details-mails h3, .details_attachments h3, .details-basic h3, .details-ip h3, .details-user h3, .details-history h3 {
+.block, .details-external-ids, .details-mails, .details_attachments, .details-basic, .details-ip, .details-user, .details-history {
+    background-color: #E0E8EF;
+	padding: 10px;
+	margin: 0 10px 10px 0;	
+}
+
+.block h3, .details-external-ids h3, .details-mails h3, .details_attachments h3, .details-basic h3, .details-ip h3, .details-user h3, .details-history h3 {
 margin: 0 0 10px 0;
 font: bold 16px Arial, sans-serif;
 	
