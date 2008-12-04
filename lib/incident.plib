@@ -104,10 +104,12 @@ function setIncidentStateDefault() {
  *                 before the database states (typically "Select State").
  * Output: HTML string with full <select> block.
  */
-function getIncidentStateSelection($name, $default='', $extras=array()) {
-   $output = sprintf('<select name="%s">'.LF, htmlentities($name));
+function getIncidentStateSelection($name, $default='@', $extras=array(),
+   $script='') {
+   $output = sprintf('<select %s name="%s">'.LF, 
+      $script, htmlentities($name));
    $states = getIncidentStates($extras);
-   if ($default=='') {
+   if ($default=='@') {
       $default = getIncidentStateDefault();
    }
    foreach ($states as $i=>$l) {
@@ -2198,9 +2200,17 @@ function listIncidents() {
 
    $out = '';
    $out .= '<div class="left">'.LF;
-   $out .= _('Filters: ');
-   $out .= getIncidentStateSelection('filter', 'null', array(
-      'null'=>_('[Choose a state]')));
+   $out .= t('<form name="filter" action="%url/incident.php">'.LF, array(
+      '%url'=>BASEURL));
+   $out .= _('Filters: ').LF;
+   $out .= t('<input type="hidden" name="status" value="%s">'.LF, array(
+      '%s'=>$status));
+   $out .= t('<input type="hidden" name="sortkey" value="%s">'.LF, array(
+      '%s'=>$sortkey));
+   $out .= getIncidentStateSelection('state', $state, array(
+      ''=>_('[Choose a state]')), 'onChange="document.filter.submit()"');
+   $out .= '<input type="submit" value="'._('Filter').'">'.LF;
+   $out .= '</form>'.LF;
    $out .= '</div>'.LF;
 
    $out .= LF.'<div class="right">'.LF;
