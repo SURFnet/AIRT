@@ -110,7 +110,7 @@ switch ($action) {
     $output .= '<input type="hidden" name="action" value="addcomment">'.LF;
     $output .= '<input type="hidden" name="incidentid" value="'.
         strip_tags($incidentid).'">'.LF;
-    $output .= '<table>'.LF;
+    $output .= '<table class="horizontal">'.LF;
     $output .= '<tr>'.LF;
     $output .= '  <td>'._('New comment').': </td>'.LF;
     $output .= '  <td><input type="text" size=45 name="comment"></td>'.LF;
@@ -695,7 +695,7 @@ _('Continue').'...</a>'.LF,
       $output = '<script language="JavaScript">'.LF;
       $output .= 'window.resizeTo(800,500);'.LF;
       $output .= '</script>'.LF;
-      $output .= '<table>'.LF;
+      $output .= '<table class="horizontal">'.LF;
       while ($row = db_fetch_next($res)) {
          $output .= '<tr>'.LF;
          $output .= '  <td>'.strip_tags($row[label]).'</td>'.LF;
@@ -717,7 +717,7 @@ _('Continue').'...</a>'.LF,
       $output = '<script language="JavaScript">'.LF;
       $output .= 'window.resizeTo(800,500);'.LF;
       $output .= '</script>';
-      $output .= '<table>'.LF;
+      $output .= '<table class="horizontal">'.LF;
       while ($row = db_fetch_next($res)) {
          $output .= '<tr>'.LF;
          $output .= '  <td>'.strip_chars($row[label]).'</td>'.LF;
@@ -741,7 +741,7 @@ _('Continue').'...</a>'.LF,
       $output = '<script language="JavaScript">'.LF;
       $output .= 'window.resizeTo(800,500);'.LF;
       $output .= '</script>'.LF;
-      $output .= '<table>'.LF;
+      $output .= '<table class="horizontal">'.LF;
       while ($row = db_fetch_next($res)) {
          $output .= '<tr>\n';
          $output .= '  <td>'.strip_chars($row[label]).'</td>'.LF;

@@ -760,7 +760,7 @@ function formatBasicIncidentData($params=array()) {
          $params[$param] = '';
       }
    }
-   $output = '<table>'.LF;
+   $output = '<table class="horizontal">'.LF;
    $output .= '  <tr>'.LF;
    $output .= '    <td>'._('Incident type').'</td>'.LF;
    $output .= '    <td>'.getIncidentTypeSelection('type', $params['type']).
@@ -849,7 +849,7 @@ function editIPform($incidentid,$ip) {
    $o .= sprintf('<input type="HIDDEN" name="ip" value="%s">'.LF, $ip);
    $o .= sprintf('<input type="HIDDEN" name="addressrole" value="%s">'.LF, $addressrole);
    $o .= sprintf('<input type="HIDDEN" name="incidentid" value="%d">'.LF, $incidentid);
-   $o .= '<table>'.LF;
+   $o .= '<table class="horizontal">'.LF;
    $o .= '  <tr>'.LF;
    $o .= '    <td>'._('IP address').'</td>'.LF;
    $o .= '    <td>'.$ip.'</td>'.LF;
@@ -1247,7 +1247,7 @@ function formatIncidentBulkForm(&$check) {
    }
    $output =  formatBasicIncidentData();
    $output .= '<h3>'._('Affected IP addresses').'</h3>'.LF;
-   $output .= "<table cellpadding=\"4\">\n";
+   $output .= '<table class="horizontal">'.LF;
    $output .= "<tr>\n";
    $output .= "  <td valign=\"top\">hostname or ip address</td>\n";
    $output .= "  <td><textarea cols=\"30\" rows=\"15\" name=\"addresses\"></textarea>\n";
@@ -1296,7 +1296,7 @@ function formatIncidentForm(&$check) {
       'status'=>$status));
 
    $output .= '<h3>'._('Affected IP addresses').'</h3>'.LF;
-   $output .= '<table cellpadding=4>'.LF;
+   $output .= '<table class="horizontal">'.LF;
    $output .= '<tr>'.LF;
    $output .= '  <td>'._('Hostname or IP address').'</td>'.LF;
    $output .= t('  <td><input type="text" size=30 name="address" '.
@@ -1313,7 +1313,7 @@ function formatIncidentForm(&$check) {
    $output .= '</table>'.LF;
  
    $output .= '<h3>'._('Affected users').'</h3>'.LF;
-   $output .= '<table>'.LF;
+   $output .= '<table class="horizontal">'.LF;
    $output .= '<tr>'.LF;
    $output .= '  <td>'._('E-mail address of user').':</td>'.LF;
    $output .= '  <td><input onChange="updateCheckboxes()" type="text" '.
@@ -1363,7 +1363,7 @@ function formatEditForm() {
    // Affected IP addresses block. First the header part.
    $output .= '<div class="details-ip">'.LF;
    $output .= '<h3>'._('Affected IP addresses').'</h3>'.LF;
-   $output .= '<table cellpadding=4>'.LF;
+   $output .= '<table class="horizontal">'.LF;
    $output .= '<tr>'.LF;
    $output .= '   <td>'._('IP Address').'</td>'.LF;
    $output .= '   <td>'._('Hostname').'</td>'.LF;
@@ -1408,7 +1408,7 @@ function formatEditForm() {
    $output .= '<p/>'.LF;
    $output .= '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">'.LF;
    $output .= '<input type="hidden" name="action" value="addip">'.LF;
-   $output .= '<table>'.LF;
+   $output .= '<table class="horizontal">'.LF;
    $output .= '<tr>'.LF;
    $output .= '  <td>'._('IP Address').'</td>'.LF;
    $output .= '  <td><input type="text" name="ip" size=40></td>'.LF;
@@ -1427,7 +1427,7 @@ function formatEditForm() {
    $output .= '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">'.LF;
    $output .= t('<input type="hidden" name="incidentid" value="%incidentid">',
       array('%incidentid'=>$incident['incidentid']));
-   $output .= '<table cellpadding=4>'.LF;
+   $output .= '<table class="horizontal">'.LF;
    // re-initialise active users
    $_SESSION['current_name'] = '';
    $_SESSION['current_email'] = '';
@@ -1480,7 +1480,7 @@ function formatEditForm() {
    $output .= '<form name="jsform" action="'.$_SERVER['PHP_SELF'].
               '" method="POST">'.LF;
    $output .= '  <input type="hidden" name="action" value="adduser">'.LF;
-   $output .= '  <table>'.LF;
+   $output .= '  <table class="horizontal">'.LF;
    $output .= '  <tr>'.LF;
    $output .= '    <td>'._('Email address of user').':</td>'.LF;
    $output .= '    <td><input onChange="updateCheckboxes()" type="text" '.
@@ -1502,7 +1502,7 @@ function formatEditForm() {
       false) {
       die($error);
    }
-   $output .= '<table>'.LF;
+   $output .= '<table class="horizontal">'.LF;
    foreach ($attachments as $aid=>$a) {
       $output .= '<tr>'.LF;
       $output .= '<td>'.$a['filename'].' ('.$a['content-type'].')</td>'.LF;
@@ -1533,7 +1533,7 @@ function formatEditForm() {
       if (sizeof($msgs) == 0) {
          $output .= '<em>'._('No linked messages').'</em>'.LF;
       } else {
-         $output .= '<table border="1">';
+         $output .= '<table class="horizontal">';
          $output .= '<tr>'.LF;
          $output .= '<th>'._('Unlink').'</th>'.LF;
          $output .= '<th>'._('View').'</th>'.LF;
@@ -1638,7 +1638,7 @@ function getFormattedBasicIncidentData($incidentid='') {
 
    $incident = getIncident($incidentid);
    $out = '<h2>'._('Basic incident data').'</h2>';
-   $out .= '<table>';
+   $out .= '<table class="horizontal">';
    $out .= t('<tr><td>'._('Incident ID').'</td><td>%incidentid</td></tr>', array(
       '%incidentid'=>normalize_incidentid($incidentid)));
    $out .= t('<tr><td>'._('Type').'</td><td>%type</td></tr>', array(
@@ -2128,43 +2128,37 @@ function setMailtemplateOverride($incidentid, $userid, $template) {
  * Formatted overview of open incidents
  */
 function listIncidents() {
-   global $sortkey;
-   global $filter;
-   global $toggle;
 
-   $filter = fetchFrom('REQUEST','filter[]');
-   // NOTE: the $filter itself has a default, but if somebody manipulates
-   // the $filter and e.g. removes the 'status' index, things go wrong here.
-   // It looks secure, but it breaks.
-   defaultTo($filter,
-             array('status'=>getIncidentStatusDefault(), 'state'=>-1));
+   /* by default, do not filter on state */
+   $state = fetchFrom('REQUEST','state');
+   defaultTo($state, '');
+   
+   /* by default, only list open */
+   $status = fetchFrom('REQUEST','status');
+   defaultTo($status, '');
 
    $sortkey = strip_tags(fetchFrom('REQUEST','sortkey'));
    defaultTo($sortkey, 'incidentid');
 
-   $page = fetchFrom('REQUEST','page','%d');
-   defaultTo($page,1);
-
-   $statuses = getIncidentStatus();
-   if (array_key_exists($filter['status'], $statuses) && 
-      $filter['status'] >= 0) {
-      $sqlfilter = " WHERE s1.label = '".$statuses[$filter['status']]."'";
+   $filter=array();
+   $f=explode(',', $status);
+   $f = array_filter($f, 'is_numeric');
+   
+   if (sizeof($f) == 0) {
+       $filter[] = "s1.label in ('open', 'stalled')";
    } else {
-      $sqlfilter = '';
+       $filter[] = 's1.id in ('.implode(',', $f).')';
    }
 
-   $states = getIncidentStates();
-   if (array_key_exists($filter['state'], $states) && 
-      $filter['state'] >= 0) {
-      if (empty($sqlfilter)) {
-         $sqlfilter = " WHERE s2.label = '".$states[$filter['state']]."'";
-      } else {
-         $sqlfilter .= " AND s2.label = '".$states[$filter['state']]."'";
-      }
+   $f = explode(',', $state);
+   $f = array_filter($f, 'is_numeric');
+   
+   if (sizeof($f) > 0) {
+       $filter[] = 's2.id in ('.implode(',', $f).')';
    }
-   if (empty($sqlfilter)) {
-      $sqlfilter = " WHERE s1.label in ('open', 'stalled')";
-   }
+
+   $sqlfilter = 'WHERE '.implode(' AND ', $filter);
+
    switch ($sortkey) {
       case 'incidentid':
          $sqlfilter .= ' ORDER BY incidentid';
@@ -2200,9 +2194,9 @@ function listIncidents() {
    $out = '';
    $out .= '<div class="left">'.LF;
    $out .= _('Filters: ');
-   $out .= '<select name="filter">'.LF;
-   $out .= '<option value="">['._('Choose a state').']</option>'.LF;
-   $out .= '</select></div>'.LF;
+   $out .= getIncidentStateSelection('filter', 'null', array(
+      'null'=>_('[Choose a state]')));
+   $out .= '</div>'.LF;
 
    $out .= LF.'<div class="right">'.LF;
    $out .= t('<a href="%url/incident.php?action=new" class="button">'.
@@ -2213,7 +2207,7 @@ function listIncidents() {
    $out .= t('<form name="listform" action="%url/incident.php" method="POST">',
       array('%url'=>BASEURL)).LF;
    $out .= '<input type="hidden" name="action" value="massupdate">'.LF;
-   $out .= '<table id="details-overview-body">'.LF;
+   $out .= '<table class="horizontal" id="details-overview-body">'.LF;
    $out .= '<tr>'.LF;
    $out .= '  <th><input type="checkbox" onChange="checkAll()"></th>'.LF;
    $out .= '  <th>'._('Incident ID').'</th>'.LF;
@@ -2242,10 +2236,6 @@ function listIncidents() {
    $count = 0;
    $conslist = getConstituencies();
    foreach ($incidents as $id=>$data) {
-      if ($count < PAGESIZE*($page-1) || $count >= PAGESIZE*($page)) {
-         $count++;
-         continue;
-      }
       $hostline= $data['hostname'];
       $hostdesc = strip_tags($data['desc']);
       $addresses = getAddressesForIncident($id);
@@ -2257,8 +2247,7 @@ function listIncidents() {
 
       $out .= '<tr>'.LF;
       $out .= t('  <td><input type="checkbox" name="massincidents[]" '.
-         '%check value="%id"></td>'.LF, array(
-            '%check' => ($toggle == 1) ? 'CHECKED' : '',
+         'value="%id"></td>'.LF, array(
             '%id' => $id));
       $out .= t('  <td><a href="%url?action=details&incidentid=%id">'.
          '%incidentid</a></td>'.LF, array(
@@ -2288,7 +2277,7 @@ function listIncidents() {
    $out .= '</table>'.LF;
 
    $out .= LF.'<p>'._('With selected:').'</p>'.LF.LF;
-   $out .= '<table>'.LF;
+   $out .= '<table class="horizontal">'.LF;
    $out .= '<tr>'.LF;
    $out .= '  <td>'._('New State');
    $out .= getIncidentStateSelection('massstate', 'null',
