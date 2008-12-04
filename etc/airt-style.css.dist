@@ -42,6 +42,7 @@ text-decoration: underline;
 
 table{
 border-collapse: collapse;
+empty-cells: show;
 font: 12px Verdana, Arial, Helvetica, sans-serif;
 }
 
@@ -66,11 +67,17 @@ float: left;
 width: 600px;
 }
 
-#title{
+#header h2, #header #title{
 	margin: 0;
 	padding: 0;
 	height: 27px;
 	font: bold 22px Arial, Verdana, sans-serif;
+}
+
+#header h4{
+font: bold 12px Arial, sans-serif;
+margin:0;
+height: 15px;
 }
 
 #header .right{
@@ -89,44 +96,8 @@ margin: 0;
 padding: 5px 0;
 }
 
-#header .right ul{
-float: right;
-list-style: none;
-margin: 0;
-padding: 0;
-width: 100px;
-}
-
-#header .right ul li{
-padding: 5px;
-background-color: #F0F8FF;
-border-bottom: 1px solid #dddddd;
-}
-
-#header .right ul ul{
-z-index: 100;
-border: 1px solid #DDD;
-border-bottom: 0;
-display: none;
-}
-
-#header .right ul:hover ul{
-display: inline;
-}
-
-#header .right ul ul li{
-padding: 5px;
-
-}
-
-#header .right ul ul li:hover{
-background-color: #DDD;
-}
-
-
-
 #navigation{
-margin-top: 20px;
+margin-top: 5px;
 float: left;
 }
 
@@ -190,8 +161,7 @@ font-weight: bold;
 	background-color: #F0F8FF;
 }
 
-.content h1{
-
+h1{
 	margin: 0 0 10px 0;
 	font: bold 22px Arial;
 }
@@ -213,7 +183,6 @@ float: right;
 clear: right;
 text-align: right;
 width: 450px;
-display: inline;
 }
 
 .right a.button{
@@ -222,10 +191,32 @@ padding: 5px 10px;
 text-decoration: none;
 font: 12px Arial, Verdana, sans-serif;
 color: #000;
-float: right;
 
 }
 
+.details-external-ids{
+display: none;
+}
+
+.details-external-ids, .details-mails, .details_attachments, .details-basic, .details-ip, .details-user, .details-history {
+    background-color: #E0E8EF;
+	padding: 10px;
+	width: 46%;
+	margin: 0 10px 10px 0;
+	float: left;
+	
+}
+
+.details-external-ids h3, .details-mails h3, .details_attachments h3, .details-basic h3, .details-ip h3, .details-user h3, .details-history h3 {
+margin: 0 0 10px 0;
+font: bold 16px Arial, sans-serif;
+	
+}
+
+
+/********************
+Details overview header depricated?
+********************/
 .details-overview-header {
     border-bottom: 1px solid black;
 }
@@ -239,39 +230,24 @@ float: right;
     border-right: 0px;
 }
 
-.details-external-ids {
-    padding-bottom: 1ex;
-    border-bottom: 1px solid black;
+
+#details-overview-body{ /*temporary style, should be removed from final version*/
+
+width: 100%;
+clear: both;
 }
 
-.details-basic {
-    border-bottom: 1px solid black;
-}
-
-.details-ip {
-    border-bottom: 1px solid black;
-}
-
-.details-user {
-    padding-bottom: 1ex;
-    border-bottom: 1px solid black;
-}
-
-.details-history {
-    border-bottom: 1px solid black;
-}
-
-table#details-overview-body{
+table.horizontal{
 width: 100%;
 clear: both;
 margin: 10px 0;
 }
 
-#details-overview-body td, table#details-overview-body th{
+.horizontal td, table.horizontal th{
     border-bottom: 1px solid #E0E8EF;
 }
 
-table#details-overview-body th{
+table.horizontal th{
 background-color: #E0E8EF;
 }
 
@@ -399,42 +375,154 @@ mailbox .check {
  * login screen
  *****************************************************************/
 
-.loginbox {
-   text-align: center;
-   width: 100%;
-   height: 100%;
+ #login-wrapper{
+	width: 500px;
+	margin: 50px auto 10px auto;
+	padding: 20px;
+	text-align: center; 
+	background-color: #F0F8FF;
 }
 
-.loginbox-inner {
-   width: 60%;
-   height: 50%;
-   margin-left: 20%;
-   margin-right: 20%;
-   margin-top: 50px;
-   border: 1px solid black;
+#login-wrapper h1{
+display: block;
+margin: 10px 0 0 0;
+float: none;
+clear: none;
 }
 
-.loginbox-title {
-    font-size: 24px;
-    padding-bottom: 10px;
+#login-wrapper h4{
+margin: 0px 0 15px 0;
 }
 
-.loginbox-subtitle {
-    padding-bottom: 10px;
+#login-wrapper p{
+margin: 20px 0;
 }
 
-.loginbox-form {
-    display: inline-table;
-    text-align: center;
+#login-wrapper form{
+text-align: center;
 }
 
-.loginbox-form input.login {
-    width: 10;
-    text-align: center;
+#login-wrapper table{
+text-align: left;
+margin: 0 auto;
 }
 
-.loginbox-footer {
-    margin-top: 15ex;
-    font-size: 80%;
-    text-align: left;
+
+/*****************************************************************
+ * tools menu
+ *****************************************************************/
+
+
+#tools ul li span{
+display: block;
+padding: 5px;
+}
+
+
+#tools{
+width:200px;
+float:right;
+text-align: left;
+background-color: #F0F8FF;
+margin-right: 3px;
+}
+
+#tools a{
+display:block;
+white-space:nowrap;
+margin:0;
+padding:5px 9px;
+background:#F0F8FF;
+text-decoration:none;
+border-bottom: 1px solid #AAAAAA;
+}
+
+#tools a, #tools a:visited{
+color:#000;
+}
+
+#tools a:hover{
+color:#000;
+background:#ddd;
+}
+
+#tools a:active{
+color:#060;
+background:#ccc;
+}
+
+#tools ul{
+list-style:none;
+margin:0;
+padding:0;
+float:left;
+width: 200px;
+}
+
+#tools li{
+position:relative;
+}
+
+#tools ul ul{
+position:absolute;
+z-index:500;
+top:auto;
+display:none;
+border: 1px solid #CCC;
+border-bottom: 0;
+}
+
+#tools ul ul ul{
+top:0;
+left:100%;
+}
+
+/* Begin non-anchor hover selectors */
+
+/* Enter the more specific element (div) selector
+on non-anchor hovers for IE5.x to comply with the
+older version of csshover.htc - V1.21.041022. It
+improves IE's performance speed to use the older
+file and this method */
+
+div#tools li:hover{
+cursor:pointer;
+z-index:100;
+}
+
+#tools li:hover ul ul,
+div#tools li li:hover ul ul,
+div#tools li li li:hover ul ul,
+div#tools li li li li:hover ul ul
+{display:none;}
+
+div#tools li:hover ul,
+div#tools li li:hover ul,
+div#tools li li li:hover ul,
+div#tools li li li li:hover ul
+{display:block;}
+
+/* End of non-anchor hover selectors */
+
+/* Styling for Expand */
+
+#tools a.x, #tools a.x:visited{
+font-weight:bold;
+color:#000;
+background:#eee url(/css/images/expand3.gif) no-repeat 100% 100%;
+}
+
+#tools a.x:hover{
+color:#a00;
+background:#ddd;
+}
+
+#tools a.x:active{
+color:#060;
+background:#ccc;
+}
+
+
+textarea{
+font: 11px courier new, courier, sans-serif;
 }
