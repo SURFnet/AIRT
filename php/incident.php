@@ -76,10 +76,9 @@ switch ($action) {
     $norm_incidentid = normalize_incidentid($incidentid);
     $incidentid = decode_incidentid($norm_incidentid);
     if (!getIncident($incidentid)) {
-      pageHeader(_('Invalid incident'));
-      printf(_('Requested incident (%s) does not exist.'),
-             $norm_incidentid);
-      pageFooter();
+      airt_msg(t(_('Requested incident (%s) does not exist.'), array(
+         '%s'=>$norm_incidentid)));
+      reload();
       exit;
     }
     $_SESSION['incidentid'] = $incidentid;

@@ -292,8 +292,8 @@ function pageHeader($title='', $options=array()) {
       print t('  <a href="%url/index.php" title="'._('Back to the first page').
          '"><img src="images/airt_logo.png" alt="AIRT" id="logo" /></a>'.LF, 
          array('%url'=>BASEURL));
-      print '    <div id="title">Application for Incident Response Teams</div>'.
-         LF;
+      print '    <h2>Application for Incident Response Teams</h2>'.LF;
+      print '    <h4>'.INSTANCE_NAME.'</h4>'.LF;
       print '    <div id="navigation">'.LF;
       print mainMenu($menu);
       print '    </div><!-- navigation -->'.LF;
