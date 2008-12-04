@@ -83,7 +83,8 @@ switch ($action) {
     }
     $_SESSION['incidentid'] = $incidentid;
 
-    pageHeader(_('Incident details: ').$norm_incidentid);
+    pageHeader(_('Incident details: ').$norm_incidentid, array(
+       'menu'=>'incidents', 'submenu'=>'incidents'));
     $output = '<div class="details-external-ids" width="100%">';
     $output .= t('(<a href="%url?action=edit_extid&'.
                  'incidentid=%incidentid">'._('Edit').'</a>) ',
