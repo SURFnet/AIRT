@@ -57,7 +57,7 @@ switch ($action) {
       }
       $out = '<p><strong>'._('Main menu links').'</strong></p>'.LF;
       $out .= '<form method="POST">'.LF;
-      $out .= '<table width="100%">'.LF;
+      $out .= '<table class="horizontal">'.LF;
       $out .= '<tr>'.LF;
       $out .= '  <td><strong>'._('Menu item').'</strong></td>'.LF;
       $out .= '  <td><strong>'._('Position').'</strong></td>'.LF;
@@ -104,7 +104,7 @@ switch ($action) {
       }
       $out .= t("<p><strong>"._('Navbar links')."</strong></p>\n");
       $out .= t('<form method="POST">');
-      $out .= t("<table width=\"100%\">");
+      $out .= t('<table class="horizontal">');
       $out .= "<tr>\n";
       $out .= "  <td><strong>"._('Menu item')."</strong></td>\n";
       $out .= "  <td><strong>"._('Position')."</strong></td>\n";

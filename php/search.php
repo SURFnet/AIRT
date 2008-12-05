@@ -181,7 +181,7 @@ function search_host($hostname='') {
    or die(_('Unable to query.'));
 
    if (db_num_rows($res)) {
-      print '<table cellpadding="3">'.LF;
+      print '<table class="horizontal">'.LF;
       print '<tr>'.LF;
       print '   <th>'._('Incident ID').'</th>'.LF;
       print '   <th>'._('Created').'</th>'.LF;
@@ -261,7 +261,7 @@ function search_incident($incidentid) {
       return;
    }
    $out = _('Research results for incident = ').$incidentid.':<p/>';
-   $out .= '<table width="100%" cellpadding="2" border="0">';
+   $out .= '<table class="horizontal">';
    $out .= '<tr>'.LF;
    $out .= '<td>'._('Incidentid').'</td>'.LF;
    $out .= '<td>'._('Type').'</td>'.LF;
@@ -447,7 +447,7 @@ function search_zoom($mask) {
          or die("Unable to query.");
 
       if (db_num_rows($res)) {
-         print '<table cellpadding="3">'.LF;
+         print '<table class="horizontal">'.LF;
          print '<tr>'.LF;
          print '<th>'._('Incident ID').'</th>'.LF;
          print '<th>'._('Created').'</th>'.LF;
@@ -535,7 +535,7 @@ function show_search_email($incidentids) {
       return 1;
    }
    pageHeader("Search output");
-   $out = '<table cellpadding="3">';
+   $out = '<table class="horizontal">';
    $out .= '<tr>';
    $out .= '  <th>'._('Incident ID').'</th>';
    $out .= '  <th>'._('Hostname').'</th>';

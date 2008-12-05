@@ -418,7 +418,7 @@ function queueFormatItems() {
    $out .= '</SCRIPT>';
 
    $out .= '<div class="importqueue-overview-body">'.LF;
-   $out .= '<table cellpadding="4">'.LF;
+   $out .= '<table class="horizontal">'.LF;
    $out .= '<tr>'.LF;
    $out .= t('   <th><input type="checkbox" onChange="checkAll()" %checked></th>'.LF,
        array('%checked'=>($toggle == 1) ? 'CHECKED' : ''));
@@ -507,7 +507,7 @@ function queueFormatItems() {
 
    /* now, only worry about contact updates
     */
-   $out .= '<table cellpadding="4">'.LF;
+   $out .= '<table class="horizontal">'.LF;
    $out .= '<tr>'.LF;
    $out .= '<th>&nbsp;</th>'.LF;
    $out .= '<th>'._('No.').'</th>'.LF;
@@ -1234,7 +1234,7 @@ function importqueueTemplatesFormatItems() {
    }
    $out = '<form method="GET">'.LF;
    $out .= '<div class="importqueue-preftempl-list">'.LF;
-   $out .= '<table cellpadding="4">'.LF;
+   $out .= '<table class="horizontal">'.LF;
    $out .= '<tr>'.LF;
    $out .= '  <th>&nbsp;</th>'.LF;
    $out .= '  <th>'._('Filter').'</th>'.LF;
@@ -1261,7 +1261,7 @@ function importqueueTemplatesFormatItems() {
    $out .= '</div>';
    $out .= '<p/>'.LF;
    $out .= '<div class="importqueue-preftempl-add">'.LF;
-   $out .= '<table>'.LF;
+   $out .= '<table class="horizontal">'.LF;
    $out .= '<tr>'.LF;
    $out .= '<td>Filter name:</td>'.LF;
    $out .= '<td><input type="text" name="filter" size="30">'.LF;

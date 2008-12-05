@@ -135,7 +135,7 @@ function formatQueueList() {
    }
 
    // Table format, header, etc.
-   $out .= '<table>'.LF;
+   $out .= '<table class="horizontal">'.LF;
    $out .= '<tr>'.LF;
    $out .= '  <th>'._('ID').'</th>'.LF;
    $out .= '  <th>'._('Task').'</th>'.LF;

@@ -95,7 +95,7 @@ switch ($action) {
           FROM     incident_status
           ORDER BY label")
       or die(_('Unable to execute query 1'));
-      print '<table cellpadding="3">'.LF;
+      print '<table class="horizontal">'.LF;
       print '<tr>'.LF;
       print '    <td><B>'._('Label').'</B></td>'.LF;
       print '    <td><B>'._('Description').'</B></td>'.LF;

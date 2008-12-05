@@ -152,7 +152,7 @@ function showConstituencyContacts($constituencyid) {
    if (sizeof($contacts) == 0) {
       print _('No contacts.');
    } else {
-      $out = '<table cellpadding="3">'.LF;
+      $out = '<table class="horizontal">'.LF;
       $out .= '<tr>'.LF;
       $out .= '   <td>'._('Name').'</td>'.LF;
       $out .= '   <td>'._('Email').'</td>'.LF;

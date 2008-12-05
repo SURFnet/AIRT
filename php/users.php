@@ -196,7 +196,7 @@
          die(_('Unable to query database.'));
       }
 
-      print '<table width="100%" cellpadding=3>'.LF;
+      print '<table class="horizontal">'.LF;
       print '<tr>'.LF;
       print '   <th>'._('Login').'</th>'.LF;
       print '   <th>'._('User id').'</th>'.LF;

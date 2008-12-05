@@ -83,7 +83,7 @@ switch ($action) {
          'menu'=>'constituencies',
          'submenu'=>'constituencies'));
 
-      $out = '<table width="100%" cellpadding="3">'.LF;
+      $out = '<table class="horizontal">'.LF;
       $out .= '<tr>'.LF;
       $out .= '<th>&nbsp;</th>'.LF;
       $out .= '<th>Label</th>'.LF;

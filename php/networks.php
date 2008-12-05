@@ -89,7 +89,7 @@ switch ($action) {
          'menu'=>'constituencies',
          'submenu'=>'networks'));
 
-      print '<table cellpadding="3">'.LF;
+      print '<table class="horizontal">'.LF;
       print '<tr>'.LF;
       print '   <td><B>'._('Network').'</B></td>'.LF;
       print '   <td><B>'._('Label').'</B></td>'.LF;

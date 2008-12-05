@@ -101,7 +101,7 @@ switch ($action) {
           ORDER BY label")
       or die(_('Unable to execute query 1'));
 
-      echo '<table cellpadding="3">'.LF;
+      echo '<table class="horizontal">'.LF;
       echo '<tr>'.LF;
       echo '<td><B>'._('Label').'</B></td>'.LF;
       echo '<td><B>'._('Short description').'</B></td>'.LF;

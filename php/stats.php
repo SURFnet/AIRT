@@ -80,7 +80,7 @@ function showMatrix($start, $end) {
       '%startdate'=>Date('d-M-Y', $start),
       '%enddate'=>Date('d-M-Y', $end)));
    $out .= '</p>'.LF;
-   $out .= '<table border="1" cellpadding="3">'.LF;
+   $out .= '<table class="horizontal">'.LF;
    $out .= '<tr>'.LF;
    $out .= '<td>&nbsp;</td>'.LF;
    foreach ($types as $t=>$label) {
@@ -138,7 +138,7 @@ function showMatrix($start, $end) {
       HAVING COUNT (ip) = 0', array(
          '%start'=>Date('d-M-Y', $start),
          '%stop'=>Date('d-M-Y', $end))));
-   $out .= '<table border="1" cellpadding="3">'.LF;
+   $out .= '<table class="horizontal">'.LF;
    $out .= '<tr>'.LF;
    $out .= '   <th>'._('Incident ID').'</th>'.LF;
    $out .= '   <th>'._('Type').'</th>'.LF;

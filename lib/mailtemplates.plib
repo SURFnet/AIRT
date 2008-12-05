@@ -239,7 +239,7 @@ function getMailtemplateSelection($name, $default='', $extras=array()) {
  * \return A string containing a HTML-formatted overview of available templates.
  */
 function format_templates($recipients=array(), $incidentids=array()) {
-   $out = "<table>";
+   $out = "<table class="horizontal">";
    $count=0;
    $templates = get_templates();
    if (sizeof($templates) == 0) {
@@ -590,7 +590,7 @@ function prepare_message($template, $override_now=0, $incidentids=array(),
 
 
 function print_variables_info() {
-   $out = '<table cellpadding="2">'.LF;
+   $out = '<table class="horizontal">'.LF;
    $out .= '<tr>'.LF;
    $out .= '<td>@HOSTNAME@</td>'.LF;
    $out .= '<td>'._('Will be replaced with the currently active hostname').

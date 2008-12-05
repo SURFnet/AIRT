@@ -94,7 +94,7 @@ switch ($action) {
       if (db_num_rows($res) == 0) {
          echo '<I>'._('No assigned users.').'</I>'.LF;
       } else {
-         echo '<table border="1" cellpadding="4">'.LF;
+         echo '<table class="horizontal">'.LF;
          while ($row = db_fetch_next($res)) {
             $login = $row['login'];
             $lastname = $row['lastname'];

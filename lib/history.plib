@@ -94,7 +94,7 @@ function formatIncidentHistory($incidentid="") {
    }
    $history = getIncidentHistory($incidentid);
 
-   $output = '<table cellpadding="3">'.LF;
+   $output = '<table class="horizontal">'.LF;
    $count = 0;
    foreach ($history as $i=>$data) {
       $output .= '<tr>'.LF;
