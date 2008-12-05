@@ -386,7 +386,7 @@ function prepare_message($template, $override_now=0, $incidentids=array(),
    $to=array()) 
 {
    pageHeader(_('Send message from template.'), array(
-      'mail'=>'mail',
+      'menu'=>'mail',
       'submenu'=>'templates'));
    $current = array(
       'user'=>'',
