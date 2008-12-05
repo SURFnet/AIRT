@@ -2173,7 +2173,7 @@ function listIncidents() {
       case 'constituency':
          $sqlfilter .= ' ORDER BY constituency';
          break;
-      case 'hostname':
+      case 'address':
          $sqlfilter .= ' ORDER BY hostname';
          break;
       case 'status':
@@ -2185,7 +2185,7 @@ function listIncidents() {
       case 'type':
          $sqlfilter .= ' ORDER BY type';
          break;
-      case 'lastupdated':
+      case 'updated':
          $sqlfilter .= ' ORDER BY updated';
          break;
       case 'created':
@@ -2225,26 +2225,76 @@ function listIncidents() {
    $out .= '<table class="horizontal" id="details-overview-body">'.LF;
    $out .= '<tr>'.LF;
    $out .= '  <th><input type="checkbox" onChange="checkAll()"></th>'.LF;
-   $out .= '  <th>'._('Incident ID').'</th>'.LF;
-# XXX TODO XXX SORTKEYS XXX
-   $out .= t('  <th><a href="%url/incident.php">%l</a></th>'.LF, array(
-      '%url'=>BASEURL,
-      '%l'=>_('IP Address')));
-   $out .= t('  <th><a href="%url/incident.php">%l</a></th>'.LF, array(
-      '%url'=>BASEURL,
-      '%l'=>_('Constituency')));
-   $out .= t('  <th><a href="%url/incident.php">%l</a></th>'.LF, array(
-      '%url'=>BASEURL,
-      '%l'=>_('Type')));
-   $out .= t('  <th><a href="%url/incident.php">%l</a></th>'.LF, array(
-      '%url'=>BASEURL,
-      '%l'=>_('State')));
-   $out .= t('  <th><a href="%url/incident.php">%l</a></th>'.LF, array(
-      '%url'=>BASEURL,
-      '%l'=>_('Created')));
-   $out .= t('  <th><a href="%url/incident.php">%l</a></th>'.LF, array(
-      '%url'=>BASEURL,
-      '%l'=>_('Updated')));
+
+   if ($sortkey == 'incidentid') {
+       $out .= t('  <th>%l</th>'.LF, array('%l'=>_('Incident ID')));
+   } else {
+       $out .= t('  <th><a href="%url/incident.php?sortkey=incidentid&status=%status&state=%state">%l</a></th>'.LF, array(
+          '%url'=>BASEURL,
+          '%status'=>$status,
+          '%state'=>$state,
+          '%l'=>_('Incident ID')));
+   }
+
+   if ($sortkey == 'address') {
+       $out .= t('  <th>%l</th>'.LF, array('%l'=>_('IP Address')));
+   } else {
+       $out .= t('  <th><a href="%url/incident.php?sortkey=address&status=%status&state=%state">%l</a></th>'.LF, array(
+          '%url'=>BASEURL,
+          '%status'=>$status,
+          '%state'=>$state,
+          '%l'=>_('IP Address')));
+   }
+
+   if ($sortkey == 'constituency') {
+       $out .= t('  <th>%l</th>'.LF, array('%l'=>_('Constituency')));
+   } else {
+       $out .= t('  <th><a href="%url/incident.php?sortkey=constituency&status=%status&state=%state">%l</a></th>'.LF, array(
+          '%url'=>BASEURL,
+          '%status'=>$status,
+          '%state'=>$state,
+          '%l'=>_('Constituency')));
+   }
+
+   if ($sortkey == 'type') {
+       $out .= t('  <th>%l</th>'.LF, array('%l'=>_('Type')));
+   } else {
+       $out .= t('  <th><a href="%url/incident.php?sortkey=type&status=%status&state=%state">%l</a></th>'.LF, array(
+          '%url'=>BASEURL,
+          '%status'=>$status,
+          '%state'=>$state,
+          '%l'=>_('Type')));
+   }
+
+   if ($sortkey == 'state') {
+       $out .= t('  <th>%l</th>'.LF, array('%l'=>_('State')));
+   } else {
+       $out .= t('  <th><a href="%url/incident.php?sortkey=state&state=%state&status=%status">%l</a></th>'.LF, array(
+          '%url'=>BASEURL,
+          '%status'=>$status,
+          '%state'=>$state,
+          '%l'=>_('State')));
+   }
+
+   if ($sortkey == 'created') {
+       $out .= t('  <th>%l</th>'.LF, array('%l'=>_('Created')));
+   } else {
+       $out .= t('  <th><a href="%url/incident.php?sortkey=created&state=%state&status=%status">%l</a></th>'.LF, array(
+          '%url'=>BASEURL,
+          '%status'=>$status,
+          '%state'=>$state,
+          '%l'=>_('Created')));
+   }
+
+   if ($sortkey == 'updated') {
+       $out .= t('  <th>%l</th>'.LF, array('%l'=>_('Updated')));
+   } else {
+       $out .= t('  <th><a href="%url/incident.php?sortkey=updated&state=%state&status=%status">%l</a></th>'.LF, array(
+          '%url'=>BASEURL,
+          '%status'=>$status,
+          '%state'=>$state,
+          '%l'=>_('Updated')));
+   }
    $out .= '</tr>'.LF;
 
    // Prepare to run over the list of incidents that need display.

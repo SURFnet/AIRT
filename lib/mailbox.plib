@@ -476,7 +476,9 @@ function listMailbox(&$error='') {
    if (fetchMailbox($mailbox, $error) === false) {
       return false;
    }
-   pageHeader('Inbox');
+   pageHeader('Inbox', array(
+      'menu'=>'mail',
+      'submenu'=>'mailbox'));
 	if (sizeof($mailbox) == 0) {
 	   print _('No incoming messages.');
 		pageFooter();
@@ -606,7 +608,9 @@ function viewMessage() {
       'include_bodies'=>true,
       'decode_bodies'=>true));
 
-   pageHeader(_('Mail from ').htmlentities($msg['sender']));
+   pageHeader(_('Mail from ').htmlentities($msg['sender']), array(
+      'menu'=>'mail',
+      'submenu'=>'mailbox'));
    print '<div id="mbox">'.LF;
    print '<div id="mbox-container">'.LF;
    print t('<form action="%url" method="get">', array(

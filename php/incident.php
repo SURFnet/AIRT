@@ -128,9 +128,11 @@ switch ($action) {
     case _('Create New Incident'):
     case _('New incident'):
     case 'new':
-      PageHeader(_('New Incident'));
+      PageHeader(_('New Incident'), array(
+         'menu'=>'incidents',
+         'submenu'=>'incidents'));
       $check = false;
-      $output = updateCheckboxes();
+      $output = '';
       $output .= '<form name="jsform" action="'.$_SERVER['PHP_SELF'].
                  '" method="POST">'.LF;
 
@@ -145,7 +147,9 @@ switch ($action) {
       break;
     //--------------------------------------------------------------------
     case _('Create Many Incidents'):
-      PageHeader("Bulk incidents");
+      PageHeader(_('Bulk incidents'), array(
+         'menu'=>'incidents',
+         'submenu'=>'incidents'));
       $check = false;
       $output = updateCheckboxes();
       $output .= "<form name=\"jsform\" action=\"$_SERVER[PHP_SELF]\" method=\"POST\">\n";
@@ -397,7 +401,9 @@ _('Continue').'...</a>'.LF,
          reload();
       }
 
-      pageHeader(_('IP address details'));
+      pageHeader(_('IP address details'), array(
+         'menu'=>'incidents',
+         'submenu'=>'incidents'));
       printf(editIPform($incidentid,$ip));
       pageFooter();
       break;

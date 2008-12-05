@@ -26,6 +26,7 @@ require_once LIBDIR.'/database.plib';
 require_once LIBDIR.'/error.plib';
 require_once LIBDIR.'/user.plib';
 require_once LIBDIR.'/incident.plib';
+require_once LIBDIR.'/importqueue.plib';
 
 define('LF',"\n");
 
@@ -185,19 +186,25 @@ function subMenu($menu, $submenu) {
        airt_msg(_('Unable to locate ID for incident status closed'));
        $closed = getIncidentStatusDefault();
    }
+   $incidents = sizeof(getOpenIncidents());
+   if (queueGetItems($elements, $error)) {
+       $elements = sizeof($elements);
+   } else {
+       $elements = _('Unknown');
+   }
 
    switch ($menu) {
        case 'incidents':
            $out .= t('  <a href="%url/incident.php" %active>%l</a>'.LF, 
            array(
               '%url'=>BASEURL,
-              '%l'=>_('Incidents (14)'),
+              '%l'=>_('Incidents ('.$incidents.')'),
               '%active'=>($submenu == 'incidents' ? 'class="active"' : '')));
 
            $out .= t('  <a href="%url/importqueue.php" %active>%l</a>'.LF, 
            array(
               '%url'=>BASEURL,
-              '%l'=>_('Import queue (9)'),
+              '%l'=>_('Import queue ('.$elements.')'),
               '%active'=>($submenu == 'importqueue' ? 'class="active"' : '')));
  
            $out .= t('  <a href="%url/incident.php?status=%s" %active>%l</a>'.LF, 
@@ -220,12 +227,13 @@ function subMenu($menu, $submenu) {
               '%url'=>BASEURL,
               '%l'=>_('Constituencies'),
               '%active'=>($submenu == 'constituencies'?'class="active"' : '')));
-           $out .= t('  <a href="%url/networks.php" %active>%l</a>'.LF, 
 
+           $out .= t('  <a href="%url/networks.php" %active>%l</a>'.LF, 
            array(
               '%url'=>BASEURL,
               '%l'=>_('Networks'),
               '%active'=>($submenu == 'networks' ? 'class="active"' : '')));
+
            $out .= t('  <a href="%url/constituency_contacts.php" %active>%l</a>'.LF, 
            array(
               '%url'=>BASEURL,
@@ -234,7 +242,17 @@ function subMenu($menu, $submenu) {
            break;
 
         case 'mail':
-           $out .= 'mail';
+           $out .= t('   <a href="%url/mailtemplates.php" %active>%l</a>', 
+           array(
+              '%url'=>BASEURL,
+              '%l'=>_('Mail templates'),
+              '%active'=>($submenu == 'templates' ? 'class="active"' : '')));
+
+           $out .= t('   <a href="%url/mailbox.php" %active>%l</a>', 
+           array(
+              '%url'=>BASEURL,
+              '%l'=>_('Mailbox'),
+              '%active'=>($submenu == 'mailbox' ? 'class="active"' : '')));
            break;
    }
    return $out;

@@ -385,7 +385,9 @@ function template_buttons($incidentids, $override='') {
 function prepare_message($template, $override_now=0, $incidentids=array(), 
    $to=array()) 
 {
-   pageHeader(_('Send message from template.'));
+   pageHeader(_('Send message from template.'), array(
+      'mail'=>'mail',
+      'submenu'=>'templates'));
    $current = array(
       'user'=>'',
       'name'=>'',

@@ -26,7 +26,7 @@ require_once LIBDIR."/mailtemplates.plib";
 
 function listTemplates($recipients=array(), $incidentids=array()) {
   pageHeader(_('Available mail templates'), array(
-     'page'=>'mail'));
+     'menu'=>'mail', 'submenu'=>'templates'));
   $show_prepare = true;
   print format_templates($recipients, $incidentids);
   print t('<P><a href="%url?action=new">'.
@@ -87,7 +87,9 @@ switch ($action) {
          Header("Location: $_SERVER[PHP_SELF]");
          return;
       }
-      pageHeader(_('Edit mail template'));
+      pageHeader(_('Edit mail template'), array(
+         'menu'=>'mail',
+         'submenu'=>'templates'));
 
       if (($msg = get_template($template)) == false) {
          printf(_('Template not available.'));
@@ -197,7 +199,9 @@ special variables in the template:').'<p>'.LF;
    // -------------------------------------------------------------------
    case "new":
 
-      pageHeader(_('New mail template'));
+      pageHeader(_('New mail template'), array(
+         'menu'=>'mail',
+         'submenu'=>'templates'));
       print _('Enter your new template in the text field below. Use the following variables in your text body:');
       print '<P>'.LF;
       $update = array('state'=>-1, 'status'=>-1, 'type'=>-1);
