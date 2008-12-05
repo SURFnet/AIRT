@@ -633,7 +633,7 @@ function viewMessage() {
    print '<div id="mbox-content">'.LF;
    print '<div class="mail">'.LF;
    print '<div class="mail-headers">'.LF;
-   print '<table>'.LF;
+   print '<table class="horizontal">'.LF;
    print '<tr class="mail-header">'.LF;
    print '<td class="mail-header-name">'._('Sender').'</td>'.LF;
    print '<td class="mail-header-content">'.
