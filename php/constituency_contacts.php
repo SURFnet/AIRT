@@ -40,7 +40,7 @@ switch ($action) {
 
       $res = db_query("
          SELECT u.lastname, u.firstname, u.email, u.phone, c.label 
-         FROM   users u, constituencies c, constituency_contacts cc,
+         FROM   users u, constituencies c, constituency_contacts cc
          WHERE  u.id = cc.userid
          AND    c.id = cc.constituency
          ORDER  BY c.label, u.lastname, u.firstname, u.email")
@@ -53,7 +53,7 @@ switch ($action) {
       print '  <th>'._('Email').'</th>'.LF;
       print '  <th>'._('Phone').'</th>'.LF;
       print '</tr>'.LF;
-      while (($row = db_fetch_next($res)) === true) {
+      while (($row = db_fetch_next($res)) !== false) {
           print '<tr>'.LF;
           print '<td>'.htmlentities($row['label']).'</td>'.LF;
           print '<td>'.htmlentities($row['lastname']).'</td>'.LF;
