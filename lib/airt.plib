@@ -265,6 +265,9 @@ function subMenu($menu, $submenu) {
  */
 function pageHeader($title='', $options=array()) {
    global $public;
+	if (!is_array($options)) {
+	   var_dump($options);  
+	}
    if (array_key_exists('event', $options)) {
        $event = $options['event'];
    } else {

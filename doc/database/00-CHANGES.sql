@@ -14,6 +14,7 @@ CREATE TABLE incident_mail (
     FOREIGN KEY (messageid) REFERENCES mailbox(id),
     FOREIGN KEY (incidentid) REFERENCES incidents(id)
 );
+ALTER TABLE mailbox ADD COLUMN raw varchar;
 
 CREATE TABLE settings (
    key varchar,

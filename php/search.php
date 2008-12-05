@@ -139,7 +139,7 @@ function search_host($hostname='') {
    $_SESSION["active_ip"] = $ip;
    $_SESSION["constituency_id"] = $consid;
 
-   pageHeader(_('Detailed information for host ').$hostname, "search-info");
+   pageHeader(_('Detailed information for host ').$hostname);
 
    print '<div class="search-output-basic">'.LF;
    print _('Search results for the following host:');

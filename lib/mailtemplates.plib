@@ -239,7 +239,7 @@ function getMailtemplateSelection($name, $default='', $extras=array()) {
  * \return A string containing a HTML-formatted overview of available templates.
  */
 function format_templates($recipients=array(), $incidentids=array()) {
-   $out = "<table class="horizontal">";
+   $out = '<table class="horizontal">'.LF;
    $count=0;
    $templates = get_templates();
    if (sizeof($templates) == 0) {

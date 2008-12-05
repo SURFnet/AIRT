@@ -140,7 +140,9 @@ switch ($action) {
       if (!is_numeric($id)) {
          die(_('Invalid parameter type in ').__LINE__);
       }
-      pageHeader(_('Edit Network'));
+      pageHeader(_('Edit Network'), array(
+		   'menu'=>'constituencies',
+			'submenu'=>'networks'));
       show_form($id);
       pageFooter();
       break;

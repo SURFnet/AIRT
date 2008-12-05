@@ -48,7 +48,7 @@ switch ($action) {
          $id = $row["id"];
          $label = $row["label"];
          $name = $row["name"];
-         echo "<a href=\"$_SERVER[PHP_SELF]?action=edit&consid=$id\">$label - $name</a><P>";
+         echo "<a href=\"".BASEURL."/constituency_contacts.php?action=edit&consid=$id\">$label - $name</a><P>";
       }
       db_free_result($res);
 
@@ -64,7 +64,9 @@ switch ($action) {
       if (!is_numeric($consid)) {
          die(_('Invalid format'));
       }
-      pageHeader(_('Edit constituency assignments'));
+      pageHeader(_('Edit constituency assignments'), array(
+		   'menu'=>'constituencies',
+			'submenu'=>'contacts'));
 
       $res = db_query(
          "SELECT label, name
@@ -105,7 +107,7 @@ switch ($action) {
 
             printf('
 <tr>
-    <td><a href="%susers.php?action=edit&id=%d">edit</a></td>
+    <td><a href="%s/users.php?action=edit&id=%d">edit</a></td>
     <td>%s (%s, %s)</td>
     <td><a href="mailto:%s">%s</a></td>
     <td>%s</td>

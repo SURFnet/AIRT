@@ -128,7 +128,9 @@ switch ($action) {
          die(_('Missing information in ').__LINE__);
       }
 
-      pageHeader(_('Edit constituency'));
+      pageHeader(_('Edit constituency'), array(
+		   'menu'=>'constituencies',
+			'submenu'=>'constituencies'));
       print formatConstituencyForm($cons);
       pageFooter();
       break;
