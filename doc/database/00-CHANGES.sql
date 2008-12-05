@@ -15,14 +15,13 @@ CREATE TABLE incident_mail (
     FOREIGN KEY (incidentid) REFERENCES incidents(id)
 );
 ALTER TABLE mailbox ADD COLUMN raw varchar;
+ALTER TABLE users ADD COLUMN x509name VARCHAR;
 
 CREATE TABLE settings (
    key varchar,
    value varchar,
    PRIMARY KEY (key)
 );
-
-ALTER TABLE mailbox ADD COLUMN raw text;
 
 INSERT INTO settings (key, value) VALUES ('archiveage', '20');
 

@@ -22,6 +22,12 @@
 require_once LIBDIR."/authentication.plib";
 
 function airtLoginScreen() {
+   $messages = '';
+   if (isset($_SESSION['msg'])) {
+      $messages = $_SESSION['msg'];
+      unset($_SESSION['msg']);
+   }
+
    $out = '<!DOCTYPE html PUBLIC "-//W3C/DTD XHTML 1.0 Transitional//EN"';
    $out .= ' http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'.LF;
    $out .= '<html>'.LF;
@@ -31,14 +37,20 @@ function airtLoginScreen() {
       array('%url'=>BASEURL.'/airt-style.css'));
    $out .= '</head>'.LF;
    $out .= '<body>'.LF;
-
+   if (!empty($messages)) {
+       print t('<div class="messages">%msg</div>'.LF, array(
+          '%msg'=>htmlentities($messages)));
+   }
    $out .= '<div id="login-wrapper"><!-- login-wraper -->'.LF;
    $out .= t('<img src="%url/airt_logo.png" alt="AIRT"/>'.LF, array(
       '%url'=>BASEURL.'/images'));
    $out .= '<h1>Application for Incident Response Teams</h1>'.LF;
    $out .= '<h4>'.INSTANCE_NAME.'</h4>'.LF;
-   $out .= '<p>'._('Please enter your username and password').'</p>'.LF;
-
+   $out .= '<p>'._('Please enter your username and password').'<br/>'.LF;
+   if (defined('X509CLIENT') && X509CLIENT === true) {
+       $out .= t(_('or authenticate using your SSL <a href="%u">certificate</a><p/>').LF, 
+      array('%u'=>BASEURL.'/certificate.php'));
+   }
 
    $out .= '<form method="POST">'.LF;
    $out .= '<input type="hidden" class="login" name="action" value="check"/>'.LF;

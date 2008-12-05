@@ -264,10 +264,10 @@ function subMenu($menu, $submenu) {
  * @in title The title of the page
  */
 function pageHeader($title='', $options=array()) {
-   global $public;
-	if (!is_array($options)) {
-	   var_dump($options);  
-	}
+   if (!is_array($options)) {
+       $option = array();
+   }
+
    if (array_key_exists('event', $options)) {
        $event = $options['event'];
    } else {
@@ -391,6 +391,7 @@ function pageFooter() {
     print '</div><!-- content -->'.LF;
     print '</div><!-- wrapper -->'.LF;
     print '<div id="footer">'.LF;
+    print '(C) AIRT Project. Licensed under GNU General Public License, v2';
     print '</div><!-- footer -->'.LF;
     print '</body>'.LF;
     print '</html>'.LF;

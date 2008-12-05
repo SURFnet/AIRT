@@ -33,7 +33,8 @@ $airt_user_capabilities = array(
 
 function _getUser($criteria, $value) {
    $res = db_query(sprintf("
-      SELECT id, lastname, firstname, email, phone, userid, login, language
+      SELECT id, lastname, firstname, email, phone, userid, login, language,
+         x509name
       FROM   users
       WHERE  %s=%s", $criteria, $value))
    or die(_('Unable to query database'));
@@ -124,6 +125,11 @@ function addUser($user) {
    } else {
       $login = '';
    }
+   if (array_key_exists('x509name', $user)) {
+      $x509name=$user['x509name'];
+   } else {
+      $x509name = '';
+   }
    if (array_key_exists('userid', $user)) {
       $userid=$user['userid'];
    } else {
@@ -143,9 +149,9 @@ function addUser($user) {
    $query = sprintf("
       INSERT INTO users
       (id, lastname, firstname, email, phone, login, userid, language,
-      password)
+      password, x509name)
       VALUES
-      (nextval('users_sequence'), %s, %s, %s, %s, %s, %s, %s, %s)",
+      (nextval('users_sequence'), %s, %s, %s, %s, %s, %s, %s, %s, %s)",
       db_masq_null($lastname),
       db_masq_null($firstname),
       db_masq_null($email),
@@ -153,7 +159,8 @@ function addUser($user) {
       db_masq_null($login),
       db_masq_null($userid),
       db_masq_null($language),
-      db_masq_null(sha1($password))
+      db_masq_null(sha1($password)),
+      db_masq_null($x509name)
    );
    $res = @db_query($query) or 
    die(_('Unable to query database').' in addUser.');

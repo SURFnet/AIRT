@@ -51,7 +51,7 @@
        }
        $res = db_query("
           SELECT lastname, firstname, email, phone, login, userid, password,
-               language
+               language, x509name
         FROM   users
         WHERE  id = $id")
         or die(_("Unable to query database."));
@@ -72,6 +72,8 @@
                $userid=strip_tags($row['userid']);
             if (array_key_exists('language', $row))
                $language=strip_tags($row['language']);
+            if (array_key_exists('x509name', $row))
+               $x509name=strip_tags($row['x509name']);
 
             $action = "update";
             $submit = _("Update!");
@@ -94,6 +96,11 @@
     print '    <td>'._('Login').'</td>'.LF;
     print '    <td><input type="text" size="30" name="login" value="'.
        strip_tags($login).'"></td>'.LF;
+    print '</tr>'.LF;
+    print '<tr>'.LF;
+    print '    <td>'._('X509 Subject').'</td>'.LF;
+    print '    <td><input type="text" size="30" name="x509name" value="'.
+       strip_tags($x509name).'"></td>'.LF;
     print '</tr>'.LF;
     print '<tr>'.LF;
     print '    <td>'._('Organizational user id').'</td>'.LF;
@@ -245,6 +252,8 @@
     case "update":
         $login = strip_tags(fetchFrom('POST', 'login'));
         defaultTo($login, '');
+        $x509name = strip_tags(fetchFrom('POST', 'x509name'));
+        defaultTo($x509name, '');
         $lastname = strip_tags(fetchFrom('POST', 'lastname'));
         defaultTo($lastname, '');
         $firstname = strip_tags(fetchFrom('POST', 'firstname'));
@@ -305,7 +314,8 @@
             "login" => $login,
             "userid" => $userid,
             "password" => $password,
-            "language"=> $language
+            "language"=> $language,
+            "x509name"=> $x509name
             ));
             $u = getUserByEmail($email);
             if ($cap_iodef == 'on') $cap_iodef = 1;
@@ -345,7 +355,8 @@
                        phone=%s,
                        login=%s,
                        userid=%s,
-                       language=%s",
+                       language=%s,
+                       x509name=%s",
                     db_masq_null($lastname),
                     db_masq_null($firstname),
                     db_masq_null($email),
@@ -353,7 +364,7 @@
                db_masq_null($login),
                db_masq_null($userid),
                db_masq_null($language),
-                    $id);
+               db_masq_null($x509name));
          if ($password != "") {
                 $query=sprintf("
                     %s,
@@ -367,7 +378,6 @@
                 WHERE id=%s",
                     $query,
                     $id);
-
          $res = db_query($query)
          or die(_("Unable to execute query 1"));
 

@@ -85,10 +85,10 @@ switch ($action) {
 
       $out = '<table class="horizontal">'.LF;
       $out .= '<tr>'.LF;
-      $out .= '<th>&nbsp;</th>'.LF;
       $out .= '<th>Label</th>'.LF;
       $out .= '<th>Description</th>'.LF;
       $out .= '<th>Netblocks</th>'.LF;
+      $out .= '<th>&nbsp;</th>'.LF;
       $out .= '</tr>'.LF;
       $constituencies = getConstituencies();
       $networks = getNetworks();
@@ -97,10 +97,6 @@ switch ($action) {
       foreach ($constituencies as $id => $row) {
          $consid = $id;
          $out .= '<tr>'.LF;
-         $out .= '<td>'.LF;
-         $out .= '<a href="'.$_SERVER['PHP_SELF'].'?action=edit&cons='.
-            $consid.'">'._('edit').'</a>'.LF;
-         $out .= '</td>'.LF;
          $out .= '<td>'.strip_tags($row['label']).'</td>'.LF;
          $out .= '<td>'.strip_tags($row['name']).'</td>'.LF;
          $out .= '<td>'.LF;
@@ -111,6 +107,10 @@ switch ($action) {
             $out .= '- '.$row2['label'].'<BR><small>'.
                $row2['network'].' / '.$row2['netmask'].'</small><BR>'.LF;
          }
+         $out .= '</td>'.LF;
+         $out .= '<td>'.LF;
+         $out .= '<a href="'.$_SERVER['PHP_SELF'].'?action=edit&cons='.
+            $consid.'">'._('edit').'</a>'.LF;
          $out .= '</td>'.LF;
          $out .= '</tr>'.LF;
       } // foreach

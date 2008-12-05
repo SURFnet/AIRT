@@ -32,7 +32,7 @@ defaultTo($action, 'list');
 /** Helper function to display the queue.
  */
 function showQueue() {
-   pageHeader(_('AIRT Import queue'), array(
+   pageHeader(_('Import queue'), array(
       'menu'=>'incidents',
       'submenu'=>'importqueue'));
    $out = '<div class="importqueue-overview-header">'.LF;
@@ -44,6 +44,7 @@ function showQueue() {
    $out .= queueFormatItems();
    $out .= '<div class="importqueue-overview-footer">'.LF;
    $out .= '<p/>'._('Decision: ');
+   /*
    $out .= '<select name="decision">'.LF;
    $out .= '<option value="accept">'._('Accept').LF;
    $out .= '<option value="reject">'._('Reject').LF;
@@ -54,6 +55,11 @@ function showQueue() {
    $out .= '<input type="submit" name="action" label="'.
       _('Refresh the import queue. Any unprocessed changes will be lost.').
       '" value="'._('Refresh').'"></p>'.LF;
+    */
+   $out .= t('<input type="submit" name="action" value="%v">'.LF, array(
+      '%v'=>'Accept'));
+   $out .= t('<input type="submit" name="action" value="%v">'.LF, array(
+      '%v'=>'Reject'));
    $out .= '</div><!-- importqueue-overview-footer -->'.LF;
    $out .= '</form>'.LF;
    print $out;
@@ -61,25 +67,22 @@ function showQueue() {
 
 
 
-switch ($action) {
+switch (strtolower($action)) {
    //----------------------------------------------------------------
-   case _('Process'):
+   case _('accept'):
+   case _('reject'):
       $error = '';
       // no queue elments checked. Process button pushed from empty queue?
       if (!array_key_exists('checked', $_POST)) {
          showQueue();
          break;
       }
-      if (array_key_exists('decision', $_POST)) {
-         $decision = $_POST['decision'];
-      }
-      defaultTo($decision, 'donothing');
-      pageHeader(_('Processing import queue'));
+      pageHeader(_('Import queue'));
 
       // interpret all decision and take action if accept or reject
       $tags=array();
       if (array_key_exists('group', $_POST)) {
-         $decisions = queueNormalize($_POST['group'], $_POST['checked'], $decision);
+         $decisions = queueNormalize($_POST['group'], $_POST['checked'], $action);
       } else {
          $decisions = $_POST['checked'];
       }
@@ -88,7 +91,7 @@ switch ($action) {
          $update = false;
          switch ($value) {
             case 'on':
-               if ($decision == 'accept') {
+               if ($action == 'accept') {
                   if (array_key_exists('template', $_POST) &&
                       array_key_exists($id, $_POST['template'])) {
                      $template = $_POST['template'][$id];
@@ -97,7 +100,7 @@ switch ($action) {
                   }
                   queueElementAccept($id, $template);
                }
-               elseif ($decision == 'reject') {
+               elseif ($action == 'reject') {
                   print t(_('Rejecting queue element %id<br/>').LF, array('%id'=>$id));
                   flush();
                   $value = 'rejected';
@@ -175,7 +178,7 @@ switch ($action) {
       // break omitted intentionally
 
    // ----------------------------------------------------------------
-   case _('Refresh'):
+   case _('refresh'):
    case 'list':
       showQueue();
       break;
@@ -188,7 +191,7 @@ switch ($action) {
       break;
 
    // ----------------------------------------------------------------
-   case _('Add preferred template'):
+   case _('add preferred template'):
       $filter = strip_tags(fetchFrom('REQUEST', 'filter'));
       defaultTo($filter, '');
       $version = strip_tags(fetchFrom('REQUEST', 'version'));

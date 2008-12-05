@@ -24,7 +24,7 @@ script_DATA = constituencies.php constituency_contacts.php export.php \
 	incident.php incident_states.php incident_status.php incident_types.php \
 	index.php license.php links.php login.php logout.php settings.php \
 	networks.php search.php mailtemplates.php users.php config.plib \
-	server.php importqueue.php exportqueue.php stats.php \
+	server.php importqueue.php exportqueue.php stats.php certificate.php \
 	mailbox.php
 
 CLEANFILES = config.plib login.php
