@@ -38,18 +38,32 @@ switch ($action) {
          'menu'=>'constituencies',
          'submenu'=>'contacts'));
 
-      $res = db_query("SELECT   id, label, name
-             FROM     constituencies
-             ORDER BY label")
+      $res = db_query("
+         SELECT u.lastname, u.firstname, u.email, u.phone, c.label 
+         FROM   users u, constituencies c, constituency_contacts cc,
+         WHERE  u.id = cc.userid
+         AND    c.id = cc.constituency
+         ORDER  BY c.label, u.lastname, u.firstname, u.email")
       or die(_('Unable to execute query.'));
-
-      echo _('Please select a constituency to edit assign contacts:').'<P>'.LF;
-      while($row=db_fetch_next($res)) {
-         $id = $row["id"];
-         $label = $row["label"];
-         $name = $row["name"];
-         echo "<a href=\"".BASEURL."/constituency_contacts.php?action=edit&consid=$id\">$label - $name</a><P>";
+      print '<table class="horizontal">'.LF;
+      print '<tr>'.LF;
+      print '  <th>'._('Constituency').'</th>'.LF;
+      print '  <th>'._('Last name').'</th>'.LF;
+      print '  <th>'._('First name').'</th>'.LF;
+      print '  <th>'._('Email').'</th>'.LF;
+      print '  <th>'._('Phone').'</th>'.LF;
+      print '</tr>'.LF;
+      while (($row = db_fetch_next($res)) === true) {
+          print '<tr>'.LF;
+          print '<td>'.htmlentities($row['label']).'</td>'.LF;
+          print '<td>'.htmlentities($row['lastname']).'</td>'.LF;
+          print '<td>'.htmlentities($row['firstname']).'</td>'.LF;
+          print '<td>'.htmlentities($row['email']).'</td>'.LF;
+          print '<td>'.htmlentities($row['phone']).'</td>'.LF;
+          print '</tr>'.LF;
       }
+      print '</table>'.LF;
+
       db_free_result($res);
 
       pageFooter();
