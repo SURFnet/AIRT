@@ -23,9 +23,12 @@
  * index.php - AIR console
  * $Id$
  */
+
 require_once 'config.plib';
 require_once LIBDIR."/airt.plib";
 require_once LIBDIR."/database.plib";
+reload(BASEURL.'/incident.php');
+exit;
 
 pageHeader(_('AIRT Control Center'));
 

@@ -217,7 +217,7 @@ function subMenu($menu, $submenu) {
            $out .= t('  <a href="%url/stats.php" %active>%l</a>'.LF, 
            array(
               '%url'=>BASEURL,
-              '%l'=>_('Reports'),
+              '%l'=>_('Statistics'),
               '%active'=>($submenu == 'reports' ? 'class="active"' : '')));
            break;
 
@@ -317,7 +317,7 @@ function pageHeader($title='', $options=array()) {
    if ($showmenu === true) {
       print '  <div id="header">'.LF.LF;
       print '  <div class="left">'.LF;
-      print t('  <a href="%url/index.php" title="'._('Back to the first page').
+      print t('  <a href="%url/incident.php" title="'._('Back to the first page').
          '"><img src="images/airt_logo.png" alt="AIRT" id="logo" /></a>'.LF, 
          array('%url'=>BASEURL));
       print '    <h2>Application for Incident Response Teams</h2>'.LF;
@@ -328,7 +328,7 @@ function pageHeader($title='', $options=array()) {
       print '  </div><!-- left -->'.LF;
       print '  <div class="right">'.LF;
       print t('    <div id="userinfo">'._('Logged in as %name').
-         '(<a href="%url/logout.php">%l</a>)</div>'.LF, array(
+         ' (<a href="%url/logout.php">%l</a>)</div>'.LF, array(
          '%name'=>htmlentities($name),
          '%url'=>BASEURL,
          '%l'=>_('Log out')));
