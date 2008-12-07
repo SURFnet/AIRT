@@ -67,7 +67,7 @@ float: left;
 width: 600px;
 }
 
-#header h2, #header #title{
+#header h2{
 	margin: 0;
 	padding: 0;
 	height: 27px;
@@ -182,7 +182,6 @@ display: inline;
 float: right;
 clear: right;
 text-align: right;
-width: 450px;
 }
 
 .right a.button{
@@ -218,7 +217,20 @@ width: 100%;
 .block h3, .details-external-ids h3, .details-mails h3, .details_attachments h3, .details-basic h3, .details-ip h3, .details-user h3, .details-history h3 {
 margin: 0 0 10px 0;
 font: bold 16px Arial, sans-serif;
-	
+}
+
+.block table.horizontal{
+border: 1px solid #AAA;
+}
+
+#history .item{
+padding-left: 10px;
+}
+
+#history .item .date{
+font-size:  10px;
+margin-left: -10px;
+color: #AAA;
 }
 
 
@@ -533,4 +545,10 @@ background:#ccc;
 
 textarea{
 font: 11px courier new, courier, sans-serif;
+}
+
+textarea.logging{
+width: 436px;
+padding: 0px;
+height: 300px;
 }

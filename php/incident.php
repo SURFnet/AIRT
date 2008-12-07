@@ -66,62 +66,7 @@ switch ($action) {
   //--------------------------------------------------------------------
   case _('Show Details'):
   case 'details':
-    $incidentid = fetchFrom('REQUEST','incidentid', '%d');
-    if ($incidentid=='') {
-       airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
-       reload();
-    }
-
-    /* Prevent cross site scripting in incidentid. */
-    $norm_incidentid = normalize_incidentid($incidentid);
-    $incidentid = decode_incidentid($norm_incidentid);
-    if (!getIncident($incidentid)) {
-      airt_msg(t(_('Requested incident (%s) does not exist.'), array(
-         '%s'=>$norm_incidentid)));
-      reload();
-      exit;
-    }
-    $_SESSION['incidentid'] = $incidentid;
-
-    pageHeader(_('Incident details: ').$norm_incidentid, array(
-       'menu'=>'incidents', 'submenu'=>'incidents'));
-    $output = '<div class="details-external-ids" width="100%">';
-    $output .= t('(<a href="%url?action=edit_extid&'.
-                 'incidentid=%incidentid">'._('Edit').'</a>) ',
-            array(
-       '%url'=>$_SERVER['PHP_SELF'], '%incidentid'=>urlencode($incidentid)));
-    $output .= _('External identifiers').': ';
-	 $e = array();
-	 foreach (getExternalIncidentIDs($incidentid) as $i) {
-	    if (substr($i, 0, 1) != '_') {
-		    $e[] = $i;
-		 }
-	 }
-    $output .= implode(',', $e);
-    $output .= '</div><!-- externalids -->'.LF;
-    $output .= formatEditForm();
-    $output .= '<div class="details-history">'.LF;
-    $output .= '<h3>'._('History').'</h3>'.LF;
-    generateEvent('historyshowpre', array('incidentid'=>$incidentid));
-    $output .= formatIncidentHistory($incidentid);
-    generateEvent('historyshowpost', array('incidentid'=>$incidentid));
-
-    $output .= '<p/>'.LF;
-    $output .= '<form action="'.$_SERVER['PHP_SELF'].'" method="post">'.LF;
-    $output .= '<input type="hidden" name="action" value="addcomment">'.LF;
-    $output .= '<input type="hidden" name="incidentid" value="'.
-        strip_tags($incidentid).'">'.LF;
-    $output .= '<table class="horizontal">'.LF;
-    $output .= '<tr>'.LF;
-    $output .= '  <td>'._('New comment').': </td>'.LF;
-    $output .= '  <td><input type="text" size=45 name="comment"></td>'.LF;
-    $output .= '  <td><input type="submit" value="'._('Add').'"></td>'.LF;
-    $output .= '</tr>'.LF;
-    $output .= '</table>'.LF;
-    $output .= '</form>'.LF;
-    $output .= '</div><!-- details-history -->'.LF;
-
-    print $output;
+    incidentDetails();
     break;
 
     //---------------------------------------------------------------

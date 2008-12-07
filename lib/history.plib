@@ -93,18 +93,15 @@ function formatIncidentHistory($incidentid="") {
       return _('Invalid parameter type in ').__LINE__;
    }
    $history = getIncidentHistory($incidentid);
-
-   $output = '<table class="horizontal">'.LF;
-   $count = 0;
+   $output = '';
    foreach ($history as $i=>$data) {
-      $output .= '<tr>'.LF;
-      $output .= sprintf("  <td>%s</td>\n", 
-          Date("d-M-Y H:i:s", $data["added"]));
-      $output .= "  <td>$data[login]</td>\n";
-      $output .= "  <td>$data[comment]</td>\n";
-      $output .= "</tr>\n";
+      $output .= '<div class="item">'.LF;
+      $output .= t('<div class="date">On %d by %u</div>'.LF, array(
+         '%d'=>Date("d-M-Y H:i:s", $data["added"]),
+         '%u'=>htmlentities($data['login'])));
+      $output .= htmlentities($data['comment']).LF;
+      $output .= "</div>".LF;
   }
-  $output .= "</table>\n";
 
   return $output;
 }

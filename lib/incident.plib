@@ -364,7 +364,7 @@ function getIncident($id) {
         state,
         status,
         type,
-	logging,
+	    logging,
         extract(epoch from incidentdate) as incidentdate,
         pref_templ as template,
         short_desc as desc
@@ -751,60 +751,6 @@ function removeUserfromIncident($userid, $incident) {
       return true;
    }
 }
-
-/* Return an HTML formatted string containing the basic incident data (type,
- * state and status. All input variables may be '', which leads to a system
- * default selection.
- */
-function formatBasicIncidentData($params=array()) {
-   foreach (array('desc', 'template', 'date', 'logging', 'type', 'state', 'status') 
-            as $param) {
-      if (empty($params[$param])) {
-         $params[$param] = '';
-      }
-   }
-   $output = '<table class="horizontal">'.LF;
-   $output .= '  <tr>'.LF;
-   $output .= '    <td>'._('Incident type').'</td>'.LF;
-   $output .= '    <td>'.getIncidentTypeSelection('type', $params['type']).
-      '</td>'.LF;
-   $output .= '  </tr>'.LF;
-   $output .= '  <tr>'.LF;
-   $output .= '    <td>'._('Incident state').'</td>'.LF;
-   $output .= '    <td>'.getIncidentStateSelection('state', $params['state']).
-      '</td>'.LF;
-   $output .= '  </tr>'.LF;
-   $output .= '  <tr>'.LF;
-   $output .= '    <td>'._('Incident status').'</td>'.LF;
-   $output .= '    <td>'.getIncidentStatusSelection('status', $params['status']).
-      '</td>'.LF;
-   $output .= '  </tr>'.LF;
-   $output .= '  <tr valign="top">'.LF;
-   $output .= '    <td>'._('Date of incident').'</td>'.LF;
-   $output .= '    <td>'.formatDateInput('date', $params['date']).'</td>'.LF;
-   $output .= '  </tr>'.LF;
-   $output .= '  <tr>'.LF;
-   $output .= '    <td>'._('Mail template').'</td>'.LF;
-   $output .= '    <td>'.getMailtemplateSelection('template',
-      ($params['template'] == '') ? -1 : $params['template'], 
-      array(-1 => _('None'))).'</td>'.LF;
-   $output .= '  </tr>'.LF;
-   $output .= '  <tr valign="top">'.LF;
-   $output .= '    <td>'._('Short description').'</td>'.LF;
-   $output .= '    <td><input type="text" name="desc" size="60" value="'.
-      strip_tags($params['desc']).'"><em>'._('Leave empty for hostname').
-      '</em></td>'.LF;
-   $output .= '  </tr>'.LF;
-	$output .= '  <tr valign="top">'.LF;
-	$output .= '    <td>'._('Logging').'</td>'.LF;
-	$output .= '    <td colspan="2"><textarea name="logging" cols="80" '.
-      'rows="8">'.$params['logging'].'</textarea></td>'.LF;
-	$output .= '  </tr>'.LF;
-   $output .= '</table>'.LF;
-
-   return $output;
-}
-
 
 /* Produces a simple HTML edit form to edit an IP address' data.
  * Will be expanded in the future.
@@ -1266,320 +1212,6 @@ function formatIncidentBulkForm(&$check) {
    return $output;
 } // show IncidentBulkForm
 
-
-/** Format the incident details form.
- * This function is called only when creating a new incident report
- * from scratch.
- */
-function formatIncidentForm(&$check) {
-   $constituency = $name = $email = $type = $state = $status 
-     = $addressrole = '';
-
-   $address      = strip_tags(fetchFrom('SESSION','active_ip'));
-	$constituency = 0;
-	$email        = '';
-	if ($address != '') {
-	   $networkid = categorize($address);
-		$constituency = getConstituencyIDbyNetworkID($networkid);
-		$cc = array();
-		foreach (getConstituencyContacts($constituency) as $c) {
-		   $cc[] = $c['email'];
-		}
-		$email = implode(',',$cc);
-	}
-
-   if (defined('CUSTOM_FUNCTIONS') &&
-             function_exists('custom_default_addressrole')) {
-      $addressrole = custom_default_addressrole($address);
-   }
-
-   $output =  formatBasicIncidentData(array(
-      'type'=>$type,
-      'state'=>$state,
-      'status'=>$status));
-
-   $output .= '<h3>'._('Affected IP addresses').'</h3>'.LF;
-   $output .= '<table class="horizontal">'.LF;
-   $output .= '<tr>'.LF;
-   $output .= '  <td>'._('Hostname or IP address').'</td>'.LF;
-   $output .= t('  <td><input type="text" size=30 name="address" '.
-                'value="%address">%addressrole</td>'.LF, array(
-      '%address'=>$address,
-      '%addressrole'=>getAddressRolesSelection('addressrole', $addressrole)
-   ));
-   $output .= '</tr>'.LF;
-   $output .= '<tr>'.LF;
-   $output .= '  <td>'._('Constituency').'</td>'.LF;
-   $output .= '  <td>'.getConstituencySelection('constituency',
-       $constituency).'</td>'.LF;
-   $output .= '</tr>'.LF;
-   $output .= '</table>'.LF;
- 
-   $output .= '<h3>'._('Affected users').'</h3>'.LF;
-   $output .= '<table class="horizontal">'.LF;
-   $output .= '<tr>'.LF;
-   $output .= '  <td>'._('E-mail address of user').':</td>'.LF;
-   $output .= '  <td><input onChange="updateCheckboxes()" type="text" '.
-              'size=40 name="email" value="'.$email.'"></td>'.LF;
-   $output .= '  <td>'.getMailtemplateSelection('mailtemplate_override', -1,
-      array(-1 => _('Do not override'))).'</td>'.LF;
-   $output .= '</tr>'.LF;
-   $output .= '</table>'.LF;
-
-   if ($email != '') {
-      $check = true;
-   }
-   $output .= t('<input type="checkbox" name="addifmissing" %checked>'.LF,
-      array('%checked'=>($check == false) ? '' : 'checked'));
-   $output .= '  '._('If checked, create user if email address unknown').LF;
-
-   $output .= '<p/>'.LF;
-
-   return $output;
-} // show Incidentform
-
-
-/* Return a formatted string representing an HTML form for editing incident
- * details.
- */
-function formatEditForm() {
-   $incident = getIncident(fetchFrom('SESSION','incidentid', '%d'));
-   $address = strip_tags(fetchFrom('SESSION','active_ip'));
-   $constituency = fetchFrom('SESSION','constituency_id', '%d');
-
-   // Basic incident data block.
-   $output = '<div class="details-basic">'.LF;
-   $output .= '<form action="'.$_SERVER['PHP_SELF'].'" method="post">'.LF;
-   $output .= '<h3>'._('Basic incident data').'</h3>'.LF;
-   $output .= formatBasicIncidentData(array(
-      'type'=>$incident['type'],
-      'state'=>$incident['state'],
-      'status'=>$incident['status'],
-      'logging'=>$incident['logging'],
-      'date'=>$incident['incidentdate'],
-      'template'=>$incident['template'],
-      'desc'=>$incident['desc']));
-   $output .= '<input type="submit" name="action" value="update">'.LF;
-   $output .= '</form>'.LF;
-   $output .= '</div> <!-- details-basic -->'.LF;
-
-   // Affected IP addresses block. First the header part.
-   $output .= '<div class="details-ip">'.LF;
-   $output .= '<h3>'._('Affected IP addresses').'</h3>'.LF;
-   $output .= '<table class="horizontal">'.LF;
-   $output .= '<tr>'.LF;
-   $output .= '   <td>'._('IP Address').'</td>'.LF;
-   $output .= '   <td>'._('Hostname').'</td>'.LF;
-   $output .= '   <td>'._('Constituency').'</td>'.LF;
-   $output .= '   <td>'._('Role in incident').'</td>'.LF;
-   $output .= '   <td>'._('Edit').'</td>'.LF;
-   $output .= '   <td>'._('Remove').'</td>'.LF;
-   $output .= '</tr>'.LF;
-   $conslist = getConstituencies();
-   // Then the IP address list.
-   foreach ($incident['ips'] as $address) {
-      $output .= '<tr>'.LF;
-      $output .= sprintf(
-        '  <td><a href="search.php?action=search&q=%s">%s</a></td>'.LF,
-         urlencode($address['ip']),
-         $address['ip']);
-      $_SESSION['active_ip'] = $address['ip'];
-      $output .= sprintf(
-         '  <td>%s</td>'.LF,
-         $address['hostname']==''?_('Unknown'):
-                       @gethostbyaddr(@gethostbyname($address['ip'])));
-      $cons = getConstituencyIDbyNetworkID(categorize($address['ip']));
-      $output .= sprintf('  <td>%s</td>'.LF, $conslist[$cons]['label']);
-      $output .= t('  <td>%addressrole</td>'.LF,
-         array(
-            '%addressrole'=>getAddressRoleByID($address['addressrole'])));
-      $output .= sprintf('  <td><a href="'.$_SERVER['PHP_SELF'].
-                         '?action=editip&ip=%s">'._('edit').'</a></td>'.LF,
-         urlencode($address['ip']));
-      $output .= t('  <td><a href="'.$_SERVER['PHP_SELF'].
-                   '?action=deleteip&incidentid=%incident&ip=%ip&addressrole=%addressrole">'.
-                   _('remove').'</a></td>'.LF,
-         array(
-            '%ip'=>urlencode($address['ip']),
-            '%incident'=>urlencode($incident['incidentid']),
-            '%addressrole'=>urlencode($address['addressrole'])));
-      $output .= '</tr>'.LF;
-   }
-   $output .= '</table>'.LF;
-
-   // And lastly, the IP address footer.
-   $output .= '<p/>'.LF;
-   $output .= '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">'.LF;
-   $output .= '<input type="hidden" name="action" value="addip">'.LF;
-   $output .= '<table class="horizontal">'.LF;
-   $output .= '<tr>'.LF;
-   $output .= '  <td>'._('IP Address').'</td>'.LF;
-   $output .= '  <td><input type="text" name="ip" size=40></td>'.LF;
-   $output .= t('<td>%addressrole</td>', array(
-      '%addressrole' => getAddressRolesSelection('addressrole')
-   ));
-   $output .= '  <td><input type="submit" value="'._('Add').'"></td>'.LF;
-   $output .= '</tr>'.LF;
-   $output .= '</table>'.LF;
-   $output .= '</form>'.LF;
-   $output .= '</div><!-- details-ip -->'.LF;
-
-   // Affected users block.
-   $output .= '<div class="details-user">'.LF;
-   $output .= '<h3>'._('Affected users').'</h3>'.LF;
-   $output .= '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">'.LF;
-   $output .= t('<input type="hidden" name="incidentid" value="%incidentid">',
-      array('%incidentid'=>$incident['incidentid']));
-   $output .= '<table class="horizontal">'.LF;
-   // re-initialise active users
-   $_SESSION['current_name'] = '';
-   $_SESSION['current_email'] = '';
-   foreach ($incident['users'] as $user) {
-      $u = getUserByUserId($user);
-      if ($_SESSION['current_email'] == '') {
-         $_SESSION['current_email'] = $u['email'];
-      } else {
-         $_SESSION['current_email'] .= ','.$u['email'];
-      }
-      if ($u['firstname'] == '' && $u['lastname'] == '') {
-         $name = $u['email'];
-      } else {
-         $name = $u['firstname'].' '.$u['lastname'];
-      }
-      if ($_SESSION['current_name'] == '') {
-         $_SESSION['current_name'] = $name;
-      } else {
-         $_SESSION['current_name'] .= ','.$name;
-      }
-      $override = getMailtemplateOverride($incident['incidentid'], $u['id']);
-      $output .= t('<tr>'.LF);
-      $output .= t('  <td><input type="checkbox" name="to[]" value="%userid"></td>', array('%userid'=>$user));
-      $output .= t('  <td>%email</td>', array('%email'=>$u['email'])).LF;
-      $output .= t('  <td>').LF;
-      $output .= getMailtemplateSelection(
-         'template['.strip_tags($user).']', 
-         ($override==false) ? -1 : $override,
-         array('-1' => _('None'))).LF;
-      $output .= '</tr>'.LF;
-   }
-   $output .= '</table>'.LF;
-   $output .= '<input type="submit" name="action" value="'._('Mail').'">'.LF;
-   $output .= '<input type="submit" name="action" value="'._('Remove').'">'.LF;
-   $output .= '<input type="submit" name="action" value="'.
-      _('Update overrides').'">'.LF;
-   $output .= '</form>'.LF;
-   $output .= '<p/>'.LF;
-   // Affected user list footer. First get som data.
-   $userid = fetchFrom('SESSION','current_userid', '%d');
-   if ($userid!='') {
-      $u = getUserByUserID($userid);    // Cannot cope with empty userids.
-      if (sizeof($u) > 0) {
-         $lastname = $u[0]['lastname'];
-         $email = $u[0]['email'];
-      }
-   }
-   $email = strip_tags(fetchFrom('SESSION','current_email'));
-   // Then build the form.
-   $output .= '<form name="jsform" action="'.$_SERVER['PHP_SELF'].
-              '" method="POST">'.LF;
-   $output .= '  <input type="hidden" name="action" value="adduser">'.LF;
-   $output .= '  <table class="horizontal">'.LF;
-   $output .= '  <tr>'.LF;
-   $output .= '    <td>'._('Email address of user').':</td>'.LF;
-   $output .= '    <td><input onChange="updateCheckboxes()" type="text" '.
-              'size=40 name="email" value="'.$email.'"></td>'.LF;
-   $output .= ' <td>'.
-      getMailtemplateSelection('template', '-1',
-      array('-1'=>_('Do not override'))).'</td>'.LF;
-   $output .= '  </tr>'.LF;
-   $output .= '</table>'.LF;
-   $output .= '<input type="submit" value="'._('Add').'">'.LF;
-   $output .= t('  <input onChange="updateCheckboxes()" type="checkbox" name="addifmissing" %checked>', array(
-      '%checked'=>($email=='')?'':'CHECKED')).LF;
-   $output .= '  '._('If checked, create user if email address unknown').LF;
-   $output .= '</form>'.LF;
-   $output .= '</div><!-- details-user -->'.LF;
-
-   $output .= '<h3>'._('Attachments').'</h3>'.LF;
-   if (fetchAttachments($incident['incidentid'], $attachments, $error) ==
-      false) {
-      die($error);
-   }
-   $output .= '<table class="horizontal">'.LF;
-   foreach ($attachments as $aid=>$a) {
-      $output .= '<tr>'.LF;
-      $output .= '<td>'.$a['filename'].' ('.$a['content-type'].')</td>'.LF;
-      $output .= t('<td><a href="%url?action=download&attachment=%id">'._('download').'</a></td>'.LF, array(
-         '%url' => BASEURL.'/incident.php',
-         '%id' => $aid
-      ));
-      $output .= t('<td><a onclick="return confirm(\'Are you sure that you want to delete this attachment?\')" href="%url?action=rmattach&attachment=%id">'._('delete').'</a></td>'.LF, array(
-         '%url' => BASEURL.'/incident.php',
-         '%id' => $aid
-      ));
-      $output .= '</tr>'.LF;
-   }
-   $output .= '</table>'.LF;
-   $output .= '<form enctype="multipart/form-data" method="POST">'.LF;
-   $output .= '<input type="hidden" name="action" value="upload">'.LF;
-   $output .= '<input type="hidden" name="incidentid" value="'.
-      strip_tags($incident['incidentid']).'">'.LF;
-   $output .= '<input size="40" type="file" name="file">'.LF;
-   $output .= '<input type="submit" value="Upload">'.LF;
-   $output .= '</form>'.LF;
-
-   $output .= '<div class="details-mails">'.LF;
-   $output .= '<h3>'._('Linked email messages').'</h3>'.LF;
-   if (fetchEmailsForIncident($incident['incidentid'], $msgs, $err) == false){
-      airt_msg($err);
-   } else {
-      if (sizeof($msgs) == 0) {
-         $output .= '<em>'._('No linked messages').'</em>'.LF;
-      } else {
-         $output .= '<table class="horizontal">';
-         $output .= '<tr>'.LF;
-         $output .= '<th>'._('Sender').'</th>'.LF;
-         $output .= '<th>'._('Subject').'</th>'.LF;
-         $output .= '<th>'._('Date').'</th>'.LF;
-         $output .= '<th>'._('Unlink').'</th>'.LF;
-         $output .= '<th>'._('View').'</th>'.LF;
-         $output .= '</tr>'.LF;
-
-         $count=0;
-         foreach ($msgs as $msgid) {
-            if ( fetchMailMessage($msgid, $msg, $err) == false) {
-               airt_msg($err);
-            } else {
-               $output .= '<tr>'.LF;
-               $output .= t('<td>%sender</td>'.LF, array(
-                  '%sender'=>$msg['sender']));
-               $output .= t('<td>%subject</td>'.LF, array(
-                  '%subject'=>$msg['subject']));
-               $output .= t('<td>%date</td>'.LF, array(
-                  '%date'=>date('r', $msg['date'])));
-               $output .= '<td>'.LF;
-               $output .= t('<a href="%u?action=unlink&msgid=%m&incidentid=%i">'.
-                  _('unlink').'</a>'.LF, array(
-                  '%u'=>BASEURL.'/incident.php',
-                  '%m'=>$msgid,
-                  '%i'=>$incident['incidentid']));
-               $output .= '</td>'.LF;
-               $output .= '<td>'.LF;
-               $output .= t('<a href="%u?action=view&msgid=%m">'.
-                  _('view').'</a>'.LF, array(
-                  '%u'=>BASEURL.'/mailbox.php',
-                  '%m'=>$msgid));
-               $output .= '</td>'.LF;
-               $output .= '</tr>'.LF;
-            }
-         }
-         $output .= '</table>';
-      }
-   }
-      
-   $output .= '</div>'.LF;
-   return $output;
-} // formatEditForm
 
 
 function getFormattedBasicIncidentData($incidentid='') {
@@ -2362,6 +1994,311 @@ function listIncidents() {
           'submenu'=>'incidents'));
    }
    print $out;
+   pageFooter();
+}
+
+/**
+ * Front-end code for incident details screen
+ */
+function incidentDetails() {
+   $address = strip_tags(fetchFrom('SESSION','active_ip'));
+
+   $constituency = fetchFrom('SESSION','constituency_id', '%d');
+   $conslist = getConstituencies();
+
+   $incidentid = fetchFrom('REQUEST','incidentid', '%d');
+   if (empty($incidentid)) {
+      airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
+      reload();
+   }
+
+   if (($incident = getIncident($incidentid)) === false) {
+     airt_msg(t(_('Requested incident (%s) does not exist.'), array(
+        '%s'=>$norm_incidentid)));
+     reload();
+     exit;
+   }
+   $_SESSION['incidentid'] = $incidentid;
+
+   pageHeader(t(_('Details of incident %n'), array(
+      '%n'=>normalize_incidentid($incidentid))), array(
+       'menu'=>'incidents', 
+       'submenu'=>'incidents'));
+
+   $output = '<div class="right">'.LF;
+   $output .= t('<a href="%u/incident.php" class="button">%l</a>', array(
+      '%u'=>BASEURL,
+      '%l'=>_('Close this incident')));
+   $output .= t('<a href="%u/incident.php" class="button">%l</a>', array(
+      '%u'=>BASEURL,
+      '%l'=>_('Stall this incident')));
+   $output .= '</div><!-- right -->'.LF.LF;
+
+   $output .= '<div id="incident-details">'.LF.LF;
+   $output .= '<div class="column">'.LF.LF;
+
+   $output .= '<div class="block">'.LF;
+   $output .= t('<form action="%u/incident.php" method="post">'.LF, array(
+      '%u'=>BASEURL));
+   $output .= '<h3>'._('Basic incident data').'</h3>'.LF;
+   $output .= '<table>'.LF;
+   $output .= '  <tr>'.LF;
+   $output .= '    <td>'._('Type of incident').'</td>'.LF;
+   $output .= '    <td>'.getIncidentTypeSelection('type', $incident['type']).
+      '</td>'.LF;
+   $output .= '  </tr>'.LF;
+
+   $output .= '  <tr>'.LF;
+   $output .= '    <td>'._('State of incident').'</td>'.LF;
+   $output .= '    <td>'.getIncidentStateSelection('state', $incident['state']).
+      '</td>'.LF;
+   $output .= '  </tr>'.LF;
+
+   $output .= '  <tr valign="top">'.LF;
+   $output .= '    <td>'._('Date of incident').'</td>'.LF;
+   $output .= '    <td>'.formatDateInput('date', $incident['incidentdate']).'</td>'.LF;
+   $output .= '  </tr>'.LF;
+
+   $output .= '  <tr valign="top">'.LF;
+   $output .= '    <td>'._('Short description').'</td>'.LF;
+   $output .= '    <td><input type="text" name="desc" size="50" value="'.
+      strip_tags($incident['desc']).'"></td>'.LF;
+   $output .= '  </tr>'.LF;
+
+   $output .= '  <tr valign="top">'.LF;
+   $output .= '    <td colspan="2">'.LF;
+   $output .= '    <textarea name="logging" class="logging">'.
+       $incident['logging'].'</textarea>'.LF;
+   $output .= '<div class="right"><a href="">'.
+        _('Show logging in popup-window').'</a></div>'.LF;
+   $output .= '</td>'.LF;
+   $output .= '  </tr>'.LF;
+
+   $output .= '  <tr>'.LF;
+   $output .= '    <td>'._('Mail template').'</td>'.LF;
+   $output .= '    <td>'.getMailtemplateSelection('template',
+      ($incident['template'] == '') ? -1 : $incident['template'], 
+      array(-1 => _('None'))).'</td>'.LF;
+   $output .= '  </tr>'.LF;
+   $output .= '</table>'.LF;
+   $output .= '<input type="submit" name="action" value="update" class="right"/>'.LF;
+   $output .= '</form>'.LF;
+   $output .= '</div> <!-- block -->'.LF;
+
+   $output .= '<div class="block">'.LF;
+   $output .= '<h3>'._('Affected IP addresses').'</h3>'.LF;
+   $output .= '<table cellpadding="4">'.LF;
+   $output .= '<tr>'.LF;
+   $output .= '   <td>'._('Role').'</td>'.LF;
+   $output .= '   <td>'._('IP Address').'</td>'.LF;
+   $output .= '   <td>'._('Hostname').'</td>'.LF;
+   $output .= '   <td>'._('Constituency').'</td>'.LF;
+   $output .= '</tr>'.LF;
+   foreach ($incident['ips'] as $address) {
+      $cons = getConstituencyIDbyNetworkID(categorize($address['ip']));
+      $_SESSION['active_ip'] = $address['ip'];
+
+      $output .= '<tr>'.LF;
+      $output .= t('  <td>%addressrole</td>'.LF, array(
+            '%addressrole'=>getAddressRoleByID($address['addressrole'])));
+      $output .= t('  <td><a href="%u/search.php?action=search&q=%q">%l</a></td>'.LF, array(
+         '%u'=>BASEURL,
+         '%q'=>urlencode($address['ip']),
+         '%l'=>htmlentities($address['ip'])));
+
+      $output .= t('  <td>%s</td>'.LF,array(
+         '%s'=>($address['hostname']=='') ? _ ('Unknown'):
+                 @gethostbyaddr(@gethostbyname($address['ip']))));
+
+      $output .= t('  <td>%s</td>'.LF, array(
+         '%s'=>htmlentities($conslist[$cons]['label'])));
+      $output .= t('  <td><a href="%u/incident.php?action=editip&ip=%s">%l</a></td>'.LF, array(
+         '%u'=>BASEURL,
+         '%s'=>urlencode($address['ip']),
+         '%l'=>_('edit')));
+
+      $output .= t('  <td><a
+      href="%u/incident.php?action=deleteip&incidentid=%incident&ip=%ip&addressrole=%addressrole">%l</a></td>'.LF,
+         array(
+            '%ip'=>urlencode($address['ip']),
+            '%incident'=>urlencode($incident['incidentid']),
+            '%addressrole'=>urlencode($address['addressrole']),
+            '%l'=>_('remove')));
+      $output .= '</tr>'.LF;
+   }
+   $output .= '</table>'.LF;
+   $output .= '<p/>'.LF;
+   $output .= '<form action="incident.php" method="POST">'.LF;
+   $output .= _('Add an IP-Address').LF;
+   $output .= '<input type="hidden" name="action" value="addip">'.LF;
+   $output .= '<table>'.LF;
+   $output .= '<tr>'.LF;
+   $output .= '<td><input type="text" name="ip" size="40"></td>'.LF;
+   $output .= '<td>'.getAddressRolesSelection('addressrole').'</td>'.LF;
+   $output .= '</td>'.LF;
+   $output .= '<td><input type="submit" value="'._('Add').'"></td>'.LF;
+   $output .= '</tr>'.LF;
+   $output .= '</table>'.LF;
+   $output .= '</form>'.LF;
+   $output .= '</div><!-- block -->'.LF;
+
+   $output .= '</div><!-- column -->'.LF;
+
+
+   $output .= '<div class="column">'.LF;
+   $output .= '<div class="block" id="history">'.LF;
+   $output .= '<h3>'._('History').'</h3>'.LF;
+   generateEvent('historyshowpre', array('incidentid'=>$incidentid));
+   $output .= formatIncidentHistory($incidentid);
+   generateEvent('historyshowpost', array('incidentid'=>$incidentid));
+   $output .= t('<form action="%u/incident.php" method="POST">'.LF, array(
+      '%u'=>BASEURL));
+   $output .= '<input type="hidden" name="action" value="addcomment"/>'.LF;
+   $output .= t('<input type="hidden" name="incidentid" value="%i"/>'.LF, 
+      array('%i'=>$incidentid));
+   $output .= '<input type="text" size="45" name="comment"/>'.LF;
+   $output .= '<input type="submit" value="'._('Add comment').'"/>'.LF;
+   $output .= '</form>'.LF;
+   $output .= '</div><!-- block -->'.LF;
+
+   $output .= '<div class="block">'.LF;
+   $output .= '<h3>'._('Affected users').'</h3>'.LF;
+   $output .= t('<form action="%u/incident.php" method="POST">'.LF, array(
+      '%u'=>BASEURL));
+   $output .= t('<input type="hidden" name="incidentid" value="%i">', array(
+      '%i'=>$incident['incidentid']));
+   $output .= t('<input type="submit" name="action" value="%l"/>', array(
+      '%l'=>_('Mail')));
+   $output .= t('<input type="submit" name="action" value="%l"/>', array(
+      '%l'=>_('Remove')));
+   $output .= t('<input type="submit" name="action" value="%l"/>', array(
+      '%l'=>_('Update overrides')));
+   $output .= '<table>'.LF;
+
+   $_SESSION['current_name'] = '';
+   $_SESSION['current_email'] = '';
+   foreach ($incident['users'] as $user) {
+      $u = getUserByUserId($user);
+      if ($_SESSION['current_email'] == '') {
+         $_SESSION['current_email'] = $u['email'];
+      } else {
+         $_SESSION['current_email'] .= ','.$u['email'];
+      }
+      if ($u['firstname'] == '' && $u['lastname'] == '') {
+         $name = $u['email'];
+      } else {
+         $name = $u['firstname'].' '.$u['lastname'];
+      }
+      if ($_SESSION['current_name'] == '') {
+         $_SESSION['current_name'] = $name;
+      } else {
+         $_SESSION['current_name'] .= ','.$name;
+      }
+      $override = getMailtemplateOverride($incident['incidentid'], $u['id']);
+      $output .= '<tr>'.LF;
+      $output .= '  <td>'.LF;
+      $output .= t('<input type="checkbox" name="to[]" value="%u">', array(
+         '%u'=>$user));
+      $output .= '  </td>'.LF;
+      $output .= t('  <td>%email</td>', array(
+        '%email'=>$u['email'])).LF;
+      $output .= t('  <td>').LF;
+      $output .= getMailtemplateSelection(
+         'template['.strip_tags($user).']', 
+         ($override==false) ? -1 : $override,
+         array('-1' => _('None'))).LF;
+      $output .= '</tr>'.LF;
+   }
+   $output .= '</table>'.LF;
+   $output .= '</form>'.LF;
+   $output .= '</div><!-- block -->'.LF;
+
+# XXX
+   $output .= '<div class="block">'.LF;
+   $output .= '<h3>'._('Attachments').'</h3>'.LF;
+   if (fetchAttachments($incident['incidentid'], $attachments, $error) ==
+      false) {
+      die($error);
+   }
+   $output .= '<table>'.LF;
+   foreach ($attachments as $aid=>$a) {
+      $output .= '<tr>'.LF;
+      $output .= '<td>'.$a['filename'].' ('.$a['content-type'].')</td>'.LF;
+      $output .= t('<td><a href="%url?action=download&attachment=%id">'._('download').'</a></td>'.LF, array(
+         '%url' => BASEURL.'/incident.php',
+         '%id' => $aid
+      ));
+      $output .= t('<td><a onclick="return confirm(\'Are you sure that you want to delete this attachment?\')" href="%url?action=rmattach&attachment=%id">'._('delete').'</a></td>'.LF, array(
+         '%url' => BASEURL.'/incident.php',
+         '%id' => $aid
+      ));
+      $output .= '</tr>'.LF;
+   }
+   $output .= '</table>'.LF;
+   $output .= '<form enctype="multipart/form-data" method="POST">'.LF;
+   $output .= '<input type="hidden" name="action" value="upload">'.LF;
+   $output .= '<input type="hidden" name="incidentid" value="'.
+      strip_tags($incident['incidentid']).'">'.LF;
+   $output .= '<input size="40" type="file" name="file">'.LF;
+   $output .= '<input type="submit" value="Upload">'.LF;
+   $output .= '</form>'.LF;
+   $output .= '</div><!-- block -->'.LF;
+   
+   $output .= '<div class="block">'.LF; 
+   $output .= '<h3>'._('Linked email messages').'</h3>'.LF;
+   if (fetchEmailsForIncident($incident['incidentid'], $msgs, $err) == false){
+      airt_msg($err);
+   } else {
+      if (sizeof($msgs) == 0) {
+         $output .= '<em>'._('No linked messages').'</em>'.LF;
+      } else {
+         $output .= '<table>';
+         $output .= '<tr>'.LF;
+         $output .= '<th>'._('Sender').'</th>'.LF;
+         $output .= '<th>'._('Subject').'</th>'.LF;
+         $output .= '<th>'._('Date').'</th>'.LF;
+         $output .= '<th>'._('Unlink').'</th>'.LF;
+         $output .= '<th>'._('View').'</th>'.LF;
+         $output .= '</tr>'.LF;
+
+         $count=0;
+         foreach ($msgs as $msgid) {
+            if ( fetchMailMessage($msgid, $msg, $err) == false) {
+               airt_msg($err);
+            } else {
+               $output .= '<tr>'.LF;
+               $output .= t('<td>%sender</td>'.LF, array(
+                  '%sender'=>$msg['sender']));
+               $output .= t('<td>%subject</td>'.LF, array(
+                  '%subject'=>$msg['subject']));
+               $output .= t('<td>%date</td>'.LF, array(
+                  '%date'=>date('r', $msg['date'])));
+               $output .= '<td>'.LF;
+               $output .= t('<a href="%u?action=unlink&msgid=%m&incidentid=%i">'.
+                  _('unlink').'</a>'.LF, array(
+                  '%u'=>BASEURL.'/incident.php',
+                  '%m'=>$msgid,
+                  '%i'=>$incident['incidentid']));
+               $output .= '</td>'.LF;
+               $output .= '<td>'.LF;
+               $output .= t('<a href="%u?action=view&msgid=%m">'.
+                  _('view').'</a>'.LF, array(
+                  '%u'=>BASEURL.'/mailbox.php',
+                  '%m'=>$msgid));
+               $output .= '</td>'.LF;
+               $output .= '</tr>'.LF;
+            }
+         }
+         $output .= '</table>';
+      }
+   }
+   $output .= '</div><!-- block -->'.LF;
+
+   $output .= '</div><!-- column -->'.LF;
+
+   $output .= '<br style="clear: both;" />'.LF;
+   $output .= '</div><!-- incident-details -->'.LF;
+   print $output;
    pageFooter();
 }
 ?>
