@@ -302,6 +302,7 @@ function getOpenIncidents($sqlfilter = "WHERE s1.label IN ('open','stalled')") {
                 extract(epoch from i.incidentdate) as incidentdate
          FROM   incidents i
          LEFT JOIN incident_addresses a on i.id = a.incident
+         LEFT JOIN constituencies c on a.constituency = c.id
          LEFT JOIN incident_status s1 on s1.id = i.status
          LEFT JOIN incident_states s2 on s2.id = i.state
          LEFT JOIN incident_types t on t.id = i.type
@@ -1537,11 +1538,11 @@ function formatEditForm() {
       } else {
          $output .= '<table class="horizontal">';
          $output .= '<tr>'.LF;
-         $output .= '<th>'._('Unlink').'</th>'.LF;
-         $output .= '<th>'._('View').'</th>'.LF;
          $output .= '<th>'._('Sender').'</th>'.LF;
          $output .= '<th>'._('Subject').'</th>'.LF;
          $output .= '<th>'._('Date').'</th>'.LF;
+         $output .= '<th>'._('Unlink').'</th>'.LF;
+         $output .= '<th>'._('View').'</th>'.LF;
          $output .= '</tr>'.LF;
 
          $count=0;
@@ -1550,6 +1551,12 @@ function formatEditForm() {
                airt_msg($err);
             } else {
                $output .= '<tr>'.LF;
+               $output .= t('<td>%sender</td>'.LF, array(
+                  '%sender'=>$msg['sender']));
+               $output .= t('<td>%subject</td>'.LF, array(
+                  '%subject'=>$msg['subject']));
+               $output .= t('<td>%date</td>'.LF, array(
+                  '%date'=>date('r', $msg['date'])));
                $output .= '<td>'.LF;
                $output .= t('<a href="%u?action=unlink&msgid=%m&incidentid=%i">'.
                   _('unlink').'</a>'.LF, array(
@@ -1563,12 +1570,6 @@ function formatEditForm() {
                   '%u'=>BASEURL.'/mailbox.php',
                   '%m'=>$msgid));
                $output .= '</td>'.LF;
-               $output .= t('<td>%sender</td>'.LF, array(
-                  '%sender'=>$msg['sender']));
-               $output .= t('<td>%subject</td>'.LF, array(
-                  '%subject'=>$msg['subject']));
-               $output .= t('<td>%date</td>'.LF, array(
-                  '%date'=>date('r', $msg['date'])));
                $output .= '</tr>'.LF;
             }
          }
@@ -1579,58 +1580,6 @@ function formatEditForm() {
    $output .= '</div>'.LF;
    return $output;
 } // formatEditForm
-
-
-/* User interface component which formats a pager line. Take the total number
- * of incidents, the current page, and the number of incidents per page as
- * input
- */
-function formatPagerLine($page, $numincidents, $pagesize=PAGESIZE) {
-   global $sortkey;
-   global $filter;
-
-   if ($numincidents < $pagesize) {
-      return '';
-   }
-
-   $urlprefix = '&sortkey='.$sortkey.
-                '&filter[status]='.$filter['status'].
-                '&filter[state]='.$filter['state'];
-   $out = '';
-   $numpages = (int) ceil($numincidents / $pagesize);
-
-   if ($page == 1) {
-      $out .= '<strong>'._('Previous').'</strong>&nbsp;';
-   } else {
-      $out .= t('<a href="%url?page=%prev%urlprefix">'.
-                 _('Previous').'</a>&nbsp;',
-                array(
-         '%urlprefix'=>$urlprefix,
-         '%url'=>$_SERVER['PHP_SELF'],
-         '%prev'=>($page-1)));
-   }
-   for ($i = 1; $i <= $numpages; $i++) {
-      if ($i == $page) {
-         $out .= "<strong>$i</strong>&nbsp;";
-      } else {
-         $out .= t('<a href="%url?page=%i%urlprefix">'.$i.'</a>&nbsp;',
-                 array(
-                   '%i'=>$i,
-                   '%urlprefix'=>$urlprefix,
-                   '%url' => $_SERVER['PHP_SELF']));
-      }
-   }
-   if ($page == $numpages) {
-      $out .= '<strong>'._('Next').'</strong>&nbsp;';
-   } else {
-      $out .= t('<a href="%url?page=%next%urlprefix">'._('Next').'</a>&nbsp;',
-              array(
-               '%urlprefix'=>$urlprefix,
-               '%url'=>$_SERVER['PHP_SELF'],
-               '%next'=>($page+1)));
-   }
-   return $out;
-}
 
 
 function getFormattedBasicIncidentData($incidentid='') {
@@ -2147,6 +2096,9 @@ function listIncidents() {
    $sortkey = strip_tags(fetchFrom('REQUEST','sortkey'));
    defaultTo($sortkey, 'incidentid');
 
+   $page = fetchFrom('REQUEST', 'page', '%d');
+   defaultTo($page, 1);
+
    $filter=array();
    $f=explode(',', $status);
    $f = array_filter($f, 'is_numeric');
@@ -2171,7 +2123,7 @@ function listIncidents() {
          $sqlfilter .= ' ORDER BY incidentid';
          break;
       case 'constituency':
-         $sqlfilter .= ' ORDER BY constituency';
+         $sqlfilter .= ' ORDER BY c.label';
          break;
       case 'address':
          $sqlfilter .= ' ORDER BY hostname';
@@ -2207,6 +2159,8 @@ function listIncidents() {
       '%s'=>$status));
    $out .= t('<input type="hidden" name="sortkey" value="%s">'.LF, array(
       '%s'=>$sortkey));
+   $out .= t('<input type="hidden" name="page" value="%s">'.LF, array(
+      '%s'=>$page));
    $out .= getIncidentStateSelection('state', $state, array(
       ''=>_('[Choose a state]')), 'onChange="document.filter.submit()"');
    $out .= '<input type="submit" value="'._('Filter').'">'.LF;
@@ -2229,7 +2183,8 @@ function listIncidents() {
    if ($sortkey == 'incidentid') {
        $out .= t('  <th>%l</th>'.LF, array('%l'=>_('Incident ID')));
    } else {
-       $out .= t('  <th><a href="%url/incident.php?sortkey=incidentid&status=%status&state=%state">%l</a></th>'.LF, array(
+       $out .= t('  <th><a href="%url/incident.php?page=%p&sortkey=incidentid&status=%status&state=%state">%l</a></th>'.LF, array(
+          '%p'=>$page,
           '%url'=>BASEURL,
           '%status'=>$status,
           '%state'=>$state,
@@ -2239,7 +2194,8 @@ function listIncidents() {
    if ($sortkey == 'address') {
        $out .= t('  <th>%l</th>'.LF, array('%l'=>_('IP Address')));
    } else {
-       $out .= t('  <th><a href="%url/incident.php?sortkey=address&status=%status&state=%state">%l</a></th>'.LF, array(
+       $out .= t('  <th><a href="%url/incident.php?page=%p&sortkey=address&status=%status&state=%state">%l</a></th>'.LF, array(
+          '%p'=>$page,
           '%url'=>BASEURL,
           '%status'=>$status,
           '%state'=>$state,
@@ -2249,7 +2205,8 @@ function listIncidents() {
    if ($sortkey == 'constituency') {
        $out .= t('  <th>%l</th>'.LF, array('%l'=>_('Constituency')));
    } else {
-       $out .= t('  <th><a href="%url/incident.php?sortkey=constituency&status=%status&state=%state">%l</a></th>'.LF, array(
+       $out .= t('  <th><a href="%url/incident.php?page=%p&sortkey=constituency&status=%status&state=%state">%l</a></th>'.LF, array(
+          '%p'=>$page,
           '%url'=>BASEURL,
           '%status'=>$status,
           '%state'=>$state,
@@ -2259,7 +2216,8 @@ function listIncidents() {
    if ($sortkey == 'type') {
        $out .= t('  <th>%l</th>'.LF, array('%l'=>_('Type')));
    } else {
-       $out .= t('  <th><a href="%url/incident.php?sortkey=type&status=%status&state=%state">%l</a></th>'.LF, array(
+       $out .= t('  <th><a href="%url/incident.php?page=%p&sortkey=type&status=%status&state=%state">%l</a></th>'.LF, array(
+          '%p'=>$page,
           '%url'=>BASEURL,
           '%status'=>$status,
           '%state'=>$state,
@@ -2269,7 +2227,8 @@ function listIncidents() {
    if ($sortkey == 'state') {
        $out .= t('  <th>%l</th>'.LF, array('%l'=>_('State')));
    } else {
-       $out .= t('  <th><a href="%url/incident.php?sortkey=state&state=%state&status=%status">%l</a></th>'.LF, array(
+       $out .= t('  <th><a href="%url/incident.php?page=%p&sortkey=state&state=%state&status=%status">%l</a></th>'.LF, array(
+          '%p'=>$page,
           '%url'=>BASEURL,
           '%status'=>$status,
           '%state'=>$state,
@@ -2279,8 +2238,9 @@ function listIncidents() {
    if ($sortkey == 'created') {
        $out .= t('  <th>%l</th>'.LF, array('%l'=>_('Created')));
    } else {
-       $out .= t('  <th><a href="%url/incident.php?sortkey=created&state=%state&status=%status">%l</a></th>'.LF, array(
+       $out .= t('  <th><a href="%url/incident.php?page=%p&sortkey=created&state=%state&status=%status">%l</a></th>'.LF, array(
           '%url'=>BASEURL,
+          '%p'=>$page,
           '%status'=>$status,
           '%state'=>$state,
           '%l'=>_('Created')));
@@ -2289,7 +2249,8 @@ function listIncidents() {
    if ($sortkey == 'updated') {
        $out .= t('  <th>%l</th>'.LF, array('%l'=>_('Updated')));
    } else {
-       $out .= t('  <th><a href="%url/incident.php?sortkey=updated&state=%state&status=%status">%l</a></th>'.LF, array(
+       $out .= t('  <th><a href="%url/incident.php?page=%p&sortkey=updated&state=%state&status=%status">%l</a></th>'.LF, array(
+          '%p'=>$page,
           '%url'=>BASEURL,
           '%status'=>$status,
           '%state'=>$state,
@@ -2301,6 +2262,11 @@ function listIncidents() {
    $count = 0;
    $conslist = getConstituencies();
    foreach ($incidents as $id=>$data) {
+      $count++;
+      if (($count > $page * PAGESIZE) ||
+          ($count <= ($page-1) * PAGESIZE)) {
+          continue;
+      }
       $hostline= $data['hostname'];
       $hostdesc = strip_tags($data['desc']);
       $addresses = getAddressesForIncident($id);
@@ -2340,6 +2306,26 @@ function listIncidents() {
       $out .= '</tr>'.LF;
    } // foreach
    $out .= '</table>'.LF;
+   
+   if (sizeof($incidents) > PAGESIZE) {
+       $pages = ceil(sizeof($incidents) / PAGESIZE);
+       $out .= t(_('Message %n - %m. Page :'), array(
+          '%n'=>(1-$page)*PAGESIZE+1,
+          '%m'=>$page*PAGESIZE));
+       for ($i=1; $i <= $pages; $i++) {
+           if ($page == $i) {
+               $out .= " <span>$i</span> ";
+           } else {
+               $out .= t(' <a href="%u/incident.php?page=%n&sortkey=%k&state=%s&status=%S">%i</a> ', array(
+                  '%u'=>BASEURL,
+                  '%n'=>$i,
+                  '%i'=>$i,
+                  '%k'=>$sortkey,
+                  '%s'=>$status,
+                  '%S'=>$state));
+           }
+       }
+   }
 
    $out .= LF.'<p>'._('With selected:').'</p>'.LF.LF;
    $out .= '<table class="horizontal">'.LF;

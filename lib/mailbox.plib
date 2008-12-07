@@ -24,6 +24,7 @@
 
 require_once LIBDIR.'/database.plib';
 require_once LIBDIR.'/importqueue.plib';
+require_once LIBDIR.'/history.plib';
 require_once 'Mail/mimeDecode.php';
 
 define('AIRT_MAIL_STATUS_UNREAD', 'unread');
@@ -231,6 +232,12 @@ function addEmailToIncident($incidentid, $messageid, &$error='') {
          ' in mailbox.plib:'.__LINE__;
       return false;
    }
+   addIncidentComment(array(
+      'comment'=>t(_('Message subject %s linked to incident'), array(
+         '%s'=>db_escape_string($msg['subject']),
+      )),
+      'incidentid'=>$incidentid
+   ));
    return true;
 }
 
@@ -252,6 +259,9 @@ function removeEmailFromIncident($incidentid, $messageid, &$error='') {
       $error = _('Invalid parameter type in').' mailbox.plib:'.__LINE__;
       return false;
    }
+   if (($message = fetchMailMessage($messageid, $msg, $error)) == false) {
+      return false;
+   }
    $q = q('DELETE FROM incident_mail
       WHERE incidentid=%incidentid
       AND   messageid=%msgid', array(
@@ -263,6 +273,13 @@ function removeEmailFromIncident($incidentid, $messageid, &$error='') {
          ' in mailbox.plib:'.__LINE__;
       return false;
    }
+
+   addIncidentComment(array(
+      'comment'=>t(_('Message subject %s removed from incident'), array(
+         '%s'=>db_escape_string($msg['subject']),
+      )),
+      'incidentid'=>$incidentid
+   ));
    return true;
 }
 
