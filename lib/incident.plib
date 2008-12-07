@@ -2211,6 +2211,25 @@ function incidentDetails() {
    }
    $output .= '</table>'.LF;
    $output .= '</form>'.LF;
+   $output .= '<p/>'.LF;
+   $output .= t('<form name="jsform" action="%u/incident.php" method="POST">'.LF, array(
+      '%u'=>BASEURL));
+   $output .= '<input type="hidden" name="action" value="adduser">'.LF;
+   $output .= '<table>'.LF;
+   $output .= '<tr>'.LF;
+   $output .= '<td>'._('Email address').':</td>'.LF;
+   $output .= '<td><input onChange="updateCheckboxes()" type="text" size="40" name="email" value=""></td>'.LF;
+   $output .= '<td>'.LF;
+# mailtemplateselection
+   $output .= '</td>'.LF;
+   $output .= '</tr>'.LF;
+   $output .= '</table>'.LF;
+   $output .= '<input type="submit" value="'._('Add').'">'.LF;
+   $output .= '<input onChange="updateCheckboxes()" type="checkbox" name="addifmissing" id="createUser" />'.LF;
+   $output .= '<label for="createUser">'.
+      _('create user if email address unknown').'</label>'.LF;
+   $output .= '</form>'.LF;
+
    $output .= '</div><!-- block -->'.LF;
 
 # XXX
