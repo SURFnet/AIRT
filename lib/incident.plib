@@ -2026,12 +2026,23 @@ function incidentDetails() {
        'submenu'=>'incidents'));
 
    $output = '<div class="right">'.LF;
-   $output .= t('<a href="%u/incident.php" class="button">%l</a>', array(
-      '%u'=>BASEURL,
-      '%l'=>_('Close this incident')));
-   $output .= t('<a href="%u/incident.php" class="button">%l</a>', array(
-      '%u'=>BASEURL,
-      '%l'=>_('Stall this incident')));
+   if (getIncidentStatusDescr($incident['status']) == _('closed') ||
+       (getIncidentStatusDescr($incident['status']) == _('stalled'))) {
+       $output .= t('<a href="%u/incident.php?action=reopen&incidentid=%i" class="button">%l</a>', array(
+          '%u'=>BASEURL,
+          '%i'=>$incidentid,
+          '%l'=>_('Re-open this incident')));
+   } else {
+       $output .= t('<a href="%u/incident.php?action=close&incidentid=%i" class="button">%l</a>', array(
+          '%u'=>BASEURL,
+          '%i'=>$incidentid,
+          '%l'=>_('Close this incident')));
+
+       $output .= t('<a href="%u/incident.php?action=stall&incidentid=%i" class="button">%l</a>', array(
+          '%u'=>BASEURL,
+          '%i'=>$incidentid,
+          '%l'=>_('Stall this incident')));
+   }
    $output .= '</div><!-- right -->'.LF.LF;
 
    $output .= '<div id="incident-details">'.LF.LF;
@@ -2319,5 +2330,83 @@ function incidentDetails() {
    $output .= '</div><!-- incident-details -->'.LF;
    print $output;
    pageFooter();
+}
+
+function closeIncident() {
+    $incidentid = fetchFrom('REQUEST', 'incidentid', '%d');
+    if (empty($incidentid)) {
+        airt_msg(_('Invalid parameter type in ').'incident.plib:'.__LINE__);
+        return reload();
+    }
+    if (($incident = getIncident($incidentid)) == false) {
+        airt_msg(_('Invalid incident number in ').'incident.plib:'.__LINE__);
+        return reload();
+    }
+    $status = getIncidentStatus();
+    if (($id = array_search('closed', $status)) == false) {
+        airt_msg(_('Could not locate status closed in ').
+           'incident.plib:'.__LINE__);
+        return reload();
+    }
+    updateIncident($incidentid, array('status'=>$id));
+    addIncidentComment(array(
+       'comment'=>_('Incident closed'),
+       'incidentid'=>$incidentid
+    ));
+    airt_msg(t(_('Incident %n closed'), array(
+       '%n'=>normalize_incidentid($incidentid))));
+    reload();
+}
+
+function reopenIncident() {
+    $incidentid = fetchFrom('REQUEST', 'incidentid', '%d');
+    if (empty($incidentid)) {
+        airt_msg(_('Invalid parameter type in ').'incident.plib:'.__LINE__);
+        return reload();
+    }
+    if (($incident = getIncident($incidentid)) == false) {
+        airt_msg(_('Invalid incident number in ').'incident.plib:'.__LINE__);
+        return reload();
+    }
+    $status = getIncidentStatus();
+    if (($id = array_search('open', $status)) == false) {
+        airt_msg(_('Could not locate status open in ').
+           'incident.plib:'.__LINE__);
+        return reload();
+    }
+    updateIncident($incidentid, array('status'=>$id));
+    addIncidentComment(array(
+       'comment'=>_('Incident reopened'),
+       'incidentid'=>$incidentid
+    ));
+    airt_msg(t(_('Incident %n reopened'), array(
+       '%n'=>normalize_incidentid($incidentid))));
+    reload();
+}
+
+function stallIncident() {
+    $incidentid = fetchFrom('REQUEST', 'incidentid', '%d');
+    if (empty($incidentid)) {
+        airt_msg(_('Invalid parameter type in ').'incident.plib:'.__LINE__);
+        return reload();
+    }
+    if (($incident = getIncident($incidentid)) == false) {
+        airt_msg(_('Invalid incident number in ').'incident.plib:'.__LINE__);
+        return reload();
+    }
+    $status = getIncidentStatus();
+    if (($id = array_search('stalled', $status)) == false) {
+        airt_msg(_('Could not locate status stalled in ').
+           'incident.plib:'.__LINE__);
+        return reload();
+    }
+    updateIncident($incidentid, array('status'=>$id));
+    addIncidentComment(array(
+       'comment'=>_('Incident stalled'),
+       'incidentid'=>$incidentid
+    ));
+    airt_msg(t(_('Incident %n stalled'), array(
+       '%n'=>normalize_incidentid($incidentid))));
+    reload();
 }
 ?>

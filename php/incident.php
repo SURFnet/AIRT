@@ -288,6 +288,18 @@ _('Continue').'...</a>'.LF,
        listIncidents();
        break;
 
+   case 'stall':
+       stallIncident();
+       break;
+  
+  case 'reopen':
+       reopenIncident();
+       break;
+   
+   case 'close':
+       closeIncident();
+       break;
+
    //--------------------------------------------------------------------
    case 'addip':
       $incidentid = fetchFrom('SESSION','incidentid', '%d');
