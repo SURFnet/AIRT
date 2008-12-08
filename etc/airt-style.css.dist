@@ -50,6 +50,14 @@ table th{
 text-align: left;
 }
 
+table th, table td{
+vertical-align: top;
+}
+
+table input{
+margin: 0;
+}
+
 #header {
 	margin-top: 10px;
 	background: #87CEFA url(airt_logo.png) no-repeat top left;
@@ -223,6 +231,7 @@ font: bold 16px Arial, sans-serif;
 border: 1px solid #AAA;
 }
 
+
 #history .item{
 padding-left: 10px;
 }
@@ -263,8 +272,13 @@ clear: both;
 margin: 10px 0;
 }
 
+.horizontal small{ /* temp */
+display: none;
+}
+
 .horizontal td, table.horizontal th{
     border-bottom: 1px solid #E0E8EF;
+	padding: 4px;
 }
 
 table.horizontal th{
