@@ -1179,43 +1179,6 @@ function getIncidentIDsByExternalID($externalid) {
 	return $output;
 }
 
-
-/** Format the form for batch creation of incidents.
- */
-function formatIncidentBulkForm(&$check) {
-   $constituency = $email = $addressrole = '';
-   $address = strip_tags(fetchFrom('SESSION','active_ip'));
-
-   if (array_key_exists("constituency_id", $_SESSION)) {
-      $constituency = $_SESSION["constituency_id"];
-   }
-   if (array_key_exists("current_email", $_SESSION)) {
-      $email = $_SESSION["current_email"];
-   }
-
-   if (defined('CUSTOM_FUNCTIONS') && function_exists('custom_default_addressrole')) {
-      $addressrole = custom_default_addressrole($address);
-   }
-   $output =  formatBasicIncidentData();
-   $output .= '<h3>'._('Affected IP addresses').'</h3>'.LF;
-   $output .= '<table class="horizontal">'.LF;
-   $output .= "<tr>\n";
-   $output .= "  <td valign=\"top\">hostname or ip address</td>\n";
-   $output .= "  <td><textarea cols=\"30\" rows=\"15\" name=\"addresses\"></textarea>\n";
-   $output .= "</tr>\n";
-   $output .= "<tr>\n";
-   $output .= t("<td>addressrole</td><td>%addressrole</td>\n",array('%addressrole'=>getAddressRolesSelection('addressrole', $addressrole)));
-   $output .= "</tr>\n";
-
-   $output .= "</table>\n";
- 
-   $output .= "<p/>\n";
-
-   return $output;
-} // show IncidentBulkForm
-
-
-
 function getFormattedBasicIncidentData($incidentid='') {
    if (!is_numeric($incidentid)) {
       return false;
@@ -2063,7 +2026,6 @@ function incidentDetails() {
    $output .= '<tr>'.LF;
    $output .= '   <td>'._('Role').'</td>'.LF;
    $output .= '   <td>'._('IP Address').'</td>'.LF;
-   $output .= '   <td>'._('Hostname').'</td>'.LF;
    $output .= '   <td>'._('Constituency').'</td>'.LF;
    $output .= '</tr>'.LF;
    foreach ($incident['ips'] as $address) {
@@ -2073,14 +2035,12 @@ function incidentDetails() {
       $output .= '<tr>'.LF;
       $output .= t('  <td>%addressrole</td>'.LF, array(
             '%addressrole'=>getAddressRoleByID($address['addressrole'])));
-      $output .= t('  <td><a href="%u/search.php?action=search&q=%q">%l</a></td>'.LF, array(
+      $output .= t('  <td><a title="%t" href="%u/search.php?action=search&q=%q">%l</a></td>'.LF, array(
          '%u'=>BASEURL,
          '%q'=>urlencode($address['ip']),
+         '%t'=>($address['hostname']=='') ? _ ('Unknown'):
+                 @gethostbyaddr(@gethostbyname($address['ip'])),
          '%l'=>htmlentities($address['ip'])));
-
-      $output .= t('  <td>%s</td>'.LF,array(
-         '%s'=>($address['hostname']=='') ? _ ('Unknown'):
-                 @gethostbyaddr(@gethostbyname($address['ip']))));
 
       $output .= t('  <td>%s</td>'.LF, array(
          '%s'=>htmlentities($conslist[$cons]['label'])));
