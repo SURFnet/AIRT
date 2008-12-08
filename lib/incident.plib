@@ -2050,7 +2050,7 @@ function incidentDetails() {
    $output .= '<div class="column">'.LF;
 
    $output .= '<div class="block">'.LF;
-   $output .= '<h3>'._('Affected IP addresses').'</h3>'.LF;
+   $output .= '<h3>'._('IP addresses').'</h3>'.LF;
    $output .= '<table cellpadding="4">'.LF;
    $output .= '<tr>'.LF;
    $output .= '   <th>'._('Role').'</th>'.LF;
@@ -2104,7 +2104,7 @@ function incidentDetails() {
    $output .= '</div><!-- block -->'.LF;
 
    $output .= '<div class="block">'.LF;
-   $output .= '<h3>'._('Affected users').'</h3>'.LF;
+   $output .= '<h3>'._('Users').'</h3>'.LF;
    $output .= t('<form action="%u/incident.php" method="POST">'.LF, array(
       '%u'=>BASEURL));
    $output .= t('<input type="hidden" name="incidentid" value="%i">', array(
