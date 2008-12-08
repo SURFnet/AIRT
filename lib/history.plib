@@ -74,7 +74,7 @@ function getIncidentHistory($incidentid) {
       FROM   incident_comments i, users u
       WHERE  incident = %s
       AND    i.addedby = u.id
-      ORDER BY added", $incidentid))
+      ORDER BY added DESC", $incidentid))
   or die (_("Unable to query database."));
 
    $output = array();

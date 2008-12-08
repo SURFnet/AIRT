@@ -1727,7 +1727,7 @@ function listIncidents() {
    $out .= t('<a href="%url/incident.php?action=new" class="button">'.
       _('Add incident').'</a>'.LF, array(
       '%url'=>BASEURL));
-   $out .= t('<a href="%url/incident.php?action=addbulk" class="button">'.
+   $out .= t('<a href="%url/incident.php?action=bulkform" class="button">'.
       _('Add multiple incidents').'</a>'.LF, array(
       '%url'=>BASEURL));
    $out .= '</div><!-- right -->'.LF.LF;
@@ -2366,10 +2366,16 @@ function stallIncident() {
 }
 
 
-function newIncident() {
-   pageHeader(_('Record new incident'),array(
-       'menu'=>'incidents', 
-       'submenu'=>'incidents'));
+function newIncident($bulk=false) {
+   if ($bulk === true) {
+      pageHeader(_('Record new incidents'),array(
+         'menu'=>'incidents', 
+         'submenu'=>'incidents'));
+   } else {
+      pageHeader(_('Record new incident'),array(
+         'menu'=>'incidents', 
+         'submenu'=>'incidents'));
+   }
    
    $output = '<div id="incident-details">'.LF;
 
@@ -2418,18 +2424,28 @@ function newIncident() {
    $output .= '  </tr>'.LF;
    
    $output .= '  <tr valign="top">'.LF;
-   $output .= t('    <td><a title="%s">%l</a></td>', array(
-      '%s'=>_('Provide 1 IP address or hostname per line'),
-      '%l'=>_('IP Address')));
+   if ($bulk) {
+       $output .= t('   <td><a title="%s">%l</a></td>', array(
+          '%s'=>_('Provide 1 IP address or hostname per line. One incident'.
+             ' will be created for each host.'),
+          '%l'=>_('IP Address')));
+   } else {
+       $output .= t('    <td><a title="%s">%l</a></td>', array(
+          '%s'=>_('Provide 1 IP address or hostname per line. All hosts'.
+             ' will be added to the new incident.'),
+          '%l'=>_('IP Address')));
+   }
    $output .= '    <td><textarea class="newips" name="ips"></textarea></td>'.LF;
    $output .= '  </tr>'.LF;
 
-   $output .= '  <tr valign="top">'.LF;
-   $output .= t('    <td><a title="%s">%l</a></td>', array(
-      '%s'=>_('Provide 1 email address per line'),
-      '%l'=>_('Users')));
-   $output .= '    <td><textarea class="newusers" name="users"></textarea></td>'.LF;
-   $output .= '  </tr>'.LF;
+   if (!$bulk) {
+      $output .= '  <tr valign="top">'.LF;
+      $output .= t('    <td><a title="%s">%l</a></td>', array(
+         '%s'=>_('Provide 1 email address per line'),
+         '%l'=>_('Users')));
+      $output .= '    <td><textarea class="newusers" name="users"></textarea></td>'.LF;
+      $output .= '  </tr>'.LF;
+   }
    
    $output .= '  <tr valign="top">'.LF;
    $output .= t('    <td><a title="%s">%l</a></td>', array(
@@ -2439,8 +2455,12 @@ function newIncident() {
    $output .= '  </tr>'.LF;
 
    $output .= '</table>'.LF;
-   $output .= '<input type="submit" name="action" value="'.
-     _('Add').'" class="right"/>'.LF;
+   if ($bulk) {
+      $output .= '<input type="hidden" name="action" value="addbulk">'.LF;
+   } else {
+      $output .= '<input type="hidden" name="action" value="create">'.LF;
+   }
+   $output .= '<input type="submit" value="'._('Add').'" class="right"/>'.LF;
    $output .= '</form>'.LF;
    $output .= '</div> <!-- block -->'.LF;
    $output .= '</div> <!-- incident-details -->'.LF;
@@ -2453,16 +2473,15 @@ function newIncident() {
 function addIncident() {
    $ips = fetchFrom('REQUEST', 'ips');
    defaultTo($ips, '');
-   $ips = explode("\r\n", $ips);
+   $ips = split("\r?\n", $ips);
  
    $users = fetchFrom('REQUEST', 'users');
    defaultTo($users, '');
-   $users = explode("\r\n", $users);
+   $users = split("\r?\n", $users);
    
    $newids = fetchFrom('REQUEST', 'ids');
    defaultTo($newids, '');
-   $newids = explode("\r\n", $newids);
-
+   $newids = split("\r?\n", $newids);
 
    $date_day = trim(fetchFrom('POST', 'date_day', '%d'));
    $date_month = trim(fetchFrom('POST', 'date_month', '%d'));
@@ -2491,7 +2510,7 @@ function addIncident() {
       'date'=>$date,
       'logging'=>db_escape_string(trim(fetchFrom('POST', 'logging'))),
       'template'=>$template,
-      'desc'=>trim(fetchFrom('POST', 'desc'))));
+      'desc'=>db_escape_string(trim(fetchFrom('POST', 'desc')))));
 
    foreach ($ips as $ip) {
       $ip = trim($ip);
@@ -2532,4 +2551,83 @@ function addIncident() {
    reload();
 }
 
+function addBulkIncidents() {
+
+   $type = fetchFrom('POST', 'type', '%d');
+   defaultTo($type, getIncidentTypeDefault());
+
+   $state = fetchFrom('POST', 'state', '%d');
+   defaultTo($type, getIncidentStateDefault());
+   
+   $status = getIncidentStatusDefault();
+
+   $logging = trim(fetchFrom('POST', 'logging'));
+
+   $desc = strip_tags(trim(fetchFrom('POST', 'desc')));
+   
+   $template = strip_tags(fetchFrom('POST', 'template'));
+   if ($template == -1) {
+      $template = '';
+   }
+
+   $date_day = trim(fetchFrom('POST', 'date_day', '%d'));
+   $date_month = trim(fetchFrom('POST', 'date_month', '%d'));
+   $date_year = trim(fetchFrom('POST', 'date_year', '%d'));
+   $date_hour = trim(fetchFrom('POST', 'date_hour', '%d'));
+   $date_minute = trim(fetchFrom('POST', 'date_minute', '%d'));
+   $date_second = trim(fetchFrom('POST', 'date_second', '%d'));
+   $date = strtotime(sprintf('%04d-%02d-%04d %02d:%02d:%02d',
+      $date_year, $date_month, $date_day,
+      $date_hour, $date_minute, $date_second));
+
+   $ips = fetchFrom('REQUEST', 'ips');
+   defaultTo($ips, '');
+   $ips = split("\r?\n", $ips);
+
+   foreach($ips as $ip) {
+     $ip = trim($ip);
+     if (empty($ip)) continue;
+     if (preg_match('/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/', $ip) == 0) {
+         $ip = @gethostbyname($ip);
+     }
+
+     if (empty($ip)) {
+        continue;
+     }
+   
+     $incidentid = createIncident(array(
+        'state'=>$state,
+        'status'=>$status,
+        'type'=>$type,
+        'date'=>$date,
+        'logging'=>db_escape_string($logging),
+        'template'=>$template,
+         'desc'=>db_escape_string($desc)));
+     addIPtoIncident($ip,$incidentid);
+
+     /* add constituency contacts to incident */
+     $networkid = categorize($ip);
+     if (defined('CUSTOM_FUNCTIONS') && 
+         function_exists("custom_categorize")) {
+        $networkid = custom_categorize($ip, $networkid);
+     }
+
+     $networks = getNetworks();
+     $constituency  = $networks[$networkid]["constituency"];
+     if (!is_numeric($constituency)) {
+        die(_('Invalid data type in ').__LINE__);
+     }
+
+     $res = db_query("SELECT cc.userid
+        FROM   constituency_contacts cc
+        WHERE  cc.constituency = $constituency");
+     while (($row = db_fetch_next($res)) !== false) {
+        $userid = $row['userid'];
+        if (!empty($userid)) {
+           addUserToIncident($userid,$incidentid);
+        }
+     }
+   }
+   reload();
+}
 ?>

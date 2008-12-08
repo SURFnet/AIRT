@@ -359,7 +359,7 @@ function pageHeader($title='', $options=array()) {
       while (($row = db_fetch_next($res)) !== false) {
          $url = $row['url'];
          $description = $row['label'];
-         print t('<li><a href="%url">%description</a></li>'.LF, array(
+         print t('<li><a target="_blank" href="%url">%description</a></li>'.LF, array(
             '%url'=>$url,
             '%description'=>strip_tags($description)));
       }

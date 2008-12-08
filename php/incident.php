@@ -73,101 +73,20 @@ switch ($action) {
     case _('Create New Incident'):
     case _('New incident'):
     case 'new':
-      newIncident();
+      newIncident(false);
       break;
     //--------------------------------------------------------------------
-    case _('Create Many Incidents'):
-      PageHeader(_('Bulk incidents'), array(
-         'menu'=>'incidents',
-         'submenu'=>'incidents'));
-      $check = false;
-      $output = updateCheckboxes();
-      $output .= "<form name=\"jsform\" action=\"$_SERVER[PHP_SELF]\" method=\"POST\">\n";
+    case 'bulkform':
+       newIncident(true);
+       break;
 
-      $output .= formatIncidentBulkForm($check);
-
-      $output .= "<input type=\"submit\" name=\"action\" value=\"Addbulk\">\n";
-
-      $output .= "</form>\n";
-      print $output;
-      break;
-
-
-    //---------------------------------------------------------------------
-    case "Addbulk":
-      $addresses = $constituency = $type = $state = $status = $email =
-		   $addressrole = $logging = $desc = '';
-
-      $addressrole = fetchFrom('POST', 'addressrole', '%d');
-      defaultTo($addressrole, 0);
-      $type = fetchFrom('POST', 'type', '%d');
-      defaultTo($type, 1);
-      $state = fetchFrom('POST', 'state', '%d');
-      defaultTo($type, 1);
-      $status = fetchFrom('POST', 'status', '%d');
-      defaultTo($type, 1);
-      $logging = trim(fetchFrom('POST', 'logging'));
-      $desc = strip_tags(trim(fetchFrom('POST', 'desc')));
-      $date_day = trim(fetchFrom('POST', 'date_day', '%d'));
-      $date_month = trim(fetchFrom('POST', 'date_month', '%d'));
-      $date_year = trim(fetchFrom('POST', 'date_year', '%d'));
-      $date_hour = trim(fetchFrom('POST', 'date_hour', '%d'));
-      $date_minute = trim(fetchFrom('POST', 'date_minute', '%d'));
-      $date_second = trim(fetchFrom('POST', 'date_second', '%d'));
-      $date = strtotime(sprintf('%04d-%02d-%04d %02d:%02d:%02d',
-         $date_year, $date_month, $date_day,
-         $date_hour, $date_minute, $date_second));
-
-      if (array_key_exists("addresses", $_POST)) {
-         $addresses=$_POST["addresses"];
-         $addresslist = split("\r?\n",$addresses);
-
-         foreach($addresslist as $address) {
-
-            // make sure we have an IP address here
-            $address = @gethostbyname(trim($address));
-            if($address) {
-               $networkid = categorize($address);
-               if (defined('CUSTOM_FUNCTIONS')
-                  && function_exists("custom_categorize")) {
-                  $networkid = custom_categorize($ip, $networkid);
-               }
-
-               $networks = getNetworks();
-               $constituency  = $networks[$networkid]["constituency"];
-
-               $incidentid = createIncident(array(
-                  'state'=>$state,
-                  'status'=>$status,
-                  'type'=>$type,
-                  'date'=>$date,
-                  'logging'=>$logging,
-                  'desc'=>$desc));
-               if ($address!='') {
-                  addIPtoIncident($address,$incidentid,$addressrole);
-                  if (!is_numeric($constituency)) {
-                     die(_('Invalid data type in ').__LINE__);
-                  }
-                  $res = db_query("SELECT cc.userid
-                     FROM   constituency_contacts cc
-                     WHERE  cc.constituency = $constituency")
-                  or die (_('error: unable to query table constituency_contacts'));
-                  $row = db_fetch_next($res);
-                  $userid = $row['userid'];
-                  if (!empty($userid)) {
-                     addUserToIncident($userid,$incidentid);
-                  }
-               }
-            }
-         }
-      }
-      reload();
-      break;
-
-    //---------------------------------------------------------------------
-    case _('Add'):
+    case 'add':
        addIncident();
        break;
+
+    case "addbulk":
+      addBulkIncidents();
+      break;
 
     case 'list':
        listIncidents();
@@ -528,74 +447,6 @@ switch ($action) {
       )));
       break;
 
-    //--------------------------------------------------------------------
-   case 'showstates':
-      generateEvent('pageHeader',
-         array('title' => _('Available incident states')));
-      $res = db_query('SELECT label, descr
-         FROM   incident_states
-         ORDER BY label')
-      or die(_('Unable to query incident states.'));
-      $output = '<script language="JavaScript">'.LF;
-      $output .= 'window.resizeTo(800,500);'.LF;
-      $output .= '</script>'.LF;
-      $output .= '<table class="horizontal">'.LF;
-      while ($row = db_fetch_next($res)) {
-         $output .= '<tr>'.LF;
-         $output .= '  <td>'.strip_tags($row[label]).'</td>'.LF;
-         $output .= '  <td>'.strip_tags($row[descr]).'</td>'.LF;
-         $output .= '</tr>'.LF;
-      }
-      $output .= '</table>'.LF;
-      print $output;
-      break;
-
-   //--------------------------------------------------------------------
-   case 'showtypes':
-      generateEvent('pageHeader',
-         array('title' => _('Available incident types')));
-      $res = db_query('SELECT label, descr
-         FROM   incident_types
-         ORDER BY label')
-      or die(_('Unable to query incident types.'));
-      $output = '<script language="JavaScript">'.LF;
-      $output .= 'window.resizeTo(800,500);'.LF;
-      $output .= '</script>';
-      $output .= '<table class="horizontal">'.LF;
-      while ($row = db_fetch_next($res)) {
-         $output .= '<tr>'.LF;
-         $output .= '  <td>'.strip_chars($row[label]).'</td>'.LF;
-         $output .= '  <td>'.strip_chars($row[descr]).'</td>'.LF;
-         $output .= '</tr>'.LF;
-      }
-      $output .= '</table>'.LF;
-      print $output;
-      break;
-
-    //--------------------------------------------------------------------
-   case 'showstatus':
-      generateEvent('pageHeader',
-         array('title' => _('Available incident statuses')));
-
-      $res = db_query('
-         SELECT label, descr
-         FROM   incident_status
-         ORDER BY label')
-      or die(_('Unable to query incident statuses.'));
-      $output = '<script language="JavaScript">'.LF;
-      $output .= 'window.resizeTo(800,500);'.LF;
-      $output .= '</script>'.LF;
-      $output .= '<table class="horizontal">'.LF;
-      while ($row = db_fetch_next($res)) {
-         $output .= '<tr>\n';
-         $output .= '  <td>'.strip_chars($row[label]).'</td>'.LF;
-         $output .= '  <td>'.strip_chars($row[descr]).'</td>'.LF;
-         $output .= '</tr>'.LF;
-      }
-      $output .= '</table>'.LF;
-      print $output;
-      break;
-
    //--------------------------------------------------------------------
    case 'massupdate':
       // massincidents may be absent, this is how HTML checkboxes work.
@@ -844,6 +695,6 @@ switch ($action) {
 
    //--------------------------------------------------------------------
    default:
-      die(_('Unknown action'));
+      die(_('Unknown action').' '.htmlentities($action));
 }
 ?>
