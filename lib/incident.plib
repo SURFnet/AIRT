@@ -2024,14 +2024,38 @@ function incidentDetails() {
    $output .= '<input type="submit" name="action" value="update" class="right"/>'.LF;
    $output .= '</form>'.LF;
    $output .= '</div> <!-- block -->'.LF;
+   
+
+   
+   
+   $output .= '<div class="block" id="history">'.LF;
+   $output .= '<h3>'._('History').'</h3>'.LF;
+   generateEvent('historyshowpre', array('incidentid'=>$incidentid));
+   $output .= formatIncidentHistory($incidentid);
+   generateEvent('historyshowpost', array('incidentid'=>$incidentid));
+   $output .= t('<form action="%u/incident.php" method="POST">'.LF, array(
+      '%u'=>BASEURL));
+   $output .= '<input type="hidden" name="action" value="addcomment"/>'.LF;
+   $output .= t('<input type="hidden" name="incidentid" value="%i"/>'.LF, 
+      array('%i'=>$incidentid));
+   $output .= '<input type="text" size="45" name="comment"/>'.LF;
+   $output .= '<input type="submit" value="'._('Add comment').'"/>'.LF;
+   $output .= '</form>'.LF;
+   $output .= '</div><!-- block -->'.LF;
+
+
+   $output .= '</div><!-- column -->'.LF;
+
+
+   $output .= '<div class="column">'.LF;
 
    $output .= '<div class="block">'.LF;
    $output .= '<h3>'._('Affected IP addresses').'</h3>'.LF;
    $output .= '<table cellpadding="4">'.LF;
    $output .= '<tr>'.LF;
-   $output .= '   <td>'._('Role').'</td>'.LF;
-   $output .= '   <td>'._('IP Address').'</td>'.LF;
-   $output .= '   <td>'._('Constituency').'</td>'.LF;
+   $output .= '   <th>'._('Role').'</th>'.LF;
+   $output .= '   <th>'._('IP Address').'</th>'.LF;
+   $output .= '   <th>'._('Constituency').'</th>'.LF;
    $output .= '</tr>'.LF;
    foreach ($incident['ips'] as $address) {
       $cons = getConstituencyIDbyNetworkID(categorize($address['ip']));
@@ -2079,37 +2103,12 @@ function incidentDetails() {
    $output .= '</form>'.LF;
    $output .= '</div><!-- block -->'.LF;
 
-   $output .= '</div><!-- column -->'.LF;
-
-
-   $output .= '<div class="column">'.LF;
-   $output .= '<div class="block" id="history">'.LF;
-   $output .= '<h3>'._('History').'</h3>'.LF;
-   generateEvent('historyshowpre', array('incidentid'=>$incidentid));
-   $output .= formatIncidentHistory($incidentid);
-   generateEvent('historyshowpost', array('incidentid'=>$incidentid));
-   $output .= t('<form action="%u/incident.php" method="POST">'.LF, array(
-      '%u'=>BASEURL));
-   $output .= '<input type="hidden" name="action" value="addcomment"/>'.LF;
-   $output .= t('<input type="hidden" name="incidentid" value="%i"/>'.LF, 
-      array('%i'=>$incidentid));
-   $output .= '<input type="text" size="45" name="comment"/>'.LF;
-   $output .= '<input type="submit" value="'._('Add comment').'"/>'.LF;
-   $output .= '</form>'.LF;
-   $output .= '</div><!-- block -->'.LF;
-
    $output .= '<div class="block">'.LF;
    $output .= '<h3>'._('Affected users').'</h3>'.LF;
    $output .= t('<form action="%u/incident.php" method="POST">'.LF, array(
       '%u'=>BASEURL));
    $output .= t('<input type="hidden" name="incidentid" value="%i">', array(
       '%i'=>$incident['incidentid']));
-   $output .= t('<input type="submit" name="action" value="%l"/>', array(
-      '%l'=>_('Mail')));
-   $output .= t('<input type="submit" name="action" value="%l"/>', array(
-      '%l'=>_('Remove')));
-   $output .= t('<input type="submit" name="action" value="%l"/>', array(
-      '%l'=>_('Update overrides')));
    $output .= '<table>'.LF;
 
    $_SESSION['current_name'] = '';
@@ -2147,6 +2146,12 @@ function incidentDetails() {
       $output .= '</tr>'.LF;
    }
    $output .= '</table>'.LF;
+   $output .= t('<input type="submit" name="action" value="%l"/>', array(
+      '%l'=>_('Mail')));
+   $output .= t('<input type="submit" name="action" value="%l"/>', array(
+      '%l'=>_('Remove')));
+   $output .= t('<input type="submit" name="action" value="%l"/>', array(
+      '%l'=>_('Update overrides')));
    $output .= '</form>'.LF;
    $output .= '<p/>'.LF;
    $output .= t('<form name="jsform" action="%u/incident.php" method="POST">'.LF, array(
@@ -2210,8 +2215,8 @@ function incidentDetails() {
          $output .= '<th>'._('Sender').'</th>'.LF;
          $output .= '<th>'._('Subject').'</th>'.LF;
          $output .= '<th>'._('Date').'</th>'.LF;
-         $output .= '<th>'._('Unlink').'</th>'.LF;
-         $output .= '<th>'._('View').'</th>'.LF;
+         $output .= '<th>&nbsp;</th>'.LF;
+         $output .= '<th>&nbsp;</th>'.LF;
          $output .= '</tr>'.LF;
 
          $count=0;
@@ -2227,17 +2232,17 @@ function incidentDetails() {
                $output .= t('<td>%date</td>'.LF, array(
                   '%date'=>date('r', $msg['date'])));
                $output .= '<td>'.LF;
+               $output .= t('<a href="%u?action=view&msgid=%m">'.
+                  _('view').'</a>'.LF, array(
+                  '%u'=>BASEURL.'/mailbox.php',
+                  '%m'=>$msgid));
+               $output .= '</td>'.LF;
+               $output .= '<td>'.LF;
                $output .= t('<a href="%u?action=unlink&msgid=%m&incidentid=%i">'.
                   _('unlink').'</a>'.LF, array(
                   '%u'=>BASEURL.'/incident.php',
                   '%m'=>$msgid,
                   '%i'=>$incident['incidentid']));
-               $output .= '</td>'.LF;
-               $output .= '<td>'.LF;
-               $output .= t('<a href="%u?action=view&msgid=%m">'.
-                  _('view').'</a>'.LF, array(
-                  '%u'=>BASEURL.'/mailbox.php',
-                  '%m'=>$msgid));
                $output .= '</td>'.LF;
                $output .= '</tr>'.LF;
             }
