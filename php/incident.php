@@ -38,7 +38,7 @@ defaultTo($action,'list');
 switch ($action) {
 
   //--------------------------------------------------------------------
-  case _('Prepare'):
+  case _('prepare'):
      // Send bulk mail for the selected incidents.
      $massincidents = fetchFrom('REQUEST','massincidents[]');
      if (empty($massincidents)) {
@@ -57,7 +57,6 @@ switch ($action) {
         // No template selected, show list again.
         reload();
      }
-
      reload("mailtemplates.php?action=prepare".
                "&template=".urlencode($template).
                "&incidentids=".urlencode($incidentids));

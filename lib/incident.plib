@@ -1886,30 +1886,45 @@ function listIncidents() {
        }
    }
 
-   $out .= LF.'<p>'._('With selected:').'</p>'.LF.LF;
-   $out .= '<table class="horizontal">'.LF;
-   $out .= '<tr>'.LF;
-   $out .= '  <td>'._('New State');
+   $out .= '<div class="bulk-options">'.LF;
+   $out .= '  <div class="block">'.LF;
+   $out .= '    <table>'.LF;
+   $out .= '    <tr>'.LF;
+   $out .= '       <td>'._('State').'</td><td>'.LF;
    $out .= getIncidentStateSelection('massstate', 'null',
-      array('null'=>_('Leave Unchanged')));
-   $out .= '  <br/>'.LF;
-   $out .=_('New Status');
-   $out .= getIncidentStatusSelection('massstatus', 'null',
-      array('null'=>_('Leave Unchanged')));
-   $out .= '  <br/>'.LF;
-   $out .= _('New Type');
+      array('null'=>_('Do not change')));
+   $out .= '       </td>'.LF;
+   $out .= '    </tr>'.LF;
+
+   $out .= '    <tr>'.LF;
+   $out .= '      <td>'._('New Type').'</td><td>'.LF;
    $out .= getIncidentTypeSelection('masstype', 'null',
-      array('null'=>_('Leave Unchanged')));
-   $out .= '<input type="submit" value="'._('Update').'">'.LF;
-   $out .= '</td>'.LF;
-   $out .= '</tr>'.LF;
-   $out .= '<tr>'.LF;
-   $out .= '  <td>'._('OR').'<br/>'._('Compose mail with ');
+      array('null'=>_('Do not change')));
+
+   $out .= '    <tr>'.LF;
+   $out .= '      <td>'._(' Status').'</td><td>'.LF;
+   $out .= getIncidentStatusSelection('massstatus', 'null',
+      array('null'=>_('Do not change')));
+   $out .= '       </td>'.LF;
+   $out .= '    </tr>'.LF;
+
+   $out .= '    <tr>'.LF;
+   $out .= '      <td/>'.LF;
+   $out .= '      <td><input type="submit" value="'._('Update').'"></td>'.LF;
+   $out .= '    </tr>'.LF;
+   $out .= '    </table>'.LF;
+   $out .= '  </div><!-- block -->'.LF;
+
+   $out .= '  <div class="block">'.LF;
+   $out .= '  '._('Compose mail with').LF;
    $out .= getMailTemplateSelection('template', 'null', array(
          _('Use preferred template')=>_('Use preferred template')));
-   $out .= '</tr>'.LF;
-   $out .= '</table>'.LF;
+   $out .= '     <input type="hidden" name="action" value="prepare"/>'.LF;
+   $out .= '     <input type="submit" value="'. _('Compose').'">'.LF;
+   $out .= '  </div><!-- block -->'.LF;
+   $out .= '</div><!-- bulk-options -->'.LF;
    $out .= '</form>'.LF;
+   $out .= '<br style="clear: both;"/>'.LF;
 
    if ($archive) {
        pageHeader(_('Incident Archive'), array(
