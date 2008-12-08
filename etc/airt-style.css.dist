@@ -201,14 +201,17 @@ color: #000;
 
 }
 
-.details-external-ids{
-display: none;
+.bulk-options .block{
+width: 300px;
+float: left;
 }
 
 #incident-details{
 clear: both;
 width: 100%;
 }
+
+
 
 .column{
 	width: 50%;
@@ -227,11 +230,18 @@ margin: 0 0 10px 0;
 font: bold 16px Arial, sans-serif;
 }
 
-.block table.horizontal{
-border: 1px solid #AAA;
+.block table{
+width: 100%;
+}
+/*
+.block table th{
+background-color: #D1D9DF;
 }
 
-
+.block table td{
+border-bottom: 1px solid #AAA;
+}
+*/
 #history .item{
 padding-left: 10px;
 }
@@ -269,7 +279,7 @@ clear: both;
 table.horizontal{
 width: 100%;
 clear: both;
-margin: 10px 0;
+margin: 10px 0 0 0;
 }
 
 .horizontal small{ /* temp */
