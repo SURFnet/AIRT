@@ -25,7 +25,7 @@ require_once 'config.plib';
 require_once LIBDIR."/mailtemplates.plib";
 
 function listTemplates($recipients=array(), $incidentids=array()) {
-  pageHeader(_('Available mail templates'), array(
+  pageHeader(_('Mail templates'), array(
      'menu'=>'mail', 'submenu'=>'templates'));
   $show_prepare = true;
   print format_templates($recipients, $incidentids);

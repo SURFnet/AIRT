@@ -33,7 +33,8 @@ require_once LIBDIR.'/network.plib';
 function formatConstituencyForm($id='') {
    $label = $description = '';
    $action = 'add';
-   $submit = _('Add!');
+   $submit = _('Add');
+   $contacts = '';
 
    if (!empty($id)) {
       if (!is_numeric($id)) {
@@ -46,28 +47,45 @@ function formatConstituencyForm($id='') {
          $label = $row['label'];
          $description = $row['name'];
          $action = 'update';
-         $submit = _('Update!');
+         $submit = _('Update');
+
+         $contacts = getConstituencyContacts($id);
+         $cdata = array();
+         foreach ($contacts as $i=>$c) {
+             $cdata[] = $c['email'];
+         }
+         $contacts = implode("\r\n", $cdata);
       }
    }
-   $out = '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">'.LF;
+   $out = t('<form action="%u/constituencies.php" method="POST">'.LF, array(
+      '%u'=>BASEURL));
    $out .= '<input type="hidden" name="action" value="'.$action.'">'.LF;
    $out .= '<input type="hidden" name="consid" value="'.$id.'">'.LF;
    $out .= '<table>'.LF;
    $out .= '<tr>'.LF;
-   $out .= '   <td>Label</td>'.LF;
+   $out .= '   <td>'._('Label').'</td>'.LF;
    $out .= '   <td><input type="text" size="30" name="label" '.
            '       value="'.strip_tags($label).'"></td>'.LF;
    $out .= '</tr>'.LF;
    $out .= '<tr>'.LF;
-   $out .= '   <td>Description</td>'.LF;
+   $out .= '   <td>'._('Description').'</td>'.LF;
    $out .= '   <td><input type="text" size="30" name="description" '.
            '    value="'.strip_tags($description).'"></td>'.LF;
+   $out .= '</tr>'.LF;
+   $out .= '<tr>'.LF;
+   $out .= t('   <td><a title="%t">%l</a></td>'.LF, array(
+      '%l'=>_('Constituency contacts'),
+      '%t'=>_('Contacts are identified by email address. '.
+         'Please enter one address per line.')));
+   $out .= t('   <td><textarea name="contacts">%c</textarea></td>'.LF, array(
+      '%c'=>$contacts));
    $out .= '</tr>'.LF;
    $out .= '</table>'.LF;
    $out .= '<p>'.LF;
    $out .= '<input type="submit" value="'.$submit.'">'.LF;
    if ($action=="update") {
-        $out .= '<input type="submit" name="action" value="Delete">'.LF;
+        $out .= '<input type="submit" name="action" value="'.
+        _('Delete').'">'.LF;
    }
    $out .= '</form>'.LF;
    return $out;
@@ -142,7 +160,7 @@ switch ($action) {
       defaultTo($consid, -1);
 
       $label = strip_tags(fetchFrom('POST', 'label', '%s'));
-      if (empty($consid)) {
+      if (empty($label)) {
          die(_('Missing information in ').__LINE__);
       }
       $description = strip_tags(fetchFrom('POST', 'description', '%s'));
@@ -150,16 +168,33 @@ switch ($action) {
          die(_('Missing information in ').__LINE__);
       }
 
+      $contacts = strip_tags(fetchFrom('REQUEST', 'contacts', '%s'));
+      if (empty($contacts)) {
+          $contacts = array();
+      } else {
+          $contacts = split("\r\n", $contacts);
+      }
+
       if ($action=="add") {
-         if (addConstituency($label, $description, $error) === false) {
-            airt_msg(_('Database error in ').'constituencies.plib:'.__LINE__);
+         if (($c = addConstituency($label, $description, $error)) === false) {
+            airt_msg($error);
             reload();
+            exit();
          }
 
          generateEvent("newconstituency", array(
             "label"=>$label,
             "name"=>$description
          ));
+
+         foreach ($contacts as $contact) {
+             if (trim($contact) == '') {
+                 continue;
+             }
+             if (addConstituencyContact($c, array('email'=>$contact), $error) === false) {
+                 airt_msg($error);
+             }
+         }
          reload();
       } else if ($action=="update") {
          if (empty($consid)) {
@@ -179,6 +214,42 @@ switch ($action) {
             reload();
             exit;
          } 
+
+         $c = getConstituencyContacts($consid);
+         // add contacts that do not yet exist
+         foreach ($contacts as $contact) {
+             if (trim($contact) == '') {
+                 continue;
+             }
+             if (($u = getUserByEmail($contact)) == false) {
+                 addUser(array('email'=>$contact));
+                 airt_msg(t(_('Added user %u.'), array(
+                    '%u'=>htmlentities($contact))));
+                 $u = getUserByEmail($contact);
+             } 
+             if (!array_key_exists($u['id'], $c)) {
+                if (addConstituencyContact($consid, 
+                   array('userid'=>$u['id']), $error) === false) {
+                     airt_msg($error);
+                     reload();
+                     exit();
+                 } else {
+                    airt_msg(t(_('Added user %u to constituency.'), array(
+                       '%u'=>htmlentities($contact))));
+                 }
+             }
+             unset($c[$u['id']]);
+         }
+         foreach ($c as $uid=>$data) {
+             if ((removeConstituencyContact($consid, $uid, $error)) === false) {
+                airt_msg($error);
+                reload();
+                exit();
+             } else {
+                airt_msg(t(_('Removed user %u from constituency.'), array(
+                  '%u'=>htmlentities($data['email']))));
+             }
+         }
 
          generateEvent("updateconstituency", array(
             "label"=>$label,

@@ -142,6 +142,74 @@ function getConstituencyContacts($constituencyid) {
    return $out;
 } // getConstituencyContacts()
 
+/**
+ * Add a constituency contact
+ */
+function addConstituencyContact($constituencyid, $data, &$error='') {
+   if (!is_numeric($constituencyid)) {
+       $error = _('Invalid parameter type in').' constituency.plib:'.__LINE__;
+       return false;
+   }
+   if (!is_array($data)) {
+       $error = _('Invalid parameter type in').' constituency.plib:'.__LINE__;
+       return false;
+   }
+   foreach ($data as $key=>$value) {
+      switch ($key) {
+         case 'email':
+            if (($u = getUserbyEmail(strtolower($value))) === false) {
+               $error = _('No such email address in').' constituency.plib:'.
+                  __LINE__;
+               return false;
+            }
+            $userid = $u['id'];
+            break;
+         case 'userid':
+            if (is_numeric($value)) {
+                $userid = $value;
+            } else {
+               $error = _('Invalid parameter type in').
+                  ' constituency.plib:'.__LINE__;
+               return false;
+            }
+      }
+   }
+   $query = q("insert into constituency_contacts
+      (id, constituency, userid)
+      values
+      (nextval('constituency_contacts_sequence'), %c, %u)", array(
+          '%c'=>$constituencyid,
+          '%u'=>$userid));
+   if (($res = db_query($query)) === false) {
+       $error = db_error_message();
+       return false;
+   }
+   return true;
+}
+
+/**
+ * Remove a constituency contact
+ */
+function removeConstituencyContact($constituencyid, $userid, $error='') {
+   if (!is_numeric($constituencyid)) {
+       $error = _('Invalid parameter type in').' constituency.plib:'.__LINE__;
+       return false;
+   }
+   if (!is_numeric($userid)) {
+       $error = _('Invalid parameter type in').' constituency.plib:'.__LINE__;
+       return false;
+   }
+   $query = q("delete from constituency_contacts
+      where constituency=%c
+      and   userid=%u", array(
+          '%c'=>$constituencyid,
+          '%u'=>$userid));
+   if (($res = db_query($query)) === false) {
+       $error = db_error_message();
+       return false;
+   }
+   return true;
+}
 
 /** GUI Component that displays an overview of constituency contacts for
  * a given constituency.
@@ -208,18 +276,29 @@ function getConstituencyIDbyNetworkID($networkID) {
  * @return true on success, false on failure
  */
 function addConstituency($label, $name, &$error) {
+   if (($res = db_query("select nextval('constituencies_sequence')")) === false) {
+       $error = db_error_message();
+       return false;
+   }
+   if (($row = db_fetch_next($res)) === false) {
+       $error = db_error_message();
+       return false;
+   } else {
+       $newid = $row['nextval'];
+   }
    $res = db_query(sprintf("
       INSERT INTO constituencies
       (id, label, name)
       VALUES
-      (nextval('constituencies_sequence'), %s, %s)",
+      (%d, %s, %s)",
+      $newid,
       db_masq_null($label),
       db_masq_null($name)));
    if ($res === null) {
       $error = db_errormessage();
       return false;
    }
-   return true;
+   return $newid;
 }
 
 /**
@@ -325,6 +404,6 @@ function isConstituencyContact($userid, $constituencyid, &$error='') {
       return true;
    }
    return false;
-
 }
+
 ?>

@@ -1826,8 +1826,6 @@ function listIncidents() {
           ($count <= ($page-1) * PAGESIZE)) {
           continue;
       }
-      $hostline= $data['hostname'];
-      $hostdesc = strip_tags($data['desc']);
       $addresses = getAddressesForIncident($id);
       if (sizeof($addresses) > 0) {
          $constituency = $conslist[$addresses[0]['constituency']]['label'];
@@ -1844,14 +1842,12 @@ function listIncidents() {
             '%url'=>BASEURL.'/incident.php',
             '%id'=>$id,
             '%incidentid'=>encode_incidentid($id)));
-      if (empty($hostdesc)) {
-          $out .= t('   <td>%hostline</td>'.LF, array(
-             '%hostline'=>$hostline));
-      } else {
-          $out .= t('   <td><a title="%d" class="hover">%l</addr></td>'.LF, 
-           array('%d'=>htmlentities($hostdesc),
-                 '%l'=>htmlentities($hostline)));
-      }
+      $out .= t('   <td><a title="%d" href="%u" class="hover">%l</a></td>'.LF, 
+      array(
+          '%u'=>BASEURL.'/search.php?action=Search&qtype=host&q='.
+             urlencode($data['ip']),
+          '%d'=>urlencode($data['hostname']).' '.urlencode($data['desc']),
+          '%l'=>(empty($data['ip']) ? $data['desc'] : $data['ip'])));
       $out .= t('   <td>%constituency</td>'.LF, array(
          '%constituency'=>htmlentities($constituency)));
       $out .= t('   <td>%type</td>'.LF, array(
@@ -1886,6 +1882,8 @@ function listIncidents() {
        }
    }
 
+   $out .= '<p/>';
+   $out .= _('With selected');
    $out .= '<div class="bulk-options">'.LF;
    $out .= '  <div class="block">'.LF;
    $out .= '    <table>'.LF;

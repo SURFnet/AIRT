@@ -240,6 +240,13 @@ function getMailtemplateSelection($name, $default='', $extras=array()) {
  */
 function format_templates($recipients=array(), $incidentids=array()) {
    $out = '<table class="horizontal">'.LF;
+   $out .= '<tr>'.LF;
+   $out .= '<th>&nbsp;</th>'.LF;
+   $out .= '<th>'._('Label').'</th>'.LF;
+   $out .= '<th>'._('Subject').'</th>'.LF;
+   $out .= '<th>&nbsp;</th>'.LF;
+   $out .= '<th>&nbsp;</th>'.LF;
+   $out .= '</tr>'.LF;
    $count=0;
    $templates = get_templates();
    if (sizeof($templates) == 0) {
