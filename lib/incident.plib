@@ -1727,6 +1727,9 @@ function listIncidents() {
    $out .= t('<a href="%url/incident.php?action=new" class="button">'.
       _('Add incident').'</a>'.LF, array(
       '%url'=>BASEURL));
+   $out .= t('<a href="%url/incident.php?action=addbulk" class="button">'.
+      _('Add multiple incidents').'</a>'.LF, array(
+      '%url'=>BASEURL));
    $out .= '</div><!-- right -->'.LF.LF;
 
    $out .= t('<form name="listform" action="%url/incident.php" method="POST">',
@@ -1944,7 +1947,7 @@ function incidentDetails() {
    }
    $_SESSION['incidentid'] = $incidentid;
 
-   pageHeader(t(_('Details of incident %n'), array(
+   pageHeader(t(_('Incident %n'), array(
       '%n'=>normalize_incidentid($incidentid))), array(
        'menu'=>'incidents', 
        'submenu'=>'incidents'));
@@ -2004,8 +2007,10 @@ function incidentDetails() {
    $output .= '    <td colspan="2">'.LF;
    $output .= '    <textarea name="logging" class="logging">'.
        $incident['logging'].'</textarea>'.LF;
+/*
    $output .= '<div class="right"><a href="">'.
         _('Show logging in popup-window').'</a></div>'.LF;
+*/
    $output .= '</td>'.LF;
    $output .= '  </tr>'.LF;
 
