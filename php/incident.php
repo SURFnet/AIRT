@@ -73,22 +73,7 @@ switch ($action) {
     case _('Create New Incident'):
     case _('New incident'):
     case 'new':
-      PageHeader(_('New Incident'), array(
-         'menu'=>'incidents',
-         'submenu'=>'incidents'));
-      $check = false;
-      $output = '';
-      $output .= '<form name="jsform" action="'.$_SERVER['PHP_SELF'].
-                 '" method="POST">'.LF;
-
-      $output .= formatIncidentForm($check);
-
-      $output .= '<input type="submit" name="action" value="'._('Add').'">'.LF;
-      $output .= t('<input type="checkbox" name="sendmail" %checked>'.LF,
-         array('%checked'=>($check==false)?'':'CHECKED'));
-      $output .= _('Check to prepare mail.').LF;
-      $output .= '</form>'.LF;
-      print $output;
+      newIncident();
       break;
     //--------------------------------------------------------------------
     case _('Create Many Incidents'):
@@ -181,109 +166,9 @@ switch ($action) {
 
     //---------------------------------------------------------------------
     case _('Add'):
-      // Create a new incident from edit form.
-      $address = $email = '';
+       addIncident();
+       break;
 
-      $address      = strip_tags(fetchFrom('POST','address'));
-      $address      = @gethostbyname($address);
-      $email        = strip_tags(fetchFrom('POST','email'));
-      if ($email!='') {
-         # NOTE: this may be a list of addresss; looks not good.
-         $_SESSION['current_email'] = trim(strtolower($email));
-      }
-
-      $date_day = trim(fetchFrom('POST', 'date_day', '%d'));
-      $date_month = trim(fetchFrom('POST', 'date_month', '%d'));
-      $date_year = trim(fetchFrom('POST', 'date_year', '%d'));
-      $date_hour = trim(fetchFrom('POST', 'date_hour', '%d'));
-      $date_minute = trim(fetchFrom('POST', 'date_minute', '%d'));
-      $date_second = trim(fetchFrom('POST', 'date_second', '%d'));
-      $date = strtotime(sprintf('%04d-%02d-%04d %02d:%02d:%02d',
-         $date_year, $date_month, $date_day,
-         $date_hour, $date_minute, $date_second));
-
-      $template = strip_tags(fetchFrom('POST', 'template'));
-      if ($template == -1) {
-         $template = '';
-      }
-
-      $incidentid   = createIncident(array(
-         'state'=>fetchFrom('POST', 'state', '%d'),
-         'status'=>fetchFrom('POST', 'status', '%d'),
-         'type'=>fetchFrom('POST', 'type', '%d'),
-         'date'=>$date,
-         'logging'=>trim(fetchFrom('POST', 'logging')),
-         'template'=>$template,
-         'desc'=>trim(fetchFrom('POST', 'desc'))));
-      if ($address != '') {
-         addIPtoIncident($address,$incidentid,
-            fetchFrom('POST', 'addressrole', '%d'));
-      }
-		
-      $incident_userids = array();
-      if ($email != '') {
-         /* email addresses can be specified as a comma-separated list.
-          * process them one by one.
-          */
-         foreach (explode(',', $email) as $addr) {
-            $addr = trim($addr);
-            $override = fetchFrom('REQUEST', 'mailtemplate_override');
-            defaultTo($override, '');
-            if ($override == -1) {
-               $override = '';
-            }
-            $user = getUserByEmail($addr);
-
-            /* user does not yet exist; check if we need to add it */
-            if (!$user) {
-               if (strip_tags(fetchFrom('POST', 'addifmissing')) == 'on') {
-                  /* create new user */
-                  addUser(array('email'=>$addr));
-                  $user = getUserByEmail($addr);
-
-                  /* add new user to existing incident */
-                  addUserToIncident($user['id'], $incidentid, $override);
-
-                  $incident_userids[] = $user['id'];
-               } else {
-                  pageHeader(_('Unable to add user to incident.'));
-                  printf('<p>'.LF.
-_('The e-mail address specified in the incident data entry form (%s) is unknown
-to AIRT and you chose not to add it to the database.').'</p>'.LF.'<p>'.
-_('The incident has been created, however no users have been associated with
-it.').'</p>'.LF.'<p><a href="'.$_SERVER['PHP_SELF'].'">'.
-_('Continue').'...</a>'.LF,
-                     $addr);
-                  pageFooter();
-                  exit;
-               }
-           } else {
-              addUserToIncident($user['id'], $incidentid, $override);
-              $incident_userids[] = $user['id'];
-           }
-         }
-      }
-
-      if (strip_tags(fetchFrom('POST', 'sendmail')) == 'on') {
-         $template = strip_tags(fetchFrom('POST', 'template'));
-         defaultTo($template, '');
-         reload('mailtemplates.php?incidentid='.$incidentid.
-                     '&to='.implode(',', $incident_userids).
-                     ($template='' ? '' : '&template='.$template.
-                        '&action=prepare'));
-      } else {
-         reload();
-      }
-
-   //--------------------------------------------------------------------
-   case 'toggle':
-      // Flip the column of check boxes.
-      $toggle = fetchFrom('REQUEST','toggle', '%d');
-      defaultTo($toggle,0);
-      $toggle = ($toggle == 0) ? 1 : 0;
-      // Break omitted on purpose.
-
-    //--------------------------------------------------------------------
     case 'list':
        listIncidents();
        break;
@@ -493,13 +378,8 @@ _('Continue').'...</a>'.LF,
 
       $id = getUserByEmail($email);
       if (!$id) {
-         if ($add == 'on') {
-            addUser(array('email'=>$email));
-            $id = getUserByEmail($email);
-         } else {
-            printf(_('Unknown email address. User not added.'));
-            exit();
-         }
+         addUser(array('email'=>strtolower(trim($email))));
+         $id = getUserByEmail($email);
       }
 
       $user = getUserByUserID($id['id']);
@@ -803,17 +683,6 @@ _('Continue').'...</a>'.LF,
       break;
 
    //--------------------------------------------------------------------
-   case 'edit_extid':
-      $incidentid = fetchFrom('REQUEST', 'incidentid');
-      if ($incidentid == '') {
-         airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
-         return;
-      }
-      formatEditExternalids($incidentid);
-      break;
-
-   //--------------------------------------------------------------------
    case 'delete_extid':
       $incidentid = fetchFrom('REQUEST', 'incidentid');
       $extid = fetchFrom('REQUEST', 'extid');
@@ -828,7 +697,7 @@ _('Continue').'...</a>'.LF,
          return;
       }
       deleteExternalIncidentIDs($incidentid, $extid);
-      Header("Location: $_SERVER[PHP_SELF]?action=edit_extid&incidentid=".
+      reload(BASEURL.'/incident.php?action=details&incidentid='.
          urlencode($incidentid));
       break;
 
@@ -848,7 +717,7 @@ _('Continue').'...</a>'.LF,
          return;
       }
       addExternalIncidentIDs($incidentid, $extid);
-      reload($_SERVER['PHP_SELF'].'?action=details&incidentid='.
+      reload(BASEURL.'/incident.php?action=details&incidentid='.
          urlencode($incidentid));
       break;
 

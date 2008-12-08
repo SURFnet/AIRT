@@ -468,6 +468,7 @@ function addIPtoIncident($ip, $incident,$role=0) {
  * \return Returns a numerical incident ID on success, or false on failure
  */
 function createIncident($params = array()) {
+
    if (!is_array($params)) {
       return false;
    }
@@ -475,7 +476,7 @@ function createIncident($params = array()) {
       return false;
    }
    if (empty($params['status']) || !is_numeric($params['status'])) {
-      return false;
+      $params['status'] = getIncidentStatusDefault();
    }
    if (empty($params['type']) || !is_numeric($params['type'])) {
       return false;
@@ -508,7 +509,7 @@ function createIncident($params = array()) {
    $_SESSION['incidentid'] = $incidentid;
    db_free_result($res);
 
-   $res = db_query(sprintf(
+   $q = sprintf(
       'insert into incidents
       (id, created, creator, updated, updatedby, state, status, type,
       incidentdate, logging, short_desc, pref_templ)
@@ -525,7 +526,8 @@ function createIncident($params = array()) {
          $params['logging'] == '' ? 'NULL' : "'".db_escape_string($params['logging'])."'",
          $params['desc'] == '' ? 'NULL' : "'".db_escape_string($params['desc'])."'",
          $params['template'] == '' ? 'NULL' : "'".db_escape_string($params['template'])."'"
-   ));
+   );
+   $res = db_query($q);
    if (!$res) {
       return false;
    }
@@ -1235,47 +1237,6 @@ function getFormattedBasicIncidentData($incidentid='') {
    $out .= '</table>';
 
    return $out;
-}
-
-/** 
- * User interface component for editing external incident ids.
- * \param [in] $incidentid  Identifier of the incident
- *
- * \return false on failure, true on success.
- */
-function formatEditExternalids($incidentid='') {
-   if (!is_numeric($incidentid)) {
-      return false;
-   }
-   pageHeader(t(_('External incident identifiers of %id'), array(
-      '%id'=>normalize_incidentid($incidentid))));
-
-   $out = '<div class="details-external-ids-edit-basic">'.LF;
-   $out .= getFormattedBasicIncidentData($incidentid);
-   $out .= t('<a href="%url?action=details&incidentid=%id">'.
-      _('Back to details').'</a>',
-      array('%url'=>$_SERVER['PHP_SELF'], '%id'=>urlencode($incidentid)));
-   $out .= '</div><!-- details-external-ids-edit-basic -->'.LF;
-
-   $out .= '<div class="details-external-ids-extids">'.LF;
-   $out .= '<h2>'._('External identifiers').'</h2>';
-   foreach (getExternalIncidentIDS($incidentid) as $extid) {
-      $out .= t('<a href="%url?action=delete_extid&incidentid=%id&extid=%extid">'._('Remove').'</a> ', array(
-         '%url'=>$_SERVER['PHP_SELF'], 
-         '%id' => $incidentid, 
-         '%extid' => urlencode($extid)));
-      $out .= $extid."<br/>\n";
-   }
-   $out .= '<p/><form>';
-   $out .= t('<input type="hidden" name="incidentid" value="%id">', array(
-      '%id'=>urlencode($incidentid)));
-   $out .= _('New identifer:').' <input type="text" name="extid" size="25">';
-   $out .= '<input type="submit" name="action" value="'.
-      _('Add external identifier').'">';
-   $out .= '</form>';
-   $out .= '</div><!-- details-external-ids-extids -->'.LF;
-   print $out;
-   pageFooter();
 }
 
 
@@ -2236,9 +2197,6 @@ function incidentDetails() {
    $output .= '</tr>'.LF;
    $output .= '</table>'.LF;
    $output .= '<input type="submit" value="'._('Add').'">'.LF;
-   $output .= '<input onChange="updateCheckboxes()" type="checkbox" name="addifmissing" id="createUser" />'.LF;
-   $output .= '<label for="createUser">'.
-      _('create user if email address unknown').'</label>'.LF;
    $output .= '</form>'.LF;
 
    $output .= '</div><!-- block -->'.LF;
@@ -2322,6 +2280,33 @@ function incidentDetails() {
          $output .= '</table>';
       }
    }
+   $output .= '</div><!-- block -->'.LF;
+
+   $output .= '<div class="block">'.LF;
+   $output .= '<h3>'._('External identifiers').'</h3>'.LF;
+   $output .= '<table>'.LF;
+   foreach (getExternalIncidentIDs($incidentid) as $extid) {
+       $output .= '<tr>'.LF;
+       $output .= '<td>'.htmlentities($extid).'</td>'.LF;
+       $output .= t('<td><a href="%u/incident.php?action=del_extid&incidentid=%i&extid=%e">%l</a></td>'.LF, array(
+          '%u'=>BASEURL,
+          '%i'=>urlencode($incidentid),
+          '%e'=>urlencode($extid),
+          '%l'=>_('remove')));
+       $output .= '</tr>'.LF;
+   }
+   $output .= '</table>'.LF;
+
+   $output .= t('<form action="%u/incident.php" method="GET">'.LF, array(
+      '%u'=>BASEURL));
+   $output .= '<input type="hidden" name="action" value="add_extid"/>'.LF;
+   $output .= t('<input type="hidden" name="incidentid" value="%i"/>'.LF, 
+      array('%i'=>urlencode($incidentid)));
+   $output .= '<input type="text" name="extid" size="40">'.LF;
+   $output .= '<input type="submit" value="'.
+      _('Add external identifier').'"/>'.LF;
+   $output .= '</form>'.LF;
+
    $output .= '</div><!-- block -->'.LF;
 
    $output .= '</div><!-- column -->'.LF;
@@ -2409,4 +2394,172 @@ function stallIncident() {
        '%n'=>normalize_incidentid($incidentid))));
     reload();
 }
+
+
+function newIncident() {
+   pageHeader(_('Record new incident'),array(
+       'menu'=>'incidents', 
+       'submenu'=>'incidents'));
+   
+   $output = '<div id="incident-details">'.LF;
+
+   $output .= '<div class="block">'.LF;
+   $output .= t('<form action="%u/incident.php" method="post">'.LF, array(
+      '%u'=>BASEURL));
+   $output .= '<h3>'._('Basic incident data').'</h3>'.LF;
+   $output .= '<table>'.LF;
+   $output .= '  <tr>'.LF;
+   $output .= '    <td>'._('Type of incident').'</td>'.LF;
+   $output .= '    <td>';
+   $output .= getIncidentTypeSelection('type', getIncidentTypeDefault());
+   $output .= '</td>'.LF;
+   $output .= '  </tr>'.LF;
+
+   $output .= '  <tr>'.LF;
+   $output .= '    <td>'._('State of incident').'</td>'.LF;
+   $output .= '    <td>';
+   $output .= getIncidentStateSelection('state', getIncidentStateDefault());
+   $output .= '</td>'.LF;
+   $output .= '  </tr>'.LF;
+
+   $output .= '  <tr valign="top">'.LF;
+   $output .= '    <td>'._('Date of incident').'</td>'.LF;
+   $output .= '    <td>'.formatDateInput('date', time()).'</td>'.LF;
+   $output .= '  </tr>'.LF;
+
+   $output .= '  <tr valign="top">'.LF;
+   $output .= '    <td>'._('Short description').'</td>'.LF;
+   $output .= '    <td>'.LF;
+   $output .= '    <input type="text" name="desc" size="50" value="">'.LF;
+   $output .= '    </td>'.LF;
+   $output .= '  </tr>'.LF;
+
+   $output .= '  <tr valign="top">'.LF;
+   $output .= '    <td colspan="2">'.LF;
+   $output .= '    <textarea name="logging" class="logging"></textarea>'.LF;
+   $output .= '</td>'.LF;
+   $output .= '  </tr>'.LF;
+
+   $output .= '  <tr>'.LF;
+   $output .= '    <td>'._('Mail template').'</td>'.LF;
+   $output .= '    <td>';
+   $output .= getMailtemplateSelection('template', -1);
+   $output .= '    </td>';
+   $output .= '  </tr>'.LF;
+   
+   $output .= '  <tr valign="top">'.LF;
+   $output .= t('    <td><a title="%s">%l</a></td>', array(
+      '%s'=>_('Provide 1 IP address or hostname per line'),
+      '%l'=>_('IP Address')));
+   $output .= '    <td><textarea class="newips" name="ips"></textarea></td>'.LF;
+   $output .= '  </tr>'.LF;
+
+   $output .= '  <tr valign="top">'.LF;
+   $output .= t('    <td><a title="%s">%l</a></td>', array(
+      '%s'=>_('Provide 1 email address per line'),
+      '%l'=>_('Users')));
+   $output .= '    <td><textarea class="newusers" name="users"></textarea></td>'.LF;
+   $output .= '  </tr>'.LF;
+   
+   $output .= '  <tr valign="top">'.LF;
+   $output .= t('    <td><a title="%s">%l</a></td>', array(
+      '%s'=>_('Provide 1 external identifier per line'),
+      '%l'=>_('Additional IDs')));
+   $output .= '    <td><textarea class="newids" name="ids"></textarea></td>'.LF;
+   $output .= '  </tr>'.LF;
+
+   $output .= '</table>'.LF;
+   $output .= '<input type="submit" name="action" value="'.
+     _('Add').'" class="right"/>'.LF;
+   $output .= '</form>'.LF;
+   $output .= '</div> <!-- block -->'.LF;
+   $output .= '</div> <!-- incident-details -->'.LF;
+
+   print $output;
+   return;
+}
+
+
+function addIncident() {
+   $ips = fetchFrom('REQUEST', 'ips');
+   defaultTo($ips, '');
+   $ips = explode("\r\n", $ips);
+ 
+   $users = fetchFrom('REQUEST', 'users');
+   defaultTo($users, '');
+   $users = explode("\r\n", $users);
+   
+   $newids = fetchFrom('REQUEST', 'ids');
+   defaultTo($newids, '');
+   $newids = explode("\r\n", $newids);
+
+
+   $date_day = trim(fetchFrom('POST', 'date_day', '%d'));
+   $date_month = trim(fetchFrom('POST', 'date_month', '%d'));
+   $date_year = trim(fetchFrom('POST', 'date_year', '%d'));
+   $date_hour = trim(fetchFrom('POST', 'date_hour', '%d'));
+   $date_minute = trim(fetchFrom('POST', 'date_minute', '%d'));
+   $date_second = trim(fetchFrom('POST', 'date_second', '%d'));
+   $date = strtotime(sprintf('%04d-%02d-%04d %02d:%02d:%02d',
+      $date_year, $date_month, $date_day,
+      $date_hour, $date_minute, $date_second));
+
+   $template = strip_tags(fetchFrom('POST', 'template'));
+   if ($template == -1) {
+      $template = '';
+   }
+
+   $status = getIncidentStatus();
+   if (($statusid = array_search('open', $status)) === false) {
+       $statusid = getIncidentStatusDefault();
+   }
+
+   $incidentid   = createIncident(array(
+      'state'=>fetchFrom('POST', 'state', '%d'),
+      'status'=>$statusid,
+      'type'=>fetchFrom('POST', 'type', '%d'),
+      'date'=>$date,
+      'logging'=>db_escape_string(trim(fetchFrom('POST', 'logging'))),
+      'template'=>$template,
+      'desc'=>trim(fetchFrom('POST', 'desc'))));
+
+   foreach ($ips as $ip) {
+      $ip = trim($ip);
+      if (empty($ip)) continue;
+      if (preg_match('/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/', $ip) == 0) {
+          $ip = @gethostbyname($ip);
+      }
+      addIPtoIncident($ip, $incidentid, 
+         fetchFrom('POST', 'addressrole', '%d'));
+   }
+ 
+   foreach ($users as $addr) {
+      $addr = strtolower(trim($addr));
+      if (empty($addr)) continue;
+      $override = fetchFrom('REQUEST', 'mailtemplate_override');
+      defaultTo($override, '');
+      if ($override == -1) {
+         $override = '';
+      }
+      $user = getUserByEmail($addr);
+
+      /* user does not yet exist; check if we need to add it */
+      if (!$user) {
+         /* create new user */
+         addUser(array('email'=>$addr));
+         $user = getUserByEmail($addr);
+
+      } 
+
+      /* add new user to existing incident */
+      addUserToIncident($user['id'], $incidentid, $override);
+      $incident_userids[] = $user['id'];
+   }
+
+   if (!empty($newids)) {
+       addExternalIncidentIDs($incidentid, $newids);
+   }
+   reload();
+}
+
 ?>
