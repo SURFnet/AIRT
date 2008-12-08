@@ -2229,8 +2229,18 @@ function incidentDetails() {
                   '%sender'=>$msg['sender']));
                $output .= t('<td>%subject</td>'.LF, array(
                   '%subject'=>$msg['subject']));
+
+				 	if (Date('Y', $msg['date']) == Date('Y')) {
+					   if ((time()-$msg['date']) > 86400) {
+						   $date = Date('d M H:i', $msg['date']);
+						} else {
+						   $date = Date('H:i', $msg['date']);
+						}
+					} else {
+					   $date = Date('d M Y H:i', $msg['date']);
+					}
                $output .= t('<td>%date</td>'.LF, array(
-                  '%date'=>date('r', $msg['date'])));
+                  '%date'=>$date));
                $output .= '<td>'.LF;
                $output .= t('<a href="%u?action=view&msgid=%m">'.
                   _('view').'</a>'.LF, array(
