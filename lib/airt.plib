@@ -172,7 +172,7 @@ function mainMenu($active) {
       array('%url'=>BASEURL,
             '%i'=>_('Mail'),
             '%active'=>($active == 'mail') ? 'class="active"' : ''));
-   $out .= t('       <a href="%url/settings.php" class="settings">%i</a>'.LF, 
+   $out .= t('       <a href="%url/settings.php">%i</a>'.LF, 
       array('%url'=>BASEURL,
       '%i'=>_('Settings')));
    return $out;
@@ -395,6 +395,7 @@ function pageHeader($title='', $options=array()) {
  * @in pagefooter The footer of the page
  */
 function pageFooter() {
+    print '<br style="clear: both;". />'.LF;
     print '</div><!-- content -->'.LF;
     print '</div><!-- wrapper -->'.LF;
     print '<div id="footer">'.LF;

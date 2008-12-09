@@ -1640,6 +1640,9 @@ function listIncidents() {
    $state = fetchFrom('REQUEST','state');
    defaultTo($state, '');
    
+   $type = fetchFrom('REQUEST','type');
+   defaultTo($type, '');
+
    /* by default, only list open */
    $status = fetchFrom('REQUEST','status');
    defaultTo($status, '');
@@ -1670,6 +1673,13 @@ function listIncidents() {
    
    if (sizeof($f) > 0) {
        $filter[] = 's2.id in ('.implode(',', $f).')';
+   }
+   
+   $f = explode(',', $type);
+   $f = array_filter($f, 'is_numeric');
+   
+   if (sizeof($f) > 0) {
+       $filter[] = 't.id in ('.implode(',', $f).')';
    }
 
    $sqlfilter = 'WHERE '.implode(' AND ', $filter);
@@ -1717,20 +1727,24 @@ function listIncidents() {
       '%s'=>$sortkey));
    $out .= t('<input type="hidden" name="page" value="%s">'.LF, array(
       '%s'=>$page));
+   $out .= getIncidentStateSelection('type', $type, array(
+      ''=>_('[All types]')), 'onChange="document.filter.submit()"');
    $out .= getIncidentStateSelection('state', $state, array(
-      ''=>_('[Choose a state]')), 'onChange="document.filter.submit()"');
+      ''=>_('[All states]')), 'onChange="document.filter.submit()"');
    $out .= '<input type="submit" value="'._('Filter').'">'.LF;
    $out .= '</form>'.LF;
    $out .= '</div>'.LF;
 
-   $out .= LF.'<div class="right">'.LF;
-   $out .= t('<a href="%url/incident.php?action=new" class="button">'.
-      _('Add incident').'</a>'.LF, array(
-      '%url'=>BASEURL));
-   $out .= t('<a href="%url/incident.php?action=bulkform" class="button">'.
-      _('Add multiple incidents').'</a>'.LF, array(
-      '%url'=>BASEURL));
-   $out .= '</div><!-- right -->'.LF.LF;
+   if (!$archive) {
+       $out .= LF.'<div class="right">'.LF;
+       $out .= t('<a href="%url/incident.php?action=new" class="button">'.
+          _('Add incident').'</a>'.LF, array(
+          '%url'=>BASEURL));
+       $out .= t('<a href="%url/incident.php?action=bulkform" class="button">'.
+          _('Add multiple incidents').'</a>'.LF, array(
+          '%url'=>BASEURL));
+       $out .= '</div><!-- right -->'.LF.LF;
+   }
 
    $out .= t('<form name="listform" action="%url/incident.php" method="POST">',
       array('%url'=>BASEURL)).LF;
@@ -1848,8 +1862,14 @@ function listIncidents() {
              urlencode($data['ip']),
           '%d'=>urlencode($data['hostname']).' '.urlencode($data['desc']),
           '%l'=>(empty($data['ip']) ? $data['desc'] : $data['ip'])));
-      $out .= t('   <td>%constituency</td>'.LF, array(
-         '%constituency'=>htmlentities($constituency)));
+      if (empty($constituency)) {
+          $out .= t('   <td/>');
+      } else {
+          $out .= t('   <td><a href="%u/constituencies.php?action=edit&cons=%C">%constituency</a></td>'.LF, array(
+             '%u'=>BASEURL,
+             '%C'=>$addresses[0]['constituency'],
+             '%constituency'=>htmlentities($constituency)));
+      }
       $out .= t('   <td>%type</td>'.LF, array(
          '%type'=>htmlentities($data['type'])));
       $out .= t('   <td>%state</td>'.LF, array(
@@ -1895,7 +1915,7 @@ function listIncidents() {
    $out .= '    </tr>'.LF;
 
    $out .= '    <tr>'.LF;
-   $out .= '      <td>'._('New Type').'</td><td>'.LF;
+   $out .= '      <td>'._('Type').'</td><td>'.LF;
    $out .= getIncidentTypeSelection('masstype', 'null',
       array('null'=>_('Do not change')));
 
@@ -1966,6 +1986,7 @@ function incidentDetails() {
        'submenu'=>'incidents'));
 
    $output = '<div class="right">'.LF;
+   /*
    if (!empty($incident['template'])) {
        $output .= t('<a class="button" href="%u/incident.php?action=prepare&massincidents[]=%i&template=%t">%l</a>', array(
            '%u'=>BASEURL,
@@ -1973,6 +1994,7 @@ function incidentDetails() {
            '%t'=>urlencode($incident['template']),
            '%l'=>_('Quick email')));
    }
+   */
    if (getIncidentStatusDescr($incident['status']) == _('closed') ||
        (getIncidentStatusDescr($incident['status']) == _('stalled'))) {
        $output .= t('<a href="%u/incident.php?action=reopen&incidentid=%i" class="button">%l</a>', array(
@@ -2070,11 +2092,25 @@ function incidentDetails() {
    $output .= '<div class="column">'.LF;
 
    $output .= '<div class="block">'.LF;
+   $output .= '<h3>Send mail</h3>'.LF;
+   $output .= t('<form action="%u/incident.php" method="GET">'.LF, array(
+      '%u'=>BASEURL));
+   $output .= '<input type="hidden" name="action" value="prepare"/>'.LF;
+   $output .= t('<input type="hidden" name="massincidents[]" value="%i"/>'.LF, array(
+      '%i'=>$incidentid));
+   $output .= getMailtemplateSelection('template', $incident['template']);
+   $output .= t('<input type="submit" value="%l"/>'.LF, array(
+      '%l'=>_('Compose')));
+   $output .= '</form>'.LF;
+   $output .= '</div>'.LF;
+   $output .= '</block>'.LF;
+
+   $output .= '<div class="block">'.LF;
    $output .= '<h3>'._('IP addresses').'</h3>'.LF;
    $output .= '<table cellpadding="4">'.LF;
    $output .= '<tr>'.LF;
-   $output .= '   <th>'._('Role').'</th>'.LF;
    $output .= '   <th>'._('IP Address').'</th>'.LF;
+   $output .= '   <th>'._('Role').'</th>'.LF;
    $output .= '   <th>'._('Constituency').'</th>'.LF;
    $output .= '</tr>'.LF;
    foreach ($incident['ips'] as $address) {
@@ -2082,14 +2118,15 @@ function incidentDetails() {
       $_SESSION['active_ip'] = $address['ip'];
 
       $output .= '<tr>'.LF;
-      $output .= t('  <td>%addressrole</td>'.LF, array(
-            '%addressrole'=>getAddressRoleByID($address['addressrole'])));
       $output .= t('  <td><a title="%t" href="%u/search.php?action=search&q=%q">%l</a></td>'.LF, array(
          '%u'=>BASEURL,
          '%q'=>urlencode($address['ip']),
          '%t'=>($address['hostname']=='') ? _ ('Unknown'):
                  @gethostbyaddr(@gethostbyname($address['ip'])),
          '%l'=>htmlentities($address['ip'])));
+
+      $output .= t('  <td>%addressrole</td>'.LF, array(
+            '%addressrole'=>getAddressRoleByID($address['addressrole'])));
 
       $output .= t('  <td>%s</td>'.LF, array(
          '%s'=>htmlentities($conslist[$cons]['label'])));
@@ -2201,11 +2238,12 @@ function incidentDetails() {
    $output .= '<table>'.LF;
    foreach ($attachments as $aid=>$a) {
       $output .= '<tr>'.LF;
-      $output .= '<td>'.$a['filename'].' ('.$a['content-type'].')</td>'.LF;
-      $output .= t('<td><a href="%url?action=download&attachment=%id">'._('download').'</a></td>'.LF, array(
+      $output .= '<td>'.LF;
+      $output .= t('<a href="%url?action=download&attachment=%id">%f</a> (%c)'.LF, array(
          '%url' => BASEURL.'/incident.php',
-         '%id' => $aid
-      ));
+         '%id' => $aid,
+         '%f' => htmlentities($a['filename']),
+         '%c' => htmlentities($a['content-type'])));
       $output .= t('<td><a onclick="return confirm(\'Are you sure that you want to delete this attachment?\')" href="%url?action=rmattach&attachment=%id">'._('delete').'</a></td>'.LF, array(
          '%url' => BASEURL.'/incident.php',
          '%id' => $aid
@@ -2223,7 +2261,7 @@ function incidentDetails() {
    $output .= '</div><!-- block -->'.LF;
    
    $output .= '<div class="block">'.LF; 
-   $output .= '<h3>'._('Linked email messages').'</h3>'.LF;
+   $output .= '<h3>'._('E-mail messages').'</h3>'.LF;
    if (fetchEmailsForIncident($incident['incidentid'], $msgs, $err) == false){
       airt_msg($err);
    } else {
@@ -2236,7 +2274,6 @@ function incidentDetails() {
          $output .= '<th>'._('Subject').'</th>'.LF;
          $output .= '<th>'._('Date').'</th>'.LF;
          $output .= '<th>&nbsp;</th>'.LF;
-         $output .= '<th>&nbsp;</th>'.LF;
          $output .= '</tr>'.LF;
 
          $count=0;
@@ -2247,8 +2284,10 @@ function incidentDetails() {
                $output .= '<tr>'.LF;
                $output .= t('<td>%sender</td>'.LF, array(
                   '%sender'=>$msg['sender']));
-               $output .= t('<td>%subject</td>'.LF, array(
-                  '%subject'=>$msg['subject']));
+               $output .= t('<td><a href="%u?action=view&msgid=%m">%subject</a></td>'.LF, array(
+                  '%subject'=>$msg['subject'],
+                  '%u'=>BASEURL.'/mailbox.php',
+                  '%m'=>$msgid));
 
 				 	if (Date('Y', $msg['date']) == Date('Y')) {
 					   if ((time()-$msg['date']) > 86400) {
@@ -2261,12 +2300,6 @@ function incidentDetails() {
 					}
                $output .= t('<td>%date</td>'.LF, array(
                   '%date'=>$date));
-               $output .= '<td>'.LF;
-               $output .= t('<a href="%u?action=view&msgid=%m">'.
-                  _('view').'</a>'.LF, array(
-                  '%u'=>BASEURL.'/mailbox.php',
-                  '%m'=>$msgid));
-               $output .= '</td>'.LF;
                $output .= '<td>'.LF;
                $output .= t('<a href="%u?action=unlink&msgid=%m&incidentid=%i">'.
                   _('unlink').'</a>'.LF, array(
@@ -2490,7 +2523,7 @@ function newIncident($bulk=false) {
    if ($bulk) {
       $output .= '<input type="hidden" name="action" value="addbulk">'.LF;
    } else {
-      $output .= '<input type="hidden" name="action" value="create">'.LF;
+      $output .= '<input type="hidden" name="action" value="add">'.LF;
    }
    $output .= '<input type="submit" value="'._('Add').'" class="right"/>'.LF;
    $output .= '</form>'.LF;

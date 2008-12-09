@@ -103,13 +103,13 @@ switch ($action) {
 
       $out = '<table class="horizontal">'.LF;
       $out .= '<tr>'.LF;
-      $out .= '<th>Label</th>'.LF;
-      $out .= '<th>Description</th>'.LF;
-      $out .= '<th>Netblocks</th>'.LF;
+      $out .= '<th>'._('Name').'</th>'.LF;
+      $out .= '<th>'._('Description').'</th>'.LF;
+      // $out .= '<th>Netblocks</th>'.LF;
       $out .= '<th>&nbsp;</th>'.LF;
       $out .= '</tr>'.LF;
       $constituencies = getConstituencies();
-      $networks = getNetworks();
+      // $networks = getNetworks();
 
       $count=0;
       foreach ($constituencies as $id => $row) {
@@ -117,6 +117,7 @@ switch ($action) {
          $out .= '<tr>'.LF;
          $out .= '<td>'.strip_tags($row['label']).'</td>'.LF;
          $out .= '<td>'.strip_tags($row['name']).'</td>'.LF;
+         /*
          $out .= '<td>'.LF;
          foreach ($networks as $id=>$row2) {
             if ($row2['constituency'] != $consid) {
@@ -126,6 +127,7 @@ switch ($action) {
                $row2['network'].' / '.$row2['netmask'].'</small><BR>'.LF;
          }
          $out .= '</td>'.LF;
+         */
          $out .= '<td>'.LF;
          $out .= '<a href="'.$_SERVER['PHP_SELF'].'?action=edit&cons='.
             $consid.'">'._('edit').'</a>'.LF;

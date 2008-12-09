@@ -32,10 +32,6 @@ $action = strip_tags($action);
 switch ($action) {
    // -------------------------------------------------------------------
    case "list":
-      listTemplates();
-      break;
-
-   case 'listedit':
       listTemplates(true);
       break;
 

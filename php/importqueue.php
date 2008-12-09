@@ -43,7 +43,7 @@ function showQueue() {
    $out .= '<form method="post">'.LF;
    $out .= queueFormatItems();
    $out .= '<div class="importqueue-overview-footer">'.LF;
-   $out .= '<p/>'._('Decision: ');
+   $out .= '<p/>'._('With selected: ');
    /*
    $out .= '<select name="decision">'.LF;
    $out .= '<option value="accept">'._('Accept').LF;
