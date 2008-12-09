@@ -299,8 +299,9 @@ background-color: #E0E8EF;
 }
 
 #mbox-container {
+float: left;
   width: 650px;
-  margin-right: 215px;
+
 }
 
 #mbox-sidebar {
