@@ -63,7 +63,7 @@ function formatConstituencyForm($id='') {
    $out .= '<input type="hidden" name="consid" value="'.$id.'">'.LF;
    $out .= '<table>'.LF;
    $out .= '<tr>'.LF;
-   $out .= '   <td>'._('Label').'</td>'.LF;
+   $out .= '   <td>'._('Name').'</td>'.LF;
    $out .= '   <td><input type="text" size="30" name="label" '.
            '       value="'.strip_tags($label).'"></td>'.LF;
    $out .= '</tr>'.LF;
@@ -117,20 +117,11 @@ switch ($action) {
          $out .= '<tr>'.LF;
          $out .= '<td>'.strip_tags($row['label']).'</td>'.LF;
          $out .= '<td>'.strip_tags($row['name']).'</td>'.LF;
-         /*
-         $out .= '<td>'.LF;
-         foreach ($networks as $id=>$row2) {
-            if ($row2['constituency'] != $consid) {
-               continue;
-            }
-            $out .= '- '.$row2['label'].'<BR><small>'.
-               $row2['network'].' / '.$row2['netmask'].'</small><BR>'.LF;
-         }
-         $out .= '</td>'.LF;
-         */
          $out .= '<td>'.LF;
          $out .= '<a href="'.$_SERVER['PHP_SELF'].'?action=edit&cons='.
             $consid.'">'._('edit').'</a>'.LF;
+         $out .= '<a href="'.$_SERVER['PHP_SELF'].'?action=Delete&cons='.
+            $consid.'">'._('delete').'</a>'.LF;
          $out .= '</td>'.LF;
          $out .= '</tr>'.LF;
       } // foreach
