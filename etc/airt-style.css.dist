@@ -120,15 +120,6 @@ float: left;
 	line-height: 1em;
 }
 
-#navigation a.settings{
-	margin: 0;
-	padding: 0 0 8px 10px;
-	border: 0;
-	background: none;
-	color: #00E;
-	font: normal 12px Arial, Verdana, sans-serif;
-}
-
 #navigation a.active{
 color: #000;
 	background-color: #F0F8FF;
@@ -193,8 +184,10 @@ text-align: right;
 }
 
 .right a.button{
+display: inline-block;
 background-color: #FFF;
 padding: 5px 10px;
+margin: 0 0 5px 5px;
 text-decoration: none;
 font: 12px Arial, Verdana, sans-serif;
 color: #000;
@@ -211,12 +204,13 @@ clear: both;
 width: 100%;
 }
 
+#incident-details .right{
 
+}
 
 .column{
-	width: 50%;
-	float: left;
-	
+width: 50%;
+float: left;
 }
 
 .block, .details-external-ids, .details-mails, .details_attachments, .details-basic, .details-ip, .details-user, .details-history {
@@ -276,22 +270,18 @@ width: 100%;
 clear: both;
 }
 
-table.horizontal{
+table.horizontal, table.mailbox{
 width: 100%;
 clear: both;
-margin: 10px 0 0 0;
+margin: 0 0 0 0;
 }
 
-.horizontal small{ /* temp */
-display: none;
-}
-
-.horizontal td, table.horizontal th{
+.horizontal td, table.horizontal th, table.mailbox td, table.mailbox th{
     border-bottom: 1px solid #E0E8EF;
 	padding: 4px;
 }
 
-table.horizontal th{
+table.horizontal th, table.mailbox th{
 background-color: #E0E8EF;
 }
 
@@ -309,9 +299,8 @@ background-color: #E0E8EF;
 }
 
 #mbox-container {
-  width: 100%;
-  float: left;
-  margin-right: -215px;
+  width: 650px;
+  margin-right: 215px;
 }
 
 #mbox-sidebar {
@@ -319,13 +308,11 @@ background-color: #E0E8EF;
   float: right;
 }
 
-.prevnext {
-   position: absolute;
-   width: 205px;
-   right: 0;
-   bottom: 0;
+pre{ 												/* temp */
+white-space: normal;
 }
 
+/*
 #mbox-content {
   margin-right: 215px;
   margin-left: 0px;
@@ -349,7 +336,7 @@ background-color: #E0E8EF;
     text-align: left;
 }
 
-mailbox .check {
+.mailbox .check {
     border-right: 1px grey dotted;
     padding-right: 0.5em;
 }
@@ -414,6 +401,7 @@ mailbox .check {
 .mail-headers .mail-header-content {
     padding-left: 0.5em;
 }
+*/
 
 /*****************************************************************
  * login screen
