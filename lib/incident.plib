@@ -2385,7 +2385,9 @@ function stallIncident() {
            'incident.plib:'.__LINE__);
         return reload();
     }
-    updateIncident($incidentid, array('status'=>$id));
+    updateIncident($incidentid, array(
+       'template'=>$incident['template'],
+       'status'=>$id));
     addIncidentComment(array(
        'comment'=>_('Incident stalled'),
        'incidentid'=>$incidentid
