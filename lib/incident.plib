@@ -1970,7 +1970,7 @@ function incidentDetails() {
        '%u'=>BASEURL,
        '%i'=>$incidentid,
        '%t'=>urlencode($incident['template']),
-       '%l'=>_('Compose email')));
+       '%l'=>_('Quick email')));
    if (getIncidentStatusDescr($incident['status']) == _('closed') ||
        (getIncidentStatusDescr($incident['status']) == _('stalled'))) {
        $output .= t('<a href="%u/incident.php?action=reopen&incidentid=%i" class="button">%l</a>', array(

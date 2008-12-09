@@ -258,7 +258,7 @@ function format_templates($recipients=array(), $incidentids=array()) {
       $querystr = '&to='.urlencode(implode(',', $recipients)).
          '&incidentids='.urlencode(implode(',', $incidentids));
       $out .= t('<td><a href="%url?action=prepare&template=%name%query">'.
-                   _('prepare').'</a></td>'.LF, array(
+                   _('compose').'</a></td>'.LF, array(
             '%url'=>$_SERVER['PHP_SELF'],
             '%name'=>$name,
             '%query'=>$querystr));
