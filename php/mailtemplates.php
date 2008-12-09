@@ -24,58 +24,19 @@
 require_once 'config.plib';
 require_once LIBDIR."/mailtemplates.plib";
 
-function listTemplates($recipients=array(), $incidentids=array()) {
-  pageHeader(_('Mail templates'), array(
-     'menu'=>'mail', 'submenu'=>'templates'));
-  $show_prepare = true;
-  print format_templates($recipients, $incidentids);
-  print t('<P><a href="%url?action=new">'.
-      _('Create a new message').'</a></P>'.LF,
-      array('%url'=>$_SERVER['PHP_SELF']));
-
-  pageFooter();
-}
-
 $action = strip_tags(fetchFrom('REQUEST', 'action', '%s'));
 defaultTo($action, 'list');
 $action = strip_tags($action);
 
+
 switch ($action) {
    // -------------------------------------------------------------------
    case "list":
-      /* $to is a comma-separated list of recipient email addresses, or
-       * an array contain email addresses
-       */
-      $recipients = fetchFrom('REQUEST', 'to');
-      if (empty($recipients)) {
-         $recipients = array();
-      }
-      if (!is_array($recipients)) {
-         $recipients = explode(',', $recipients);
-      }
+      listTemplates();
+      break;
 
-      /* $incidentids is a comma-separated list of incident ids, or
-       * an array contain incident ids
-       */
-      $incidentids = fetchFrom('REQUEST', 'incidentids');
-      if (empty($incidentids)) {
-         $incidentid = fetchFrom('REQUEST', 'incidentid', '%d');
-         if (empty($incidentid)) {
-            $sess = fetchFrom('SESSION', 'incidentid');
-            if (empty($sess)) {
-                $incidentids = array();
-            } else {
-                $incidentids = array($sess);
-            }
-         } else {
-            $incidentids = array($incidentid);
-         }
-      }
-      if (!is_array($incidentids)) {
-         $incidentids = explode(',', $incidentids);
-      }
-      $incidentids = array_filter($incidentids, 'is_numeric');
-      listTemplates($recipients, $incidentids);
+   case 'listedit':
+      listTemplates(true);
       break;
 
    // -------------------------------------------------------------------
@@ -192,7 +153,7 @@ special variables in the template:').'<p>'.LF;
       if (save_template($template, $message, $update)) {
          airt_error('ERR_FUNC', 'mailtemplates.php:'.__LINE__);
       }
-      listTemplates();
+      templateList();
 
       break;
 
@@ -254,7 +215,7 @@ special variables in the template:').'<p>'.LF;
       if (delete_template($template)) {
          airt_error('ERR_FUNC', 'mailtemplates.php'.__LINE__);
       }
-      listTemplates();
+      templateList();
 
       break;
 

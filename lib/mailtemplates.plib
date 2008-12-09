@@ -238,14 +238,18 @@ function getMailtemplateSelection($name, $default='', $extras=array()) {
 /** Retrieve a formatted overview of mail templates.
  * \return A string containing a HTML-formatted overview of available templates.
  */
-function format_templates($recipients=array(), $incidentids=array()) {
+function format_templates($recipients=array(), $incidentids=array(), $edit=false) {
    $out = '<table class="horizontal">'.LF;
    $out .= '<tr>'.LF;
-   $out .= '<th>&nbsp;</th>'.LF;
+   if ($edit == false) {
+       $out .= '<th>&nbsp;</th>'.LF;
+   }
    $out .= '<th>'._('Label').'</th>'.LF;
    $out .= '<th>'._('Subject').'</th>'.LF;
-   $out .= '<th>&nbsp;</th>'.LF;
-   $out .= '<th>&nbsp;</th>'.LF;
+   if ($edit == true) {
+      $out .= '<th>&nbsp;</th>'.LF;
+      $out .= '<th>&nbsp;</th>'.LF;
+   }
    $out .= '</tr>'.LF;
    $count=0;
    $templates = get_templates();
@@ -255,24 +259,25 @@ function format_templates($recipients=array(), $incidentids=array()) {
    foreach ($templates as $name=>$body) {
       $subject = get_subject($body);
       $out .= '<tr>'.LF;
-      $querystr = '&to='.urlencode(implode(',', $recipients)).
-         '&incidentids='.urlencode(implode(',', $incidentids));
-      $out .= t('<td><a href="%url?action=prepare&template=%name%query">'.
-                   _('compose').'</a></td>'.LF, array(
-            '%url'=>$_SERVER['PHP_SELF'],
+      if ($edit == false) {
+         $querystr = '&to='.urlencode(implode(',', $recipients)).
+            '&incidentids='.urlencode(implode(',', $incidentids));
+         $out .= t('<td><a href="%url/mailtemplates.php?action=prepare&template=%name%query">'._('compose').'</a></td>'.LF, array(
+            '%url'=>BASEURL,
             '%name'=>$name,
             '%query'=>$querystr));
+      }
       $out .= t("<td>%name</td>".LF, array('%name'=>$name));
       $out .= t("<td>%subject</td>".LF, array('%subject'=>$subject));
-      $out .= t('<td><a href="%url?action=edit&template=%name">'.
-               _('edit').'</a></td>'.LF, array(
-         '%url'=>$_SERVER['PHP_SELF'],
-         '%name'=>$name));
-      $out .= t('<td><a onclick="return confirm(\''.
-         _('Are you sure that you want to delete this message?').'\')" href="%url?action=delete&template=%name">'.
-         _('delete').'</a></td>'.LF, array(
-         '%url'=>$_SERVER['PHP_SELF'],
-         '%name'=>$name));
+      if ($edit == true) {
+         $out .= t('<td><a href="%url?action=edit&template=%name">'._('edit').'</a></td>'.LF, array(
+            '%url'=>$_SERVER['PHP_SELF'],
+            '%name'=>$name));
+          $out .= t('<td><a onclick="return confirm(\''.
+            _('Are you sure that you want to delete this message?').'\')" href="%url?action=delete&template=%name">'._('delete').'</a></td>'.LF, array(
+            '%url'=>$_SERVER['PHP_SELF'],
+            '%name'=>$name));
+      }
       $out .= t("</tr>\n");
     }
     $out .= "</table>";
@@ -1028,4 +1033,54 @@ function toggleMailCapabilityIODEF($template, $toggle, &$err)
    return true;
 }
 
+
+function listTemplates($edit=false) {
+   /* $to is a comma-separated list of recipient email addresses, or
+    * an array contain email addresses
+    */
+   $recipients = fetchFrom('REQUEST', 'to');
+   if (empty($recipients)) {
+      $recipients = array();
+   }
+   if (!is_array($recipients)) {
+      $recipients = explode(',', $recipients);
+   }
+
+   /* $incidentids is a comma-separated list of incident ids, or
+    * an array contain incident ids
+    */
+   $incidentids = fetchFrom('REQUEST', 'incidentids');
+   if (empty($incidentids)) {
+      $incidentid = fetchFrom('REQUEST', 'incidentid', '%d');
+      if (empty($incidentid)) {
+         $sess = fetchFrom('SESSION', 'incidentid');
+         if (empty($sess)) {
+             $incidentids = array();
+         } else {
+             $incidentids = array($sess);
+         }
+      } else {
+         $incidentids = array($incidentid);
+      }
+   }
+   if (!is_array($incidentids)) {
+      $incidentids = explode(',', $incidentids);
+   }
+   $incidentids = array_filter($incidentids, 'is_numeric');
+   templateList($recipients, $incidentids, $edit);
+}
+
+function templateList($recipients=array(), $incidentids=array(), $edit=false) {
+  pageHeader(_('Mail templates'), array(
+     'menu'=>'mail', 'submenu'=>'templates'));
+  $show_prepare = true;
+  print format_templates($recipients, $incidentids, $edit);
+  if ($edit === true) {
+      print t('<P><a href="%url?action=new">'.
+          _('Create a new message').'</a></P>'.LF,
+          array('%url'=>$_SERVER['PHP_SELF']));
+  }
+
+  pageFooter();
+}
 ?>

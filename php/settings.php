@@ -38,7 +38,7 @@ print '<a href="incident_status.php">'._('Edit incident statuses').'</a>'.LF;
 print '<P>'.LF;
 print '<a href="incident_types.php">'._('Edit incident types').'</a>'.LF;
 print '<P>'.LF;
-print '<a href="mailtemplates.php">'._('Edit standard messages').'</a>'.LF;
+print '<a href="mailtemplates.php?action=listedit">'._('Edit standard messages').'</a>'.LF;
 print '<HR>'.LF;
 print '<b>'._('Network management').'</b>'.LF;
 print '<P>'.LF;
