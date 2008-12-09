@@ -1860,6 +1860,9 @@ function listIncidents() {
             '%url'=>BASEURL.'/incident.php',
             '%id'=>$id,
             '%incidentid'=>encode_incidentid($id)));
+      if (empty($data['ip'])) {
+          $data['ip'] = '<em>'._('None').'</em>';
+      } 
       $out .= t('   <td><a title="%d" href="%u" class="hover">%l</a></td>'.LF, 
       array(
           '%u'=>BASEURL.'/search.php?action=Search&qtype=host&q='.
@@ -1867,7 +1870,7 @@ function listIncidents() {
           '%d'=>urlencode($data['hostname']).' '.urlencode($data['desc']),
           '%l'=>(empty($data['ip']) ? $data['desc'] : $data['ip'])));
       if (empty($constituency)) {
-          $out .= t('   <td/>');
+          $out .= '   <td><em>'._('Unknown').'</em></td>'.LF;
       } else {
           $out .= t('   <td><a href="%u/constituencies.php?action=edit&cons=%C">%constituency</a></td>'.LF, array(
              '%u'=>BASEURL,
@@ -1990,15 +1993,6 @@ function incidentDetails() {
        'submenu'=>'incidents'));
 
    $output = '<div class="right">'.LF;
-   /*
-   if (!empty($incident['template'])) {
-       $output .= t('<a class="button" href="%u/incident.php?action=prepare&massincidents[]=%i&template=%t">%l</a>', array(
-           '%u'=>BASEURL,
-           '%i'=>$incidentid,
-           '%t'=>urlencode($incident['template']),
-           '%l'=>_('Quick email')));
-   }
-   */
    if (getIncidentStatusDescr($incident['status']) == _('closed') ||
        (getIncidentStatusDescr($incident['status']) == _('stalled'))) {
        $output .= t('<a href="%u/incident.php?action=reopen&incidentid=%i" class="button">%l</a>', array(
@@ -2067,8 +2061,10 @@ function incidentDetails() {
       array(-1 => _('None'))).'</td>'.LF;
    $output .= '  </tr>'.LF;
    $output .= '</table>'.LF;
-   $output .= '<input type="submit" name="action" value="update" class="right"/>'.LF;
+   $output .= '<input type="submit" name="action" value="'.
+      _('Update').'" class="right"/>'.LF;
    $output .= '</form>'.LF;
+   $output .= '<br style="clear: both;"/>'.LF;
    $output .= '</div> <!-- block -->'.LF;
    
 
@@ -2204,13 +2200,20 @@ function incidentDetails() {
          'template['.strip_tags($user).']', 
          ($override==false) ? -1 : $override,
          array('-1' => _('None'))).LF;
+      $output .= '</td>'.LF;
+      $output .= '<td>'.LF;
+      $output .= t('<a href="%u/incident.php?action=Remove&incidentid=%i&to=%t">%l</a>', array(
+         '%u'=>BASEURL,
+         '%i'=>$incident['incidentid'],
+         '%t'=>$u['id'],
+         '%l'=>_('remove')));
+      $output .= '</td>'.LF;
+
       $output .= '</tr>'.LF;
    }
    $output .= '</table>'.LF;
    $output .= t('<input type="submit" name="action" value="%l"/>', array(
       '%l'=>_('Mail')));
-   $output .= t('<input type="submit" name="action" value="%l"/>', array(
-      '%l'=>_('Remove')));
    $output .= t('<input type="submit" name="action" value="%l"/>', array(
       '%l'=>_('Update overrides')));
    $output .= '</form>'.LF;
@@ -2221,13 +2224,10 @@ function incidentDetails() {
    $output .= '<table>'.LF;
    $output .= '<tr>'.LF;
    $output .= '<td>'._('Email address').':</td>'.LF;
-   $output .= '<td><input onChange="updateCheckboxes()" type="text" size="40" name="email" value=""></td>'.LF;
-   $output .= '<td>'.LF;
-# mailtemplateselection
-   $output .= '</td>'.LF;
+   $output .= '<td><input onChange="updateCheckboxes()" type="text" size="40" name="email" value="">'.LF;
+   $output .= '<input type="submit" value="'._('Add').'"></td>'.LF;
    $output .= '</tr>'.LF;
    $output .= '</table>'.LF;
-   $output .= '<input type="submit" value="'._('Add').'">'.LF;
    $output .= '</form>'.LF;
 
    $output .= '</div><!-- block -->'.LF;
@@ -2617,7 +2617,9 @@ function addIncident() {
    if (!empty($newids)) {
        addExternalIncidentIDs($incidentid, $newids);
    }
-   reload();
+   airt_msg(t(_('Incident %n created.'), array('%n'=>
+      normalize_incidentid($incidentid))));
+   reload(BASEURL.'/incident.php?action=details&incidentid='.$incidentid);
 }
 
 function addBulkIncidents() {
