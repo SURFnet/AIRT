@@ -29,11 +29,8 @@ require_once LIBDIR.'/constituency.plib';
 require_once LIBDIR.'/network.plib';
 require_once LIBDIR.'/user.plib';
 
-if (array_key_exists("action", $_REQUEST)) {
-   $action=$_REQUEST["action"];
-} else {
-   $action = "none";
-}
+$action = fetchFrom('REQUEST', 'action');
+defaultTo($action, 'none');
 
 function showSearch($qtype='') {
    $hostchecked=$incidentchecked=$zoomchecked='';
@@ -212,10 +209,6 @@ function search_host($hostname='') {
    }
    print '</div>'.LF;
 
-/*
-   print '<H2>'._('New Search').'</H2>'.LF;
-   showSearch($qtype);
-*/
 
    // call user-defined search function. Must print in unformatted layout
    // additional info about hostname needed to make a decision.
@@ -248,7 +241,6 @@ function search_incident($incidentid) {
          $hits[] = getIncident(decode_incidentid($incidentid));
       } else {
          $q = q("SELECT incidentid from external_incidentids where externalid like '%%query%'", array('%query'=>db_escape_string($incidentid)));
-         print ($q);
          $res = db_query($q);
          while ($row = db_fetch_next($res)) {
             $incident = getIncident($row['incidentid']);
@@ -581,6 +573,46 @@ switch ($action) {
       pageFooter();
       break;
    // ------------------------------------------------------------------
+   case 'query':
+      $query = trim(fetchFrom('REQUEST', 'query'));
+      if (empty($query)) {
+          reload();
+          exit;
+      }
+
+      if (preg_match('/^('.INCIDENTID_PREFIX.')?([0-9]+)$/', $query, $match) > 0) {
+          if (getIncident($query) !== false) {
+              reload(BASEURL.'/incident.php?action=details&incidentid='.
+                 urlencode($match[2]));
+              exit;
+          }
+      }
+
+      if ((preg_match('/^([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)$/', $query, $match) > 0) ||
+          (preg_match('/.+\.[^.]+\.[^.]+.+/', $query, $match) > 0)) {
+          reload(t(BASEURL.'/search.php?q=%q&qtype=host&action=Search', array(
+             '%q'=>urlencode($query))));
+          exit;
+      }
+
+      if (strstr($query, '@') !== false) {
+          reload(t(BASEURL.'/search.php?q=%q&qtype=email&action=Search', array(
+             '%q'=>urlencode($query))));
+          exit;
+      }
+
+      if (preg_match('@^([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9.]+)$@', $query, $match) > 0) {
+          reload(t(BASEURL.'/search.php?q=%q&qtype=zoom&action=Search', array(
+             '%q'=>urlencode($query))));
+          exit;
+      }
+
+      reload(t(BASEURL.'/search.php?q=%q&qtype=incident&action=Search', array(
+         '%q'=>$query)));
+      print "No match: $query";
+      break;
+
+   // ------------------------------------------------------------------
    case _("Search"):
    case "search":
       unset($_SESSION["current_name"]);
@@ -616,7 +648,6 @@ switch ($action) {
             echo _('Unknown query type');
       }
 
-// jfkldjfdsjlkfdjfds l
       print '<input type="submit" name="action" value="'._('New incident').'">'.LF;
       print '</form>'.LF;
       print '<P>'.LF;

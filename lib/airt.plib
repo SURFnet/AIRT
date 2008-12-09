@@ -340,13 +340,15 @@ function pageHeader($title='', $options=array()) {
          '%name'=>htmlentities($name),
          '%url'=>BASEURL,
          '%l'=>_('Log out')));
-# X   XX XXX TODO XXX XXX
-      print '    <form action="" method="post">'.LF;
-      print '      <input type="text" name="searchquery" />'.LF;
+
+      print t('    <form action="%u/search.php" method="get">'.LF, array(
+         '%u'=>BASEURL));
+      print '      <input type="hidden" name="action" value="query"/>'.LF;
+      print '      <input type="text" name="query" />'.LF;
       print t('      <input type="submit" value="%l" />', array(
          '%l'=>_('Search')));
       print '    </form>'.LF;
-# X   XX XXX TODO XXX XXX
+
       print LF.'    <div id="tools">'.LF;
       print '    <ul>'.LF;
       print t('    <li><span>%l</span>'.LF, array(
