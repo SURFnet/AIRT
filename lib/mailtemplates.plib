@@ -1074,12 +1074,12 @@ function templateList($recipients=array(), $incidentids=array(), $edit=false) {
   pageHeader(_('Mail templates'), array(
      'menu'=>'mail', 'submenu'=>'templates'));
   $show_prepare = true;
-  print format_templates($recipients, $incidentids, $edit);
   if ($edit === true) {
       print t('<P><a href="%url?action=new">'.
           _('Create a new message').'</a></P>'.LF,
           array('%url'=>$_SERVER['PHP_SELF']));
   }
+  print format_templates($recipients, $incidentids, $edit);
 
   pageFooter();
 }

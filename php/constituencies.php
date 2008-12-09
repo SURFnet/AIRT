@@ -120,7 +120,7 @@ switch ($action) {
          $out .= '<td>'.LF;
          $out .= '<a href="'.$_SERVER['PHP_SELF'].'?action=edit&cons='.
             $consid.'">'._('edit').'</a>'.LF;
-         $out .= '<a href="'.$_SERVER['PHP_SELF'].'?action=Delete&cons='.
+         $out .= '<a href="'.$_SERVER['PHP_SELF'].'?action=Delete&consid='.
             $consid.'">'._('delete').'</a>'.LF;
          $out .= '</td>'.LF;
          $out .= '</tr>'.LF;
@@ -255,24 +255,23 @@ switch ($action) {
 
    //-----------------------------------------------------------------
    case "Delete":
-      $cons = fetchFrom('POST', 'consid', '%d');
-      if (empty($cons)) {
-         die(_('Missing information (1).'));
-      }
+      $cons = fetchFrom('REQUEST', 'consid', '%d');
+      defaultTo($cons, 'a');
       if (!is_numeric($cons)) {
-         die(_('Invalid parameter type in ').__LINE__);
+         airt_msg(_('Invalid parameter type or missing information in ').__LINE__);
+         reload();
+         exit();
       }
 
       generateEvent("deleteconstituency", array(
          "constituencyid" => $cons
       ));
 
-      $res = db_query("
-         DELETE FROM constituencies
-         WHERE  id=$cons")
-      or die(_('Unable to execute query in ').__LINE__);
+      if (db_query("DELETE FROM constituencies WHERE id=$cons") === false) {
+          airt_msg(_('Unable to delete constituency: ').db_errormessage());
+      }
 
-      reload();
+      reload(BASEURL.'/constituencies.php');
       break;
 
    //-----------------------------------------------------------------
