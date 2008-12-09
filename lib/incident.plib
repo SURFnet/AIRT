@@ -1861,14 +1861,15 @@ function listIncidents() {
             '%id'=>$id,
             '%incidentid'=>encode_incidentid($id)));
       if (empty($data['ip'])) {
-          $data['ip'] = '<em>'._('None').'</em>';
-      } 
-      $out .= t('   <td><a title="%d" href="%u" class="hover">%l</a></td>'.LF, 
-      array(
-          '%u'=>BASEURL.'/search.php?action=Search&qtype=host&q='.
-             urlencode($data['ip']),
-          '%d'=>urlencode($data['hostname']).' '.urlencode($data['desc']),
-          '%l'=>(empty($data['ip']) ? $data['desc'] : $data['ip'])));
+          $out .= t('   <td><span class="verklaring" title="%d"><em>'._('None').'</em></span></td>', array(
+             '%d'=>urlencode($data['desc'])));
+      } else {
+          $out .= t('   <td><span class="verklaring" title="%d"><a href="%u" class="hover">%l</a></span></td>'.LF, array(
+              '%u'=>BASEURL.'/search.php?action=Search&qtype=host&q='.
+                 urlencode($data['ip']),
+              '%d'=>urlencode($data['hostname']).' '.urlencode($data['desc']),
+              '%l'=>(empty($data['ip']) ? $data['desc'] : $data['ip'])));
+      }
       if (empty($constituency)) {
           $out .= '   <td><em>'._('Unknown').'</em></td>'.LF;
       } else {
@@ -2494,12 +2495,12 @@ function newIncident($bulk=false) {
    
    $output .= '  <tr valign="top">'.LF;
    if ($bulk) {
-       $output .= t('   <td><a title="%s">%l</a></td>', array(
+       $output .= t('   <td><span class="verklaring" title="%s">%l</span></td>', array(
           '%s'=>_('Provide 1 IP address or hostname per line. One incident'.
              ' will be created for each host.'),
           '%l'=>_('IP Address')));
    } else {
-       $output .= t('    <td><a title="%s">%l</a></td>', array(
+       $output .= t('    <td><span class="verklaring" title="%s">%l</span></td>', array(
           '%s'=>_('Provide 1 IP address or hostname per line. All hosts'.
              ' will be added to the new incident.'),
           '%l'=>_('IP Address')));
@@ -2509,7 +2510,7 @@ function newIncident($bulk=false) {
 
    if (!$bulk) {
       $output .= '  <tr valign="top">'.LF;
-      $output .= t('    <td><a title="%s">%l</a></td>', array(
+      $output .= t('    <td><span class="verklaring" title="%s">%l</span></td>', array(
          '%s'=>_('Provide 1 email address per line'),
          '%l'=>_('Users')));
       $output .= '    <td><textarea class="newusers" name="users"></textarea></td>'.LF;
@@ -2517,7 +2518,7 @@ function newIncident($bulk=false) {
    }
    
    $output .= '  <tr valign="top">'.LF;
-   $output .= t('    <td><a title="%s">%l</a></td>', array(
+   $output .= t('    <td><span class="verklaring" title="%s">%l</span></td>', array(
       '%s'=>_('Provide 1 external identifier per line'),
       '%l'=>_('Additional IDs')));
    $output .= '    <td><textarea class="newids" name="ids"></textarea></td>'.LF;
