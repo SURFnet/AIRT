@@ -179,7 +179,7 @@ function mainMenu($active) {
 }
 
 
-function subMenu($menu, $submenu) {
+function subMenu($menu, $submenu, $title='') {
    $out = '';
    $closed = array_search('closed', getIncidentStatus());
    if ($closed === false) {
@@ -255,6 +255,11 @@ function subMenu($menu, $submenu) {
               '%active'=>($submenu == 'mailbox' ? 'class="active"' : '')));
            break;
    }
+  
+   $tmp = generateEvent('submenu-post', array(
+      'menu'=>$menu, 'submenu'=>$submenu, 'pagetitle'=>$title));
+   $out .= implode(' ', $tmp);
+
    return $out;
 }
 
@@ -371,7 +376,7 @@ function pageHeader($title='', $options=array()) {
       print '</div><!-- header -->'.LF;
 
       print LF.'<div id="submenu">'.LF;
-      print subMenu($menu, $submenu);
+      print subMenu($menu, $submenu, $title);
       print '</div><!-- submenu -->'.LF;
    } // menu is true
    print LF.'<div class="content">'.LF;
@@ -474,11 +479,13 @@ function registerEventHandler($event, $function) {
 function generateEvent($event, $data=array()) {
    global $glEventHandlers;
 
+   $out = array();
    if (isset($glEventHandlers) &&
        array_key_exists($event, $glEventHandlers)) {
       foreach ($glEventHandlers[$event] as $fun) 
-         call_user_func($fun, $data);
+         $out[]=call_user_func($fun, $data);
    }
+   return $out;
 }
 
 /* based on Drupal code; format the given string for output, making pattern

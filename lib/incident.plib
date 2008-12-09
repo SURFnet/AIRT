@@ -1966,11 +1966,13 @@ function incidentDetails() {
        'submenu'=>'incidents'));
 
    $output = '<div class="right">'.LF;
-   $output .= t('<a href="%u/incident.php?action=prepare&massincidents[]=%i&template=%t" class="button">%l</a>', array(
-       '%u'=>BASEURL,
-       '%i'=>$incidentid,
-       '%t'=>urlencode($incident['template']),
-       '%l'=>_('Quick email')));
+   if (!empty($incident['template'])) {
+       $output .= t('<a class="button" href="%u/incident.php?action=prepare&massincidents[]=%i&template=%t">%l</a>', array(
+           '%u'=>BASEURL,
+           '%i'=>$incidentid,
+           '%t'=>urlencode($incident['template']),
+           '%l'=>_('Quick email')));
+   }
    if (getIncidentStatusDescr($incident['status']) == _('closed') ||
        (getIncidentStatusDescr($incident['status']) == _('stalled'))) {
        $output .= t('<a href="%u/incident.php?action=reopen&incidentid=%i" class="button">%l</a>', array(
