@@ -90,7 +90,7 @@ defaultTo($action, 'list');
 switch ($action) {
    // --------------------------------------------------------------
    case "list":
-      pageHeader(_('Incident types'));
+      pageHeader(_('Incident types'), array('menu'=>'settings'));
 
       $res = db_query(
             "SELECT   id, label, descr, isdefault
@@ -142,7 +142,7 @@ switch ($action) {
           // should not happen
           die(_('Invalid parameter type in ').__LINE__);
        }
-       pageHeader(_('Edit incident state'));
+       pageHeader(_('Edit incident type'), array('menu'=>'settings'));
        show_form($id);
        pageFooter();
        break;

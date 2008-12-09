@@ -89,7 +89,7 @@ defaultTo($action, 'list');
 switch ($action) {
    // --------------------------------------------------------------
    case "list":
-      pageHeader(_('Incident status'));
+      pageHeader(_('Incident status'), array('menu'=>'settings'));
       $res = db_query(
          "SELECT   id, label, descr, isdefault
           FROM     incident_status
@@ -136,7 +136,7 @@ switch ($action) {
          die(_('Missing information in ').__LINE__);
       }
 
-      pageHeader(_('Edit incident status'));
+      pageHeader(_('Edit incident status'), array('menu'=>'settings'));
       show_form($id);
       pageFooter();
       break;

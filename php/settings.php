@@ -40,6 +40,7 @@ print '<P>'.LF;
 print '<a href="incident_types.php">'._('Edit incident types').'</a>'.LF;
 //print '<P>'.LF;
 //print '<a href="mailtemplates.php?action=list>'._('Edit standard messages').'</a>'.LF;
+/*
 print '<HR>'.LF;
 print '<b>'._('Network management').'</b>'.LF;
 print '<P>'.LF;
@@ -48,6 +49,7 @@ print '<P>'.LF;
 print '<a href="constituencies.php">'._('Edit constituencies').'</a>'.LF;
 print '<P>'.LF;
 print '<a href="constituency_contacts.php">'._('Edit constituency contacts').'</a>'.LF;
+*/
 print '<HR>'.LF;
 print '<b>'._('Appearance').'</b>'.LF;
 print '<P>'.LF;
