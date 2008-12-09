@@ -2306,7 +2306,7 @@ function incidentDetails() {
                   '%date'=>$date));
                $output .= '<td>'.LF;
                $output .= t('<a href="%u?action=unlink&msgid=%m&incidentid=%i">'.
-                  _('unlink').'</a>'.LF, array(
+                  _('Delete').'</a>'.LF, array(
                   '%u'=>BASEURL.'/incident.php',
                   '%m'=>$msgid,
                   '%i'=>$incident['incidentid']));

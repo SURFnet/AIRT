@@ -94,8 +94,7 @@ switch ($action) {
       print '   <td><B>'._('Network').'</B></td>'.LF;
       print '   <td><B>'._('Label').'</B></td>'.LF;
       print '   <td><B>'._('Constituency').'</B></td>'.LF;
-      print '   <td><B>'._('Edit').'</B></td>'.LF;
-      print '   <td><B>'._('Delete').'</B></td>'.LF;
+      print '   <td/'.LF;
       print '</tr>'.LF;
 
       $networklist = getNetworks();
@@ -120,8 +119,9 @@ switch ($action) {
          print t('<td><a href="constituencies.php?action=edit&cons=%constituency">%name</a></td>', array(
             '%constituency'=>$constituency,
             '%name'=>$constituency_name)).LF;
-         print t('<td><a href="%url?action=edit&id=%id"><small>'._('edit').'</small></td>', array('%url'=>$_SERVER['PHP_SELF'], '%id'=>$id)).LF;
-         print t('<td><a href="%url?action=delete&id=%id"><small>'._('delete').'</small></td>', array('%url'=>$_SERVER['PHP_SELF'], '%id'=>$id)).LF;
+         print t('<td><a href="%url?action=edit&id=%id">'._('edit').'</a>', array('%url'=>$_SERVER['PHP_SELF'], '%id'=>$id)).LF;
+         print ' ';
+         print t('<a href="%url?action=delete&id=%id">'._('delete').'</a></td>', array('%url'=>$_SERVER['PHP_SELF'], '%id'=>$id)).LF;
          print '</tr>'.LF;
       }
       print '</table>'.LF;
