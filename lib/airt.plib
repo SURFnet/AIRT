@@ -172,9 +172,10 @@ function mainMenu($active) {
       array('%url'=>BASEURL,
             '%i'=>_('Mail'),
             '%active'=>($active == 'mail') ? 'class="active"' : ''));
-   $out .= t('       <a href="%url/settings.php">%i</a>'.LF, 
+   $out .= t('       <a href="%url/settings.php" %active>%i</a>'.LF, 
       array('%url'=>BASEURL,
-      '%i'=>_('Settings')));
+            '%i'=>_('Settings'),
+				'%active'=>($active == 'settings') ? 'class="active"' : ''));
    return $out;
 }
 

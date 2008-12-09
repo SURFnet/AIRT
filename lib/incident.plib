@@ -1638,10 +1638,10 @@ function listIncidents() {
 
    /* by default, do not filter on state */
    $state = fetchFrom('REQUEST','state');
-   defaultTo($state, '');
+   defaultTo($state, -1);
    
    $type = fetchFrom('REQUEST','type');
-   defaultTo($type, '');
+   defaultTo($type, -1);
 
    /* by default, only list open */
    $status = fetchFrom('REQUEST','status');
@@ -1668,18 +1668,22 @@ function listIncidents() {
        $filter[] = 's1.id in ('.implode(',', $f).')';
    }
 
-   $f = explode(',', $state);
-   $f = array_filter($f, 'is_numeric');
-   
-   if (sizeof($f) > 0) {
-       $filter[] = 's2.id in ('.implode(',', $f).')';
+   if ($state != -1) {
+		$f = explode(',', $state);
+		$f = array_filter($f, 'is_numeric');
+		
+		if (sizeof($f) > 0) {
+			 $filter[] = 's2.id in ('.implode(',', $f).')';
+		}
    }
-   
-   $f = explode(',', $type);
-   $f = array_filter($f, 'is_numeric');
-   
-   if (sizeof($f) > 0) {
-       $filter[] = 't.id in ('.implode(',', $f).')';
+  
+   if ($type != -1) {
+		$f = explode(',', $type);
+		$f = array_filter($f, 'is_numeric');
+		
+		if (sizeof($f) > 0) {
+			 $filter[] = 't.id in ('.implode(',', $f).')';
+		}
    }
 
    $sqlfilter = 'WHERE '.implode(' AND ', $filter);
@@ -1727,10 +1731,10 @@ function listIncidents() {
       '%s'=>$sortkey));
    $out .= t('<input type="hidden" name="page" value="%s">'.LF, array(
       '%s'=>$page));
-   $out .= getIncidentStateSelection('type', $type, array(
-      ''=>_('[All types]')), 'onChange="document.filter.submit()"');
+   $out .= getIncidentTypeSelection('type', $type, array(
+      '-1'=>_('All types')), 'onChange="document.filter.submit()"');
    $out .= getIncidentStateSelection('state', $state, array(
-      ''=>_('[All states]')), 'onChange="document.filter.submit()"');
+      '-1'=>_('All states')), 'onChange="document.filter.submit()"');
    $out .= '<input type="submit" value="'._('Filter').'">'.LF;
    $out .= '</form>'.LF;
    $out .= '</div>'.LF;

@@ -24,7 +24,8 @@
 require_once 'config.plib';
 require_once LIBDIR."/airt.plib";
 
-pageHeader(_('AIRT Maintenance Center'));
+pageHeader(_('Settings'), array(
+   'menu'=>'settings'));
 print '<hr>'.LF;
 print '<b>'._('User management').'</b>'.LF;
 print '<P>'.LF;

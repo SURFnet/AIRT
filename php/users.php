@@ -156,7 +156,7 @@
    // --------------------------------------------------------------
    case 'list':
    case 'Show':
-      pageHeader(_("AIRT users"));
+      pageHeader(_("Users"), array('menu'=>'settings'));
 
       $interactive = fetchFrom('REQUEST', 'interactive', '%s');
       defaultTo($interactive, 'on');
@@ -457,7 +457,8 @@
            die(_('Invalid parameter type ').__LINE__);
        }
 
-       pageHeader(_("Edit user information"));
+       pageHeader(_("Edit user information"), array(
+		    'menu'=>'settings'));
        show_form($id);
        pageFooter();
        break;
