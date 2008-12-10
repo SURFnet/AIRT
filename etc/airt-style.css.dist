@@ -317,9 +317,14 @@ float: left;
 #mbox-sidebar {
   width: 205px;
   float: right;
+  margin-top: 50px;
 }
 
-pre{ 												/* temp */
+#prevnext{
+width: 200px;
+}
+
+pre{
 white-space: normal;
 }
 
