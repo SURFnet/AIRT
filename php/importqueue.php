@@ -91,7 +91,7 @@ switch (strtolower($action)) {
          $update = false;
          switch ($value) {
             case 'on':
-               if ($action == 'accept') {
+               if (strtolower($action) == _('accept')) {
                   if (array_key_exists('template', $_POST) &&
                       array_key_exists($id, $_POST['template'])) {
                      $template = $_POST['template'][$id];
@@ -100,7 +100,7 @@ switch (strtolower($action)) {
                   }
                   queueElementAccept($id, $template);
                }
-               elseif ($action == 'reject') {
+               elseif ($strtolower($action) == _('reject')) {
                   print t(_('Rejecting queue element %id<br/>').LF, array('%id'=>$id));
                   flush();
                   $value = 'rejected';
