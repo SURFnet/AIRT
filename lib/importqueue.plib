@@ -513,46 +513,51 @@ function queueFormatItems() {
 
    /* now, only worry about contact updates
     */
-   $out .= '<table class="horizontal">'.LF;
-   $out .= '<tr>'.LF;
-   $out .= '<th>&nbsp;</th>'.LF;
-   $out .= '<th>'._('No.').'</th>'.LF;
-   $out .= '<th>'._('Constituency').'</th>'.LF;
-   $out .= '</tr>'.LF;
-   $count = 0;
+   $newcontacts=0;
    foreach ($elements as $id=>$element) {
-      if ($element['metatype'] != AIRT_IMPORTQUEUE_METATYPE_CONTACT) {
-         continue;
+      if ($element['metatype'] == AIRT_IMPORTQUEUE_METATYPE_CONTACT) {
+         $newcontacts++;
       }
-      $item = queuePeekItem($id, $error);
-      if ($item === false) {
-         airt_msg(_('Error retrieve queue item in').
-            'importqueue.plib'.__LINE__);
-         continue;
-      }
-      $doc = new DOMDocument();
-      $doc->loadXML($item['content']);
-      $xpath = new DOMXPath($doc);
-      $res = $xpath->query('//airt/contactData/constituency');
-      $constituency = $res->item(0)->textContent;
-
-      $out .= t('<tr class="%class">', array(
-         '%class'=>(($count++ % 2 == 0) ? 'even' : 'odd'))).LF;
-      $out .= '   <td>';
-      $out .= t('  <input type="checkbox" name="checked[%id]"></td>'.LF,
-         array('%id'=>$id));
-      $out .= '  <td>'; 
-      $out .= t('  <a target="airt_queue" href="%url?action=showdetails&id=%id">%id</a></td>'.LF, array(
-         '%url'=>BASEURL.'/importqueue.php',
-         '%id'=>$id
-      ));
-      $out .= '  <td>'.t(_('New contact: %con').'</td>'.LF, array(
-         '%con'=>htmlentities($constituency)));
-      $out .= '</tr>'.LF;
    }
-   $out .= '</table>'.LF;
-   if ($count == 0) {
-      $out .= '<em>'._('No contacts pending.').'</em><p/>';
+   if ($newcontacts > 0) {
+       $out .= '<table class="horizontal">'.LF;
+       $out .= '<tr>'.LF;
+       $out .= '<th>&nbsp;</th>'.LF;
+       $out .= '<th>'._('No.').'</th>'.LF;
+       $out .= '<th>'._('Constituency').'</th>'.LF;
+       $out .= '</tr>'.LF;
+       $count = 0;
+       foreach ($elements as $id=>$element) {
+          if ($element['metatype'] != AIRT_IMPORTQUEUE_METATYPE_CONTACT) {
+             continue;
+          }
+          $item = queuePeekItem($id, $error);
+          if ($item === false) {
+             airt_msg(_('Error retrieve queue item in').
+                'importqueue.plib'.__LINE__);
+             continue;
+          }
+          $doc = new DOMDocument();
+          $doc->loadXML($item['content']);
+          $xpath = new DOMXPath($doc);
+          $res = $xpath->query('//airt/contactData/constituency');
+          $constituency = $res->item(0)->textContent;
+
+          $out .= t('<tr class="%class">', array(
+             '%class'=>(($count++ % 2 == 0) ? 'even' : 'odd'))).LF;
+          $out .= '   <td>';
+          $out .= t('  <input type="checkbox" name="checked[%id]"></td>'.LF,
+             array('%id'=>$id));
+          $out .= '  <td>'; 
+          $out .= t('  <a target="airt_queue" href="%url?action=showdetails&id=%id">%id</a></td>'.LF, array(
+             '%url'=>BASEURL.'/importqueue.php',
+             '%id'=>$id
+          ));
+          $out .= '  <td>'.t(_('New contact: %con').'</td>'.LF, array(
+             '%con'=>htmlentities($constituency)));
+          $out .= '</tr>'.LF;
+       }
+       $out .= '</table>'.LF;
    }
    $out .= '</div><!-- importqueue-overview-body -->'.LF;
    return $out;
