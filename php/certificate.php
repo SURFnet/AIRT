@@ -44,7 +44,7 @@ $q = q("SELECT id FROM users
         AND NOT password IS NULL", array(
    '%s'=>trim($crt['name'])));
 if (($res = db_query($q)) === false) {
-    airt_msg(db_error_message()._(' in ').'certificate.php:'.__LINE__);
+    airt_msg(db_errormessage()._(' in ').'certificate.php:'.__LINE__);
     reload(BASEURL.'/login.php');
     exit;
 }

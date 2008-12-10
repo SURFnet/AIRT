@@ -262,7 +262,6 @@ special variables in the template:').'<p>'.LF;
       defaultTo($override, 0);
 
       prepare_message($template, $override, $incidentids, $to);
-      pageFooter();
 
       break;
 

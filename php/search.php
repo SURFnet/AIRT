@@ -141,11 +141,11 @@ function search_host($hostname='') {
    print '<div class="search-output-basic">'.LF;
    print _('Search results for the following host:');
    print '<PRE>';
-   print _('IP Address').'          : '.$ip.LF;
-   print _('Hostname').'            : '.$hostname.LF;
+   print _('IP Address').'          : '.$ip.'<br/>'.LF;
+   print _('Hostname').'            : '.$hostname.'<br/>'.LF;
    print _('Network').'             : '.$netname.'(<a href="'.
-      $_SERVER['PHP_SELF'].'?q='.$network.'/'.$netmask.'&action=Search&qtype=zoom">'.$network.'/'.$netmask.'</a>)'.LF;
-   print _('Constituency').'        : '.$consname.LF;
+      $_SERVER['PHP_SELF'].'?q='.$network.'/'.$netmask.'&action=Search&qtype=zoom">'.$network.'/'.$netmask.'</a>)'.'<br/>'.LF;
+   print _('Constituency').'        : '.$consname.LF.'<br/>';
    print '</PRE>'.LF;
    print '</div>'.LF;
 
@@ -580,6 +580,17 @@ switch ($action) {
           exit;
       }
 
+      if (strstr($query, '@') !== false) {
+          reload(t(BASEURL.'/search.php?q=%q&qtype=email&action=Search', array(
+             '%q'=>urlencode($query))));
+          exit;
+      }
+      if (preg_match('@^([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9.]+)$@', $query, $match) > 0) {
+          reload(t(BASEURL.'/search.php?q=%q&qtype=zoom&action=Search', array(
+             '%q'=>urlencode($query))));
+          exit;
+      }
+
       if (preg_match('/^('.INCIDENTID_PREFIX.')?([0-9]+)$/', $query, $match) > 0) {
           if (getIncident($query) !== false) {
               reload(BASEURL.'/incident.php?action=details&incidentid='.
@@ -591,18 +602,6 @@ switch ($action) {
       if ((preg_match('/^([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)$/', $query, $match) > 0) ||
           (preg_match('/.+\.[^.]+\.[^.]+.+/', $query, $match) > 0)) {
           reload(t(BASEURL.'/search.php?q=%q&qtype=host&action=Search', array(
-             '%q'=>urlencode($query))));
-          exit;
-      }
-
-      if (strstr($query, '@') !== false) {
-          reload(t(BASEURL.'/search.php?q=%q&qtype=email&action=Search', array(
-             '%q'=>urlencode($query))));
-          exit;
-      }
-
-      if (preg_match('@^([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9.]+)$@', $query, $match) > 0) {
-          reload(t(BASEURL.'/search.php?q=%q&qtype=zoom&action=Search', array(
              '%q'=>urlencode($query))));
           exit;
       }
