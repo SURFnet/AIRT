@@ -103,11 +103,10 @@ switch ($action) {
 
       echo '<table class="horizontal">'.LF;
       echo '<tr>'.LF;
-      echo '<td><B>'._('Label').'</B></td>'.LF;
-      echo '<td><B>'._('Short description').'</B></td>'.LF;
-      echo '<td><B>'._('Is default').'</B></td>'.LF;
-      echo '<td><B>'._('Edit').'</B></td>'.LF;
-      echo '<td><B>'._('Delete').'</B></td>'.LF;
+      echo '<th>'._('Label').'</th>'.LF;
+      echo '<th>'._('Short description').'</th>'.LF;
+      echo '<th>'._('Is default').'</th>'.LF;
+      echo '<th/>'.LF;
       echo '</tr>'.LF;
       $count=0;
       while ($row = db_fetch_next($res)) {
@@ -120,8 +119,8 @@ switch ($action) {
          echo '<td>'.strip_tags($desc).'</td>'.LF;
          echo '<td>'.strip_tags($isdefault).'</td>'.LF;
          echo '<td><a href="'.$_SERVER['PHP_SELF'].
-            '?action=edit&id='.strip_tags($id).'">'._('edit').'</a></td>'.LF;
-         echo '<td><a href="'.$_SERVER['PHP_SELF'].
+            '?action=edit&id='.strip_tags($id).'">'._('edit').'</a>'.LF;
+         echo '<a href="'.$_SERVER['PHP_SELF'].
             '?action=delete&id='.strip_tags($id).
             '">'._('delete').'</a></td>'.LF;
          echo '</tr>'.LF;

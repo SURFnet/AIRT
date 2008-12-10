@@ -36,9 +36,6 @@ function showQueue() {
       'menu'=>'incidents',
       'submenu'=>'importqueue'));
    $out = '<div class="importqueue-overview-header">'.LF;
-	$out .= t('<a href="%url?action=preftempl">', array(
-	   '%url'=>$_SERVER['PHP_SELF'])).
-	   _('Edit preferred templates').'</a><p/>'.LF;
    $out .= '</div><!-- importqueue-overview-header -->'.LF;
    $out .= '<form method="post">'.LF;
    $out .= queueFormatItems();
@@ -185,7 +182,8 @@ switch (strtolower($action)) {
 
    // ----------------------------------------------------------------
    case 'preftempl':
-      pageHeader('Preferred mail templates');
+      pageHeader(_('Preferred mail templates'), array(
+         'menu'=>'settings'));
       print importqueueTemplatesFormatItems();
       pageFooter();
       break;

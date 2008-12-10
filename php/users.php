@@ -211,6 +211,7 @@
       print '   <th>'._('First name').'</th>'.LF;
       print '   <th>'._('Email').'</th>'.LF;
       print '   <th>'._('Phone').'</th>'.LF;
+      print '   <th/>'.LF;
       print '</tr>'.LF;
       $count=0;
       while ($row = db_fetch_next($res)) {
@@ -230,8 +231,8 @@
     <td>%s</td>
     <td><a href='mailto:%s'>%s</a></td>
     <td>%s</td>
-    <td><a href='$_SERVER[PHP_SELF]?action=edit&id=%s'>"._('edit')."</a></td>
-    <td><a 
+    <td nowrap><a href='$_SERVER[PHP_SELF]?action=edit&id=%s'>"._('edit')."</a>
+    <a 
        onclick=\"return confirm('"._('Are you sure that you want to delete %s?')."')\"
        href='$_SERVER[PHP_SELF]?action=delete&id=%s'>"._('delete')."</a></td>
 </tr>",

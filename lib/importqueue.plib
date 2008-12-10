@@ -449,10 +449,16 @@ function queueFormatItems() {
       $out .= t('     <input name="checked['.$id.']" %checked type="checkbox" /> '.LF,
          array('%checked'=>($toggle == 1) ? 'CHECKED' : ''));
       $out .= '  </td>'.LF;
+
       $out .= t('  <td nowrap><a target="airt_queue" href="%url?action=showdetails&id=%id">'.
          $element['id'].'</a></td>'.LF,
          array('%url'=>$_SERVER['PHP_SELF'], '%id'=>$id));;
-      $out .= t("  <td>%type</td>\n", array('%type'=>$element['type']));
+
+      $out .= t('  <td><a target="airt_queue" href="%url?action=showdetails&id=%id">%type</a></td>'.LF, array(
+         '%url'=>BASEURL.'/importqueue.php',
+         '%id'=>$id,
+         '%type'=>$element['type']));
+
       $out .= t("  <td>%cons</td>\n", array('%cons'=>$element['cache_constituency']));
       $out .= t('  <td><a href="%base/search.php?qtype=host&action=Search&q=%eip">%ip</a></td>'."\n", 
          array('%ip'=>$element['cache_ip'],

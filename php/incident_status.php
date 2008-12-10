@@ -97,11 +97,10 @@ switch ($action) {
       or die(_('Unable to execute query 1'));
       print '<table class="horizontal">'.LF;
       print '<tr>'.LF;
-      print '    <td><B>'._('Label').'</B></td>'.LF;
-      print '    <td><B>'._('Description').'</B></td>'.LF;
-      print '    <td><B>'._('Is default').'</B></td>'.LF;
-      print '    <td><B>'._('Edit').'</B></td>'.LF;
-      print '    <td><B>'._('Delete').'</B></td>'.LF;
+      print '    <th>'._('Label').'</th>'.LF;
+      print '    <th>'._('Description').'</th>'.LF;
+      print '    <th>'._('Is default').'</th>'.LF;
+      print '    <th/>'.LF;
       print ''.LF;
       print '</tr>'.LF;
       $count=0;
@@ -115,8 +114,8 @@ switch ($action) {
          print '    <td>'.strip_tags($desc).'</td>'.LF;
          print '    <td>'.strip_tags($isdefault).'</td>'.LF;
          print '    <td><a href="'.$_SERVER['PHP_SELF'].
-            '?action=edit&id='.$id.'">'._('edit').'</a></td>'.LF;
-         print '    <td><a href="'.$_SERVER['PHP_SELF'].
+            '?action=edit&id='.$id.'">'._('edit').'</a>'.LF;
+         print '    <a href="'.$_SERVER['PHP_SELF'].
             '?action=delete&id='.$id.'">'._('delete').'</a></td>'.LF;
          print '</tr>'.LF;
         } // while $row

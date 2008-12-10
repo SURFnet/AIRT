@@ -26,34 +26,58 @@ require_once LIBDIR."/airt.plib";
 
 pageHeader(_('Settings'), array(
    'menu'=>'settings'));
-print '<hr>'.LF;
-print '<b>'._('User management').'</b>'.LF;
-print '<P>'.LF;
-print '<a href="users.php">'._('Edit users').'</a>'.LF;
-print '<HR>'.LF;
-print '<b>'._('Incident management').'</b>'.LF;
-print '<P>'.LF;
-print '<a href="incident_states.php">'._('Edit incident states').'</a>'.LF;
-print '<P>'.LF;
-print '<a href="incident_status.php">'._('Edit incident statuses').'</a>'.LF;
-print '<P>'.LF;
-print '<a href="incident_types.php">'._('Edit incident types').'</a>'.LF;
-//print '<P>'.LF;
-//print '<a href="mailtemplates.php?action=list>'._('Edit standard messages').'</a>'.LF;
-/*
-print '<HR>'.LF;
-print '<b>'._('Network management').'</b>'.LF;
-print '<P>'.LF;
-print '<a href="networks.php">'._('Edit networks').'</a>'.LF;
-print '<P>'.LF;
-print '<a href="constituencies.php">'._('Edit constituencies').'</a>'.LF;
-print '<P>'.LF;
-print '<a href="constituency_contacts.php">'._('Edit constituency contacts').'</a>'.LF;
-*/
-print '<HR>'.LF;
-print '<b>'._('Appearance').'</b>'.LF;
-print '<P>'.LF;
-print '<a href="links.php">'._('Edit main menu links').'</a>'.LF;
-print '<hr>'.LF;
+print '<div class="column">'.LF;
+print '    <div class="block">'.LF;
+print '        <h3>'._('Edit tools menu').'</h3>'.LF;
+print '        <p>';
+print _('The Tools-menu can be used to access sources of information directly from any screen of AIRT. You might want to add a link to your IP-Address lookup and Network statistics application to this list.');
+print '</p>'.LF;
+print '        <p>'.LF;
+print _('All of the links in the Tools Menu will open in a new window.');
+print '</p>'.LF;
+print t('        <a href="%u/links.php">%l</a>', array(
+   '%u'=>BASEURL,
+   '%l'=>_('Edit Tools menu')));
+print '    </div>'.LF;
+print '    <div class="block">'.LF;
+print '        <h3>'._('AIRT User management').'</h3>'.LF;
+print '        <P>'.LF;
+print t('        <a href="%u/users.php">%l</a>'.LF, array(
+   '%u'=>BASEURL,
+   '%l'=>_('Edit users')));
+print '    </div>'.LF;
+print '</div>'.LF;
+print '<div class="column">'.LF;
+print '    <div class="block">'.LF;
+print '        <h3>'._('Incident handling management').'</h3>'.LF;
+print t('        <p><a href="%u/incident_states.php">%l</a><br/>'.LF, array(
+   '%u'=>BASEURL,
+   '%l'=>_('Edit incident states')));
+print _('Edit the states an incident can be in.').'</p>'.LF;
+print '</p>'.LF;
+print t('        <p><a href="%u/incident_types.php">%l</a><br />'.LF, array(
+   '%u'=>BASEURL,
+   '%l'=>_('Edit incident types')));
+print _('Edit what kind of incidents are identified on your network.').'</p>'.LF;
+print t('         <p><a href="%u/incident_status.php">%l</a><br />'.LF, array(
+   '%u'=>BASEURL,   
+   '%l'=>_('Edit incident statuses')));
+print '<em>';
+print _('This is probably not a function anymore in a future version');
+print '</em></p>'.LF;
+print t('<p><a href="%u/mailtemplates.php">%l</a><br />', array(
+   '%u'=>BASEURL,
+   '%l'=>_('Edit standard messages')));
+print '        </p>'.LF;
+print '    </div>'.LF;
+print '    <div class="block">'.LF;
+print '<h3>'._('Import queue').'</h3>'.LF;
+print t('<a href="%u/importqueue.php?action=preftempl">%l</a><br/>'.LF, array(
+   '%u'=>BASEURL,
+   '%l'=>_('Edit preferred templates')));
+print _('Set preferred templates for import filters').'<p/>'.LF;
+print '    </div>'.LF;
+print '</div>'.LF;
+
 pageFooter();
 ?>
