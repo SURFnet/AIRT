@@ -1631,6 +1631,7 @@ function setMailtemplateOverride($incidentid, $userid, $template) {
    return true;
 }
 
+
 /**
  * Formatted overview of open incidents
  */
@@ -1721,6 +1722,28 @@ function listIncidents() {
          $sortkey = 'incidentid';
    }
    $incidents = getOpenIncidents($sqlfilter);
+   $numincidents = sizeof($incidents);
+   $pager = '';
+   if ($numincidents  > PAGESIZE) {
+       $pages = ceil($numincidents / PAGESIZE);
+       $pager .= t(_('Incident %n - %m of %M. Page :'), array(
+          '%n'=>($page-1)*PAGESIZE+1,
+          '%M'=>$numincidents,
+          '%m'=>(min($page*PAGESIZE, $numincidents))));
+       for ($i=1; $i <= $pages; $i++) {
+           if ($page == $i) {
+               $pager .= " <span>$i</span> ";
+           } else {
+               $pager .= t(' <a href="%u/incident.php?page=%n&sortkey=%k&state=%s&status=%S">%i</a> ', array(
+                  '%u'=>BASEURL,
+                  '%n'=>$i,
+                  '%i'=>$i,
+                  '%k'=>$sortkey,
+                  '%s'=>$status,
+                  '%S'=>$state));
+           }
+       }
+   }
 
    $out = '';
    $out .= '<div class="left">'.LF;
@@ -1755,6 +1778,7 @@ function listIncidents() {
    $script = '<script language="JavaScript">'.LF;
    $script .= 'function checkAll() {'.LF;
    $script .= '   var check=document.forms[2].elements[1].checked;'.LF;
+
    $out .= t('<form name="listform" action="%url/incident.php" method="POST">',
       array('%url'=>BASEURL)).LF;
    $out .= '<input type="hidden" name="action" value="massupdate">'.LF;
@@ -1897,27 +1921,7 @@ function listIncidents() {
    $script .= '};'.LF;
    $script .= '</script>';
   
-   $numincidents = sizeof($incidents);
-   if ($numincidents  > PAGESIZE) {
-       $pages = ceil($numincidents / PAGESIZE);
-       $out .= t(_('Incident %n - %m of %M. Page :'), array(
-          '%n'=>($page-1)*PAGESIZE+1,
-          '%M'=>$numincidents,
-          '%m'=>(min($page*PAGESIZE, $numincidents))));
-       for ($i=1; $i <= $pages; $i++) {
-           if ($page == $i) {
-               $out .= " <span>$i</span> ";
-           } else {
-               $out .= t(' <a href="%u/incident.php?page=%n&sortkey=%k&state=%s&status=%S">%i</a> ', array(
-                  '%u'=>BASEURL,
-                  '%n'=>$i,
-                  '%i'=>$i,
-                  '%k'=>$sortkey,
-                  '%s'=>$status,
-                  '%S'=>$state));
-           }
-       }
-   }
+   $out .= $pager;
 
    $out .= '<p/>';
    $out .= _('With selected');
