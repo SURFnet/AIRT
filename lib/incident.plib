@@ -1645,11 +1645,12 @@ function listIncidents() {
 
    /* by default, only list open */
    $status = fetchFrom('REQUEST','status');
-   defaultTo($status, '');
-   if (!empty($status)) {
-       $archive = true;
-   } else {
+   defaultTo($status, -1);
+
+   if ($status == -1) {
        $archive = false;
+   } else {
+       $archive = true;
    }
 
    $sortkey = strip_tags(fetchFrom('REQUEST','sortkey'));
@@ -1659,13 +1660,14 @@ function listIncidents() {
    defaultTo($page, 1);
 
    $filter=array();
-   $f=explode(',', $status);
-   $f = array_filter($f, 'is_numeric');
-   
-   if (sizeof($f) == 0) {
-       $filter[] = "s1.label in ('open', 'stalled')";
-   } else {
+
+   if ($status != -1) {
+       $f=explode(',', $status);
+       $f = array_filter($f, 'is_numeric');
+      
        $filter[] = 's1.id in ('.implode(',', $f).')';
+   } else {
+      $filter[] = "s1.label in ('open', 'stalled')";
    }
 
    if ($state != -1) {
@@ -1894,12 +1896,14 @@ function listIncidents() {
    $out .= '</table>'.LF;
    $script .= '};'.LF;
    $script .= '</script>';
-   
-   if (sizeof($incidents) > PAGESIZE) {
-       $pages = ceil(sizeof($incidents) / PAGESIZE);
-       $out .= t(_('Message %n - %m. Page :'), array(
-          '%n'=>(1-$page)*PAGESIZE+1,
-          '%m'=>$page*PAGESIZE));
+  
+   $numincidents = sizeof($incidents);
+   if ($numincidents  > PAGESIZE) {
+       $pages = ceil($numincidents / PAGESIZE);
+       $out .= t(_('Incident %n - %m of %M. Page :'), array(
+          '%n'=>($page-1)*PAGESIZE+1,
+          '%M'=>$numincidents,
+          '%m'=>(min($page*PAGESIZE, $numincidents))));
        for ($i=1; $i <= $pages; $i++) {
            if ($page == $i) {
                $out .= " <span>$i</span> ";
