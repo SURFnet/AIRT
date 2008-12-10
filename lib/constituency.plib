@@ -22,6 +22,7 @@
  * $Id$
  */
 require_once LIBDIR.'/database.plib';
+require_once LIBDIR.'/network.plib';
 
 /** Return a list of constituencies.
  * @return an associative array containing constituency information. The
@@ -406,4 +407,230 @@ function isConstituencyContact($userid, $constituencyid, &$error='') {
    return false;
 }
 
+function constituencyDetails() {
+    $cid = fetchFrom('REQUEST', 'cons', '%d');
+    if (empty($cid)) {
+        airt_msg(_('Missing parameter value in ').'constituency.plib:'.__LINE__);
+        reload(BASEURL.'/constituencies.php');
+        return;
+    }
+    $clist = getConstituencies();
+    if (!array_key_exists($cid, $clist)) {
+        airt_msg(_('Unknown constituency in ').'constituency.plib:'.__LINE__);
+        reload(BASEURL.'/constituencies.php');
+        return;
+    }
+    pageHeader(_('Constituency ').htmlentities($clist[$cid]['name']), array(
+       'menu'=>'constituencies',
+       'submenu'=>'constituencies'));
+    print '<div class="right">'.LF;
+    print t('<a class="button" href="%u/constituencies.php?action=Delete&consid=%i">%l</a>', array(
+       '%u'=>BASEURL,
+       '%i'=>$cid,
+       '%l'=>_('Delete constituency')));
+    print '</div>'.LF;
+
+    print '<div id="constituency-details" style="clear:both;">'.LF;
+
+    print '<div class="column">'.LF;
+
+    print '<div class="block">'.LF;
+    print '<h3>'._('Basic constituency details').'</h3>'.LF;
+    print t('<form action="%u/constituencies.php" method="POST">'.LF, array(
+       '%u'=>BASEURL));
+    print '<input type="hidden" name="action" value="update"/>'.LF;
+    print t('<input type="hidden" name="action" value="%c"/>'.LF, array(
+       '%c'=>$cid));
+    print '<table>'.LF;
+    print '<tr>'.LF;
+    print '<td>'._('Name').'</td>'.LF;
+    print '<td>'.LF;
+    print t('<input type="text" size="30" name="label" value="%v"/>'.LF, array(
+       '%v'=>$clist[$cid]['label']));
+    print '</td>'.LF;
+    print '</tr>'.LF;
+    print '<tr>'.LF;
+    print '<td>'._('Description').'</td>'.LF;
+    print '<td>'.LF;
+    print t('<input type="text" size="30" name="name" value="%v"/>'.LF, array(
+       '%v'=>$clist[$cid]['name']));
+    print '</td>'.LF;
+    print '</tr>'.LF;
+    print '</table>'.LF;
+    print '<p/>'.LF;
+    print '<input type="submit" value="'._('Update').'"/>'.LF;
+    print '</form>'.LF;
+    print '</div><!-- block -->'.LF;
+
+    print '</div><!-- column -->'.LF;
+
+    print '<div class="column">'.LF;
+
+    print '<div class="block">'.LF;
+    print '<h3>'._('Network').'</h3>'.LF;
+    print '<table>'.LF;
+    print '<tr>'.LF;
+    print '<th>'._('Netblock').'</th>'.LF;
+    print '<th>'._('Label').'</th>'.LF;
+    print '</tr>'.LF;
+    $nlist = getNetworks();
+    foreach ($nlist as $net) {
+        if ($net['constituency'] != $cid) {
+            continue;
+        }
+        print '<tr>'.LF;
+        print t('<td>%net/%cidr</td>'.LF, array(
+           '%net'=>$net['network'],
+           '%cidr'=>netmask2cidr($net['netmask'])));
+        print t('<td>%label</td>'.LF, array(
+           '%label'=>$net['label']));
+        print t('<td><a href="%u/networks.php?action=edit&id=%id">%l</a>'.LF,
+           array('%u'=>BASEURL,
+           '%id'=>$net['id'],
+           '%l'=>_('edit')));
+        /*
+        print t('<a href="%u/networks.php?action=unlink&consid=%I&netwid=%id">%l</a>'.LF,
+           array('%u'=>BASEURL,
+           '%I'=>$consid,
+           '%id'=>$net['id'],
+           '%l'=>_('remove')));
+        */
+        print '</td>'.LF;
+        print '</tr>'.LF;
+    }
+    print '</table>'.LF;
+    print '</div><!-- block -->'.LF;
+
+    print '<div class="block">'.LF;
+    print '<h3>'._('Constituency contacts').'</h3>'.LF;
+    print '<table>'.LF;
+    print '<tr>'.LF;
+    print t('<th>%1, %2, %3</th>', array(
+       '%1'=>_('Name'),
+       '%2'=>_('E-mail'),
+       '%3'=>_('Telephone')));
+    print '<th/>'.LF;
+    print '</tr>'.LF;
+    foreach (getConstituencyContacts($cid) as $id=>$data) {
+        print '<tr>'.LF;
+        print '<td>'.LF;
+        print implode(' ', array($data['firstname'], $data['lastname'])).'<br/>'.LF;
+        print t('E: <a href="%u/users.php?action=edit&id=%i">%e</a>', array(
+           '%u'=>BASEURL,
+           '%i'=>$data['userid'],
+           '%e'=>htmlentities($data['email'])));
+        if (!empty($data['phone'])) {
+            print '<br/>';
+            print t('T: %t', array('%t'=>htmlentities($data['phone'])));
+        }
+        print '</td>'.LF;
+        print '<td>'.LF;
+        print t('<a href="%u/constituencies.php?action=rmcontact&cid=%cid&uid=%uid">%l</a>', array(
+           '%u'=>BASEURL,
+           '%uid'=>$data['userid'],
+           '%cid'=>$cid,
+           '%l'=>_('delete')));
+        print '</td>'.LF;
+        print '</tr>'.LF;
+    }
+    print '</table>'.LF;
+    
+    print '<p/>';
+    print _('Contacts are identified by email address. '.
+       'To add constituency contacts, please enter one address per line.');
+
+    print t('<form action="%u/constituencies.php" method="post">'.LF, array(
+       '%u'=>BASEURL));
+    print t('<input type="hidden" name="action" value="addcontact"/>'.LF, array(
+      '%c'=>$cid));
+    print t('<input type="hidden" name="constituency" value="%c"/>'.LF, array(
+      '%c'=>$cid));
+    print '<table>'.LF;
+    print '<tr>'.LF;
+    print '<td>'.LF;
+    print t('<textarea name="contacts">%c</textarea>'.LF, array(
+      '%c'=>$contacts));
+    print '</td>'.LF;
+    print '<td>'.LF;
+    print t('<input type="submit" value="%v"/>', array(
+       '%v'=>_('Add')));
+    print '</td>'.LF;
+    print '</tr>'.LF;
+    print '</table>'.LF;
+    print '</form>'.LF;
+
+    print '</div><!-- block -->'.LF;
+
+    print '</div><!-- column -->'.LF;
+
+    print '</div><!-- #constituency-details -->'.LF;
+
+    pageFooter();
+}
+
+function removeConstituencyContactFrontend() {
+    $cid = fetchFrom('REQUEST', 'cid', '%d');
+    if (empty($cid)) {
+        airt_msg(_('Missing parameter value in ').'constituency.plib:'.__LINE__);
+        reload(BASEURL.'/constituencies.php');
+        return;
+    }
+    $uid = fetchFrom('REQUEST', 'uid', '%d');
+    if (empty($uid)) {
+        airt_msg(_('Missing parameter value in ').'constituency.plib:'.__LINE__);
+        reload(BASEURL.'/constituencies.php?action=edit&cons='.$cid);
+        return;
+    }
+    if (removeConstituencyContact($cid, $uid, $error) === false) {
+        airt_msg($error);
+        reload(BASEURL.'/constituencies.php?action=edit&cons='.$cid);
+        return;
+    }
+    airt_msg(_('Constituency contact removed.'));
+    reload(BASEURL.'/constituencies.php?action=edit&cons='.$cid);
+}
+
+function addConstituencyContactFrontend() {
+    $cid = fetchFrom('REQUEST', 'constituency', '%d');
+    if (empty($cid)) {
+        airt_msg(_('Missing parameter value in ').'constituency.plib:'.__LINE__);
+        reload(BASEURL.'/constituencies.php');
+        return;
+    }
+    $contacts = strip_tags(trim(fetchFrom('REQUEST', 'contacts')));
+    if (empty($contacts)) {
+        $contacts = array();
+    } else {
+        $contacts = split("\r\n", $contacts);
+    }
+
+    $c = getConstituencyContacts($cid);
+    // add contacts that do not yet exist
+    foreach ($contacts as $contact) {
+        $contact = strtolower(trim($contact));
+        if (empty($contact)) {
+            continue;
+        }
+        if (($u = getUserByEmail($contact)) == false) {
+            addUser(array('email'=>$contact));
+            airt_msg(t(_('Added user %u.'), array(
+               '%u'=>htmlentities($contact))));
+            $u = getUserByEmail($contact);
+        } 
+        if (!array_key_exists($u['id'], $c)) {
+           if (addConstituencyContact($cid, 
+              array('userid'=>$u['id']), $error) === false) {
+                airt_msg($error);
+                reload();
+                exit();
+            } else {
+               airt_msg(t(_('Added user %u to constituency.'), array(
+                  '%u'=>htmlentities($contact))));
+            }
+        }
+        unset($c[$u['id']]);
+    }
+    airt_msg(_('Constituency contact added.'));
+    reload(BASEURL.'/constituencies.php?action=edit&cons='.$cid);
+}
 ?>

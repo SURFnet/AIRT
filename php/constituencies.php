@@ -28,69 +28,6 @@ require_once LIBDIR.'/database.plib';
 require_once LIBDIR.'/constituency.plib';
 require_once LIBDIR.'/network.plib';
 
-
-/** GUI Component to show the update constituecy form. */
-function formatConstituencyForm($id='') {
-   $label = $description = '';
-   $action = 'add';
-   $submit = _('Add');
-   $contacts = '';
-
-   if (!empty($id)) {
-      if (!is_numeric($id)) {
-         die(_('Invalid parameter type ').__LINE__);
-      }
-      $constituencies = getConstituencies();
-
-      if (array_key_exists($id, $constituencies)) {
-         $row = $constituencies[$id];
-         $label = $row['label'];
-         $description = $row['name'];
-         $action = 'update';
-         $submit = _('Update');
-
-         $contacts = getConstituencyContacts($id);
-         $cdata = array();
-         foreach ($contacts as $i=>$c) {
-             $cdata[] = $c['email'];
-         }
-         $contacts = implode("\r\n", $cdata);
-      }
-   }
-   $out = t('<form action="%u/constituencies.php" method="POST">'.LF, array(
-      '%u'=>BASEURL));
-   $out .= '<input type="hidden" name="action" value="'.$action.'">'.LF;
-   $out .= '<input type="hidden" name="consid" value="'.$id.'">'.LF;
-   $out .= '<table>'.LF;
-   $out .= '<tr>'.LF;
-   $out .= '   <td>'._('Name').'</td>'.LF;
-   $out .= '   <td><input type="text" size="30" name="label" '.
-           '       value="'.strip_tags($label).'"></td>'.LF;
-   $out .= '</tr>'.LF;
-   $out .= '<tr>'.LF;
-   $out .= '   <td>'._('Description').'</td>'.LF;
-   $out .= '   <td><input type="text" size="30" name="description" '.
-           '    value="'.strip_tags($description).'"></td>'.LF;
-   $out .= '</tr>'.LF;
-   $out .= '<tr>'.LF;
-   $out .= t('   <td><span class="verklaring" title="%t">%l</span></td>'.LF, array(
-      '%l'=>_('Constituency contacts'),
-      '%t'=>_('Contacts are identified by email address. '.
-         'Please enter one address per line.')));
-   $out .= t('   <td><textarea name="contacts">%c</textarea></td>'.LF, array(
-      '%c'=>$contacts));
-   $out .= '</tr>'.LF;
-   $out .= '</table>'.LF;
-   $out .= '<p>'.LF;
-   $out .= '<input type="submit" value="'.$submit.'">'.LF;
-   if ($action=="update") {
-        $out .= '<input type="submit" name="action" value="'.
-        _('Delete').'">'.LF;
-   }
-   $out .= '</form>'.LF;
-   return $out;
-}
-
 $action = strip_tags(fetchFrom('REQUEST', 'action', '%s'));
 defaultTo($action, 'list');
 
@@ -128,22 +65,12 @@ switch ($action) {
       $out .= '</table>';
 
       $out .= '<h3>'._('New constituency').'</h3>'.LF;
-      $out .= formatConstituencyForm('');
       print $out;
       break;
 
    //-----------------------------------------------------------------
    case "edit":
-      $cons = fetchFrom('GET', 'cons', '%d');
-      if (empty($cons)) {
-         die(_('Missing information in ').__LINE__);
-      }
-
-      pageHeader(_('Edit constituency'), array(
-		   'menu'=>'constituencies',
-			'submenu'=>'constituencies'));
-      print formatConstituencyForm($cons);
-      pageFooter();
+      constituencyDetails();
       break;
 
    //-----------------------------------------------------------------
@@ -251,6 +178,14 @@ switch ($action) {
          reload();
       }
 
+      break;
+
+   case 'rmcontact':
+      removeConstituencyContactFrontend();
+      break;
+
+   case 'addcontact':
+      addConstituencyContactFrontend();
       break;
 
    //-----------------------------------------------------------------
