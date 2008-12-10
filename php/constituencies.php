@@ -73,7 +73,7 @@ function formatConstituencyForm($id='') {
            '    value="'.strip_tags($description).'"></td>'.LF;
    $out .= '</tr>'.LF;
    $out .= '<tr>'.LF;
-   $out .= t('   <td><a title="%t">%l</a></td>'.LF, array(
+   $out .= t('   <td><span class="verklaring" title="%t">%l</span></td>'.LF, array(
       '%l'=>_('Constituency contacts'),
       '%t'=>_('Contacts are identified by email address. '.
          'Please enter one address per line.')));
