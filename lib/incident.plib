@@ -281,7 +281,7 @@ function getIncidentTypeSelection($name, $default='',$extras=array()) {
  * are retrieved.
  */
 function getOpenIncidents($sqlfilter = "WHERE s1.label IN ('open','stalled')") {
-   $res = db_query(
+   $query = q(
       'SELECT   i.id as incidentid,
                 i.short_desc as desc,
                 extract(epoch from created) as created,
@@ -310,7 +310,8 @@ function getOpenIncidents($sqlfilter = "WHERE s1.label IN ('open','stalled')") {
          LEFT JOIN users u2 on u2.id = i.updatedby
          '.
          $sqlfilter);
-   if (!$res) {
+   if (($res = db_query($query)) === false) {
+	   print  'X:'.db_errormessage();
       airt_error('DB_QUERY', 'incident.plib:'.__LINE__);
       return array();
    }
@@ -1654,6 +1655,8 @@ function listIncidents() {
        $archive = true;
    }
 
+
+
    $sortkey = strip_tags(fetchFrom('REQUEST','sortkey'));
    defaultTo($sortkey, 'incidentid');
 
@@ -1739,8 +1742,8 @@ function listIncidents() {
                   '%n'=>$i,
                   '%i'=>$i,
                   '%k'=>$sortkey,
-                  '%s'=>$status,
-                  '%S'=>$state));
+                  '%S'=>$status,
+                  '%s'=>$state));
            }
        }
    }

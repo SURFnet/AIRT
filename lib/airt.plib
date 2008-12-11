@@ -208,7 +208,7 @@ function subMenu($menu, $submenu, $title='') {
               '%l'=>_('Import queue ('.$elements.')'),
               '%active'=>($submenu == 'importqueue' ? 'class="active"' : '')));
  
-           $out .= t('  <a href="%url/incident.php?status=%s" %active>%l</a>'.LF, 
+           $out .= t('  <a href="%url/incident.php?action=list&status=%s" %active>%l</a>'.LF, 
            array(
               '%s'=>$closed,
               '%url'=>BASEURL,

@@ -548,8 +548,7 @@ function constituencyDetails() {
     print '<table>'.LF;
     print '<tr>'.LF;
     print '<td>'.LF;
-    print t('<textarea name="contacts">%c</textarea>'.LF, array(
-      '%c'=>$contacts));
+    print t('<textarea name="contacts"></textarea>'.LF);
     print '</td>'.LF;
     print '<td>'.LF;
     print t('<input type="submit" value="%v"/>', array(
@@ -581,6 +580,7 @@ function removeConstituencyContactFrontend() {
         reload(BASEURL.'/constituencies.php?action=edit&cons='.$cid);
         return;
     }
+	 $error = '';
     if (removeConstituencyContact($cid, $uid, $error) === false) {
         airt_msg($error);
         reload(BASEURL.'/constituencies.php?action=edit&cons='.$cid);

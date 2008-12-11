@@ -625,7 +625,7 @@ function viewMessage() {
       'include_bodies'=>true,
       'decode_bodies'=>true));
 
-   pageHeader(_('Mail from ').htmlentities($msg['sender']), array(
+   pageHeader(_('Mail from ').$msg['sender'], array(
       'menu'=>'mail',
       'submenu'=>'mailbox'));
    print '<div id="mbox">'.LF;
@@ -680,7 +680,7 @@ function viewMessage() {
          switch ($part->disposition) {
             case '':
             case 'inline':
-               print '<pre>'.htmlentities(trim($part->body)).'</pre>';
+               print '<pre>'.nl2br(htmlentities(trim($part->body))).'</pre>';
                break;
             case 'attachment':
                print '<span class="attachment">'._('Attachment').' '.$n++.
