@@ -2343,7 +2343,7 @@ function incidentDetails() {
    foreach (getExternalIncidentIDs($incidentid) as $extid) {
        $output .= '<tr>'.LF;
        $output .= '<td>'.htmlentities($extid).'</td>'.LF;
-       $output .= t('<td><a href="%u/incident.php?action=del_extid&incidentid=%i&extid=%e">%l</a></td>'.LF, array(
+       $output .= t('<td><a href="%u/incident.php?action=delete_extid&incidentid=%i&extid=%e">%l</a></td>'.LF, array(
           '%u'=>BASEURL,
           '%i'=>urlencode($incidentid),
           '%e'=>urlencode($extid),
