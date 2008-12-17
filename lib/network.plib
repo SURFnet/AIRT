@@ -157,7 +157,8 @@ function addNetwork($data, &$error='') {
    }
    $constituency = $data['constituency'];
    if (!is_numeric($constituency)) {
-      $error = _('Invalid parameter type in').' network.plib:'.__LINE__;
+      $error = t(_('Invalid parameter type (%n) in'), array(
+         '%n'=>$constituency)).' network.plib:'.__LINE__;
       return false;
    }
    

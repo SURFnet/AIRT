@@ -155,19 +155,19 @@ switch ($action) {
       if (!is_numeric($id)) {
          die(_('Invalid parameter type ').__LINE__);
       }
-      $network = strip_tags(fetchFrom('POST', 'network', '%s'));
+      $network = strip_tags(fetchFrom('REQUEST', 'network', '%s'));
       if (empty($network)) {
          die(_('Missing parameter value in ').__LINE__);
       }
-      $netmask = strip_tags(fetchFrom('POST', 'netmask', '%s'));
+      $netmask = strip_tags(fetchFrom('REQUEST', 'netmask', '%s'));
       if (empty($netmask)) {
          die(_('Missing parameter value in ').__LINE__);
       }
-      $label = strip_tags(fetchFrom('POST', 'label', '%s'));
+      $label = strip_tags(fetchFrom('REQUEST', 'label', '%s'));
       if (empty($label)) {
          die(_('Missing parameter value in ').__LINE__);
       }
-      $constituency = fetchFrom('POST', 'constituency', '%d');
+      $constituency = strip_tags(fetchFrom('REQUEST', 'constituency', '%d'));
       if (empty($constituency)) {
          die(_('Missing parameter value in ').__LINE__);
       }

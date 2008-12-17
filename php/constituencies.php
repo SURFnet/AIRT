@@ -64,7 +64,27 @@ switch ($action) {
       } // foreach
       $out .= '</table>';
 
+      $out .= '<div>'.LF;
       $out .= '<h3>'._('New constituency').'</h3>'.LF;
+      $out .= t('<form action="%u/constituencies.php">', array(
+         '%u'=>BASEURL));
+      $out .= '<input type="hidden" name="action" value="add"/>'.LF;
+      $out .= '<table>'.LF;
+      $out .= '<tr>'.LF;
+      $out .= '<td>'._('Label').'</td>'.LF;
+      $out .= '<td><input type="text" size="30" name="label"/></td>'.LF;
+      $out .= '</tr>'.LF;
+      $out .= '<tr>'.LF;
+      $out .= '<td>'._('Name').'</td>'.LF;
+      $out .= '<td><input type="text" size="30" name="description"/></td>'.LF;
+      $out .= '</tr>'.LF;
+      $out .= '<tr>'.LF;
+      $out .= '<td/>'.LF;
+      $out .= '<td><input type="submit" value="'._('Add').'"/></td>'.LF;
+      $out .= '</tr>'.LF;
+      $out .= '</table>'.LF;
+      $out .= '</form>'.LF;
+      $out .= '</div>'.LF;
       print $out;
       break;
 
@@ -76,14 +96,14 @@ switch ($action) {
    //-----------------------------------------------------------------
    case "add":
    case "update":
-      $consid = fetchFrom('POST', 'consid', '%d');
+      $consid = fetchFrom('REQUEST', 'consid', '%d');
       defaultTo($consid, -1);
 
-      $label = strip_tags(fetchFrom('POST', 'label', '%s'));
+      $label = strip_tags(fetchFrom('REQUEST', 'label', '%s'));
       if (empty($label)) {
          die(_('Missing information in ').__LINE__);
       }
-      $description = strip_tags(fetchFrom('POST', 'description', '%s'));
+      $description = strip_tags(fetchFrom('REQUEST', 'description', '%s'));
       if (empty($description)) {
          die(_('Missing information in ').__LINE__);
       }

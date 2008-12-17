@@ -499,6 +499,7 @@ function constituencyDetails() {
         print '</tr>'.LF;
     }
     print '</table>'.LF;
+
     print '</div><!-- block -->'.LF;
 
     print '<div class="block">'.LF;
