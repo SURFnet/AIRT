@@ -31,6 +31,9 @@ require_once LIBDIR.'/history.plib';
 require_once LIBDIR.'/user.plib';
 require_once LIBDIR.'/mailtemplates.plib';
 
+function filterIsOn($v) {
+    return (strtolower($v) == 'on');
+}
 
 $action = strip_tags(fetchFrom('REQUEST','action'));
 defaultTo($action,'list');
@@ -38,6 +41,7 @@ defaultTo($action,'list');
 switch ($action) {
 
   //--------------------------------------------------------------------
+  case _('Compose'):
   case _('prepare'):
      // Send bulk mail for the selected incidents.
      $massincidents = fetchFrom('REQUEST','massincidents[]');
@@ -447,14 +451,16 @@ switch ($action) {
       break;
 
    //--------------------------------------------------------------------
+   case _('Update selected incidents'):
    case 'massupdate':
       // massincidents may be absent, this is how HTML checkboxes work.
       $massIncidents = fetchFrom('POST', 'massincidents');
       if ($massIncidents == '') {
          // Nothing checked, nothing to do; disregard command.
+         airt_msg(_('No incidents selected to work on.'));
          Header("Location: $_SERVER[PHP_SELF]");
       }
-      $massIncidents = array_filter($massIncidents, 'is_numeric');
+      $massIncidents = array_keys(array_filter($massIncidents, 'filterIsOn'));
       $massState = fetchFrom('POST', 'massstate', '%d');
       if ($massState == 'null') {
          $massState = '';

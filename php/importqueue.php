@@ -97,7 +97,7 @@ switch (strtolower($action)) {
                   }
                   queueElementAccept($id, $template);
                }
-               elseif ($strtolower($action) == _('reject')) {
+               elseif (strtolower($action) == _('reject')) {
                   print t(_('Rejecting queue element %id<br/>').LF, array('%id'=>$id));
                   flush();
                   $value = 'rejected';

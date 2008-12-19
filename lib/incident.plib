@@ -884,34 +884,61 @@ function updateIncident($id,$params = array()) {
 
    // Compile the variable part of the SET clause.
    $set = '';
-   if (!empty($params['state'])) {
-      $set .= sprintf('state=%d,',$params['state']);
+   $comment = '';
+   if (array_key_exists('state', $params)) {
+       if (!empty($params['state'])) {
+          $set .= sprintf('state=%d,',$params['state']);
+          $comment .= t(_('new state: %s. '), array(
+             '%s'=>getIncidentStateDescr($params['state'])));
+       }
    }
-   if (!empty($params['status'])) {
-      $set .= sprintf('status=%d,',$params['status']);
+   if (array_key_exists('status', $params)) {
+       if (!empty($params['status'])) {
+          $set .= sprintf('status=%d,',$params['status']);
+          $comment .= t(_('new status: %s. '), array(
+             '%s'=>getIncidentStatusDescr($params['status'])));
+       }
    }
-   if (!empty($params['type'])) {
-      $set .= sprintf('type=%d,',$params['type']);
+   if (array_key_exists('type', $params)) {
+       if (!empty($params['type'])) {
+          $set .= sprintf('type=%d,',$params['type']);
+          $comment .= t(_('new type: %s. '), array(
+             '%s'=>getIncidentTypeDescr($params['type'])));
+       }
    }
-   if (!empty($params['date'])) {
-      $set .= sprintf('incidentdate=\'%s\',', db_escape_string(
-      date('Y-m-d H:i:s', $params['date'])));
+   if (array_key_exists('date', $params)) {
+       if (!empty($params['date'])) {
+          $set .= sprintf('incidentdate=\'%s\',', db_escape_string(
+             date('Y-m-d H:i:s', $params['date'])));
+          $comment .= t(_('new date: %s. '), array(
+             '%s'=>date('Y-m-d H:i:s', $params['date'])));
+       }
    }
-   if (!empty($params['logging'])) {
+   if (array_key_exists('logging', $params)) {
       $set .= sprintf('logging=\'%s\',',db_escape_string(
          $params['logging']));
+      $comment .= _('Logging updated. ');
    }
-   if (!empty($params['desc'])) {
-      $set .= sprintf('short_desc=\'%s\',',db_escape_string(
-         strip_tags($params['desc'])));
-   } else {
-      $set .= sprintf('short_desc=NULL,');
+   if (array_key_exists('desc', $params)) {
+       if (empty($params['desc'])) {
+          $set .= sprintf('short_desc=NULL,');
+          $comment .= _('Description cleared. ');
+       } else {
+          $set .= sprintf('short_desc=\'%s\',',db_escape_string(
+             strip_tags($params['desc'])));
+          $comment .= _('Description updated');
+       }
    }
-   if (!empty($params['template'])) {
-      $set .= sprintf('pref_templ=\'%s\',',db_escape_string(
-         strip_tags($params['template'])));
-   } else {
-      $set .= sprintf('pref_templ=NULL,');
+   if (array_key_exists('template', $params)) {
+       if (empty($params['template'])) {
+          $set .= sprintf('pref_templ=NULL,');
+          $comment .= _('Template cleared. ');
+       } else {
+          $set .= sprintf('pref_templ=\'%s\',',db_escape_string(
+             strip_tags($params['template'])));
+          $comment .= t(_('new template: %s. '), array(
+             '%s'=>$params['template']));
+       }
    }
 
    // Add the fixed part (we know for sure there is at least one variable
@@ -920,6 +947,9 @@ function updateIncident($id,$params = array()) {
    // Create the whole query.
 
    db_query(q('UPDATE incidents SET %set WHERE id=%id', array('%set'=>$set, '%id'=>$id)));
+   addIncidentComment(array(
+      'incidentid'=>$id,
+      'comment'=>$comment));
 
   return;
 }
@@ -929,7 +959,7 @@ function updateIncident($id,$params = array()) {
  * Returns void.
  */
 function updateIncidentList($incidentList,$params) {
-   foreach ($incidentList as $id) {
+   foreach ($incidentList as $index=>$id) {
       updateIncident($id,$params);
    }
    return;
@@ -1784,7 +1814,6 @@ function listIncidents() {
 
    $out .= t('<form name="listform" action="%url/incident.php" method="POST">',
       array('%url'=>BASEURL)).LF;
-   $out .= '<input type="hidden" name="action" value="massupdate">'.LF;
    $out .= '<table class="horizontal" id="details-overview-body">'.LF;
    $out .= '<tr>'.LF;
    $out .= '  <th><input type="checkbox" onChange="checkAll()"></th>'.LF;
@@ -1952,7 +1981,7 @@ function listIncidents() {
 
    $out .= '    <tr>'.LF;
    $out .= '      <td/>'.LF;
-   $out .= '      <td><input type="submit" value="'._('Update').'"></td>'.LF;
+   $out .= '      <td><input type="submit" name="action" value="'._('Update selected incidents').'"></td>'.LF;
    $out .= '    </tr>'.LF;
    $out .= '    </table>'.LF;
    $out .= '  </div><!-- block -->'.LF;
@@ -1961,8 +1990,7 @@ function listIncidents() {
    $out .= '  '._('Compose mail with').LF;
    $out .= getMailTemplateSelection('template', 'null', array(
          _('Use preferred template')=>_('Use preferred template')));
-   $out .= '     <input type="hidden" name="action" value="prepare"/>'.LF;
-   $out .= '     <input type="submit" value="'. _('Compose').'">'.LF;
+   $out .= '     <input type="submit" name="action" value="'. _('Compose').'">'.LF;
    $out .= '  </div><!-- block -->'.LF;
    $out .= '</div><!-- bulk-options -->'.LF;
    $out .= '</form>'.LF;
