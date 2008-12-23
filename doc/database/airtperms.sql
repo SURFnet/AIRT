@@ -29,6 +29,7 @@ grant select,insert,update,delete on user_comments to airt;
 grant select,insert,update,delete on users to airt;
 grant select,insert,update,delete on mailbox to airt;
 grant select,insert,update,delete on incident_mail to airt;
+grant select,insert,update,delete on settings to airt;
 grant select on versions to airt;
 
 grant select,update on address_roles_sequence to airt;

@@ -184,6 +184,10 @@ INSERT INTO role_assignments
     VALUES
     (nextval('role_assignments_sequence'), currval('roles_sequence'),
     currval('users_sequence'));
+INSERT INTO settings
+    (key,value)
+    VALUES
+    ('archiveage', '20');
 --
 -- Create the database schema version record.
 --

@@ -46,6 +46,7 @@ DROP SEQUENCE generic_sequence;
 DROP SEQUENCE address_roles_sequence;
 DROP SEQUENCE importfilter_templates_sequence;
 
+DROP TABLE settings CASCADE;
 DROP TABLE incident_mail CASCADE;
 DROP TABLE mailbox CASCADE;
 DROP TABLE mailtemplate_capabilities CASCADE;
@@ -79,6 +80,12 @@ DROP TABLE incident_attachments CASCADE;
 DROP TABLE address_roles CASCADE;
 
 begin transaction;
+
+CREATE TABLE settings (
+    key         varchar,
+    value       varchar,
+    PRIMARY KEY (key)
+);
 
 CREATE TABLE incident_types ( 
     id          integer,
@@ -122,6 +129,7 @@ CREATE TABLE users (  -- also contains external people linked to incidents
     lastname    varchar(100),
     firstname   varchar(100),
     email       varchar(100) not null,  -- with unique index
+    x509name    varchar,
     phone       varchar(100),
     login       varchar(100),  -- AIRT login
     userid      varchar(100),  -- external identifier
@@ -405,6 +413,7 @@ CREATE TABLE mailbox (
     subject   varchar,  -- Subject header
     body      varchar,  -- Everything not header (no mime parsing yet)
     status    varchar,
+    raw       varchar,
     PRIMARY KEY (id)
 );
 
