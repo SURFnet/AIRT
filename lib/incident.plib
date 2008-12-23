@@ -1810,7 +1810,7 @@ function listIncidents() {
 
    $script = '<script language="JavaScript">'.LF;
    $script .= 'function checkAll() {'.LF;
-   $script .= '   var check=document.forms[2].elements[1].checked;'.LF;
+   $script .= '   var check=document.forms[2].elements[0].checked;'.LF;
 
    $out .= t('<form name="listform" action="%url/incident.php" method="POST">',
       array('%url'=>BASEURL)).LF;
@@ -1899,13 +1899,13 @@ function listIncidents() {
    // Prepare to run over the list of incidents that need display.
    $count = 0;
    $conslist = getConstituencies();
-   $elcount = 2; // 1 is the checkbox selector, 2 is the first one to check
+   $elcount = 1; // 1 is the checkbox selector, 2 is the first one to check
    foreach ($incidents as $id=>$data) {
       if (($count++ > $page * PAGESIZE) ||
           ($count <= ($page-1) * PAGESIZE)) {
           continue;
       }
-      $script .= 'document.forms[2].elements['.($elcount++).'].checked = check;'.LF;
+      $script .= 'document.forms[1].elements['.($elcount++).'].checked = check;'.LF;
       $addresses = getAddressesForIncident($id);
       if (sizeof($addresses) > 0) {
          $constituency = $conslist[$addresses[0]['constituency']]['label'];
