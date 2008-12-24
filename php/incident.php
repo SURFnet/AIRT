@@ -51,7 +51,7 @@ switch ($action) {
      }
      if (is_array($massincidents) && sizeof($massincidents) >= 1) {
         // filter out non-numeric elements
-        $massincidents = array_filter($massincidents, 'is_numeric');
+        $massincidents = array_filter(array_keys($massincidents), 'is_numeric');
 	  }
      $incidentids = implode(',', $massincidents);
 

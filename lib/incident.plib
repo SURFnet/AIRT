@@ -1905,7 +1905,7 @@ function listIncidents() {
           ($count <= ($page-1) * PAGESIZE)) {
           continue;
       }
-      $script .= 'document.forms[1].elements['.($elcount++).'].checked = check;'.LF;
+      $script .= 'document.forms[2].elements['.($elcount++).'].checked = check;'.LF;
       $addresses = getAddressesForIncident($id);
       if (sizeof($addresses) > 0) {
          $constituency = $conslist[$addresses[0]['constituency']]['label'];
