@@ -2550,15 +2550,32 @@ function newIncident($bulk=false) {
              ' will be added to the new incident.'),
           '%l'=>_('IP Address')));
    }
-   $output .= '    <td><textarea class="newips" name="ips"></textarea></td>'.LF;
+   $ip = trim(strip_tags(fetchFrom('REQUEST', 'ip')));
+   defaultTo($ip, '');
+   $output .= t('    <td><textarea class="newips" name="ips">%i</textarea></td>'.LF, array(
+      '%i'=>$ip));
    $output .= '  </tr>'.LF;
 
    if (!$bulk) {
+      $users = array();
+      if (!empty($ip)) {
+         $networkid = categorize($ip);
+         if (defined('CUSTOM_FUNCTIONS') && 
+             function_exists("custom_categorize")) {
+            $networkid = custom_categorize($ip, $networkid);
+         }
+         $consid=getConstituencyIDbyNetworkID($networkid);
+         $contacts=getConstituencyContacts($consid);
+         foreach ($contacts as $id=>$data) {
+             $users[] = $data['email'];
+         }
+      }
       $output .= '  <tr valign="top">'.LF;
       $output .= t('    <td><span class="verklaring" title="%s">%l</span></td>', array(
          '%s'=>_('Provide 1 email address per line'),
          '%l'=>_('Users')));
-      $output .= '    <td><textarea class="newusers" name="users"></textarea></td>'.LF;
+      $output .= t('    <td><textarea class="newusers" name="users">%u</textarea></td>'.LF, array(
+         '%u'=>implode("\r\n", $users)));
       $output .= '  </tr>'.LF;
    }
    

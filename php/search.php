@@ -218,8 +218,9 @@ function search_host($hostname='') {
       echo "<HR>";
    }
 
-   print '<form action="incident.php" method="POST">'.LF;
-   print '<input type="hidden" name="ip" value="ip">'.LF;
+   print '<form action="'.BASEURL.'/incident.php">'.LF;
+   print t('<input type="hidden" name="ip" value="%ip">'.LF, array(
+      '%ip'=>strip_tags($ip)));
 } // search_host()
 
 
