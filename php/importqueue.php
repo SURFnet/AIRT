@@ -79,7 +79,8 @@ switch (strtolower($action)) {
       // interpret all decision and take action if accept or reject
       $tags=array();
       if (array_key_exists('group', $_POST)) {
-         $decisions = queueNormalize($_POST['group'], $_POST['checked'], $action);
+         $decisions = queueNormalize($_POST['group'], $_POST['checked'],
+            strtolower($action));
       } else {
          $decisions = $_POST['checked'];
       }
