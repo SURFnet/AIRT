@@ -2150,6 +2150,33 @@ function incidentDetails() {
    $output .= '</form>'.LF;
    $output .= '</div>'.LF;
    $output .= '</block>'.LF;
+   
+   $output .= '<div class="block">'.LF;
+   $output .= '<h3>'._('External identifiers').'</h3>'.LF;
+   $output .= '<table>'.LF;
+   foreach (getExternalIncidentIDs($incidentid) as $extid) {
+       $output .= '<tr>'.LF;
+       $output .= '<td>'.htmlentities($extid).'</td>'.LF;
+       $output .= t('<td><a href="%u/incident.php?action=delete_extid&incidentid=%i&extid=%e">%l</a></td>'.LF, array(
+          '%u'=>BASEURL,
+          '%i'=>urlencode($incidentid),
+          '%e'=>urlencode($extid),
+          '%l'=>_('remove')));
+       $output .= '</tr>'.LF;
+   }
+   $output .= '</table>'.LF;
+
+   $output .= t('<form action="%u/incident.php" method="GET">'.LF, array(
+      '%u'=>BASEURL));
+   $output .= '<input type="hidden" name="action" value="add_extid"/>'.LF;
+   $output .= t('<input type="hidden" name="incidentid" value="%i"/>'.LF, 
+      array('%i'=>urlencode($incidentid)));
+   $output .= '<input type="text" name="extid" size="40">'.LF;
+   $output .= '<input type="submit" value="'.
+      _('Add external identifier').'"/>'.LF;
+   $output .= '</form>'.LF;
+
+   $output .= '</div><!-- block -->'.LF;
 
    $output .= '<div class="block">'.LF;
    $output .= '<h3>'._('IP addresses').'</h3>'.LF;
@@ -2205,7 +2232,94 @@ function incidentDetails() {
    $output .= '</table>'.LF;
    $output .= '</form>'.LF;
    $output .= '</div><!-- block -->'.LF;
+   
+   $output .= '<div class="block">'.LF; 
+   $output .= '<h3>'._('E-mail messages').'</h3>'.LF;
+   if (fetchEmailsForIncident($incident['incidentid'], $msgs, $err) == false){
+      airt_msg($err);
+   } else {
+      if (sizeof($msgs) == 0) {
+         $output .= '<em>'._('No linked messages').'</em>'.LF;
+      } else {
+         $output .= '<table>';
+         $output .= '<tr>'.LF;
+         $output .= '<th>'._('Sender').'</th>'.LF;
+         $output .= '<th>'._('Subject').'</th>'.LF;
+         $output .= '<th>'._('Date').'</th>'.LF;
+         $output .= '<th>&nbsp;</th>'.LF;
+         $output .= '</tr>'.LF;
 
+         $count=0;
+         foreach ($msgs as $msgid) {
+            if ( fetchMailMessage($msgid, $msg, $err) == false) {
+               airt_msg($err);
+            } else {
+               $output .= '<tr>'.LF;
+               $output .= t('<td>%sender</td>'.LF, array(
+                  '%sender'=>$msg['sender']));
+               $output .= t('<td><a href="%u?action=view&msgid=%m">%subject</a></td>'.LF, array(
+                  '%subject'=>$msg['subject'],
+                  '%u'=>BASEURL.'/mailbox.php',
+                  '%m'=>$msgid));
+
+				 	if (Date('Y', $msg['date']) == Date('Y')) {
+					   if ((time()-$msg['date']) > 86400) {
+						   $date = Date('d M H:i', $msg['date']);
+						} else {
+						   $date = Date('H:i', $msg['date']);
+						}
+					} else {
+					   $date = Date('d M Y H:i', $msg['date']);
+					}
+               $output .= t('<td>%date</td>'.LF, array(
+                  '%date'=>$date));
+               $output .= '<td>'.LF;
+               $output .= t('<a href="%u?action=unlink&msgid=%m&incidentid=%i">'.
+                  _('Delete').'</a>'.LF, array(
+                  '%u'=>BASEURL.'/incident.php',
+                  '%m'=>$msgid,
+                  '%i'=>$incident['incidentid']));
+               $output .= '</td>'.LF;
+               $output .= '</tr>'.LF;
+            }
+         }
+         $output .= '</table>';
+      }
+   }
+   $output .= '</div><!-- block -->'.LF;
+
+   $output .= '<div class="block">'.LF;
+   $output .= '<h3>'._('Attachments').'</h3>'.LF;
+   if (fetchAttachments($incident['incidentid'], $attachments, $error) ==
+      false) {
+      die($error);
+   }
+   $output .= '<table>'.LF;
+   foreach ($attachments as $aid=>$a) {
+      $output .= '<tr>'.LF;
+      $output .= '<td>'.LF;
+      $output .= t('<a href="%url?action=download&attachment=%id">%f</a> (%c)'.LF, array(
+         '%url' => BASEURL.'/incident.php',
+         '%id' => $aid,
+         '%f' => htmlentities($a['filename']),
+         '%c' => htmlentities($a['content-type'])));
+      $output .= t('<td><a onclick="return confirm(\'Are you sure that you want to delete this attachment?\')" href="%url?action=rmattach&attachment=%id">'._('delete').'</a></td>'.LF, array(
+         '%url' => BASEURL.'/incident.php',
+         '%id' => $aid
+      ));
+      $output .= '</tr>'.LF;
+   }
+   $output .= '</table>'.LF;
+   $output .= '<form enctype="multipart/form-data" method="POST">'.LF;
+   $output .= '<input type="hidden" name="action" value="upload">'.LF;
+   $output .= '<input type="hidden" name="incidentid" value="'.
+      strip_tags($incident['incidentid']).'">'.LF;
+   $output .= '<input size="40" type="file" name="file">'.LF;
+   $output .= '<input type="submit" value="Upload">'.LF;
+   $output .= '</form>'.LF;
+   $output .= '</div><!-- block -->'.LF;
+   
+   
    $output .= '<div class="block">'.LF;
    $output .= '<h3>'._('Users').'</h3>'.LF;
    $output .= t('<form action="%u/incident.php" method="POST">'.LF, array(
@@ -2277,120 +2391,8 @@ function incidentDetails() {
    $output .= '</form>'.LF;
 
    $output .= '</div><!-- block -->'.LF;
-
-# XXX
-   $output .= '<div class="block">'.LF;
-   $output .= '<h3>'._('Attachments').'</h3>'.LF;
-   if (fetchAttachments($incident['incidentid'], $attachments, $error) ==
-      false) {
-      die($error);
-   }
-   $output .= '<table>'.LF;
-   foreach ($attachments as $aid=>$a) {
-      $output .= '<tr>'.LF;
-      $output .= '<td>'.LF;
-      $output .= t('<a href="%url?action=download&attachment=%id">%f</a> (%c)'.LF, array(
-         '%url' => BASEURL.'/incident.php',
-         '%id' => $aid,
-         '%f' => htmlentities($a['filename']),
-         '%c' => htmlentities($a['content-type'])));
-      $output .= t('<td><a onclick="return confirm(\'Are you sure that you want to delete this attachment?\')" href="%url?action=rmattach&attachment=%id">'._('delete').'</a></td>'.LF, array(
-         '%url' => BASEURL.'/incident.php',
-         '%id' => $aid
-      ));
-      $output .= '</tr>'.LF;
-   }
-   $output .= '</table>'.LF;
-   $output .= '<form enctype="multipart/form-data" method="POST">'.LF;
-   $output .= '<input type="hidden" name="action" value="upload">'.LF;
-   $output .= '<input type="hidden" name="incidentid" value="'.
-      strip_tags($incident['incidentid']).'">'.LF;
-   $output .= '<input size="40" type="file" name="file">'.LF;
-   $output .= '<input type="submit" value="Upload">'.LF;
-   $output .= '</form>'.LF;
-   $output .= '</div><!-- block -->'.LF;
    
-   $output .= '<div class="block">'.LF; 
-   $output .= '<h3>'._('E-mail messages').'</h3>'.LF;
-   if (fetchEmailsForIncident($incident['incidentid'], $msgs, $err) == false){
-      airt_msg($err);
-   } else {
-      if (sizeof($msgs) == 0) {
-         $output .= '<em>'._('No linked messages').'</em>'.LF;
-      } else {
-         $output .= '<table>';
-         $output .= '<tr>'.LF;
-         $output .= '<th>'._('Sender').'</th>'.LF;
-         $output .= '<th>'._('Subject').'</th>'.LF;
-         $output .= '<th>'._('Date').'</th>'.LF;
-         $output .= '<th>&nbsp;</th>'.LF;
-         $output .= '</tr>'.LF;
 
-         $count=0;
-         foreach ($msgs as $msgid) {
-            if ( fetchMailMessage($msgid, $msg, $err) == false) {
-               airt_msg($err);
-            } else {
-               $output .= '<tr>'.LF;
-               $output .= t('<td>%sender</td>'.LF, array(
-                  '%sender'=>$msg['sender']));
-               $output .= t('<td><a href="%u?action=view&msgid=%m">%subject</a></td>'.LF, array(
-                  '%subject'=>$msg['subject'],
-                  '%u'=>BASEURL.'/mailbox.php',
-                  '%m'=>$msgid));
-
-				 	if (Date('Y', $msg['date']) == Date('Y')) {
-					   if ((time()-$msg['date']) > 86400) {
-						   $date = Date('d M H:i', $msg['date']);
-						} else {
-						   $date = Date('H:i', $msg['date']);
-						}
-					} else {
-					   $date = Date('d M Y H:i', $msg['date']);
-					}
-               $output .= t('<td>%date</td>'.LF, array(
-                  '%date'=>$date));
-               $output .= '<td>'.LF;
-               $output .= t('<a href="%u?action=unlink&msgid=%m&incidentid=%i">'.
-                  _('Delete').'</a>'.LF, array(
-                  '%u'=>BASEURL.'/incident.php',
-                  '%m'=>$msgid,
-                  '%i'=>$incident['incidentid']));
-               $output .= '</td>'.LF;
-               $output .= '</tr>'.LF;
-            }
-         }
-         $output .= '</table>';
-      }
-   }
-   $output .= '</div><!-- block -->'.LF;
-
-   $output .= '<div class="block">'.LF;
-   $output .= '<h3>'._('External identifiers').'</h3>'.LF;
-   $output .= '<table>'.LF;
-   foreach (getExternalIncidentIDs($incidentid) as $extid) {
-       $output .= '<tr>'.LF;
-       $output .= '<td>'.htmlentities($extid).'</td>'.LF;
-       $output .= t('<td><a href="%u/incident.php?action=delete_extid&incidentid=%i&extid=%e">%l</a></td>'.LF, array(
-          '%u'=>BASEURL,
-          '%i'=>urlencode($incidentid),
-          '%e'=>urlencode($extid),
-          '%l'=>_('remove')));
-       $output .= '</tr>'.LF;
-   }
-   $output .= '</table>'.LF;
-
-   $output .= t('<form action="%u/incident.php" method="GET">'.LF, array(
-      '%u'=>BASEURL));
-   $output .= '<input type="hidden" name="action" value="add_extid"/>'.LF;
-   $output .= t('<input type="hidden" name="incidentid" value="%i"/>'.LF, 
-      array('%i'=>urlencode($incidentid)));
-   $output .= '<input type="text" name="extid" size="40">'.LF;
-   $output .= '<input type="submit" value="'.
-      _('Add external identifier').'"/>'.LF;
-   $output .= '</form>'.LF;
-
-   $output .= '</div><!-- block -->'.LF;
 
    $output .= '</div><!-- column -->'.LF;
 
