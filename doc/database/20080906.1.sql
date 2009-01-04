@@ -27,7 +27,7 @@ create table mailtemplate_capabilities (
 alter table incident_users
 add column mailtemplate_override char(80);
 alter table incident_users
-add foreign key (mailtemplate_override) foreign key mailtemplates(name);
+add foreign key (mailtemplate_override) references mailtemplates(name);
 
 UPDATE versions SET value='20080906.1' WHERE key='airtversion';
 -- Needs manual update with the AIRT_VERSION string of the release.

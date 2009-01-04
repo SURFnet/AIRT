@@ -1,4 +1,7 @@
 * minor costmetic changes
+* New configuration options: 
+  x509client: define to true to allow x509 client certificate login
+  instance_name: descriptive name of the AIRT instance (a few words at most)
 
 2008-12-19
 * Removed all OTRS references
