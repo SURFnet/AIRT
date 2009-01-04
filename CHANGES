@@ -1,3 +1,5 @@
+2008-12-31
+* Public release containing all changes since 20080403.1
 * minor costmetic changes
 * New configuration options: 
   x509client: define to true to allow x509 client certificate login
