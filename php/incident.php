@@ -376,8 +376,8 @@ switch ($action) {
       break;
 
     //--------------------------------------------------------------------
-   case 'Update':
-   case 'update':
+   case _('Update'):
+   case _('update'):
       $incidentid = fetchFrom('SESSION','incidentid', '%d');
       if ($incidentid=='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
@@ -483,7 +483,7 @@ switch ($action) {
       break;
 
    //--------------------------------------------------------------------
-   case 'Mail':
+   case _('Mail'):
       $recipients = fetchFrom('REQUEST', 'to');
       if (!is_array($recipients)) {
          $recipients = explode(',', $recipients);
@@ -505,7 +505,7 @@ switch ($action) {
       break;
 
    //--------------------------------------------------------------------
-   case 'Remove':
+   case _('Remove'):
       $incidentid = fetchFrom('REQUEST', 'incidentid', '%d');
       if (empty($incidentid)) {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
@@ -558,7 +558,7 @@ switch ($action) {
       break;
 
    //--------------------------------------------------------------------
-   case 'Add external identifier':
+   case _('Add external identifier'):
    case 'add_extid':
       $incidentid = fetchFrom('REQUEST', 'incidentid');
       $extid = trim(fetchFrom('REQUEST', 'extid'));
