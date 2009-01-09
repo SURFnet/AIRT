@@ -1148,6 +1148,9 @@ function addExternalIncidentIDs($incidentid='', $externalids) {
    }
    $res = db_query('begin transaction');
    foreach ($externalids as $extid) {
+       if (empty($extid)) {
+           continue;
+       }
       db_free_result($res);
       $res = db_query(q('insert into external_incidentids (incidentid, externalid) values (%id, \'%extid\')', array('%id'=>$incidentid, '%extid'=>db_escape_string($extid))));
       if ($res == false) {
@@ -2208,9 +2211,9 @@ function incidentDetails() {
          '%s'=>urlencode($address['ip']),
          '%l'=>_('edit')));
 
-      $output .= t('  <td><a
-      href="%u/incident.php?action=deleteip&incidentid=%incident&ip=%ip&addressrole=%addressrole">%l</a></td>'.LF,
+      $output .= t('  <td><a href="%u/incident.php?action=deleteip&incidentid=%incident&ip=%ip&addressrole=%addressrole">%l</a></td>'.LF,
          array(
+            '%u'=>BASEURL,
             '%ip'=>urlencode($address['ip']),
             '%incident'=>urlencode($incident['incidentid']),
             '%addressrole'=>urlencode($address['addressrole']),
@@ -2615,7 +2618,11 @@ function addIncident() {
    
    $newids = fetchFrom('REQUEST', 'ids');
    defaultTo($newids, '');
-   $newids = split("\r?\n", $newids);
+   if (empty($newids)) {
+       $newids = array();
+   } else {
+       $newids = split("\r?\n", trim($newids));
+   }
 
    $date_day = trim(fetchFrom('POST', 'date_day', '%d'));
    $date_month = trim(fetchFrom('POST', 'date_month', '%d'));
@@ -2679,7 +2686,7 @@ function addIncident() {
       $incident_userids[] = $user['id'];
    }
 
-   if (!empty($newids)) {
+   if (sizeof($newids) > 0) {
        addExternalIncidentIDs($incidentid, $newids);
    }
    airt_msg(t(_('Incident %n created.'), array('%n'=>

@@ -21,6 +21,7 @@
  * Incidents.php - incident management interface
  * $Id$
  */
+ini_set('memory_limit', '96M');
 
 require_once 'config.plib';
 require_once LIBDIR.'/airt.plib';
