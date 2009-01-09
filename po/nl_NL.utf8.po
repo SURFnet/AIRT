@@ -5,17 +5,15 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: AIRT\n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-08-09 15:03+0200\n"
-"PO-Revision-Date: 2006-08-09 17:16+0100\n"
-"Last-Translator: Jeroen Hoppenbrouwers <hoppie@uvt.nl>\n"
-"Language-Team: AIRT <info@airt.nl>\n"
+"POT-Creation-Date: 2009-01-06 00:56-0500\n"
+"PO-Revision-Date: 2009-01-06 01:26-0500\n"
+"Last-Translator: Kees Leune <kees@leune.org>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-Language: Dutch\n"
-"X-Poedit-Country: NETHERLANDS\n"
 
 msgid "Add!"
 msgstr "Toevoegen!"
@@ -31,13 +29,13 @@ msgid "edit"
 msgstr "bewerken"
 
 msgid "New constituency"
-msgstr ""
+msgstr "Nieuwe klant"
 
 msgid "Missing information."
 msgstr "Ontbrekende informatie."
 
 msgid "Edit constituency"
-msgstr ""
+msgstr "Klant bewerken"
 
 msgid "Missing information (1)."
 msgstr "Ontbrekende informatie (1)."
@@ -58,25 +56,25 @@ msgid "Unknown action: "
 msgstr "Onbekende bewerking:"
 
 msgid "Constituency contacts"
-msgstr ""
+msgstr "Klantcontacten"
 
 msgid "Please select a constituency to edit assign contacts:"
-msgstr ""
+msgstr "Kies een klant om contacten aan toe te wijzen:"
 
 msgid "Invalid format"
 msgstr "Ongeldig formaat"
 
 msgid "Edit constituency assignments"
-msgstr ""
+msgstr "Klantcontacten bewerken"
 
 msgid "Unable to execute query 1."
 msgstr "Niet in staat om vraag 1 uit te voeren."
 
 msgid "Invalid constituency."
-msgstr ""
+msgstr "Ongeldige klant."
 
 msgid "Current contacts of constituency "
-msgstr ""
+msgstr "Huidige contacten van klant"
 
 msgid "Unable to execute query(2)."
 msgstr "Niet in staat om vraag uit te voeren (2)."
@@ -98,7 +96,7 @@ msgid "No unassigned users."
 msgstr "Alle gebruikers toegekend."
 
 msgid "Select another constituency"
-msgstr ""
+msgstr "Kies een andere klant"
 
 msgid "Settings"
 msgstr "Instellingen"
@@ -558,10 +556,10 @@ msgid "Edit networks"
 msgstr "Netwerken bewerken"
 
 msgid "Edit constituencies"
-msgstr ""
+msgstr "Klanten bewerken"
 
 msgid "Edit constituency contacts"
-msgstr ""
+msgstr "Klantcontacten bewerken"
 
 msgid "Appearance"
 msgstr "Vormgeving"
@@ -576,7 +574,7 @@ msgid "Netmask or CIDR"
 msgstr "Netmasker of CIDR"
 
 msgid "Constituency"
-msgstr ""
+msgstr "Klanten"
 
 msgid "Networks"
 msgstr "Netwerken"
@@ -618,7 +616,7 @@ msgid "IP Address"
 msgstr "IP adres"
 
 msgid "Constituency Contacts"
-msgstr ""
+msgstr "Klantcontacten"
 
 msgid "Previous incidents"
 msgstr "Eerdere incidenten"
@@ -666,7 +664,7 @@ msgid "New Search"
 msgstr "Nieuwe zoekopdracht"
 
 msgid "Incident type/Constituency matrix"
-msgstr ""
+msgstr "Incidenttype/klantmatrix"
 
 #, php-format
 msgid "Printing from %startdate until %enddate."
@@ -1340,4 +1338,985 @@ msgstr "Aanmelden"
 
 msgid "Unable to query database"
 msgstr "Niet in staat om gegevensbestand te bevragen"
+
+msgid "Unable to authenticate using client certificate:"
+msgstr ""
+
+msgid "Could not find SSL_CLIENT_CERT"
+msgstr ""
+
+msgid "Hint: set SSLOptions +ExportCertData"
+msgstr ""
+
+msgid " in "
+msgstr ""
+
+#, php-format
+msgid "%s is not a recognized certificate name."
+msgstr "%s is geen herkende certificaatnaam."
+
+msgid "Ambiguous certificate presented."
+msgstr "Dubbelzinning certificaat aangeboden."
+
+msgid "Missing information in "
+msgstr "Ontbrekende informatie in"
+
+msgid "Missing constituency in"
+msgstr "Ontbrekende klantgegevens in"
+
+msgid "Invalid parameter type in"
+msgstr "Ongeldig parametertype"
+
+msgid "Database error:"
+msgstr ""
+
+#, php-format
+msgid "Added user %u."
+msgstr ""
+
+#, php-format
+msgid "Added user %u to constituency."
+msgstr ""
+
+#, php-format
+msgid "Removed user %u from constituency."
+msgstr ""
+
+msgid "Invalid parameter type or missing information in "
+msgstr ""
+
+msgid "Unable to delete constituency: "
+msgstr ""
+
+msgid "Unable to execute query in "
+msgstr ""
+
+msgid "Invalid data in "
+msgstr ""
+
+msgid "Invalid format in "
+msgstr ""
+
+msgid "Import queue"
+msgstr ""
+
+msgid "With selected: "
+msgstr ""
+
+msgid "accept"
+msgstr ""
+
+msgid "reject"
+msgstr ""
+
+msgid "Done"
+msgstr ""
+
+msgid "refresh"
+msgstr ""
+
+msgid "Preferred mail templates"
+msgstr ""
+
+msgid "add preferred template"
+msgstr ""
+
+msgid "Removed checked preferred templates"
+msgstr ""
+
+msgid "Available import filters"
+msgstr ""
+
+msgid "Filter name"
+msgstr ""
+
+msgid "Version"
+msgstr ""
+
+msgid "Compose"
+msgstr "Opstellen"
+
+msgid "Incorrect parameter type in "
+msgstr ""
+
+msgid "update"
+msgstr ""
+
+#, php-format
+msgid "Incident updated: state=%s, status=%s, type=%s, desc=%s"
+msgstr ""
+
+msgid "Incident updated."
+msgstr ""
+
+msgid "Update selected incidents"
+msgstr ""
+
+msgid "No incidents selected to work on."
+msgstr ""
+
+msgid "Mail"
+msgstr ""
+
+msgid "Invalid parameter value in "
+msgstr ""
+
+msgid "Invalid parameter type in "
+msgstr ""
+
+msgid "Add external identifier"
+msgstr "Externe identifier toevoegen"
+
+msgid "File successfully uploaded"
+msgstr ""
+
+msgid "Update overrides"
+msgstr ""
+
+msgid "Missing or invalid parameter (incidentid) in line "
+msgstr ""
+
+msgid "Missing or invalid parameter (template) in line "
+msgstr ""
+
+msgid "Missing or invalid parameter (userid) in line "
+msgstr ""
+
+msgid "Mail template override updated."
+msgstr ""
+
+msgid "Message removed from incident."
+msgstr ""
+
+msgid "Invalid parameter value."
+msgstr ""
+
+msgid "Unable to excute query in "
+msgstr ""
+
+msgid "Unable to excute query in ."
+msgstr ""
+
+msgid "Edit incident type"
+msgstr ""
+
+msgid "Invalid parameter type "
+msgstr ""
+
+msgid "Missing information "
+msgstr ""
+
+msgid "Select capabilities provided by this template:"
+msgstr ""
+
+msgid "No incident to work on."
+msgstr ""
+
+msgid "Skip and prepare next"
+msgstr ""
+
+msgid "No receiver specified (to: field is missing"
+msgstr ""
+
+msgid "Digital Signature"
+msgstr ""
+
+msgid "Use preferred template"
+msgstr ""
+
+msgid "Missing parameter value in "
+msgstr ""
+
+msgid "Unable to add network in"
+msgstr ""
+
+msgid "Unable to update network in"
+msgstr ""
+
+msgid "Hostname:"
+msgstr ""
+
+msgid "Incident ID:"
+msgstr ""
+
+msgid "Network/Netmask:"
+msgstr ""
+
+msgid "Email address:"
+msgstr ""
+
+msgid "No preferred template"
+msgstr ""
+
+msgid "Error adding constituency"
+msgstr ""
+
+msgid "Unable to determine constituency"
+msgstr ""
+
+msgid "Unable to add user"
+msgstr ""
+
+msgid "Unable to assign user"
+msgstr ""
+
+msgid "Edit tools menu"
+msgstr ""
+
+msgid "The Tools-menu can be used to access sources of information directly from any screen of AIRT. You might want to add a link to your IP-Address lookup and Network statistics application to this list."
+msgstr ""
+
+msgid "All of the links in the Tools Menu will open in a new window."
+msgstr ""
+
+msgid "Edit Tools menu"
+msgstr ""
+
+msgid "AIRT User management"
+msgstr ""
+
+msgid "Incident handling management"
+msgstr ""
+
+msgid "Edit the states an incident can be in."
+msgstr ""
+
+msgid "Edit what kind of incidents are identified on your network."
+msgstr ""
+
+msgid "This is probably not a function anymore in a future version"
+msgstr ""
+
+msgid "Edit preferred templates"
+msgstr ""
+
+msgid "Set preferred templates for import filters"
+msgstr ""
+
+msgid "Amount of incidents per incident type per Constituency matrix"
+msgstr ""
+
+msgid "Report generated on "
+msgstr ""
+
+#, php-format
+msgid "Printing incidents from %startdate until %enddate.<br/>"
+msgstr ""
+
+msgid "Report to generate"
+msgstr ""
+
+msgid "Amount per incident type per constituency"
+msgstr ""
+
+msgid "Created/open amount per constituency"
+msgstr ""
+
+msgid "Created/open amount of incidents per constituency"
+msgstr ""
+
+#, php-format
+msgid "Printing incidents from %startdate until %enddate."
+msgstr ""
+
+msgid "Incidents"
+msgstr ""
+
+msgid "created"
+msgstr ""
+
+msgid "open"
+msgstr ""
+
+msgid "Error retrieving user capabilities:"
+msgstr ""
+
+msgid "X509 Subject"
+msgstr ""
+
+msgid "IODEF capable"
+msgstr ""
+
+msgid "Interactive login allowed"
+msgstr ""
+
+msgid "Users"
+msgstr ""
+
+msgid "Display: "
+msgstr ""
+
+msgid "Interactive users"
+msgstr ""
+
+msgid "All contacts"
+msgstr ""
+
+msgid "Error fetching user capabilities in"
+msgstr ""
+
+msgid "Error fetching incidents in:"
+msgstr ""
+
+msgid "Unable to unset user capabilities in"
+msgstr ""
+
+msgid "Unable to locate ID for incident status closed"
+msgstr ""
+
+msgid "Incidents ("
+msgstr ""
+
+msgid "Import queue ("
+msgstr ""
+
+msgid "Incident Archive"
+msgstr ""
+
+msgid "Statistics"
+msgstr ""
+
+msgid "Mail templates"
+msgstr ""
+
+msgid "Mailbox"
+msgstr ""
+
+msgid "Back to the first page"
+msgstr ""
+
+msgid "Logged in as %name"
+msgstr ""
+
+msgid "Log out"
+msgstr ""
+
+msgid "Tools"
+msgstr ""
+
+msgid "Unable to update mailbox archive:"
+msgstr ""
+
+msgid "No such email address in"
+msgstr ""
+
+msgid "Invalid parameter type $id in"
+msgstr ""
+
+msgid "Invalid parameter type"
+msgstr ""
+
+msgid "Invalid user id"
+msgstr ""
+
+msgid "Invalid constituency id"
+msgstr ""
+
+msgid "Invalid user"
+msgstr ""
+
+msgid "Invalid constituency"
+msgstr ""
+
+msgid "Unknown constituency in "
+msgstr ""
+
+msgid "Constituency "
+msgstr ""
+
+msgid "Delete constituency"
+msgstr ""
+
+msgid "Basic constituency details"
+msgstr ""
+
+msgid "Netblock"
+msgstr ""
+
+msgid "E-mail"
+msgstr ""
+
+msgid "Telephone"
+msgstr ""
+
+msgid "Contacts are identified by email address. To add constituency contacts, please enter one address per line."
+msgstr ""
+
+msgid "Constituency contact removed."
+msgstr ""
+
+msgid "Constituency contact added."
+msgstr ""
+
+msgid "API error in addIncidentComment"
+msgstr ""
+
+msgid "Missing required parameter: comment in "
+msgstr ""
+
+msgid "Incident import program, part of the AIRT suite."
+msgstr ""
+
+msgid "Copyright (C) 2007   Tilburg University, The Netherlands."
+msgstr ""
+
+msgid "missing ref attribute in xml"
+msgstr ""
+
+msgid "Missing field sender"
+msgstr ""
+
+msgid "Missing field constituency"
+msgstr ""
+
+msgid "Missing contact name"
+msgstr ""
+
+msgid "Missing contact email"
+msgstr ""
+
+msgid "Missing network data"
+msgstr ""
+
+msgid "Missing network address"
+msgstr ""
+
+msgid "Missing netmask"
+msgstr ""
+
+msgid "No items pending<p/>"
+msgstr ""
+
+msgid "No."
+msgstr ""
+
+msgid "Preferred Template"
+msgstr ""
+
+msgid "<a href=\"%u?incidentid=%I&action=details\">%i</a> closed %c"
+msgstr ""
+
+msgid "  Group with queue item %parent<br/>"
+msgstr ""
+
+msgid "No incidents pending."
+msgstr ""
+
+msgid "Error retrieve queue item in"
+msgstr ""
+
+#, php-format
+msgid "New contact: %con"
+msgstr ""
+
+msgid "Missing parameter status in"
+msgstr ""
+
+msgid "Missing parameter sender in"
+msgstr ""
+
+msgid "Missing parameter type in"
+msgstr ""
+
+msgid "Missing parameter summary in"
+msgstr ""
+
+msgid "Missing parameter content in"
+msgstr ""
+
+msgid "Missing parameter filter in"
+msgstr ""
+
+msgid "Missing parameter version in"
+msgstr ""
+
+msgid "Invalid import queue meta type in"
+msgstr ""
+
+msgid "Logging added to incident from import queue"
+msgstr ""
+
+#, php-format
+msgid "State reset to %state."
+msgstr ""
+
+#, php-format
+msgid "Adding to existing incident %s<br/>"
+msgstr ""
+
+msgid "Merging %sibling into %parent"
+msgstr ""
+
+msgid "Unable to parse xml in sibling content"
+msgstr ""
+
+msgid "Unable to parse xml in parent content"
+msgstr ""
+
+msgid "Filter"
+msgstr ""
+
+msgid "Template"
+msgstr ""
+
+msgid "No preferred mail templates defined."
+msgstr ""
+
+msgid "Available filters"
+msgstr ""
+
+msgid "Add preferred template"
+msgstr ""
+
+#, php-format
+msgid "new state: %s. "
+msgstr ""
+
+#, php-format
+msgid "new status: %s. "
+msgstr ""
+
+#, php-format
+msgid "new type: %s. "
+msgstr ""
+
+#, php-format
+msgid "new date: %s. "
+msgstr ""
+
+msgid "Logging updated. "
+msgstr ""
+
+msgid "Description cleared. "
+msgstr ""
+
+msgid "Description updated"
+msgstr ""
+
+msgid "Template cleared. "
+msgstr ""
+
+#, php-format
+msgid "new template: %s. "
+msgstr ""
+
+msgid "Bad parameter type in"
+msgstr ""
+
+msgid "Error querying database in"
+msgstr ""
+
+msgid "non-numeric incidentid"
+msgstr ""
+
+msgid "database error"
+msgstr ""
+
+msgid "Status must be numeric"
+msgstr ""
+
+msgid "Database query failed in "
+msgstr ""
+
+msgid "Unable to retrieve upload"
+msgstr ""
+
+msgid "Unable to validate upload"
+msgstr ""
+
+msgid "Invalid parameter type (incidentid)"
+msgstr ""
+
+msgid "Upload rejected by database"
+msgstr ""
+
+msgid "Unable to fetch attachment in "
+msgstr ""
+
+msgid "No such attachment"
+msgstr ""
+
+msgid "Unable to delete attachment "
+msgstr ""
+
+msgid "Attachment deleted. Filename=%file, Type=%type."
+msgstr ""
+
+msgid "Incident %n - %m of %M. Page :"
+msgstr ""
+
+msgid "Filters: "
+msgstr ""
+
+msgid "All types"
+msgstr ""
+
+msgid "All states"
+msgstr ""
+
+msgid "Add incident"
+msgstr ""
+
+msgid "Add multiple incidents"
+msgstr ""
+
+msgid "None"
+msgstr ""
+
+msgid "With selected"
+msgstr ""
+
+msgid "Do not change"
+msgstr ""
+
+msgid " Status"
+msgstr ""
+
+msgid "Compose mail with"
+msgstr ""
+
+msgid "Incident %n"
+msgstr ""
+
+msgid "closed"
+msgstr ""
+
+msgid "stalled"
+msgstr ""
+
+msgid "Re-open this incident"
+msgstr "Heropen dit incident"
+
+msgid "Close this incident"
+msgstr "Sluit dit incident"
+
+msgid "Stall this incident"
+msgstr "Vertraag dit incident"
+
+msgid "Type of incident"
+msgstr "Incidentsoort"
+
+msgid "State of incident"
+msgstr "Incidenttoestand"
+
+msgid "Mail template"
+msgstr "Mailsjabloon"
+
+msgid "Add comment"
+msgstr "Commentaar toevoegen"
+
+msgid "IP addresses"
+msgstr "IP-adres"
+
+msgid "Role"
+msgstr "Rol"
+
+msgid "Add an IP-Address"
+msgstr "IP-Adres toevoegen"
+
+msgid "E-mail messages"
+msgstr "E-mailberichten"
+
+msgid "No linked messages"
+msgstr "Geen gekoppelde berichten"
+
+msgid "Subject"
+msgstr "Onderwerp"
+
+msgid "Attachments"
+msgstr ""
+
+msgid "Invalid incident number in "
+msgstr ""
+
+msgid "Could not locate status closed in "
+msgstr ""
+
+msgid "Incident closed"
+msgstr "Incident gesloten"
+
+msgid "Incident %n closed"
+msgstr "Incident %n gesloten"
+
+msgid "Could not locate status open in "
+msgstr ""
+
+msgid "Incident reopened"
+msgstr "Incident heropend"
+
+msgid "Incident %n reopened"
+msgstr "Incident %n heropend"
+
+msgid "Could not locate status stalled in "
+msgstr ""
+
+msgid "Incident stalled"
+msgstr "Incident vertraagd"
+
+msgid "Incident %n stalled"
+msgstr "Incident %n vertraagd"
+
+msgid "Record new incidents"
+msgstr ""
+
+msgid "Record new incident"
+msgstr ""
+
+msgid "Provide 1 IP address or hostname per line. One incident will be created for each host."
+msgstr ""
+
+msgid "Provide 1 IP address or hostname per line. All hosts will be added to the new incident."
+msgstr ""
+
+msgid "Provide 1 email address per line"
+msgstr ""
+
+msgid "Provide 1 external identifier per line"
+msgstr ""
+
+msgid "Additional IDs"
+msgstr ""
+
+msgid "Incident %n created."
+msgstr "Incident %n aangemaakt."
+
+msgid "Invalid data type in "
+msgstr ""
+
+msgid "Please enter your username and password"
+msgstr ""
+
+#, php-format
+msgid "or authenticate using your SSL <a href=\"%u\">certificate</a><p/>"
+msgstr ""
+
+msgid "Username"
+msgstr ""
+
+msgid "Copyright (C) AIRT Project"
+msgstr ""
+
+msgid "Database error in "
+msgstr ""
+
+msgid "Unable to fetch results in "
+msgstr ""
+
+msgid "Invalid mail status in"
+msgstr ""
+
+msgid "Unable to mark message as read in "
+msgstr ""
+
+msgid "Unable to delete message in "
+msgstr ""
+
+msgid "Invalid incident id in"
+msgstr ""
+
+#, php-format
+msgid "Message subject %s linked to incident"
+msgstr ""
+
+#, php-format
+msgid "Message subject %s removed from incident"
+msgstr ""
+
+msgid "Filter with"
+msgstr ""
+
+msgid "View source"
+msgstr ""
+
+msgid "Mark read"
+msgstr ""
+
+msgid "Mark unread"
+msgstr ""
+
+msgid "View message source"
+msgstr ""
+
+msgid "No incoming messages."
+msgstr ""
+
+msgid "Archive messages older than %in days.<br/>"
+msgstr ""
+
+msgid "Show message that are: "
+msgstr ""
+
+msgid "Unread"
+msgstr ""
+
+msgid "Read"
+msgstr ""
+
+msgid "Archived"
+msgstr ""
+
+msgid "Show"
+msgstr ""
+
+msgid "Perform the following action on marked messages: "
+msgstr ""
+
+msgid "Go"
+msgstr ""
+
+msgid "Invalid message id in "
+msgstr ""
+
+msgid "Unable to mark message as read."
+msgstr ""
+
+msgid "Mail from "
+msgstr ""
+
+msgid "Archive"
+msgstr ""
+
+msgid "More actions:"
+msgstr ""
+
+msgid "Message-ID"
+msgstr ""
+
+msgid "Attachment"
+msgstr ""
+
+msgid "Unknown disposition:"
+msgstr ""
+
+msgid "Operations"
+msgstr ""
+
+msgid "Search IP:"
+msgstr ""
+
+msgid "Link to incident:"
+msgstr ""
+
+msgid "Use value below"
+msgstr ""
+
+msgid "or provide incident number:"
+msgstr ""
+
+msgid "Linked incidents:"
+msgstr ""
+
+msgid "undo"
+msgstr ""
+
+msgid "No links"
+msgstr ""
+
+msgid "mark read"
+msgstr ""
+
+msgid "%n messages updated."
+msgstr ""
+
+msgid "mark unread"
+msgstr ""
+
+msgid "archive"
+msgstr ""
+
+msgid "%n messaged deleted."
+msgstr ""
+
+msgid "view source"
+msgstr ""
+
+msgid "new incident"
+msgstr ""
+
+msgid "Unable to fetch mail in"
+msgstr ""
+
+msgid "Unable to create incident"
+msgstr ""
+
+msgid "Invalid message id in"
+msgstr ""
+
+msgid "Message is not MIME in"
+msgstr ""
+
+msgid "Could not determine encoding in"
+msgstr ""
+
+msgid "Invalid MIME-part in"
+msgstr ""
+
+msgid "Already on first message"
+msgstr ""
+
+msgid "Already on last message"
+msgstr ""
+
+msgid "Invalid parameter value in"
+msgstr ""
+
+msgid "compose"
+msgstr ""
+
+msgid "Reset"
+msgstr ""
+
+msgid "Cannot prepare message without incident in "
+msgstr ""
+
+msgid "NOTE: Preferred mail template requested, but not set."
+msgstr ""
+
+msgid "Using mail template <em>"
+msgstr ""
+
+msgid "Will be replaced with still open previous incidents in the same constituency as the current incident."
+msgstr ""
+
+msgid "Will override the To: header with the given value"
+msgstr ""
+
+msgid "Incident data in IODEF-format"
+msgstr ""
+
+msgid "Invalid mail template capability"
+msgstr ""
+
+msgid "Error querying database in mailtemplates.plib:"
+msgstr ""
+
+msgid "Unable to query database in mailtemplates.plib:"
+msgstr ""
+
+msgid "Database error in mailtemplates.plib:"
+msgstr ""
+
+msgid "No such template in mailtemplates.plib:"
+msgstr ""
+
+msgid "Unable to select capabilities in mailtemplates.plib:"
+msgstr ""
+
+msgid "Missing parameter in"
+msgstr ""
+
+msgid "Invalid parameter type (%n) in"
+msgstr ""
+
+msgid "Unable to determine id in"
+msgstr ""
+
+msgid "Invalid parameter type in user.plib:"
+msgstr ""
+
+msgid "Unable to query database in user.plib:"
+msgstr ""
+
+msgid "Database error in user.plib:"
+msgstr ""
 
