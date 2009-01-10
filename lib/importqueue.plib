@@ -963,7 +963,7 @@ function queueAddLogging($id, &$error, $template='', &$incidentid) {
       if ($state == false) {
          $state = getIncidentStateDefault();
       }
-      updateIncident($params['incidentid'], $state);
+      updateIncident($params['incidentid'], array('state'=>$state));
       addIncidentComment(array(
          'comment'=>t(_('State reset to %state.'),
             array('%state'=>getIncidentStateLabelByID($state))),
