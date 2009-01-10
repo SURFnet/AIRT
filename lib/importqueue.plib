@@ -460,7 +460,8 @@ function queueFormatItems() {
          '%type'=>$element['type']));
 
       $out .= t("  <td>%cons</td>\n", array('%cons'=>$element['cache_constituency']));
-      $out .= t('  <td><a href="%base/search.php?qtype=host&action=Search&q=%eip">%ip</a></td>'."\n", 
+      $out .= t('  <td><a href="%base/search.php?qtype=host&action='.
+         urlencode(_('Search')).'&q=%eip">%ip</a></td>'."\n", 
          array('%ip'=>$element['cache_ip'],
                '%base'=>BASEURL,
                '%eip'=>urlencode($element['cache_ip'])));
