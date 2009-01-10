@@ -439,7 +439,7 @@ function constituencyDetails() {
     print t('<form action="%u/constituencies.php" method="POST">'.LF, array(
        '%u'=>BASEURL));
     print '<input type="hidden" name="action" value="update"/>'.LF;
-    print t('<input type="hidden" name="action" value="%c"/>'.LF, array(
+    print t('<input type="hidden" name="consid" value="%c"/>'.LF, array(
        '%c'=>$cid));
     print '<table>'.LF;
     print '<tr>'.LF;
@@ -452,7 +452,7 @@ function constituencyDetails() {
     print '<tr>'.LF;
     print '<td>'._('Description').'</td>'.LF;
     print '<td>'.LF;
-    print t('<input type="text" size="30" name="name" value="%v"/>'.LF, array(
+    print t('<input type="text" size="30" name="description" value="%v"/>'.LF, array(
        '%v'=>$clist[$cid]['name']));
     print '</td>'.LF;
     print '</tr>'.LF;
