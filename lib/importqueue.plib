@@ -1297,7 +1297,7 @@ function importqueueTemplatesFormatItems() {
    $out .= '<input type="submit" name="action" value="'.
            _('Add preferred template').'">'.LF;
    $out .= '<input type="submit" name="action" value="'.
-           _('Removed checked preferred templates').'">'.LF;
+           _('Remove checked preferred templates').'">'.LF;
    $out .= '</div>';
    $out .= '</form>';
 

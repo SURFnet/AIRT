@@ -42,6 +42,7 @@ switch ($action) {
 
   //--------------------------------------------------------------------
   case _('Compose'):
+  case 'prepare':
   case _('prepare'):
      // Send bulk mail for the selected incidents.
      $massincidents = fetchFrom('REQUEST','massincidents[]');

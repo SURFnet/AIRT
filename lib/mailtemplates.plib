@@ -163,12 +163,20 @@ function delete_template($name='') {
    if ($name=='') {
       return 1;
    }
-   $res = db_query(q('DELETE FROM mailtemplates WHERE name=\'%name\'', array(
-      '%name'=>$name)));
-   if (!$res) {
+   db_query('begin transaction');
+   if (db_query(q('DELETE FROM mailtemplate_capabilities WHERE template=\'%name\'', array(
+      '%name'=>db_escape_string($name)))) === false) {
+      db_query('rollback');
       airt_error('DB_QUERY', 'mailtemplates.plib:'.__LINE__);
       return 1;
    }
+   if (db_query(q('DELETE FROM mailtemplates WHERE name=\'%name\'', array(
+      '%name'=>db_escape_string($name)))) === false) {
+      db_query('rollback');
+      airt_error('DB_QUERY', 'mailtemplates.plib:'.__LINE__);
+      return 1;
+   }
+   db_query('commit');
 
    return 0;
 }
