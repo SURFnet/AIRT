@@ -1,3 +1,8 @@
+2009-02-21
+* No new features; general bug fixes
+* Bug fixed that prevented mail templates from being deleted
+* Bug fixed that prevented preferred mail template from being deleted
+
 2009-01-21
 * Bug fixes
 
