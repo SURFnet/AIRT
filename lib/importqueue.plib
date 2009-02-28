@@ -122,7 +122,9 @@ function printUsage() {
 
 
 /**
- * Process an AIRT incident
+ * Process an AIRT incident. The function returns true on success, false
+ * on failure. A descriptive error message will be loaded into $error
+ * when appropriate.
  */
 function importIncident($doc, $importqueue, &$error='') {
    for ($count=0; $count < $importqueue->length; $count++) {
@@ -319,7 +321,12 @@ function import($input,&$error,$verbosity=FALSE) {
 
    $importqueue = $doc->getElementsByTagName('queuedata');
    if ($importqueue->length > 0) {
-      return importIncident($doc, $importqueue, $error);
+      // importIncident returns true on successful import
+      if (importIncident($doc, $importqueue, $error) == true) {
+          return 0;
+      } else {
+          return 1;
+      }
    }
 
    $importqueue = $doc->getElementsByTagName('contactData');
@@ -328,7 +335,7 @@ function import($input,&$error,$verbosity=FALSE) {
    }
 
    // This is not an error. There just is no work for us.
-   return true;
+   return 0;
 }// import
 
 
