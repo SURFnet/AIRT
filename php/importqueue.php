@@ -177,6 +177,9 @@ switch (strtolower($action)) {
    case _('refresh'):
    case 'list':
       $type=strip_tags(fetchFrom('REQUEST', 'type'));
+      if (empty($type)) {
+          $type = 'all';
+      }
       showQueue($type);
       break;
 
