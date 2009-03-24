@@ -181,7 +181,9 @@ function toMailQueue($data, &$error='') {
             $messageid = $value;
             break;
          case 'date':
-            $date = strtotime($value);
+            if (($date = strtotime($value)) === false) {
+                $date = strtotime("now");
+            }
             break;
       }
    }
