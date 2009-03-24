@@ -399,13 +399,23 @@ function queueGetItems(&$elements, &$error) {
 
 /* show a formatted overview of the incident queue
  */
-function queueFormatItems() {
+function queueFormatItems($typefilter='all') {
    global $toggle;
 
    defaultTo($toggle, 0);
    $error = '';
    $openips=array();
    $elements = array();
+
+   if (($res = db_query("select distinct type from import_queue where
+       status='open'")) === false) {
+       airt_msg(_('Database error in importqueue.plib:').__LINE__);
+       return;
+   }
+   $types = array();
+   while ($row = db_fetch_next($res)) {
+       $types[] = $row['type'];
+   }
 
    if (queueGetItems($elements, $error) === false) {
       return;
@@ -430,7 +440,15 @@ function queueFormatItems() {
    $out .= t('   <th><input type="checkbox" onChange="checkAll()" %checked></th>'.LF,
        array('%checked'=>($toggle == 1) ? 'CHECKED' : ''));
    $out .= '   <th>'._('No.').'</th>'.LF;
-   $out .= '   <th>'._('Type').'</th>'.LF;
+   $out .= '   <th><select onChange="submitMe(\'refresh\')" name="type">';
+   $out .= '   <option value="all">'._('Type').'</option>'.LF;
+   foreach ($types as $type) {
+       $out .= t('   <option %d value="%type">%type</option>'.LF, array(
+          '%type'=>htmlentities($type),
+          '%d'=>($typefilter == $type) ? 'SELECTED' : ''));
+   }
+   $out .= '   </select>'.LF;
+   $out .= '   </th>';
    $out .= '   <th>'._('Constituency').'</th>'.LF;
    $out .= '   <th>'._('IP Address').'</th>'.LF;
    $out .= '   <th>'._('Preferred Template').'</th>'.LF;
@@ -439,6 +457,9 @@ function queueFormatItems() {
    $count = 0;
 
    foreach ($elements as $id=>$element) {
+      if ($typefilter != 'all' && $element['type'] != $typefilter) {
+          continue;
+      }
       /* only look at metatype incidnet */
       if ($element['metatype'] != AIRT_IMPORTQUEUE_METATYPE_INCIDENT) {
          continue;

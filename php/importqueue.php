@@ -31,32 +31,30 @@ defaultTo($action, 'list');
 
 /** Helper function to display the queue.
  */
-function showQueue() {
+function showQueue($type='all') {
    pageHeader(_('Import queue'), array(
       'menu'=>'incidents',
       'submenu'=>'importqueue'));
    $out = '<div class="importqueue-overview-header">'.LF;
    $out .= '</div><!-- importqueue-overview-header -->'.LF;
-   $out .= '<form method="post">'.LF;
-   $out .= queueFormatItems();
+   $out .= '<script language="JavaScript">'.LF;
+   $out .= '   function submitMe(a) {'.LF;
+   $out .= '      document.forms[1].elements[0].value = a;'.LF;
+   $out .= '      document.forms[1].submit();'.LF;
+   $out .= '   }'.LF;
+   $out .= '</script>'.LF;
+   $out .= t('<form method="%u/importqueue.php" method="post">'.LF, array(
+      '%u'=>BASEURL));
+   $out .= '<input type="hidden" name="action" value=""/>'.LF;
+   $out .= queueFormatItems($type);
    $out .= '<div class="importqueue-overview-footer">'.LF;
    $out .= '<p/>'._('With selected: ');
-   /*
-   $out .= '<select name="decision">'.LF;
-   $out .= '<option value="accept">'._('Accept').LF;
-   $out .= '<option value="reject">'._('Reject').LF;
-   $out .= '</select>'.LF;
-   $out .= '<p><input type="submit" label="'.
-      _('Commit all incidents as accept or reject').
-      '" name="action" value="'._('Process').'"> ';
-   $out .= '<input type="submit" name="action" label="'.
-      _('Refresh the import queue. Any unprocessed changes will be lost.').
-      '" value="'._('Refresh').'"></p>'.LF;
-    */
    $out .= t('<input type="submit" name="action" value="%v">'.LF, array(
-      '%v'=>'Accept'));
+      '%v'=>_('Accept')));
    $out .= t('<input type="submit" name="action" value="%v">'.LF, array(
-      '%v'=>'Reject'));
+      '%v'=>_('Reject')));
+   $out .= t('<input type="submit" name="action" value="%v">'.LF, array(
+      '%v'=>_('Refresh')));
    $out .= '</div><!-- importqueue-overview-footer -->'.LF;
    $out .= '</form>'.LF;
    print $out;
@@ -120,7 +118,6 @@ switch (strtolower($action)) {
 
       // show updated queue;
       echo '<a href="incident.php">'._('Done').'.</a><br/>'.LF;
-      #echo '<script language="JavaScript">window.location=\'incident.php\';</script>'.LF;
       break;
 
    // ----------------------------------------------------------------
@@ -176,9 +173,11 @@ switch (strtolower($action)) {
       // break omitted intentionally
 
    // ----------------------------------------------------------------
+   case 'refresh':
    case _('refresh'):
    case 'list':
-      showQueue();
+      $type=strip_tags(fetchFrom('REQUEST', 'type'));
+      showQueue($type);
       break;
 
    // ----------------------------------------------------------------
