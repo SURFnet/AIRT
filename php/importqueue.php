@@ -49,9 +49,9 @@ function showQueue($type='all') {
    $out .= queueFormatItems($type);
    $out .= '<div class="importqueue-overview-footer">'.LF;
    $out .= '<p/>'._('With selected: ');
-   $out .= t('<input type="submit" name="action" value="%v">'.LF, array(
+   $out .= t('<input type="submit" onClick="submitMe(\'accept\')" name="action" value="%v">'.LF, array(
       '%v'=>_('Accept')));
-   $out .= t('<input type="submit" name="action" value="%v">'.LF, array(
+   $out .= t('<input type="submit" onClick="submitMe(\'reject\')" name="action" value="%v">'.LF, array(
       '%v'=>_('Reject')));
    $out .= t('<input type="submit" name="action" value="%v">'.LF, array(
       '%v'=>_('Refresh')));
@@ -64,11 +64,14 @@ function showQueue($type='all') {
 
 switch (strtolower($action)) {
    //----------------------------------------------------------------
+   case 'accept':
+   case 'reject':
    case _('accept'):
    case _('reject'):
       $error = '';
+      
       // no queue elments checked. Process button pushed from empty queue?
-      if (!array_key_exists('checked', $_POST)) {
+      if (!array_key_exists('checked', $_REQUEST)) {
          showQueue();
          break;
       }
@@ -76,27 +79,29 @@ switch (strtolower($action)) {
 
       // interpret all decision and take action if accept or reject
       $tags=array();
-      if (array_key_exists('group', $_POST)) {
-         $decisions = queueNormalize($_POST['group'], $_POST['checked'],
+      if (array_key_exists('group', $_REQUEST)) {
+         $decisions = queueNormalize($_REQUEST['group'], $_REQUEST['checked'],
             strtolower($action));
       } else {
-         $decisions = $_POST['checked'];
+         $decisions = $_REQUEST['checked'];
       }
 
       foreach ($decisions as $id=>$value) {
          $update = false;
          switch ($value) {
             case 'on':
-               if (strtolower($action) == _('accept')) {
-                  if (array_key_exists('template', $_POST) &&
-                      array_key_exists($id, $_POST['template'])) {
+               if (strtolower($action) == _('accept') ||
+                   strtolower($action) == 'accept') {
+                  if (array_key_exists('template', $_REQUEST) &&
+                      array_key_exists($id, $_REQUEST['template'])) {
                      $template = $_POST['template'][$id];
                   } else {
                      $template = '';
                   }
                   queueElementAccept($id, $template);
                }
-               elseif (strtolower($action) == _('reject')) {
+               elseif (strtolower($action) == _('reject') ||
+                       strtolower($action) == 'reject') {
                   print t(_('Rejecting queue element %id<br/>').LF, array('%id'=>$id));
                   flush();
                   $value = 'rejected';

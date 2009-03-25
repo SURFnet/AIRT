@@ -423,7 +423,7 @@ function queueFormatItems($typefilter='all') {
    if (sizeof($elements) == 0) {
       return _('No items pending<p/>').LF;
    }
-   $urlsuffix = 'toggle='.urlencode($toggle);
+   $urlsuffix = 'toggle='.urlencode($toggle).'&type='.urlencode($typefilter);
    foreach (getOpenincidents() as $id=>$data) {
       $openips[$data['ip']] = $id;
    }
