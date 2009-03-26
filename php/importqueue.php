@@ -94,7 +94,7 @@ switch (strtolower($action)) {
                    strtolower($action) == 'accept') {
                   if (array_key_exists('template', $_REQUEST) &&
                       array_key_exists($id, $_REQUEST['template'])) {
-                     $template = $_POST['template'][$id];
+                     $template = $_REQUEST['template'][$id];
                   } else {
                      $template = '';
                   }
