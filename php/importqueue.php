@@ -43,7 +43,7 @@ function showQueue($type='all') {
    $out .= '      document.forms[1].submit();'.LF;
    $out .= '   }'.LF;
    $out .= '</script>'.LF;
-   $out .= t('<form method="%u/importqueue.php" method="post">'.LF, array(
+   $out .= t('<form action="%u/importqueue.php" method="post">'.LF, array(
       '%u'=>BASEURL));
    $out .= '<input type="hidden" name="action" value=""/>'.LF;
    $out .= queueFormatItems($type);

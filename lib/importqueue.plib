@@ -400,9 +400,7 @@ function queueGetItems(&$elements, &$error) {
 /* show a formatted overview of the incident queue
  */
 function queueFormatItems($typefilter='all') {
-   global $toggle;
 
-   defaultTo($toggle, 0);
    $error = '';
    $openips=array();
    $elements = array();
@@ -423,22 +421,18 @@ function queueFormatItems($typefilter='all') {
    if (sizeof($elements) == 0) {
       return _('No items pending<p/>').LF;
    }
-   $urlsuffix = 'toggle='.urlencode($toggle).'&type='.urlencode($typefilter);
    foreach (getOpenincidents() as $id=>$data) {
       $openips[$data['ip']] = $id;
    }
    $used_ips = array();
-   $out = '<SCRIPT language="JavaScript">'.LF;
-   $out .= 'function checkAll() {'.LF;
-   $out .= '   window.location = "'.$_SERVER['PHP_SELF'].'?action=toggle&'.$urlsuffix.'"'.LF;
-   $out .= '}'.LF;
-   $out .= '</SCRIPT>';
+   $js = '<SCRIPT language="JavaScript">'.LF;
+   $js .= 'function checkAll() {'.LF;
+   $js .= '   var check=document.forms[1].elements[1].checked;'.LF;
 
    $out .= '<div class="importqueue-overview-body">'.LF;
    $out .= '<table class="horizontal">'.LF;
    $out .= '<tr>'.LF;
-   $out .= t('   <th><input type="checkbox" onChange="checkAll()" %checked></th>'.LF,
-       array('%checked'=>($toggle == 1) ? 'CHECKED' : ''));
+   $out .= t('   <th><input type="checkbox" onChange="checkAll()"></th>').LF;
    $out .= '   <th>'._('No.').'</th>'.LF;
    $out .= '   <th><select onChange="submitMe(\'refresh\')" name="type">';
    $out .= '   <option value="all">'._('Type').'</option>'.LF;
@@ -455,7 +449,7 @@ function queueFormatItems($typefilter='all') {
    $out .= '</tr>'.LF;
    // process incidents first
    $count = 0;
-
+   $elcount=0;
    foreach ($elements as $id=>$element) {
       if ($typefilter != 'all' && $element['type'] != $typefilter) {
           continue;
@@ -464,6 +458,8 @@ function queueFormatItems($typefilter='all') {
       if ($element['metatype'] != AIRT_IMPORTQUEUE_METATYPE_INCIDENT) {
          continue;
       }
+      $elcount+=3;
+      $js .= 'document.forms[1].elements['.$elcount.'].checked = check;'.LF;
       $item = queuePeekItem($id, $error);
       if ($error != '') {
          airt_error('ERR_FUNC', 'importqueue.plib:'.__LINE__);
@@ -474,8 +470,7 @@ function queueFormatItems($typefilter='all') {
       }
       $out .= '<tr valign="top">'.LF;
       $out .= '  <td nowrap>'.LF;
-      $out .= t('     <input name="checked['.$id.']" %checked type="checkbox" /> '.LF,
-         array('%checked'=>($toggle == 1) ? 'CHECKED' : ''));
+      $out .= '     <input name="checked['.$id.']" type="checkbox" /> '.LF;
       $out .= '  </td>'.LF;
 
       $out .= t('  <td nowrap><a target="airt_queue" href="%url?action=showdetails&id=%id">'.
@@ -572,6 +567,7 @@ function queueFormatItems($typefilter='all') {
           $res = $xpath->query('//airt/contactData/constituency');
           $constituency = $res->item(0)->textContent;
 
+
           $out .= t('<tr class="%class">', array(
              '%class'=>(($count++ % 2 == 0) ? 'even' : 'odd'))).LF;
           $out .= '   <td>';
@@ -589,7 +585,10 @@ function queueFormatItems($typefilter='all') {
        $out .= '</table>'.LF;
    }
    $out .= '</div><!-- importqueue-overview-body -->'.LF;
-   return $out;
+
+   $js .= '}'.LF;
+   $js .= '</SCRIPT>';
+   return $js.$out;
 }
 
 
