@@ -458,8 +458,8 @@ function queueFormatItems($typefilter='all') {
       if ($element['metatype'] != AIRT_IMPORTQUEUE_METATYPE_INCIDENT) {
          continue;
       }
-      $elcount+=3;
-      $js .= 'document.forms[1].elements['.$elcount.'].checked = check;'.LF;
+      $js .= '   x=document.getElementById("check'.$elcount.'");';
+      $js .= '   x.checked=check;'.LF;
       $item = queuePeekItem($id, $error);
       if ($error != '') {
          airt_error('ERR_FUNC', 'importqueue.plib:'.__LINE__);
@@ -470,7 +470,7 @@ function queueFormatItems($typefilter='all') {
       }
       $out .= '<tr valign="top">'.LF;
       $out .= '  <td nowrap>'.LF;
-      $out .= '     <input name="checked['.$id.']" type="checkbox" /> '.LF;
+      $out .= '     <input id="check'.$elcount++.'" name="checked['.$id.']" type="checkbox" /> '.LF;
       $out .= '  </td>'.LF;
 
       $out .= t('  <td nowrap><a target="airt_queue" href="%url?action=showdetails&id=%id">'.
