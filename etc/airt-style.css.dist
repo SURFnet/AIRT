@@ -166,7 +166,7 @@ h1{
 }
 
 .content h3 {
-	font: bold Verdana, Arial, sans-serif;
+	font-family: bold Verdana, Arial, sans-serif;
 }
 
 .left{
