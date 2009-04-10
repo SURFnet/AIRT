@@ -449,7 +449,7 @@ function queueFormatItems($typefilter='all') {
    $out .= '</tr>'.LF;
    // process incidents first
    $count = 0;
-   $elcount=0;
+   $siblings = array();
    foreach ($elements as $id=>$element) {
       if ($typefilter != 'all' && $element['type'] != $typefilter) {
           continue;
@@ -458,8 +458,9 @@ function queueFormatItems($typefilter='all') {
       if ($element['metatype'] != AIRT_IMPORTQUEUE_METATYPE_INCIDENT) {
          continue;
       }
-      $js .= '   x=document.getElementById("check'.$elcount.'");';
+      $js .= '   x=document.getElementById("check'.$element['id'].'");';
       $js .= '   x.checked=check;'.LF;
+
       $item = queuePeekItem($id, $error);
       if ($error != '') {
          airt_error('ERR_FUNC', 'importqueue.plib:'.__LINE__);
@@ -470,7 +471,7 @@ function queueFormatItems($typefilter='all') {
       }
       $out .= '<tr valign="top">'.LF;
       $out .= '  <td nowrap>'.LF;
-      $out .= '     <input id="check'.$elcount++.'" name="checked['.$id.']" type="checkbox" /> '.LF;
+      $out .= '     <input onChange="toggleChildren('.$element['id'].')" id="check'.$element['id'].'" name="checked['.$id.']" type="checkbox" /> '.LF;
       $out .= '  </td>'.LF;
 
       $out .= t('  <td nowrap><a target="airt_queue" href="%url?action=showdetails&id=%id">'.
@@ -511,8 +512,14 @@ function queueFormatItems($typefilter='all') {
       $group = false;
       if (array_key_exists($ip, $used_ips)) {
          $parent = $used_ips[$ip][0];
-         $out .= '  <input type="checkbox" checked value="'.$parent.'" name="group['.$element['id'].']">'.LF;
+         $out .= '  <input type="checkbox" checked value="'.$parent.
+            '" id="group'.$element['id'].'" name="group['.$element['id'].']">'.LF;
          $out .=  t(_('  Group with queue item %parent<br/>'), array('%parent'=>$parent)).LF;
+         if (array_key_exists($parent, $siblings)) {
+             $siblings[$parent][] = $element['id'];
+         } else {
+             $siblings[$parent] = array($element['id']);
+         }
          $group = true;
       }
       $used_ips[$ip][] = $element['id'];
@@ -534,6 +541,34 @@ function queueFormatItems($typefilter='all') {
    if ($count == 0) {
       $out .= '<em>'._('No incidents pending.').'</em><p/>';
    }
+   $js2 = '<script language="JavaScript">'.LF;
+   $js2 .= 'var siblings=new Array();'.LF;
+   foreach ($siblings as $parent=>$children) {
+           $js2 .= t('siblings[%parent] = new Array(%children);'.LF, array(
+              '%parent'=>$parent,
+              '%children'=>implode(',', $children)));
+   }
+   /* when check boxes are toggled, check if the import queue element
+    * has any children. if the 'group with' option is toggled, also toggled
+    * that child
+    */
+   $js2 .= 'function toggleChildren(parent) {'.LF;
+   $js2 .= '   if (siblings[parent] != undefined) {'.LF;
+   $js2 .= '      for (s in siblings[parent]) {'.LF;
+   $js2 .= '         checkid="check"+siblings[parent][s];'.LF;
+   $js2 .= '         groupid="group"+siblings[parent][s];'.LF;
+   $js2 .= '         check = document.getElementById(checkid);'.LF;
+   $js2 .= '         group = document.getElementById(groupid);'.LF;
+   $js2 .= '         if (group != null && group.checked == true) {'.LF;
+   $js2 .= '            if (check != null && check.checked == false) {'.LF;
+   $js2 .= '               check.checked=true;'.LF;
+   $js2 .= '            }'.LF;
+   $js2 .= '         }'.LF;
+   $js2 .= '      }'.LF;
+   $js2 .= '   }'.LF;
+   $js2 .= '}'.LF;
+   $js2 .= '</script>'.LF;
+
 
    /* now, only worry about contact updates
     */
@@ -588,7 +623,7 @@ function queueFormatItems($typefilter='all') {
 
    $js .= '}'.LF;
    $js .= '</SCRIPT>';
-   return $js.$out;
+   return $js.$js2.$out;
 }
 
 
