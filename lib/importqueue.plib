@@ -560,8 +560,12 @@ function queueFormatItems($typefilter='all') {
    $js2 .= '         check = document.getElementById(checkid);'.LF;
    $js2 .= '         group = document.getElementById(groupid);'.LF;
    $js2 .= '         if (group != null && group.checked == true) {'.LF;
-   $js2 .= '            if (check != null && check.checked == false) {'.LF;
-   $js2 .= '               check.checked=true;'.LF;
+   $js2 .= '            if (check != null) {'.LF;
+	$js2 .= '               if (check.checked == false) {'.LF;
+   $js2 .= '                  check.checked=true;'.LF;
+	$js2 .= '               } else {'.LF;
+	$js2 .= '                  check.checked=false;'.LF;
+	$js2 .= '               }'.LF;
    $js2 .= '            }'.LF;
    $js2 .= '         }'.LF;
    $js2 .= '      }'.LF;
