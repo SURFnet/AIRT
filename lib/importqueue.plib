@@ -544,7 +544,7 @@ function queueFormatItems($typefilter='all') {
    $js2 = '<script language="JavaScript">'.LF;
    $js2 .= 'var siblings=new Array();'.LF;
    foreach ($siblings as $parent=>$children) {
-           $js2 .= t('siblings[%parent] = new Array(%children);'.LF, array(
+           $js2 .= t('siblings[%parent] = [%children];'.LF, array(
               '%parent'=>$parent,
               '%children'=>implode(',', $children)));
    }
