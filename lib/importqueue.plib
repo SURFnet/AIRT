@@ -527,8 +527,11 @@ function queueFormatItems($typefilter='all') {
       if ($group == false) {
          if (array_key_exists($element['cache_ip'], $openips)) {
             $out .= '  <input type="checkbox" checked name="add['.$id.']">'.LF;
-            $out .= t(_('  Add to %id').LF,
-            array('%id'=>normalize_incidentid($openips[$element['cache_ip']])));
+            $out .= t(_('  Add to <a href="%u/incident.php?action=details&incidentid=%id">%label</a>').LF,
+            array(
+               '%u'=>BASEURL,
+               '%id'=>$openips[$element['cache_ip']],
+               '%label'=>normalize_incidentid($openips[$element['cache_ip']])));
          }
       }
       $group = false;
