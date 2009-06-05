@@ -50,6 +50,10 @@ function addIncidentComment($params = array(), &$error='') {
       return false;
    }
 
+   if (strlen($params['comment']) > 240) {
+       airt_msg('WARNING: comment truncated to 240 characters');
+       $params['comment']=substr($params['comment'], 0, 237) . '...';
+   }
    $res = db_query(sprintf("
       INSERT INTO incident_comments
       (id, incident, comment, added, addedby)
