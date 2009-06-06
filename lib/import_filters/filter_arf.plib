@@ -1,0 +1,79 @@
+<?php
+/* vim: syntax=php tabstop=3 shiftwidth=3
+ *
+ * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
+ * Copyright (C)    Kees Leune <kees@leune.com>
+
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ * $Id: filter_spamcop.plib 1213 2008-02-15 16:13:17Z kees $
+ */
+require_once 'Mail/mimeDecode.php';
+
+function filter_arf_getVersion() {
+	$rev = explode(' ','$Rev: 1213 $');
+	return $rev[1];
+}
+
+function filter_arf($input, &$output, $verbosity=FALSE) {
+   $message = new Mail_mimeDecode($input);
+   $decoded = $message->decode(array('include_bodies'=>true));
+   if (!($decoded->ctype_primary == 'multipart' 
+         && $decoded->ctype_secondary == 'report')) {
+       if ($verbosity) {
+           print "Not valid ARF";
+           exit;
+       }
+   }
+   foreach ($decoded->parts as $part) {
+       if ($part->ctype_primary == 'message' &&
+           $part->ctype_secondary == 'feedback-report') {
+           $feedback_report = $part;
+       } else {
+           $offending_msg = $part;
+       }
+   }
+
+
+   $logging = $feedback_report->body;
+   $srcip = 'SOURCE IP';
+   $datetime = 'DATETIME';
+
+   $output = '<airt>'."\n";
+   $output .= "  <queuedata filter=\"filter_arf\" version=\"".
+	   filter_arf_getVersion()."\" ref=\"#1\">\n";
+   $output .= "     <status>open</status>\n";
+   $output .= "     <sender>SpamCop</sender>\n";
+   $output .= "     <type>ARF report</type>\n";
+   $output .= "     <summary>ARF report $srcip</summary>\n";
+   $output .= "  </queuedata>\n";
+   $output .= "  <incident id=\"1\">\n";
+   $output .="    <ticketInformation>\n";
+   $output .="      <prefix>ARF</prefix>\n";
+   $output .="    </ticketInformation>\n";
+   $output .="    <technicalInformation>\n";
+   $output .="      <ip>$srcip</ip>\n";
+   $output .="      <incident_time>$datetime</incident_time>\n";
+   $output .="      <logging>".htmlentities($logging)."</logging>\n";
+   $output .="   </technicalInformation>\n";
+   $output .="  </incident>\n";
+   $output .= "</airt>\n";
+
+   if ($verbosity == true) {
+      print "$output";
+   }
+   return 0;
+}
+?>
