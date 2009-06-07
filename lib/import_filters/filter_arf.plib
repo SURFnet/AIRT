@@ -46,10 +46,21 @@ function filter_arf($input, &$output, $verbosity=FALSE) {
        }
    }
 
-
    $logging = $feedback_report->body;
-   $srcip = 'SOURCE IP';
-   $datetime = 'DATETIME';
+   if (preg_match('/^Source-IP:([ 0-9.]+)$/m', $logging, $match) === false) {
+       $srcip = _('Unknown IP address');
+   } else {
+       $srcip = trim($match[1]);
+   }
+   if (preg_match('/^Received-Date: (.*)$/m', $logging, $match) === false) {
+       $datetime = _('Unknown timestamp');
+   } else {
+       if (($datetime = strtotime(trim($match[1]))) === false) {
+           $datetime = _('Unable to parse timestamp');
+       } else {
+           $datetime = Date('Y-m-d\TH:i:sP', $datetime);
+       }
+   }
 
    $output = '<airt>'."\n";
    $output .= "  <queuedata filter=\"filter_arf\" version=\"".
