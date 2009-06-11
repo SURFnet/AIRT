@@ -760,6 +760,41 @@ function replace_vars($msg, $current=array()) {
       }
    }
 
+   if (strpos($out, '@OTHER_OPEN_LIST@') !== FALSE) {
+      $open = array();
+      foreach (getAddressesForIncident($incidentid) as $key=>$data) {
+	 $c = $data['constituency'];
+	 if (!array_key_exists($c, $open)) {
+	    $open[$c] = array();
+	 }
+      }
+      foreach (getOpenIncidentsByConstituency($c) as $k=>$d) {
+         if (!in_array($d, $open[$c])) {
+            $open[$c][] = $d;
+         }
+      }
+      // $open[] now contains one array per constituency. Each subarray 
+      // contains incidentids
+      $oo = '';
+      foreach ($open as $c) {
+         foreach ($c as $i) {
+            if ($i == $incidentid) continue; // skip current incident
+
+            $incident = getIncident($i);
+            $oo .= sprintf('%s - %s - %s'.LF, 
+	       normalize_incidentid($incident['incidentid']),
+               htmlentities(getIncidentTypeLabelById($incident['type'])),
+	       Date('Y/m/d H:i:s O', $incident['created'])
+            );
+         }
+      }
+      if ($oo == '') {
+         $oo = '--';
+      }
+      $out = ereg_replace('@OTHER_OPEN_LIST@', $oo, $out);
+   } // @OTHER_OPEN_LIST@
+
+
    if (strpos($out, '@OTHER_OPEN@') !== FALSE) {
       // Expand @OTHER_OPEN@
       $open = array();
