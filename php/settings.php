@@ -28,6 +28,13 @@ pageHeader(_('Settings'), array(
    'menu'=>'settings'));
 print '<div class="column">'.LF;
 print '    <div class="block">'.LF;
+print '       <h3>'._('Configuration options').'</h3>'.LF;
+print t('       <a href="%u/config.php">%l</a>', array(
+   '%u'=>BASEURL,
+   '%l'=>_('Configuration screen')
+));
+print '    </div>'.LF;
+print '    <div class="block">'.LF;
 print '        <h3>'._('Edit tools menu').'</h3>'.LF;
 print '        <p>';
 print _('The Tools-menu can be used to access sources of information directly from any screen of AIRT. You might want to add a link to your IP-Address lookup and Network statistics application to this list.');
