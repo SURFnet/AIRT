@@ -1760,12 +1760,15 @@ function listIncidents() {
    $incidents = getOpenIncidents($sqlfilter);
    $numincidents = sizeof($incidents);
    $pager = '';
-   if ($numincidents  > PAGESIZE) {
-       $pages = ceil($numincidents / PAGESIZE);
+   if ((Setup::getOption('pagesize', $pagesize)) === false) {
+      $pagesize = 50;
+   }
+   if ($numincidents  > $pagesize) {
+       $pages = ceil($numincidents / $pagesize);
        $pager .= t(_('Incident %n - %m of %M. Page :'), array(
-          '%n'=>($page-1)*PAGESIZE+1,
+          '%n'=>($page-1)*$pagesize+1,
           '%M'=>$numincidents,
-          '%m'=>(min($page*PAGESIZE, $numincidents))));
+          '%m'=>(min($page*$pagesize, $numincidents))));
        for ($i=1; $i <= $pages; $i++) {
            if ($page == $i) {
                $pager .= " <span>$i</span> ";
@@ -1904,8 +1907,8 @@ function listIncidents() {
    $conslist = getConstituencies();
    $elcount = 1; // 1 is the checkbox selector, 2 is the first one to check
    foreach ($incidents as $id=>$data) {
-      if (($count++ > $page * PAGESIZE) ||
-          ($count <= ($page-1) * PAGESIZE)) {
+      if (($count++ > $page * $pagesize) ||
+          ($count <= ($page-1) * $pagesize)) {
           continue;
       }
       $script .= 'document.forms[2].elements['.($elcount++).'].checked = check;'.LF;

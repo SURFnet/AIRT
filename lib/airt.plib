@@ -76,10 +76,10 @@ if (AIRT_RUN_MODE=='HTTP') {
    if (array_key_exists('language', $_SESSION)) {
       $lang = $_SESSION['language'];
    } else {
-      if (defined('DEFAULTLANGUAGE')) {
-         $lang = DEFAULTLANGUAGE;
+      if (Setup::getOption('defaultlanguage', $defaultlang) === true) {
+         $lang = $defaultlang;
       } else {
-         $lang = 'en';
+         $lang = 'en_US.utf8';
       }
       $userid = fetchFrom('SESSION', 'userid');
       if ($userid != '') {
@@ -324,13 +324,17 @@ function pageHeader($title='', $options=array()) {
    print '<body>'.LF;
    print '<div id="wrapper">'.LF;
    if ($showmenu === true) {
+      if ((Setup::getOption('instancename', $instance)) === false) {
+	 $instance = _('Default instance');
+      }
+
       print '  <div id="header">'.LF.LF;
       print '  <div class="left">'.LF;
       print t('  <a href="%url/incident.php" title="'._('Back to the first page').
          '"><img src="images/airt_logo.png" alt="AIRT" id="logo" /></a>'.LF, 
          array('%url'=>BASEURL));
       print '    <h2>Application for Incident Response Teams</h2>'.LF;
-      print '    <h4>'.INSTANCE_NAME.'</h4>'.LF;
+      print '    <h4>'.htmlentities($instance).'</h4>'.LF;
       print '    <div id="navigation">'.LF;
       print mainMenu($menu);
       print '    </div><!-- navigation -->'.LF;

@@ -1,0 +1,58 @@
+<?php
+require_once LIBDIR.'/database.plib';
+
+class Setup {
+   private static $options = array (
+   );
+
+   /* 
+    * Retrieve the value of an option. 
+    * @param $option Name of the option to retrieve
+    * @param $value Value of the retrieve option, or false if not set
+    * @return true on success, false on failure
+    */
+   public static function getOption($option, &$value=false) {
+      if (array_key_exists($option, self::$options)) {
+         $value = self::$options[$option];
+         return true;
+      } else { 
+         return false; 
+      }
+   }
+
+   /*
+    * Retrieve all options from the datbase.
+    * @param $error error message, if failure
+    * @return true on success, false on failure
+    */
+   public static function loadOptions(&$error='') {
+      if (($res = db_query('select key,value from settings')) === false) {
+	 $error = db_errormessage();
+	 return false;
+      }
+      while (($row = db_fetch_next($res)) !== false) {
+	self::$options[$row['key']] = $row['value'];
+      }
+      db_free_result($res);
+      return true;
+   }
+
+   public static function saveOptions() {
+   
+   }
+
+   /*
+    * Set the value of an option
+    * @param $option name of the option
+    * @param $value value of the option
+    * @return Does not return anything
+    */ 
+   public static function setOption($option, $value) {
+      self::$options[$option] = $value;
+   }
+
+   public static function getOptions() {
+      return self::$options;
+   }
+}
+?>

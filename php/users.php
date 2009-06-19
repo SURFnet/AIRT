@@ -40,10 +40,10 @@
 
     if (array_key_exists('language', $_SESSION)) {
        $language = $_SESSION['language'];
-    } elseif (defined('DEFAULTLANGUAGE')) {
-       $language = DEFAULTLANGUAGE;
+    } elseif (Setup::getOption('defaultlanguage', $defaultlang) === true) {
+       $language = $defaultlang;
     } else {
-       $language = 'en';
+       $language = 'en_US.utf8';
     }
     if ($id != "") {
        if (!is_numeric($id)) {

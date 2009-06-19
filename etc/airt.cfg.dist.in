@@ -46,22 +46,11 @@ function setup() {
    // location of the .plib files
    $SETTINGS['libdir'] = '@AIRT_PHPLIBDIR@';
    
-   // identify clients by X509 certificates? Note: web server is 
-   // expected to ensure the validity of the certificate. AIRT will
-   // look for the subject name.
-   $SETTINGS['x509client'] = true;
-
    // location of configuration files
    $SETTINGS['etcdir'] = '@ETCDIR@';
 
-   // number of incidents to show on one page
-   $SETTINGS['pagesize'] = 50;
-
    // directory for short-lived temporary files
    $SETTINGS['tmpdir'] = '/tmp';
-
-   // default language
-   $SETTINGS['defaultlanguage'] = 'en_US.utf8';
 
    /**** 2. EMAIL SETTINGS *****/
    // sender-from in standard emails. 
@@ -113,9 +102,6 @@ function setup() {
 
    // Incident ID prefix
    $SETTINGS['incidentid_prefix'] = 'Example-CERT#';
-
-   // instance name
-   $SETTINGS['incident_name'] = "Example AIRT Site";
 
    // local customization can be found in this file. If undefined, no local
    // additions are done
