@@ -3,6 +3,7 @@ require_once LIBDIR.'/database.plib';
 
 class Setup {
    private static $options = array (
+      'baseurl' => BASEURL,
    );
 
    private static $defaults = array (

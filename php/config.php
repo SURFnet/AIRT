@@ -4,7 +4,7 @@ require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/setup.plib';
 require_once LIBDIR.'/config.plib';
 
-$request = strip_tags(fetchFrom('REQUEST', 'action'));
+$action = strip_tags(fetchFrom('REQUEST', 'action'));
 defaultTo($action, 'list');
 
 switch ($action) {
@@ -12,7 +12,7 @@ switch ($action) {
       showConfigScreen();
       break;
    default:
-      Setup::getConfig('baseurl', $url, true);
+      Setup::getOption('baseurl', $url, true);
       reload($url);
 }
 ?>
