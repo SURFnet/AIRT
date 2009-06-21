@@ -29,10 +29,10 @@ pageHeader(_('Settings'), array(
    'menu'=>'settings'));
 print '<div class="column">'.LF;
 print '    <div class="block">'.LF;
-print '       <h3>'._('Configuration options').'</h3>'.LF;
+print '       <h3>'._('Application configuration options').'</h3>'.LF;
 print t('       <a href="%u/config.php">%l</a>', array(
    '%u'=>BASEURL,
-   '%l'=>_('Configuration screen')
+   '%l'=>_('Global options')
 ));
 print '    </div>'.LF;
 print '    <div class="block">'.LF;

@@ -12,22 +12,58 @@ function showConfigScreen() {
    $out .= '  <tr>'.LF;
 
    Setup::getOption('pagesize', $pagesize, true);
-   $out .= t('     <td>%l</td>'.LF, array('%l'=>_('Page size')));
-   $out .= t('     <td><input type="string" value="%v" name="pagesize" size="5"></td>'.LF, array('%v'=>htmlentities($pagesize)));
+   $out .= t('     <td>%l</td>'.LF, array('%l'=>_('Maximum number of list elements shown on a single page')));
+   $out .= '     <td><select name="pagesize">';
+   $out .= choice(10, 10, $pagesize);
+   $out .= choice(25, 25, $pagesize);
+   $out .= choice(50, 50, $pagesize);
+   $out .= choice(100, 100, $pagesize);
+   $out .= choice(150, 150, $pagesize);
+   $out .= choice(250, 250, $pagesize);
+   $out .= choice(999, 999, $pagesize);
+   $out .= '</select></td>'.LF;
    $out .= '  </tr>'.LF;
 
    Setup::getOption('archiveage', $archiveage, true);
    $out .= '  <tr>'.LF;
-   $out .= t('     <td>%l</td>'.LF, array('%l'=>_('Archive age')));
-   $out .= t('     <td><input type="string" value="%v" name="archiveage" size="5"></td>'.LF, array('%v'=>htmlentities($archiveage)));
+   $out .= t('     <td>%l</td>'.LF, array('%l'=>_('Number of days afters receiving email when it is automatically archived')));
+   $out .= '     <td><select name="archiveage">';
+   $out .= choice(5, 5, $archiveage);
+   $out .= choice(10, 10, $archiveage);
+   $out .= choice(15, 15, $archiveage);
+   $out .= choice(20, 20, $archiveage);
+   $out .= choice(25, 25, $archiveage);
+   $out .= choice(30, 30, $archiveage);
+   $out .= choice(60, 60, $archiveage);
+   $out .= choice(90, 90, $archiveage);
+   $out .= '</select></td>'.LF;
    $out .= '  </tr>'.LF;
 
 
    Setup::getOption('instancename', $instancename, true);
    $out .= '  <tr>'.LF;
-   $out .= t('     <td>%l</td>'.LF, array('%l'=>_('Instance name')));
+   $out .= t('     <td>%l</td>'.LF, array('%l'=>_('The name of the current AIRT instance')));
    $out .= t('     <td><input type="string" value="%v" name="instancename" size="40"></td>'.LF, array('%v'=>htmlentities($instancename)));
    $out .= '  </tr>'.LF;
+
+   Setup::getOption('x509client', $x509client, true);
+   $out .= '  <tr>'.LF;
+   $out .= t('     <td>%l</td>'.LF, array('%l'=>_('Allow logon using an X509 cient certificate')));
+   $out .= '    <td>';
+   $out .= t('%l <input type="radio" %check name="x509client">', array(
+      '%l'=>_('Yes'),
+      '%check'=>($x509client == 1) ? 'CHECKED' : ''));
+   $out .= '  ';
+   $out .= t('%l <input type="radio" %check name="x509client">', array(
+      '%l'=>_('No'),
+      '%check'=>($x509client == 0) ? 'CHECKED' : ''));
+   $out .= '    </td>'.LF;
+   $out .= '  </tr>'.LF;
+
+   Setup::getOption('defaultlanguage', $defaultlanguage, true);
+   $out .= '  <tr>'.LF;
+   $out .= t('     <td>%l</td>'.LF, array('%l'=>_('Default language for interface')));
+   $out .= t('     <td><input type="string" value="%v" name="defaultlanguage" size="40"></td>'.LF, array('%v'=>htmlentities($defaultlanguage)));
     
    $out .= '  </tr>'.LF;
    $out .= '</table>'.LF;
