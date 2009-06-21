@@ -22,7 +22,8 @@
  * $Id$
  */
 require_once 'config.plib';
-require_once LIBDIR."/airt.plib";
+require_once LIBDIR.'/config.plib';
+require_once LIBDIR.'/airt.plib';
 
 pageHeader(_('Settings'), array(
    'menu'=>'settings'));

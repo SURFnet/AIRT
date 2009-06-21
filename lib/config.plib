@@ -1,0 +1,40 @@
+<?php
+require_once LIBDIR.'/airt.plib';
+require_once LIBDIR.'/database.plib';
+
+function showConfigScreen() {
+   pageHeader(_('Configuration screen'), array(
+      'menu'=>'settings'));
+   $out = '';
+   $out .= '<div class="block">'.LF;
+   $out .= '<h3>'._('Global options').'</h3>'.LF;
+   $out .= '<table>'.LF;
+   $out .= '  <tr>'.LF;
+
+   Setup::getOption('pagesize', $pagesize, true);
+   $out .= t('     <td>%l</td>'.LF, array('%l'=>_('Page size')));
+   $out .= t('     <td><input type="string" value="%v" name="pagesize" size="5"></td>'.LF, array('%v'=>htmlentities($pagesize)));
+   $out .= '  </tr>'.LF;
+
+   Setup::getOption('archiveage', $archiveage, true);
+   $out .= '  <tr>'.LF;
+   $out .= t('     <td>%l</td>'.LF, array('%l'=>_('Archive age')));
+   $out .= t('     <td><input type="string" value="%v" name="archiveage" size="5"></td>'.LF, array('%v'=>htmlentities($archiveage)));
+   $out .= '  </tr>'.LF;
+
+
+   Setup::getOption('instancename', $instancename, true);
+   $out .= '  <tr>'.LF;
+   $out .= t('     <td>%l</td>'.LF, array('%l'=>_('Instance name')));
+   $out .= t('     <td><input type="string" value="%v" name="instancename" size="40"></td>'.LF, array('%v'=>htmlentities($instancename)));
+   $out .= '  </tr>'.LF;
+    
+   $out .= '  </tr>'.LF;
+   $out .= '</table>'.LF;
+   $out .= '';
+   $out .= '</div>'.LF;
+
+   print $out;
+   pageFooter();
+}
+?>

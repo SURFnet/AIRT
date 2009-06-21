@@ -5,17 +5,28 @@ class Setup {
    private static $options = array (
    );
 
+   private static $defaults = array (
+      'archiveage' => 20,
+      'instancename' => 'AIRT development instance',
+      'x509client' => 0,
+      'defaultlanguage' => 'en_US.utf8',
+      'pagesize' => 50,
+   );
+
    /* 
     * Retrieve the value of an option. 
     * @param $option Name of the option to retrieve
     * @param $value Value of the retrieve option, or false if not set
+    * @param $returnDefault If true, return default setting if option not found
     * @return true on success, false on failure
     */
-   public static function getOption($option, &$value=false) {
+   public static function getOption($option, &$value=false, $returnDefault=false) {
       if (array_key_exists($option, self::$options)) {
          $value = self::$options[$option];
          return true;
-      } else { 
+      } elseif ($returnDefault === true && array_key_exists($option, self::$defaults)) { 
+	 return self::$defaults[$option];
+      } else {
          return false; 
       }
    }
