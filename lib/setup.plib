@@ -32,6 +32,22 @@ class Setup {
       }
    }
 
+   /* 
+    * Retrieve the default value of an option. 
+    * @param $option Name of the option to retrieve
+    * @param $value Value of the retrieve option, or false if not set
+    * @param $returnDefault If true, return default setting if option not found
+    * @return true on success, false on failure
+    */
+   public static function getDefaultOption($option, &$value=false) {
+      if (array_key_exists($option, self::$defaults)) {
+         $value = self::$defaults[$option];
+         return true;
+      } else {
+         return false; 
+      }
+   }
+
    /*
     * Retrieve all options from the datbase.
     * @param $error error message, if failure
@@ -49,8 +65,29 @@ class Setup {
       return true;
    }
 
-   public static function saveOptions() {
-   
+   public static function saveOptions(&$error) {
+      $updated = self::$options;
+      $sql = array();
+      if (self::loadOptions($error) === false) {
+	 return false;
+      }
+      foreach ($updated as $key=>$value) {
+	 // only save options that we know of and that have changed
+	 if (!array_key_exists($key, self::$options) ||
+	     $value == self::$options[$key]) {
+	    continue;
+	 }
+	 $sql[] = q('update settings set value=\'%v\' where key=\'%k\'', array(
+	    '%v'=>db_escape_string($value),
+	    '%k'=>db_escape_string($key)));
+      }
+      foreach ($sql as $n=>$q) {
+	 if (db_query($q) === false) {
+	    $error = db_errormessage();
+	    return false;
+	 }
+      }
+      return true;
    }
 
    /*

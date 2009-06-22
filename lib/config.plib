@@ -6,12 +6,12 @@ function showConfigScreen() {
    pageHeader(_('Configuration screen'), array(
       'menu'=>'settings'));
    $out = '';
+   $out .= t('<form action="%u/config.php" method="post">'.LF, array(
+      '%u'=>$baseurl));
    $out .= '<div class="block">'.LF;
    $out .= '<h3>'._('Global options').'</h3>'.LF;
 
    Setup::getOption('baseurl', $baseurl);
-   $out .= t('<form action="%u/config.php" method="post">'.LF, array(
-      '%u'=>$baseurl));
    $out .= '<table class="horizontal">'.LF;
    $out .= '  <tr>'.LF;
 
@@ -62,7 +62,7 @@ function showConfigScreen() {
    Setup::getOption('instancename', $instancename, true);
    $out .= '  <tr>'.LF;
    $out .= t('     <td>%l</td>'.LF, array('%l'=>_('The name of the current AIRT instance')));
-   $out .= t('     <td><input type="string" value="%v" name="instancename" size="40"></td>'.LF, array('%v'=>htmlentities($instancename)));
+   $out .= t('     <td><input type="string" value="%v" name="instancename" size="45"></td>'.LF, array('%v'=>htmlentities($instancename)));
    $out .= '  </tr>'.LF;
 
    Setup::getOption('x509client', $x509client, true);
@@ -82,9 +82,39 @@ function showConfigScreen() {
    Setup::getOption('defaultlanguage', $defaultlanguage, true);
    $out .= '  <tr>'.LF;
    $out .= t('     <td>%l</td>'.LF, array('%l'=>_('Default language for interface')));
-   $out .= t('     <td><input type="string" value="%v" name="defaultlanguage" size="40"></td>'.LF, array('%v'=>htmlentities($defaultlanguage)));
-    
+   $out .= t('     <td><input type="string" value="%v" name="defaultlanguage" size="45"></td>'.LF, array('%v'=>htmlentities($defaultlanguage)));
    $out .= '  </tr>'.LF;
+   $out .= '</table>'.LF;
+   $out .= '</div>'.LF;
+
+   $out .= '<div class="block">'.LF;
+   $out .= '<h3>'._('Email settings').'</h3>'.LF;
+   $out .= '<table class="horizontal">'.LF;
+   
+   Setup::getOption('mailfrom', $mailfrom, true);
+   $out .= '  <tr>'.LF;
+   $out .= t('     <td>%l</td>'.LF, array('%l'=>_('"From" address on outgoing email')));
+   $out .= t('     <td><input type="string" value="%v" name="mailfrom" size="45"></td>'.LF, array('%v'=>htmlentities($mailfrom)));
+   $out .= '  </tr>'.LF;
+
+   Setup::getOption('mailenvfrom', $mailenvfrom, true);
+   $out .= '  <tr>'.LF;
+   $out .= t('     <td>%l</td>'.LF, array('%l'=>_('Email address of the sender of outgoing email')));
+   $out .= t('     <td><input type="string" value="%v" name="mailenvfrom" size="45"></td>'.LF, array('%v'=>htmlentities($mailenvfrom)));
+   $out .= '  </tr>'.LF;
+   
+   Setup::getOption('mailcc', $mailcc, true);
+   $out .= '  <tr>'.LF;
+   $out .= t('     <td>%l</td>'.LF, array('%l'=>_('Email address to which all email will be copied').'<br/><em>'._('Leave blank to disable').'</em>'));
+   $out .= t('     <td><input type="string" value="%v" name="mailcc" size="45"></td>'.LF, array('%v'=>htmlentities($mailcc)));
+   $out .= '  </tr>'.LF;
+
+   Setup::getOption('replyto', $replyto, true);
+   $out .= '  <tr>'.LF;
+   $out .= t('     <td>%l</td>'.LF, array('%l'=>_('Reply-To address set on outgoing email').'<br/><em>'._('Leave blank to disable').'</em>'));
+   $out .= t('     <td><input type="string" value="%v" name="replyto" size="45"></td>'.LF, array('%v'=>htmlentities($replyto)));
+   $out .= '  </tr>'.LF;
+
    $out .= '</table>'.LF;
    $out .= t('<input type="submit" value="%v">', array(
       '%v'=>_('Save changes')));
@@ -95,5 +125,48 @@ function showConfigScreen() {
 
    print $out;
    pageFooter();
+}
+
+function saveConfig() {
+   $pagesize = fetchFrom('REQUEST', 'pagesize', '%d');
+   $archiveage = fetchFrom('REQUEST', 'archiveage', '%d');
+   $correlationage = fetchFrom('REQUEST', 'correlationage', '%d');
+   $instancename = fetchFrom('REQUEST', 'instancename');
+   $x509client = fetchFrom('REQUEST', 'x509name');
+   $defaultlanguage = fetchFrom('REQUEST', 'defaultlanguage');
+
+   if (!empty($pagesize)) {
+      Setup::setOption('pagesize', $pagesize);
+   }
+   if (!empty($archiveage)) {
+      Setup::setOption('archiveage', $archiveage);
+   }
+   if (!empty($correlationage)) {
+      Setup::setOption('correlationage', $correlationage);
+   }
+   if (!empty($instancename)) {
+      Setup::setOption('instancename', $instancename);
+   }
+   if (!empty($x509client)) {
+      Setup::setOption('x509client', $x509client);
+   }
+   if (!empty($defaultlanguage)) {
+      Setup::setOption('defaultlanguage', $defaultlanguage);
+   }
+   if (!empty($mailfrom)) {
+      Setup::setOption('mailfrom', $mailfrom);
+   }
+   if (!empty($mailenvfrom)) {
+      Setup::setOption('mailenvfrom', $mailenvfrom);
+   }
+
+   Setup::setOption('mailcc', $mailcc);
+   Setup::setOption('replyto', $replyto);
+
+   if (Setup::saveOptions($error) === false) {
+      airt_msg($error);
+   } else {
+      airt_msg(_('Settings saved'));
+   }
 }
 ?>
