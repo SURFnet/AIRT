@@ -145,7 +145,8 @@ function airt_check_session($public) {
        $last = $_SESSION['last'];
        $now = time();
 
-       if ($now - $last > SESSION_TIMEOUT) {
+       Setup::getOption('session_timeout', $session, true);
+       if ($now - $last > $session) {
            reload(BASEURL.'/logout.php');
            exit;
        }

@@ -47,14 +47,14 @@ function showConfigScreen() {
    $out .= '  <tr>'.LF;
    $out .= t('     <td>%l</td>'.LF, array('%l'=>_('Number of days afters receiving email when it is automatically archived')));
    $out .= '     <td><select name="archiveage">';
-   $out .= choice(5, 5, $archiveage);
-   $out .= choice(10, 10, $archiveage);
-   $out .= choice(15, 15, $archiveage);
-   $out .= choice(20, 20, $archiveage);
-   $out .= choice(25, 25, $archiveage);
-   $out .= choice(30, 30, $archiveage);
-   $out .= choice(60, 60, $archiveage);
-   $out .= choice(90, 90, $archiveage);
+   $out .= choice(5, 5*24*60*60, $archiveage);
+   $out .= choice(10, 10*24*60*60, $archiveage);
+   $out .= choice(15, 15*24*60*60, $archiveage);
+   $out .= choice(20, 20*24*60*60, $archiveage);
+   $out .= choice(25, 25*24*60*60, $archiveage);
+   $out .= choice(30, 30*24*60*60, $archiveage);
+   $out .= choice(60, 60*24*60*60, $archiveage);
+   $out .= choice(90, 90*24*60*60, $archiveage);
    $out .= '</select></td>'.LF;
    $out .= '  </tr>'.LF;
    
@@ -62,14 +62,15 @@ function showConfigScreen() {
    $out .= '  <tr>'.LF;
    $out .= t('     <td>%l</td>'.LF, array('%l'=>_('Number of days used to calculate the correlation between import queue elements and recently closed incidents')));
    $out .= '     <td><select name="correlationage">';
-   $out .= choice(5, 5*24*60, $correlationage);
-   $out .= choice(10, 10*24*60, $correlationage);
-   $out .= choice(15, 15*24*60, $correlationage);
-   $out .= choice(20, 20*24*60, $correlationage);
-   $out .= choice(25, 25*24*60, $correlationage);
-   $out .= choice(30, 30*24*60, $correlationage);
-   $out .= choice(60, 60*24*60, $correlationage);
-   $out .= choice(90, 90*24*60, $correlationage);
+   $out .= choice(2, 2*24*60*60, $correlationage);
+   $out .= choice(5, 5*24*60*60, $correlationage);
+   $out .= choice(10, 10*24*60*60, $correlationage);
+   $out .= choice(15, 15*24*60*60, $correlationage);
+   $out .= choice(20, 20*24*60*60, $correlationage);
+   $out .= choice(25, 25*24*60*60, $correlationage);
+   $out .= choice(30, 30*24*60*60, $correlationage);
+   $out .= choice(60, 60*24*60*60, $correlationage);
+   $out .= choice(90, 90*24*60*60, $correlationage);
    $out .= '</select></td>'.LF;
    $out .= '  </tr>'.LF;
 
@@ -84,11 +85,11 @@ function showConfigScreen() {
    $out .= '  <tr>'.LF;
    $out .= t('     <td>%l</td>'.LF, array('%l'=>_('Allow logon using an X509 cient certificate')));
    $out .= '    <td>';
-   $out .= t('%l <input type="radio" %check name="x509client">', array(
+   $out .= t('%l <input type="radio" %check value="on" name="x509client">', array(
       '%l'=>_('Yes'),
       '%check'=>($x509client == 1) ? 'CHECKED' : ''));
    $out .= '  ';
-   $out .= t('%l <input type="radio" %check name="x509client">', array(
+   $out .= t('%l <input type="radio" %check value="off" name="x509client">', array(
       '%l'=>_('No'),
       '%check'=>($x509client == 0) ? 'CHECKED' : ''));
    $out .= '    </td>'.LF;
@@ -131,12 +132,12 @@ function showConfigScreen() {
    $out .= '  </tr>'.LF;
 
    $out .= '</table>'.LF;
+   $out .= '</div>'.LF;
+
    $out .= t('<input type="submit" value="%v">', array(
       '%v'=>_('Save changes')));
    $out .= '<input type="hidden" name="action" value="save"/>'.LF;
    $out .= '</form>'.LF;
-   $out .= '';
-   $out .= '</div>'.LF;
 
    print $out;
    pageFooter();
@@ -147,7 +148,7 @@ function saveConfig() {
    $archiveage = fetchFrom('REQUEST', 'archiveage', '%d');
    $correlationage = fetchFrom('REQUEST', 'correlationage', '%d');
    $instancename = fetchFrom('REQUEST', 'instancename');
-   $x509client = fetchFrom('REQUEST', 'x509name');
+   $x509client = fetchFrom('REQUEST', 'x509client');
    $defaultlanguage = fetchFrom('REQUEST', 'defaultlanguage');
    $mailfrom = fetchFrom('REQUEST', 'mailfrom');
    $mailenvfrom = fetchFrom('REQUEST', 'mailenvfrom');
@@ -170,9 +171,6 @@ function saveConfig() {
    if (!empty($instancename)) {
       Setup::setOption('instancename', $instancename);
    }
-   if (!empty($x509client)) {
-      Setup::setOption('x509client', $x509client);
-   }
    if (!empty($defaultlanguage)) {
       Setup::setOption('defaultlanguage', $defaultlanguage);
    }
@@ -182,9 +180,11 @@ function saveConfig() {
    if (!empty($mailenvfrom)) {
       Setup::setOption('mailenvfrom', $mailenvfrom);
    }
+   $x509client = ($x509client == 'on') ? 1 : 0;
 
    Setup::setOption('mailcc', $mailcc);
    Setup::setOption('replyto', $replyto);
+   Setup::setOption('x509client', $x509client);
 
    if (Setup::saveOptions($error) === false) {
       airt_msg($error);

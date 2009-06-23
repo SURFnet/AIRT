@@ -494,9 +494,10 @@ function queueFormatItems($typefilter='all') {
          .'</td>'.LF;
       $out .= '   <td>'.LF;
 
+      Setup::getOption('correlationage', $correlationage, true);
       if (getPreviousIncidents($element['cache_ip'], $prev, $error) &&
             filterIncidentsByStatus($prev, 2, $prev2, $error) &&
-            filterIncidentsByAge($prev2, 172800, $prev3, $error)) {
+            filterIncidentsByAge($prev2, $correlationage, $prev3, $error)) {
          for ($i=0; $i < sizeof($prev3); $i++) {
             $prev = getIncident($prev3[$i]);
             $out .= t(_('<a href="%u?incidentid=%I&action=details">%i</a> closed %c').'<br/>'.LF, 
