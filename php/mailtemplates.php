@@ -347,15 +347,17 @@ special variables in the template:').'<p>'.LF;
       }
 
       /* set up mail recipient */
-      if (defined('MAILCC')) {
-         $mailto = array($to, MAILCC);
-         $hdrs["Cc"] = MAILCC;
+      Setup::getOption('mailcc', $mailcc, true);
+      if (!empty($mailcc)) {
+         $mailto = array($to, $mailcc);
+         $hdrs["Cc"] = $mailcc;
       } else {
          $mailto = array($to);
       }
 
+      Setup::getOption('mailenvfrom', $mailenvfrom, true);
       /* set up envelope sender */
-      $envfrom="-f".MAILENVFROM;
+      $envfrom="-f".$mailenvfrom;
 
       /* will send via Mail class */
       $mail_params = array(

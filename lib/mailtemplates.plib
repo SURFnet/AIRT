@@ -329,10 +329,11 @@ function expand_template($template, $current) {
 
    // message sender
    $cert = getUserByUserId($_SESSION['userid']);
-   if (MAILFROM == '') {
+   Setup:getOption('mailfrom', $mailfrom, true);
+   if (empty($mailfrom)) {
       $output['sender'] = $cert['email'];
    } else {
-      $output['sender'] = replace_vars(MAILFROM, $current);
+      $output['sender'] = replace_vars($mailfrom, $current);
    }
 
    // message receiver
@@ -351,8 +352,9 @@ function expand_template($template, $current) {
    }
 
    // reply to (if set)
-   if (defined('REPLYTO') && REPLYTO != '') {
-      $output['replyto'] = replace_vars(REPLYTO, $current);
+   Setup::getOption('replyto', $replyto, true);
+   if (!empty($replyto)) {
+      $output['replyto'] = replace_vars($replyto, $current);
    } else {
       $output['replyto'] = '';
    }

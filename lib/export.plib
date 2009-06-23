@@ -421,12 +421,13 @@ function exportIODEF($incidentid, &$iodef, &$status='') {
    $name = $contact->appendChild($doc->createAttribute('name'));
    $name->value=htmlentities(ereg_replace('#$', '', INCIDENTID_PREFIX));
 
+   Setup::getOption('mailenvfrom', $mailenvfrom, true);
    $u = getUserByUserId($_SESSION["userid"]);
 	$name = $contact->appendChild($doc->createElementNS(IODEFNS, 'iodef:Name'));
 	$name->appendChild($doc->createTextNode(
       htmlentities(sprintf("%s %s", $u["firstname"], $u["lastname"]))));
 	$email= $contact->appendChild($doc->createElementNS(IODEFNS, 'iodef:Email'));
-	$email->appendChild($doc->createTextNode(htmlentities(MAILENVFROM)));
+	$email->appendChild($doc->createTextNode(htmlentities($mailenvfrom)));
 
 	$iodef = $doc->saveXML();
    return true;
