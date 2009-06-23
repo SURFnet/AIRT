@@ -52,25 +52,6 @@ function setup() {
    // directory for short-lived temporary files
    $SETTINGS['tmpdir'] = '/tmp';
 
-   /**** 2. EMAIL SETTINGS *****/
-   // sender-from in standard emails. 
-   // If left empty, the email address of the currently logged in AIRT 
-   // use will be used. 
-   $SETTINGS['mailfrom'] = 'Example-CERT - @YOURFIRSTNAME@ <user@example.com>';
-
-   // Any mail sent from this sysstem will have the following envelope sender.
-   // Note: dont leave this empty, or you will get the userid of the owner of
-   // your web server process. Only use an email address here, dont add a name.
-   $SETTINGS['mailenvfrom'] = 'user@example.com';
-
-   // this email address will always be cc'ed on outgoing messages. 
-   // If left empty, no cc's of standard messages will be sent.
-   $SETTINGS['MAILCC'] = 'user@example.com';
-
-   // reply-to used in standard emails. 
-   // If left empty, no replyto header will be set.
-   $SETTINGS['REPLYTO'] = 'Example-CERT - @YOURFIRSTNAME@ <user@example.com>';
-
 
    /***** 3. DATABASE SETTINGS *****/
    // connect string for the database
@@ -95,10 +76,6 @@ function setup() {
    $SETTINGS['gpg_options'] = '--detach-sign -t --armor --batch';
    // SETTINGS['gpg_keyid'] = '8830B66F';
 
-
-   /***** 5. SITE CUSTOMIZATION *****/
-   // the session timeout in seconds
-   $SETTINGS['session_timeout'] = 1800;
 
    // Incident ID prefix
    $SETTINGS['incidentid_prefix'] = 'Example-CERT#';
