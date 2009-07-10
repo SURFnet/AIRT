@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-06 00:56-0500\n"
+"POT-Creation-Date: 2009-07-10 10:33-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2340,4 +2340,96 @@ msgid "Unable to query database in user.plib:"
 msgstr ""
 
 msgid "Database error in user.plib:"
+msgstr ""
+
+msgid "Unknown request"
+msgstr ""
+
+msgid "remove checked preferred templates"
+msgstr ""
+
+msgid ""
+"Missing or invalid parameter in\n"
+"          mailtemplates.php"
+msgstr ""
+
+msgid "Unable to fetch templates in mailtemplates.php:%id"
+msgstr ""
+
+msgid "Unable to delete mailtemplate %id: %reason"
+msgstr ""
+
+msgid "Application configuration options"
+msgstr ""
+
+msgid "Global options"
+msgstr ""
+
+msgid "Default instance"
+msgstr ""
+
+msgid "Configuration screen"
+msgstr ""
+
+msgid "Maximum number of minutes of idle time before login is required again"
+msgstr ""
+
+msgid "Maximum number of list elements shown on a single page"
+msgstr ""
+
+msgid "Number of days afters receiving email when it is automatically archived"
+msgstr ""
+
+msgid ""
+"Number of days used to calculate the correlation between import queue "
+"elements and recently closed incidents"
+msgstr ""
+
+msgid "The name of the current AIRT instance"
+msgstr ""
+
+msgid "Allow logon using an X509 cient certificate"
+msgstr ""
+
+msgid "Yes"
+msgstr ""
+
+msgid "No"
+msgstr ""
+
+msgid "Default language for interface"
+msgstr ""
+
+msgid "Email settings"
+msgstr ""
+
+msgid "\"From\" address on outgoing email"
+msgstr ""
+
+msgid "Email address of the sender of outgoing email"
+msgstr ""
+
+msgid "Email address to which all email will be copied"
+msgstr ""
+
+msgid "Leave blank to disable"
+msgstr ""
+
+msgid "Reply-To address set on outgoing email"
+msgstr ""
+
+msgid "Save changes"
+msgstr ""
+
+msgid "Settings saved"
+msgstr ""
+
+msgid "Database error in importqueue.plib:"
+msgstr ""
+
+msgid ""
+"  Add to <a href=\"%u/incident.php?action=details&incidentid=%id\">%label</a>"
+msgstr ""
+
+msgid "Remove checked preferred templates"
 msgstr ""
