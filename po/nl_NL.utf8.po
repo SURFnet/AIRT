@@ -3,14 +3,13 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-07-10 10:33-0400\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"PO-Revision-Date: 2009-07-10 10:47-0500\n"
+"Last-Translator: Kees Leune <info@leune.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -121,8 +120,7 @@ msgid "Process"
 msgstr "Verwerken"
 
 msgid "Refresh the import queue. Any unprocessed changes will be lost."
-msgstr ""
-"Ververs de invoerrij. Alle niet-verwerkte veranderingen zullen verloren gaan."
+msgstr "Ververs de invoerrij. Alle niet-verwerkte veranderingen zullen verloren gaan."
 
 msgid "Refresh"
 msgstr "Verversen"
@@ -221,20 +219,15 @@ msgstr "Niet in staat om gebruiker aan incident toe te voegen"
 
 #, php-format
 msgid ""
-"The e-mail address specified in the incident data entry form (%s) is "
-"unknown\n"
+"The e-mail address specified in the incident data entry form (%s) is unknown\n"
 "to AIRT and you chose not to add it to the database."
-msgstr ""
-"Het electronisch postadres in het incidentgegevens-invoerformulier (%s) is "
-"onbekend bij AIRT, en u heeft ervoor gekozen het niet aan de gegevensbank "
-"toe te voegen."
+msgstr "Het electronisch postadres in het incidentgegevens-invoerformulier (%s) is onbekend bij AIRT, en u heeft ervoor gekozen het niet aan de gegevensbank toe te voegen."
 
 #, php-format
 msgid ""
 "The incident has been created, however no users have been associated with\n"
 "it."
-msgstr ""
-"Het incident is gecreëerd, maar er zijn geen gebruikers mee geassocieerd."
+msgstr "Het incident is gecreëerd, maar er zijn geen gebruikers mee geassocieerd."
 
 #, php-format
 msgid "Continue"
@@ -290,8 +283,7 @@ msgid "Unable to query incident statuses."
 msgstr "Niet in staat om incidentstatussen op te vragen"
 
 msgid "USER ERROR: Must select one or more recipients for mail."
-msgstr ""
-"Gebruikersfout: Verplicht om één of meer ontvangers voor e-mail aan te geven."
+msgstr "Gebruikersfout: Verplicht om één of meer ontvangers voor e-mail aan te geven."
 
 msgid "Unknown action"
 msgstr "Onbekende actie"
@@ -364,8 +356,7 @@ msgid "AIRT Control Center"
 msgstr "AIRT beheerscentrum"
 
 msgid "Welcome %username. Your last login was at %lastdb from %hostname."
-msgstr ""
-"Welkom %username. U meldde u de laatste keer aan op %lastdb vanaf %hostname"
+msgstr "Welkom %username. U meldde u de laatste keer aan op %lastdb vanaf %hostname"
 
 msgid "Do not display"
 msgstr "Niet weergeven"
@@ -425,22 +416,13 @@ msgid "Password"
 msgstr "Wachtwoord"
 
 msgid "AIRT version 20060807.1, Copyright (C) 2004-2006 Tilburg University "
-msgstr ""
-"AIRT versiie 20060807.1, Copyright (C) 2004-2006 Universiteit van Tilburg"
+msgstr "AIRT versiie 20060807.1, Copyright (C) 2004-2006 Universiteit van Tilburg"
 
-msgid ""
-"AIRT comes with ABSOLUTELY NO WARRANTY; for details <a href=\"license.php"
-"\">click here</a>."
-msgstr ""
-"AIRT heeft ABSOLUUT GEEN GARANTIE; voor details, <a href=\"license.php"
-"\">klik hier</a>."
+msgid "AIRT comes with ABSOLUTELY NO WARRANTY; for details <a href=\"license.php\">click here</a>."
+msgstr "AIRT heeft ABSOLUUT GEEN GARANTIE; voor details, <a href=\"license.php\">klik hier</a>."
 
-msgid ""
-"This is free software, and you are welcome to redistribute it under certain "
-"conditions; See the license for more details."
-msgstr ""
-"Dit is Vrije Software, en u mag onder bepaalde voorwaarden deze software "
-"verspreiden. Zie de licentie voor meer details."
+msgid "This is free software, and you are welcome to redistribute it under certain conditions; See the license for more details."
+msgstr "Dit is Vrije Software, en u mag onder bepaalde voorwaarden deze software verspreiden. Zie de licentie voor meer details."
 
 msgid "Permission denied."
 msgstr "Toestemming geweigerd."
@@ -479,11 +461,8 @@ msgstr ""
 "De eerste regel van het bericht zal als onderwerp gebruikt worden.\n"
 "U kunt de volgende speciale variabelen gebruiken in het sjabloon:"
 
-msgid ""
-"Automatically change settings after mail based on this template is sent:"
-msgstr ""
-"Automatisch instellingen bijwerken nadat e-mail verstuurd is op basis van "
-"dit sjabloon:"
+msgid "Automatically change settings after mail based on this template is sent:"
+msgstr "Automatisch instellingen bijwerken nadat e-mail verstuurd is op basis van dit sjabloon:"
 
 msgid "Do not update"
 msgstr "Niet bijwerken"
@@ -494,12 +473,8 @@ msgstr "Toestand"
 msgid "New mail template"
 msgstr "Nieuw e-mailsjabloon"
 
-msgid ""
-"Enter your new template in the text field below. Use the following variables "
-"in your text body:"
-msgstr ""
-"Voer uw nieuwe e-mailsjabloon in, in onderstaand tekstveld. Gebruik de "
-"volgende variabelen in uw bericht:"
+msgid "Enter your new template in the text field below. Use the following variables in your text body:"
+msgstr "Voer uw nieuwe e-mailsjabloon in, in onderstaand tekstveld. Gebruik de volgende variabelen in uw bericht:"
 
 msgid "Template name"
 msgstr "Naam van sjabloon"
@@ -747,12 +722,9 @@ msgid "Incident statistics"
 msgstr "Incidentstatistieken"
 
 msgid ""
-"Please select the reporting period of which you would like to see "
-"statistics. (note; the start date and the end date are included in the\n"
+"Please select the reporting period of which you would like to see statistics. (note; the start date and the end date are included in the\n"
 "report."
-msgstr ""
-"Kies de rapportageperiode waarover u statistieken wenst te zien. (let op: de "
-"startdatum en de eindatum worden opgenomen in het rapport)"
+msgstr "Kies de rapportageperiode waarover u statistieken wenst te zien. (let op: de startdatum en de eindatum worden opgenomen in het rapport)"
 
 msgid "Start date (day-month-year)"
 msgstr "Begindatum (dag-maand-jaar)"
@@ -815,12 +787,8 @@ msgstr "Fout"
 msgid "The passwords that you provided do not match."
 msgstr "De wachtwoorden die u heeft verstrekt stemmen niet overeen."
 
-msgid ""
-"Please use your browser's back button to correct the problem and resend the "
-"form."
-msgstr ""
-"Gebruik uw webbladerprogramma's terugtoets om het probleem te corrigeren en "
-"opnieuw te versturen."
+msgid "Please use your browser's back button to correct the problem and resend the form."
+msgstr "Gebruik uw webbladerprogramma's terugtoets om het probleem te corrigeren en opnieuw te versturen."
 
 msgid "Missing information(A)"
 msgstr "Ontbrekende informatie (A)"
@@ -831,12 +799,8 @@ msgstr "Fout bij verwijderen van gebruiker"
 msgid "Unable to remove this user from the database."
 msgstr "Niet in staat gebruiker uit het gegevensbestand te verwijderen."
 
-msgid ""
-"The most likely cause for this failure is that the user is associated with "
-"one or more incidents."
-msgstr ""
-"De meest waarschijnlijke oorzaak is dat de gebruiker nog is geassocieerd met "
-"een bestaand incident."
+msgid "The most likely cause for this failure is that the user is associated with one or more incidents."
+msgstr "De meest waarschijnlijke oorzaak is dat de gebruiker nog is geassocieerd met een bestaand incident."
 
 msgid "continue"
 msgstr "doorgaan"
@@ -1003,9 +967,7 @@ msgstr "Taak toevoegen"
 msgid ""
 "For the exact functionality of the available tasks and\n"
 "   their possible parameters, please see %Athe documentation%E."
-msgstr ""
-"Voor de exacte functionaliteit van de beschikbare taken en hun mogelijke "
-"parameters, zie %Ade documentatie%E."
+msgstr "Voor de exacte functionaliteit van de beschikbare taken en hun mogelijke parameters, zie %Ade documentatie%E."
 
 msgid "Could not query database for all tasks."
 msgstr "Kon niet alle taken uit het gegevensbestand opvragen"
@@ -1061,25 +1023,25 @@ msgid ""
 msgstr ""
 
 msgid "The program reads the import data from stdin if no filename is given."
-msgstr ""
+msgstr "Het programma leest importgegevens van standaardinvoer als geen bestandsnaam wordt gegeven."
 
 msgid "Available filters:"
-msgstr ""
+msgstr "Beschikbare filters:"
 
 msgid "Not actually queueing the incident."
-msgstr ""
+msgstr "Incident wordt niet daadwerkelijk in wachtrij geplaatst."
 
 msgid "Unable to parse xml"
-msgstr ""
+msgstr "XML kan niet worden geanalyseerd."
 
 msgid "Missing ref attribute in XML"
-msgstr ""
+msgstr "Ontbrekend ref-attribuut in XML"
 
 msgid "Invalid parameter \"id\""
-msgstr ""
+msgstr "Ongeldige parameter \"id\""
 
 msgid "Unable to query database in importqueue.plib:"
-msgstr ""
+msgstr "NIet in staat de database te bevragen in importqueue.plib:"
 
 msgid "No items pending"
 msgstr "Geen elementen in bewerking"
@@ -1139,7 +1101,7 @@ msgid "Invalid cache data"
 msgstr "Ongeldige cache informatie"
 
 msgid "Invalid XML (no logging)"
-msgstr ""
+msgstr "Ongeldige XML (geen logboek)"
 
 msgid "Unable to match users to incident."
 msgstr "Kan gebruiker net met incident associëren"
@@ -1279,7 +1241,7 @@ msgid "Update All Selected"
 msgstr "Werk volledige selectie bij"
 
 msgid "Bulk mail"
-msgstr ""
+msgstr "Massamail"
 
 msgid "No templates available."
 msgstr "Geen sjablonen beschikbaar."
@@ -1360,7 +1322,7 @@ msgstr "Niet in staat om kaart aan te maken"
 
 # Not in use
 msgid "Unable to query database in addUser."
-msgstr ""
+msgstr "Niet in staat de database te bevragen in addUser."
 
 msgid "Preferred language"
 msgstr "Voorkeurstaal"
@@ -1378,16 +1340,16 @@ msgid "Unable to query database"
 msgstr "Niet in staat om gegevensbestand te bevragen"
 
 msgid "Unable to authenticate using client certificate:"
-msgstr ""
+msgstr "Niet in staat te authenticeren met klantcertificaat:"
 
 msgid "Could not find SSL_CLIENT_CERT"
-msgstr ""
+msgstr "Kon SSL_CLIENT_CERT niet vinden"
 
 msgid "Hint: set SSLOptions +ExportCertData"
-msgstr ""
+msgstr "Hint: zet SSLOptions +ExportCertData"
 
 msgid " in "
-msgstr ""
+msgstr "in"
 
 #, php-format
 msgid "%s is not a recognized certificate name."
@@ -1406,107 +1368,107 @@ msgid "Invalid parameter type in"
 msgstr "Ongeldig parametertype"
 
 msgid "Database error:"
-msgstr ""
+msgstr "Databasefout:"
 
 #, php-format
 msgid "Added user %u."
-msgstr ""
+msgstr "Gebruiker %u toegevoegd."
 
 #, php-format
 msgid "Added user %u to constituency."
-msgstr ""
+msgstr "Gebruiker %u aan gebruikersgroep toegevoegd."
 
 #, php-format
 msgid "Removed user %u from constituency."
-msgstr ""
+msgstr "Gebruiker %u uit gebruikersgroep verwijderd."
 
 msgid "Invalid parameter type or missing information in "
-msgstr ""
+msgstr "Ongeldige parametersoort of ontbrekende information in"
 
 msgid "Unable to delete constituency: "
-msgstr ""
+msgstr "Niet in staat om gebruikersgroep te verwijderen:"
 
 msgid "Unable to execute query in "
-msgstr ""
+msgstr "Niet in staat query uit te voeren in"
 
 msgid "Invalid data in "
-msgstr ""
+msgstr "Ongeldige gegevens in"
 
 msgid "Invalid format in "
-msgstr ""
+msgstr "Ongeldig formaat in"
 
 msgid "Import queue"
-msgstr ""
+msgstr "Importwachtrij"
 
 msgid "With selected: "
-msgstr ""
+msgstr "Met geselecteerde:"
 
 msgid "accept"
-msgstr ""
+msgstr "accepteer"
 
 msgid "reject"
-msgstr ""
+msgstr "verwerp"
 
 msgid "Done"
-msgstr ""
+msgstr "Klaar"
 
 msgid "refresh"
-msgstr ""
+msgstr "ververs"
 
 msgid "Preferred mail templates"
-msgstr ""
+msgstr "Voorkeursmailsjablonen"
 
 msgid "add preferred template"
-msgstr ""
+msgstr "voeg voorkeursmailsjabloon toe"
 
 msgid "Removed checked preferred templates"
-msgstr ""
+msgstr "Verwijder geselecteerde voorkeursmailsjablonen"
 
 msgid "Available import filters"
-msgstr ""
+msgstr "Beschikbare importfilters"
 
 msgid "Filter name"
-msgstr ""
+msgstr "Naam van filter"
 
 msgid "Version"
-msgstr ""
+msgstr "Versie"
 
 msgid "Compose"
 msgstr "Opstellen"
 
 msgid "Incorrect parameter type in "
-msgstr ""
+msgstr "Foutief parametersoort in"
 
 msgid "update"
-msgstr ""
+msgstr "werk bij"
 
 #, php-format
 msgid "Incident updated: state=%s, status=%s, type=%s, desc=%s"
-msgstr ""
+msgstr "Incident bijgewerkt: toestand=%s, status=%s, soort=%s, bescrijving=%s"
 
 msgid "Incident updated."
-msgstr ""
+msgstr "Incident bijgewerkt."
 
 msgid "Update selected incidents"
-msgstr ""
+msgstr "Werk geselecteerde incidenten bij"
 
 msgid "No incidents selected to work on."
-msgstr ""
+msgstr "Geen incidenten om te bewerken geselecteerd."
 
 msgid "Mail"
 msgstr ""
 
 msgid "Invalid parameter value in "
-msgstr ""
+msgstr "Ongeldige parameterwaarde"
 
 msgid "Invalid parameter type in "
-msgstr ""
+msgstr "Ongeldige parametersoort"
 
 msgid "Add external identifier"
 msgstr "Externe identifier toevoegen"
 
 msgid "File successfully uploaded"
-msgstr ""
+msgstr "Bestand succesvol geuploadet"
 
 msgid "Update overrides"
 msgstr ""
@@ -1601,10 +1563,7 @@ msgstr ""
 msgid "Edit tools menu"
 msgstr ""
 
-msgid ""
-"The Tools-menu can be used to access sources of information directly from "
-"any screen of AIRT. You might want to add a link to your IP-Address lookup "
-"and Network statistics application to this list."
+msgid "The Tools-menu can be used to access sources of information directly from any screen of AIRT. You might want to add a link to your IP-Address lookup and Network statistics application to this list."
 msgstr ""
 
 msgid "All of the links in the Tools Menu will open in a new window."
@@ -1780,9 +1739,7 @@ msgstr ""
 msgid "Telephone"
 msgstr ""
 
-msgid ""
-"Contacts are identified by email address. To add constituency contacts, "
-"please enter one address per line."
+msgid "Contacts are identified by email address. To add constituency contacts, please enter one address per line."
 msgstr ""
 
 msgid "Constituency contact removed."
@@ -2105,14 +2062,10 @@ msgstr ""
 msgid "Record new incident"
 msgstr ""
 
-msgid ""
-"Provide 1 IP address or hostname per line. One incident will be created for "
-"each host."
+msgid "Provide 1 IP address or hostname per line. One incident will be created for each host."
 msgstr ""
 
-msgid ""
-"Provide 1 IP address or hostname per line. All hosts will be added to the "
-"new incident."
+msgid "Provide 1 IP address or hostname per line. All hosts will be added to the new incident."
 msgstr ""
 
 msgid "Provide 1 email address per line"
@@ -2322,9 +2275,7 @@ msgstr ""
 msgid "Using mail template <em>"
 msgstr ""
 
-msgid ""
-"Will be replaced with still open previous incidents in the same constituency "
-"as the current incident."
+msgid "Will be replaced with still open previous incidents in the same constituency as the current incident."
 msgstr ""
 
 msgid "Will override the To: header with the given value"
@@ -2407,9 +2358,7 @@ msgstr ""
 msgid "Number of days afters receiving email when it is automatically archived"
 msgstr ""
 
-msgid ""
-"Number of days used to calculate the correlation between import queue "
-"elements and recently closed incidents"
+msgid "Number of days used to calculate the correlation between import queue elements and recently closed incidents"
 msgstr ""
 
 msgid "The name of the current AIRT instance"
@@ -2454,9 +2403,9 @@ msgstr ""
 msgid "Database error in importqueue.plib:"
 msgstr ""
 
-msgid ""
-"  Add to <a href=\"%u/incident.php?action=details&incidentid=%id\">%label</a>"
+msgid "  Add to <a href=\"%u/incident.php?action=details&incidentid=%id\">%label</a>"
 msgstr ""
 
 msgid "Remove checked preferred templates"
 msgstr ""
+
