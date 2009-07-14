@@ -184,10 +184,17 @@ INSERT INTO role_assignments
     VALUES
     (nextval('role_assignments_sequence'), currval('roles_sequence'),
     currval('users_sequence'));
-INSERT INTO settings
-    (key,value)
-    VALUES
-    ('archiveage', '20');
+insert into settings values ('defaultlanguage', 'en_US.utf8');
+insert into settings values ('instancename', 'Uninitialized AIRT instance');
+insert into settings values ('mailfrom', 'CHANGEME @YOURFIRSTNAME@ <user@example.com>');
+insert into settings values ('mailenvfrom', 'user@example.com');
+insert into settings values ('mailcc', NULL);
+insert into settings values ('replyto', NULL);
+insert into settings values ('pagesize', '50');
+insert into settings values ('session_timeout', '3600');
+insert into settings values ('archiveage', '432000');
+insert into settings values ('correlationage', '172800');
+insert into settings values ('x509client', '1');
 --
 -- Create the database schema version record.
 --

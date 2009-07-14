@@ -144,7 +144,7 @@ function search_host($hostname='') {
    print _('IP Address').'          : '.$ip.'<br/>'.LF;
    print _('Hostname').'            : '.$hostname.'<br/>'.LF;
    print _('Network').'             : '.$netname.'(<a href="'.
-      $_SERVER['PHP_SELF'].'?q='.$network.'/'.$netmask.'&action=Search&qtype=zoom">'.$network.'/'.$netmask.'</a>)'.'<br/>'.LF;
+      BASEURL.'/search.php?q='.$network.'/'.$netmask.'&action=Search&qtype=zoom">'.$network.'/'.$netmask.'</a>)'.'<br/>'.LF;
    print _('Constituency').'        : '.$consname.LF.'<br/>';
    print '</PRE>'.LF;
    print '</div>'.LF;
@@ -628,7 +628,7 @@ switch ($action) {
          $q = strip_tags(trim($_REQUEST['q']));
       } else {
          airt_error('PARAM_MISSING', 'search.php:'.__line__);
-         Header($_SERVER['PHP_SELF']);
+         reload();
          exit;
       }
       switch ($qtype) {

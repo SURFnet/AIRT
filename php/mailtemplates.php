@@ -41,7 +41,7 @@ switch ($action) {
       $template = strip_tags(fetchFrom('REQUEST', 'template', '%s'));
       if (empty($template)) {
          airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
+         reload();
          return;
       }
       pageHeader(_('Edit mail template'), array(
@@ -62,7 +62,7 @@ special variables in the template:').'<p>'.LF;
          reload();
       }
       print '<P>';
-      print '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">'.LF;
+      print '<form action="'.BASEURL.'/mailtemplates.php" method="POST">'.LF;
       // note: potential danger here; html and php tags are NOT scrubbed
       print '<textarea wrap name="message" cols="75" rows="15">'.$msg.
          '</textarea>'.LF;
@@ -164,7 +164,7 @@ special variables in the template:').'<p>'.LF;
       $update = array('state'=>-1, 'status'=>-1, 'type'=>-1);
       print_variables_info();
       print '<P>'.LF;
-      print '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">'.LF;
+      print '<form action="'.BASEURL.'/mailtemplates.php" method="POST">'.LF;
       print _('Template name').': <input type="text" size="40" name="template">'.LF;
       print '<P>'.LF;
       print _('Message').':<BR>'.LF;
@@ -244,6 +244,9 @@ special variables in the template:').'<p>'.LF;
          $incidentids = explode(',', $incidentids);
       }
 
+      // ensure only numric incident ids survive
+      $incidentids = array_filter($incidentids, is_numeric);
+
       /* to contains the user ids of the recipient email addresss.
        * if this array is set, only email to the email addresses
        * explicitly mentioned in this comma-separated array will
@@ -271,8 +274,10 @@ special variables in the template:').'<p>'.LF;
       $override = fetchFrom('REQUEST', 'override', '%d');
       defaultTo($override, 0);
       $template = strip_tags(fetchFrom('POST', 'template'));
-      reload("$_SERVER[PHP_SELF]?action=prepare&template=".
-         urlencode($template)."&override=$override&incidentids=".implode(',',$incidentids));
+      reload(BASEURL.'/mailtemplates.php?action=prepare'.
+         '&template='.urlencode($template).
+         '&override='.urlencode($override).
+         '&incidentids='.implode(',',$incidentids));
       break;
 
 
@@ -500,8 +505,10 @@ special variables in the template:').'<p>'.LF;
          isset($template)) {
          $override = fetchFrom('REQUEST', 'override', '%d');
          defaultTo($override, 0);
-         reload("$_SERVER[PHP_SELF]?action=prepare&template=$template".
-            "&override=$override&incidentids=".urlencode($incidentids));
+         reload(BASEURL.'/mailtemplates.php?action=prepare'.
+            '&template='.urlencode($template).
+            '&override='.urlencode($override).
+            '&incidentids='.urlencode($incidentids));
       } else {
          reload('incident.php');
       }
@@ -509,6 +516,35 @@ special variables in the template:').'<p>'.LF;
       break;
 
    // -------------------------------------------------------------------
+   case 'rmtemplate':
+      $return = fetchFrom('REQUEST', 'return');
+      if (empty($return)) {
+          $return = BASEURL;
+      }
+      $template = fetchFrom('REQUEST', 'template', '%d');
+      if (empty($template)) {
+          airt_msg(_('Missing or invalid parameter in
+          mailtemplates.php').':'.__LINE__);
+          reload($return);
+          exit;
+      }
+      if (importqueueTemplatesGetItems($items, $error) > 0) {
+          airt_msg(t(_('Unable to fetch templates in mailtemplates.php:%id'),
+             array('%id'=>__LINE__)));
+          reload($return);
+          exit;
+      }
+      var_dump($items[$template]);
+      exit;
+      if (deactivateMailtemplate($template, $error) == false) {
+          airt_msg(t(_('Unable to delete mailtemplate %id: %reason'), array(
+             '%id'=>strip_tags($template),
+             '%error'=>htmlentities($error))));
+          reload($return);
+          exit;
+      }
+      reload($return);
+      break;
    default:
       die(_('Unknown action: '. $action));
 } // switch

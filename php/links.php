@@ -79,10 +79,10 @@ switch ($action) {
          $out .= "  </select>\n";
          $out .= "</td>\n";
          $out .= t('<td><a href="%url?action=edit&id=%id">'._('edit').'</a></td>',
-            array('%url'=>$_SERVER['PHP_SELF'],
+            array('%url'=>BASEURL.'/links.php',
                   '%id'=>urlencode($row["id"])));
          $out .= t('<td><a href="%url?action=delete&id=%id">'._('delete').'</a></td>',
-            array('%url'=>$_SERVER['PHP_SELF'],
+            array('%url'=>BASEURL.'/links.php',
                   '%id'=>urlencode($row["id"])));
          $out .= "</tr>\n";
       }
@@ -126,10 +126,10 @@ switch ($action) {
          $out .= "  </select>\n";
          $out .= "</td>\n";
          $out .= t('<td><a href="%url?action=edit&id=%id">'._('edit').'</a></td>',
-            array('%url'=>$_SERVER['PHP_SELF'],
+            array('%url'=>BASEURL.'/links.php',
                   '%id'=>urlencode($row["id"])));
          $out .= t('<td><a href="%url?action=delete&id=%id">'._('delete').'</a></td>',
-            array('%url'=>$_SERVER['PHP_SELF'],
+            array('%url'=>BASEURL.'/links.php',
                   '%id'=>urlencode($row["id"])));
          $out .= "</tr>\n";
       }
@@ -227,7 +227,7 @@ switch ($action) {
        pageHeader("Edit link");
        $row = db_fetch_next($res);
 
-        print '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">'.LF;
+        print '<form action="'.BASEURL.'/links.php" method="POST">'.LF;
         print '<input type="hidden" name="action" value="update">'.LF;
         print '<input type="hidden" name="id" value="'.$id.'">'.LF;
         print '<table>'.LF;

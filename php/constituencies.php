@@ -42,11 +42,9 @@ switch ($action) {
       $out .= '<tr>'.LF;
       $out .= '<th>'._('Name').'</th>'.LF;
       $out .= '<th>'._('Description').'</th>'.LF;
-      // $out .= '<th>Netblocks</th>'.LF;
       $out .= '<th>&nbsp;</th>'.LF;
       $out .= '</tr>'.LF;
       $constituencies = getConstituencies();
-      // $networks = getNetworks();
 
       $count=0;
       foreach ($constituencies as $id => $row) {
@@ -55,9 +53,9 @@ switch ($action) {
          $out .= '<td>'.strip_tags($row['label']).'</td>'.LF;
          $out .= '<td>'.strip_tags($row['name']).'</td>'.LF;
          $out .= '<td>'.LF;
-         $out .= '<a href="'.$_SERVER['PHP_SELF'].'?action=edit&cons='.
+         $out .= '<a href="'.BASEURL.'/constituencies.php?action=edit&cons='.
             $consid.'">'._('edit').'</a>'.LF;
-         $out .= '<a href="'.$_SERVER['PHP_SELF'].'?action=Delete&consid='.
+         $out .= '<a href="'.BASEURL.'/constituencies.php?action=Delete&consid='.
             $consid.'">'._('delete').'</a>'.LF;
          $out .= '</td>'.LF;
          $out .= '</tr>'.LF;
@@ -113,6 +111,12 @@ switch ($action) {
           $contacts = array();
       } else {
           $contacts = split("\r\n", $contacts);
+      }
+      if (!is_array($contacts)) {
+          $contacts = array();
+      }
+      foreach ($contacts as $key=>$value) {
+          $contacts[$key] = strip_tags($value);
       }
 
       if ($action=="add") {

@@ -86,7 +86,7 @@
            $cap_login = ($caps[AIRT_USER_CAPABILITY_LOGIN] == 1) ? 'checked' : '';
         }
     }
-    print '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">'.LF;
+    print '<form action="'.BASEURL.'/users.php" method="POST">'.LF;
     print '<input type="hidden" name="action" value="'.
        strip_tags($action).'">'.LF;
     print '<input type="hidden" name="id" value="'.
@@ -231,13 +231,19 @@
     <td>%s</td>
     <td><a href='mailto:%s'>%s</a></td>
     <td>%s</td>
-    <td nowrap><a href='$_SERVER[PHP_SELF]?action=edit&id=%s'>"._('edit')."</a>
+    <td nowrap><a href='%s?action=edit&id=%s'>"._('edit')."</a>
     <a 
        onclick=\"return confirm('"._('Are you sure that you want to delete %s?')."')\"
-       href='$_SERVER[PHP_SELF]?action=delete&id=%s'>"._('delete')."</a></td>
+       href='%s?action=delete&id=%s'>"._('delete')."</a></td>
 </tr>",
-            $login, $userid, $lastname, $firstname, $email, $email, $phone,
-            $id, $email, $id);
+            htmlentities($login), htmlentities($userid), 
+            htmlentities($lastname), htmlentities($firstname), 
+            urlencode($email), 
+            htmlentities($email), htmlentities($phone),
+            BASEURL.'/users.php',
+            urlencode($id), htmlentities($email), 
+            BASEURL.'/users.php',
+            urlencode($id));
       }
       db_free_result($res);
       print '</table>'.LF;
@@ -389,7 +395,7 @@
          setUserCapabilities($id, array(
             AIRT_USER_CAPABILITY_LOGIN=>$cap_login,
             AIRT_USER_CAPABILITY_IODEF=>$cap_iodef), $error);
-         Header("Location: $_SERVER[PHP_SELF]");
+         reload();
    }
 
    break;
@@ -439,12 +445,12 @@
          print '<p>'.LF;
          print _('The most likely cause for this failure is that the user is associated with one or more incidents.').'</p>'.LF;
          print '<p>'.LF;
-         print '<a href="'.$_SERVER['PHP_SELF'].'">'._('continue').'...</a></p>'.LF;
+         print '<a href="'.BASEURL.'/users.php">'._('continue').'...</a></p>'.LF;
          pageFooter();
          exit;
       }
 
-      Header("Location: $_SERVER[PHP_SELF]");
+      reload();
 
       break;
 

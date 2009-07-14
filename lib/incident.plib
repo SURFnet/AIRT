@@ -1672,14 +1672,14 @@ function setMailtemplateOverride($incidentid, $userid, $template) {
 function listIncidents() {
 
    /* by default, do not filter on state */
-   $state = fetchFrom('REQUEST','state');
+   $state = fetchFrom('REQUEST','state', '%d');
    defaultTo($state, -1);
    
    $type = fetchFrom('REQUEST','type');
    defaultTo($type, -1);
 
    /* by default, only list open */
-   $status = fetchFrom('REQUEST','status');
+   $status = fetchFrom('REQUEST','status', '%d');
    defaultTo($status, -1);
 
    if ($status == -1) {
@@ -2099,10 +2099,6 @@ function incidentDetails() {
    $output .= '    <td colspan="2">'.LF;
    $output .= '    <textarea name="logging" class="logging">'.
        $incident['logging'].'</textarea>'.LF;
-/*
-   $output .= '<div class="right"><a href="">'.
-        _('Show logging in popup-window').'</a></div>'.LF;
-*/
    $output .= '</td>'.LF;
    $output .= '  </tr>'.LF;
 

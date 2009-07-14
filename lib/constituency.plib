@@ -604,6 +604,7 @@ function addConstituencyContactFrontend() {
     } else {
         $contacts = split("\r\n", $contacts);
     }
+    array_walk($contacts, strip_tags);
 
     $c = getConstituencyContacts($cid);
     // add contacts that do not yet exist

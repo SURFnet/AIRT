@@ -59,7 +59,7 @@ function show_form($id="") {
    } else {
       $isdefault = '';
    }
-   echo '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">'.LF;
+   echo '<form action="'.BASEURL.'/incident_states.php" method="POST">'.LF;
    echo '<input type="hidden" name="action" value="'.
       strip_tags($action).'">'.LF;
    echo '<input type="hidden" name="id" value="'.
@@ -118,9 +118,9 @@ switch ($action) {
          echo '<td>'.strip_tags($label).'</td>'.LF;
          echo '<td>'.strip_tags($desc).'</td>'.LF;
          echo '<td>'.strip_tags($isdefault).'</td>'.LF;
-         echo '<td><a href="'.$_SERVER['PHP_SELF'].
+         echo '<td><a href="'.BASEURL.'/incident_states.php'.
             '?action=edit&id='.strip_tags($id).'">'._('edit').'</a>'.LF;
-         echo '<a href="'.$_SERVER['PHP_SELF'].
+         echo '<a href="'.BASEURL.'/inciden_states.php'.
             '?action=delete&id='.strip_tags($id).
             '">'._('delete').'</a></td>'.LF;
          echo '</tr>'.LF;

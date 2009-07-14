@@ -183,7 +183,7 @@ function printStatsInputForm() {
   $out = '<P>'._('Please select the reporting period of which you would like to see statistics. (note; the start date and the end date are included in the
 report.').'</P>';
 
-  $out .= '<form action="'.$_SERVER['PHP_SELF'].'" method="POST">'.LF;
+  $out .= '<form action="'.BASEURL.'/stats.php" method="POST">'.LF;
   $out .= '<table>'.LF;
   $out .= '<tr>'.LF;
   $out .= '   <td>'._('Start date (day-month-year)').'</td>'.LF;

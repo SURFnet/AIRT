@@ -109,7 +109,7 @@ switch (strtolower($action)) {
                   if ($update) {
                      if (updateQueueItem($id, 'status', $value, $error)) {
                         airt_error('ERR_QUERY', 'importqueue.php:'.__LINE__, $error);
-                        Header("Location: $_SERVER[PHP_SELF]");
+                        reload();
                         return;
                      }
                   }
@@ -129,18 +129,18 @@ switch (strtolower($action)) {
    case "showdetails":
       if (!array_key_exists('id', $_GET)) {
          airt_error('PARAM_MISSING', 'importqueue.php:'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
+         reload();
          exit;
       }
       if (!is_numeric($_GET['id'])) {
          airt_error('PARAM_MISSING', 'importqueue.php:'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
+         reload();
          exit;
       }
       $item = queuePeekItem($_GET['id'], $error);
       if ($item == NULL) {
          airt_error('', 'importqueue.php:'.__LINE__, _('Error fetching queue item'));
-         Header("Location: $_SERVER[PHP_SELF]");
+         reload();
          exit;
       }
       pageHeader(_('Queue details for item ').$_GET['id']);
@@ -214,7 +214,7 @@ switch (strtolower($action)) {
          airt_msg('Failed to set preferred template: '.$error);
       }
 
-      reload($_SERVER['PHP_SELF'].'?action=preftempl');
+      reload(BASEURL.'/importqueue.php?action=preftempl');
 
       break;
 
@@ -236,7 +236,7 @@ switch (strtolower($action)) {
 				}
 			}
 		}
-		reload($_SERVER['PHP_SELF'].'?action=preftempl');
+		reload(BASEURL.'/importqueue.php?action=preftempl');
 	   break;
 
    // ----------------------------------------------------------------

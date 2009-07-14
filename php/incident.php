@@ -148,7 +148,7 @@ switch ($action) {
       }
 
       reload(sprintf('%s?action=details&incidentid=%s',
-         $_SERVER['PHP_SELF'],
+         BASEURL.'/incident.php',
          urlencode($incidentid)));
       break;
 
@@ -234,7 +234,7 @@ switch ($action) {
       ));
 
       reload(sprintf('%s?action=details&incidentid=%s',
-         $_SERVER['PHP_SELF'],
+         BASEURL.'/incident.php',
          urlencode($incidentid)));
 
     //--------------------------------------------------------------------
@@ -276,7 +276,7 @@ switch ($action) {
          'addressrole'=> $addressrole
       ));
       reload(sprintf('%s?action=details&incidentid=%s',
-         $_SERVER['PHP_SELF'],
+         BASEURL.'/incident.php',
          urlencode($incidentid)));
       break;
 
@@ -313,7 +313,7 @@ switch ($action) {
       ));
 
       reload(sprintf('%s?action=details&incidentid=%s',
-         $_SERVER['PHP_SELF'],
+         BASEURL.'/incident.php',
          urlencode($incidentid)));
 
       break;
@@ -340,7 +340,7 @@ switch ($action) {
       ));
 
       reload(sprintf('%s?action=details&incidentid=%s',
-         $_SERVER['PHP_SELF'],
+         BASEURL.'/incident.php',
          urlencode($incidentid)));
       break;
 
@@ -372,7 +372,7 @@ switch ($action) {
 
       touchIncident($incidentid);
       reload(sprintf('%s?action=details&incidentid=%d',
-        $_SERVER['PHP_SELF'],
+        BASEURL.'/incident.php',
         $incidentid));
       break;
 
@@ -459,7 +459,7 @@ switch ($action) {
       if ($massIncidents == '') {
          // Nothing checked, nothing to do; disregard command.
          airt_msg(_('No incidents selected to work on.'));
-         Header("Location: $_SERVER[PHP_SELF]");
+         reload();
       }
       $massIncidents = array_keys(array_filter($massIncidents, 'filterIsOn'));
       $massState = fetchFrom('POST', 'massstate', '%d');
@@ -480,7 +480,7 @@ switch ($action) {
          'status'=>$massStatus,
          'type'=>$massType));
 
-      Header("Location: $_SERVER[PHP_SELF]");
+      reload();
       break;
 
    //--------------------------------------------------------------------
@@ -498,7 +498,8 @@ switch ($action) {
       if (empty($recipients)) {
          airt_msg(_(
            'USER ERROR: Must select one or more recipients for mail.'));
-         reload("$_SERVER[PHP_SELF]?action=details&incidentid=$incidentid");
+         reload(BASEURL.'/incident.php?action=details&incidentid='.
+            urlencode($incidentid));
          return;
       }
       reload("mailtemplates.php?to=".
@@ -510,13 +511,14 @@ switch ($action) {
       $incidentid = fetchFrom('REQUEST', 'incidentid', '%d');
       if (empty($incidentid)) {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
-         reload($_SERVER['PHP_SELF']);
+         reload();
          return;
       }
       $recipients = fetchFrom('REQUEST', 'to');
       if (empty($recipients)) {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
-         reload("$_SERVER[PHP_SELF]?action=details&incidentid=$incidentid");
+         reload(BASEURL.'/incident.php?action=details&incidentid='.
+            urlencode($incidentid));
          return;
       }
       if (!is_array($recipients)) {
@@ -541,16 +543,16 @@ switch ($action) {
 
    //--------------------------------------------------------------------
    case 'delete_extid':
-      $incidentid = fetchFrom('REQUEST', 'incidentid');
-      $extid = fetchFrom('REQUEST', 'extid');
+      $incidentid = fetchFrom('REQUEST', 'incidentid', '%d');
+      $extid = fetchFrom('REQUEST', 'extid', '%d');
       if ($incidentid == '') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
+         reload();
          return;
       }
       if ($extid == '') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
+         reload();
          return;
       }
       deleteExternalIncidentIDs($incidentid, $extid);
@@ -561,16 +563,16 @@ switch ($action) {
    //--------------------------------------------------------------------
    case _('Add external identifier'):
    case 'add_extid':
-      $incidentid = fetchFrom('REQUEST', 'incidentid');
-      $extid = trim(fetchFrom('REQUEST', 'extid'));
+      $incidentid = fetchFrom('REQUEST', 'incidentid', '%d');
+      $extid = trim(fetchFrom('REQUEST', 'extid', '%d'));
       if ($incidentid == '') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
+         reload();
          return;
       }
       if ($extid == '') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
-         Header("Location: $_SERVER[PHP_SELF]");
+         reload();
          return;
       }
       addExternalIncidentIDs($incidentid, $extid);
@@ -655,6 +657,9 @@ switch ($action) {
          reload();
          break;
       }
+      foreach ($templates as $key=>$value) {
+          $templates[$key] = strip_tags($value);
+      }
 
       foreach ($userids as $userid) {
          defaultTo($userid, -1);
@@ -672,7 +677,7 @@ switch ($action) {
          airt_msg(_('Mail template override updated.').' ');
       }
 
-      reload($_SERVER['PHP_SELF'].'?action=details&incidentid='.
+      reload(BASEURL.'/incident.php?action=details&incidentid='.
          urlencode($incidentid));
       break;
 

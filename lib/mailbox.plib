@@ -47,6 +47,7 @@ $AIRT_VALID_MAIL_STATUSES = Array(
    AIRT_MAIL_STATUS_DELETED,
 );
 
+
 /* corresponding database schema
  *
  *  create table mailbox (

@@ -132,7 +132,7 @@ switch ($action) {
             strip_tags($login), strip_tags($lastname),
             strip_tags($firstname), strip_tags($email),
             strip_tags($email), strip_tags($phone),
-            $_SERVER['PHP_SELF'], $consid, $id);
+            BASEURL.'/constituency_contacts.php', $consid, $id);
          }
          echo '</table>'.LF;
       }
@@ -150,7 +150,7 @@ switch ($action) {
 
       if (db_num_rows($res) > 0) {
          print '<P>'.LF;
-         print '<FORM action="'.$_SERVER['PHP_SELF'].'" method="POST">'.LF;
+         print '<FORM action="'.BASEURL.'/constituency_contacts.php" method="POST">'.LF;
          print _('Assing user(s) to constituency:').LF;
          print '<SELECT name="userid">'.LF;
          while ($row = db_fetch_next($res)) {
@@ -168,7 +168,7 @@ switch ($action) {
          echo '<P><I>'._('No unassigned users.').'</I>'.LF;
       }
       print '<P><HR>'.LF;
-      print '<a href="'.$_SERVER['PHP_SELF'].'">'.
+      print '<a href="'.BASEURL.'/constituency_contacts.php">'.
             _('Select another constituency').'</a> &nbsp;|&nbsp;'.
             '<a href="'.BASEURL.'/maintenance.php">'._('Settings').'</a>'.LF;
       pageFooter();
@@ -195,7 +195,8 @@ switch ($action) {
          VALUES
          (nextval('constituency_contacts_sequence'), $consid, $userid)")
       or die(_('Unable to execute query'));
-      reload("$_SERVER[PHP_SELF]?action=edit&consid=$consid");
+      reload(BASEURL.'/constituency_contacts.php?action=edit&consid='.
+         urlencode($consid));
       break;
 
    //-----------------------------------------------------------------
@@ -217,7 +218,8 @@ switch ($action) {
              WHERE  userid=$id
              AND    constituency=$cons")
       or die(_('Unable to execute query'));
-      reload("$_SERVER[PHP_SELF]?action=edit&consid=$cons");
+      reload(BASEURL.'/constituency_contacts.php?action=edit&consid='.
+         urlencode($cons));
 
       break;
 

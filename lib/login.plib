@@ -20,6 +20,7 @@
  * $Id$
  */
 require_once LIBDIR."/authentication.plib";
+require_once LIBDIR."/config.plib";
 
 function airtLoginScreen() {
    $messages = '';
