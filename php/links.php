@@ -70,7 +70,8 @@ switch ($action) {
             '%color' => ($count++%2==0) ? "#DDDDDD" : "#FFFFFF"));
          $out .= "<td>\n";
          $out .= t(   '<a href="%url">%label</a>', array(
-            '%url'=>$row["url"], '%label'=>strip_tags($row["label"])));
+            '%url'=>strip_tags($row["url"]), 
+            '%label'=>strip_tags($row["label"])));
          $out .= t("</td>\n");
          $out .= "<td>\n";
          $out .= t("  <select name=\"menu_pos[%id]\">\n", array(
@@ -117,7 +118,8 @@ switch ($action) {
             '%color' => ($count++%2==0) ? "#DDDDDD" : "#FFFFFF"));
          $out .= "<td>\n";
          $out .= t(   '<a href="%url">%label</a>', array(
-            '%url'=>$row["url"], '%label'=>$row["label"]));
+            '%url'=>strip_tags($row["url"]), 
+            '%label'=>$row["label"]));
          $out .= t("</td>\n");
          $out .= "<td>\n";
          $out .= t("  <select name=\"menu_pos[%id]\">\n", array(
