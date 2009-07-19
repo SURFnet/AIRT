@@ -8,7 +8,7 @@ function showConfigScreen() {
       'menu'=>'settings'));
    $out = '';
    $out .= t('<form action="%u/config.php" method="post">'.LF, array(
-      '%u'=>$baseurl));
+      '%u'=>BASEURL));
    $out .= '<div class="block">'.LF;
    $out .= '<h3>'._('Global options').'</h3>'.LF;
 
@@ -65,6 +65,7 @@ function showConfigScreen() {
    $out .= '     <td><select name="correlationage">';
    $out .= choice(2, 2*24*60*60, $correlationage);
    $out .= choice(5, 5*24*60*60, $correlationage);
+   $out .= choice(7, 7*24*60*60, $correlationage);
    $out .= choice(10, 10*24*60*60, $correlationage);
    $out .= choice(15, 15*24*60*60, $correlationage);
    $out .= choice(20, 20*24*60*60, $correlationage);
