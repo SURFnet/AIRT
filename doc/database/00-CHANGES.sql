@@ -6,19 +6,6 @@
 -- "airtschema-newRel.sql" and emptied. This should be done
 -- for EACH release, even if there are no changes to the database schema,
 -- because the VERSIONS table needs to be updated in all casesA
-alter table mailtemplates add status varchar(16);
-insert into settings values ('defaultlanguage', 'en_US.utf8');
-insert into settings values ('instancename', 'AIRT development instance');
-insert into settings values ('mailfrom', 'AIRT developers @YOURFIRSTNAME@');
-insert into settings values ('mailenvfrom', 'info@leune.com');
-insert into settings values ('mailcc', NULL);
-insert into settings values ('replyto', NULL);
-insert into settings values ('pagesize', '50');
-insert into settings values ('session_timeout', '3600');
-insert into settings values ('archiveage', '432000');
-insert into settings values ('correlationage', '172800');
-insert into settings values ('x509client', '1');
-
 
 UPDATE versions SET value='----version----' WHERE key='airtversion';
 -- Needs manual update with the AIRT_VERSION string of the release.

@@ -1,3 +1,9 @@
+2009-07-18
+* Several bug fixes
+* Improved import queue behavior
+* Moved several settings to GUI
+* New input filter
+
 2009-04-23
 * Bug fixes
 * Import queue selection improvements
