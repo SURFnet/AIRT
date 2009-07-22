@@ -26,11 +26,14 @@
  require_once LIBDIR.'/database.plib';
  require_once LIBDIR.'/user.plib';
  require_once LIBDIR.'/incident.plib';
+ require_once LIBDIR.'/formkey.plib';
 
  $action=strip_tags(fetchFrom('REQUEST', 'action'));
  defaultTo($action, 'list');
+ $formkey = new formKey();
+ $formkey->init();
 
- function show_form($id="") {
+ function show_form($formkey, $id="") {
     $lastname = $firstname = $email = $phone = $login = $userid = '';
     $action = "add";
     $caps = array();
@@ -87,6 +90,8 @@
         }
     }
     print '<form action="'.BASEURL.'/users.php" method="POST">'.LF;
+    print t('<input type="hidden" name="formkey" value="%key"/>'.LF, array(
+       '%key'=>$formkey->get()));
     print '<input type="hidden" name="action" value="'.
        strip_tags($action).'">'.LF;
     print '<input type="hidden" name="id" value="'.
@@ -234,29 +239,32 @@
     <td nowrap><a href='%s?action=edit&id=%s'>"._('edit')."</a>
     <a 
        onclick=\"return confirm('"._('Are you sure that you want to delete %s?')."')\"
-       href='%s?action=delete&id=%s'>"._('delete')."</a></td>
+       href='%s?action=delete&id=%s&formkey=%s'>"._('delete')."</a></td>
 </tr>",
             htmlentities($login), htmlentities($userid), 
             htmlentities($lastname), htmlentities($firstname), 
             urlencode($email), 
             htmlentities($email), htmlentities($phone),
-            BASEURL.'/users.php',
-            urlencode($id), htmlentities($email), 
-            BASEURL.'/users.php',
-            urlencode($id));
+            BASEURL.'/users.php',urlencode($id),
+            htmlentities($email), 
+            BASEURL.'/users.php', urlencode($id), urlencode($formkey->get()));
       }
       db_free_result($res);
       print '</table>'.LF;
 
       print '<P>'.LF;
       print '<h3>'._('New user').'</h3>'.LF;
-      show_form();
+      show_form($formkey);
       pageFooter();
       break;
 
     // --------------------------------------------------------------
     case "add":
     case "update":
+        if ($formkey->validate() == false) {
+            print(_('Unable to verify form key'));
+            exit(reload());
+        }
         $login = strip_tags(fetchFrom('POST', 'login'));
         defaultTo($login, '');
         $x509name = strip_tags(fetchFrom('POST', 'x509name'));
@@ -402,10 +410,14 @@
 
     // --------------------------------------------------------------
     case "delete":
-       $id = fetchFrom('GET', 'id', '%d');
+       $id = fetchFrom('REQUEST', 'id', '%d');
        defaultTo($id, '');
        if (!is_numeric($id)) {
            die(_('Invalid parameter type ').__LINE__);
+       }
+       if ($formkey->validate() == false) {
+           print(_('Unable to verify form key'));
+           exit(reload());
        }
        /* cascade down if user is not associated with any existing
         * incidents
@@ -463,10 +475,9 @@
        if (!is_numeric($id)) {
            die(_('Invalid parameter type ').__LINE__);
        }
-
        pageHeader(_("Edit user information"), array(
 		    'menu'=>'settings'));
-       show_form($id);
+       show_form($formkey, $id);
        pageFooter();
        break;
 

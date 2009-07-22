@@ -1,0 +1,54 @@
+<?php
+require_once LIBDIR.'/airt.plib';
+
+class formKey {
+    private $formkey;
+    private $oldformkey;
+    
+    function __construct() {
+        if (isset($_SESSION['form_key'])) {
+            $this->oldformkey = $_SESSION['form_key'];
+        }
+    }
+
+    /**
+     * Create a form key based on randomness and the remote IP address
+     * 
+     * @return a form key
+     */
+    private function generate() {
+        return md5($_SERVER['REMOTE_ADDR'].uniqid(mt_rand(), true));
+    }
+
+    /**
+     * Return a new form key and return it as a string
+     */
+    public function init() {
+        $this->formkey = $this->generate();
+        $_SESSION['form_key'] = $this->formkey;
+        return $this->formkey;
+    }
+
+    public function get() {
+        return $this->formkey;
+    }
+
+
+    /**
+     * Retrieve the form key and check it against the current one
+     *
+     * @return true on successful validate, else false
+     */
+    public function validate() {
+        $key = fetchFrom('REQUEST', 'formkey', '%s');
+        if (empty($key)) {
+            return false;
+        }
+        if ($key == $this->oldformkey) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+?>
