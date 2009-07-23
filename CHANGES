@@ -1,3 +1,7 @@
+2009-07-22
+* Bug fixes
+* CSRF fixes by introducing form keys
+
 2009-07-18
 * Several bug fixes
 * Improved import queue behavior
