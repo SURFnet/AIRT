@@ -784,10 +784,17 @@ function replace_vars($msg, $current=array()) {
             if ($i == $incidentid) continue; // skip current incident
 
             $incident = getIncident($i);
-            $oo .= sprintf('%s - %s - %s'.LF, 
-	       normalize_incidentid($incident['incidentid']),
+            $ips = array();
+            foreach ($incident['ips'] as $incidentip) {
+                $ips[] = $incidentip['ip'];
+            }
+            $oo .= sprintf('%s %s %s %s %s %s'.LF, 
+	           normalize_incidentid($incident['incidentid']),
                htmlentities(getIncidentTypeLabelById($incident['type'])),
-	       Date('Y/m/d H:i:s O', $incident['created'])
+               htmlentities(getIncidentStateLabelById($incident['state'])),
+	           Date('Y/m/d', $incident['created']),
+	           Date('Y/m/d', $incident['updated']),
+               implode(', ', $ips)
             );
          }
       }

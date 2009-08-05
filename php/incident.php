@@ -544,7 +544,7 @@ switch ($action) {
    //--------------------------------------------------------------------
    case 'delete_extid':
       $incidentid = fetchFrom('REQUEST', 'incidentid', '%d');
-      $extid = fetchFrom('REQUEST', 'extid', '%d');
+      $extid = htmlentities(fetchFrom('REQUEST', 'extid', '%s'));
       if ($incidentid == '') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
@@ -564,7 +564,7 @@ switch ($action) {
    case _('Add external identifier'):
    case 'add_extid':
       $incidentid = fetchFrom('REQUEST', 'incidentid', '%d');
-      $extid = trim(fetchFrom('REQUEST', 'extid', '%d'));
+      $extid = htmlentities(trim(fetchFrom('REQUEST', 'extid', '%s')));
       if ($incidentid == '') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();

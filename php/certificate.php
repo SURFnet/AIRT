@@ -24,7 +24,7 @@ require_once LIBDIR.'/authentication.plib';
 require_once LIBDIR.'/airt.plib';
 
 Setup::getOption('x509client', $x509client, true);
-if ($x509client !== 1) {
+if ($x509client != 1) {
     exit;
 }
 /* CAUTION: This page expects the option

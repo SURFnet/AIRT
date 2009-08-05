@@ -420,8 +420,6 @@ function search_zoom($mask) {
     $where_clause = "a.ip between '$pre$min$postmin' and '$pre$max$postmax' AND a.ip like '$pre"."___$postlike'\n";
       }
 
-      print $where_clause;
-
       $res = db_query("
          SELECT  i.id as incidentid,
                  extract (epoch from a.added) as created,
