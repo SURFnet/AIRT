@@ -388,7 +388,7 @@ function updateMailArchive(&$error) {
       return false;
    }
    // 60*60*24
-   $t= time() - 86400*$maxage;
+   $t= time() - $maxage;
    $res = db_query(q('update mailbox set status=%s '.
       ' where date < %d', array(
       '%s'=>db_masq_null(AIRT_MAIL_STATUS_ARCHIVED),
@@ -474,15 +474,20 @@ function listMailbox(&$error='') {
 	$msgid = fetchFrom('REQUEST', 'msgid', '%d');
 	defaultTo($msgid, 0);
 
+   /* $maxage contains the max age set in the database in seconds */
    if (fetchArchiveAge($maxage, $error) === false) {
       return false;
    }
-   $age = trim(fetchFrom('REQUEST', 'age', '%s'));
+   /* $age contains the max age requested in the URL and is set in days */
+   $age = (24*60*60) * trim(fetchFrom('REQUEST', 'age', '%d'));
+
+   /* If $age is not specified in the URL, use the database */
    defaultTo($age, $maxage);
    
    if (fetchArchiveAge($maxage, $error) === false) {
       return false;
    }
+
    if ($maxage != $age) {
       if (setArchiveAge($age, $error) === false) {
          return false;
