@@ -258,7 +258,11 @@ special variables in the template:').'<p>'.LF;
       } else {
          $to = explode(',', $to);
       }
-      $to = array_filter($to, 'is_numeric');
+      foreach ($to as $key=>$value) {
+          if (!is_numeric($value)) {
+              unset($to[$key]);
+          }
+      }
 
       /* Fetch override */
       $override = fetchFrom('REQUEST', 'override', '%d');
@@ -291,6 +295,7 @@ special variables in the template:').'<p>'.LF;
          reload();
          return;
       }
+      /* comma separated list of receipients. */
       $to = strip_tags(fetchFrom('POST', 'to'));
       if (empty($to)) {
          airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
@@ -331,6 +336,14 @@ special variables in the template:').'<p>'.LF;
       if (trim($to) == '') {
          die(_('Empty recipient?'));
       }
+      $to = explode(',', $to);
+      foreach ($to as $key=>$value) {
+          if (empty($value)) {
+              unset($to[$key]);
+          }
+      }
+      $to = implode(',', $to);
+
       if (trim($msg) == '') {
          die(_('Empty message body?'));
       }
