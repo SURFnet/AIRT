@@ -188,10 +188,37 @@ function toMailQueue($data, &$error='') {
       }
    }
 
+   /* fetch next available message id from our generic sequence*/
+   $q = q('select nextval(\'generic_sequence\')');
+   if (($res = db_query($q)) === false) {
+      $error = db_error_message()._(' in ').'airt_reive_email.in:'.
+         __LINE_NUMBER__;
+      return false;
+   }
+
+   /* this should never happen, but it doesn't hurt to check */
+   if (db_num_rows($res) == 0) {
+       $error = _('Unable to retrieve next sequence number.').
+       _(' in ').'airt_receive_email.in:'.__LINE__;
+       return false;
+   }
+
+   /* fetch the resulting tuple */
+   if (($row = db_fetch_next($res)) === false) {
+      $error = db_error_message()._(' in ').'airt_reive_email.in:'.
+         __LINE_NUMBER__;
+      return false;
+   }
+
+   /* and extract the value */
+   $id = $row['nextval'];
+
+   db_free_result($res);
    $q = q('insert into mailbox (id, messageid, sender, recipient, date, '.
-      'subject, body, raw, status) values (nextval(\'generic_sequence\'), 
+      'subject, body, raw, status) values (%dbid,
       %msgid, %sender, %recipient, %date, %subject, %body, %raw, %status)', 
       array(
+         '%dbid' => db_masq_null($id),
          '%msgid' => db_masq_null($messageid),
          '%sender' => db_masq_null($sender),
          '%recipient' => db_masq_null($recipient),
@@ -199,7 +226,7 @@ function toMailQueue($data, &$error='') {
          '%subject' => db_masq_null($subject),
          '%body' => db_masq_null($data['body']),
          '%raw' => db_masq_null($data['raw']),
-		   '%status' => db_masq_null(AIRT_MAIL_STATUS_UNREAD),
+		 '%status' => db_masq_null(AIRT_MAIL_STATUS_UNREAD),
       )
    );
    if (($res = db_query($q)) === false) {
@@ -214,20 +241,7 @@ function toMailQueue($data, &$error='') {
     * not exist, or when the link fails.
     */
    if (preg_match('/'.INCIDENTID_PREFIX.'([0-9]+)/', $subject, $match) > 0) {
-      $incidentid = $match[1];
-      $incident = getIncident($incidentid);
-      if ($incident !== false) {
-         $q = 'select max(id) as latest from mailbox';
-         if (($res = db_query($q)) === false) {
-            $error = db_error_message()._(' in ').'airt_reive_email.in:'.
-               __LINE_NUMBER__;
-            return false;
-         }
-         $row = db_fetch_next($res);
-         $msgid = $row['latest'];
-         db_free_result($res);
-         addEmailToIncident($incidentid, $msgid, $error);
-      }
+      addEmailToIncident($match[1], $id, $error);
    }
 }
 
