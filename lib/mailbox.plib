@@ -349,6 +349,7 @@ function fetchIncidentsForEmail($messageid, &$messages, &$error='') {
  * Fetch the archive age
  */
 function fetchArchiveAge(&$age, &$error) {
+   /* archive age in seconds */
    $res = db_query('select value from settings where key=\'archiveage\'');
    if ($res === false) {
       $error = db_errormessage().' in mailbox.plib:'.__LINE__;
@@ -377,17 +378,16 @@ function setArchiveAge(&$age, &$error) {
 }
 
 /**
- * Update the mail archive
+ * Update the mail archive by archiving all messages that are older than the
+ * cutoff date.
  * 
- * @param $age age to set
- * @param $error error message, if any
+ * @param &$error Will contain an error message on failure
  * @return true on success, false on failure
  */
 function updateMailArchive(&$error) {
    if (fetchArchiveAge($maxage, $error) === false) {
       return false;
    }
-   // 60*60*24
    $t= time() - $maxage;
    $res = db_query(q('update mailbox set status=%s '.
       ' where date < %d', array(
@@ -479,16 +479,16 @@ function listMailbox(&$error='') {
       return false;
    }
    /* $age contains the max age requested in the URL and is set in days */
-   $age = (24*60*60) * trim(fetchFrom('REQUEST', 'age', '%d'));
+   $age = (24*60*60) * fetchFrom('REQUEST', 'age', '%d');
 
    /* If $age is not specified in the URL, use the database */
    defaultTo($age, $maxage);
    
-   if (fetchArchiveAge($maxage, $error) === false) {
-      return false;
-   }
-
-   if ($maxage != $age) {
+   /* in other words, the age in the URL is different from the time in the
+    * database...
+    */
+   if ($maxage != $age) { 
+       /* update the database
       if (setArchiveAge($age, $error) === false) {
          return false;
       }
@@ -517,7 +517,7 @@ function listMailbox(&$error='') {
    $f = t('<form method="GET" action="%url">'.LF, array(
       '%url'=>BASEURL.'/mailbox.php'));
    $f .= t( _('Archive messages older than %in days.<br/>').LF, array(
-      '%in'=>'<input type="text" size="3" name="age" value="'.$age.'">'));
+      '%in'=>'<input type="text" size="3" name="age" value="'.$age/(24*60*60).'">'));
    $f .= _('Show message that are: ');
    $f .= t('<input type="checkbox" name="showUnread" %checked>'. LF, array(
       '%checked' => ($showUnread == 'on') ? 'CHECKED' : ''));
