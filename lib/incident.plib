@@ -1700,7 +1700,11 @@ function listIncidents() {
 
    if ($status != -1) {
        $f=explode(',', $status);
-       $f = array_filter($f, 'is_numeric');
+       foreach ($f as $fkey => $fvalue) {
+           if (!is_numeric($fvalue)) {
+               unset($f[$fkey]);
+           }
+       }
       
        $filter[] = 's1.id in ('.implode(',', $f).')';
    } else {
@@ -1709,7 +1713,11 @@ function listIncidents() {
 
    if ($state != -1) {
 		$f = explode(',', $state);
-		$f = array_filter($f, 'is_numeric');
+        foreach ($f as $fkey => $fvalue) {
+           if (!is_numeric($fvalue)) {
+               unset($f[$fkey]);
+           }
+        }
 		
 		if (sizeof($f) > 0) {
 			 $filter[] = 's2.id in ('.implode(',', $f).')';
@@ -1718,7 +1726,11 @@ function listIncidents() {
   
    if ($type != -1) {
 		$f = explode(',', $type);
-		$f = array_filter($f, 'is_numeric');
+        foreach ($f as $fkey => $fvalue) {
+           if (!is_numeric($fvalue)) {
+               unset($f[$fkey]);
+           }
+        }
 		
 		if (sizeof($f) > 0) {
 			 $filter[] = 't.id in ('.implode(',', $f).')';

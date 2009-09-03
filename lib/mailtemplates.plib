@@ -1124,7 +1124,11 @@ function listTemplates($edit=false) {
    if (!is_array($incidentids)) {
       $incidentids = explode(',', $incidentids);
    }
-   $incidentids = array_filter($incidentids, 'is_numeric');
+   foreach ($incidentids as $ikey => $ivalue) {
+       if (!is_numeric($ivalue)) {
+           unset($incidentids[$ikey]);
+       }
+   }
    templateList($recipients, $incidentids, $edit);
 }
 
