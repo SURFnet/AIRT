@@ -428,7 +428,8 @@ function queueFormatItems($typefilter='all') {
    $js = '<SCRIPT language="JavaScript">'.LF;
    $js .= 'function checkAll() {'.LF;
    $js .= '   var check=document.forms[1].elements[1].checked;'.LF;
-
+   
+   $out = '';
    $out .= '<div class="importqueue-overview-body">'.LF;
    $out .= '<table class="horizontal">'.LF;
    $out .= '<tr>'.LF;
