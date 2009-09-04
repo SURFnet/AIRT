@@ -95,17 +95,32 @@ function fetchMailMessage($msgid, &$msg, &$error='') {
  * Fetch the contents of the mailbo
  *
  * @param &$mailbox associative array that will contain the mailbox
+ * @param $status array containing a list of acceptable mail statuses. If
+ * empty, all messages will be retrieved;
  * @param &$error error message, if any
  * @param $sortorder (optional): AIRT_MAIL_SORT_DATE_ASC to sort ascending or
  *        AIRT_MAIL_SORT_DATE_DESC to sort descendin
  * @return true on success, false on failure
  */
-function fetchMailbox(&$mailbox, &$error, $sortorder=AIRT_MAIL_SORT_DATE_DESC) {
+function fetchMailbox(&$mailbox, &$error, $status=array(), $sortorder=AIRT_MAIL_SORT_DATE_DESC) {
 
    $mailbox = array();
    $error = '';
    $q = q('select id, messageid, sender, recipient, date, subject, body, '.
-      'status, raw from mailbox order by ');
+      'status from mailbox ');
+
+   if (!is_array($status)) {
+       $error = _('Invalid parameter type for $status in mailbox.plib:').__LINE__;
+       return false;
+   }
+   if (count($status) > 0) {
+       $where = array();
+       foreach ($status as $s) {
+           $where[] = 'status = \''.db_escape_string($s).'\'';
+       }
+       $q .= 'where '.implode(' OR ', $where);
+   }
+
    $order = array();
    if (($sortorder & AIRT_MAIL_SORT_DATE_ASC) == AIRT_MAIL_SORT_DATE_ASC) {
       $order[] = 'date ASC';
@@ -113,7 +128,7 @@ function fetchMailbox(&$mailbox, &$error, $sortorder=AIRT_MAIL_SORT_DATE_DESC) {
    if (($sortorder & AIRT_MAIL_SORT_DATE_DESC) == AIRT_MAIL_SORT_DATE_DESC) {
       $order[] = 'date DESC';
    }
-   $q .= implode(',', $order);
+   $q .= 'order by '.implode(',', $order);
 
    $res = db_query($q);
    if ($res === false) {
@@ -375,6 +390,14 @@ function setArchiveAge(&$age, &$error) {
       $error = db_error_message().' in mailbox.plib:'.__LINE__;
       return false;
    }
+   scheduleMailArchiveUpdate();
+}
+
+/**
+ * Spawn off a process that will update the mailbox archives asynchronously.
+ */
+function scheduleMailArchiveUpdate() {
+    shell_exec(BINDIR.'/airt_schedule_mailbox_update > /dev/null &');
 }
 
 /**
@@ -433,7 +456,6 @@ function mailActionSelection($limit=array()) {
             break;
          case 'mailops':
 	         $out .= '<option value="delete">'._('Delete').'</option>'.LF;
-	         // $out .= '<option value="forward">'._('* Forward').'</option>'.LF;
             $out .= '<option value="view source">'.
                _('View source').'</option>'.LF;
 	         $out .= '<option value="mark-read">'._('Mark read').
@@ -461,6 +483,7 @@ function mailActionSelection($limit=array()) {
 function listMailbox(&$error='') {
    $error = '';
    $mailbox = array();
+   $status = array();
 	
 	$showArchived = fetchFrom('REQUEST', 'showArchived');
 	defaultTo($showArchived, 'off');
@@ -473,6 +496,16 @@ function listMailbox(&$error='') {
 
 	$msgid = fetchFrom('REQUEST', 'msgid', '%d');
 	defaultTo($msgid, 0);
+
+    if ($showArchived == 'on') {
+        $status[] = AIRT_MAIL_STATUS_ARCHIVED;
+    }
+    if ($showRead == 'on') {
+        $status[] = AIRT_MAIL_STATUS_READ;
+    }
+    if ($showUnread == 'on') {
+        $status[] = AIRT_MAIL_STATUS_UNREAD;
+    }
 
    /* $maxage contains the max age set in the database in seconds */
    if (fetchArchiveAge($maxage, $error) === false) {
@@ -488,15 +521,13 @@ function listMailbox(&$error='') {
     * database...
     */
    if ($maxage != $age) { 
-       /* update the database
+       /* update the database */
       if (setArchiveAge($age, $error) === false) {
          return false;
       }
-      if (updateMailArchive($error) == false) {
-         return false;
-      }
+      airt_msg(_('Automatically archiving messages. This may take several minutes to complete.'));
    }
-   if (fetchMailbox($mailbox, $error) === false) {
+   if (fetchMailbox($mailbox, $error, $status) === false) {
       return false;
    }
    pageHeader('Inbox', array(

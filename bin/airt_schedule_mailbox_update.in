@@ -1,0 +1,92 @@
+#!/usr/bin/php
+<?php
+/* vim: syntax=php tabstop=3 shiftwidth=3
+ *
+ * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
+ * Copyright (C) 2005   Tilburg University, The Netherlands
+
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ * airt_export -- spawn off external tasks from the AIRT Export Queue.
+ * 
+ * $Id: airt_export.in 892 2006-05-16 09:08:27Z hoppie $
+ */
+
+define('AIRT_VERSION','@VERSION@');
+define('LOCKFILE', '/tmp/airt_mailupdate.lock');
+
+$OPTIONS=array();
+$OPTIONS['--virtual-host']='';
+array_shift($argv);               // get rid of argument 0, the command itself.
+foreach ($argv as $param) {
+   if (substr($param,0,2)=='--') {
+      // Option parameter.
+      @list($option,$value) = split('=',$param);
+      if (isset($OPTIONS[$option])) {
+         // Known option, get new value of the correct type.
+         if (is_bool($OPTIONS[$option])) {
+            $OPTIONS[$option] = true;
+         } else {
+            $OPTIONS[$option] = $value;
+         }
+      } else {
+         // Unknown option, quit.
+         fwrite(STDERR, t('ERROR: Unknown option "%s".',
+                          array('%s'=>$option)).
+                        "\n");
+         exit(1);
+      }
+   } 
+}// foreach parameter
+
+if ($OPTIONS['--virtual-host']!='') {
+   define('VIRTUAL_HOST',$OPTIONS['--virtual-host']);
+}
+if ((array_search('--verbose', $argv) !== false) ||
+    (array_search('-v', $argv) !== false)) {
+    $verbose = true;
+} else {
+    $verbose = false;
+}
+
+require_once '@ETCDIR@/airt.cfg';
+require_once LIBDIR.'/airt.plib';
+require_once LIBDIR.'/mailbox.plib';
+
+if ($verbose) print _('Attempting to obtain lock').LF; 
+if (($lock = @fopen(LOCKFILE, 'a')) === false) {
+    print(_('Unable to open obtain lock.').' '._('Aborting.').LF);
+    exit(1);
+}
+if ($verbose) print _('Locking.').LF;
+if (flock($lock, LOCK_EX | LOCK_NB) === false) {
+    if ($verbose) print(_('Process already running.').' '._('Aborting.').LF);
+    exit(2);
+}
+if ($verbose) print _('Locked.').LF;
+
+$error = '';
+if (updateMailArchive($error) === false) {
+    if ($verbose) print $error;
+} else {
+    if ($verbose) print _('Mailbox updated.');
+}
+
+if ($verbose) print _('Unlocking.').LF;
+flock($lock, LOCK_UN);
+if ($verbose) print _('Unlocked.').LF;
+exit(0);
+
+?>

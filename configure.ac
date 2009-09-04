@@ -28,6 +28,7 @@ Copyright (C) 2005-2008 Tilburg University, The Netherlands
 AM_INIT_AUTOMAKE()
 
 AC_DEFINE_DIR(ETCDIR, sysconfdir/airt)
+AC_DEFINE_DIR(BINDIR, bindir)
 
 
 AC_ARG_WITH(phpdir,
@@ -78,6 +79,7 @@ AC_OUTPUT([Makefile
     bin/airt_import
     bin/airt_export
     bin/airt_receive_email
+    bin/airt_schedule_mailbox_update
     doc/Makefile
     doc/examples/Makefile
     doc/database/Makefile

@@ -70,10 +70,8 @@ function airt_initsession($userid='') {
 	if (!$user) {
       die(_('Incorrect login!'));
    }
+   scheduleMailArchiveUpdate();
 
-   if (updateMailArchive($error) == false) {
-      airt_msg(_('Unable to update mailbox archive:').$error);
-   }
 	generateEvent("goodlogin", array(
 		'login' => $user['login'],
 		'remoteip' => $_SERVER['REMOTE_ADDR']

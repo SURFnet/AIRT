@@ -1,3 +1,9 @@
+2009-09-04
+* Bug fixes
+* Improved mailbox behavior by user smarter querying and asynchronous
+* archiving. Note: update your airt.cfg with a bindir directive for this to
+* work properly!
+
 2009-07-22
 * Bug fixes
 * CSRF fixes by introducing form keys

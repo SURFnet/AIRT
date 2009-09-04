@@ -258,6 +258,12 @@ function subMenu($menu, $submenu, $title='') {
               '%url'=>BASEURL,
               '%l'=>_('Mailbox'),
               '%active'=>($submenu == 'mailbox' ? 'class="active"' : '')));
+           if ($submenu == 'mailbox') {
+               $out .= t('  <a href="%url/mailbox.php?action=refresh">%l</a>',
+               array(
+                  '%url'=>BASEURL,
+                  '%l'=>_('Refresh mailbox')));
+           }
            break;
    }
   

@@ -30,6 +30,9 @@ require_once LIBDIR.'/history.plib';
 require_once LIBDIR.'/mailbox.plib';
 
 switch (strtolower(fetchFrom('REQUEST', 'action'))) {
+    case 'refresh':
+       scheduleMailArchiveUpdate();
+       // break omitted deliberately
     case 'list':
        listMailbox();
        break;

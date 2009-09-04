@@ -24,6 +24,6 @@ $public=1;
 require_once 'config.plib';
 require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/login.plib';
-
+scheduleMailArchiveUpdate();
 airtLogout();
 ?>

@@ -52,6 +52,9 @@ function setup() {
    // directory for short-lived temporary files
    $SETTINGS['tmpdir'] = '/tmp';
 
+   // directory for executable scripts
+   $SETTINGS['bindir'] = '@BINDIR@';
+
 
    /***** 3. DATABASE SETTINGS *****/
    // connect string for the database
