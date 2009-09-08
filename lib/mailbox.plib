@@ -397,7 +397,11 @@ function setArchiveAge(&$age, &$error) {
  * Spawn off a process that will update the mailbox archives asynchronously.
  */
 function scheduleMailArchiveUpdate() {
-    shell_exec(BINDIR.'/airt_schedule_mailbox_update > /dev/null &');
+    $cmd = BINDIR.'/airt_schedule_mailbox_update';
+    if (defined('VIRTUAL_HOST') && VIRTUAL_HOST != '') {
+        $cmd .= ' --virtual-host='.escapeshellcmd(VIRTUAL_HOST);
+    }
+    shell_exec($cmd .' > /dev/null &');
 }
 
 /**
