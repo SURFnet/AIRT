@@ -453,10 +453,8 @@ special variables in the template:').'<p>'.LF;
          }
 
          /* clean up */
-         /*
          unlink($fname);
          unlink("$fname.asc");
-         */
          $body = preg_replace("/@AIRT-SIGNATURE@/", $sig, $body);
       }
 
