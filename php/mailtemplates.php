@@ -408,6 +408,7 @@ special variables in the template:').'<p>'.LF;
          $body_params['content_type'] = 'text/plain';
          $body_params['disposition'] = 'inline';
          $body_params['charset'] = 'ISO-8859-1';
+         $body_params['encoding'] = 'quoted-printable';
          $mime->addsubpart($msg, $body_params);
 
          /* message signature */
