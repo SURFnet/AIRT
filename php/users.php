@@ -148,9 +148,9 @@
     print '<p>'.LF;
     print '<p>'.LF;
     print '<b>User capabilities</b><br/>'.LF;
-    print '<input type="checkbox" name="cap_iodef" '.$cap_iodef.'">'.
+    print '<input type="checkbox" name="cap_iodef" '.$cap_iodef.'>'.
        _('IODEF capable').'</input><br/>'.LF;
-    print '<input type="checkbox" name="cap_login" '.$cap_login.'">'.
+    print '<input type="checkbox" name="cap_login" '.$cap_login.'>'.
        _('Interactive login allowed').'</input><br/>'.LF;
     print '<input type="submit" value="'.strip_tags($submit).'">'.LF;
     print '<p/>'.LF;
