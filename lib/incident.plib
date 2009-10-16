@@ -1931,7 +1931,8 @@ function listIncidents() {
          $constituency = '';
       }
 
-      $out .= '<tr>'.LF;
+      $out .= t('<tr class="%status">'.LF,
+              array('%status'=>htmlentities($data['status'])));
       $out .= t('<td><input type="checkbox" name="massincidents[%id]"></td>'.LF,
           array('%id' => $id));
       $out .= t('  <td><a href="%url?action=details&incidentid=%id">'.
