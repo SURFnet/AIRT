@@ -69,11 +69,11 @@ switch ($action) {
       $out .= '<input type="hidden" name="action" value="add"/>'.LF;
       $out .= '<table>'.LF;
       $out .= '<tr>'.LF;
-      $out .= '<td>'._('Label').'</td>'.LF;
+      $out .= '<td>'._('Name').'</td>'.LF;
       $out .= '<td><input type="text" size="30" name="label"/></td>'.LF;
       $out .= '</tr>'.LF;
       $out .= '<tr>'.LF;
-      $out .= '<td>'._('Name').'</td>'.LF;
+      $out .= '<td>'._('Description').'</td>'.LF;
       $out .= '<td><input type="text" size="30" name="description"/></td>'.LF;
       $out .= '</tr>'.LF;
       $out .= '<tr>'.LF;
