@@ -410,7 +410,7 @@ function pageHeader($title='', $options=array()) {
  * @in pagefooter The footer of the page
  */
 function pageFooter() {
-    print '<br style="clear: both;". />'.LF;
+    print '<br style="clear: both;" />'.LF;
     print '</div><!-- content -->'.LF;
     print '</div><!-- wrapper -->'.LF;
     print '<div id="footer">'.LF;
