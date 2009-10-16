@@ -856,7 +856,7 @@ function viewSource($msgid='', &$error) {
       return false;
    }
    print '<pre>'.LF;
-   print $msg['raw'];
+   print htmlentities($msg['raw']);
    print '</pre>'.LF;
 }
 
