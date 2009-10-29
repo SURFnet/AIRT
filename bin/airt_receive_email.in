@@ -191,7 +191,7 @@ function toMailQueue($data, &$error='') {
    /* fetch next available message id from our generic sequence*/
    $q = q('select nextval(\'generic_sequence\')');
    if (($res = db_query($q)) === false) {
-      $error = db_error_message()._(' in ').'airt_reive_email.in:'.
+      $error = db_errormessage()._(' in ').'airt_reive_email.in:'.
          __LINE_NUMBER__;
       return false;
    }
@@ -205,8 +205,8 @@ function toMailQueue($data, &$error='') {
 
    /* fetch the resulting tuple */
    if (($row = db_fetch_next($res)) === false) {
-      $error = db_error_message()._(' in ').'airt_reive_email.in:'.
-         __LINE_NUMBER__;
+      $error = db_errormessage()._(' in ').'airt_reive_email.in:'.
+         __LINE___;
       return false;
    }
 
@@ -230,7 +230,7 @@ function toMailQueue($data, &$error='') {
       )
    );
    if (($res = db_query($q)) === false) {
-      $error = db_error_message()._(' in ').'airt_reive_email.in:'.
+      $error = db_errormessage()._(' in ').'airt_reive_email.in:'.
          __LINE_NUMBER__;
       return false;
    }
@@ -248,9 +248,11 @@ function toMailQueue($data, &$error='') {
 $output = array();
 $error ='';
 if (receive_email(STDIN, $output, $error) == false) {
-   print "Error: $error\n";
+   error_log("airt_receive_email: receive error: $error\n";
 } else {
-   toMailQueue($output);
+   if (toMailQueue($output, $error) == false) {
+       error_log("airt_receive_email: mailq error: $error\n");
+   }
 }
 
 ?>
