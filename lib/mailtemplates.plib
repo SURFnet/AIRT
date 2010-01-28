@@ -763,79 +763,91 @@ function replace_vars($msg, $current=array()) {
       }
    }
 
-   if (strpos($out, '@OTHER_OPEN_LIST@') !== FALSE) {
-      $open = array();
-      foreach (getAddressesForIncident($incidentid) as $key=>$data) {
-	 $c = $data['constituency'];
-	 if (!array_key_exists($c, $open)) {
-	    $open[$c] = array();
-	 }
-      }
-      foreach (getOpenIncidentsByConstituency($c) as $k=>$d) {
-         if (!in_array($d, $open[$c])) {
-            $open[$c][] = $d;
-         }
-      }
-      // $open[] now contains one array per constituency. Each subarray 
-      // contains incidentids
-      $oo = '';
-      foreach ($open as $c) {
-         foreach ($c as $i) {
-            if ($i == $incidentid) continue; // skip current incident
+   /* Various macros' to list OPEN incidents (*EX*cluding stalled ones) for
+      the constiuents related to the current incident. Selection of
+      constituents(s) is based on the IP-adress(es) attached to the incident.
+      The database is queried for all found constituents and presents a
+      list of open incidents *per* constituent found.
+      Output depends on prefix/postfixes used:
+       ALL_ prefix: lists ALL open incidents for the relevant constituents,
+                    including the current incident.
+       OTHER_ prefix: same but excluding the current incident, useful in
+                    close mails
+       no postfix: show only bare essentials in list
+       _LIST postfix: show some more details about the listed incidents
+   */
 
-            $incident = getIncident($i);
-            $ips = array();
-            foreach ($incident['ips'] as $incidentip) {
-                $ips[] = $incidentip['ip'];
-            }
-            $oo .= sprintf('%s %s %s %s %s %s'.LF, 
-	           normalize_incidentid($incident['incidentid']),
-               htmlentities(getIncidentTypeLabelById($incident['type'])),
-               htmlentities(getIncidentStateLabelById($incident['state'])),
-	           Date('Y/m/d', $incident['created']),
-	           Date('Y/m/d', $incident['updated']),
-               implode(', ', $ips)
-            );
-         }
-      }
-      if ($oo == '') {
-         $oo = '--';
-      }
-      $out = ereg_replace('@OTHER_OPEN_LIST@', $oo, $out);
-   } // @OTHER_OPEN_LIST@
-
-
-   if (strpos($out, '@OTHER_OPEN@') !== FALSE) {
-      // Expand @OTHER_OPEN@
-      $open = array();
-      foreach (getAddressesForIncident($incidentid) as $key=>$data) {
-         $c = $data['constituency'];
-         if (!array_key_exists($c, $open)) {
-            $open[$c] = array();
-         }
-         foreach (getOpenIncidentsByConstituency($c) as $k=>$d) {
-            if (!in_array($d, $open[$c])) {
-               $open[$c][] = $d;
-            }
-         }
-      }
-      // $open[] now contains one array per constituency. Each subarray 
-      // contains incidentids
-      $oo = '';
-      foreach ($open as $c) {
-         foreach ($c as $i) {
-            if ($i == $incidentid) continue; // skip current incident
-
-            $incident = getIncident($i);
-            $oo .= sprintf('%15s %s'.LF, normalize_incidentid($incident['incidentid']),
-               getIncidentTypeLabelById($incident['type']));
-         }
-      }
-      if ($oo == '') {
-         $oo = '--';
-      }
-      $out = ereg_replace('@OTHER_OPEN@', $oo, $out);
+   /* Construct sprintf formats based on max length of defined types */
+   $types = getIncidentTypes() ;
+   $maxlentype = 6 ; // 6 = strlen('Type') + 1
+   foreach ($types as $k=>$v) {
+      if (strlen($v) > $maxlentype) $maxlentype=strlen($v) ;
    }
+   $formatList = '%s %-' . $maxlentype . 's %-10s %-10s %s' ;
+
+   foreach (array('@OTHER_OPEN@', '@ALL_OPEN@', '@OTHER_OPEN_LIST@', '@ALL_OPEN_LIST@') as $macro) {
+      if (strpos($out, $macro) !== FALSE) {
+         $open = array();
+         foreach (getAddressesForIncident($incidentid) as $key=>$data) {
+            $c = $data['constituency'];
+            if (!array_key_exists($c, $open)) {
+               $open[$c] = array();
+               foreach (getOpenIncidentsByConstituency($c) as $k=>$d) {
+                  if (!in_array($d, $open[$c])) {
+                     $open[$c][] = $d;
+                  }
+               }
+            }
+         }
+         // $open[] now contains one array per constituency. Each subarray 
+         // contains incidentids
+         $oo = '';
+         foreach ($open as $k=>$c) {
+            foreach ($c as $i) {
+               // skip current incident for @OTHER_OPEN variants
+               if ($i == $incidentid && strpos($macro, '@OTHER_OPEN') !== FALSE) continue;
+
+               $incident = getIncident($i);
+               $extids = array();
+               foreach (getExternalIncidentIDs($incident['incidentid']) as $e) {
+                  if (preg_match('/^_(.*)/', $e, $mm) == 0) {
+                     $extids[] = $e;
+                  } 
+               }
+
+               $ips = array();
+               foreach ($incident['ips'] as $incidentip) {
+                   $ips[] = $incidentip['ip'];
+               }
+
+               /* print the list in a slightly formatted way.
+                  Constraints:
+                   - ips can be more than one
+                   - extids can be more than one
+                   - type label is variable length
+               */
+               if (strpos($macro, '_LIST@') !== FALSE) {
+                  // Expand all relevant data with the _LIST variants
+                  $oo .= sprintf($formatList.LF, 
+                     normalize_incidentid($incident['incidentid']),
+                     htmlentities(getIncidentTypeLabelById($incident['type'])),
+                     Date('Y/m/d', $incident['created']),
+                     Date('Y/m/d', $incident['updated']),
+                     implode(', ', $ips)
+                  );
+               } else {
+                  // Expand only incidentid(s) and incident type
+                  $oo .= sprintf('%15s %s %s'.LF, normalize_incidentid($incident['incidentid']),implode(' ',$extids),
+                     getIncidentTypeLabelById($incident['type']));
+               }
+            }
+         }
+         if ($oo == '') {
+            $oo = '--';
+         }
+         $out = ereg_replace($macro, trim($oo), $out);
+      }
+   } // @ALL_OPEN_LIST@ + @OTHER_OPEN_LIST@ + @OTHER_OPEN@ + @ALL_OPEN@
 
    if (isset($name) && strpos($out, '@USERNAME@') !== FALSE) {
       $out = ereg_replace("@USERNAME@", $name, $out);
