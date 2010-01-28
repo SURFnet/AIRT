@@ -274,10 +274,20 @@ Details overview header depricated?
 }
 
 
-#details-overview-body{ /*temporary style, should be removed from final version*/
-
+#details-overview-body{
 width: 100%;
 clear: both;
+}
+
+#details-overview-body .stalled {
+   background-color: #EBF3FA ;
+   font-style: italic;
+   color: gray ;
+}
+
+#details-overview-body .stalled a {
+   font-style: italic;
+   color: #696969 ;
 }
 
 table.horizontal, table.mailbox{
