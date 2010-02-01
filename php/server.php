@@ -348,9 +348,10 @@ airt_profile('Users added');
 
 airt_profile('Template added');
 
-      if ($error == null) {
+      if (!isset($error)) {
          airt_profile('Success');
          $error = 'Import successful. Imported incident with id ';
+         $id_list = '';
          foreach ($incidentid as $i => $id)
             $id_list .= "$id, ";
          $id_list = rtrim($id_list,', ');
@@ -607,7 +608,7 @@ function generateSAMLTicket($ticket_details) {
    $ass->setAttribute('MinorVersion', '0');
    $ass->setAttribute('AssertionID', $ticket_details['assertionid']);
    $ass->setAttribute('Issuer', $issuer);
-   $ass->setAttribute('IssueInstant', $ticket_details['issue_time']);
+   $ass->setAttribute('IssueInstant', $ticket_details['issuetime']);
 
    $conditions = $ass->appendChild($doc->createElementNS(
       'urn:oasis:names:tc:SAML:1.0:assertion', 'saml:Conditions'));
