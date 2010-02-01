@@ -283,7 +283,7 @@
         defaultTo($password, '');
         $password2 = strip_tags(fetchFrom('POST', 'password2'));
         defaultTo($password2, '');
-        $userid = fetchFrom('POST', 'userid', '%d');
+        $userid = strip_tags(fetchFrom('POST', 'userid'));
         defaultTo($userid, '');
         $language = strip_tags(fetchFrom('POST', 'language'));
         defaultTo($language, '');

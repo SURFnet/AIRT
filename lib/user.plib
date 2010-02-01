@@ -158,10 +158,12 @@ function addUser($user, &$status='') {
    }
    if (!empty($login)) {
        $tmp = getUserByLogin($login);
-       $status = t(_('Login %l already in use by email address %e.'), array(
-          '%e'=>$tmp['email'],
-          '%l'=>$login));
-       return false;
+       if (sizeof($tmp) > 0) {
+           $status = t(_('Login %l already in use by email address %e.'), array(
+              '%e'=>$tmp['email'],
+              '%l'=>$login));
+           return false;
+       }
    }
 
    if (sizeof($tmp) > 0) {
