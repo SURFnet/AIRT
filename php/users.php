@@ -305,33 +305,23 @@
                exit;
             }
 
-            $res = db_query(
-                "SELECT id
-                 FROM   users
-                 WHERE  login='".db_escape_string($login)."'")
-            or die(_("Unable to query database."));
-
-            if (db_num_rows($res) > 0) {
-                pageHeader(_("Error"));
-               print _("Login <em>$login</em> is already in use.").'<P>'.LF;
-               print _("Please use your browser's back button to correct the problem and resend the form.").LF;
-               pageFooter();
-               exit;
-            }
-
             db_free_result($res);
 
-            addUser(array(
-            "lastname" => $lastname,
-            "firstname" => $firstname,
-            "email" => $email,
-            "phone" => $phone,
-            "login" => $login,
-            "userid" => $userid,
-            "password" => $password,
-            "language"=> $language,
-            "x509name"=> $x509name
-            ));
+            if (addUser(array(
+                "lastname" => $lastname,
+                "firstname" => $firstname,
+                "email" => $email,
+                "phone" => $phone,
+                "login" => $login,
+                "userid" => $userid,
+                "password" => $password,
+                "language"=> $language,
+                "x509name"=> $x509name), $status) == false) {
+                airt_msg($status);
+                reload();
+                exit();
+            }
+                ;
             $u = getUserByEmail($email);
             if ($cap_iodef == 'on') $cap_iodef = 1;
             else $cap_iodef = 0;

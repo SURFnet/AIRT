@@ -99,7 +99,11 @@ function getUserCapabilities($userid, &$capabilities=array(), &$error='') {
    return true;
 }
 
-function addUser($user) {
+/* Add a user to the database. Returns true on success or false on failure.
+ *
+ * status = error message, if any. 
+ */
+function addUser($user, &$status='') {
    if (array_key_exists('lastname', $user)) {
       $lastname=$user['lastname'];
    } else {
@@ -111,7 +115,7 @@ function addUser($user) {
       $firstname = '';
    }
    if (array_key_exists('email', $user)) {
-      $email=$user['email'];
+      $email=strtolower($user['email']);
    } else {
       $email = '';
    }
@@ -146,6 +150,26 @@ function addUser($user) {
       $password = '';
    }
 
+   $tmp = getUserByEmail($email);
+   if (sizeof($tmp) > 0) {
+       $status = t(_('Email address %e already in use.'), array(
+          '%e'=>$email));
+       return false;
+   }
+   if (!empty($login)) {
+       $tmp = getUserByLogin($login);
+       $status = t(_('Login %l already in use by email address %e.'), array(
+          '%e'=>$tmp['email'],
+          '%l'=>$login));
+       return false;
+   }
+
+   if (sizeof($tmp) > 0) {
+       $status = t(_('Email address %e already in use.'), array(
+          '%e'=>$email));
+       return false;
+   }
+
    $query = sprintf("
       INSERT INTO users
       (id, lastname, firstname, email, phone, login, userid, language,
@@ -162,8 +186,11 @@ function addUser($user) {
       db_masq_null(sha1($password)),
       db_masq_null($x509name)
    );
-   $res = @db_query($query) or 
-   die(_('Unable to query database').' in addUser.');
+   $res = @db_query($query);
+   if ($res === false) {
+       $status = db_error_message();
+   } 
+   return $res;
 }
 
 // setUserCapabilities($userid, $capabilities, $error);
