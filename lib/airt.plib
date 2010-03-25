@@ -191,7 +191,15 @@ function subMenu($menu, $submenu, $title='') {
        airt_msg(_('Unable to locate ID for incident status closed'));
        $closed = getIncidentStatusDefault();
    }
-   $incidents = sizeof(getOpenIncidents());
+
+   $incidents = getOpenIncidents();
+   $open = 0;
+   $stalled = 0;
+   foreach ($incidents as $i) {
+       if ($i['status'] == 'open') $open++;
+       else if ($i['status'] == 'stalled') $stalled++;
+   }
+
    if (queueGetItems($elements, $error)) {
        $elements = sizeof($elements);
    } else {
@@ -203,7 +211,7 @@ function subMenu($menu, $submenu, $title='') {
            $out .= t('  <a href="%url/incident.php" %active>%l</a>'.LF, 
            array(
               '%url'=>BASEURL,
-              '%l'=>_('Incidents ('.$incidents.')'),
+              '%l'=>_('Incidents ('.$open.'/'.$stalled.')'),
               '%active'=>($submenu == 'incidents' ? 'class="active"' : '')));
 
            $out .= t('  <a href="%url/importqueue.php" %active>%l</a>'.LF, 

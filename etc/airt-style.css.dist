@@ -173,8 +173,23 @@ h1{
 float: left;
 clear: left;
 text-align: left;
-width: 450px;
+width: 550px;
 display: inline;
+}
+
+
+.left a.button {
+   display: inline-block;
+   font: 12px Arial, sans-serif;
+   background-color: #EFEFEF;
+   border: 2px solid #9E9E9E;
+   border-top: 2px solid #FFF;
+   border-left: 2px solid #FFF;
+   text-decoration: none;
+   color: #000;
+   padding: 5px 10px;
+   margin: 0px 5px 5px 0px;
+
 }
 
 .right{

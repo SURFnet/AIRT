@@ -1690,13 +1690,16 @@ function listIncidents() {
        $archive = true;
    }
 
-
-
    $sortkey = strip_tags(fetchFrom('REQUEST','sortkey'));
    defaultTo($sortkey, 'incidentid');
 
    $page = fetchFrom('REQUEST', 'page', '%d');
    defaultTo($page, 1);
+
+   $hideStalled = fetchFrom('REQUEST', 'hideStalled', '%d');
+   defaultTo($hideStalled, 2);
+   $hideStalled--;
+   echo "<!-- stalled=$hideStalled -->";
 
    $filter=array();
 
@@ -1787,13 +1790,14 @@ function listIncidents() {
            if ($page == $i) {
                $pager .= " <span>$i</span> ";
            } else {
-               $pager .= t(' <a href="%u/incident.php?page=%n&sortkey=%k&state=%s&status=%S">%i</a> ', array(
+               $pager .= t(' <a href="%u/incident.php?page=%n&sortkey=%k&state=%s&status=%S&hideStalled=%h">%i</a> ', array(
                   '%u'=>BASEURL,
                   '%n'=>$i,
                   '%i'=>$i,
                   '%k'=>$sortkey,
                   '%S'=>$status,
-                  '%s'=>$state));
+                  '%s'=>$state,
+                  '%h'=>1+$hideStalled));
            }
        }
    }
@@ -1805,6 +1809,8 @@ function listIncidents() {
    $out .= _('Filters: ').LF;
    $out .= t('<input type="hidden" name="status" value="%s">'.LF, array(
       '%s'=>$status));
+   $out .= t('<input type="hidden" name="hideStalled" value="%s">'.LF, array(
+      '%s'=>$hideStalled+1));
    $out .= t('<input type="hidden" name="sortkey" value="%s">'.LF, array(
       '%s'=>$sortkey));
    $out .= t('<input type="hidden" name="page" value="%s">'.LF, array(
@@ -1814,6 +1820,14 @@ function listIncidents() {
    $out .= getIncidentStateSelection('state', $state, array(
       '-1'=>_('All states')), 'onChange="document.filter.submit()"');
    $out .= '<input type="submit" value="'._('Filter').'">'.LF;
+
+   $out .= t('<a href="%url/incident.php?hideStalled=%s" class="button">%d '.
+      _('stalled').'</a>', array(
+      '%url'=>BASEURL, 
+      '%s'=>($hideStalled == 1) ? 1 : 2, 
+      '%d'=>($hideStalled == 1) ? _('Show') : _('Hide')
+   ));
+
    $out .= '</form>'.LF;
    $out .= '</div>'.LF;
 
@@ -1841,77 +1855,91 @@ function listIncidents() {
    if ($sortkey == 'incidentid') {
        $out .= t('  <th>%l</th>'.LF, array('%l'=>_('Incident ID')));
    } else {
-       $out .= t('  <th><a href="%url/incident.php?page=%p&sortkey=incidentid&status=%status&state=%state">%l</a></th>'.LF, array(
+       $out .= t('  <th><a
+       href="%url/incident.php?page=%p&sortkey=incidentid&status=%status&state=%state&hideStalled=%h">%l</a></th>'.LF, array(
           '%p'=>$page,
           '%url'=>BASEURL,
           '%status'=>$status,
           '%state'=>$state,
+          '%h'=>$hideStalled+1,
           '%l'=>_('Incident ID')));
    }
 
    if ($sortkey == 'address') {
        $out .= t('  <th>%l</th>'.LF, array('%l'=>_('IP Address')));
    } else {
-       $out .= t('  <th><a href="%url/incident.php?page=%p&sortkey=address&status=%status&state=%state">%l</a></th>'.LF, array(
+       $out .= t('  <th><a
+       href="%url/incident.php?page=%p&sortkey=address&status=%status&state=%state&hideStalled=%h">%l</a></th>'.LF, array(
           '%p'=>$page,
           '%url'=>BASEURL,
           '%status'=>$status,
           '%state'=>$state,
+          '%h'=>$hideStalled+1,
           '%l'=>_('IP Address')));
    }
 
    if ($sortkey == 'constituency') {
        $out .= t('  <th>%l</th>'.LF, array('%l'=>_('Constituency')));
    } else {
-       $out .= t('  <th><a href="%url/incident.php?page=%p&sortkey=constituency&status=%status&state=%state">%l</a></th>'.LF, array(
+       $out .= t('  <th><a
+       href="%url/incident.php?page=%p&sortkey=constituency&status=%status&state=%state&hideStalled=%h">%l</a></th>'.LF, array(
           '%p'=>$page,
           '%url'=>BASEURL,
           '%status'=>$status,
           '%state'=>$state,
+          '%h'=>$hideStalled+1,
           '%l'=>_('Constituency')));
    }
 
    if ($sortkey == 'type') {
        $out .= t('  <th>%l</th>'.LF, array('%l'=>_('Type')));
    } else {
-       $out .= t('  <th><a href="%url/incident.php?page=%p&sortkey=type&status=%status&state=%state">%l</a></th>'.LF, array(
+       $out .= t('  <th><a
+       href="%url/incident.php?page=%p&sortkey=type&status=%status&state=%state&hideStalled=%h">%l</a></th>'.LF, array(
           '%p'=>$page,
           '%url'=>BASEURL,
           '%status'=>$status,
           '%state'=>$state,
+          '%h'=>$hideStalled+1,
           '%l'=>_('Type')));
    }
 
    if ($sortkey == 'state') {
        $out .= t('  <th>%l</th>'.LF, array('%l'=>_('State')));
    } else {
-       $out .= t('  <th><a href="%url/incident.php?page=%p&sortkey=state&state=%state&status=%status">%l</a></th>'.LF, array(
+       $out .= t('  <th><a
+       href="%url/incident.php?page=%p&sortkey=state&state=%state&status=%status&hideStalled=%h">%l</a></th>'.LF, array(
           '%p'=>$page,
           '%url'=>BASEURL,
           '%status'=>$status,
           '%state'=>$state,
+          '%h'=>$hideStalled+1,
           '%l'=>_('State')));
    }
 
    if ($sortkey == 'created') {
        $out .= t('  <th>%l</th>'.LF, array('%l'=>_('Created')));
    } else {
-       $out .= t('  <th><a href="%url/incident.php?page=%p&sortkey=created&state=%state&status=%status">%l</a></th>'.LF, array(
+       $out .= t('  <th><a
+       href="%url/incident.php?page=%p&sortkey=created&state=%state&status=%status&hideStalled=%h">%l</a></th>'.LF, array(
           '%url'=>BASEURL,
           '%p'=>$page,
           '%status'=>$status,
           '%state'=>$state,
+          '%h'=>$hideStalled+1,
           '%l'=>_('Created')));
    }
 
    if ($sortkey == 'updated') {
        $out .= t('  <th>%l</th>'.LF, array('%l'=>_('Updated')));
    } else {
-       $out .= t('  <th><a href="%url/incident.php?page=%p&sortkey=updated&state=%state&status=%status">%l</a></th>'.LF, array(
+       $out .= t('  <th><a
+       href="%url/incident.php?page=%p&sortkey=updated&state=%state&status=%status&hideStalled=%h">%l</a></th>'.LF, array(
           '%p'=>$page,
           '%url'=>BASEURL,
           '%status'=>$status,
           '%state'=>$state,
+          '%h'=>$hideStalled+1,
           '%l'=>_('Updated')));
    }
    $out .= '</tr>'.LF;
@@ -1920,6 +1948,7 @@ function listIncidents() {
    $count = 0;
    $conslist = getConstituencies();
    $elcount = 1; // 1 is the checkbox selector, 2 is the first one to check
+
    foreach ($incidents as $id=>$data) {
       if (($count++ > $page * $pagesize) ||
           ($count <= ($page-1) * $pagesize)) {
@@ -1933,42 +1962,44 @@ function listIncidents() {
          $constituency = '';
       }
 
-      $out .= t('<tr class="%status">'.LF,
-              array('%status'=>htmlentities($data['status'])));
-      $out .= t('<td><input type="checkbox" name="massincidents[%id]"></td>'.LF,
-          array('%id' => $id));
-      $out .= t('  <td><a href="%url?action=details&incidentid=%id">'.
-         '%incidentid</a></td>'.LF, array(
-            '%url'=>BASEURL.'/incident.php',
-            '%id'=>$id,
-            '%incidentid'=>encode_incidentid($id)));
-      if (empty($data['ip'])) {
-          $out .= t('   <td><span class="verklaring" title="%d"><em>'._('None').'</em></span></td>', array(
-             '%d'=>urlencode($data['desc'])));
-      } else {
-          $out .= t('   <td><span class="verklaring" title="%d"><a href="%u" class="hover">%l</a></span></td>'.LF, array(
-              '%u'=>BASEURL.'/search.php?action=Search&qtype=host&q='.
-                 urlencode($data['ip']),
-              '%d'=>urlencode($data['hostname']).' '.urlencode($data['desc']),
-              '%l'=>(empty($data['ip']) ? $data['desc'] : $data['ip'])));
-      }
-      if (empty($constituency)) {
-          $out .= '   <td><em>'._('Unknown').'</em></td>'.LF;
-      } else {
-          $out .= t('   <td><a href="%u/constituencies.php?action=edit&cons=%C">%constituency</a></td>'.LF, array(
-             '%u'=>BASEURL,
-             '%C'=>$addresses[0]['constituency'],
-             '%constituency'=>htmlentities($constituency)));
-      }
-      $out .= t('   <td>%type</td>'.LF, array(
-         '%type'=>htmlentities($data['type'])));
-      $out .= t('   <td>%state</td>'.LF, array(
-         '%state'=>htmlentities($data['state'])));
-      $out .= t('   <td>%created</td>'.LF, array(
-         '%created'=>Date('d M Y', $data['created'])));
-      $out .= t('   <td>%updated</td>'.LF, array(
-            '%updated' => Date('d M Y', $data['updated'])));
-      $out .= '</tr>'.LF;
+      if ($data['status'] != 'stalled' || $hideStalled == 0) {
+          $out .= t('<tr class="%status">'.LF,
+                  array('%status'=>htmlentities($data['status'])));
+          $out .= t('<td><input type="checkbox" name="massincidents[%id]"></td>'.LF,
+              array('%id' => $id));
+          $out .= t('  <td><a href="%url?action=details&incidentid=%id">'.
+             '%incidentid</a></td>'.LF, array(
+                '%url'=>BASEURL.'/incident.php',
+                '%id'=>$id,
+                '%incidentid'=>encode_incidentid($id)));
+          if (empty($data['ip'])) {
+              $out .= t('   <td><span class="verklaring" title="%d"><em>'._('None').'</em></span></td>', array(
+                 '%d'=>urlencode($data['desc'])));
+          } else {
+              $out .= t('   <td><span class="verklaring" title="%d"><a href="%u" class="hover">%l</a></span></td>'.LF, array(
+                  '%u'=>BASEURL.'/search.php?action=Search&qtype=host&q='.
+                     urlencode($data['ip']),
+                  '%d'=>urlencode($data['hostname']).' '.urlencode($data['desc']),
+                  '%l'=>(empty($data['ip']) ? $data['desc'] : $data['ip'])));
+          }
+          if (empty($constituency)) {
+              $out .= '   <td><em>'._('Unknown').'</em></td>'.LF;
+          } else {
+              $out .= t('   <td><a href="%u/constituencies.php?action=edit&cons=%C">%constituency</a></td>'.LF, array(
+                 '%u'=>BASEURL,
+                 '%C'=>$addresses[0]['constituency'],
+                 '%constituency'=>htmlentities($constituency)));
+          }
+          $out .= t('   <td>%type</td>'.LF, array(
+             '%type'=>htmlentities($data['type'])));
+          $out .= t('   <td>%state</td>'.LF, array(
+             '%state'=>htmlentities($data['state'])));
+          $out .= t('   <td>%created</td>'.LF, array(
+             '%created'=>Date('d M Y', $data['created'])));
+          $out .= t('   <td>%updated</td>'.LF, array(
+                '%updated' => Date('d M Y', $data['updated'])));
+          $out .= '</tr>'.LF;
+      } // stalled filter
    } // foreach
    $out .= '</table>'.LF;
    $script .= '};'.LF;

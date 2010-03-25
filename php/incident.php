@@ -50,10 +50,15 @@ switch ($action) {
         // Nothing selected, show list again.
         reload();
      }
+     $massincidents = array_keys($massincidents);
      if (is_array($massincidents) && sizeof($massincidents) >= 1) {
         // filter out non-numeric elements
-        $massincidents = array_filter(array_keys($massincidents), 'is_numeric');
-	  }
+         foreach ($massincidents as $key=>$value) {
+             if (!is_numeric($value)) {
+                 unset($massincidents[$key]);
+             }
+         }
+	 }
      $incidentids = implode(',', $massincidents);
 
      $template = strip_tags(fetchFrom('REQUEST','template'));
@@ -489,7 +494,11 @@ switch ($action) {
       if (!is_array($recipients)) {
          $recipients = explode(',', $recipients);
       }
-      $recipients = array_filter($recipients, 'is_numeric');
+      foreach ($recipients as $key=>$value) {
+          if (!is_numeric($value)) {
+              unset($recipients[$key]);
+          }
+      }
 
       $incidentid = fetchFrom('REQUEST', 'incidentid', '%d');
       if (empty($incidentid)) {
@@ -524,7 +533,11 @@ switch ($action) {
       if (!is_array($recipients)) {
          $recipients = explode(',', $recipients);
       }
-      $recipients = array_filter($recipients, 'is_numeric');
+      foreach ($recipients as $key=>$value) {
+          if (!is_numeric($value)) {
+              unset($recipients[$key]);
+          }
+      }
       foreach ($recipients as $userid) {
          if (!is_numeric($userid)) {
             // should not happen
@@ -649,7 +662,12 @@ switch ($action) {
       }
 
       $templates = fetchFrom('REQUEST', 'template');
-      $userids = array_filter(array_keys($templates), 'is_numeric');
+      $userids=array();
+      foreach (array_keys($templates) as $value) {
+          if (is_numeric($value)) {
+              $userids[] = $value;
+          }
+      }
 
       if (!is_array($templates)) {
          airt_msg(_('Missing or invalid parameter (template) in line ').
