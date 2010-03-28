@@ -60,7 +60,7 @@ margin: 0;
 
 #header {
 	margin-top: 10px;
-	background: #87CEFA url(airt_logo.png) no-repeat top left;
+	background: #87CEFA url(images/airt_logo.png) no-repeat top left;
 	border-bottom: 1px solid black;
 	height: 80px;
 }
