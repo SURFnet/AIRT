@@ -294,13 +294,13 @@ width: 100%;
 clear: both;
 }
 
-#details-overview-body .stalled {
+.stalled {
    background-color: #EBF3FA ;
    font-style: italic;
    color: gray ;
 }
 
-#details-overview-body .stalled a {
+.stalled a {
    font-style: italic;
    color: #696969 ;
 }

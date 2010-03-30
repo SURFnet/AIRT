@@ -447,6 +447,7 @@ function queueFormatItems($typefilter='all') {
    $out .= '   <th>'._('Constituency').'</th>'.LF;
    $out .= '   <th>'._('IP Address').'</th>'.LF;
    $out .= '   <th>'._('Preferred Template').'</th>'.LF;
+   $out .= '   <th>'._('Options').'</th>'.LF;
    $out .= '</tr>'.LF;
    // process incidents first
    $count = 0;
@@ -495,20 +496,6 @@ function queueFormatItems($typefilter='all') {
          .'</td>'.LF;
       $out .= '   <td>'.LF;
 
-      Setup::getOption('correlationage', $correlationage, true);
-      if (getPreviousIncidents($element['cache_ip'], $prev, $error) &&
-            filterIncidentsByStatus($prev, 2, $prev2, $error) &&
-            filterIncidentsByAge($prev2, $correlationage, $prev3, $error)) {
-         for ($i=0; $i < sizeof($prev3); $i++) {
-            $prev = getIncident($prev3[$i]);
-            $out .= t(_('<a href="%u?incidentid=%I&action=details">%i</a> closed %c').'<br/>'.LF, 
-               array('%i'=>normalize_incidentid(strip_tags($prev['incidentid'])),
-               '%u'=>BASEURL.'/incident.php',
-               '%I'=>urlencode($prev['incidentid']),
-               '%c'=>formatRelativeDate($prev['updated'])));
-         }
-      }
-
       // check for grouping within the import queue
       $ip = $element['cache_ip'];
       $group = false;
@@ -528,14 +515,31 @@ function queueFormatItems($typefilter='all') {
 
       if ($group == false) {
          if (array_key_exists($element['cache_ip'], $openips)) {
+            $cur = getIncident($openips[$element['cache_ip']]);
             $out .= '  <input type="checkbox" checked name="add['.$id.']">'.LF;
-            $out .= t(_('  Add to <a href="%u/incident.php?action=details&incidentid=%id">%label</a>').LF,
+            $out .= t(_('<span class="%status">  Add to <a href="%u/incident.php?action=details&incidentid=%id">%label</a></span>').'<br/>'.LF,
             array(
                '%u'=>BASEURL,
                '%id'=>$openips[$element['cache_ip']],
+               '%status'=>getIncidentStatusDescr($cur['status']),
                '%label'=>normalize_incidentid($openips[$element['cache_ip']])));
          }
-      }
+
+         Setup::getOption('correlationage', $correlationage, true);
+         if (getPreviousIncidents($element['cache_ip'], $prev, $error) &&
+               filterIncidentsByStatus($prev, 2, $prev2, $error) &&
+               filterIncidentsByAge($prev2, $correlationage, $prev3, $error)) {
+            for ($i=0; $i < sizeof($prev3); $i++) {
+               $prev = getIncident($prev3[$i]);
+               $out .= t(_('  <a href="%u?incidentid=%I&action=details">%i</a> closed %c').'<br/>'.LF, 
+                  array('%i'=>normalize_incidentid(strip_tags($prev['incidentid'])),
+                  '%u'=>BASEURL.'/incident.php',
+                  '%I'=>urlencode($prev['incidentid']),
+                  '%c'=>formatRelativeDate($prev['updated'])));
+            }
+         }
+      } // group == false
+
       $group = false;
       $out .= '  </td>'.LF;
       $out .= '</tr>'.LF;
@@ -1094,8 +1098,13 @@ function queueElementAccept($id, $template='') {
       } else {
          $update = true;
       }
-      print '  '.t(_('Adding to existing incident %s<br/>').LF, 
-         array('%s'=>normalize_incidentid($incidentid)));
+
+      $cur = getIncident($incidentid);
+      print '  '.t(_('<span class="%status">Adding to existing incident <a href="%u/incident.php?action=details&incidentid=%id">%label</a></span><br/>').LF,
+         array('%label'=>normalize_incidentid($incidentid),
+                  '%u'=>BASEURL,
+                  '%status'=>getIncidentStatusDescr($cur['status']),
+                  '%id'=>$incidentid));
    } else if (queueToAIRT($id, $error, $template)) {
       $update = false;
       airt_error('ERR_FUNC', 'importqueue.plib:'.__LINE__, $error);

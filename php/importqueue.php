@@ -122,7 +122,13 @@ switch (strtolower($action)) {
       }
 
       // show updated queue;
-      echo '<a href="incident.php">'._('Done').'.</a><br/>'.LF;
+      if (queueGetItems($elements, $error)) {
+          $elements = sizeof($elements);
+      } else {
+          $elements = _('Unknown');
+      }
+
+      echo '<a href="incident.php">'._('Done').'</a> or <a href="importqueue.php">'._('back to import queue').'</a> ('.$elements.' left).<br/>'.LF;
       break;
 
    // ----------------------------------------------------------------
