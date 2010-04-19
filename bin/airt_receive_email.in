@@ -248,7 +248,7 @@ function toMailQueue($data, &$error='') {
 $output = array();
 $error ='';
 if (receive_email(STDIN, $output, $error) == false) {
-   error_log("airt_receive_email: receive error: $error\n";
+   error_log("airt_receive_email: receive error: $error\n");
 } else {
    if (toMailQueue($output, $error) == false) {
        error_log("airt_receive_email: mailq error: $error\n");
