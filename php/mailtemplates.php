@@ -245,7 +245,11 @@ special variables in the template:').'<p>'.LF;
       }
 
       // ensure only numric incident ids survive
-      $incidentids = array_filter($incidentids, is_numeric);
+      foreach ($incidentids as $index=>$id) {
+          if (!is_numeric($id)) {
+              unset($incidentids[$index]);
+          }
+      }
 
       /* to contains the user ids of the recipient email addresss.
        * if this array is set, only email to the email addresses
