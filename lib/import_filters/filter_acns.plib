@@ -57,6 +57,9 @@ function filter_acns($input, &$output, $verbosity=FALSE) {
      return 1;
   }
 
+  // Strip any namespace qualifiers, PHP DOM seems to be picky
+  $match[1]=preg_replace('/<Infringement .*>/','<Infringement>',$match[1]); 
+
   $dom = new DOMDocument();
   if ($dom->loadXML($match[1]) === false) {
      $output=_('Unable to parse input data (invalid XML).');
