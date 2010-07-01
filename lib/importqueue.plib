@@ -384,7 +384,7 @@ function queueGetItems(&$elements, &$error) {
       metatype, version
       FROM import_queue
       WHERE status = \'open\'
-      ORDER BY cache_ip DESC'));
+      ORDER BY cache_ip DESC, id ASC'));
    if ($res == false) {
       $error = _('Unable to query database').' in importqueue.plib:'.__LINE__;
       return false;
