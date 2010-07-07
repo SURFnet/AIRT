@@ -511,8 +511,27 @@ switch ($action) {
             urlencode($incidentid));
          return;
       }
-      reload("mailtemplates.php?to=".
-         urlencode(implode(',', $recipients)).'&incidentid='.$incidentid);
+
+      $template = fetchFrom('REQUEST', 'template');
+      if (empty($template)) {
+          airt_msg(t(_('Missing template in %c:%l'),
+          array('%c='=>'incident.php', '%l'=>__LINE__)));
+          reload(BASEURL.'/incident.php?action=details&incidentid='.
+             urlencode($incidentid));
+          return;
+      }
+
+      // strip out all template that have no matching users
+      foreach($template as $user=>$t) {
+          if (array_search($user, $recipients) === FALSE) {
+              unset($template[$user]);
+          }
+      }
+
+      reload('mailtemplates.php?action=prepare&'.
+         'template='. urlencode(implode(',', $template)).
+         '&to='. urlencode(implode(',', $recipients)).
+         '&incidentid='.$incidentid);
       break;
 
    //--------------------------------------------------------------------

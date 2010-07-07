@@ -2398,14 +2398,14 @@ function incidentDetails() {
       $override = getMailtemplateOverride($incident['incidentid'], $u['id']);
       $output .= '<tr>'.LF;
       $output .= '  <td>'.LF;
-      $output .= t('<input type="checkbox" name="to[]" value="%u">', array(
+      $output .= t('<input type="radio" name="to" value="%u">', array(
          '%u'=>$user));
       $output .= '  </td>'.LF;
       $output .= t('  <td>%email</td>', array(
         '%email'=>$u['email'])).LF;
       $output .= t('  <td>').LF;
       $output .= getMailtemplateSelection(
-         'template['.strip_tags($user).']', 
+         'template', 
          ($override==false) ? -1 : $override,
          array('-1' => _('None'))).LF;
       $output .= '</td>'.LF;
