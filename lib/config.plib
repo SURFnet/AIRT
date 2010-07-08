@@ -105,6 +105,8 @@ function showConfigScreen() {
    $out .= '</table>'.LF;
    $out .= '</div>'.LF;
 
+
+
    $out .= '<div class="block">'.LF;
    $out .= '<h3>'._('Email settings').'</h3>'.LF;
    $out .= '<table class="horizontal">'.LF;
@@ -136,6 +138,26 @@ function showConfigScreen() {
    $out .= '</table>'.LF;
    $out .= '</div>'.LF;
 
+
+
+
+   $out .= '<div class="block">'.LF;
+   $out .= '<h3>'._('Import queue settings').'</h3>'.LF;
+   $out .= '<table class="horizontal">'.LF;
+   
+   Setup::getOption('inqueuesep', $inqueuesep, true);
+   $out .= '<tr>'.LF;
+   $out .= t('     <td>%l</td>'.LF, array('%l'=>
+      _('Import queue separator').'<br/><em>'.
+      t(_('Use "\n" for newline. Separator will be parsed using <a href="%u">date</a> function.'),
+         array('%u'=>'http://php.net/manual/en/function.date.php')).' '.
+      _('Leave blank to disable.').'</em>'));
+   $out .= t('     <td><input type="string" value="%v" name="inqueuesep" size="45"></td>'.LF, array('%v'=>htmlentities($inqueuesep)));
+   $out .= '  </tr>'.LF;
+
+   $out .= '</table>'.LF;
+   $out .= '</div>'.LF;
+
    $out .= t('<input type="submit" value="%v">', array(
       '%v'=>_('Save changes')));
    $out .= '<input type="hidden" name="action" value="save"/>'.LF;
@@ -156,6 +178,7 @@ function saveConfig() {
    $mailenvfrom = fetchFrom('REQUEST', 'mailenvfrom');
    $mailcc = fetchFrom('REQUEST', 'mailcc');
    $replyto = fetchFrom('REQUEST', 'replyto');
+   $inqueuesep = fetchFrom('REQUEST', 'inqueuesep');
    $session_timeout = fetchFrom('REQUEST', 'session_timeout', '%d');
 
    if (!empty($pagesize)) {
@@ -187,6 +210,7 @@ function saveConfig() {
    Setup::setOption('mailcc', $mailcc);
    Setup::setOption('replyto', $replyto);
    Setup::setOption('x509client', $x509client);
+   Setup::setOption('inqueuesep', $inqueuesep);
 
    if (Setup::saveOptions($error) === false) {
       airt_msg($error);

@@ -392,7 +392,13 @@ airt_profile('Template added');
          return 'No such incident ($incidentid)';
       }
       $_SESSION['userid'] = $userid;
-      $logging = $incident['logging']."\n".$logging;
+      Setup::getOption('inqueuesep', $inqueuesep, true);
+      if (empty($inqueuesep)) {
+          $inqueuesep = "\n";
+      }
+      $inqueuesep = date(str_replace('\n', "\n", $inqueuesep));
+      $logging = $incident['logging'].$inqueuesep.$logging;
+
       updateIncident($incidentid, array('logging'=>$logging));
       if ($template != '') {
          setPreferredMailTemplateName($incidentid, $template);
