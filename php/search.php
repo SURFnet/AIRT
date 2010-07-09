@@ -417,7 +417,9 @@ function search_zoom($mask) {
             $where_clause .= "OR (a.ip between '$pre"."100$postmin' and '$pre$max$postmax' AND a.ip like '$pre"."___$postlike'))\n";
          }
       } else {
-    $where_clause = "a.ip between '$pre$min$postmin' and '$pre$max$postmax' AND a.ip like '$pre"."___$postlike'\n";
+    # $where_clause = "a.ip between '$pre$min$postmin' and '$pre$max$postmax' AND a.ip like '$pre"."___$postlike'\n";
+
+         $where_clause = "a.ip::inet <<= inet '".db_escape_string($mask)."' \n";
       }
 
       $res = db_query("
@@ -450,6 +452,7 @@ function search_zoom($mask) {
          print '</tr>'.LF;
          $count = 0;
          while ($row = db_fetch_next($res)) {
+             $count++;
             printf("
 <tr>
    <td><a href=\"incident.php?action=details&incidentid=%s\">%s</a></td>
@@ -466,6 +469,7 @@ function search_zoom($mask) {
                 $row["status"]);
          }
          print '</table>'.LF;
+         print '<p>'.t(_('%n incident(s) found.'), array('%n'=>$count)).'</p>'.LF;
       } else {
          echo "<I>"._('No incidents within this range')."</I>";
       }
