@@ -739,6 +739,13 @@ function replace_vars($msg, $current=array()) {
       $email = '';
    }
 
+   if (preg_match('/@INCLUDE=([^@]+)@/', $out, $match) == 1) {
+       if (($tmp_template = get_template($match[1])) === false) {
+           $tmp_template = '';
+       }
+       $out = preg_replace('/@INCLUDE=([^@]+)@/', $tmp_template, $out);
+   }
+
    if (isset($ipaddress)) {
       $out = ereg_replace("@IPADDRESS@", $ipaddress, $out);
       $out = ereg_replace("@HOSTNAME@", $current['hostname'], $out);
