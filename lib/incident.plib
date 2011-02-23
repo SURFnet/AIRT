@@ -2304,9 +2304,9 @@ function incidentDetails() {
             } else {
                $output .= '<tr>'.LF;
                $output .= t('<td>%sender</td>'.LF, array(
-                  '%sender'=>$msg['sender']));
+                  '%sender'=>htmlentities($msg['sender'])));
                $output .= t('<td><a href="%u?action=view&msgid=%m">%subject</a></td>'.LF, array(
-                  '%subject'=>$msg['subject'],
+                  '%subject'=>htmlentities($msg['subject']),
                   '%u'=>BASEURL.'/mailbox.php',
                   '%m'=>$msgid));
 
