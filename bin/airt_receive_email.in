@@ -192,7 +192,7 @@ function toMailQueue($data, &$error='') {
    $q = q('select nextval(\'generic_sequence\')');
    if (($res = db_query($q)) === false) {
       $error = db_errormessage()._(' in ').'airt_reive_email.in:'.
-         __LINE_NUMBER__;
+         __LINE__;
       return false;
    }
 
@@ -231,7 +231,7 @@ function toMailQueue($data, &$error='') {
    );
    if (($res = db_query($q)) === false) {
       $error = db_errormessage()._(' in ').'airt_reive_email.in:'.
-         __LINE_NUMBER__;
+         __LINE__;
       return false;
    }
    db_free_result($res);
@@ -243,6 +243,7 @@ function toMailQueue($data, &$error='') {
    if (preg_match('/'.INCIDENTID_PREFIX.'([0-9]+)/', $subject, $match) > 0) {
       addEmailToIncident($match[1], $id, $error);
    }
+   return true;
 }
 
 $output = array();
