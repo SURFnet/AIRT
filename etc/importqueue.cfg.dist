@@ -28,9 +28,11 @@
  * Note that this is a variable definition and not a constant. PHP is unable
  * to store anything but scalar values in a constant
  */
-$AIRT_CURL_OPTIONS = array(
-  'CURLOPT_CAPATH'=>'/etc/ssl/certs'
-);
+if (defined('CURLOPT_CAPATH')) {
+   $AIRT_CURL_OPTIONS = array(
+     'CURLOPT_CAPATH'=>'/etc/ssl/certs'
+   );
+}
 
 $AIRT_IMPORTFILTER_DIRS = array( 
   LIBDIR.'/import_filters',
