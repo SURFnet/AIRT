@@ -147,7 +147,7 @@
     print '</table>'.LF;
     print '<p>'.LF;
     print '<p>'.LF;
-    print '<b>User capabilities</b><br/>'.LF;
+    print '<b>'._('User capabilities').'</b><br/>'.LF;
     print '<input type="checkbox" name="cap_iodef" '.$cap_iodef.'>'.
        _('IODEF capable').'</input><br/>'.LF;
     print '<input type="checkbox" name="cap_login" '.$cap_login.'>'.
