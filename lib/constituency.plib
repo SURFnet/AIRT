@@ -31,7 +31,7 @@ require_once LIBDIR.'/network.plib';
  */
 function getConstituencies() {
    $res = db_query(
-      'SELECT   id, label, name
+      'SELECT   id, label, name, notes
        FROM     constituencies
        ORDER BY label')
    or die(_('Unable to connect to database.'));
@@ -40,7 +40,8 @@ function getConstituencies() {
    while ($row = db_fetch_next($res)) {
       $constituencies[$row['id']]=array(
          'label' => $row['label'],
-         'name'  => $row['name']
+         'name'  => $row['name'],
+         'notes' => $row['notes']
       );
   }
   return $constituencies;
@@ -310,7 +311,7 @@ function addConstituency($label, $name, &$error) {
  * @param $error error message, if any
  * @return true on success, false on failure
  */
-function updateConstituency($id, $label, $name, &$error) {
+function updateConstituency($id, $label, $name, $notes, &$error) {
    if (!is_numeric($id)) {
       $error = _('Invalid parameter type $id in').' constituency.plib:'.
          __LINE__;
@@ -319,10 +320,12 @@ function updateConstituency($id, $label, $name, &$error) {
    $res = db_query(sprintf("
       UPDATE constituencies
       SET  label=%s,
-           name=%s
+           name=%s,
+           notes=%s
       WHERE id=%d",
       db_masq_null($label),
       db_masq_null($name),
+      db_masq_null($notes),
       $id));
    if ($res === false) {
       $error = db_errormessage();
@@ -434,13 +437,13 @@ function constituencyDetails() {
 
     print '<div class="column">'.LF;
 
-    print '<div class="block">'.LF;
-    print '<h3>'._('Basic constituency details').'</h3>'.LF;
     print t('<form action="%u/constituencies.php" method="POST">'.LF, array(
        '%u'=>BASEURL));
     print '<input type="hidden" name="action" value="update"/>'.LF;
     print t('<input type="hidden" name="consid" value="%c"/>'.LF, array(
        '%c'=>$cid));
+    print '<div class="block">'.LF;
+    print '<h3>'._('Basic constituency details').'</h3>'.LF;
     print '<table>'.LF;
     print '<tr>'.LF;
     print '<td>'._('Name').'</td>'.LF;
@@ -459,9 +462,17 @@ function constituencyDetails() {
     print '</table>'.LF;
     print '<p/>'.LF;
     print '<input type="submit" value="'._('Update').'"/>'.LF;
-    print '</form>'.LF;
     print '</div><!-- block -->'.LF;
 
+    print '<div class="block">'.LF;
+    print '<h3>'._('Constituency notes').'</h3>'.LF;
+    print t('<textarea rows="5" cols="50" name="notes">%v</textarea>'.LF, array(
+       '%v'=>$clist[$cid]['notes']));
+    print '<p/>'.LF;
+    print '<input type="submit" value="'._('Update').'"/>'.LF;
+    print '</div><!-- block -->'.LF;
+
+    print '</form>'.LF;
     print '</div><!-- column -->'.LF;
 
     print '<div class="column">'.LF;

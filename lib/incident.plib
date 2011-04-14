@@ -1958,8 +1958,10 @@ function listIncidents() {
       $addresses = getAddressesForIncident($id);
       if (sizeof($addresses) > 0) {
          $constituency = $conslist[$addresses[0]['constituency']]['label'];
+         $consnotes = $conslist[$addresses[0]['constituency']]['notes'];
       } else {
          $constituency = '';
+         $consnotes = '';
       }
 
       if ($data['status'] != 'stalled' || $hideStalled == 0) {
@@ -1985,10 +1987,18 @@ function listIncidents() {
           if (empty($constituency)) {
               $out .= '   <td><em>'._('Unknown').'</em></td>'.LF;
           } else {
-              $out .= t('   <td><a href="%u/constituencies.php?action=edit&cons=%C">%constituency</a></td>'.LF, array(
-                 '%u'=>BASEURL,
-                 '%C'=>$addresses[0]['constituency'],
-                 '%constituency'=>htmlentities($constituency)));
+              if ($consnotes == '') {
+                  $out .= t('   <td><a href="%u/constituencies.php?action=edit&cons=%C">%constituency</a></td>'.LF, array(
+                     '%u'=>BASEURL,
+                     '%C'=>$addresses[0]['constituency'],
+                     '%constituency'=>htmlentities($constituency)));
+              } else {
+                  $out .= t('   <td><span class="verklaring" title="%d"><a href="%u/constituencies.php?action=edit&cons=%C">%constituency</a></span></td>'.LF, array(
+                     '%u'=>BASEURL,
+                     '%d'=>htmlentities($consnotes),
+                     '%C'=>$addresses[0]['constituency'],
+                     '%constituency'=>htmlentities($constituency)));
+              }
           }
           $out .= t('   <td>%type</td>'.LF, array(
              '%type'=>htmlentities($data['type'])));
@@ -2249,8 +2259,14 @@ function incidentDetails() {
       $output .= t('  <td>%addressrole</td>'.LF, array(
             '%addressrole'=>getAddressRoleByID($address['addressrole'])));
 
-      $output .= t('  <td>%s</td>'.LF, array(
-         '%s'=>htmlentities($conslist[$cons]['label'])));
+      if (!empty($conslist[$cons]['notes'])) {
+          $output .= t('  <td><span class="verklaring" title="%d">%s</span></td>'.LF, array(
+             '%d'=>htmlentities($conslist[$cons]['notes']),
+             '%s'=>htmlentities($conslist[$cons]['label'])));
+      } else {
+          $output .= t('  <td>%s</td>'.LF, array(
+             '%s'=>htmlentities($conslist[$cons]['label'])));
+      }
       $output .= t('  <td><a href="%u/incident.php?action=editip&ip=%s">%l</a></td>'.LF, array(
          '%u'=>BASEURL,
          '%s'=>urlencode($address['ip']),

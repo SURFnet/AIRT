@@ -119,6 +119,10 @@ switch ($action) {
           $contacts[$key] = strip_tags($value);
       }
 
+      $notes = htmlentities(fetchFrom('REQUEST', 'notes', '%s'));
+      defaultTo($notes, '');
+      
+
       if ($action=="add") {
          if (($c = addConstituency($label, $description, $error)) === false) {
             airt_msg($error);
@@ -153,7 +157,7 @@ switch ($action) {
             reload();
             exit;
          }
-         if (updateConstituency($consid, $label, $description, $error) === false) {
+         if (updateConstituency($consid, $label, $description, $notes, $error) === false) {
             airt_msg(_('Database error:').$error);
             reload();
             exit;

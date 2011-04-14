@@ -13,3 +13,4 @@ UPDATE versions SET value='----version----' WHERE key='airtversion';
 
 -- new configuration option: separator for import queue
 insert into settings (key, value) values ('inqueuesep', "\n");
+alter table constituencies add notes varchar(250);
