@@ -165,6 +165,7 @@ switch ($action) {
 
          $c = getConstituencyContacts($consid);
          // add contacts that do not yet exist
+         /*
          foreach ($contacts as $contact) {
              if (trim($contact) == '') {
                  continue;
@@ -198,6 +199,7 @@ switch ($action) {
                   '%u'=>htmlentities($data['email']))));
              }
          }
+         */
 
          generateEvent("updateconstituency", array(
             "label"=>$label,

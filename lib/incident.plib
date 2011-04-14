@@ -1959,6 +1959,9 @@ function listIncidents() {
       if (sizeof($addresses) > 0) {
          $constituency = $conslist[$addresses[0]['constituency']]['label'];
          $consnotes = $conslist[$addresses[0]['constituency']]['notes'];
+         if (strlen($consnotes) > 80) {
+             $consnotes = substr($consnotes, 0, 77). '...';
+         }
       } else {
          $constituency = '';
          $consnotes = '';
@@ -2260,8 +2263,12 @@ function incidentDetails() {
             '%addressrole'=>getAddressRoleByID($address['addressrole'])));
 
       if (!empty($conslist[$cons]['notes'])) {
+          $consnotes = htmlentities($conslist[$cons]['notes']);
+          if (strlen($consnotes) > 80) {
+              $consnotes = substr($consnotes, 0, 77). '...';
+          }
           $output .= t('  <td><span class="verklaring" title="%d">%s</span></td>'.LF, array(
-             '%d'=>htmlentities($conslist[$cons]['notes']),
+             '%d'=>$consnotes,
              '%s'=>htmlentities($conslist[$cons]['label'])));
       } else {
           $output .= t('  <td>%s</td>'.LF, array(
