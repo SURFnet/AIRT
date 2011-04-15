@@ -12,5 +12,4 @@ UPDATE versions SET value='20110415.1' WHERE key='airtversion';
 -- Cannot rely on .in expansion as it needs to stay fixed in history.
 
 -- new configuration option: separator for import queue
-insert into settings (key, value) values ('inqueuesep', "\n");
 alter table constituencies add notes varchar(250);
