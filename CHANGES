@@ -1,4 +1,7 @@
 2011-04-15
+* Mailbox updates now need to run from cron by calling the
+  ~/bin/airt_schedule_mailbox_update script. Make sure to include
+  --virtual-host when needed
 * GUI changes
 * Functional improvements
 * Bug fixes
