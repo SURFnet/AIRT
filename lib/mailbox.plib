@@ -401,7 +401,7 @@ function scheduleMailArchiveUpdate() {
     if (defined('VIRTUAL_HOST') && VIRTUAL_HOST != '') {
         $cmd .= ' --virtual-host='.escapeshellcmd(VIRTUAL_HOST);
     }
-    shell_exec($cmd .' > /dev/null &');
+    // shell_exec($cmd .' > /dev/null &');
 }
 
 /**
