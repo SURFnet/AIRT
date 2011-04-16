@@ -115,6 +115,7 @@ CREATE TABLE constituencies (
     id          integer,
     label       varchar(50) not null,  -- with unique index
     name        varchar(100),
+    notes       text,
     primary key (id)
 );
 
