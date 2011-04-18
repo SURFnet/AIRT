@@ -44,6 +44,20 @@ function showConfigScreen() {
    $out .= '</select></td>'.LF;
    $out .= '  </tr>'.LF;
 
+   Setup::getOption('bubblesize', $bubblesize, true);
+   $out .= '   <tr>'.LF;
+   $out .= t('     <td>%l</td>'.LF, array('%l'=>_('Maximum number of characters to show in a hover bubble')));
+   $out .= '     <td><select name="bubblesize">';
+   $out .= choice(80, 80, $bubblesize);
+   $out .= choice(120, 120, $bubblesize);
+   $out .= choice(250, 250, $bubblesize);
+   $out .= choice(500, 500, $bubblesize);
+   $out .= choice(1000, 1000, $bubblesize);
+   $out .= choice(1500, 1500, $bubblesize);
+   $out .= choice(2500, 2500, $bubblesize);
+   $out .= '</select></td>'.LF;
+   $out .= '  </tr>'.LF;
+
    Setup::getOption('archiveage', $archiveage, true);
    $out .= '  <tr>'.LF;
    $out .= t('     <td>%l</td>'.LF, array('%l'=>_('Number of days afters receiving email when it is automatically archived')));
@@ -180,6 +194,7 @@ function saveConfig() {
    $replyto = fetchFrom('REQUEST', 'replyto');
    $inqueuesep = fetchFrom('REQUEST', 'inqueuesep');
    $session_timeout = fetchFrom('REQUEST', 'session_timeout', '%d');
+   $bubblesize = fetchFrom('REQUEST', 'bubblesize', '%d');
 
    if (!empty($pagesize)) {
       Setup::setOption('pagesize', $pagesize);
@@ -204,6 +219,9 @@ function saveConfig() {
    }
    if (!empty($mailenvfrom)) {
       Setup::setOption('mailenvfrom', $mailenvfrom);
+   }
+   if (!empty($bubblesize)) {
+       Setup::setOption('bubblesize', $bubblesize);
    }
    $x509client = ($x509client == 'on') ? 1 : 0;
 

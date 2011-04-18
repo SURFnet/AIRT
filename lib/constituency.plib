@@ -27,7 +27,7 @@ require_once LIBDIR.'/network.plib';
 /** Return a list of constituencies.
  * @return an associative array containing constituency information. The
  *    key of the array is the constituency's ID. the value of the array is
- *    an associative array with keys 'label' and 'name'
+ *    an associative array with keys 'label', 'name' and 'notes'
  */
 function getConstituencies() {
    $res = db_query(

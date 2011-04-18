@@ -452,6 +452,8 @@ function queueFormatItems($typefilter='all') {
    // process incidents first
    $count = 0;
    $siblings = array();
+   $constituencies = getConstituencies();
+   Setup::getOption('bubblesize', $maxbubblesize, true);
    foreach ($elements as $id=>$element) {
       if ($typefilter != 'all' && $element['type'] != $typefilter) {
           continue;
@@ -485,7 +487,24 @@ function queueFormatItems($typefilter='all') {
          '%id'=>$id,
          '%type'=>$element['type']));
 
-      $out .= t("  <td>%cons</td>\n", array('%cons'=>$element['cache_constituency']));
+      $print_cons=0;
+      foreach ($constituencies as $c) {
+          print "<!-- label: $c[label] | notes: $c[notes] -->\n";
+          if ($c['label'] === $element['cache_constituency'] && !empty($c['notes']))
+              {
+                  $print_cons=1;
+                  $out .= t('  <td><span class="verklaring" title="%d">%cons</span></td>\n', 
+                  array(
+                    '%d' => htmlentities((strlen($c['notes']) >
+                    $maxbubblesize) ? substr($c['notes'], 0, $maxbubblesize - 3).'...' : $c['notes']),
+                    '%cons' => $element['cache_constituency']
+                  ));
+                  break;
+              }
+      }
+      if ($print_cons == 0) {
+          $out .= t("  <td>%cons</td>\n", array('%cons'=>$element['cache_constituency']));
+      }
       $out .= t('  <td><a href="%base/search.php?qtype=host&action='.
          urlencode(_('Search')).'&q=%eip">%ip</a></td>'."\n", 
          array('%ip'=>$element['cache_ip'],

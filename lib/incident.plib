@@ -30,6 +30,7 @@ require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/mailtemplates.plib';
 require_once LIBDIR.'/profiler.plib';
 require_once LIBDIR.'/mailbox.plib';
+require_once LIBDIR.'/setup.plib';
 
 /** Return an associative array with incident states.
  * @param $extras Optionally, an array with extra incident states that are
@@ -1948,7 +1949,7 @@ function listIncidents() {
    $count = 0;
    $conslist = getConstituencies();
    $elcount = 1; // 1 is the checkbox selector, 2 is the first one to check
-
+   Setup::getOption('bubblesize', $maxbubblesize, true);
    foreach ($incidents as $id=>$data) {
       if (($count++ > $page * $pagesize) ||
           ($count <= ($page-1) * $pagesize)) {
@@ -1959,8 +1960,8 @@ function listIncidents() {
       if (sizeof($addresses) > 0) {
          $constituency = $conslist[$addresses[0]['constituency']]['label'];
          $consnotes = $conslist[$addresses[0]['constituency']]['notes'];
-         if (strlen($consnotes) > 80) {
-             $consnotes = substr($consnotes, 0, 77). '...';
+         if (strlen($consnotes) > $maxbubblesize) {
+             $consnotes = substr($consnotes, 0, $maxbubblesize-3). '...';
          }
       } else {
          $constituency = '';
@@ -2247,6 +2248,7 @@ function incidentDetails() {
    $output .= '   <th>'._('Role').'</th>'.LF;
    $output .= '   <th>'._('Constituency').'</th>'.LF;
    $output .= '</tr>'.LF;
+   Setup::getOption('bubblesize', $maxbubblesize, true);
    foreach ($incident['ips'] as $address) {
       $cons = getConstituencyIDbyNetworkID(categorize($address['ip']));
       $_SESSION['active_ip'] = $address['ip'];
@@ -2264,8 +2266,8 @@ function incidentDetails() {
 
       if (!empty($conslist[$cons]['notes'])) {
           $consnotes = htmlentities($conslist[$cons]['notes']);
-          if (strlen($consnotes) > 80) {
-              $consnotes = substr($consnotes, 0, 77). '...';
+          if (strlen($consnotes) > $maxbubblesize) {
+              $consnotes = substr($consnotes, 0, $maxbubblesize-3). '...';
           }
           $output .= t('  <td><span class="verklaring" title="%d">%s</span></td>'.LF, array(
              '%d'=>$consnotes,

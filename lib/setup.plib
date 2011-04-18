@@ -12,6 +12,7 @@ class Setup {
       'x509client' => 0,
       'defaultlanguage' => 'en_US.utf8',
       'pagesize' => 50,
+      'bubblesize' => 80,
       'session_timeout' => 1800,
       'correlationage' => 172800,
       'inqueuesep' => "\n"
