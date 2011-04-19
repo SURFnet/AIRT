@@ -489,11 +489,10 @@ function queueFormatItems($typefilter='all') {
 
       $print_cons=0;
       foreach ($constituencies as $c) {
-          print "<!-- label: $c[label] | notes: $c[notes] -->\n";
           if ($c['label'] === $element['cache_constituency'] && !empty($c['notes']))
               {
                   $print_cons=1;
-                  $out .= t('  <td><span class="verklaring" title="%d">%cons</span></td>\n', 
+                  $out .= t('  <td><span class="verklaring" title="%d">%cons</span></td>'.LF, 
                   array(
                     '%d' => htmlentities((strlen($c['notes']) >
                     $maxbubblesize) ? substr($c['notes'], 0, $maxbubblesize - 3).'...' : $c['notes']),

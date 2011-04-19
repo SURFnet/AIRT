@@ -1980,12 +1980,12 @@ function listIncidents() {
                 '%incidentid'=>encode_incidentid($id)));
           if (empty($data['ip'])) {
               $out .= t('   <td><span class="verklaring" title="%d"><em>'._('None').'</em></span></td>', array(
-                 '%d'=>urlencode($data['desc'])));
+                 '%d'=>htmlentities($data['desc'])));
           } else {
               $out .= t('   <td><span class="verklaring" title="%d"><a href="%u" class="hover">%l</a></span></td>'.LF, array(
                   '%u'=>BASEURL.'/search.php?action=Search&qtype=host&q='.
                      urlencode($data['ip']),
-                  '%d'=>urlencode($data['hostname']).' '.urlencode($data['desc']),
+                  '%d'=>htmlentities($data['hostname']).' '.htmlentities($data['desc']),
                   '%l'=>(empty($data['ip']) ? $data['desc'] : $data['ip'])));
           }
           if (empty($constituency)) {
