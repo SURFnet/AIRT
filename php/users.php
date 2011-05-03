@@ -35,11 +35,13 @@
 
  function show_form($formkey, $id="") {
     $lastname = $firstname = $email = $phone = $login = $userid = '';
+    $x509name = '';
     $action = "add";
     $caps = array();
     $cap_iodef='';
     $cap_login='';
-    $submit = _("Add!");
+    $submit = _("Add user");
+    $notes = '';
 
     if (array_key_exists('language', $_SESSION)) {
        $language = $_SESSION['language'];
@@ -54,7 +56,7 @@
        }
        $res = db_query("
           SELECT lastname, firstname, email, phone, login, userid, password,
-               language, x509name
+               language, x509name, notes
         FROM   users
         WHERE  id = $id")
         or die(_("Unable to query database."));
@@ -77,9 +79,11 @@
                $language=strip_tags($row['language']);
             if (array_key_exists('x509name', $row))
                $x509name=strip_tags($row['x509name']);
+            if (array_key_exists('notes', $row))
+                $notes=htmlentities($row['notes']);
 
             $action = "update";
-            $submit = _("Update!");
+            $submit = _("Update user");
         }
         if (getUserCapabilities($id, $caps, $error) == false) {
            airt_msg(_('Error retrieving user capabilities:'). $error);
@@ -96,6 +100,10 @@
        strip_tags($action).'">'.LF;
     print '<input type="hidden" name="id" value="'.
        strip_tags($id).'">'.LF;
+
+    print '<div class="column">'.LF;
+    print '<div class="block">'.LF;
+    print '<h3>'._('Basic user details').'</h3>'.LF; 
     print '<table>'.LF;
     print '<tr>'.LF;
     print '    <td>'._('Login').'</td>'.LF;
@@ -145,16 +153,30 @@
     print '    <td><input type="password" size="30" name="password2"></td>'.LF;
     print '</tr>'.LF;
     print '</table>'.LF;
-    print '<p>'.LF;
-    print '<p>'.LF;
-    print '<b>'._('User capabilities').'</b><br/>'.LF;
+    print '</div>'.LF; // end block
+    print '</div>'.LF; // end column
+
+    print '<div class="column">'.LF;
+    print '<div class="block">'.LF;
+    print '<h3>'._('User capabilities').'</h3>'.LF;
     print '<input type="checkbox" name="cap_iodef" '.$cap_iodef.'>'.
        _('IODEF capable').'</input><br/>'.LF;
     print '<input type="checkbox" name="cap_login" '.$cap_login.'>'.
        _('Interactive login allowed').'</input><br/>'.LF;
-    print '<input type="submit" value="'.strip_tags($submit).'">'.LF;
+    print '</div>'.LF; // end block
+
+    print '<div class="block">'.LF;
+    print '<h3>'._('User notes').'</h3>'.LF;
+    print t('<textarea rows="5" cols="50" name="notes">%v</textarea>'.LF, 
+        array( '%v'=>$notes));
     print '<p/>'.LF;
+    print '</div>'.LF; // block
+    print '</div>'.LF; // end column
+
+
+    print '<input type="submit" value="'.strip_tags($submit).'">'.LF;
     print '</form>'.LF;
+    print '<br style="clear: both;" />'.LF;
  }
 
  switch ($action) {
@@ -188,7 +210,7 @@
       print '</form>';
 
       $query = q('SELECT id, login, lastname, firstname, email, phone,
-                userid FROM users ');
+                userid, notes FROM users ');
       if ($all != 'on') {
          $mods = array();
          if ($interactive == 'on') {
@@ -208,6 +230,7 @@
          die(_('Unable to query database.'));
       }
 
+      Setup::getOption('bubblesize', $maxbubblesize, true);
       print '<table class="horizontal">'.LF;
       print '<tr>'.LF;
       print '   <th>'._('Login').'</th>'.LF;
@@ -227,33 +250,42 @@
          $email = strip_tags($row["email"]);
          $phone = strip_tags($row["phone"]);
          $userid = strip_tags($row["userid"]);
+         $notes = $row['notes'];
 
-         printf("
-<tr>
-    <td>%s</td>
-    <td>%s</td>
-    <td>%s</td>
-    <td>%s</td>
-    <td><a href='mailto:%s'>%s</a></td>
-    <td>%s</td>
-    <td nowrap><a href='%s?action=edit&id=%s'>"._('edit')."</a>
-    <a 
-       onclick=\"return confirm('"._('Are you sure that you want to delete %s?')."')\"
-       href='%s?action=delete&id=%s&formkey=%s'>"._('delete')."</a></td>
-</tr>",
-            htmlentities($login), htmlentities($userid), 
-            htmlentities($lastname), htmlentities($firstname), 
-            urlencode($email), 
-            htmlentities($email), htmlentities($phone),
-            BASEURL.'/users.php',urlencode($id),
-            htmlentities($email), 
-            BASEURL.'/users.php', urlencode($id), urlencode($formkey->get()));
+         print '<tr>'.LF;
+         print t('<td>%l</td>'.LF, array('%l'=>htmlentities($login)));
+         print t('<td>%u</td>'.LF, array('%u'=>htmlentities($userid)));
+         print t('<td>%ln</td>'.LF, array('%ln'=>htmlentities($lastname)));
+         print t('<td>%fn</td>'.LF, array('%fn'=>htmlentities($firstname)));
+         if ($notes == '')
+             print t('<td>%m</td>'.LF, array('%m'=>htmlentities($email)));
+         else 
+             print t('<td><span class="verklaring" title="%d">%m</span></td>'.LF,
+                array('%d'=>((strlen($notes) > $maxbubblesize) ?
+                          substr($notes, 0, $maxbubblesize-3).'...' : $notes),
+                      '%m'=>htmlentities($email)));
+         print t('<td>%p</td>'.LF, array('%p'=>htmlentities($phone)));
+         print t('<td nowrap>'.LF);
+         print t('   <a href="%url?action=edit&id=%id">%label</a>',
+            array('%url'=>BASEURL.'/users.php',
+                  '%id'=>urlencode($id),
+                  '%label'=>_('edit')));
+         print t('   <a onclick="return confirm(\'%diag %email?\')" 
+            href="%url?action=delete&id=%id&formkey=%key">%label</a>',
+            array('%diag'=>_('Are you sure that you want to delete'),
+                  '%email'=>htmlentities($email),
+                  '%url'=>BASEURL.'/users.php',
+                  '%id'=>urlencode($id),
+                  '%key'=>urlencode($formkey->get()),
+                  '%label'=>_('delete')));
+         printf('    </td>'.LF);
+         printf('</tr>'.LF);
       }
       db_free_result($res);
       print '</table>'.LF;
 
-      print '<P>'.LF;
-      print '<h3>'._('New user').'</h3>'.LF;
+      print '<P><hr/>'.LF;
+      print '<h2>'._('New user').'</h2>'.LF;
       show_form($formkey);
       pageFooter();
       break;
@@ -293,6 +325,8 @@
         defaultTo($cap_login, 'off');
         $cap_iodef = fetchFrom('POST', 'cap_iodef');
         defaultTo($cap_iodef, 'off');
+        $notes = htmlentities(fetchFrom('POST', 'notes'));
+        defaultTo($notes, '');
 
         // ========= ADD ==========
         if ($action == "add") {
@@ -316,6 +350,7 @@
                 "userid" => $userid,
                 "password" => $password,
                 "language"=> $language,
+                "notes"=>$notes,
                 "x509name"=> $x509name), $status) == false) {
                 airt_msg($status);
                 reload();
@@ -361,6 +396,7 @@
                        login=%s,
                        userid=%s,
                        language=%s,
+                       notes=%s,
                        x509name=%s",
                     db_masq_null($lastname),
                     db_masq_null($firstname),
@@ -369,6 +405,7 @@
                db_masq_null($login),
                db_masq_null($userid),
                db_masq_null($language),
+               db_masq_null($notes),
                db_masq_null($x509name));
          if ($password != "") {
                 $query=sprintf("

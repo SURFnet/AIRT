@@ -9,6 +9,8 @@
 
 UPDATE versions SET value='----version----' WHERE key='airtversion';
 INSERT into settings (key) values ('bubblesize');
+ALTER TABLE users ADD notes TEXT;
+
 -- Needs manual update with the AIRT_VERSION string of the release.
 -- Cannot rely on .in expansion as it needs to stay fixed in history.
 

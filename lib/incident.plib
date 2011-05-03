@@ -2080,6 +2080,8 @@ function listIncidents() {
  * Front-end code for incident details screen
  */
 function incidentDetails() {
+   Setup::getOption('bubblesize', $maxbubblesize, true);
+
    $address = strip_tags(fetchFrom('SESSION','active_ip'));
 
    $constituency = fetchFrom('SESSION','constituency_id', '%d');
@@ -2248,7 +2250,6 @@ function incidentDetails() {
    $output .= '   <th>'._('Role').'</th>'.LF;
    $output .= '   <th>'._('Constituency').'</th>'.LF;
    $output .= '</tr>'.LF;
-   Setup::getOption('bubblesize', $maxbubblesize, true);
    foreach ($incident['ips'] as $address) {
       $cons = getConstituencyIDbyNetworkID(categorize($address['ip']));
       $_SESSION['active_ip'] = $address['ip'];
@@ -2426,8 +2427,14 @@ function incidentDetails() {
       $output .= t('<input type="radio" name="to[]" value="%u">', array(
          '%u'=>$user));
       $output .= '  </td>'.LF;
-      $output .= t('  <td>%email</td>', array(
+      if ($u['notes'] == '') {
+        $output .= t('  <td>%email</td>', array( '%email'=>$u['email'])).LF;
+      } else {
+        $output .= t('  <td><span class="verklaring" title="%d">%email</span></td>', array( 
+        '%d'=>((strlen($u['notes']) > $maxbubblesize) ? 
+            substr($u['notes'], 0, $maxbubblesize-3).'...' : $u['notes']),
         '%email'=>$u['email'])).LF;
+      }
       $output .= t('  <td>').LF;
       $output .= getMailtemplateSelection(
          'template['.strip_tags($user).']', 
