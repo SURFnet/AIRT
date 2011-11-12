@@ -1155,6 +1155,14 @@ function addExternalIncidentIDs($incidentid='', $externalids) {
            continue;
        }
       db_free_result($res);
+      $event_out = generateEvent('addExternalId', array(
+        'incidentid'=>$incidentid,
+        'extid'=>$extid));
+      if (count($event_out) > 0) {
+        # the event fired
+        $incidentid = $event_out[0]['incidentid'];
+        $extid = $event_out[0]['extid'];
+      } 
       $res = db_query(q('insert into external_incidentids (incidentid, externalid) values (%id, \'%extid\')', array('%id'=>$incidentid, '%extid'=>db_escape_string($extid))));
       if ($res == false) {
          db_query('rollback');
