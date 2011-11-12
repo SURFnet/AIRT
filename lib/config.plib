@@ -215,7 +215,12 @@ function saveConfig() {
       Setup::setOption('defaultlanguage', $defaultlanguage);
    }
    if (!empty($mailfrom)) {
-      Setup::setOption('mailfrom', $mailfrom);
+       if (preg_match('/^("[^"]+" )?\<[^>]+\>$/', $mailfrom) == 1) {
+          Setup::setOption('mailfrom', $mailfrom);
+       } else {
+          airt_msg('Error in "From" setting. Must adhere to format "Name" <email@example.com>. ');
+       }
+       
    }
    if (!empty($mailenvfrom)) {
       Setup::setOption('mailenvfrom', $mailenvfrom);

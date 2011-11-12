@@ -577,18 +577,18 @@ function prepare_message($template, $override_now=0, $incidentids=array(),
    $out .= '</TR>'.LF;
    $out .= '<TR>'.LF;
    $out .= '<TD>'._('Subject:').'</TD>'.LF;
-   $out .= '<TD><INPUT TYPE="text" size="50" name="subject" value="'.$msgdata['subject'].'"></TD>'.LF;
+   $out .= '<TD><INPUT TYPE="text" size="50" name="subject" value="'.htmlentities($msgdata['subject']).'"></TD>'.LF;
    $out .= '</TR>'.LF;
    $out .= '<TR>'.LF;
    $out .= '<TD>'._('From:').'</TD>'.LF;
-   $out .= '<TD><INPUT TYPE="text" size="50" name="from" value="'.$msgdata['sender'].'"></TD>'.LF;
+   $out .= '<TD><INPUT TYPE="text" size="50" name="from" value="'.htmlentities($msgdata['sender']).'"></TD>'.LF;
    $out .= '</TR>';
    $out .= '<TR>';
    $out .= '<TD>'._('Reply-To:').'</TD>'.LF;
-   $out .= '<TD><INPUT TYPE="text" size="50" name="replyto" value="'.$msgdata['replyto'].'"></TD>'.LF;
+   $out .= '<TD><INPUT TYPE="text" size="50" name="replyto" value="'.htmlentities($msgdata['replyto']).'"></TD>'.LF;
    $out .= '</TR>'.LF;
    $out .= '</TABLE>'.LF;
-   $out .= '<TEXTAREA name="msg" cols="80" rows="25">'.$msgdata['body'].'</TEXTAREA>'.LF;
+   $out .= '<TEXTAREA name="msg" cols="80" rows="25">'.htmlentities($msgdata['body']).'</TEXTAREA>'.LF;
    $out .= '<P>'.LF;
 # XXX because of this, I cannot do an override on the last incident in 
 # the queue
