@@ -212,7 +212,7 @@ function get_subject($msg) {
  * template and the value the body or false on failure.
  */
 function get_templates($extras=array()) {
-   $res = db_query(q('SELECT name,body FROM mailtemplates ORDER BY name'));
+   $res = db_query(q("SELECT name,body FROM mailtemplates WHERE status IS NULL or NOT status in ('inactive') ORDER BY name"));
    if (!$res) {
       airt_error('ERR_FUNC', 'mailtemplates.plib:'.__LINE__);
       return false;
@@ -288,9 +288,15 @@ function format_templates($recipients=array(), $incidentids=array(), $edit=false
             '%url'=>$_SERVER['PHP_SELF'],
             '%name'=>urlencode($name)));
           $out .= t(' <a onclick="return confirm(\''.
-            _('Are you sure that you want to delete this message?').'\')" href="%url?action=delete&template=%name">'._('delete').'</a></td>'.LF, array(
+            _('Are you sure that you want to delete this message?').'\')" href="%url?action=delete&template=%name">'._('delete').'</a>'.LF, array(
             '%url'=>$_SERVER['PHP_SELF'],
             '%name'=>urlencode($name)));
+          $out .= t(' <a href="%u?action=deactivate&template=%t">%l</a>', 
+          array(
+            '%u'=>$_SERVER['PHP_SELF'],
+            '%t'=>urlencode($name),
+            '%l'=>_('deactivate')));
+          $out .= '<td>'.LF;
       }
       $out .= t("</tr>\n");
     }
@@ -1164,5 +1170,38 @@ function templateList($recipients=array(), $incidentids=array(), $edit=false) {
 
   pageFooter();
 }
+
+function deactivateMailtemplate($template, &$error) {
+    $res = db_query(q("select name from mailtemplates where name='%t'",
+        array('%t'=>db_escape_string($template))));
+    if (db_num_rows($res) == 0) {
+        $error = _('Invalid template');
+        return false;
+    }
+    $res = db_query(q("update mailtemplates set status='inactive' where name='%t'", 
+        array('%t'=>db_escape_string($template))));
+    if ($res == false) {
+        $error = db_error_message();
+        return false;
+    }
+    return true;
+}
+
+function activateMailtemplate($template, &$error) {
+    $res = db_query(q("select name from mailtemplates where name='%t'",
+        array('%t'=>db_escape_string($template))));
+    if (db_num_rows($res) == 0) {
+        $error = _('Invalid template');
+        return false;
+    }
+    $res = db_query(q("update mailtemplates set status=NULL where name='%t'", 
+        array('%t'=>db_escape_string($template))));
+    if ($res == false) {
+        $error = db_error_message();
+        return false;
+    }
+    return true;
+}
+
 
 ?>

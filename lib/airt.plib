@@ -261,11 +261,21 @@ function subMenu($menu, $submenu, $title='') {
               '%l'=>_('Mail templates'),
               '%active'=>($submenu == 'templates' ? 'class="active"' : '')));
 
+           if ($submenu == 'templates') {
+               $out .= t('   <a href="%url/mailtemplates.php?action=inactive">%l</a>',
+               array(  
+                  '%url'=>BASEURL,
+                  '%l'=>_('Inactive templates'),
+                  '%active'=>($submenu == 'manage' ? 'class="active"' : '')));
+           }
+
            $out .= t('   <a href="%url/mailbox.php" %active>%l</a>', 
            array(
               '%url'=>BASEURL,
               '%l'=>_('Mailbox'),
               '%active'=>($submenu == 'mailbox' ? 'class="active"' : '')));
+
+
            if ($submenu == 'mailbox') {
                $out .= t('  <a href="%url/mailbox.php?action=refresh">%l</a>',
                array(

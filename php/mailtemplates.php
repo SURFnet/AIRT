@@ -532,35 +532,71 @@ special variables in the template:').'<p>'.LF;
       break;
 
    // -------------------------------------------------------------------
-   case 'rmtemplate':
-      $return = fetchFrom('REQUEST', 'return');
-      if (empty($return)) {
-          $return = BASEURL;
-      }
-      $template = fetchFrom('REQUEST', 'template', '%d');
+   case 'deactivate':
+      $template = fetchFrom('REQUEST', 'template', '%s');
       if (empty($template)) {
-          airt_msg(_('Missing or invalid parameter in
-          mailtemplates.php').':'.__LINE__);
-          reload($return);
+          airt_msg(_('Missing or invalid parameter in mailtemplates.php').':'.__LINE__);
+          reload();
           exit;
       }
-      if (importqueueTemplatesGetItems($items, $error) > 0) {
-          airt_msg(t(_('Unable to fetch templates in mailtemplates.php:%id'),
-             array('%id'=>__LINE__)));
-          reload($return);
-          exit;
-      }
-      var_dump($items[$template]);
-      exit;
       if (deactivateMailtemplate($template, $error) == false) {
           airt_msg(t(_('Unable to delete mailtemplate %id: %reason'), array(
              '%id'=>strip_tags($template),
              '%error'=>htmlentities($error))));
-          reload($return);
+          reload();
           exit;
       }
-      reload($return);
+      reload();
       break;
+
+   case 'activate':
+      $template = fetchFrom('REQUEST', 'template', '%s');
+      if (empty($template)) {
+          airt_msg(_('Missing or invalid parameter in mailtemplates.php').':'.__LINE__);
+          reload();
+          exit;
+      }
+      if (activateMailtemplate($template, $error) == false) {
+          airt_msg(t(_('Unable to delete mailtemplate %id: %reason'), array(
+             '%id'=>strip_tags($template),
+             '%error'=>htmlentities($error))));
+          reload();
+          exit;
+      }
+      reload();
+      break;
+
+   case 'inactive':
+      pageHeader(_('Inactive mail templates'), array(
+        'menu'=>'mail',
+        'submenu'=>'Inactive'));
+      $out = '';
+      $out .= '<div class="block">'.LF;
+      $out .= t('<h3>%l</h3>'.LF, array('%l'=>_('Deactivated templates')));
+      $res = db_query("SELECT name FROM mailtemplates WHERE status='inactive'
+      ORDER BY name");
+      $row = db_fetch_next($res);
+      if (db_num_rows($res) == 0) {
+          $out .= _('No inactive mail templates.');
+      } else {
+          $out .= '<table class="horizontal">'.LF;
+          while ($row !== false) {
+              $out .= '<tr>'.LF;
+              $out .= t('<td>%t</td>'.LF, array('%t'=>$row['name']));
+              $out .= t('<td><a href="%u?action=activate&template=%t">%l</a></td>'.LF,
+                array('%u'=>$_SERVER['PHP_SELF'],
+                      '%t'=>urlencode($row['name']),
+                      '%l'=>_('activate')));
+              $out .= '</tr>'.LF;
+              $row = db_fetch_next($res);
+          }
+          $out .= '</table>'.LF;
+      }
+      $out .= '</div>'.LF;
+      print $out;
+      pageFooter();
+      break;
+
    default:
       die(_('Unknown action: '. $action));
 } // switch
