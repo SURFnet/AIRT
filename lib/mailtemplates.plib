@@ -753,8 +753,8 @@ function replace_vars($msg, $current=array()) {
    }
 
    if (isset($ipaddress)) {
-      $out = ereg_replace("@IPADDRESS@", $ipaddress, $out);
-      $out = ereg_replace("@HOSTNAME@", $current['hostname'], $out);
+      $out = preg_replace("/@IPADDRESS@/", $ipaddress, $out);
+      $out = preg_replace("/@HOSTNAME@/", $current['hostname'], $out);
 
       if (strpos($out, '@PREVIOUS@') !== FALSE) {
          // Fetch previous incidents associated with this IP address.
@@ -772,7 +772,7 @@ function replace_vars($msg, $current=array()) {
          } else {
             $previous = '--';
          }
-         $out = ereg_replace('@PREVIOUS@',$previous,$out);
+         $out = preg_replace('/@PREVIOUS@/',$previous,$out);
       }
    }
 
@@ -858,37 +858,37 @@ function replace_vars($msg, $current=array()) {
          if ($oo == '') {
             $oo = '--';
          }
-         $out = ereg_replace($macro, trim($oo), $out);
+         $out = preg_replace('/'.$macro.'/', trim($oo), $out);
       }
    } // @ALL_OPEN_LIST@ + @OTHER_OPEN_LIST@ + @OTHER_OPEN@ + @ALL_OPEN@
 
    if (isset($name) && strpos($out, '@USERNAME@') !== FALSE) {
-      $out = ereg_replace("@USERNAME@", $name, $out);
+      $out = preg_replace("/@USERNAME@/", $name, $out);
    }
 
    if (isset($email) && strpos($out, '@USEREMAIL@') !== FALSE) {
-      $out = ereg_replace("@USEREMAIL@", $email, $out);
+      $out = preg_replace("/@USEREMAIL@/", $email, $out);
    }
 
    if (array_key_exists('current_info', $_SESSION) &&
        strpos($out, '@USERINFO@') !== FALSE) {
-      $out = ereg_replace("@USERINFO@", $_SESSION["current_info"], $out);
+      $out = preg_replace("/@USERINFO@/", $_SESSION["current_info"], $out);
    }
 
    $u = getUserByUserId($_SESSION["userid"]);
    if (strpos($out, '@YOURNAME@') !== FALSE) {
       $name = sprintf("%s %s", $u["firstname"], $u["lastname"]);
 
-      $out = ereg_replace("@YOURNAME@", $name, $out);
+      $out = preg_replace("/@YOURNAME@/", $name, $out);
    }
 
    if (strpos($out, '@YOURFIRSTNAME@') !== FALSE) {
-      $out = ereg_replace("@YOURFIRSTNAME@", $u["firstname"], $out);
+      $out = preg_replace("/@YOURFIRSTNAME@/", $u["firstname"], $out);
    }
 
    // Incident stuff.
    if (isset($incidentid)) {
-      $out = ereg_replace("@INCIDENTID@",
+      $out = preg_replace("/@INCIDENTID@/",
          normalize_incidentid($incidentid), $out);
 
      // Fetch logging info from basic incident data.
@@ -899,7 +899,7 @@ function replace_vars($msg, $current=array()) {
      }
 
      if (strpos($out, '@LOGGING@') !== FALSE) {
-        $out = ereg_replace('@LOGGING@',$logging,$out);
+        $out = preg_replace('/@LOGGING@/',$logging,$out);
      }
 
      $extids = array();
@@ -910,7 +910,7 @@ function replace_vars($msg, $current=array()) {
      }
 
      if (strpos($out, '@EXTIDS@') !== FALSE) {
-        $out = ereg_replace('@EXTIDS@', implode(',',$extids),$out);
+        $out = preg_replace('/@EXTIDS@/', implode(',',$extids),$out);
      }
 
      // Basic incident data in XML format.
@@ -918,13 +918,13 @@ function replace_vars($msg, $current=array()) {
      if (strpos($out, '@XMLDATA@') !== FALSE) {
         $xmlData = trim(exportIncident(
                       array(0=>decode_incidentid($incidentid))));
-        $out = ereg_replace('@XMLDATA@',$xmlData,$out);
+        $out = preg_replace('/@XMLDATA@/',$xmlData,$out);
      }
 
      $iodef = $status ='';
      if (strpos($out, '@IODEF@') !== FALSE) {
         if (exportIODEF(decode_incidentid($incidentid), $iodef, $status)) {
-           $out = ereg_replace('@IODEF@', $iodef, $out);
+           $out = preg_replace('/@IODEF@/', $iodef, $out);
         } else {
            $out = $status;
         }

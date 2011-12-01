@@ -337,7 +337,7 @@ function getAddressesForIncident($id) {
    $id = decode_incidentid($id);
    $res = db_query(q('SELECT ip,hostname,constituency,addressrole FROM incident_addresses WHERE incident = %id', array('%id'=>$id)));
    if (!$res) {
-      airt_error('DB_QUERY', 'incidnet.plib:'.__LINE__);
+      airt_error('DB_QUERY', 'incident.plib:'.__LINE__);
       return array();
    }
    while ($row = db_fetch_next($res)) {

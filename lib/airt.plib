@@ -460,8 +460,8 @@ function encode_incidentid($id) {
  * @return a numerical value containing the incident id.
  */
 function decode_incidentid($id) {
-   $x = ereg_replace(INCIDENTID_PREFIX, "", $id);
-   $x = ereg_replace("^0*", "", $x);
+   $x = preg_replace('/'.INCIDENTID_PREFIX.'/', '', $id);
+   $x = preg_replace('/^0*/', '', $x);
    return $x;
 }
 
