@@ -78,17 +78,14 @@ function airt_initsession($userid='') {
 	));
 
 	// session_start();
-	foreach (array('username', 'userid', 'ip', 'last', 'lastdb', 'hostnamelast') as $key => $value) {
-		session_register($value);
-  }
 
-	$_SESSION['username'] = $user['login'];
-	$_SESSION['userid']   = $user['id'];
-	$_SESSION['ip']       = $_SERVER['REMOTE_ADDR'];
-	$_SESSION['last']     = time();
-   $_SESSION['language'] = $user['language'];
+    $_SESSION['username'] = $user['login'];
+    $_SESSION['userid']   = $user['id'];
+    $_SESSION['ip']       = $_SERVER['REMOTE_ADDR'];
+    $_SESSION['last']     = time();
+    $_SESSION['language'] = $user['language'];
 
-  #select vars for welcome message
+  // select vars for welcome message
   $query  = "SELECT to_char(last,'YYYY-MM-DD HH24:MI') as last, hostnamelast FROM users WHERE id='$_SESSION[userid]'";
   $res    = db_query($query) or die(_('Unable to query database.'));
 

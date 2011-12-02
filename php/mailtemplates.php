@@ -433,7 +433,7 @@ special variables in the template:').'<p>'.LF;
 
          // 2. Extract the main body part
          $body = $m['body'];
-         $msg = split('--'.$delimiter, $body);
+         $msg = preg_split('/[-][-]/'.$delimiter, $body);
          $msgbody = implode("\r\n", array_slice(explode("\r\n", $msg[1]), 1));
          $msgbody = substr($msgbody, 0, -1);
 

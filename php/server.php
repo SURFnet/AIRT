@@ -624,7 +624,7 @@ function generateSAMLTicket($ticket_details) {
    $authentication_statement = $ass->appendChild($doc->createElementNS(
       'urn:oasis:names:tc:SAML:1.0:assertion', 'saml:AuthenticationStatement'));
    $authentication_statement->setAttribute('AuthenticationMethod', 'urn:oasis:names:tc:SAML:1.0:am:password');
-   $authentication_statement->setAttribute('AuthenticationInstant', $ticket_details['issue_time']);
+   $authentication_statement->setAttribute('AuthenticationInstant', $ticket_details['issuetime']);
 
    $subject = $authentication_statement->appendChild($doc->createElementNS(
       'urn:oasis:names:tc:SAML:1.0:assertion', 'saml:Subject'));

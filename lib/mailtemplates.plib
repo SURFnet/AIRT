@@ -197,7 +197,7 @@ function delete_template($name='') {
  * return false on failure, or the subject line on success
  */
 function get_subject($msg) {
-   $match = ereg("@SUBJECT@(.*)@ENDSUBJECT@", $msg, $regs);
+   $match = preg_match("/@SUBJECT@(.*)@ENDSUBJECT@/", $msg, $regs);
    if (!$match) {
       return false;
    }
