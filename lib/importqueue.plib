@@ -126,7 +126,7 @@ function printUsage() {
  * on failure. A descriptive error message will be loaded into $error
  * when appropriate.
  */
-function importIncident($doc, $importqueue, &$error='') {
+function importIncident($doc, $importqueue, &$error='', $verbosity=FALSE) {
    for ($count=0; $count < $importqueue->length; $count++) {
       $element = $importqueue->item($count);
       $filter = $element->getAttribute('filter');
@@ -322,7 +322,7 @@ function import($input,&$error,$verbosity=FALSE) {
    $importqueue = $doc->getElementsByTagName('queuedata');
    if ($importqueue->length > 0) {
       // importIncident returns true on successful import
-      if (importIncident($doc, $importqueue, $error) == true) {
+      if (importIncident($doc, $importqueue, $error, $verbosity) == true) {
           return 0;
       } else {
           return 1;

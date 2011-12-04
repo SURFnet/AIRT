@@ -419,7 +419,7 @@ function exportIODEF($incidentid, &$iodef, &$status='') {
 	$type = $contact->appendChild($doc->createAttribute('type'));
 	$type->value='organization';
    $name = $contact->appendChild($doc->createAttribute('name'));
-   $name->value=htmlentities(ereg_replace('/#$/', '', INCIDENTID_PREFIX));
+   $name->value=htmlentities(preg_replace('/#$/', '', INCIDENTID_PREFIX));
 
    Setup::getOption('mailenvfrom', $mailenvfrom, true);
    $u = getUserByUserId($_SESSION["userid"]);

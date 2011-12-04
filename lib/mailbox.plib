@@ -697,6 +697,11 @@ function viewMessage() {
       htmlentities($msg['sender']).'</td>'.LF;
    print '</tr>'.LF;
    print '<tr class="mail-header">'.LF;
+   print '<td class="mail-header-name">'._('Recipient').'</td>'.LF;
+   print '<td class="mail-header-content">'.htmlentities($msg['recipient']).
+    '</td>'.LF;
+   print '</tr>'.LF;
+   print '<tr class="mail-header">'.LF;
    print '<td class="mail-header-name">'._('Date').'</td>'.LF;
    print '<td class="mail-header-content">'.
       date('r', $msg['date']).'</td>'.LF;

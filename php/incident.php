@@ -126,7 +126,10 @@ switch ($action) {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
-      $ip = gethostbyname($ip);
+      // only resolve hostname to IP address
+      if (preg_match('/([0-9]\.){4}/', $ip) == 0) {
+          $ip = gethostbyname($ip);
+      }
 
       $addressrole = fetchFrom('POST','addressrole', '%d');
       if ($addressrole=='') {
@@ -141,7 +144,7 @@ switch ($action) {
       ));
 
       if (trim($ip) != '') {
-         addIpToIncident(trim($ip), $incidentid, $addressrole);
+         addIPToIncident(trim($ip), $incidentid, $addressrole);
          addIncidentComment(array(
             'comment'=>t(_('IP address %ip added to incident with role %role'),
                array(
