@@ -25,7 +25,7 @@ script_DATA = constituencies.php constituency_contacts.php export.php \
 	index.php license.php links.php login.php logout.php settings.php \
 	networks.php search.php mailtemplates.php users.php config.plib \
 	server.php importqueue.php exportqueue.php stats.php certificate.php \
-	mailbox.php config.php
+	mailbox.php config.php upload.php
 
 CLEANFILES = config.plib login.php
 DISTCLEANFILES = $(CLEANFILES)

@@ -262,6 +262,9 @@ switch (strtolower($action)) {
          }
          print '</tr>'.LF;
       }
+      print '<tr>'.LF;
+      print '<td>filter_csv</td>'.LF;
+      print '</tr>'.LF;
       print '</table>'.LF;
       break;
 
