@@ -19,7 +19,7 @@ switch ($action) {
         $out .= _('The first line of the file must be a header containing column names.').LF;
         $out .= _('One column must contain a single IP address.');
         $out .= '<p/>'.LF;
-        $out .= '<form enctype="multipart/form_data" method="POST">'.LF;
+        $out .= '<form enctype="multipart/form-data" method="POST">'.LF;
         $out .= '<table>'.LF;
         $out .= '<tr>'.LF;
         $out .= '<td>'._('File').':</td>'.LF;
@@ -38,7 +38,16 @@ switch ($action) {
         $out .= '</tr>'.LF;
         $out .= '<tr>'.LF;
         $out .= '<td>'._('CSV filter version identifier').':</td>'.LF;
-        $out .= '<td><input type="text" name="version"/></td>'.LF;
+        $out .= '<td><select name="version">'.LF;
+        $out .= '<option value="" SELECTED>&nbsp;</option>'.LF;
+        if (importqueueTemplatesGetItems($items, $error) == 0) {
+           foreach ($items as $id=>$item) {
+              if ($item['filter'] == 'filter_csv') {
+                 $out .= sprintf('<option value="%s">%s</option>'.LF,htmlentities($item['version']),  htmlentities($item['version']));
+              }
+           }
+        }
+        $out .= '</select></td>'.LF;
         $out .= '<td>'._('Set to define a preferred template for filter_csv').'</td>';
         $out .= '</tr>'.LF;
         $out .= '</table>'.LF;
@@ -67,12 +76,13 @@ switch ($action) {
         if (($version = fetchFrom('POST', 'version', '%s')) == '') {
             $version = '';
         }
-        if (strlen($delimiter) > 1) {
+        if (strlen($sep) > 1) {
             airt_msg(_('Delimiter must be one character only'));
             exit(reload());
         }
         $row = fgetcsv($f, 0, $sep);
-        if (($index = array_search($ip_label, $row)) === FALSE) {
+        array_walk($row, create_function('&$val', '$val = strtolower(trim($val));'));
+        if (($index = array_search(strtolower($ip_label), $row)) === FALSE) {
             airt_msg(_('Index field not found. aborting.'));
             exit(reload());
         }
@@ -108,8 +118,8 @@ switch ($action) {
             airt_msg($error);
             exit(reload());
         }
+        airt_msg(_('Number of imported entries: ').$count);
         reload('importqueue.php');
-
         break;
 
     default:
