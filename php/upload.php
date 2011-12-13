@@ -5,10 +5,10 @@ require_once LIBDIR.'/database.plib';
 require_once LIBDIR.'/importqueue.plib';
 
 $action = strip_tags(fetchFrom('REQUEST','action'));
-defaultTo($action,'upload');
+defaultTo($action,'select');
 
 switch ($action) {
-    case 'upload':
+    case 'select':
         pageHeader(_('File upload'), array(
             'menu'=>'incidents',
             'submenu'=>'upload'));
@@ -26,14 +26,66 @@ switch ($action) {
         $out .= '<td colspan="2"><input type="file" name="file"/><br/>';
         $out .= '</td>'.LF;
         $out .= '</tr>'.LF;
+        $out .= '</table>'.LF;
+        $out .= '<input type="hidden" name="action" value="upload"/>'.LF;
+        $out .= '<input type="submit" value="'._('Upload file').'"/>'.LF;
+        $out .= '</form>'.LF;
+        $out .= '</div><!-- block -->'.LF;
+        $out .= '</div>'.LF;
+        print $out;
+        pageFooter();
+        break;
+    
+    case 'upload':
+        if (($f = fopen($_FILES['file']['tmp_name'], 'r')) === FALSE) {
+            airt_msg(_('Could not open uploaded file'));
+            exit(reload());
+        }
+        $dst = tempnam('/tmp', 'airt_');
+        copy($_FILES['file']['tmp_name'], $dst);
+        $_SESSION['uploadfile'] = $dst;
+        $f = fopen($dst, 'r');
+        $line = fgets($f);
+        fclose($f);
+
+        /* simple logic: the delimiter resulting the largest number of fields
+         * is probably the default */
+        $max = 0;
+        $fs = '';
+        foreach (array(',', '|', ';', ':') as $d) {
+            $n = sizeof(str_getcsv($line, $d));
+            if ($n > $max) { 
+                $max = $n;
+                $fs = $d;
+            }
+        }
+
+        /* first match wins */
+        $fields=str_getcsv($line, $fs);
+        $iphdr = '';
+        foreach (array('ip', 'addr', 'ipaddr', 'ip-addr', 'ip_addr', 'srcip',
+        'src') as $label) {
+            if (array_search($label, $fields)!==FALSE) {
+                $iphdr=$label;
+                break;
+            }
+        }
+           
+        pageHeader(_('File upload'), array(
+            'menu'=>'incidents',
+            'submenu'=>'upload'));
+        $out = '<div>'.LF;
+        $out .= '<div class="block">'.LF;
+        $out .= '<form method="POST">'.LF;
+        $out .= '<table>'.LF;
         $out .= '<tr>'.LF;
         $out .= '<td>'._('Separator').':</td>'.LF;
-        $out .= '<td><input type="text" size="2" name="sep"/></td>'.LF;
+        $out .= t('<td><input type="text" size="2" name="sep" value="%s"/></td>'.LF, array('%s'=>htmlentities($fs)));
         $out .= '<td>'._('Single character field separator').'</td>'.LF;
         $out .= '</tr>'.LF;
         $out .= '<tr>'.LF;
         $out .= '<td>'._('IP address label').':</td>'.LF;
-        $out .= '<td><input type="text" name="ip_label"/></td>'.LF;
+        $out .= t('<td><input type="text" name="ip_label" value="%s"/></td>'.LF, array('%s'=>htmlentities($iphdr)));
         $out .= '<td>'._('Column name contain the IP address').'</td>'.LF;
         $out .= '</tr>'.LF;
         $out .= '<tr>'.LF;
@@ -47,7 +99,7 @@ switch ($action) {
               }
            }
         }
-        $out .= '</select></td>'.LF;
+
         $out .= '<td>'._('Set to define a preferred template for filter_csv').'</td>';
         $out .= '</tr>'.LF;
         $out .= '</table>'.LF;
@@ -57,20 +109,23 @@ switch ($action) {
         $out .= '</div><!-- block -->'.LF;
         $out .= '</div>'.LF;
         print $out;
-        pageFooter();
+
         break;
 
     case 'import':
-        if (($f = fopen($_FILES['file']['tmp_name'], 'r')) === FALSE) {
+        if (($f = fopen($_SESSION['uploadfile'], 'r')) === FALSE) {
             airt_msg(_('Could not open uploaded file'));
+            unset($_SESSION['uploadfile']);
             exit(reload());
         }
         if (($ip_label = fetchFrom('POST', 'ip_label', '%s')) == '') {
             airt_msg(_('Unable to retrieve ip_label'));
+            unset($_SESSION['uploadfile']);
             exit(reload());
         }
         if (($sep = fetchFrom('POST', 'sep', '%s')) == '') {
             airt_msg(_('Unable to retrieve separator'));
+            unset($_SESSION['uploadfile']);
             exit(reload());
         }
         if (($version = fetchFrom('POST', 'version', '%s')) == '') {
@@ -78,15 +133,19 @@ switch ($action) {
         }
         if (strlen($sep) > 1) {
             airt_msg(_('Delimiter must be one character only'));
+            unset($_SESSION['uploadfile']);
             exit(reload());
         }
         $row = fgetcsv($f, 0, $sep);
         array_walk($row, create_function('&$val', '$val = strtolower(trim($val));'));
         if (($index = array_search(strtolower($ip_label), $row)) === FALSE) {
             airt_msg(_('Index field not found. aborting.'));
+            unset($_SESSION['uploadfile']);
             exit(reload());
         }
 
+        unlink($_SESSION['uploadfile']);
+        unset($_SESSION['uploadfile']);
         $count = 0;
         $output = '<airt>'.LF;
             
