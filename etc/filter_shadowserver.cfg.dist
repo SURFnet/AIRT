@@ -1,0 +1,84 @@
+<?php
+/*
+ * AIRT: Application for Incident Response Teams
+ * Shadowserver import filter
+ * Copyright JP Velders & Xander Jansen SURFcert 2010
+
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ * shadowserver.cfg - Configuration file for shadowserver import filter
+ *
+ * $Id$
+ */
+
+// Define the maximum number of incidents per IP-addres to be imported
+define('SHADOW_INCIDENT_LIMIT',50);
+
+/* Define the site specific string to match in the Subject: header of the mail reports
+ * Subjects will look like:
+ *  Subject: [Example] Shadowserver Example.Org Sinkhole HTTP Drone Report: 2011-01-17
+ * If you want to restrict reports to Subjects containing 'Example.org' set
+ *   $SHADOW_SUBJ_MATCH='Example\.org';
+ * String should be specified as a regular expression pattern so '\w*' will match
+ * any 'word' between 'Shadowserver' and the report type.
+*/
+global $SHADOW_SUBJ_MATCH ;
+$SHADOW_SUBJ_MATCH='\w*';
+
+/* Define a few arrays to be able to filter out reports of certain types, subtypes or for certain ASNs
+ * Should be 'global' array definitions. If not defined (outcommented) no filtering will be done.
+ * Initial distribution configuration has the arrays outcommented, please remove the // and change
+ * the initial example values to activate filtering.
+ */
+global $SHADOW_ALLOWED_ASN, $SHADOW_UNWANTED_TYPE, $SHADOW_UNWANTED_SUBTYPE ;
+// $SHADOW_ALLOWED_ASN = array("1101","1103");
+// $SHADOW_UNWANTED_TYPE = array('cc_ip','spam_url');
+// $SHADOW_UNWANTED_SUBTYPE = array('Mariposa.A','spam');
+
+/* Define arrays containing header keys to be used for certain variables.
+ * Each tuple contains a report type and a header key.
+ * The default (i.e. most commony used) header key to be used is defined by type '*'
+ * NOTE, keynames should be all lower case
+ */
+global $SHADOW_ASN_KEY, $SHADOW_IP_KEY, $SHADOW_SUBTYPE_KEY, $SHADOW_USE_SUBTYPE ;
+// What key is used for AS number?
+$SHADOW_ASN_KEY = array(
+      'proxy' => 'pxy asn',
+      '*' => 'asn'
+      );
+
+// Set key containing IP-address
+$SHADOW_IP_KEY = array(
+      'drone' => "drone",
+      'cc_ip' => "ip address",
+      'proxy' => "pxy",
+      '*' => "ip"
+      );
+
+// Set key containing subtype
+$SHADOW_SUBTYPE_KEY = array(
+      'sinkhole_http_drone' => "type",
+      'sinkhole_http_referer' => "type",
+      'drone' => "infection",
+      'botnet_drone' => "infection",
+      '*' => "Unspecified"
+      );
+
+// Set to TRUE to enable the use of (defined) subtypes in the template selection
+// When enabled (TRUE) the type/version strings will contain a :subtype parameter.
+$SHADOW_USE_SUBTYPE = FALSE ;
+
+?>
+
