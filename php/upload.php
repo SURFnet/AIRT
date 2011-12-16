@@ -62,6 +62,7 @@ switch ($action) {
 
         /* first match wins */
         $fields=str_getcsv($line, $fs);
+        array_walk($fields, create_function('&$val', '$val = strtolower(trim($val));'));
         $iphdr = '';
         foreach (array('ip', 'addr', 'ipaddr', 'ip-addr', 'ip_addr', 'srcip',
         'src') as $label) {
@@ -91,7 +92,7 @@ switch ($action) {
         $out .= '<tr>'.LF;
         $out .= '<td>'._('CSV filter version identifier').':</td>'.LF;
         $out .= '<td><select name="version">'.LF;
-        $out .= '<option value="" SELECTED>&nbsp;</option>'.LF;
+        $out .= '<option value="" SELECTED>'._('None').'</option>'.LF;
         if (importqueueTemplatesGetItems($items, $error) == 0) {
            foreach ($items as $id=>$item) {
               if ($item['filter'] == 'filter_csv') {
@@ -120,11 +121,13 @@ switch ($action) {
         }
         if (($ip_label = fetchFrom('POST', 'ip_label', '%s')) == '') {
             airt_msg(_('Unable to retrieve ip_label'));
+            unlink($_SESSION['uploadfile']);
             unset($_SESSION['uploadfile']);
             exit(reload());
         }
         if (($sep = fetchFrom('POST', 'sep', '%s')) == '') {
             airt_msg(_('Unable to retrieve separator'));
+            unlink($_SESSION['uploadfile']);
             unset($_SESSION['uploadfile']);
             exit(reload());
         }
@@ -133,6 +136,7 @@ switch ($action) {
         }
         if (strlen($sep) > 1) {
             airt_msg(_('Delimiter must be one character only'));
+            unlink($_SESSION['uploadfile']);
             unset($_SESSION['uploadfile']);
             exit(reload());
         }
@@ -140,6 +144,7 @@ switch ($action) {
         array_walk($row, create_function('&$val', '$val = strtolower(trim($val));'));
         if (($index = array_search(strtolower($ip_label), $row)) === FALSE) {
             airt_msg(_('Index field not found. aborting.'));
+            unlink($_SESSION['uploadfile']);
             unset($_SESSION['uploadfile']);
             exit(reload());
         }
