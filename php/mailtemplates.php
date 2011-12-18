@@ -383,7 +383,8 @@ special variables in the template:').'<p>'.LF;
 
       /* will send via Mail class */
       $mail_params = array(
-         'sendmail_args' => $envfrom
+         'sendmail_args' => $envfrom,
+         'sendmail_path' => $_SETTINGS['sendmail'],
       );
 
       $msg_params = array();
@@ -463,10 +464,16 @@ special variables in the template:').'<p>'.LF;
          $body = preg_replace("/@AIRT-SIGNATURE@/", $sig, $body);
       }
 
-      $mail = &Mail::factory('smtp', $mail_params);
+      $mail = Mail::factory('sendmail', $mail_params);
+      if ($mail !== TRUE && PEAR::isError($mail)) {
+          airt_msg(_("Error creating mail relay!"). ' - '.$mail->getMessage());
+          exit(reload());
+      }
       $hdrs = array_merge($hdrs, $m['headers']);
-      if (! $mail->send($mailto, $hdrs, $body)) {
-         die(_("Error sending message!"));
+      $send = $mail->send($mailto, $hdrs, $body);
+      if ($send !== TRUE && PEAR::isError($send)) {
+          airt_msg(_("Error sendmail mail!"). ' - '.$send->getMessage());
+          exit(reload());
       }
 
       addIncidentComment(array(

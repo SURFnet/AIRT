@@ -87,6 +87,9 @@ function setup() {
    // additions are done
    $SETTINGS['custom_functions'] = $SETTINGS['etcdir'].'/customfunctions.plib';
 
+   // full path to sendmail (or compatible)
+   $SETTINGS['sendmail'] = '/usr/sbin/sendmail';
+
    /*********************************************************
     *
     * Overrides for multiple hosts
