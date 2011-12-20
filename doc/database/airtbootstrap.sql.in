@@ -195,6 +195,7 @@ insert into settings values ('session_timeout', '3600');
 insert into settings values ('archiveage', '432000');
 insert into settings values ('correlationage', '172800');
 insert into settings values ('x509client', '1');
+insert into settings (key) values ('bubblesize');
 --
 -- Create the database schema version record.
 --

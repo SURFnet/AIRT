@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-12-04 13:00-0500\n"
+"POT-Creation-Date: 2011-12-13 06:12-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2576,4 +2576,73 @@ msgid "Email address %e already in use."
 msgstr ""
 
 msgid "Login %l already in use by email address %e."
+msgstr ""
+
+msgid "Error creating mail relay!"
+msgstr ""
+
+msgid "Error sendmail mail!"
+msgstr ""
+
+msgid "File upload"
+msgstr ""
+
+msgid "Upload custom CSV"
+msgstr ""
+
+msgid "Please select a delimited file."
+msgstr ""
+
+msgid "The first line of the file must be a header containing column names."
+msgstr ""
+
+msgid "One column must contain a single IP address."
+msgstr ""
+
+msgid "File"
+msgstr ""
+
+msgid "Upload file"
+msgstr ""
+
+msgid "Could not open uploaded file"
+msgstr ""
+
+msgid "Separator"
+msgstr ""
+
+msgid "Single character field separator"
+msgstr ""
+
+msgid "IP address label"
+msgstr ""
+
+msgid "Column name contain the IP address"
+msgstr ""
+
+msgid "CSV filter version identifier"
+msgstr ""
+
+msgid "Set to define a preferred template for filter_csv"
+msgstr ""
+
+msgid "Send to import queue"
+msgstr ""
+
+msgid "Unable to retrieve ip_label"
+msgstr ""
+
+msgid "Unable to retrieve separator"
+msgstr ""
+
+msgid "Delimiter must be one character only"
+msgstr ""
+
+msgid "Index field not found. aborting."
+msgstr ""
+
+msgid "Number of imported entries: "
+msgstr ""
+
+msgid "Batch upload"
 msgstr ""

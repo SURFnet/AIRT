@@ -35,7 +35,10 @@ messages: FORCE
 	  ../php/*.php ../lib/*.plib;\
 	done
 
-%.mo: %.po
+en_US.utf8.mo: en_US.utf8.po
+	msgfmt -o $@ $<
+
+nl_NL.utf8.mo: nl_NL.utf8.po
 	msgfmt -o $@ $<
 
 FORCE:

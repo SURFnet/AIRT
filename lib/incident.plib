@@ -2088,6 +2088,7 @@ function listIncidents() {
  * Front-end code for incident details screen
  */
 function incidentDetails() {
+   airt_profile("init incident details");
    Setup::getOption('bubblesize', $maxbubblesize, true);
 
    $address = strip_tags(fetchFrom('SESSION','active_ip'));
@@ -2109,11 +2110,13 @@ function incidentDetails() {
    }
    $_SESSION['incidentid'] = $incidentid;
 
+   airt_profile('Incident details page header');
    pageHeader(t(_('Incident %n'), array(
       '%n'=>normalize_incidentid($incidentid))), array(
        'menu'=>'incidents', 
        'submenu'=>'incidents'));
 
+   airt_profile('Incident details right align');
    $output = '<div class="right">'.LF;
    if (getIncidentStatusDescr($incident['status']) == _('closed') ||
        (getIncidentStatusDescr($incident['status']) == _('stalled'))) {
@@ -2137,6 +2140,7 @@ function incidentDetails() {
    $output .= '<div id="incident-details">'.LF.LF;
    $output .= '<div class="column">'.LF.LF;
 
+   airt_profile('Incident details basic block');
    $output .= '<div class="block">'.LF;
    $output .= t('<form action="%u/incident.php" method="post">'.LF, array(
       '%u'=>BASEURL));
@@ -2187,7 +2191,7 @@ function incidentDetails() {
    
 
    
-   
+   airt_profile('Incident details history');
    $output .= '<div class="block" id="history">'.LF;
    $output .= '<h3>'._('History').'</h3>'.LF;
    generateEvent('historyshowpre', array('incidentid'=>$incidentid));
@@ -2209,6 +2213,7 @@ function incidentDetails() {
 
    $output .= '<div class="column">'.LF;
 
+   airt_profile('Incident details mail');
    $output .= '<div class="block">'.LF;
    $output .= '<h3>Send mail</h3>'.LF;
    $output .= t('<form action="%u/incident.php" method="GET">'.LF, array(
@@ -2223,6 +2228,7 @@ function incidentDetails() {
    $output .= '</div>'.LF;
    $output .= '</block>'.LF;
    
+   airt_profile('Incident details external');
    $output .= '<div class="block">'.LF;
    $output .= '<h3>'._('External identifiers').'</h3>'.LF;
    $output .= '<table>'.LF;
@@ -2250,6 +2256,7 @@ function incidentDetails() {
 
    $output .= '</div><!-- block -->'.LF;
 
+   airt_profile('Incident details IPs');
    $output .= '<div class="block">'.LF;
    $output .= '<h3>'._('IP addresses').'</h3>'.LF;
    $output .= '<table cellpadding="4">'.LF;
@@ -2315,6 +2322,7 @@ function incidentDetails() {
    $output .= '</form>'.LF;
    $output .= '</div><!-- block -->'.LF;
    
+   airt_profile('Incident details E-mail');
    $output .= '<div class="block">'.LF; 
    $output .= '<h3>'._('E-mail messages').'</h3>'.LF;
    if (fetchEmailsForIncident($incident['incidentid'], $msgs, $err) == false){
@@ -2370,6 +2378,7 @@ function incidentDetails() {
    }
    $output .= '</div><!-- block -->'.LF;
 
+   airt_profile('Incident details attachments');
    $output .= '<div class="block">'.LF;
    $output .= '<h3>'._('Attachments').'</h3>'.LF;
    if (fetchAttachments($incident['incidentid'], $attachments, $error) ==
@@ -2402,6 +2411,7 @@ function incidentDetails() {
    $output .= '</div><!-- block -->'.LF;
    
    
+   airt_profile('Incident details users');
    $output .= '<div class="block">'.LF;
    $output .= '<h3>'._('Users').'</h3>'.LF;
    $output .= t('<form action="%u/incident.php" method="POST">'.LF, array(

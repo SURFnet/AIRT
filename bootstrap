@@ -22,6 +22,9 @@ test -f acinclude.m4 || {
     elif test -f /usr/share/autoconf-archive/ac_define_dir.m4
     then
         ln -s /usr/share/autoconf-archive/ac_define_dir.m4 acinclude.m4
+    elif test -f /usr/share/aclocal/ax_define_dir.m4
+    then
+        ln  -s /usr/share/aclocal/ax_define_dir.m4 acinclude.m4
     else
         cat <<EOT
 You need the autoconf-archive Debian package, version >= 20031029-1.

@@ -33,12 +33,12 @@ require_once 'Mail/mimeDecode.php';
 // In case the shadowserver filter configuration isn't in order, there is no
 // reasons to continue. End the attempt to load the filter with a loud
 // bang.
-if (!defined('ETCDIR') || !file_exists(ETCDIR.'/shadowserver.cfg')) {
-   print("The shadowserver filter needs a configuration file. ".ETCDIR."/shadowserver.cfg not found.\n");
+if (!defined('ETCDIR') || !file_exists(ETCDIR.'/filter_shadowserver.cfg')) {
+   print("The shadowserver filter needs a configuration file.  ".ETCDIR."/filter_shadowserver.cfg not found.\n");
    exit;
 }
 
-require_once ETCDIR.'/shadowserver.cfg';
+require_once ETCDIR.'/filter_shadowserver.cfg';
 
 function filter_shadowserver_getVersion() {
         $rev = explode(' ','$Rev$');

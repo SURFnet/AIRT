@@ -1,3 +1,14 @@
+2011-12-24
+* Various bug fixes
+* Added user bubbles
+* Maximum bubble size is now configurable via global options
+* New event handler when adding external events
+* Ability to disable mail templates
+* Compatibility fixes for newer PHP versions
+* Mail details now include the recipient of the email
+* Batch upload of delimited files containing incident data implemented
+* Mail now sent via sendmail (or compatible), rather than via direct smtp
+
 2011-04-15
 * Mailbox updates now need to run from cron by calling the
   ~/bin/airt_schedule_mailbox_update script. Make sure to include
