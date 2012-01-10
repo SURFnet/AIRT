@@ -26,6 +26,7 @@ require_once LIBDIR.'/database.plib';
 require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/constituency.plib';
 require_once LIBDIR.'/incident.plib';
+require_once LIBDIR.'/profiler.plib';
 
 if (array_key_exists('action', $_REQUEST)) $action=$_REQUEST['action'];
 else $action='none';
@@ -83,50 +84,61 @@ function showMatrix($start, $end) {
    $out .= '<table class="horizontal">'.LF;
    $out .= '<tr>'.LF;
    $out .= '<td>&nbsp;</td>'.LF;
-   foreach ($types as $t=>$label) {
-      $out .= t('<th>%t</th>'.LF, array('%t'=>$label));
-      $typesum[$label] = 0;
+   $type_sums = array();
+   foreach ($types as $t_id=>$t_label) {
+       $out .= t('<td>%l</td>'.LF, array('%l'=>htmlentities($t_label)));
+       $type_sums[$t_label] = 0;
    }
-   $out .= '<td><I>'._('Sum').'</I></td>'.LF;
-   $out .= '</tr>'.LF;
-   foreach ($constituencies as $consid=>$c) {
-      $constsum=0;
-      $out .= '<tr>'.LF;
-      $out .= t('<th>%c</th>'.LF, array('%c'=>$c['label']));
-      foreach ($types as $id=>$label) {
-         $res = db_query(q('SELECT COUNT(distinct i.id) AS count
-            FROM incidents i
-            LEFT JOIN incident_addresses a ON (i.id = a.incident)
-            WHERE type = %type
-            AND a.constituency = %constituency
-            AND i.created BETWEEN \'%start\' AND \'%stop\'', array(
-               '%type'=>$id, 
-               '%constituency'=>$consid,
-               '%start'=>Date('d-M-Y', $start),
-               '%stop'=>Date('d-M-Y', $end))));
-         $row = db_fetch_next($res);
-         $out .= '<td>'.$row['count'].'</td>';
-         $typesum[$label] += $row['count'];
-         $constsum += $row['count'];
-         db_free_result($res);
-      }
-      $out .= '<td><I>'.$constsum.'</I></td>'.LF;
-      $out .= '</tr>'.LF;
+   $out .= '</tr>';
+
+   if (($res = db_query(q('
+       SELECT c.label AS cons_l, t.label AS type_l, COUNT(DISTINCT i.id) AS c
+           FROM constituencies c, incident_types t, incidents i,
+                incident_addresses a
+          WHERE i.id = a.incident
+            AND a.constituency = c.id
+            AND i.type = t.id
+            AND i.created BETWEEN \'%start\' AND \'%end\'
+       GROUP BY c.label, t.label
+       ORDER BY c.label, t.label', array(
+           '%start' => Date('d-M-Y', $start),
+           '%end'  => Date('d-M-Y', $end))))) === FALSE) {
+       airt_msg('ERROR: '.db_error_message());
+       exit(reload());
+   }
+   $data = array();
+   while (($row = db_fetch_next($res)) !== FALSE) {
+       $cons = $row['cons_l'];
+       $type = $row['type_l'];
+       $data[$cons][$type] = $row['c'];
+   }
+   foreach ($data as $cons=>$counts) {
+       $rowsum = 0;
+       $out .= '<tr>'.LF;
+       $out .= t('<td>%c</td>'.LF, array('%c'=>htmlentities($cons)));
+       foreach ($types as $t_id => $t_label) {
+	   if ( array_key_exists($t_label, $counts) ) {
+               $n = $counts[$t_label];
+               $type_sums[$t_label] += $n;
+           } else {
+	      $n = 0;
+           }
+	   $out .= t('<td>%n</td>'.LF, array('%n'=>htmlentities($n)));
+           $rowsum += $n;
+       }
+       $out .= t('<td>%s</td>'.LF, array('%s'=>$rowsum));
+       $out .= '</tr>'.LF;
    }
    $out .= '<tr>'.LF;
-   $out .= '<td>'._('Sum').'</td>'.LF;
+   $out .= '<td>&nbsp;</td>'.LF;
    $sum = 0;
-   foreach ($types as $id=>$label) {
-      $out .= '<td><I>'.$typesum[$label].'</I></td>'.LF;
-      $sum += $typesum[$label];
+   foreach ($types as $t_id => $t_label) {
+      $sum += $type_sums[$t_label];
+      $out .= t('<td>%s</td>'.LF, array('%s'=>htmlentities($type_sums[$t_label])));
    }
-   $out .= '<td><I><B>'.$sum.'</B></I></td>'.LF;
-   $out .= '<tr><td/>'.LF;
-   foreach ($types as $t=>$label) {
-      $out .= t('<th>%t</th>'.LF, array('%t'=>$label));
-      $typesum[$label] = 0;
-   }
+   $out .= t('<td>%s</td>'.LF, array('%s'=>htmlentities($sum)));
    $out .= '</tr>'.LF;
+
    $out .= '</table>'.LF;
 
    $out .= '<H2>'._('Incidents without IP addresses').'</h2>';
