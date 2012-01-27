@@ -94,7 +94,6 @@ function filter_contacts($input, &$output, $verbosity=TRUE) {
      $output .=   '   </contactData>';
      $output .=   '</airt>';
 
-print_r($output);
      v_print($output, $verbosity);
 }
 ?>
