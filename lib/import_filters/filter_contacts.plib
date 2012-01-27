@@ -1,0 +1,100 @@
+<?php
+// vim:syn=php tabstop=3 shiftwidth=3
+
+/* Import queue filter function for reports in IODEF format
+ * Parameters:
+ * 	input		= XML IODEF document complient with `draf-ietf-inch-iodef-08.txt`
+ * 	output		= The string variable to write the XML output to
+ * 	verbosity	= Optionally, boolean; TRUE = verbose output to STDOUT.
+ * Returns:
+ * 
+ */
+
+function filter_contacts_getVersion() {
+	$rev = explode(' ','$Rev: 1283 $');
+	return $rev[1];
+}
+
+function filter_contacts($input, &$output, $verbosity=TRUE) {
+    /* data format:
+     * 1 sender line
+     * 1 or more constituency lines
+     * 0 or more network lines
+     * 0 or more contact lines
+     * 
+     * constituency line:
+     *    constituency,my constituency name
+     *
+     * network line:
+     *    network,192.168.0.0,255.255.0.0
+     * 
+     * contact line:
+     *    contact,Demo User,demo@example.com,516-717-1665
+     */
+     $contacts=array();
+     $constituency='';
+     $networks=array();
+     $sender='';
+     foreach (explode("\n", $input) as $line) {
+        if (trim($line)=='') continue;
+        $data = str_getcsv($line);
+        switch ($data[0]) {
+            case 'constituency':
+                $constituency = $data[1];
+                break;
+            case 'contact':
+                if (isset($data[3])) {
+                    $phone=$data[3];
+                } else {
+                    $phone='';
+                }
+                $contacts[] = array('name'=>$data[1], 'email'=>$data[2], 'phone'=>$phone);
+                break;
+            case 'network':
+                $networks[] = array('address'=>$data[1], 'mask'=>$data[2]);
+                break;
+            case 'sender':
+                $sender = $data[1];
+                break;
+            default:
+                v_print("Ignoring: $line", $verbosity);
+        }
+     }
+     if ($sender == '') {
+            print("Missing sender line");
+            exit();
+     }
+     $output = '<airt>';
+     $output .= t('  <contactData filter="contacts" version="%v">',
+        array('%v'=>filter_contacts_getVersion()));
+     $output .= t('    <sender>%s</sender>',
+        array('%s'=>htmlentities($sender)));
+     $output .= t('    <constituency>%c</constituency>', array(
+        '%c'=>htmlentities($constituency)));
+     foreach ($contacts as $contact) {
+         $output .=   '        <contact>';
+         $output .= t('           <name>%n</name>',array(
+            '%n'=>htmlentities($contact['name'])));
+         $output .= t('           <email>%e</email>', array(
+            '%e'=>htmlentities($contact['email'])));
+         if (!empty($contact['phone'])) {
+             $output .= t('           <phone>%p</phone>', array(
+                '%p'=>htmlentities($contact['phone'])));
+         }
+         $output .=   '        </contact>';
+     }
+     foreach ($networks as $network) {
+         $output .=   '        <network>';
+         $output .= t('            <address>%a</address>',array(
+            '%a'=>htmlentities($network['address'])));
+         $output .= t('        <netmask>%m</netmask>', array(
+            '%m'=>htmlentities($network['mask'])));
+         $output .=   '        </network>';
+     }
+     $output .=   '   </contactData>';
+     $output .=   '</airt>';
+
+print_r($output);
+     v_print($output, $verbosity);
+}
+?>
