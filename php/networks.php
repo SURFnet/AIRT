@@ -160,19 +160,25 @@ switch ($action) {
       }
       $network = strip_tags(fetchFrom('REQUEST', 'network', '%s'));
       if (empty($network)) {
-         die(_('Missing parameter value in ').__LINE__);
+          airt_msg(_('Network cannot be empty. Must contain a valid IPv4 address.'));
+          exit(reload());
       }
       $netmask = strip_tags(fetchFrom('REQUEST', 'netmask', '%s'));
-      if (empty($netmask)) {
-         die(_('Missing parameter value in ').__LINE__);
+      if (preg_match('/^(\/\d+$)|([0-9.]{4}$)/', $netmask) == 0) {
+         airt_msg(_('Invalid format for netmask. Valid formats are a.b.c.d, or /cidr.'.
+            'e.g. 255.255.0.0 or /16'));
+         exit(reload());
       }
       $label = strip_tags(fetchFrom('REQUEST', 'label', '%s'));
       if (empty($label)) {
-         die(_('Missing parameter value in ').__LINE__);
+         airt_msg(_('Label may not be empty.'));
+         exit(reload());
       }
       $constituency = strip_tags(fetchFrom('REQUEST', 'constituency', '%d'));
       if (empty($constituency)) {
-         die(_('Missing parameter value in ').__LINE__);
+         airt_msg(_('Constituency may not be empty.'));
+         exit(reload());
+         
       }
       if ($action=="add") {
          if (addNetwork(array(
