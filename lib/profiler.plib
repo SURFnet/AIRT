@@ -1,6 +1,6 @@
 <?php
 global $f;
-define('PROFILING', false);
+if(!defined('PROFILING')) { define('PROFILING', false); }
 
 function airt_profile($msg) {
    global $f;
