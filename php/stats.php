@@ -36,11 +36,17 @@ else $action='none';
  * @return A Unix timestamp containing the start date, or -1 in case of failure
  */
 function getStartDate() {
-   $year = fetchFrom('REQUEST', 'start_year', '%d');
-   $month = fetchFrom('REQUEST', 'start_month', '%d');
-   $day = fetchFrom('REQUEST', 'start_day', '%d');
+   $startdate = fetchFrom('REQUEST', 'startdate', '%s');
+   $m = preg_match('/^\d{4}-\d{2}-\d{2}$/', $startdate);
+   if (empty($startdate) || $m == 0) {
+       $year = fetchFrom('REQUEST', 'start_year', '%d');
+       $month = fetchFrom('REQUEST', 'start_month', '%d');
+       $day = fetchFrom('REQUEST', 'start_day', '%d');
 
-   $start = strtotime(sprintf('%02d/%02d/%04d', $month, $day, $year));
+       $start = strtotime(sprintf('%02d/%02d/%04d', $month, $day, $year));
+   } else {
+       $start = strtotime($startdate);
+   }
    if ($start == FALSE) {
       return -1;
    } else {
@@ -51,12 +57,18 @@ function getStartDate() {
 /** Extract the end date from the input form.
  * @return A Unix timestamp containing the end date, or -1 in case of failure
  */
-function getEndDate() {
-   $year = fetchFrom('REQUEST', 'stop_year', '%d');
-   $month = fetchFrom('REQUEST', 'stop_month', '%d');
-   $day = fetchFrom('REQUEST', 'stop_day', '%d');
+function getStopDate() {
+   $stopdate = fetchFrom('REQUEST', 'stopdate', '%s');
+   $m = preg_match('/^\d{4}-\d{2}-\d{2}$/', $stopdate);
+   if (empty($stopdate) || $m == 0) {
+       $year = fetchFrom('REQUEST', 'stop_year', '%d');
+       $month = fetchFrom('REQUEST', 'stop_month', '%d');
+       $day = fetchFrom('REQUEST', 'stop_day', '%d');
 
-   $end = strtotime(sprintf('%02d/%02d/%04d', $month, $day, $year));
+       $end = strtotime(sprintf('%02d/%02d/%04d', $month, $day, $year));
+   } else {
+       $end = strtotime($stopdate);
+   }
    if ($end == FALSE) {
       return -1;
    } else {
@@ -69,17 +81,49 @@ function getEndDate() {
  * incident types horizontally. The values of the cells contain the number
  * of incidents in the reporting period.
  */
-function showMatrix($start, $end) {
+function showMatrix($start, $stop, $showempty) {
+   global $db;
+
    $constituencies = getConstituencies();
    $types = getIncidentTypes();
+   $startdate = Date('Y-m-d', $start);
+   $stopdate = Date('Y-m-d', $stop);
+   $data = array();
 
-   $out = '<H2>'._('Amount of incidents per incident type per Constituency matrix').'</H2>';
+   /* Initialize array with 0 values if the user wants to see 
+    * them. 
+    */
+   if ($showempty == 'on') {
+       foreach ($constituencies as $c) {
+           foreach ($types as $t) {
+               $data[$c['label']][$t] = 0;
+           }
+       }
+   }
+
+   $out = '<form method="post">'.LF;
+   $out .= t('<input type="checkbox" name="showempty" %s/>'.LF, array(
+      '%s' => ($showempty == 'on' ? 'CHECKED' : '')
+   ));
+   $out .= _('Show empty lines');
+   $out .= t('<input type="hidden" name="startdate" value="%s"/>'.LF, array(
+      '%s' => urlencode($startdate)
+   ));
+   $out .= t('<input type="hidden" name="stopdate" value="%s"/>'.LF, array(
+      '%s' => urlencode($stopdate)
+   ));
+   $out .= '<input type="hidden" name="report" value="1"/>'.LF;
+   $out .= '<input type="hidden" name="action" value="query"/>'.LF;
+   $out .= '<input type="submit" value="Go"/>'.LF;
+   $out .= '</form>'.LF;
+
+   $out .= '<H2>'._('Amount of incidents per incident type per Constituency matrix').'</H2>';
 
    $out .= '<p>';
    $out .= _('Report generated on ').date('r').'.<br/>'.LF;
-   $out .= t(_('Printing incidents from %startdate until %enddate.<br/>'), array(
-      '%startdate'=>Date('d-M-Y', $start),
-      '%enddate'=>Date('d-M-Y', $end)));
+   $out .= t(_('Printing incidents from %startdate until %stopdate.<br/>'), array(
+      '%startdate'=>htmlentities($startdate),
+      '%stopdate'=>htmlentities($stopdate)));
    $out .= '</p>'.LF;
    $out .= '<table class="horizontal">'.LF;
    $out .= '<tr>'.LF;
@@ -89,24 +133,28 @@ function showMatrix($start, $end) {
        $out .= t('<td>%l</td>'.LF, array('%l'=>htmlentities($t_label)));
        $type_sums[$t_label] = 0;
    }
-   $out .= '</tr>';
+   $out .= '<td>'._('Sum').'</td>'.LF;
+   $out .= '</tr>'.LF;
 
-   if (($res = db_query(q('
+   $res = pg_query_params($db, "
        SELECT c.label AS cons_l, t.label AS type_l, COUNT(DISTINCT i.id) AS c
            FROM constituencies c, incident_types t, incidents i,
                 incident_addresses a
           WHERE i.id = a.incident
             AND a.constituency = c.id
             AND i.type = t.id
-            AND i.created BETWEEN \'%start\' AND \'%end\'
+            AND i.created >= to_timestamp($1, 'YYYY-MM-DD') 
+            AND i.created <= to_timestamp($2, 'YYYY-MM-DD')
        GROUP BY c.label, t.label
-       ORDER BY c.label, t.label', array(
-           '%start' => Date('d-M-Y', $start),
-           '%end'  => Date('d-M-Y', $end))))) === FALSE) {
-       airt_msg('ERROR: '.db_error_message());
+       ORDER BY c.label, t.label", array(
+           $startdate,
+           $stopdate)
+   );
+   if ($res === FALSE) {
+       airt_msg(_('Error in').' stats.php:'.__LINE__);
+       airt_msg(pg_last_error());
        exit(reload());
    }
-   $data = array();
    while (($row = db_fetch_next($res)) !== FALSE) {
        $cons = $row['cons_l'];
        $type = $row['type_l'];
@@ -117,20 +165,20 @@ function showMatrix($start, $end) {
        $out .= '<tr>'.LF;
        $out .= t('<td>%c</td>'.LF, array('%c'=>htmlentities($cons)));
        foreach ($types as $t_id => $t_label) {
-	   if ( array_key_exists($t_label, $counts) ) {
+           if ( array_key_exists($t_label, $counts) ) {
                $n = $counts[$t_label];
                $type_sums[$t_label] += $n;
            } else {
-	      $n = 0;
+              $n = 0;
            }
-	   $out .= t('<td>%n</td>'.LF, array('%n'=>htmlentities($n)));
+           $out .= t('<td>%n</td>'.LF, array('%n'=>htmlentities($n)));
            $rowsum += $n;
        }
        $out .= t('<td>%s</td>'.LF, array('%s'=>$rowsum));
        $out .= '</tr>'.LF;
    }
    $out .= '<tr>'.LF;
-   $out .= '<td>&nbsp;</td>'.LF;
+   $out .= '<td>'._('Sum').'</td>'.LF;
    $sum = 0;
    foreach ($types as $t_id => $t_label) {
       $sum += $type_sums[$t_label];
@@ -142,14 +190,21 @@ function showMatrix($start, $end) {
    $out .= '</table>'.LF;
 
    $out .= '<H2>'._('Incidents without IP addresses').'</h2>';
-   $res = db_query(q('SELECT i.id
+   $res = pg_query_params("SELECT i.id
       FROM incidents i
       LEFT JOIN incident_addresses a ON i.id = a.incident
-      WHERE i.created BETWEEN \'%start\' AND \'%stop\'
+      WHERE i.created >= to_timestamp($1, 'YYYY-MM-DD') 
+        AND i.created <= to_timestamp($2, 'YYYY-MM-DD')
       GROUP BY i.id
-      HAVING COUNT (ip) = 0', array(
-         '%start'=>Date('d-M-Y', $start),
-         '%stop'=>Date('d-M-Y', $end))));
+      HAVING COUNT (ip) = 0", array(
+         $startdate,
+         $stopdate)
+   );
+   if ($res === FALSE) {
+       airt_msg(t_('Error in').' stats.php:'.__LINE__);
+       exit(reload());
+   }
+
    $out .= '<table class="horizontal">'.LF;
    $out .= '<tr>'.LF;
    $out .= '   <th>'._('Incident ID').'</th>'.LF;
@@ -161,10 +216,10 @@ function showMatrix($start, $end) {
    while ($row = db_fetch_next($res)) {
       $i = getIncident($row['id']);
       $out .= '<tr>'.LF;
-      $out .= '<td>'.normalize_incidentid($row['id']).'</td>'.LF;
-      $out .= '<td>'.getIncidentTypeLabelByID($i['type']).'</td>'.LF;
-      $out .= '<td>'.getIncidentStatusLabelByID($i['status']).'</td>'.LF;
-      $out .= '<td>'.getIncidentStateLabelByID($i['status']).'</td>'.LF;
+      $out .= '<td>'.htmlentities(normalize_incidentid($row['id'])).'</td>'.LF;
+      $out .= '<td>'.htmlentities(getIncidentTypeLabelByID($i['type'])).'</td>'.LF;
+      $out .= '<td>'.htmlentities(getIncidentStatusLabelByID($i['status'])).'</td>'.LF;
+      $out .= '<td>'.htmlentities(getIncidentStateLabelByID($i['status'])).'</td>'.LF;
       $out .= '<td>'.($i['incidentdate'] == 0 ? _('Unknown') : date('d-M-Y H:i:s', $i['incidentdate'])).'</td>'.LF;
       $out .= '</tr>'.LF;
    }
@@ -256,9 +311,9 @@ report.').'</P>';
 
 function printreport1($start, $stop) {
    $startdate = date('r', $start);
-   $enddate = date('r', $stop);
-   $out = '<p>'._("Statistics from $startdate to $enddate.").'</p>';
-   showmatrix($start, $stop);
+   $stopdate = date('r', $stop);
+   $showempty = fetchFrom('REQUEST', 'showempty');
+   showMatrix($start, $stop, $showempty);
    pageFooter();
    return;
 }
@@ -317,16 +372,13 @@ switch ($action) {
     printStatsInputForm();
       break;
    case _('Show statistics'):
+   case 'query':
       pageHeader('AIRT statistics');
       $start = getStartDate();
-      $stop = getEndDate();
-      if ($start == -1) {
-         print 'Invalid date format of start date.';
-         break;
-      }
-      if ($stop == -1) {
-         print 'Invalid date format of end date.';
-         break;
+      $stop = getStopDate();
+      if ($start == -1 || $stop == -1) {
+         airt_msg(_('Invalid date format.'));
+         exit(reload());
       }
 
       switch (fetchFrom('POST', 'report', '%d')) {
@@ -345,6 +397,7 @@ switch ($action) {
       break;
 
    default:
-      die('Unknown action');
+      airt_msg(_('Unknown action'));
+      exit(reload());
 }
 ?>
