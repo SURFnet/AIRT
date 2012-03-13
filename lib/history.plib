@@ -35,10 +35,10 @@ function addIncidentComment($params = array(), &$error='') {
       $error = _('Missing required parameter: comment in ').__LINE__;
       return false;
    }
-   if (!array_key_exists('incidentid', $params)) {
+   if (!array_key_exists('incidentid', $params) && AIRT_RUN_MODE != 'CLI' ) {
       $params['incidentid'] = $_SESSION["incidentid"];
    }
-   if (!array_key_exists('userid', $params)) {
+   if (!array_key_exists('userid', $params) && AIRT_RUN_MODE != 'CLI' ) {
       $params['userid'] = $_SESSION["userid"];
    }
    if (!is_numeric($params['incidentid'])) {
