@@ -32,7 +32,7 @@ require_once LIBDIR.'/importqueue.plib';
 define('LF',"\n");
 
 // Find out whether we run as web server module or as CLI interpreter.
-if ($_SERVER['DOCUMENT_ROOT']=='') {
+if ($_SERVER['DOCUMENT_ROOT']=='' || PHP_SAPI == 'cli') {
    // We run as CLI.
    define('AIRT_RUN_MODE','CLI');
 } else {
