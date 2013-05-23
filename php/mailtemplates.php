@@ -271,8 +271,12 @@ special variables in the template:').'<p>'.LF;
       /* Fetch override */
       $override = fetchFrom('REQUEST', 'override', '%d');
       defaultTo($override, 0);
-
-      prepare_message($template, $override, $incidentids, $to);
+       
+      $autosend=fetchFrom('REQUEST', 'autosend');
+      if (array_search($autosend, array('yes', 'no')) === FALSE) 
+          $autosend = 'no'; // whitelist enforcement
+      defaultTo($autosend, 'no');
+      prepare_message($template, $override, $incidentids, $autosend, $to);
 
       break;
 
@@ -336,6 +340,12 @@ special variables in the template:').'<p>'.LF;
       defaultTo($replyTo, '');
       $template = strip_tags(fetchFrom('POST', 'template'));
 
+      $autosend = fetchFrom('POST', 'autosend');
+      defaultTo($autosend, 'no');
+      if (array_search($autosend, array('yes', 'no')) === FALSE) {
+         $autosend = 'no';
+      }
+
       /* prevent sending bogus stuff */
       if (trim($to) == '') {
          die(_('Empty recipient?'));
@@ -384,7 +394,7 @@ special variables in the template:').'<p>'.LF;
       /* will send via Mail class */
       $mail_params = array(
          'sendmail_args' => $envfrom,
-         'sendmail_path' => $_SETTINGS['sendmail'],
+         'sendmail_path' => SENDMAIL,
       );
 
       $msg_params = array();
@@ -530,7 +540,8 @@ special variables in the template:').'<p>'.LF;
          defaultTo($override, 0);
          reload(BASEURL.'/mailtemplates.php?action=prepare'.
             '&template='.urlencode($template).
-            '&override='.urlencode($override).
+            '&override='.urlencode($override). 
+            '&autosend='.$autosend.
             '&incidentids='.urlencode($incidentids));
       } else {
          reload('incident.php');

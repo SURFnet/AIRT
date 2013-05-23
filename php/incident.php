@@ -43,6 +43,7 @@ switch ($action) {
   //--------------------------------------------------------------------
   case _('Compose'):
   case 'prepare':
+  case _('Auto send'):
   case _('prepare'):
      // Send bulk mail for the selected incidents.
      $massincidents = fetchFrom('REQUEST','massincidents[]');
@@ -67,8 +68,13 @@ switch ($action) {
         // No template selected, show list again.
         reload();
      }
+     if ($action == _('Auto send')) 
+        $autosend='yes';
+     else
+        $autosend='no';
      reload("mailtemplates.php?action=prepare".
                "&template=".urlencode($template).
+               "&autosend=".$autosend.
                "&incidentids=".urlencode($incidentids));
      break;
 

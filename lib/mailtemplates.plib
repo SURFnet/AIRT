@@ -388,7 +388,6 @@ function expand_template($template, $current) {
 function template_buttons($incidentids, $override='') {
    $out = '';
    $out .= '<input type="reset"  value="'._('Reset').'">'.LF;
-   $out .= '<input type="submit" name="action" value="'._('Send').'">'.LF;
    if (empty($override) || $override === false) {
       $override = 0;
    } else {
@@ -401,6 +400,7 @@ function template_buttons($incidentids, $override='') {
       $out .= '<input type="submit" name="action" value="'._('Send and prepare next').'">'.LF;
       $out .= '<input type="submit" name="action" value="'._('Skip and prepare next').'">'.LF;
    }
+   $out .= '<input type="submit" name="action" value="'._('Send').'">'.LF;
    return $out;
 }
 
@@ -417,11 +417,16 @@ function template_buttons($incidentids, $override='') {
  * \return nothing
  */
 function prepare_message($template, $override_now=0, $incidentids=array(), 
-   $to=array()) 
+   $autosend='no', $to=array()) 
 {
-   pageHeader(_('Send message from template.'), array(
+   $pageOptions = array(
       'menu'=>'mail',
-      'submenu'=>'templates'));
+      'submenu'=>'templates'
+   );
+   if ($autosend == 'yes') {
+      $pageOptions['onload'] = "document.getElementsByName('action')[1].click();";
+   }
+   pageHeader(_('Send message from template.'), $pageOptions);
    $current = array(
       'user'=>'',
       'name'=>'',
@@ -599,6 +604,7 @@ function prepare_message($template, $override_now=0, $incidentids=array(),
 # XXX because of this, I cannot do an override on the last incident in 
 # the queue
    $out .= '<input type="hidden" name="incidentids" value="'.$agendaval.'">'.LF;
+   $out .= '<input type="hidden" name="autosend" value="'.$autosend.'">'.LF;
    if ($usepref) {
       $out .= '<input type="hidden" name="template" value="'.
          _('Use preferred template').'">'.LF;

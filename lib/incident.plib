@@ -2065,6 +2065,7 @@ function listIncidents() {
    $out .= getMailTemplateSelection('template', 'null', array(
          _('Use preferred template')=>_('Use preferred template')));
    $out .= '     <input type="submit" name="action" value="'. _('Compose').'">'.LF;
+   $out .= '     <input type="submit" name="action" value="'. _('Auto send').'"'.LF;
    $out .= '  </div><!-- block -->'.LF;
    $out .= '</div><!-- bulk-options -->'.LF;
    $out .= '</form>'.LF;

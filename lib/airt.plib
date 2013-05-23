@@ -355,7 +355,11 @@ function pageHeader($title='', $options=array()) {
      '%url'=>BASEURL));
    print '  </head>'.LF;
 
-   print '<body>'.LF;
+   if (array_key_exists('onload', $options)) {
+       print '<body onLoad="'.$options['onload'].'">'.LF;
+   } else {
+       print '<body>'.LF;
+   }
    print '<div id="wrapper">'.LF;
    if ($showmenu === true) {
       if ((Setup::getOption('instancename', $instance)) === false) {
