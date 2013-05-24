@@ -424,7 +424,7 @@ function queueFormatItems($typefilter='all') {
    foreach (getOpenincidents() as $id=>$data) {
       $openips[$data['ip']] = $id;
    }
-   $used_ips = array();
+// $used_ips = array();
    $js = '<SCRIPT language="JavaScript">'.LF;
    $js .= 'function checkAll() {'.LF;
    $js .= '   var check=document.forms[1].elements[1].checked;'.LF;
@@ -514,6 +514,7 @@ function queueFormatItems($typefilter='all') {
          .'</td>'.LF;
       $out .= '   <td>'.LF;
 
+/*
       // check for grouping within the import queue
       $ip = $element['cache_ip'];
       $group = false;
@@ -530,6 +531,7 @@ function queueFormatItems($typefilter='all') {
          $group = true;
       }
       $used_ips[$ip][] = $element['id'];
+*/
 
       if ($group == false) {
          if (array_key_exists($element['cache_ip'], $openips)) {

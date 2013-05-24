@@ -215,7 +215,13 @@ function filter_shadowout($incidents, &$output, $verbosity=false) {
       }
 
       // Only import the first SHADOW_INCIDENT_LIMIT incidents per ip.
-      $incident_ip_count[$incident['details'][$ipkey]]++;
+      $key = $incident['details'][$ipkey];
+      if (array_key_exists($key, $incident_ip_count)) {
+         $incident_ip_count[$key]++;
+      } else {
+         $incident_ip_count[$key] = 1;
+      }
+      //$incident_ip_count[$incident['details'][$ipkey]]++;
       if ($incident_ip_count[$incident['details'][$ipkey]] == SHADOW_INCIDENT_LIMIT+1) {
           $incident['type'] .= ":limit-exceeeded";
           $incident['logging'] = "...Suppressing reports exceeding the limit of ".SHADOW_INCIDENT_LIMIT." reports per IP address...";
@@ -323,9 +329,10 @@ function filter_shadowserver($input, &$output, $verbosity=FALSE) {
                 if (isset($part->disposition) && strtolower($part->disposition) == 'attachment' && (
                                 (strtolower($part->ctype_primary) == 'application' && strtolower($part->ctype_secondary) == 'octet-stream' )
                                 ||
+                                (strtolower($part->ctype_primary) == 'application' && strtolower($part->ctype_secondary) == 'zip') 
+                                ||
                                 (strtolower($part->ctype_primary) == 'text' && strtolower($part->ctype_secondary) == 'plain' )
                         ) ) {
-
                         $contents = array();
                         $filename = $part->d_parameters['filename'];
                         if ($verbosity) {
