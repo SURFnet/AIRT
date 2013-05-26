@@ -514,13 +514,12 @@ function queueFormatItems($typefilter='all') {
          .'</td>'.LF;
       $out .= '   <td>'.LF;
 
-/*
       // check for grouping within the import queue
       $ip = $element['cache_ip'];
       $group = false;
       if (array_key_exists($ip, $used_ips)) {
          $parent = $used_ips[$ip][0];
-         $out .= '  <input type="checkbox" checked value="'.$parent.
+         $out .= '  <input type="checkbox" value="'.$parent.
             '" id="group'.$element['id'].'" name="group['.$element['id'].']">'.LF;
          $out .=  t(_('  Group with queue item %parent<br/>'), array('%parent'=>$parent)).LF;
          if (array_key_exists($parent, $siblings)) {
@@ -531,12 +530,11 @@ function queueFormatItems($typefilter='all') {
          $group = true;
       }
       $used_ips[$ip][] = $element['id'];
-*/
 
       if ($group == false) {
          if (array_key_exists($element['cache_ip'], $openips)) {
             $cur = getIncident($openips[$element['cache_ip']]);
-            $out .= '  <input type="checkbox" checked name="add['.$id.']">'.LF;
+            $out .= '  <input type="checkbox" name="add['.$id.']">'.LF;
             $out .= t(_('<span class="%status">  Add to <a href="%u/incident.php?action=details&incidentid=%id">%label</a></span>').'<br/>'.LF,
             array(
                '%u'=>BASEURL,
