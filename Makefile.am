@@ -26,4 +26,4 @@ doc_DATA = AUTHORS README ChangeLog CHANGES
 EXTRA_DIST = README.in CHANGES
 
 ChangeLog:
-	./utils/svn2cl ChangeLog
+	./utils/git2cl > ChangeLog
