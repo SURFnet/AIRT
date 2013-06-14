@@ -106,7 +106,7 @@ function parse_email_headers($input, &$output) {
 /**
  * parse the message retrieved from $stream
  *
- * @param $stream stream to retreive the message from
+ * @param $stream stream to retrieve the message from
  * @param $output an associative array containing two sub-arrays (headers and
  * body)
  * @param $error an optional error string
@@ -175,7 +175,7 @@ function toMailQueue($data, &$error='') {
             $recipient = $value;
             break;
          case 'subject':
-            $subject = $value;
+            $subject = iconv_mime_decode(trim($value),2,"UTF-8");
             break;
          case 'message-id':
             $messageid = $value;
@@ -191,7 +191,7 @@ function toMailQueue($data, &$error='') {
    /* fetch next available message id from our generic sequence*/
    $q = q('select nextval(\'generic_sequence\')');
    if (($res = db_query($q)) === false) {
-      $error = db_errormessage()._(' in ').'airt_reive_email.in:'.
+      $error = db_errormessage()._(' in ').'airt_receive_email.in:'.
          __LINE__;
       return false;
    }
@@ -205,7 +205,7 @@ function toMailQueue($data, &$error='') {
 
    /* fetch the resulting tuple */
    if (($row = db_fetch_next($res)) === false) {
-      $error = db_errormessage()._(' in ').'airt_reive_email.in:'.
+      $error = db_errormessage()._(' in ').'airt_receive_email.in:'.
          __LINE___;
       return false;
    }
@@ -230,7 +230,7 @@ function toMailQueue($data, &$error='') {
       )
    );
    if (($res = db_query($q)) === false) {
-      $error = db_errormessage()._(' in ').'airt_reive_email.in:'.
+      $error = db_errormessage()._(' in ').'airt_receive_email.in:'.
          __LINE__;
       return false;
    }
@@ -240,8 +240,10 @@ function toMailQueue($data, &$error='') {
     * just imported. Don't throw error messages when the message does
     * not exist, or when the link fails.
     */
-   if (preg_match('/'.INCIDENTID_PREFIX.'([0-9]+)/', $subject, $match) > 0) {
-      addEmailToIncident($match[1], $id, $error);
+   if (preg_match_all('/'.INCIDENTID_PREFIX.'([0-9]+)/i', $subject, $match) > 0) {
+        foreach ($match[1] as $subjId) {
+            addEmailToIncident($subjId, $id, $error);
+        }
    }
    return true;
 }

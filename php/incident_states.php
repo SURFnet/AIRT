@@ -120,7 +120,7 @@ switch ($action) {
          echo '<td>'.strip_tags($isdefault).'</td>'.LF;
          echo '<td><a href="'.BASEURL.'/incident_states.php'.
             '?action=edit&id='.strip_tags($id).'">'._('edit').'</a>'.LF;
-         echo '<a href="'.BASEURL.'/inciden_states.php'.
+         echo '<a href="'.BASEURL.'/incident_states.php'.
             '?action=delete&id='.strip_tags($id).
             '">'._('delete').'</a></td>'.LF;
          echo '</tr>'.LF;

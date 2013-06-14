@@ -115,7 +115,7 @@ switch ($action) {
          print '    <td>'.strip_tags($isdefault).'</td>'.LF;
          print '    <td><a href="'.BASEURL.'/incident_status.php'.
             '?action=edit&id='.urlencode($id).'">'._('edit').'</a>'.LF;
-         print '    <a href="'.BASEURL.'/inciden_status.php'.
+         print '    <a href="'.BASEURL.'/incident_status.php'.
             '?action=delete&id='.urlencode($id).'">'._('delete').'</a></td>'.LF;
          print '</tr>'.LF;
         } // while $row
