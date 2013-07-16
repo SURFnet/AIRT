@@ -1,7 +1,6 @@
 <?php
-/* vim: syntax=php shiftwidth=3 tabstop=3
+/* vim: syntax=php shiftwidth=3 tabstop=3 
  * AIRT: Application for Incident Response Teams
- * Copyright (C) 2006 Tilburg University, The Netherlands
 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -413,28 +412,37 @@ function getIncident($id) {
  *
  * @return false of failure, true on success
  */
-function addIPtoIncident($ip, $incident,$role=0) {
-   if (!is_numeric($incident)) {
+function addIPtoIncident($data=array()) {
+   if (!array_key_exists('incidentid', $data) || !is_numeric($data['incidentid'])) {
       airt_profile('addIPtoIncident: Incident ID is not numeric');
       return false;
    }
 
-   if (!is_numeric($role)) {
+   if (!array_key_exists('addressrole', $data)) {
+	    $data['addressrole'] = 0;
+   }
+	if (!array_key_exists('hostname', $data)) {
+		$data['hostname'] = '';
+   }
+   if (!is_numeric($data['addressrole'])) {
       airt_profile('addIPtoIncident: Role is not numeric');
       return false;
    }
 
-   $networkid = categorize($ip);
+   if (!array_key_exists('ip', $data)) {
+	   airt_profile('addIPtoIncident: No address');
+      return false;
+   }
+   $networkid = categorize($data['ip']);
    if (defined('CUSTOM_FUNCTIONS') && function_exists("custom_categorize")) {
-      $networkid = custom_categorize($ip, $networkid);
+      $networkid = custom_categorize($data['ip'], $networkid);
    }
    airt_profile('addIPtoIncident: networkid = '.$networkid);
 
    $constituencyID = getConstituencyIDbyNetworkID($networkid);
    airt_profile('addIPtoIncident: constituency = '.$constituencyID);
 
-   $hostname = @gethostbyaddr($ip);
-   $_SESSION['active_ip'] = $ip;
+   $_SESSION['active_ip'] = $data['ip'];
 
    $res = db_query(q('
       INSERT INTO incident_addresses
@@ -444,11 +452,11 @@ function addIPtoIncident($ip, $incident,$role=0) {
       (nextval(\'incident_addresses_sequence\'), %incidentid, %ip,
        %addressrole, %hostname, %constituency, CURRENT_TIMESTAMP, %userid, 
        CURRENT_TIMESTAMP, %userid)', array(
-         '%incidentid'=>db_masq_null($incident),
-         '%ip'=>db_masq_null($ip),
-         '%hostname'=>db_masq_null($hostname),
+         '%incidentid'=>db_masq_null($data['incidentid']),
+         '%ip'=>db_masq_null($data['ip']),
+         '%hostname'=>db_masq_null($data['hostname']),
          '%constituency'=>$constituencyID,
-         '%addressrole'=>$role,
+         '%addressrole'=>$data['addressrole'],
          '%userid'=>db_masq_null($_SESSION['userid']))
    ));
    if (!$res) {
@@ -2271,11 +2279,9 @@ function incidentDetails() {
       $_SESSION['active_ip'] = $address['ip'];
 
       $output .= '<tr>'.LF;
-      $output .= t('  <td><a title="%t" href="%u/search.php?action=search&q=%q">%l</a></td>'.LF, array(
+      $output .= t('  <td><a href="%u/search.php?action=search&q=%q">%l</a></td>'.LF, array(
          '%u'=>BASEURL,
          '%q'=>urlencode($address['ip']),
-         '%t'=>($address['hostname']=='') ? _ ('Unknown'):
-                 @gethostbyaddr(@gethostbyname($address['ip'])),
          '%l'=>htmlentities($address['ip'])));
 
       $output .= t('  <td>%addressrole</td>'.LF, array(
@@ -2755,8 +2761,10 @@ function addIncident() {
       if (preg_match('/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/', $ip) == 0) {
           $ip = @gethostbyname($ip);
       }
-      addIPtoIncident($ip, $incidentid, 
-         fetchFrom('POST', 'addressrole', '%d'));
+      addIPtoIncident(array(
+			'ip' =>$ip, 
+		   'incidentid' => $incidentid, 
+         'addressrole' => fetchFrom('POST', 'addressrole', '%d')));
    }
  
    foreach ($users as $addr) {
@@ -2842,7 +2850,9 @@ function addBulkIncidents() {
         'logging'=>db_escape_string($logging),
         'template'=>$template,
          'desc'=>db_escape_string($desc)));
-     addIPtoIncident($ip,$incidentid);
+     addIPtoIncident(array(
+	     'ip' => $ip,
+        'incidentid' => $incidentid));
 
      /* add constituency contacts to incident */
      $networkid = categorize($ip);

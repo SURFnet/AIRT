@@ -72,10 +72,10 @@ switch ($action) {
         $autosend='yes';
      else
         $autosend='no';
-     reload("mailtemplates.php?action=prepare".
-               "&template=".urlencode($template).
-               "&autosend=".$autosend.
-               "&incidentids=".urlencode($incidentids));
+	  $_SESSION['incidentids'] = $incidentids;
+	  $_SESSION['autosend'] = $autosend;
+	  $_SESSION['template'] = $template;
+     reload("mailtemplates.php?action=prepare");
      break;
 
   //--------------------------------------------------------------------
@@ -150,7 +150,10 @@ switch ($action) {
       ));
 
       if (trim($ip) != '') {
-         addIPToIncident(trim($ip), $incidentid, $addressrole);
+         addIPToIncident(array(
+				'ip'=>trim($ip),
+				'incidentid' => $incidentid, 
+			   'addressrole' => $addressrole));
          addIncidentComment(array(
             'comment'=>t(_('IP address %ip added to incident with role %role'),
                array(

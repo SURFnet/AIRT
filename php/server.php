@@ -329,7 +329,11 @@ airt_profile('Incident data parsed');
          'logging'=>$logging));
 airt_profile('Incident '.$incidentid[$i].' created');
 
-      addIPtoIncident($address,$incidentid[$i],$addressrole);
+      addIPtoIncident(array(
+			'ip'=>$address,
+		   'hostname'=>$hostname,
+			'incidentid'=>$incidentid[$i],
+			'addressrole'=>$addressrole));
 airt_profile('IP addresses added');
 
       $networkid = categorize($address);
@@ -597,7 +601,7 @@ function genRandom() {
    $ticketid = '';
 
    $string = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-   for($i=0;$i<=2999;$i++) {
+   for($i=0;$i<=64;$i++) {
       $ticketid .= substr($string,mt_rand(0,strlen($string)-1),1);
    }
    return $ticketid;

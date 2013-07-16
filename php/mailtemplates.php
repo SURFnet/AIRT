@@ -217,7 +217,7 @@ special variables in the template:').'<p>'.LF;
 
    // -------------------------------------------------------------------
    case 'prepare':
-      $template = strip_tags(fetchFrom('REQUEST', 'template'));
+      $template = strip_tags(fetchFrom('SESSION', 'template'));
       if (empty($template)) {
          airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
          reload();
@@ -227,7 +227,7 @@ special variables in the template:').'<p>'.LF;
       /* $incidentids will contain a comma-separated list of incident ids to
        * work on
        */
-      $incidentids = strip_tags(fetchFrom('REQUEST', 'incidentids'));
+      $incidentids = strip_tags(fetchFrom('SESSION', 'incidentids'));
       if (empty($incidentids)) {
          $incidentid = fetchFrom('REQUEST', 'incidentid', '%d');
          if (empty($incidentid)) {
@@ -272,7 +272,7 @@ special variables in the template:').'<p>'.LF;
       $override = fetchFrom('REQUEST', 'override', '%d');
       defaultTo($override, 0);
        
-      $autosend=fetchFrom('REQUEST', 'autosend');
+      $autosend=fetchFrom('SESSION', 'autosend');
       if (array_search($autosend, array('yes', 'no')) === FALSE) 
           $autosend = 'no'; // whitelist enforcement
       defaultTo($autosend, 'no');

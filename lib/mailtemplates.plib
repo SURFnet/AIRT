@@ -274,8 +274,7 @@ function format_templates($recipients=array(), $incidentids=array(), $edit=false
       $subject = get_subject($body);
       $out .= '<tr>'.LF;
       if ($edit == false) {
-         $querystr = '&to='.urlencode(implode(',', $recipients)).
-            '&incidentids='.urlencode(implode(',', $incidentids));
+         $querystr = '&to='.urlencode(implode(',', $recipients));
          $out .= t('<td><a href="%url/mailtemplates.php?action=prepare&template=%name%query">'._('compose').'</a></td>'.LF, array(
             '%url'=>BASEURL,
             '%name'=>$name,
@@ -603,8 +602,7 @@ function prepare_message($template, $override_now=0, $incidentids=array(),
    $out .= '<P>'.LF;
 # XXX because of this, I cannot do an override on the last incident in 
 # the queue
-   $out .= '<input type="hidden" name="incidentids" value="'.$agendaval.'">'.LF;
-   $out .= '<input type="hidden" name="autosend" value="'.$autosend.'">'.LF;
+   $_SESSION['incidentids'] = $agendaval;
    if ($usepref) {
       $out .= '<input type="hidden" name="template" value="'.
          _('Use preferred template').'">'.LF;
