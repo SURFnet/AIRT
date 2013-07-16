@@ -143,8 +143,8 @@ function showMatrix($start, $stop, $showempty) {
           WHERE i.id = a.incident
             AND a.constituency = c.id
             AND i.type = t.id
-            AND i.created >= to_timestamp($1, 'YYYY-MM-DD') 
-            AND i.created <= to_timestamp($2, 'YYYY-MM-DD')
+            AND date_trunc('day', i.created) >= to_timestamp($1, 'YYYY-MM-DD') 
+            AND date_trunc('day', i.created) <= to_timestamp($2, 'YYYY-MM-DD')
        GROUP BY c.label, t.label
        ORDER BY c.label, t.label", array(
            $startdate,
@@ -177,7 +177,7 @@ function showMatrix($start, $stop, $showempty) {
        $out .= t('<td>%s</td>'.LF, array('%s'=>$rowsum));
        $out .= '</tr>'.LF;
    }
-   $out .= '<tr>'.LF;
+   $out .= '<tr style="background-color:lightgray">'.LF;
    $out .= '<td>'._('Sum').'</td>'.LF;
    $sum = 0;
    foreach ($types as $t_id => $t_label) {
@@ -193,8 +193,8 @@ function showMatrix($start, $stop, $showempty) {
    $res = pg_query_params("SELECT i.id
       FROM incidents i
       LEFT JOIN incident_addresses a ON i.id = a.incident
-      WHERE i.created >= to_timestamp($1, 'YYYY-MM-DD') 
-        AND i.created <= to_timestamp($2, 'YYYY-MM-DD')
+      WHERE date_trunc('day', i.created) >= to_timestamp($1, 'YYYY-MM-DD') 
+        AND date_trunc('day', i.created) <= to_timestamp($2, 'YYYY-MM-DD')
       GROUP BY i.id
       HAVING COUNT (ip) = 0", array(
          $startdate,
@@ -334,7 +334,7 @@ function printreport2($start, $stop) {
       where created between \'%begin\' and \'%end\'
       group by c.id', array(
          '%begin'=>Date('d-M-Y', $start),
-         '%end'=>Date('d-M-Y', $stop)));
+         '%end'=>Date('d-M-Y', $stop+86400)));
    $res = db_query($q);
    $out .= '<table border="1">'.LF;
    $out .= '<tr>'.LF;
@@ -347,6 +347,7 @@ function printreport2($start, $stop) {
    $out .= '   <th>'._('open').'</th>'.LF;
    $out .= '</tr>'.LF;
 
+   $const_sums=array('created'=>0, 'open'=>0);
    while ($row = db_fetch_next($res)) {
       if (empty($row['constituencyid'])) continue;
       $o = getOpenIncidentsByConstituency($row['constituencyid']);
@@ -358,7 +359,18 @@ function printreport2($start, $stop) {
       $out .= t('<td>%open</td>', array(
          '%open'=>sizeof($o))).LF;
       $out .= '</tr>'.LF;
+      $const_sums['created'] += $row['count'];
+      $const_sums['open'] += sizeof($o);
+      $isp=explode('-',$const[$row['constituencyid']]['label'],2);
+      $isp_sums[trim($isp[0])]['created'] += $row['count'];
+      $isp_sums[trim($isp[0])]['open'] += sizeof($o);
    }
+   $out .= '<tr style="background-color:lightgray">'.LF;
+   $out .= '<td>'._('Sum').'</td>'.LF;
+   foreach ($const_sums as $sum) {
+      $out .= t('<td>%s</td>'.LF, array('%s'=>htmlentities($sum)));
+   }
+   $out .= '</tr>'.LF;
    $out .= '</table>'.LF;
 
    print $out;

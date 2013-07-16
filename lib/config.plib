@@ -77,6 +77,7 @@ function showConfigScreen() {
    $out .= '  <tr>'.LF;
    $out .= t('     <td>%l</td>'.LF, array('%l'=>_('Number of days used to calculate the correlation between import queue elements and recently closed incidents')));
    $out .= '     <td><select name="correlationage">';
+   $out .= choice(0, 0, $correlationage);
    $out .= choice(2, 2*24*60*60, $correlationage);
    $out .= choice(5, 5*24*60*60, $correlationage);
    $out .= choice(7, 7*24*60*60, $correlationage);
@@ -205,7 +206,7 @@ function saveConfig() {
    if (!empty($archiveage)) {
       Setup::setOption('archiveage', $archiveage);
    }
-   if (!empty($correlationage)) {
+   if (isset($correlationage) && is_numeric($correlationage)) {
       Setup::setOption('correlationage', $correlationage);
    }
    if (!empty($instancename)) {

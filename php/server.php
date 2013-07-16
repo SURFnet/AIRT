@@ -321,6 +321,7 @@ airt_profile('Mailtemplate: ok');
 airt_profile('Incident data parsed');
 
       // generate an incident id
+      $i = 0 ; // Do we need this index/key ?
       $incidentid[$i] = createIncident(array(
          'state'=>$state,
          'status'=>$status,

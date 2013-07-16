@@ -207,7 +207,7 @@ function filter_shadowout($incidents, &$output, $verbosity=false) {
       }
 
       // Skip unwanted infections
-      if (skipUnwantedSubType($incident['details'][$subtypekey]) ) {
+      if ($subtypekey != 'Unspecified' && skipUnwantedSubType($incident['details'][$subtypekey]) ) {
           if ($verbosity) {
               print "Shadowserver: not importing unwanted subtype ".$incident['details'][$subtypekey]."\n";
           }
@@ -277,7 +277,7 @@ function filter_shadowout($incidents, &$output, $verbosity=false) {
       $techinfo_el->appendChild($doc->createElement('time_dns_resolving',
          Date('Y-m-d H:i:s')));
       $techinfo_el->appendChild($doc->createElement('logging',
-         htmlentities($incident['logging'])));
+         htmlentities($incident['logging'], ENT_COMPAT | ENT_XML1,'UTF-8')));
       $techinfo_el->appendChild($doc->createElement('incident_time',
          $incident['details'][$timestampkey]));
 
@@ -422,6 +422,19 @@ function filter_shadowserver($input, &$output, $verbosity=FALSE) {
                                                                         $array[$headers[$key]] = $value;
                                                                 }
                                                                 $count=max($count,count($array[$headers[$key]]));
+                                                                // FIXUP of cc_ip reports with unequal number of IPs and ASNs
+                                                                // for now just replace with 0 asns
+                                                                if ($count > 1 && $headers[$key] == 'ASN' && count($array['IP Address']) != count($array[$headers[$key]])) {
+                                                                   if (is_array($array[$headers[$key]])) {
+                                                                        foreach($array[$headers[$key]] as &$val) {
+                                                                               $val="0";
+                                                                        }
+                                                                        unset($val);
+                                                                   } else {
+                                                                        $array[$headers[$key]] = "0";
+                                                                   }
+                                                                }
+                                                                // End FIXUP of cc_ip reports
                                                                 unset($array[$key]);
                                                         }
                                                         // Create one or more (for i.e. C&C reports) incidents
