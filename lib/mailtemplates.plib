@@ -415,7 +415,7 @@ function template_buttons($incidentids, $override='') {
  *
  * \return nothing
  */
-function prepare_message($template, $override_now=0, $incidentids=array(), 
+function prepare_message($global_template, $override_now=0, $incidentids=array(), 
    $autosend='no', $to=array()) 
 {
    $pageOptions = array(
@@ -451,8 +451,8 @@ function prepare_message($template, $override_now=0, $incidentids=array(),
 
    $incident = getIncident($current['incidentid']);
    if (empty($incident['template'])) {
-      if ($template != _('Use preferred template')) {
-         $incident['template'] = $template;
+      if ($global_template != _('Use preferred template')) {
+         $incident['template'] = $global_template;
       }
    }
 
@@ -466,7 +466,7 @@ function prepare_message($template, $override_now=0, $incidentids=array(),
       $to = array();
       foreach ($incident['users'] as $uid) {
          $o = getMailTemplateOverride($current['incidentid'], $uid);
-         if ($o != null && $o != $template && 
+         if ($o != null && $o != $global_template && 
               $o != $incident['template']) {
             if ($override_template=='') {
                $override_template = $o;
@@ -486,7 +486,7 @@ function prepare_message($template, $override_now=0, $incidentids=array(),
       $override_next_uids = array();
       foreach ($incident['users'] as $uid) {
          $o = getMailTemplateOverride($current['incidentid'], $uid);
-         if ($o != null && $o != $template && 
+         if ($o != null && $o != $global_template && 
              $o != $incident['template']) {
             $override_next_uids[] = $uid;
             $override_next = true;
@@ -544,8 +544,8 @@ function prepare_message($template, $override_now=0, $incidentids=array(),
       $current['hostname'] = $incident['ips'][0]['hostname'];
    }
    $usepref = false;
-   $usetemplate = $template;
-   if ($template == _('Use preferred template')) {
+   $usetemplate = $global_template;
+   if ($global_template == _('Use preferred template')) {
       $usepref = true;
       $usetemplate = getPreferredMailTemplateName($current['incidentid']);
    }
@@ -553,77 +553,81 @@ function prepare_message($template, $override_now=0, $incidentids=array(),
    if ($override_now == 1) {
       $usetemplate = $override_template;
    } 
-
    if ($usetemplate == '') {
+		if (!array_key_exists('skipped', $_SESSION)) {
+			$_SESSION['skipped'] = array();
+		}
+		$_SESSION['skipped'][$current['incidentid']] = 1;
       print _('NOTE: Preferred mail template requested, but not set.').'<p/>';
    }
-   print _('Using mail template <em>').htmlentities($usetemplate).
-      '</em> for incident <em>'.normalize_incidentid($current['incidentid']).
-      '</em>.<br/>'.LF;
-   $msgdata = expand_template($usetemplate, $current);
+	print _('Using mail template <em>').htmlentities($usetemplate).
+		'</em> for incident <em>'.normalize_incidentid($current['incidentid']).
+		'</em>.<br/>'.LF;
+	$msgdata = expand_template($usetemplate, $current);
 
-   /* look for receiver override */
-   if (preg_match('/@TO@(.*)@ENDTO@/', $msgdata['body'], $matches) > 0) {
-      $msgdata['receiver'] = $matches[1];
-      $msgdata['body'] = preg_replace('/@TO@(.*)@ENDTO@/', '', $msgdata['body']);
-   }
+	/* look for receiver override */
+	if (preg_match('/@TO@(.*)@ENDTO@/', $msgdata['body'], $matches) > 0) {
+		$msgdata['receiver'] = $matches[1];
+		$msgdata['body'] = preg_replace('/@TO@(.*)@ENDTO@/', '', $msgdata['body']);
+	}
 
-   generateEvent('premailtemplate', array(
-    'to'=>$msgdata['receiver'],
-    'subject'=>$msgdata['subject'],
-    'from'=>$msgdata['sender'],
-    'replyto'=>$msgdata['replyto'],
-    'message'=>$msgdata['body']));
+	generateEvent('premailtemplate', array(
+	 'to'=>$msgdata['receiver'],
+	 'subject'=>$msgdata['subject'],
+	 'from'=>$msgdata['sender'],
+	 'replyto'=>$msgdata['replyto'],
+	 'message'=>$msgdata['body']));
 
-   $agendaval=implode(',', $incidentids);
-   $out = '<FORM method="POST">'.LF;
-   $out .= '<TABLE WIDTH="80">'.LF;
-   $out .= '<TR>'.LF;
-   $out .= '<TD>'._('To:').'</TD>'.LF;
-   $out .= '<TD><INPUT TYPE="text" size="50" name="to" value="'.$msgdata['receiver'].'"></TD>'.LF;
-   $out .= '<TD rowspan="4" VALIGN="top">'.LF;
-   $out .= template_buttons($incidentids, ($override_next === true) ? 1 : 0);
-   $out .= '</TD>'.LF;
-   $out .= '</TR>'.LF;
-   $out .= '<TR>'.LF;
-   $out .= '<TD>'._('Subject:').'</TD>'.LF;
-   $out .= '<TD><INPUT TYPE="text" size="50" name="subject" value="'.htmlentities($msgdata['subject']).'"></TD>'.LF;
-   $out .= '</TR>'.LF;
-   $out .= '<TR>'.LF;
-   $out .= '<TD>'._('From:').'</TD>'.LF;
-   $out .= '<TD><INPUT TYPE="text" size="50" name="from" value="'.htmlentities($msgdata['sender']).'"></TD>'.LF;
-   $out .= '</TR>';
-   $out .= '<TR>';
-   $out .= '<TD>'._('Reply-To:').'</TD>'.LF;
-   $out .= '<TD><INPUT TYPE="text" size="50" name="replyto" value="'.htmlentities($msgdata['replyto']).'"></TD>'.LF;
-   $out .= '</TR>'.LF;
-   $out .= '</TABLE>'.LF;
-   $out .= '<TEXTAREA name="msg" cols="80" rows="25">'.htmlentities($msgdata['body']).'</TEXTAREA>'.LF;
-   $out .= '<P>'.LF;
+	$agendaval=implode(',', $incidentids);
+	$out = '<FORM method="POST">'.LF;
+	$out .= '<TABLE WIDTH="80">'.LF;
+	$out .= '<TR>'.LF;
+	$out .= '<TD>'._('To:').'</TD>'.LF;
+	$out .= '<TD><INPUT TYPE="text" size="50" name="to" value="'.$msgdata['receiver'].'"></TD>'.LF;
+	$out .= '<TD rowspan="4" VALIGN="top">'.LF;
+	$out .= template_buttons($incidentids, ($override_next === true) ? 1 : 0);
+	$out .= '</TD>'.LF;
+	$out .= '</TR>'.LF;
+	$out .= '<TR>'.LF;
+	$out .= '<TD>'._('Subject:').'</TD>'.LF;
+	$out .= '<TD><INPUT TYPE="text" size="50" name="subject" value="'.htmlentities($msgdata['subject']).'"></TD>'.LF;
+	$out .= '</TR>'.LF;
+	$out .= '<TR>'.LF;
+	$out .= '<TD>'._('From:').'</TD>'.LF;
+	$out .= '<TD><INPUT TYPE="text" size="50" name="from" value="'.htmlentities($msgdata['sender']).'"></TD>'.LF;
+	$out .= '</TR>';
+	$out .= '<TR>';
+	$out .= '<TD>'._('Reply-To:').'</TD>'.LF;
+	$out .= '<TD><INPUT TYPE="text" size="50" name="replyto" value="'.htmlentities($msgdata['replyto']).'"></TD>'.LF;
+	$out .= '</TR>'.LF;
+	$out .= '</TABLE>'.LF;
+	$out .= '<TEXTAREA name="msg" cols="80" rows="25">'.htmlentities($msgdata['body']).'</TEXTAREA>'.LF;
+	$out .= '<P>'.LF;
 # XXX because of this, I cannot do an override on the last incident in 
 # the queue
-   $_SESSION['incidentids'] = $agendaval;
-   if ($usepref) {
-      $out .= '<input type="hidden" name="template" value="'.
-         _('Use preferred template').'">'.LF;
-   } else {
-      $out .= '<input type="hidden" name="template" value="'.$template.'">'.LF;
-   }
-   $out .= '<input type="hidden" name="incidentid" value="'.$current['incidentid'].'">'.LF;
-   $out .= template_buttons($incidentids, ($override_next === true) ? 1 : 0);
-   print $out;
-   if (defined('GPG_KEYID')) {
-      print '<input type="checkbox" name="sign" checked> '._('Sign').LF;
-   }
-   print '</form>'.LF;
+	$_SESSION['incidentids'] = $agendaval;
+	if ($usepref) {
+		$out .= '<input type="hidden" name="template" value="'.
+			_('Use preferred template').'">'.LF;
+	} else {
+		$out .= '<input type="hidden" name="template" value="'.
+			htmlentities($global_template).'">'.LF;
+	}
+	$out .= '<input type="hidden" name="incidentid" value="'.$current['incidentid'].'">'.LF;
+	$out .= template_buttons($incidentids, ($override_next === true) ? 1 : 0);
+	print $out;
+	if (defined('GPG_KEYID')) {
+		print '<input type="checkbox" name="sign" checked> '._('Sign').LF;
+	}
+	print '</form>'.LF;
 
-   generateEvent('postmailtemplate', array(
-    'to'=>$msgdata['receiver'],
-    'subject'=>$msgdata['subject'],
-    'from'=>$msgdata['sender'],
-    'replyto'=>$msgdata['replyto'],
-    'message'=>$msgdata['body']));
-   pageFooter();
+	generateEvent('postmailtemplate', array(
+	 'to'=>$msgdata['receiver'],
+	 'subject'=>$msgdata['subject'],
+	 'from'=>$msgdata['sender'],
+	 'replyto'=>$msgdata['replyto'],
+	 'message'=>$msgdata['body']));
+	pageFooter();
 } // prepare_message
 
 

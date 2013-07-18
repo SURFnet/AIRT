@@ -217,12 +217,14 @@ special variables in the template:').'<p>'.LF;
 
    // -------------------------------------------------------------------
    case 'prepare':
-      $template = strip_tags(fetchFrom('SESSION', 'template'));
-      if (empty($template)) {
-         airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
-         reload();
-         return;
-      }
+	   airt_profile('prepare');
+
+ 		if (array_key_exists('template', $_SESSION)) {
+			$global_template = strip_tags(fetchFrom('SESSION', 'template'));
+	   }
+	   defaultTo($global_template, '');
+	   
+	   airt_profile('template='.$global_template);
 
       /* $incidentids will contain a comma-separated list of incident ids to
        * work on
@@ -276,7 +278,9 @@ special variables in the template:').'<p>'.LF;
       if (array_search($autosend, array('yes', 'no')) === FALSE) 
           $autosend = 'no'; // whitelist enforcement
       defaultTo($autosend, 'no');
-      prepare_message($template, $override, $incidentids, $autosend, $to);
+
+      prepare_message($global_template, $override, 
+			$incidentids, $autosend, $to);
 
       break;
 
@@ -297,42 +301,45 @@ special variables in the template:').'<p>'.LF;
    case 'send':
    case _('Send'):
    case _('Send and prepare next'):
+		airt_profile('Send');
       $from = fetchFrom('POST', 'from');
       if (empty($from)) {
          airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
          reload();
          return;
       }
+		airt_profile('from='.$from);
+
       $incidentid = fetchFrom('POST', 'incidentid', '%d');
       if (empty($incidentid)) {
          airt_error('PARAM_MISSING', 'mailtemplates.php:'.__LINE__);
          reload();
          return;
       }
+		airt_profile('incidentid='.$incidentid);
+
 		$override = fetchFrom('REQUEST', 'override', '%d');
 		defaultTo($override, 0);
 
 		if (!array_key_exists('skipped', $_SESSION)) {
 			$_SESSION['skipped'] = array();
-		}
-		$skipped = false;
-
+			airt_profile('Created new session variable skipped.');
+		} 
       /* comma separated list of receipients. */
       $to = strip_tags(fetchFrom('POST', 'to'));
       if (empty($to)) {
 			$_SESSION['skipped'][$incidentid] = 1;
-			$skipped = true;
+			airt_profile('Empty To. Skipping');
       }
       $subject = strip_tags(fetchFrom('POST', 'subject'));
       if (empty($subject)) {
 			$_SESSION['skipped'][$incidentid] = 1;
-			$skipped = true;
+			airt_profile('Empty Subject. Skipping');
       }
       $msg = fetchFrom('POST', 'msg');
       if (empty($msg)) {
 			$_SESSION['skipped'][$incidentid] = 1;
-			$skipped = true;
-         return;
+			airt_profile('Empty message. Skipping');
       }
       $sign = strip_tags(fetchFrom('POST', 'sign'));
       if (empty($sign)) {
@@ -354,7 +361,6 @@ special variables in the template:').'<p>'.LF;
       /* prevent sending bogus stuff */
       if (trim($to) == '') {
 			$_SESSION['skipped'][$incidentid] = 1;
-			$skipped = true;
       }
       $to = explode(',', $to);
       foreach ($to as $key=>$value) {
@@ -366,11 +372,11 @@ special variables in the template:').'<p>'.LF;
 
       if (trim($msg) == '') {
 			$_SESSION['skipped'][$incidentid] = 1;
-			$skipped = true;
       }
 
 
-		if (! $skipped) {
+		if (! array_key_exists($incidentid, $_SESSION['skipped'])) {
+			airt_profile('Processing mail.');
 			/* clean off html and stuff (only unformatted mail) */
 			$msg = stripslashes($msg);
 			$msg = str_replace("\r", '', $msg);
@@ -414,12 +420,14 @@ special variables in the template:').'<p>'.LF;
 			$attachcount=0;
 
 			if ($sign == 'off') {
+				airt_profile('Not PGP signing');
 				$msg_params['content_type'] = 'text/plain';
 				unset($msg_params['disposition']);
 				$mime = new Mail_mimePart($msg, $msg_params);
 				$m = $mime->encode();
 				$body = $m['body'];
 			} else {
+				airt_profile('PGP signing');
 				// pgp signed messages are described in RFC 2015
 				$msg_params['content_type'] = 'multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"';
 				$mime = new Mail_mimePart('This is an OpenPGP/MIME signed message (RFC2440 and 3156)', $msg_params);
@@ -490,9 +498,13 @@ special variables in the template:').'<p>'.LF;
 			}
 			$hdrs = array_merge($hdrs, $m['headers']);
 			$send = $mail->send($mailto, $hdrs, $body);
+			airt_profile('Attempting to send.');
 			if ($send !== TRUE && PEAR::isError($send)) {
+				 airt_profile('Failed sending');
 				 airt_msg(_("Error sendmail mail!"). ' - '.$send->getMessage());
 				 exit(reload());
+			} else {
+			    airt_profile('Successfully handed off to sendmail.');
 			}
 
 			addIncidentComment(array(
@@ -505,6 +517,7 @@ special variables in the template:').'<p>'.LF;
 				'recipient'=>$to,
 				'subject'=>$subject));
 
+			airt_profile('Processing template actions.');
 			/* check for default actions on template */
 			$actions = array();
 			if ($template == _('Use preferred template')) {
@@ -541,9 +554,12 @@ special variables in the template:').'<p>'.LF;
 				$incident = getIncident($incidentid);
 				$actions['template'] = $incident['template'];
 				$actions['desc'] = $incident['desc'];
+				airt_profile('Updating incident data');
 				updateIncident($incidentid, $actions);
 			}
-		} // if $skipped
+		} else { // if $skipped 
+			airt_profile('Skipped.');
+		}
       if ($action == _('Send and prepare next') && isset($incidentids) &&
          isset($template)) {
          reload(BASEURL.'/mailtemplates.php?action=prepare'.
