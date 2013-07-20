@@ -25,6 +25,7 @@
 require_once LIBDIR.'/database.plib';
 require_once LIBDIR.'/importqueue.plib';
 require_once LIBDIR.'/history.plib';
+require_once LIBDIR.'/profiler.plib';
 require_once 'Mail/mimeDecode.php';
 
 define('AIRT_MAIL_STATUS_UNREAD', 'unread');
@@ -221,14 +222,17 @@ function mailDelete($id, &$error) {
  * @return true on success, false on failure
  */
 function addEmailToIncident($incidentid, $messageid, &$error='') {
+   airt_profile('addEmailToIncident');
    if (!is_numeric($incidentid)) {
       $error = _('Invalid parameter type in').' mailbox.plib:'.__LINE__;
       return false;
    }
+	airt_profile('incidentid: '.$incidentid);
    if (!is_numeric($messageid)) {
       $error = _('Invalid parameter type in').' mailbox.plib:'.__LINE__;
       return false;
    }
+	airt_profile('messageid: '.$messageid);
    if (($incident = getIncident($incidentid)) == false) {
       $error = _('Invalid incident id in').' mailbox.plib:'.__LINE__;
       return false;
@@ -243,17 +247,21 @@ function addEmailToIncident($incidentid, $messageid, &$error='') {
       '%msgid'=>$messageid,
       '%incidentid'=>$incidentid)
    );
+	airt_profile('Running query: '.$q);
    if (($res = db_query($q)) === false) {
       $error = _('Database error:').db_errormessage().
          ' in mailbox.plib:'.__LINE__;
+	   airt_profile($error);
       return false;
    }
+	airt_profile('Adding comment');
    addIncidentComment(array(
       'comment'=>t(_('Message subject %s linked to incident'), array(
          '%s'=>db_escape_string($msg['subject']),
       )),
       'incidentid'=>$incidentid
    ));
+	airt_profile('Done addEmailToIncident');
    return true;
 }
 

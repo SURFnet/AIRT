@@ -90,6 +90,9 @@ function setup() {
    // full path to sendmail (or compatible)
    $SETTINGS['sendmail'] = '/usr/sbin/sendmail';
 
+	// AIRT userid used to represent mailbox import and other CLI operations
+	$SETTINGS['cliuser'] = 1;
+
    /*********************************************************
     *
     * Overrides for multiple hosts

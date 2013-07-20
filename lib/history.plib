@@ -28,6 +28,7 @@ require_once LIBDIR.'/database.plib';
  * @m
  */
 function addIncidentComment($params = array(), &$error='') {
+	airt_profile('addIncidentComment');
    if (!is_array($params)) {
       die(_('API error in addIncidentComment'));
    }
@@ -35,12 +36,19 @@ function addIncidentComment($params = array(), &$error='') {
       $error = _('Missing required parameter: comment in ').__LINE__;
       return false;
    }
+	airt_profile('Comment: '.$params['comment']);
    if (!array_key_exists('incidentid', $params) && AIRT_RUN_MODE != 'CLI' ) {
       $params['incidentid'] = $_SESSION["incidentid"];
    }
-   if (!array_key_exists('userid', $params) && AIRT_RUN_MODE != 'CLI' ) {
-      $params['userid'] = $_SESSION["userid"];
+	airt_profile('Incident ID: '.$params['incidentid']);
+   if (!array_key_exists('userid', $params)) {
+		if (AIRT_RUN_MODE != 'CLI' ) {
+			$params['userid'] = $_SESSION["userid"];
+      } else {
+			$params['userid'] = CLIUSER;
+		}
    }
+	airt_profile('User ID: '.$params['userid']);
    if (!is_numeric($params['incidentid'])) {
       $error = _('Invalid parameter type in ').__LINE__;
       return false;
@@ -54,6 +62,7 @@ function addIncidentComment($params = array(), &$error='') {
        airt_msg('WARNING: comment truncated to 240 characters');
        $params['comment']=substr($params['comment'], 0, 237) . '...';
    }
+	airt_profile('Adding');
    $res = db_query(sprintf("
       INSERT INTO incident_comments
       (id, incident, comment, added, addedby)
@@ -63,6 +72,7 @@ function addIncidentComment($params = array(), &$error='') {
          db_masq_null($params['comment']),
          $params['userid']))
    or die(_("Unable to execute query."));
+	airt_profile('Comment added.');
 }
 
 /* retrieve the history of an incidentid as an array of associative arrays.
