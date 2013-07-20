@@ -92,6 +92,9 @@ function setup() {
 
 	// AIRT userid used to represent mailbox import and other CLI operations
 	$SETTINGS['cliuser'] = 1;
+	
+   // AIRT userid used to represent import queue 
+	$SETTINGS['importuser'] = 1;
 
    /*********************************************************
     *

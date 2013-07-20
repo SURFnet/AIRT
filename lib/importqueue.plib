@@ -55,6 +55,7 @@ require_once LIBDIR.'/search.plib';
 require_once LIBDIR.'/constituency.plib';
 require_once LIBDIR.'/mailtemplates.plib';
 require_once LIBDIR.'/profiler.plib';
+require_once LIBDIR.'/server.plib';
 
 
 function importqueue_get_filters() {
@@ -183,9 +184,51 @@ function importIncident($doc, $importqueue, &$error='', $verbosity=FALSE) {
          'summary'=>$summary, 'content'=>$content, 'filter'=>$filter, 
          'version'=>$version, 'metatype'=>AIRT_IMPORTQUEUE_METATYPE_INCIDENT),
          $error);
+
       if ($newid === false) {
          // $error has already been filled in by the call to queueinsertitem().
          return false;
+      }
+		$iqelement = queueGetItem($newid, $error);
+		if ( ($iqelement === false) && $verbosity) {
+		   echo _(t('Failed to automatically import queue element %e.'.LF, 
+			   array('%e'=>$newid)));
+			flush();
+		}
+airt_profile('Template: '.$iqelement['cache_mailtemplate']);
+airt_profile('Filter: '.$iqelement['filter']);
+airt_profile('Constituency: '.$iqelement['cache_constituency']);
+		if (! ( empty($iqelement['cache_mailtemplate']) ||
+              empty($iqelement['filter']) ||
+		        ($iqelement['cache_constituency'] == 'default')
+            )
+         ) {
+
+		/* TODO:
+       * $newid now holds the key to the newly created import queue
+       * element. Fetch it and then
+       *
+       * if (recognized filter, AND
+             template set, AND
+			    non-default constituency) {
+				     automatically import the item, AND
+                 mark the import queue element as processed, AND
+             }
+       */
+			airt_profile(t('Automatically importing queue element %e.', array(
+				'%e'=>$newid)));
+			$res = queueToAIRT($newid, $error, $iqelement['cache_mailtemplate']);
+		   if ($res === 0) {
+				airt_profile('queueToAIRT success.');
+				if (updateQueueItem($newid, 'status', 'accepted', $error) === false) {
+					airt_profile(t(_('Unable to update queue element %e to accepted'),
+						array('%e'=>$newid)));
+				} else {
+					airt_profile(t('Queue element %d updated.', array('%d'=>$newid)));
+				}
+		   } else {
+				airt_profile('Failed: '.$error);
+			}
       }
 
       // progress
@@ -385,7 +428,7 @@ function queueGetItems(&$elements, &$error) {
       FROM import_queue
       WHERE status = \'open\'
       ORDER BY cache_ip DESC, id ASC'));
-   if ($res == false) {
+   if ($res === false) {
       $error = _('Unable to query database').' in importqueue.plib:'.__LINE__;
       return false;
    }
@@ -394,6 +437,33 @@ function queueGetItems(&$elements, &$error) {
       $elements[$row['id']] = $row;
    }
    return true;
+}
+
+/* retrieve a specific element from database.
+ *
+ * Parameters
+ * $id  the identifier of the queue element
+ * $error will contain an error message, if any
+ *
+ * Returns the queue item on success (array), or false on failure
+ */
+function queueGetItem($queueid, &$error) {
+   $error = '';
+   $res = db_query(q('SELECT id, created, status, sender, type, summary,
+      cache_ip, cache_constituency, cache_mailtemplate, filter, content,
+      metatype, version
+      FROM import_queue
+      WHERE id = %id', array('%id'=>$queueid)));
+
+   if ($res === false) {
+      $error = _('Unable to query database').' in importqueue.plib:'.__LINE__;
+      return false;
+   }
+   $element = array();
+   while ($row = db_fetch_next($res)) {
+      $element = $row;
+   }
+   return $element;
 }
 
 
@@ -669,32 +739,16 @@ function queueFormatItems($typefilter='all') {
  */
 function queueToAIRT($id, &$error, $mailtemplate='') {
    global $AIRT_CURL_OPTIONS;
-   $saml_ticket = '';
-   airt_profile('queueToAIRT: fetching SAML ticket');
-   $saml_ticket = getSAMLTicket();
-   airt_profile($saml_ticket);
-   $saml_ticket = preg_replace('/xmlns:="urn:oasis:names:tc:SAML:1.0:assertion"/','',$saml_ticket);
-   $saml_ticket = preg_replace('/xmlns:ds="http:\/\/www.w3.org\/2000\/09\/xmldsig#"/','',$saml_ticket);
-   $saml_ticket = preg_replace('/ds:/','',$saml_ticket);
-   airt_profile('queueToAIRT: got SAML ticket');
-   $doc = new DOMDocument();
-   $dom = $doc->loadXML($saml_ticket);
-   if ($dom == true) {
-      $ticket_element = $doc->getElementsByTagname('KeyValue');
-      $ticketid = $ticket_element->item(0)->textContent;
-   }
 
-   if(!isset($ticketid) || $ticketid == null) {
-      $error = _('Missing key for authentication');
-      return 1;
-   }
-
+   airt_profile('queueToAIRT');
    if ($id == '') {
       $error = _('Missing parameter id');
+		airt_profile('Missing id');
       return 1;
    }
    $data = queuePeekItem($id, $error);
    if ($data == NULL) {
+	   airt_profile('No data when peeking');
       return 1;
    }
    $matches = array();
@@ -709,6 +763,7 @@ function queueToAIRT($id, &$error, $mailtemplate='') {
    $doc = new DOMDocument();
    $dom = $doc->loadXML($data['content']);
    
+   airt_profile('Creating WS_ENDPOINT'); 
    $airt_client = new SOAP_Client(WS_ENDPOINT);
    $xpath = new DOMXPath($doc);
    if ($xpath->query('//airt/incident')->length > 0) {
@@ -724,7 +779,6 @@ function queueToAIRT($id, &$error, $mailtemplate='') {
       $newdoc = new DOMDocument();
       $airt = $newdoc->appendChild($newdoc->createElement('airt'));
       $ident = $airt->appendChild($newdoc->createElement('messageIdentification'));
-      $ticketid = $ident->appendChild($newdoc->createElement('TicketID', $ticketid));
    
       $incident_element = $doc->getElementsByTagName('incident');
       if ($incident_element->length > 0) {
@@ -740,7 +794,7 @@ function queueToAIRT($id, &$error, $mailtemplate='') {
       $params = array('importXML'=>$newdoc->saveXML());
 
    } elseif ($xpath->query('//airt/contactData')->length > 0) {
-# XXX XXX
+
       airt_profile('Processing //airt/contactData');
       $method = 'importContact';
       $params = array('importXML'=>$data['content']);
@@ -756,6 +810,7 @@ function queueToAIRT($id, &$error, $mailtemplate='') {
    airt_profile('Calling web service method: '.$method);
    $ans = $airt_client->call($method, $params);
    if (PEAR::isError($ans)) {
+		airt_profile('SOAP error. Aborting.');
       echo "<PRE>";
       echo "SOAP Error:";
       print_r($ans->getFault());
@@ -763,50 +818,6 @@ function queueToAIRT($id, &$error, $mailtemplate='') {
       exit;
    }
    return 0;
-}
-
-
-/* Get the random id from the filesystem in order to authenticate, in
- * order to append it to the XML later
- */
-function getSAMLTicket() {
-   global $AIRT_CURL_OPTIONS;
-   airt_profile('getSAMLTicket: start');
-   // Build the XML-format for auth-request
-   $doc = new DOMDocument();
-   $auth = $doc->appendChild($doc->createElement('authentication'));
-
-   $username_el = $doc->createElement('username');
-   $username_el->appendChild($doc->createTextNode(WS_USERNAME));
-   $auth->appendChild($username_el);
-
-   $password_el = $doc->createElement('password');
-   $password_el->appendChild($doc->createTextNode(WS_PASSWORD));
-   $auth->appendChild($password_el);
-
-   $xml_auth = $doc->saveXML();
-   $airt_client = new SOAP_Client(WS_ENDPOINT);
-   $method = 'RequestAuthentication';
-   $params = array('auth_request' => $xml_auth);
-
-   // process CURL options
-   foreach ($AIRT_CURL_OPTIONS as $key=>$value) {
-      $airt_client->setOpt('curl', $key, $value);
-   }
-   airt_profile('getSAMLTicket: calling web service');
-   $ans = $airt_client->call($method, $params);
-
-   if (PEAR::isError($ans)) {
-      echo '<pre>';
-      echo "SOAP Error:";
-      print_r($ans->getFault());
-      print '</pre>';
-      airt_profile('getSAMLTicket: fail-end');
-      exit;
-   } else {
-      airt_profile('getSAMLTicket: success-end');
-      return $ans;
-   }
 }
 
 
@@ -1069,34 +1080,6 @@ function queueAddLogging($id, &$error, $template='', &$incidentid) {
 }
 
 
-/* Fetch an authentication ticket from the web service
- *
- * Parameters:
- *    ticket (string); variable to write the ticket to, if sucessfully retrieved
- *    error (string); variable to write error message in, if any
- * Returns
- *    0 on success, 1 in case of a problem
- */
-function fetchAuthTicket(&$ticket, &$error) {
-   global $AIRT_CURL_OPTIONS;
-   $saml_ticket = '';
-   $saml_ticket = getSAMLTicket();
-   $saml_ticket = preg_replace('/xmlns:="urn:oasis:names:tc:SAML:1.0:assertion"/','',$saml_ticket);
-   $saml_ticket = preg_replace('/xmlns:ds="http:\/\/www.w3.org\/2000\/09\/xmldsig#"/','',$saml_ticket);
-   $saml_ticket = preg_replace('/ds:/','',$saml_ticket);
-   $doc = new DOMDocument();
-   $dom = $doc->loadXML($saml_ticket);
-   if($dom == true) {
-      $ticket_element = $doc->getElementsByTagname('KeyValue');
-      $ticket = $ticket_element->item(0)->textContent;
-   }
-   if(!isset($ticket) || $ticket == null) {
-      $error = _('Missing key for authentication');
-      return 1;
-   } else {
-      return 0;
-   }
-}
 
 /** Accept import queue element into AIRT.
  * @param $id ID of import queue element.

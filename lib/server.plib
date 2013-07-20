@@ -19,69 +19,202 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/* Check if the provided credentials are valid
- * 
- * $ticketid (string) = the provided credentials
- *
- * Returns the userid belonging to the ticket, or -1
- * if the ticket was invalid
+
+/* function will return true on success, or a descriptive error  
+ * message on error
  */
-function CheckCredentials($ticketid) {
-   // initialise return value
-   $userid = -1;
+function AIRT_importIncidentData($importXML) {
+	$dom = $mailtemplate = $state = $status = $type = $incidentid = $address = $ip = $addressrole ='';
 
-   // check params
-   if (!is_string($ticketid) || $ticketid == '') {
-      return -1;
-   }
+airt_profile('Start importIncidentData');
+	// first check the validity of the XML
+	$doc = new DOMDocument();
+	$dom = $doc->loadXML($importXML);
+	if (!$dom) {
+		$error = 'Could not parse XML document';
+		return $error;
+		exit;
+	}
+airt_profile('parsed');
 
-   $res = db_query(sprintf('
-      SELECT   userid 
-      FROM     authentication_tickets where ticketid=%s 
-      AND      CURRENT_TIMESTAMP > created
-      AND      CURRENT_TIMESTAMP < expiration',
-         db_masq_null($ticketid)))
-   or die;
+	if ($doc->hasChildNodes() == false) {
+		$error = 'XML does not contain any elements';
+		return $error;
+		exit;
+	}
 
-   while ($row = db_fetch_next($res)) {
-      $userid = $row['userid'];
-   }
-   return $userid;
+airt_profile('xml ok');
+
+	// check the credentials
+	$message_ident_el = $doc->getElementsByTagname('messageIdentification');
+	if ($message_ident_el->length == 0) {
+		$error = 'Empty messageIdentification element';
+		return $error;
+		exit;
+	}
+
+	$userid = IMPORTUSER;
+	$_SESSION['userid'] = $userid;
+
+airt_profile('Credentials ok');
+
+	// get defaults
+	if (!defined('WS_IMPORT_DEFAULTSTATE')) {
+		$state = getIncidentStateDefault();
+		if($state == null) {
+			setIncidentStateDefault();
+			$state = getIncidentStateDefault();
+		}
+	} else {
+		$state = array_search(WS_IMPORT_DEFAULTSTATE, getIncidentStates());
+		if ($state == false) {
+			$state = getIncidentStateDefault();
+		}
+	}
+
+airt_profile('State: '.$state);
+
+	$status = getIncidentStatusDefault();
+	if($status == null) {
+		setIncidentStatusDefault();
+		$status = getIncidentStatusDefault();
+	}
+
+airt_profile('Status: '.$status);
+
+	$type = getIncidentTypeDefault();
+	if($type == null) {
+		setIncidentTypeDefault();
+		$type = getIncidentTypeDefault();
+	}
+
+airt_profile('Type: '.$type);
+
+	// parse incident data
+	$incidents = $doc->getElementsByTagname('incident');
+	for ($count=0;$count<$incidents->length;$count++) {
+		// begin ticketInformation
+		$ti = $incidents->item($count)->getElementsByTagName('ticketInformation');
+		if ($ti->length > 0) {
+			$prefixel = $ti->item(0)->getElementsByTagname('prefix');
+			if ($prefixel->length > 0) {
+				$prefix = $prefixel->item(0)->textContent;
+				if (empty($prefix)) {
+					$prefix = '#UNKNOWN';
+				}
+			}
+			$refel = $ti->item(0)->getElementsByTagname('reference');
+			if ($refel->length > 0) {
+				$reference = $refel->item(0)->textContent;
+				if (empty($reference)) {
+					$reference = '0';
+				}
+			}
+		} // end TicketInformation
+
+		$techinfo = $incidents->item($count)->getElementsByTagname('technicalInformation');
+		for ($count2=0; $count2<$techinfo->length; $count2++) {
+			$ip_element = $techinfo->item($count2)->getElementsByTagname('ip');
+			if ($ip_element->length > 0) {
+				$ip = $ip_element->item(0)->textContent;
+				// default ip
+				if ($ip == null) {
+					$ip = '127.0.0.1';
+				}
+			}
+			$hostname_element = $techinfo->item($count2)->getElementsByTagname('hostname');
+			if ($hostname_element->length > 0) {
+				$hostname = $hostname_element->item(0)->textContent;
+				// default hostname
+				if ($hostname == null) {
+					$hostname = 'localhost';
+				}
+			}
+
+			$time_dns_resolving_element = $techinfo->item($count2)->getElementsByTagname('time_dns_resolving');
+			if ($time_dns_resolving_element->length > 0) {
+				$time_dns_resolving = $time_dns_resolving_element->item(0)->textContent;
+				// default time_dns_resolving
+				if ($time_dns_resolving == null) {
+					$time_dns_resolving = time();
+				}
+			}
+
+			$incident_time_element = $techinfo->item($count2)->getElementsByTagname('incident_time');
+			if ($incident_time_element->length > 0) {
+				$incident_time = $incident_time_element->item(0)->textContent;
+				// default incident_time
+				if ($incident_time == null) {
+					$incident_time = time();
+				}
+			}
+
+			$logging_element = $techinfo->item($count2)->getElementsByTagname('logging');
+			if ($logging_element->length > 0) {
+				$logging = $logging_element->item(0)->textContent;
+			}
+airt_profile('Logging: ok');
+
+			$mailtemplate_element = $techinfo->item($count2)->getElementsByTagname('mailtemplate');
+			if ($mailtemplate_element->length > 0) {
+				$mailtemplate = $mailtemplate_element->item(0)->textContent;
+			}
+airt_profile('Mailtemplate: ok');
+
+			$address = $ip;
+			$addressrole = '0';
+		} // end technicalInformation
+	} // end incident
+
+airt_profile('Incident data parsed');
+
+	// generate an incident id
+	$i = 0 ; // Do we need this index/key ?
+	$incidentid[$i] = createIncident(array(
+		'state'=>$state,
+		'status'=>$status,
+		'type'=>$type,
+		'logging'=>$logging));
+airt_profile('Incident '.$incidentid[$i].' created');
+
+	addIPtoIncident(array(
+		'ip'=>$address,
+		'hostname'=>$hostname,
+		'incidentid'=>$incidentid[$i],
+		'addressrole'=>$addressrole));
+airt_profile('IP addresses added');
+
+	$networkid = categorize($address);
+	$constituencyID = getConstituencyIDbyNetworkID($networkid);
+	$contacts = getConstituencyContacts($constituencyID);
+	foreach ($contacts as $id=>$data) {
+		addUserToIncident($data['userid'], $incidentid[$i]);
+	}
+airt_profile('Users added');
+
+	if ($mailtemplate != '' && $mailtemplate != _('No preferred template')) {
+		setPreferredMailTemplateName($incidentid[$i], $mailtemplate);
+		addIncidentComment(array(
+			'comment'=>'Import queue set preferred template to: '.$mailtemplate,
+			'incidentid'=>$incidentid[$i]));
+	}
+
+airt_profile('Template added');
+
+	if (isset($error)) {
+		return $error;
+		/*
+		$error = 'Import successful. Imported incident with id ';
+		$id_list = '';
+		foreach ($incidentid as $i => $id)
+			$id_list .= "$id, ";
+		$id_list = rtrim($id_list,', ');
+		$error .= $id_list.'.';
+		return $error;
+		*/
+	} else {
+		airt_profile('Success');
+	   return true;
+	}
 }
-
-function CreateTicket($userid,$ticketid) {
-   $res = db_query(
-      "SELECT  nextval('authentication_tickets_sequence') as creationid")
-      or die(_('Unable to execute query'));
-
-   while ($row = db_fetch_next($res)) {
-      $creationid = $row['creationid'];
-   }
-
-   $res = db_query(sprintf("insert into authentication_tickets (id,
-   userid, created, expiration, ticketid) VALUES
-   (%s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + interval
-   '".TICKET_EXP." seconds', %s)",
-      db_masq_null($creationid),
-      db_masq_null($userid),
-      db_masq_null($ticketid)))
-   or die(_('Unable to create ticket'));
-
-   return $creationid;
-}
-
-function getIssueTime($creationid) {
-   $res = db_query(sprintf("
-      SELECT  created
-      FROM    authentication_tickets
-      WHERE   id=%s",
-         db_masq_null($creationid)))
-   or die;
-
-   while ($row = db_fetch_next($res)) {
-      $issuetime = $row['created'];
-   }
-   return $issuetime;
-}
-
 ?>

@@ -481,16 +481,20 @@ function addIPtoIncident($data=array()) {
  */
 function createIncident($params = array()) {
 
+airt_profile('Starting createIncident');
    if (!is_array($params)) {
+		airt_profile('Missing parameters.');
       return false;
    }
    if (empty($params['state']) || !is_numeric($params['state'])) {
+		airt_profile('False state');
       return false;
    }
    if (empty($params['status']) || !is_numeric($params['status'])) {
       $params['status'] = getIncidentStatusDefault();
    }
    if (empty($params['type']) || !is_numeric($params['type'])) {
+		airt_profile('False type');
       return false;
    }
    if (empty($params['logging'])) {
@@ -514,13 +518,16 @@ function createIncident($params = array()) {
 
    $res = db_query('select nextval(\'incidents_sequence\') as incidentid');
    if ($res == false) {
+		airt_profile('Unable to assign incident id');
       return false;
    }
    $row = db_fetch_next($res);
    $incidentid = $row['incidentid'];
+	airt_profile('Assigned incident id: '.$incidentid);
    $_SESSION['incidentid'] = $incidentid;
    db_free_result($res);
 
+   airt_profile('Populating incident');
    $q = sprintf(
       'insert into incidents
       (id, created, creator, updated, updatedby, state, status, type,
@@ -541,9 +548,11 @@ function createIncident($params = array()) {
    );
    $res = db_query($q);
    if (!$res) {
+      airt_profile('Failed to populate incident');
       return false;
    }
    db_free_result($res);
+	airt_profile('Incident populated.');
 
    addIncidentComment(array(
       'comment'=>'Incident created',
