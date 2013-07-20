@@ -30,7 +30,7 @@
  */
 if (defined('CURLOPT_CAPATH')) {
    $AIRT_CURL_OPTIONS = array(
-     'CURLOPT_CAPATH'=>'/etc/ssl/certs'
+     CURLOPT_CAPATH=>'/etc/ssl/certs'
    );
 }
 
