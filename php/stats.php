@@ -361,9 +361,6 @@ function printreport2($start, $stop) {
       $out .= '</tr>'.LF;
       $const_sums['created'] += $row['count'];
       $const_sums['open'] += sizeof($o);
-      $isp=explode('-',$const[$row['constituencyid']]['label'],2);
-      $isp_sums[trim($isp[0])]['created'] += $row['count'];
-      $isp_sums[trim($isp[0])]['open'] += sizeof($o);
    }
    $out .= '<tr style="background-color:lightgray">'.LF;
    $out .= '<td>'._('Sum').'</td>'.LF;
