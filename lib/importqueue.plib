@@ -613,9 +613,8 @@ function queueFormatItems($typefilter='all') {
                '%label'=>normalize_incidentid($openips[$element['cache_ip']])));
          }
 
-/*
          Setup::getOption('correlationage', $correlationage, true);
-         if (getPreviousIncidents($element['cache_ip'], $prev, $error) &&
+         if ($correlationage != 0 && getPreviousIncidents($element['cache_ip'], $prev, $error) &&
                filterIncidentsByStatus($prev, 2, $prev2, $error) &&
                filterIncidentsByAge($prev2, $correlationage, $prev3, $error)) {
             for ($i=0; $i < sizeof($prev3); $i++) {
@@ -627,7 +626,6 @@ function queueFormatItems($typefilter='all') {
                   '%c'=>formatRelativeDate($prev['updated'])));
             }
          }
-*/
       } // group == false
 
       $group = false;
