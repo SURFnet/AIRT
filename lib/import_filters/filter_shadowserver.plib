@@ -277,7 +277,7 @@ function filter_shadowout($incidents, &$output, $verbosity=false) {
       $techinfo_el->appendChild($doc->createElement('time_dns_resolving',
          Date('Y-m-d H:i:s')));
       $techinfo_el->appendChild($doc->createElement('logging',
-         htmlentities($incident['logging'], ENT_COMPAT | ENT_XML1,'UTF-8')));
+         htmlentities($incident['logging'],ENT_COMPAT,'UTF-8')));
       $techinfo_el->appendChild($doc->createElement('incident_time',
          $incident['details'][$timestampkey]));
 
