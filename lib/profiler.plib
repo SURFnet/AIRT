@@ -4,13 +4,17 @@ if(!defined('PROFILING')) { define('PROFILING', false); }
 
 function airt_profile($msg) {
    global $f;
-   if (!isset($f)) {
-      $f = fopen('/tmp/airt_profile.log', 'a');
-      chmod('/tmp/airt_profile.log', 0664);
-   }
    if (defined('PROFILING') && PROFILING===true) {
-      list($usec, $sec) = explode(" ", microtime());
-      fwrite($f, date('r',$sec).' | '.$usec.' | '.VIRTUAL_HOST.' | '.$msg.' | '.LF);
+      if (!isset($f)) {
+         $f = fopen('/tmp/airt_profile.log', 'a');
+         if (fileowner('/tmp/airt_profile.log') === posix_getuid()) {
+             chmod('/tmp/airt_profile.log', 0664);
+         }
+      }
+      if(is_resource($f)) {
+         list($usec, $sec) = explode(" ", microtime());
+         fwrite($f, date('r',$sec).' | '.$usec.' | '.VIRTUAL_HOST.' | '.$msg.' | '.LF);
+      }
    }
 }
 ?>
