@@ -52,7 +52,7 @@ switch ($action) {
          * is probably the default */
         $max = 0;
         $fs = '';
-        foreach (array(',', '|', ';', ':') as $d) {
+        foreach (array('	',',', '|', ';', ':') as $d) {
             $n = sizeof(str_getcsv($line, $d));
             if ($n > $max) { 
                 $max = $n;
@@ -71,7 +71,8 @@ switch ($action) {
                 break;
             }
         }
-           
+        if ($fs == '	') { $fs = '\t';}
+
         pageHeader(_('File upload'), array(
             'menu'=>'incidents',
             'submenu'=>'upload'));
@@ -134,6 +135,7 @@ switch ($action) {
         if (($version = fetchFrom('POST', 'version', '%s')) == '') {
             $version = '';
         }
+        if ($sep == '\t') { $sep = '	';}
         if (strlen($sep) > 1) {
             airt_msg(_('Delimiter must be one character only'));
             unlink($_SESSION['uploadfile']);
