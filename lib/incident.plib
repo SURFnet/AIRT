@@ -276,6 +276,29 @@ function getIncidentTypeSelection($name, $default='',$extras=array(),
    return $output;
 }
 
+function getOpenIncidentCount($sqlfilter = "WHERE s1.label IN ('open', 'stalled')") {
+   $query = q(
+      'SELECT   count(i.id) as numincidents
+         FROM   incidents i
+         LEFT JOIN incident_addresses a on i.id = a.incident
+         LEFT JOIN constituencies c on a.constituency = c.id
+         LEFT JOIN incident_status s1 on s1.id = i.status
+         LEFT JOIN incident_states s2 on s2.id = i.state
+         LEFT JOIN incident_types t on t.id = i.type
+         LEFT JOIN users u1 on u1.id = i.creator
+         LEFT JOIN users u2 on u2.id = i.updatedby
+         '.
+         $sqlfilter);
+   if (($res = db_query($query)) === false) {
+	   print  'X:'.__LINE__.':'.db_errormessage();
+      airt_error('DB_QUERY', 'incident.plib:'.__LINE__);
+      return array();
+   } else {
+	   $row = db_fetch_next($res);
+		return $row['numincidents'];
+	}
+}
+
 /* retrieve incidents with status open or stalled.  Returns an associative
  * array with the incident ID as key and an associative array with incident
  * data as value. The optional variable $sqlfilter can be used to influence
@@ -1698,7 +1721,7 @@ function setMailtemplateOverride($incidentid, $userid, $template) {
  * Formatted overview of open incidents
  */
 function listIncidents() {
-
+   airt_profile("List incidents");
    /* by default, do not filter on state */
    $state = fetchFrom('REQUEST','state', '%d');
    defaultTo($state, -1);
@@ -1715,6 +1738,7 @@ function listIncidents() {
    } else {
        $archive = true;
    }
+   airt_profile("Archive: ".$archive);
 
    $sortkey = strip_tags(fetchFrom('REQUEST','sortkey'));
    defaultTo($sortkey, 'incidentid');
@@ -1800,8 +1824,12 @@ function listIncidents() {
          $sqlfilter .= ' ORDER BY incidentid';
          $sortkey = 'incidentid';
    }
+/*
    $incidents = getOpenIncidents($sqlfilter);
+	airt_profile("Memory after: ".memory_get_usage());
    $numincidents = sizeof($incidents);
+*/
+	$numincidents = getOpenIncidentCount();
    $pager = '';
    if ((Setup::getOption('pagesize', $pagesize)) === false) {
       $pagesize = 50;
@@ -1972,16 +2000,22 @@ function listIncidents() {
 
    // Prepare to run over the list of incidents that need display.
    $count = 0;
+	airt_profile("Fetching constituencies");
    $conslist = getConstituencies();
+	airt_profile("Done");
+
    $elcount = 1; // 1 is the checkbox selector, 2 is the first one to check
    Setup::getOption('bubblesize', $maxbubblesize, true);
-   foreach ($incidents as $id=>$data) {
-      if (($count++ > $page * $pagesize) ||
-          ($count <= ($page-1) * $pagesize)) {
-          continue;
-      }
+	airt_profile("Begin building the table.");
+	$lower = $page * $pagesize;
+	$upper = ($page-1) * $pagesize;
+   foreach (getOpenIncidents($sqlfilter.' LIMIT '.$pagesize.' OFFSET '.($page-1)*$pagesize) as $id=>$data) {
+		airt_profile("   begin ".$id);
+	   airt_profile("   memory: ".memory_get_usage());
       $script .= 'document.forms[2].elements['.($elcount++).'].checked = check;'.LF;
+		airt_profile("      Fetching incident addresses");
       $addresses = getAddressesForIncident($id);
+		airt_profile("      Done fetching incidents");
       if (sizeof($addresses) > 0) {
          $constituency = $conslist[$addresses[0]['constituency']]['label'];
          $consnotes = $conslist[$addresses[0]['constituency']]['notes'];
@@ -2039,7 +2073,9 @@ function listIncidents() {
                 '%updated' => Date('d M Y', $data['updated'])));
           $out .= '</tr>'.LF;
       } // stalled filter
+		airt_profile("   end ".$id);
    } // foreach
+	airt_profile("Done building the table");
    $out .= '</table>'.LF;
    $script .= '};'.LF;
    $script .= '</script>';
@@ -2099,6 +2135,7 @@ function listIncidents() {
    }
    print $script;
    print $out;
+	airt_profile("Done listincidents");
    pageFooter();
 }
 
