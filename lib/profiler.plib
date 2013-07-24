@@ -13,7 +13,8 @@ function airt_profile($msg) {
       }
       if(is_resource($f)) {
          list($usec, $sec) = explode(" ", microtime());
-         fwrite($f, date('r',$sec).' | '.$usec.' | '.VIRTUAL_HOST.' | '.$msg.' | '.LF);
+         fwrite($f, date('r',$sec).' | '.$usec.' | '.VIRTUAL_HOST.' | '.
+            memory_get_usage().' | '.$msg.' | '.LF);
       }
    }
 }
