@@ -289,6 +289,7 @@ function getOpenIncidentCount($sqlfilter = "WHERE s1.label IN ('open', 'stalled'
          LEFT JOIN users u2 on u2.id = i.updatedby
          '.
          $sqlfilter);
+   airt_profile('getOpenIncidentCount with query: '.$query);
    if (($res = db_query($query)) === false) {
 	   print  'X:'.__LINE__.':'.db_errormessage();
       airt_error('DB_QUERY', 'incident.plib:'.__LINE__);
@@ -1793,6 +1794,7 @@ function listIncidents() {
    }
 
    $sqlfilter = 'WHERE '.implode(' AND ', $filter);
+   $countfilter= $sqlfilter;
 
    switch ($sortkey) {
       case 'incidentid':
@@ -1829,13 +1831,14 @@ function listIncidents() {
 	airt_profile("Memory after: ".memory_get_usage());
    $numincidents = sizeof($incidents);
 */
-	$numincidents = getOpenIncidentCount();
+	$numincidents = getOpenIncidentCount($countfilter);
    $pager = '';
    if ((Setup::getOption('pagesize', $pagesize)) === false) {
       $pagesize = 50;
    }
    if ($numincidents  > $pagesize) {
        $pages = ceil($numincidents / $pagesize);
+       airt_profile('Set '.$pages.' pages for '.$numincidents.' incidents.');
        $pager .= t(_('Incident %n - %m of %M. Page :'), array(
           '%n'=>($page-1)*$pagesize+1,
           '%M'=>$numincidents,
@@ -2011,11 +2014,10 @@ function listIncidents() {
 	$upper = ($page-1) * $pagesize;
    foreach (getOpenIncidents($sqlfilter.' LIMIT '.$pagesize.' OFFSET '.($page-1)*$pagesize) as $id=>$data) {
 		airt_profile("   begin ".$id);
-	   airt_profile("   memory: ".memory_get_usage());
       $script .= 'document.forms[2].elements['.($elcount++).'].checked = check;'.LF;
 		airt_profile("      Fetching incident addresses");
       $addresses = getAddressesForIncident($id);
-		airt_profile("      Done fetching incidents");
+		airt_profile("      Done fetching incident addresses");
       if (sizeof($addresses) > 0) {
          $constituency = $conslist[$addresses[0]['constituency']]['label'];
          $consnotes = $conslist[$addresses[0]['constituency']]['notes'];
