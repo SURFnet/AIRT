@@ -17,3 +17,6 @@ CREATE INDEX incident_addresses_index_incident
 
 INSERT INTO settings (key, value) VALUES ('inqueuegroup', 1);
 
+INSERT INTO settings (key, value) VALUES ('inqueuepromote', 0);
+
+

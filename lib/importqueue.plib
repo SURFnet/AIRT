@@ -198,14 +198,17 @@ function importIncident($doc, $importqueue, &$error='', $verbosity=FALSE) {
 airt_profile('Template: '.$iqelement['cache_mailtemplate']);
 airt_profile('Filter: '.$iqelement['filter']);
 airt_profile('Constituency: '.$iqelement['cache_constituency']);
-		if (! ( empty($iqelement['cache_mailtemplate']) ||
+
+		Setup::getOption('inqueuepromote', $inqueuepromote, false);
+      if ($inqueuepromote == false) {
+			airt_profile('Configuration setting prohibits promoting incident.');
+	   } else if (! ( empty($iqelement['cache_mailtemplate']) ||
               empty($iqelement['filter']) ||
 		        ($iqelement['cache_constituency'] == 'default')
             )
          ) {
 
-		/* TODO:
-       * $newid now holds the key to the newly created import queue
+		/* $newid now holds the key to the newly created import queue
        * element. Fetch it and then
        *
        * if (recognized filter, AND

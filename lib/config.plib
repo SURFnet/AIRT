@@ -186,6 +186,21 @@ function showConfigScreen() {
    $out .= '    </td>'.LF;
 	$out .= '</tr>'.LF;
 
+	Setup::getOption('inqueuepromote', $inqueuepromote, false);
+	$out .= '<tr>'.LF;
+	$out .= t('    <td>%l</td>'.LF, array('%l'=>
+		_('Automatically promote import queue elements to incidents if sufficient data is available.')));
+   $out .= '    <td>';
+   $out .= t('%l <input type="radio" %check% value="on" name="inqueuepromote">', array(
+      '%l'=>_('Yes'),
+      '%check%'=>($inqueuepromote == 1) ? 'CHECKED' : ''));
+   $out .= '  ';
+   $out .= t('%l <input type="radio" %check value="off" name="inqueuepromote">', array(
+      '%l'=>_('No'),
+      '%check'=>($inqueuepromote == 0) ? 'CHECKED' : ''));
+   $out .= '    </td>'.LF;
+	$out .= '</tr>'.LF;
+
    $out .= '</table>'.LF;
    $out .= '</div>'.LF;
 
@@ -211,6 +226,7 @@ function saveConfig() {
    $replyto = fetchFrom('REQUEST', 'replyto');
    $inqueuesep = fetchFrom('REQUEST', 'inqueuesep');
    $inqueuegroup = fetchFrom('REQUEST', 'inqueuegroup');
+   $inqueuepromote = fetchFrom('REQUEST', 'inqueuepromote');
    $session_timeout = fetchFrom('REQUEST', 'session_timeout', '%d');
    $bubblesize = fetchFrom('REQUEST', 'bubblesize', '%d');
 
@@ -247,12 +263,15 @@ function saveConfig() {
        Setup::setOption('bubblesize', $bubblesize);
    }
    $x509client = ($x509client == 'on') ? 1 : 0;
+   $inqueuegroup = ($inqueuegroup == 'on') ? 1 : 0;
+   $inqueuepromote = ($inqueuepromote == 'on') ? 1 : 0;
 
    Setup::setOption('mailcc', $mailcc);
    Setup::setOption('replyto', $replyto);
    Setup::setOption('x509client', $x509client);
    Setup::setOption('inqueuesep', $inqueuesep);
    Setup::setOption('inqueuegroup', $inqueuegroup);
+   Setup::setOption('inqueuepromote', $inqueuepromote);
 
    if (Setup::saveOptions($error) === false) {
       airt_msg($error);
