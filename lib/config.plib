@@ -1,4 +1,5 @@
 <?php
+// vim: syntax=php tabstop=3 shiftwidth=3
 require_once LIBDIR.'/setup.plib';
 require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/database.plib';
@@ -170,6 +171,21 @@ function showConfigScreen() {
    $out .= t('     <td><input type="string" value="%v" name="inqueuesep" size="45"></td>'.LF, array('%v'=>htmlentities($inqueuesep)));
    $out .= '  </tr>'.LF;
 
+	Setup::getOption('inqueuegroup', $inqueuegroup, true);
+	$out .= '<tr>'.LF;
+	$out .= t('    <td>%l</td>'.LF, array('%l'=>
+		_('Group elements in import queue if IP addresses are identical')));
+   $out .= '    <td>';
+   $out .= t('%l <input type="radio" %check% value="on" name="inqueuegroup">', array(
+      '%l'=>_('Yes'),
+      '%check%'=>($inqueuegroup == 1) ? 'CHECKED' : ''));
+   $out .= '  ';
+   $out .= t('%l <input type="radio" %check value="off" name="inqueuegroup">', array(
+      '%l'=>_('No'),
+      '%check'=>($inqueuegroup == 0) ? 'CHECKED' : ''));
+   $out .= '    </td>'.LF;
+	$out .= '</tr>'.LF;
+
    $out .= '</table>'.LF;
    $out .= '</div>'.LF;
 
@@ -194,6 +210,7 @@ function saveConfig() {
    $mailcc = fetchFrom('REQUEST', 'mailcc');
    $replyto = fetchFrom('REQUEST', 'replyto');
    $inqueuesep = fetchFrom('REQUEST', 'inqueuesep');
+   $inqueuegroup = fetchFrom('REQUEST', 'inqueuegroup');
    $session_timeout = fetchFrom('REQUEST', 'session_timeout', '%d');
    $bubblesize = fetchFrom('REQUEST', 'bubblesize', '%d');
 
@@ -235,6 +252,7 @@ function saveConfig() {
    Setup::setOption('replyto', $replyto);
    Setup::setOption('x509client', $x509client);
    Setup::setOption('inqueuesep', $inqueuesep);
+   Setup::setOption('inqueuegroup', $inqueuegroup);
 
    if (Setup::saveOptions($error) === false) {
       airt_msg($error);

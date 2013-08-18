@@ -14,3 +14,6 @@ UPDATE versions SET value='----version----' WHERE key='airtversion';
 
 CREATE INDEX incident_addresses_index_incident 
 	  ON incident_addresses ( incident )
+
+INSERT INTO settings (key, value) VALUES ('inqueuegroup', 1);
+

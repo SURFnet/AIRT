@@ -524,6 +524,7 @@ function queueFormatItems($typefilter='all') {
    $siblings = array();
    $constituencies = getConstituencies();
    Setup::getOption('bubblesize', $maxbubblesize, true);
+   Setup::getOption('inqueuegroup', $inqueuegroup, true);
    foreach ($elements as $id=>$element) {
       if ($typefilter != 'all' && $element['type'] != $typefilter) {
           continue;
@@ -589,8 +590,15 @@ function queueFormatItems($typefilter='all') {
       $group = false;
       if (array_key_exists($ip, $used_ips)) {
          $parent = $used_ips[$ip][0];
-         $out .= '  <input type="checkbox" value="'.$parent.
+         $out .= t('  <input type="checkbox" value="%parent%" %checked% id="group%id%" name="group[%id%]">'.LF, array(
+				'%parent%' => $parent,
+				'%id%' => $element['id'],
+				'%checked%' => ($inqueuegroup == 0) ? '' : 'checked'));
+/*
+
+'.$parent.
             '" id="group'.$element['id'].'" name="group['.$element['id'].']">'.LF;
+*/
          $out .=  t(_('  Group with queue item %parent<br/>'), array('%parent'=>$parent)).LF;
          if (array_key_exists($parent, $siblings)) {
              $siblings[$parent][] = $element['id'];
