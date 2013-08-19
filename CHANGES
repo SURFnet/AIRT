@@ -1,3 +1,6 @@
+2013-08-30
+* Minor bug fixes
+
 2013-08-28
 * AIRT now has a strong dependency on PostgreSQL
 * Speed optimizations for high-volume processors
