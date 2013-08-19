@@ -180,7 +180,7 @@ switch ($action) {
             $count++;
         }
         $output .= '</airt>'.LF;
-        if (import($output,&$error) === FALSE) {
+        if (import($output, $error) === FALSE) {
             airt_msg($error);
             exit(reload());
         }

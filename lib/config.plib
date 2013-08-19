@@ -200,6 +200,21 @@ function showConfigScreen() {
       '%check'=>($inqueuepromote == 0) ? 'CHECKED' : ''));
    $out .= '    </td>'.LF;
 	$out .= '</tr>'.LF;
+	
+Setup::getOption('inqueuemerge', $inqueuemerge, true);
+	$out .= '<tr>'.LF;
+	$out .= t('    <td>%l</td>'.LF, array('%l'=>
+		_('Default behaviour to merge import queue elements into existing elements.')));
+   $out .= '    <td>';
+   $out .= t('%l <input type="radio" %check% value="on" name="inqueuemerge">', array(
+      '%l'=>_('Yes'),
+      '%check%'=>($inqueuemerge == 1) ? 'CHECKED' : ''));
+   $out .= '  ';
+   $out .= t('%l <input type="radio" %check value="off" name="inqueuemerge">', array(
+      '%l'=>_('No'),
+      '%check'=>($inqueuemerge == 0) ? 'CHECKED' : ''));
+   $out .= '    </td>'.LF;
+	$out .= '</tr>'.LF;
 
    $out .= '</table>'.LF;
    $out .= '</div>'.LF;
@@ -226,6 +241,7 @@ function saveConfig() {
    $replyto = fetchFrom('REQUEST', 'replyto');
    $inqueuesep = fetchFrom('REQUEST', 'inqueuesep');
    $inqueuegroup = fetchFrom('REQUEST', 'inqueuegroup');
+   $inqueuemerge = fetchFrom('REQUEST', 'inqueuemerge');
    $inqueuepromote = fetchFrom('REQUEST', 'inqueuepromote');
    $session_timeout = fetchFrom('REQUEST', 'session_timeout', '%d');
    $bubblesize = fetchFrom('REQUEST', 'bubblesize', '%d');
@@ -265,6 +281,7 @@ function saveConfig() {
    $x509client = ($x509client == 'on') ? 1 : 0;
    $inqueuegroup = ($inqueuegroup == 'on') ? 1 : 0;
    $inqueuepromote = ($inqueuepromote == 'on') ? 1 : 0;
+   $inqueuemerge = ($inqueuemerge == 'on') ? 1 : 0;
 
    Setup::setOption('mailcc', $mailcc);
    Setup::setOption('replyto', $replyto);
@@ -272,6 +289,7 @@ function saveConfig() {
    Setup::setOption('inqueuesep', $inqueuesep);
    Setup::setOption('inqueuegroup', $inqueuegroup);
    Setup::setOption('inqueuepromote', $inqueuepromote);
+   Setup::setOption('inqueuemerge', $inqueuemerge);
 
    if (Setup::saveOptions($error) === false) {
       airt_msg($error);

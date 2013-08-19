@@ -12,3 +12,4 @@ UPDATE versions SET value='----version----' WHERE key='airtversion';
 -- Needs manual update with the AIRT_VERSION string of the release.
 -- Cannot rely on .in expansion as it needs to stay fixed in history.
 
+insert into settings (key, value) values ('inqueuemerge', 1);     

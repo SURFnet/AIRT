@@ -528,6 +528,7 @@ function queueFormatItems($typefilter='all') {
    $constituencies = getConstituencies();
    Setup::getOption('bubblesize', $maxbubblesize, true);
    Setup::getOption('inqueuegroup', $inqueuegroup, true);
+   Setup::getOption('inqueuemerge', $inqueuemerge, true);
    foreach ($elements as $id=>$element) {
       if ($typefilter != 'all' && $element['type'] != $typefilter) {
           continue;
@@ -615,7 +616,9 @@ function queueFormatItems($typefilter='all') {
       if ($group == false) {
          if (array_key_exists($element['cache_ip'], $openips)) {
             $cur = getIncident($openips[$element['cache_ip']]);
-            $out .= '  <input type="checkbox" name="add['.$id.']">'.LF;
+            $out .= t('  <input type="checkbox" %checked% name="add[%id%]">'.LF,
+				    array('%id%' => $id,
+                      '%checked%' => ($inqueuemerge == 0) ? '' : 'checked'));
             $out .= t(_('<span class="%status">  Add to <a href="%u/incident.php?action=details&incidentid=%id">%label</a></span>').'<br/>'.LF,
             array(
                '%u'=>BASEURL,
@@ -1017,10 +1020,6 @@ function queueRemoveItem($id,&$error) {
  */
 function queueAddLogging($id, &$error, $template='', &$incidentid) {
    global $AIRT_CURL_OPTIONS;
-
-   if (fetchAuthticket($ticket, $error) != 0) {
-      return 1;
-   }
 
    // fetch item from queue
    $item = queuePeekItem($id, $error);
