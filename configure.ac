@@ -23,17 +23,22 @@ AC_INIT([airt], [AIRT_VERSION], [airt-dev@uvt.nl])
 AC_PREREQ(2.59)
 AC_COPYRIGHT([
 Copyright (C) 2005-2008 Tilburg University, The Netherlands
+Copyright (C) 2009-2013 Kees Leune
 ])
 
 AM_INIT_AUTOMAKE()
 
-AC_DEFINE_DIR(ETCDIR, sysconfdir/airt)
-AC_DEFINE_DIR(BINDIR, bindir)
-
 
 AC_ARG_WITH(phpdir,
-    AC_HELP_STRING(--with-phpdir=DIR,Location of PHP files that may be accessed by the web server [datadir/airt/php]), 
+    AC_HELP_STRING(--with-phpdir=DIR,Location of AIRT PHP scripts that may be accessed via the web server [datadir/airt/php]), 
     AIRT_PHPDIR="$withval")
+AC_ARG_WITH(phplibdir,
+    AC_HELP_STRING(--with-phplibdir=DIR,Location of PHP files that may not be accessed by the web server [datadir/airt/lib]), 
+    AIRT_PHPLIBDIR="$withval")
+AC_ARG_WITH(docdir,
+    AC_HELP_STRING(--with-docdir=DIR,Location of AIRT documentation [datadir/doc/airt]),
+    AIRT_DOCDIR="$withval")
+
 if test -z "$AIRT_PHPDIR"
 then
     if test "x$prefix" = xNONE
@@ -43,11 +48,9 @@ then
         AIRT_PHPDIR="$prefix/share/airt/php"
     fi
 fi
+
 AC_SUBST(AIRT_PHPDIR)
 
-AC_ARG_WITH(phplibdir,
-    AC_HELP_STRING(--with-phplibdir=DIR,Location of PHP files that may not be accessed by the web server [datadir/airt/lib]), 
-    AIRT_PHPLIBDIR="$withval")
 if test -z "$AIRT_PHPLIBDIR"
 then
     if test "x$prefix" = xNONE
@@ -59,9 +62,6 @@ then
 fi
 AC_SUBST(AIRT_PHPLIBDIR)
 
-AC_ARG_WITH(docdir,
-    AC_HELP_STRING(--with-docdir=DIR,Location of AIRT documentation [datadir/doc/airt]),
-    AIRT_DOCDIR="$withval")
 if test -z "$AIRT_DOCDIR"
 then
     if test "x$prefix" = xNONE
@@ -72,6 +72,12 @@ then
     fi
 fi
 AC_SUBST(AIRT_DOCDIR)
+
+BINDIR=$bindir
+ETCDIR=$sysconfdir
+
+AC_SUBST(BINDIR)
+AC_SUBST(ETCDIR)
 
 AC_OUTPUT([Makefile
     README
@@ -101,4 +107,3 @@ AC_OUTPUT([Makefile
     php/images/Makefile
     po/Makefile
 ])
-

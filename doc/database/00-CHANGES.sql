@@ -12,11 +12,3 @@ UPDATE versions SET value='----version----' WHERE key='airtversion';
 -- Needs manual update with the AIRT_VERSION string of the release.
 -- Cannot rely on .in expansion as it needs to stay fixed in history.
 
-CREATE INDEX incident_addresses_index_incident 
-	  ON incident_addresses ( incident )
-
-INSERT INTO settings (key, value) VALUES ('inqueuegroup', 1);
-
-INSERT INTO settings (key, value) VALUES ('inqueuepromote', 0);
-
-
