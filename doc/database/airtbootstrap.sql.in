@@ -196,6 +196,12 @@ insert into settings values ('archiveage', '432000');
 insert into settings values ('correlationage', '172800');
 insert into settings values ('x509client', '1');
 insert into settings (key) values ('bubblesize');
+INSERT INTO settings (key, value) VALUES ('inqueuegroup', 1);
+INSERT INTO settings (key, value) VALUES ('inqueuepromote', 0);
+INSERT INTO settings (key, value) VALUES ('inqueuemerge', 1);
+INSERT INTO settings (key, value) VALUES ('inqueuesep', null);
+
+
 --
 -- Create the database schema version record.
 --

@@ -168,7 +168,7 @@ function showConfigScreen() {
       t(_('Use "\n" for newline. Separator will be parsed using <a href="%u">date</a> function.'),
          array('%u'=>'http://php.net/manual/en/function.date.php')).' '.
       _('Leave blank to disable.').'</em>'));
-   $out .= t('     <td><input type="string" value="%v" name="inqueuesep" size="45"></td>'.LF, array('%v'=>htmlentities($inqueuesep)));
+   $out .= t('     <td><input type="string" value="%v%" name="inqueuesep" size="45"></td>'.LF, array('%v%'=>htmlentities($inqueuesep)));
    $out .= '  </tr>'.LF;
 
 	Setup::getOption('inqueuegroup', $inqueuegroup, true);
