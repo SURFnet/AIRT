@@ -21,7 +21,8 @@ doc_DATA = 00-CHANGES.sql airtperms.sql airtbootstrap.sql \
 	20081231.1.sql 20090121.1.sql 20090221.1.sql 20090424.1.sql 20090718.1.sql \
 	20090722.1.sql 20090722.2.sql 20090726.1.sql 20090904.1.sql \
     20110415.1.data.sql 20110415.1.schema.sql \
-    20111220.data.1.sql 20111220.schema.1.sql
+    20111220.data.1.sql 20111220.schema.1.sql \
+    20130828.1.data.sql 20130828.1.schema.sql
 
 
 EXTRA_DIST = $(doc_DATA)

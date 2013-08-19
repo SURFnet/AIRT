@@ -144,7 +144,7 @@ special variables in the template:').'<p>'.LF;
       }
 
       $message = strip_tags($message);
-      $message = stripslashes($message);
+      // $message = stripslashes($message);
 
       if (save_template($template, $message, $update)) {
          airt_error('ERR_FUNC', 'mailtemplates.php:'.__LINE__);
@@ -378,7 +378,7 @@ special variables in the template:').'<p>'.LF;
 		if (! array_key_exists($incidentid, $_SESSION['skipped'])) {
 			airt_profile('Processing mail.');
 			/* clean off html and stuff (only unformatted mail) */
-			$msg = stripslashes($msg);
+			// $msg = stripslashes($msg);
 			$msg = str_replace("\r", '', $msg);
 
 			/* prepare the intial state of the message */

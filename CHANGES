@@ -1,3 +1,18 @@
+2013-08-28
+* AIRT now has a strong dependency on PostgreSQL
+* Speed optimizations for high-volume processors
+* Removed several deprecated PHP Calls and added 
+  support for new PHP releases
+* Import queue now only requires jobs from localhost 
+  and no longer requires authentication.
+* Configuration option to disable grouping of incidents
+  in import queue
+* Configuration option to allow imported elements
+  to be automatically promoted to full incidents
+* Ability to bulk email users from main incident screen
+  without needing user intervention
+* Numerous bug fixes
+
 2011-12-24
 * Various bug fixes
 * Added user bubbles
