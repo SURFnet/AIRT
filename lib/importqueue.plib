@@ -1058,8 +1058,7 @@ function queueAddLogging($id, &$error, $template='', &$incidentid) {
    $params = array(
       'incidentid'=>$incidentid,
       'logging'=>$logging,
-      'template'=>$template,
-      'authticket'=>$ticket);
+      'template'=>$template);
 
    // process CURL options
    foreach ($AIRT_CURL_OPTIONS as $key=>$value) {
