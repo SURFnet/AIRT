@@ -22,6 +22,8 @@
  * $Id$
  */
 
+   // newline format to be used
+   define('LF',"\n");
 
 /* Check if we are called for a virtual host.
  * 1. If already defined, skip.

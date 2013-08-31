@@ -29,7 +29,7 @@ require_once LIBDIR.'/user.plib';
 require_once LIBDIR.'/incident.plib';
 require_once LIBDIR.'/importqueue.plib';
 
-define('LF',"\n");
+if(!defined('LF')) { define('LF',"\n"); }
 
 // Find out whether we run as web server module or as CLI interpreter.
 if ($_SERVER['DOCUMENT_ROOT']=='' || PHP_SAPI == 'cli') {
