@@ -2809,8 +2809,10 @@ function addIncident() {
       if (preg_match('/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/', $ip) == 0) {
           $ip = @gethostbyname($ip);
       }
+		$hostname = @gethostbyaddr($ip);
       addIPtoIncident(array(
 			'ip' =>$ip, 
+			'hostname'=>$hostname,
 		   'incidentid' => $incidentid, 
          'addressrole' => fetchFrom('POST', 'addressrole', '%d')));
    }
