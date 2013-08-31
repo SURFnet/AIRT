@@ -497,6 +497,9 @@ special variables in the template:').'<p>'.LF;
 				 exit(reload());
 			}
 			$hdrs = array_merge($hdrs, $m['headers']);
+			// Convert newlines to local newline style
+			// before passing it to 'sendmail'
+			$body = preg_replace('~(*BSR_ANYCRLF)\R~', LF , $body);
 			$send = $mail->send($mailto, $hdrs, $body);
 			airt_profile('Attempting to send.');
 			if ($send !== TRUE && PEAR::isError($send)) {
