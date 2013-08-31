@@ -31,7 +31,8 @@ require_once LIBDIR.'/search.plib';
 require_once LIBDIR.'/profiler.plib';
 require_once LIBDIR.'/network.plib';
 
-if ($_SERVER['REMOTE_ADDR'] != '127.0.0.1') {
+if (!in_array($_SERVER['REMOTE_ADDR'], $IMPORTQUEUE_TRUSTED_IPS )) {
+	airt_profile($IMPORTQUEUE_TRUSTED_IPS);
    airt_profile('Refusing client from '.$_SERVER['REMOTE_ADDR']);
 	die('Access denied.');
 }

@@ -40,6 +40,7 @@ if (!defined('VIRTUAL_HOST')) {
 }
 
 function setup() {
+	global $IMPORTQUEUE_TRUSTED_IPS;
    /***** 1. GLOBAL SETTINGS *****/
    $SETTINGS['baseurl'] = 'http://localhost/airt/';
 
@@ -95,6 +96,16 @@ function setup() {
 	
    // AIRT userid used to represent import queue 
 	$SETTINGS['importuser'] = 1;
+
+	// trusted IP address to call import queue from. Note that if you do 
+   // not set this to 127.0.0.1, you may open yourself to some level of 
+   // abuse. TCP spoofing, although difficult, is feasible.
+	// NOTE: This is a self-contained variable, and not part of the SETTINGS
+   // array. PHP only lets scalars be defined as constants. Make sure
+   // to globalize the variable before referencing it from a custom function.
+   $IMPORTQUEUE_TRUSTED_IPS = array(
+		'127.0.0.1'
+   );
 
    /*********************************************************
     *
