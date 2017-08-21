@@ -252,7 +252,7 @@ function filter_shadowout($incidents, &$output, $verbosity=false) {
       $queuedata_el->appendChild($doc->createElement('sender',
          'ShadowServer'));
       $queuedata_el->appendChild($doc->createElement('type',
-         $shadowtype));
+         substr($shadowtype,0,50)));
       $queuedata_el->appendChild($doc->createElement('summary',
          $shadowtype.' '.$incident['details'][$ipkey].' '.$incident['details'][$timestampkey]));
 
