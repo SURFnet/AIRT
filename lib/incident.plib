@@ -1826,6 +1826,10 @@ function listIncidents() {
          $sqlfilter .= ' ORDER BY incidentid';
          $sortkey = 'incidentid';
    }
+   // Use incidentid as secondary sortkey
+   if ($sortkey != 'incidentid') {
+         $sqlfilter .= ' , incidentid' ;
+   }
 /*
    $incidents = getOpenIncidents($sqlfilter);
 	airt_profile("Memory after: ".memory_get_usage());
