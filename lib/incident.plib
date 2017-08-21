@@ -1303,6 +1303,7 @@ function getOpenIncidentsByConstituency($cons) {
 		and   i.id = a.incident
 		and   i.status = s.id
 		and   s.label = \'open\'
+		order by a.incident
 		', array('%cons'=>$cons));
 	$res = db_query($q);
 	while ($row = db_fetch_next($res)) {
