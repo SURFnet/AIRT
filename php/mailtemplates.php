@@ -452,6 +452,8 @@ special variables in the template:').'<p>'.LF;
 				$sig_params = array();
 				$sig_params['content_type'] = 'application/pgp-signature';
 				$sig_params['description'] = _('Digital Signature');
+				$sig_params['disposition'] = 'attachment';
+				$sig_params['dfilename'] = 'signature.asc';
 				$mime->addsubpart('@AIRT-SIGNATURE@', $sig_params);
 				$m = $mime->encode();
 
