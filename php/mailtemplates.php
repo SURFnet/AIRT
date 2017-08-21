@@ -28,6 +28,8 @@ $action = strip_tags(fetchFrom('REQUEST', 'action', '%s'));
 defaultTo($action, 'list');
 $action = strip_tags($action);
 
+airt_profile('mailtemplates.php SESSION='.print_r($_SESSION,true));
+airt_profile('mailtemplates.php REQUEST='.print_r($_REQUEST,true));
 
 switch ($action) {
    // -------------------------------------------------------------------
@@ -217,14 +219,17 @@ special variables in the template:').'<p>'.LF;
 
    // -------------------------------------------------------------------
    case 'prepare':
-	   airt_profile('prepare');
+      airt_profile('prepare');
 
- 		if (array_key_exists('template', $_SESSION)) {
-			$global_template = strip_tags(fetchFrom('SESSION', 'template'));
-	   }
-	   defaultTo($global_template, '');
+      if (array_key_exists('template', $_GET)) {
+          $global_template = strip_tags(fetchFrom('GET', 'template'));
+      } else if (array_key_exists('template', $_SESSION)) {
+          $global_template = strip_tags(fetchFrom('SESSION', 'template'));
+      }
+
+      defaultTo($global_template, '');
 	   
-	   airt_profile('template='.$global_template);
+      airt_profile('template='.$global_template);
 
       /* $incidentids will contain a comma-separated list of incident ids to
        * work on
