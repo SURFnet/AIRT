@@ -425,7 +425,8 @@ function updateMailArchive(&$error) {
    }
    $t= time() - $maxage;
    $res = db_query(q('update mailbox set status=%s '.
-      ' where date < %d', array(
+      ' where status != %s AND date < %d', array(
+      '%s'=>db_masq_null(AIRT_MAIL_STATUS_ARCHIVED),
       '%s'=>db_masq_null(AIRT_MAIL_STATUS_ARCHIVED),
       '%d'=>$t)));
    if ($res === false) {
