@@ -7,6 +7,6 @@
 -- for EACH release, even if there are no changes to the database schema,
 -- because the VERSIONS table needs to be updated in all casesA
 
-UPDATE versions SET value='20100418.1 WHERE key='airtversion';
+UPDATE versions SET value='20100418.1' WHERE key='airtversion';
 -- Needs manual update with the AIRT_VERSION string of the release.
 -- Cannot rely on .in expansion as it needs to stay fixed in history.
