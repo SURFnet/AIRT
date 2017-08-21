@@ -42,6 +42,7 @@ function showConfigScreen() {
    $out .= choice(150, 150, $pagesize);
    $out .= choice(250, 250, $pagesize);
    $out .= choice(999, 999, $pagesize);
+   $out .= choice(9999, 9999, $pagesize);
    $out .= '</select></td>'.LF;
    $out .= '  </tr>'.LF;
 
