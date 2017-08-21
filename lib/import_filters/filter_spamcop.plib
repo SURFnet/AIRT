@@ -61,6 +61,9 @@ function filter_spamcop($input, &$output, $verbosity=FALSE) {
    $output .="    </ticketInformation>\n";
    $output .="    <technicalInformation>\n";
    $output .="      <ip>$data[srcip]</ip>\n";
+   if (!empty($data[srcip])){
+       $output .="      <hostname>".gethostbyaddr($data[srcip])."</hostname>\n";
+   }
    $output .="      <incident_time>$data[datetime]</incident_time>\n";
    $output .="      <logging>".htmlentities($data[logging])."</logging>\n";
    $output .="   </technicalInformation>\n";

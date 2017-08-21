@@ -172,6 +172,12 @@ switch ($action) {
             $output .= '    <technicalInformation>'.LF;
             $output .= t('      <ip>%ip</ip>'.LF, array(
                 '%ip'=>htmlentities(trim($row[$index]))));
+            $output .= '      <hostname>';
+            $output .= @gethostbyaddr(trim($row[$index]));
+            $output .=       '</hostname>'.LF;
+            $output .= '      <time_dns_resolving>';
+            $output .= Date('Y-m-d H:i:s');
+            $output .=       '</time_dns_resolving>'.LF;
             $output .= '      <logging>'.LF;
             $output .= htmlentities(trim(join($sep, $row)));
             $output .= '      </logging>'.LF;

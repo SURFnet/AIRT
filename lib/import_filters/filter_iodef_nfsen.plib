@@ -200,6 +200,10 @@ function filter_iodef_nfsen($input, &$output, $verbosity=TRUE) {
             }
             if ($arr_nodename[$j]) {
                $output .= "    <airt:hostname>$arr_nodename[$j]</airt:hostname>\n";
+            } else {
+               if (!empty($arr_nodeaddress[$j])) {
+                  $output .="    <airt:hostname>".gethostbyaddr($arr_nodeaddress[$j])."</airt:hostname>\n";
+               }
             }
 
             //only print incident information in in first record

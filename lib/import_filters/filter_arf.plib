@@ -76,6 +76,9 @@ function filter_arf($input, &$output, $verbosity=FALSE) {
    $output .="    </ticketInformation>\n";
    $output .="    <technicalInformation>\n";
    $output .="      <ip>$srcip</ip>\n";
+   if (!empty($srcip)){
+       $output .="      <hostname>".gethostbyaddr($srcip)."</hostname>\n";
+   }
    $output .="      <incident_time>$datetime</incident_time>\n";
    $output .="      <logging>".htmlentities($logging)."</logging>\n";
    $output .="   </technicalInformation>\n";
