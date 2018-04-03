@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * netblocks.php -- manage net blocks
- * 
+ * Updated leon.wiskie@wiskieit.nl  for IPV6 support 19-02-2018
  * $Id$
  */
 require_once 'config.plib';
@@ -64,7 +63,7 @@ function show_form($id="") {
    print t('   <td><input type="text" size="30" name="network" value="%network"></td>', array('%network'=>$network)).LF;
    print '</tr>'.LF;
    print '<tr>'.LF;
-   print '   <td>'._('Netmask or CIDR').'</td>'.LF;
+   print '   <td>'._('Netmask or CIDR If IPv4 else can be left blank').'</td>'.LF;
    print t('   <td><input type="text" size="30" name="netmask" value="%netmask"></td>', array('%netmask'=>$netmask)).LF;
    print '</tr>'.LF;
    print '<tr>'.LF;
@@ -89,7 +88,7 @@ switch ($action) {
          'menu'=>'constituencies',
          'submenu'=>'networks'));
 
-      print '<table class="horizontal">'.LF;
+      print '<table class="table horizontal">'.LF;
       print '<tr>'.LF;
       print '   <td><B>'._('Network').'</B></td>'.LF;
       print '   <td><B>'._('Label').'</B></td>'.LF;
@@ -104,17 +103,25 @@ switch ($action) {
       $count=0;
       foreach ($networklist as $nid=>$data) {
          $id = $data["id"];
-         $network      = $data["network"];
-         $netmask      = netmask2cidr($data["netmask"]);
+         $network = $data["network"];
+         if (validateIPV6($network)){
+           $netmask = '';
+         } else {
+           $netmask = netmask2cidr($data["netmask"]);
+         }
          $label        = $data["label"];
          $constituency = $data["constituency"];
          $constituency_name  = $constituencies["$constituency"]["name"];
          $color = ($count++%2==0?"#FFFFFF":"#DDDDDD");
-         print t('<tr>', array(
-            '%color'=>$color)).LF;
-         print t('<td>%network/%netmask</td>', array(
-            '%network'=>$network,
-            '%netmask'=>$netmask)).LF;
+         print t('<tr>', array('%color'=>$color)).LF;
+
+        if($netmask){
+          print t('<td>%network/%netmask</td>', array(
+             '%network'=>$network,
+             '%netmask'=>$netmask)).LF;
+        }else {
+          print t('<td>%network</td>', array('%network'=>$network)).LF;
+        }
          print t('<td>%label</td>', array('%label'=>$label)).LF;
          print t('<td><a href="constituencies.php?action=edit&cons=%constituency">%name</a></td>', array(
             '%constituency'=>$constituency,
@@ -122,8 +129,7 @@ switch ($action) {
          print t('<td><a href="%url?action=edit&id=%id">'._('edit').'</a>',
          array('%url'=>BASEURL.'/networks.php', '%id'=>$id)).LF;
          print ' ';
-         print t('<a
-         href="%url?action=delete&id=%id">'._('delete').'</a></td>',
+         print t('<a href="%url?action=delete&id=%id">'._('delete').'</a></td>',
          array('%url'=>BASEURL.'/networks.php', '%id'=>$id)).LF;
          print '</tr>'.LF;
       }
@@ -151,6 +157,7 @@ switch ($action) {
       break;
 
    //-----------------------------------------------------------------
+   //UPDATED for IPV6
    case "add":
    case "update":
       $id = fetchFrom('POST', 'id', '%d');
@@ -158,17 +165,26 @@ switch ($action) {
       if (!is_numeric($id)) {
          die(_('Invalid parameter type ').__LINE__);
       }
+
       $network = strip_tags(fetchFrom('REQUEST', 'network', '%s'));
       if (empty($network)) {
-          airt_msg(_('Network cannot be empty. Must contain a valid IPv4 address.'));
+          airt_msg(_('Network cannot be empty. Must contain a valid IPv4/IPv6 address.'));
           exit(reload());
+      } elseif (validateIPV4($network)) {
+        $netmask = strip_tags(fetchFrom('REQUEST', 'netmask', '%s'));
+        if (preg_match('/^(\/\d+$)|([0-9.]{4}$)/', $netmask) == 0) {
+           airt_msg(_('Invalid format for netmask. Valid formats are a.b.c.d, or /cidr.'.
+              'e.g. 255.255.0.0 or /16'));
+           exit(reload());
+        }
+      } elseif(validateIPV6($network)) {
+        $network = strip_tags(fetchFrom('REQUEST', 'network', '%s'));
+        $netmask = '';
+      } else {
+        airt_msg(_('Must contain a valid IPv4/IPv6 address.'));
+        exit(reload());
       }
-      $netmask = strip_tags(fetchFrom('REQUEST', 'netmask', '%s'));
-      if (preg_match('/^(\/\d+$)|([0-9.]{4}$)/', $netmask) == 0) {
-         airt_msg(_('Invalid format for netmask. Valid formats are a.b.c.d, or /cidr.'.
-            'e.g. 255.255.0.0 or /16'));
-         exit(reload());
-      }
+
       $label = strip_tags(fetchFrom('REQUEST', 'label', '%s'));
       if (empty($label)) {
          airt_msg(_('Label may not be empty.'));
@@ -178,9 +194,9 @@ switch ($action) {
       if (empty($constituency)) {
          airt_msg(_('Constituency may not be empty.'));
          exit(reload());
-         
+
       }
-      if ($action=="add") {
+      if ($action == "add") {
          if (addNetwork(array(
             'network'=>$network,
             'netmask'=>$netmask,
