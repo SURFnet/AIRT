@@ -20,9 +20,9 @@
  * constituency.plib - Constituency management application logic
  *
  * $Id$
+ * updated leon.wiskie@wiskieit.nl  netmask2cidr networks.lib dependency removed for IPV6 support 19-02-2018
  */
 require_once LIBDIR.'/database.plib';
-require_once LIBDIR.'/network.plib';
 
 /** Return a list of constituencies.
  * @return an associative array containing constituency information. The
@@ -52,7 +52,7 @@ function getConstituencies() {
  * Check if a constituency with the given name or label exists
  *
  * @param $check
- * 
+ *
  */
 function constituencyExists($check) {
    $check = strtolower($check);
@@ -98,7 +98,7 @@ function showNetworksSelection($name='network', $default=-1) {
       printf("<!-- %s, %s, %s, %s -->\n", $id, $data[0], $data[1], $data[2]);
       $network = $data['network'];
       $netmask = $data['netmask'];
-      $label   = $data['label  '];
+      $label   = $data['label'];
 
       printf('<option value=%s %s>%s/%s</option>'.LF,
          htmlentities($id),
@@ -114,7 +114,7 @@ function showNetworksSelection($name='network', $default=-1) {
 /** Return an array of constituency contacts for a given constituency.
  * @param $constituencyid Numerical ID of the constituency
  * @returns an associative array with the key holding the user's numerical ID
- *    and the value being an associative array with keys: 'id', 'userid', 
+ *    and the value being an associative array with keys: 'id', 'userid',
  *    'lastname', 'firstname', 'email', 'phone', 'name'. The values of
  *    'name' and 'id' reflect the constituency.
  */
@@ -123,7 +123,7 @@ function getConstituencyContacts($constituencyid) {
       return;
    }
    $res = db_query(
-      "SELECT  c.id, u.id as userid, u.lastname, u.firstname, u.email, 
+      "SELECT  c.id, u.id as userid, u.lastname, u.firstname, u.email,
                u.phone, c.name
        FROM    constituencies c, constituency_contacts c2, users u
        WHERE   c2.constituency = c.id
@@ -237,7 +237,7 @@ function showConstituencyContacts($constituencyid) {
          $out .= '  <td>'.$data['phone'].'</td>'.LF;
          $out .= '</tr>'.LF;
 
-         $_SESSION['current_name'] = $data['firstname'] . ' ' . 
+         $_SESSION['current_name'] = $data['firstname'] . ' ' .
             $data['lastname'];
          if ($_SESSION['current_email'] == '') {
             $_SESSION['current_email'] = $data['email'];
@@ -335,7 +335,7 @@ function updateConstituency($id, $label, $name, $notes, &$error) {
 }
 
 /**
- * Associate a user with a constituency 
+ * Associate a user with a constituency
  * @param $userid User's id
  * @param $constituencyid Constituency's id
  * @param $error Error message, if any
@@ -492,20 +492,13 @@ function constituencyDetails() {
         print '<tr>'.LF;
         print t('<td>%net/%cidr</td>'.LF, array(
            '%net'=>$net['network'],
-           '%cidr'=>netmask2cidr($net['netmask'])));
+           '%cidr'=>$net['netmask']));
         print t('<td>%label</td>'.LF, array(
            '%label'=>$net['label']));
         print t('<td><a href="%u/networks.php?action=edit&id=%id">%l</a>'.LF,
            array('%u'=>BASEURL,
            '%id'=>$net['id'],
            '%l'=>_('edit')));
-        /*
-        print t('<a href="%u/networks.php?action=unlink&consid=%I&netwid=%id">%l</a>'.LF,
-           array('%u'=>BASEURL,
-           '%I'=>$consid,
-           '%id'=>$net['id'],
-           '%l'=>_('remove')));
-        */
         print '</td>'.LF;
         print '</tr>'.LF;
     }
@@ -546,7 +539,7 @@ function constituencyDetails() {
         print '</tr>'.LF;
     }
     print '</table>'.LF;
-    
+
     print '<p/>';
     print _('Contacts are identified by email address. '.
        'To add constituency contacts, please enter one address per line.');
@@ -629,9 +622,9 @@ function addConstituencyContactFrontend() {
             airt_msg(t(_('Added user %u.'), array(
                '%u'=>htmlentities($contact))));
             $u = getUserByEmail($contact);
-        } 
+        }
         if (!array_key_exists($u['id'], $c)) {
-           if (addConstituencyContact($cid, 
+           if (addConstituencyContact($cid,
               array('userid'=>$u['id']), $error) === false) {
                 airt_msg($error);
                 reload();
