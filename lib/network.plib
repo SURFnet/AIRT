@@ -1,6 +1,6 @@
 <?php
 /* vim:syntax=php shiftwidth=3 tabstop=3
- * $Id$ 
+ * $Id$
 
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
  * Copyright (C) 2004,2005   Kees Leune <kees@uvt.nl>
@@ -18,7 +18,37 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ * UPDATED Leon.wiskie@wiskieit.nl IPV4/IPV6 compliant filtering added 19-02-2018
+ *
  */
+
+ /**
+  * Validation of IPV6 addres
+  *  @param $ip
+  * @return returns true or false
+  */
+ function validateIPV6 ($ip){
+   if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+      return true;
+   } else {
+      return false;
+   }
+ }
+
+ /**
+  * Validation of IPV4 addres
+  *  @param $ip
+  * @return returns true or false
+  */
+ function validateIPV4 ($ip){
+   if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+       return true;
+   } else {
+       return false;
+   }
+ }
+
 
 /**
  * Convert a netmask (255.255.0.0) to CIDR notation (16).
@@ -52,8 +82,9 @@ function cidr2netmask($cidr) {
    return long2ip(bindec($bin));
 }
 
-/** 
+/**
  * helper function to sort networks by network address/netmask.
+ * TODO IPV4 or IPv6
  * @param $a First network
  * @param $b Second network
  * @return 1 of $a is larger than $b, 0 if $a is equal to $b and -1 if $a is smaller than $b
@@ -89,7 +120,7 @@ function airt_netsort($a, $b) {
    }
 }
 
-/** 
+/**
  * Return a list of networks.
  * @return Returns an associative array of network information. They key of
  *    the array is the network ID. The value is an associative array with
@@ -117,52 +148,41 @@ function getNetworks() {
 }
 
 /**
- * Check if a given network exists
+ * Check if a given network exists IPv4 with subnet or IPv6
  * @param network network address
  * @param netmask
  * @return true if the network exist, false if it does not
  */
 function networkExists($network, $netmask) {
    foreach (getNetworks() as $net) {
+     if(validateIPV6($network)){
+        if($net['network'] == $network){
+          return true;
+        }
+     } else {
       if ($net['network'] == $network && $net['netmask'] == $netmask) {
          return true;
       }
+    }
    }
    return false;
 }
 
+
+/**
+ * Add network details and IPV6 IPV4 moved validation to networks.php
+ * @param $data associative array containing new data
+ * @error $error error message, if any
+ * @return true on success, false on failure
+ */
+
 function addNetwork($data, &$error='') {
-   if (!array_key_exists('network', $data)) {
-      $error = _('Missing parameter in').' network.plib:'.__LINE__;
-      return false;
-   }
-   $network = $data['network'];
-   if (!array_key_exists('netmask', $data)) {
-      $error = _('Missing parameter in').' network.plib:'.__LINE__;
-      return false;
-   }
-   $netmask = $data['netmask'];
-   $res = array();
-   if (sscanf($netmask, "/%s", $res) == 1) {
-      $netmask = cidr2netmask(substr($netmask, 1));
-   }
-   if (!array_key_exists('label', $data)) {
-      $error = _('Missing parameter in').' network.plib:'.__LINE__;
-      return false;
-   }
-   $label = $data['label'];
-   if (!array_key_exists('constituency', $data)) {
-      $error = _('Missing parameter in').' network.plib:'.__LINE__;
-      return false;
-   }
-   $constituency = $data['constituency'];
-   if (!is_numeric($constituency)) {
-      $error = t(_('Invalid parameter type (%n) in'), array(
-         '%n'=>$constituency)).' network.plib:'.__LINE__;
-      return false;
-   }
-   
-   $res = db_query(q('INSERT INTO networks
+  $network = $data['network'];
+  $netmask = $data['netmask'];
+  $label = $data['label'];
+  $constituency = $data['constituency'];
+
+  $res = db_query(q('INSERT INTO networks
       (id, network, netmask, label, constituency)
       VALUES
      (nextval(\'networks_sequence\'), %network, %netmask, %label, %cons)',
@@ -170,52 +190,29 @@ function addNetwork($data, &$error='') {
          '%netmask'=>db_masq_null($netmask),
          '%label'=>db_masq_null($label),
          '%cons'=>$constituency)));
+
    if ($res === false) {
       $error = db_errormessage();
       return false;
    }
    return true;
 }
-
 /**
- * Update network details
+ * Update network details IPV6 IPV4 moved validation to networks.ph
  * @param $data associative array containing new data
  * @error $error error message, if any
  * @return true on success, false on failure
  */
 function updateNetwork($data, &$error) {
-   if (!array_key_exists('network', $data)) {
-      $error = _('Missing parameter in').' network.plib:'.__LINE__;
-      return false;
-   }
-   $network = $data['network'];
-   if (!array_key_exists('netmask', $data)) {
-      $error = _('Missing parameter in').' netmask.plib:'.__LINE__;
-      return false;
-   }
-   $netmask = $data['netmask'];
-   $res = array();
-   if (sscanf($netmask, "/%s", $res) == 1) {
-      $netmask = cidr2netmask(substr($netmask, 1));
-   }
-   if (!array_key_exists('label', $data)) {
-      $error = _('Missing parameter in').' netmask.plib:'.__LINE__;
-      return false;
-   }
-   $label = $data['label'];
-   if (!array_key_exists('constituency', $data)) {
-      $error = _('Missing parameter in').' netmask.plib:'.__LINE__;
-      return false;
-   }
-   $constituency = $data['constituency'];
-   if (!is_numeric($constituency)) {
-      $error = _('Invalid parameter type in').' netmask.plib:'.__LINE__;
-      return false;
-   }
-   if (array_key_exists('id', $data)) {
+  $network = $data['network'];
+  $netmask = $data['netmask'];
+  $label = $data['label'];
+  $constituency = $data['constituency'];
+  if (array_key_exists('id', $data)) {
       $id = $data['id'];
    } else {
       // no id given, try finding it through netmask/network
+      // FIXME not IPV6 compliant
       foreach (getNetworks() as $nid=>$netw) {
          if ($netw['netmask'] == $netmask && $netw['network'] == $network) {
             $id = $nid;
