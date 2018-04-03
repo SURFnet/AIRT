@@ -1,5 +1,5 @@
 <?php
-/* vim: syntax=php shiftwidth=3 tabstop=3 
+/* vim: syntax=php shiftwidth=3 tabstop=3
  * AIRT: Application for Incident Response Teams
 
  * This program is free software; you can redistribute it and/or modify
@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * incident.plib - Incident management application logic
- *
+ * Updated leon.wiskie@wiskieit.nl 26-02-2018 for incident subtype
  * $Id$
  */
 
@@ -68,7 +68,7 @@ function getIncidentStateDescr($id='') {
 
 /**
  * Return the current incident state ID system default. If there is no
- * explicit default set, return an empty string. 
+ * explicit default set, return an empty string.
  */
 function getIncidentStateDefault() {
    $res = db_query('SELECT id FROM incident_states WHERE isdefault')
@@ -106,7 +106,7 @@ function setIncidentStateDefault() {
  */
 function getIncidentStateSelection($name, $default='@', $extras=array(),
    $script='') {
-   $output = sprintf('<select %s name="%s">'.LF, 
+   $output = sprintf('<select %s name="%s">'.LF,
       $script, htmlentities($name));
    $states = getIncidentStates($extras);
    if ($default=='@') {
@@ -377,6 +377,7 @@ function getAddressesForIncident($id) {
  *    logging, incidentdate, ips, users.
  *    All dates are returned as Unix timestamps. Status, state and type are
  *    numeric identifiers. ids and users are arrays.
+ *    updated for subtype
  */
 function getIncident($id) {
    if (!is_numeric($id)) {
@@ -394,6 +395,7 @@ function getIncident($id) {
 	    logging,
         extract(epoch from incidentdate) as incidentdate,
         pref_templ as template,
+        subtype,
         short_desc as desc
       FROM incidents
       WHERE id=%id', array('%id'=>$id));
@@ -474,7 +476,7 @@ function addIPtoIncident($data=array()) {
         added, addedby, updated, updatedby)
       VALUES
       (nextval(\'incident_addresses_sequence\'), %incidentid, %ip,
-       %addressrole, %hostname, %constituency, CURRENT_TIMESTAMP, %userid, 
+       %addressrole, %hostname, %constituency, CURRENT_TIMESTAMP, %userid,
        CURRENT_TIMESTAMP, %userid)', array(
          '%incidentid'=>db_masq_null($data['incidentid']),
          '%ip'=>db_masq_null($data['ip']),
@@ -527,6 +529,11 @@ airt_profile('Starting createIncident');
    if (empty($params['date'])) {
       $params['date'] = '';
    }
+   // updated
+   if(empty($param['subtype'])){
+     $param['subtype'] = '';
+   }
+
    if (empty($params['desc'])) {
       $params['desc'] = '';
    } else {
@@ -547,18 +554,19 @@ airt_profile('Starting createIncident');
    }
    $row = db_fetch_next($res);
    $incidentid = $row['incidentid'];
-	airt_profile('Assigned incident id: '.$incidentid);
+	 airt_profile('Assigned incident id: '.$incidentid);
    $_SESSION['incidentid'] = $incidentid;
    db_free_result($res);
 
    airt_profile('Populating incident');
+   // updated
    $q = sprintf(
       'insert into incidents
       (id, created, creator, updated, updatedby, state, status, type,
-      incidentdate, logging, short_desc, pref_templ)
+      incidentdate, logging, short_desc, subtype, pref_templ)
       values
       (%d, CURRENT_TIMESTAMP, %d, CURRENT_TIMESTAMP, %d, %d, %d, %d, %s, %s,
-      %s, %s)',
+      %s, %s, %s)',
          $incidentid,
          $_SESSION['userid'],
          $_SESSION['userid'],
@@ -568,6 +576,7 @@ airt_profile('Starting createIncident');
          $params['date'] == '' ? 'NULL' : "'".Date('Y-m-d H:i:s', $params['date'])."'",
          $params['logging'] == '' ? 'NULL' : "'".db_escape_string($params['logging'])."'",
          $params['desc'] == '' ? 'NULL' : "'".db_escape_string($params['desc'])."'",
+         $params['subtype'] == '' ? 'NULL' : "'".db_escape_string($params['subtype'])."'",
          $params['template'] == '' ? 'NULL' : "'".db_escape_string($params['template'])."'"
    );
    $res = db_query($q);
@@ -585,7 +594,7 @@ airt_profile('Starting createIncident');
    if (empty($params['date'])) {
       $params['date'] = time();
    }
-   $comment=sprintf('state=%s, status=%s, type=%s, date=%s',
+   $comment = sprintf('state=%s, status=%s, type=%s, date=%s',
       strip_tags(getIncidentStateLabelByID($params['state'])),
       strip_tags(getIncidentStatusLabelByID($params['status'])),
       strip_tags(getIncidentTypeLabelById($params['type'])),
@@ -709,7 +718,7 @@ function getIncidentTypeLabelByID($id) {
    return $out;
 }
 
-/** 
+/**
  * Associate a user with an incident.
  * @param $userid ID of the user
  * @param $incident ID of the incident
@@ -726,7 +735,7 @@ function addUserToIncident($userid, $incident, $override='') {
       INSERT INTO incident_users
       (id, incidentid, userid, added, addedby)
       VALUES
-      (nextval(\'incident_users_sequence\'), %incidentid, %userid, 
+      (nextval(\'incident_users_sequence\'), %incidentid, %userid,
        CURRENT_TIMESTAMP, %logger)', array(
          '%incidentid'=>db_masq_null($incident),
          '%userid'=>db_masq_null($userid),
@@ -973,6 +982,17 @@ function updateIncident($id,$params = array()) {
           $comment .= _('Description updated');
        }
    }
+   //updated
+   if (array_key_exists('subtype', $params)) {
+       if (empty($params['subtype'])) {
+          $set .= sprintf('subtype=NULL,');
+          $comment .= _('Subtype cleared. ');
+       } else {
+          $set .= sprintf('subtype=\'%s\',',db_escape_string(
+             strip_tags($params['subtype'])));
+          $comment .= _('Subtype updated');
+       }
+   }
    if (array_key_exists('template', $params)) {
        if (empty($params['template'])) {
           $set .= sprintf('pref_templ=NULL,');
@@ -1043,7 +1063,7 @@ function getIncidentsByIP($ip) {
 }// getIncidentsByIP
 
 
-/** Return an associative array with incident IDs that belong to the 
+/** Return an associative array with incident IDs that belong to the
  * current constituency.
  * @param $constituencyID: the ID of a constituency
  * @return array[incidentid]='#000132  Compromised   2005-10-11 12:12'.
@@ -1067,7 +1087,7 @@ function getIncidentsByConstituency($constituencyID) {
    }
    $out = array();
    while ($row = db_fetch_next($res)) {
-      $out[$row['incident']] = sprintf('%s  %-15s  %s', 
+      $out[$row['incident']] = sprintf('%s  %-15s  %s',
          encode_incidentID($row['incident']), $row['type'], $row['created']);
    }
    return $out;
@@ -1125,7 +1145,7 @@ function getAddressRoles($extras=array()) {
 
 /* Return an HTML SELECT box containing valid choices for address roles.
  * Input: name = The HTML name of the selection box.
- *        default = Optionally, the ID of the default selection. 
+ *        default = Optionally, the ID of the default selection.
  *        extras = Optionally, an array [id]=>label with extra states that
  *                 do not come from the database, and that are prefixed
  *                 before the database states (typically "Select State").
@@ -1138,8 +1158,8 @@ function getAddressRolesSelection($name, $default='', $extras=array()) {
    $roles = getAddressRoles($extras);
    foreach ($roles as $i=>$l) {
       $output .= t('<option value="%id" %selected>%label</option>\n', array(
-          '%id'=>htmlentities($i), 
-          '%selected'=>($i == $default) ? "SELECTED" : '', 
+          '%id'=>htmlentities($i),
+          '%selected'=>($i == $default) ? "SELECTED" : '',
           '%label'=>htmlentities($l)
       ));
    }
@@ -1203,7 +1223,7 @@ function addExternalIncidentIDs($incidentid='', $externalids) {
         # the event fired
         $incidentid = $event_out[0]['incidentid'];
         $extid = $event_out[0]['extid'];
-      } 
+      }
       $res = db_query(q('insert into external_incidentids (incidentid, externalid) values (%id, \'%extid\')', array('%id'=>$incidentid, '%extid'=>db_escape_string($extid))));
       if ($res == false) {
          db_query('rollback');
@@ -1253,7 +1273,7 @@ function getIncidentIDsByExternalID($externalid) {
 		return false;
 	}
 	$q = q('select incidentid from external_incidentids '.
-	       'where externalid=\'%extid\'', 
+	       'where externalid=\'%extid\'',
 		    array('%extid'=>db_escape_string($externalid)));
 	$res = db_query($q);
 	if ($res == false) {
@@ -1303,7 +1323,6 @@ function getOpenIncidentsByConstituency($cons) {
 		and   i.id = a.incident
 		and   i.status = s.id
 		and   s.label = \'open\'
-		order by a.incident
 		', array('%cons'=>$cons));
 	$res = db_query($q);
 	while ($row = db_fetch_next($res)) {
@@ -1391,10 +1410,10 @@ function setPreferredMailTemplateName($incidentid, $template) {
 	return true;
 }
 
-/** Update the last_updated field of an incident 
+/** Update the last_updated field of an incident
  *
  * @param $incidentid ID of incident to be updated
- * @param &$timestamp timestamp to be set (optional; defaults to 'now'). 
+ * @param &$timestamp timestamp to be set (optional; defaults to 'now').
  *     The value of $timestamp should be epoch seconds.
  * @return false on failure; true on success.
  */
@@ -1424,7 +1443,7 @@ function touchIncident($incidentid, $timestamp='') {
 /* return an array of prevous incident ids for a given IP address
  */
 function getPreviousIncidents($ip, &$out, &$error='') {
-   $q = q('select i.id from incidents i, incident_addresses a 
+   $q = q('select i.id from incidents i, incident_addresses a
           where i.id = a.incident
           and   a.ip = \'%ip\'', array('%ip'=>db_escape_string($ip)));
    $res = db_query($q);
@@ -1449,7 +1468,7 @@ function filterIncidentsByAge($incidents, $maxage, &$out, &$error='') {
    }
    $i = implode(',', $incidents);
    $limit = Date('Y-m-d H:i:s', time()-$maxage);
-   $q = q('select id from incidents 
+   $q = q('select id from incidents
       where id in (%set)
       and updated > timestamp \'%limit\'', array('%set'=>$i, '%limit'=>$limit));
    $res = db_query($q);
@@ -1475,7 +1494,7 @@ function filterIncidentsByStatus($incidents, $status, &$out, &$error='') {
       $error = _('Status must be numeric');
       return false;
    }
-   $q = q('select id from incidents 
+   $q = q('select id from incidents
       where id in (%set)
       and status = %status', array('%set'=>$i, '%status'=>$status));
    $res = db_query($q);
@@ -1494,7 +1513,7 @@ function filterIncidentsByStatus($incidents, $status, &$out, &$error='') {
 /* Retrieve attachments for a given file upload.
  *
  * $incidentid is the incidentid to which the file will be attached
- * $attachments will be an associative array containing a number of 
+ * $attachments will be an associative array containing a number of
  *    attachments. Each attachments will be an associative array with
  *    indexes content-type, filename.
  * $error will contain an error message, if any
@@ -1648,7 +1667,7 @@ function deleteAttachment($id, &$error='') {
 
 /**
  * Check for the presence of a mail template override.
- * 
+ *
  * @param incidentid numeric
  * @param userid     numeric
  *
@@ -1708,7 +1727,7 @@ function setMailtemplateOverride($incidentid, $userid, $template) {
       return false;
    }
    db_free_result($res);
-   $q = q('UPDATE incident_users 
+   $q = q('UPDATE incident_users
    SET mailtemplate_override=%t
    WHERE id=%id', array(
       '%t'=>trim(db_masq_null(db_escape_string($template))),
@@ -1727,7 +1746,7 @@ function listIncidents() {
    /* by default, do not filter on state */
    $state = fetchFrom('REQUEST','state', '%d');
    defaultTo($state, -1);
-   
+
    $type = fetchFrom('REQUEST','type');
    defaultTo($type, -1);
 
@@ -1762,7 +1781,7 @@ function listIncidents() {
                unset($f[$fkey]);
            }
        }
-      
+
        $filter[] = 's1.id in ('.implode(',', $f).')';
    } else {
       $filter[] = "s1.label in ('open', 'stalled')";
@@ -1775,12 +1794,12 @@ function listIncidents() {
                unset($f[$fkey]);
            }
         }
-		
+
 		if (sizeof($f) > 0) {
 			 $filter[] = 's2.id in ('.implode(',', $f).')';
 		}
    }
-  
+
    if ($type != -1) {
 		$f = explode(',', $type);
         foreach ($f as $fkey => $fvalue) {
@@ -1788,7 +1807,7 @@ function listIncidents() {
                unset($f[$fkey]);
            }
         }
-		
+
 		if (sizeof($f) > 0) {
 			 $filter[] = 't.id in ('.implode(',', $f).')';
 		}
@@ -1822,20 +1841,20 @@ function listIncidents() {
       case 'created':
          $sqlfilter .= ' ORDER BY created';
          break;
+      case 'subtype':
+         $sqlfilter .= ' ORDER BY subtype';
+         break;
       default:
          // Hmmm... should not happen. Manual intervention in the URL?
          $sqlfilter .= ' ORDER BY incidentid';
          $sortkey = 'incidentid';
    }
-   // Use incidentid as secondary sortkey
-   if ($sortkey != 'incidentid') {
-         $sqlfilter .= ' , incidentid' ;
-   }
-/*
-   $incidents = getOpenIncidents($sqlfilter);
-	airt_profile("Memory after: ".memory_get_usage());
-   $numincidents = sizeof($incidents);
-*/
+
+
+  /**
+   * Pagination
+   *
+   */
 	$numincidents = getOpenIncidentCount($countfilter);
    $pager = '';
    if ((Setup::getOption('pagesize', $pagesize)) === false) {
@@ -1843,16 +1862,25 @@ function listIncidents() {
    }
    if ($numincidents  > $pagesize) {
        $pages = ceil($numincidents / $pagesize);
+
        airt_profile('Set '.$pages.' pages for '.$numincidents.' incidents.');
-       $pager .= t(_('Incident %n - %m of %M. Page :'), array(
+
+       $pager .= t(_('Incident %n - %m of %M. Page - '), array(
           '%n'=>($page-1)*$pagesize+1,
           '%M'=>$numincidents,
           '%m'=>(min($page*$pagesize, $numincidents))));
        for ($i=1; $i <= $pages; $i++) {
            if ($page == $i) {
-               $pager .= " <span>$i</span> ";
+             $pager .= t(' <li class="page-item active"><a class="page-link" href="%u/incident.php?page=%n&sortkey=%k&state=%s&status=%S&hideStalled=%h">%i</a></li> ', array(
+                '%u'=>BASEURL,
+                '%n'=>$i,
+                '%i'=>$i,
+                '%k'=>$sortkey,
+                '%S'=>$status,
+                '%s'=>$state,
+                '%h'=>1+$hideStalled));
            } else {
-               $pager .= t(' <a href="%u/incident.php?page=%n&sortkey=%k&state=%s&status=%S&hideStalled=%h">%i</a> ', array(
+               $pager .= t(' <li class="page-item"><a class="page-link" href="%u/incident.php?page=%n&sortkey=%k&state=%s&status=%S&hideStalled=%h">%i</a></li> ', array(
                   '%u'=>BASEURL,
                   '%n'=>$i,
                   '%i'=>$i,
@@ -1883,10 +1911,10 @@ function listIncidents() {
       '-1'=>_('All states')), 'onChange="document.filter.submit()"');
    $out .= '<input type="submit" value="'._('Filter').'">'.LF;
 
-   $out .= t('<a href="%url/incident.php?hideStalled=%s" class="button">%d '.
+   $out .= t('<a href="%url/incident.php?hideStalled=%s" class="btn btn-primary">%d '.
       _('stalled').'</a>', array(
-      '%url'=>BASEURL, 
-      '%s'=>($hideStalled == 1) ? 1 : 2, 
+      '%url'=>BASEURL,
+      '%s'=>($hideStalled == 1) ? 1 : 2,
       '%d'=>($hideStalled == 1) ? _('Show') : _('Hide')
    ));
 
@@ -1895,10 +1923,10 @@ function listIncidents() {
 
    if (!$archive) {
        $out .= LF.'<div class="right">'.LF;
-       $out .= t('<a href="%url/incident.php?action=new" class="button">'.
+       $out .= t('<a href="%url/incident.php?action=new" class="button btn btn-primary">'.
           _('Add incident').'</a>'.LF, array(
           '%url'=>BASEURL));
-       $out .= t('<a href="%url/incident.php?action=bulkform" class="button">'.
+       $out .= t('<a href="%url/incident.php?action=bulkform" class="button btn btn-primary">'.
           _('Add multiple incidents').'</a>'.LF, array(
           '%url'=>BASEURL));
        $out .= '</div><!-- right -->'.LF.LF;
@@ -2086,8 +2114,10 @@ function listIncidents() {
    $out .= '</table>'.LF;
    $script .= '};'.LF;
    $script .= '</script>';
-  
+
+   $out .= '<ul class="pagination">'.LF;
    $out .= $pager;
+   $out .= '</ul>'.LF;
 
    $out .= '<p/>';
    $out .= _('With selected');
@@ -2115,7 +2145,7 @@ function listIncidents() {
 
    $out .= '    <tr>'.LF;
    $out .= '      <td/>'.LF;
-   $out .= '      <td><input type="submit" name="action" value="'._('Update selected incidents').'"></td>'.LF;
+   $out .= '      <td><input type="submit" name="action" value="'._('Update selected incidents').'" class="btn btn-primary"></td>'.LF;
    $out .= '    </tr>'.LF;
    $out .= '    </table>'.LF;
    $out .= '  </div><!-- block -->'.LF;
@@ -2124,8 +2154,8 @@ function listIncidents() {
    $out .= '  '._('Compose mail with').LF;
    $out .= getMailTemplateSelection('template', 'null', array(
          _('Use preferred template')=>_('Use preferred template')));
-   $out .= '     <input type="submit" name="action" value="'. _('Compose').'">'.LF;
-   $out .= '     <input type="submit" name="action" value="'. _('Auto send').'"'.LF;
+   $out .= '     <input type="submit" name="action" value="'. _('Compose').'" class="btn btn-primary">'.LF;
+   $out .= '     <input type="submit" name="action" value="'. _('Auto send').'" class="btn btn-primary"'.LF;
    $out .= '  </div><!-- block -->'.LF;
    $out .= '</div><!-- bulk-options -->'.LF;
    $out .= '</form>'.LF;
@@ -2148,6 +2178,7 @@ function listIncidents() {
 
 /**
  * Front-end code for incident details screen
+ * FIXME show Incident subtype
  */
 function incidentDetails() {
    airt_profile("init incident details");
@@ -2175,24 +2206,24 @@ function incidentDetails() {
    airt_profile('Incident details page header');
    pageHeader(t(_('Incident %n'), array(
       '%n'=>normalize_incidentid($incidentid))), array(
-       'menu'=>'incidents', 
+       'menu'=>'incidents',
        'submenu'=>'incidents'));
 
    airt_profile('Incident details right align');
    $output = '<div class="right">'.LF;
    if (getIncidentStatusDescr($incident['status']) == _('closed') ||
        (getIncidentStatusDescr($incident['status']) == _('stalled'))) {
-       $output .= t('<a href="%u/incident.php?action=reopen&incidentid=%i" class="button">%l</a>', array(
+       $output .= t('<a href="%u/incident.php?action=reopen&incidentid=%i" class="button btn btn-primary">%l</a>', array(
           '%u'=>BASEURL,
           '%i'=>$incidentid,
           '%l'=>_('Re-open this incident')));
    } else {
-       $output .= t('<a href="%u/incident.php?action=close&incidentid=%i" class="button">%l</a>', array(
+       $output .= t('<a href="%u/incident.php?action=close&incidentid=%i" class="button btn btn-primary">%l</a>', array(
           '%u'=>BASEURL,
           '%i'=>$incidentid,
           '%l'=>_('Close this incident')));
 
-       $output .= t('<a href="%u/incident.php?action=stall&incidentid=%i" class="button">%l</a>', array(
+       $output .= t('<a href="%u/incident.php?action=stall&incidentid=%i" class="button btn btn-primary">%l</a>', array(
           '%u'=>BASEURL,
           '%i'=>$incidentid,
           '%l'=>_('Stall this incident')));
@@ -2238,21 +2269,30 @@ function incidentDetails() {
    $output .= '</td>'.LF;
    $output .= '  </tr>'.LF;
 
+   // Updated
+   $output .= '  <tr>'.LF;
+   $output .= '    <td>'._('Incident subtype').'</td>'.LF;
+   $output .= '    <td><input type="text" name="subtype" size="50" value="'. $incident['subtype'].'"></td>'.LF;
+   $output .= '  </tr>'.LF;
+
    $output .= '  <tr>'.LF;
    $output .= '    <td>'._('Mail template').'</td>'.LF;
    $output .= '    <td>'.getMailtemplateSelection('template',
-      ($incident['template'] == '') ? -1 : $incident['template'], 
+      ($incident['template'] == '') ? -1 : $incident['template'],
       array(-1 => _('None'))).'</td>'.LF;
    $output .= '  </tr>'.LF;
+
+
+
    $output .= '</table>'.LF;
    $output .= '<input type="submit" name="action" value="'.
-      _('Update').'" class="right"/>'.LF;
+      _('Update').'" class="right btn btn-primary"/>'.LF;
    $output .= '</form>'.LF;
    $output .= '<br style="clear: both;"/>'.LF;
    $output .= '</div> <!-- block -->'.LF;
-   
 
-   
+
+
    airt_profile('Incident details history');
    $output .= '<div class="block" id="history">'.LF;
    $output .= '<h3>'._('History').'</h3>'.LF;
@@ -2262,7 +2302,7 @@ function incidentDetails() {
    $output .= t('<form action="%u/incident.php" method="POST">'.LF, array(
       '%u'=>BASEURL));
    $output .= '<input type="hidden" name="action" value="addcomment"/>'.LF;
-   $output .= t('<input type="hidden" name="incidentid" value="%i"/>'.LF, 
+   $output .= t('<input type="hidden" name="incidentid" value="%i"/>'.LF,
       array('%i'=>$incidentid));
    $output .= '<input type="text" size="45" name="comment"/>'.LF;
    $output .= '<input type="submit" value="'._('Add comment').'"/>'.LF;
@@ -2289,7 +2329,7 @@ function incidentDetails() {
    $output .= '</form>'.LF;
    $output .= '</div>'.LF;
    $output .= '</block>'.LF;
-   
+
    airt_profile('Incident details external');
    $output .= '<div class="block">'.LF;
    $output .= '<h3>'._('External identifiers').'</h3>'.LF;
@@ -2309,7 +2349,7 @@ function incidentDetails() {
    $output .= t('<form action="%u/incident.php" method="GET">'.LF, array(
       '%u'=>BASEURL));
    $output .= '<input type="hidden" name="action" value="add_extid"/>'.LF;
-   $output .= t('<input type="hidden" name="incidentid" value="%i"/>'.LF, 
+   $output .= t('<input type="hidden" name="incidentid" value="%i"/>'.LF,
       array('%i'=>urlencode($incidentid)));
    $output .= '<input type="text" name="extid" size="40">'.LF;
    $output .= '<input type="submit" value="'.
@@ -2376,14 +2416,14 @@ function incidentDetails() {
    $output .= '<td><input type="text" name="ip" size="40"></td>'.LF;
    $output .= '<td>'.getAddressRolesSelection('addressrole').'</td>'.LF;
    $output .= '</td>'.LF;
-   $output .= '<td><input type="submit" value="'._('Add').'"></td>'.LF;
+   $output .= '<td><input type="submit" value="'._('Add').'" class="btn btn-primary"></td>'.LF;
    $output .= '</tr>'.LF;
    $output .= '</table>'.LF;
    $output .= '</form>'.LF;
    $output .= '</div><!-- block -->'.LF;
-   
+
    airt_profile('Incident details E-mail');
-   $output .= '<div class="block">'.LF; 
+   $output .= '<div class="block">'.LF;
    $output .= '<h3>'._('E-mail messages').'</h3>'.LF;
    if (fetchEmailsForIncident($incident['incidentid'], $msgs, $err) == false){
       airt_msg($err);
@@ -2445,7 +2485,7 @@ function incidentDetails() {
       false) {
       die($error);
    }
-   $output .= '<table>'.LF;
+   $output .= '<table class="table">'.LF;
    foreach ($attachments as $aid=>$a) {
       $output .= '<tr>'.LF;
       $output .= '<td>'.LF;
@@ -2461,16 +2501,17 @@ function incidentDetails() {
       $output .= '</tr>'.LF;
    }
    $output .= '</table>'.LF;
+
    $output .= '<form enctype="multipart/form-data" method="POST">'.LF;
    $output .= '<input type="hidden" name="action" value="upload">'.LF;
    $output .= '<input type="hidden" name="incidentid" value="'.
       strip_tags($incident['incidentid']).'">'.LF;
    $output .= '<input size="40" type="file" name="file">'.LF;
-   $output .= '<input type="submit" value="Upload">'.LF;
+   $output .= '<input type="submit" value="Upload" class="btn btn-primary">'.LF;
    $output .= '</form>'.LF;
    $output .= '</div><!-- block -->'.LF;
-   
-   
+
+
    airt_profile('Incident details users');
    $output .= '<div class="block">'.LF;
    $output .= '<h3>'._('Users').'</h3>'.LF;
@@ -2482,6 +2523,7 @@ function incidentDetails() {
 
    $_SESSION['current_name'] = '';
    $_SESSION['current_email'] = '';
+
    foreach ($incident['users'] as $user) {
       $u = getUserByUserId($user);
       if ($_SESSION['current_email'] == '') {
@@ -2508,14 +2550,14 @@ function incidentDetails() {
       if ($u['notes'] == '') {
         $output .= t('  <td>%email</td>', array( '%email'=>$u['email'])).LF;
       } else {
-        $output .= t('  <td><span class="verklaring" title="%d">%email</span></td>', array( 
-        '%d'=>((strlen($u['notes']) > $maxbubblesize) ? 
+        $output .= t('  <td><span class="verklaring" title="%d">%email</span></td>', array(
+        '%d'=>((strlen($u['notes']) > $maxbubblesize) ?
             substr($u['notes'], 0, $maxbubblesize-3).'...' : $u['notes']),
         '%email'=>$u['email'])).LF;
       }
       $output .= t('  <td>').LF;
       $output .= getMailtemplateSelection(
-         'template['.strip_tags($user).']', 
+         'template['.strip_tags($user).']',
          ($override==false) ? -1 : $override,
          array('-1' => _('None'))).LF;
       $output .= '</td>'.LF;
@@ -2543,13 +2585,13 @@ function incidentDetails() {
    $output .= '<tr>'.LF;
    $output .= '<td>'._('Email address').':</td>'.LF;
    $output .= '<td><input onChange="updateCheckboxes()" type="text" size="40" name="email" value="">'.LF;
-   $output .= '<input type="submit" value="'._('Add').'"></td>'.LF;
+   $output .= '<input type="submit" value="'._('Add').'" class="btn btn-primary"></td>'.LF;
    $output .= '</tr>'.LF;
    $output .= '</table>'.LF;
    $output .= '</form>'.LF;
 
    $output .= '</div><!-- block -->'.LF;
-   
+
 
 
    $output .= '</div><!-- column -->'.LF;
@@ -2644,14 +2686,14 @@ function stallIncident() {
 function newIncident($bulk=false) {
    if ($bulk === true) {
       pageHeader(_('Record new incidents'),array(
-         'menu'=>'incidents', 
+         'menu'=>'incidents',
          'submenu'=>'incidents'));
    } else {
       pageHeader(_('Record new incident'),array(
-         'menu'=>'incidents', 
+         'menu'=>'incidents',
          'submenu'=>'incidents'));
    }
-   
+
    $output = '<div id="incident-details">'.LF;
 
    $output .= '<div class="block">'.LF;
@@ -2691,13 +2733,20 @@ function newIncident($bulk=false) {
    $output .= '</td>'.LF;
    $output .= '  </tr>'.LF;
 
+   $output .= '  <tr valign="top">'.LF;
+   $output .= '    <td>'._('Incident subtype').'</td>'.LF;
+   $output .= '    <td>'.LF;
+   $output .= '    <input type="text" name="subtype" size="50" value="">'.LF;
+   $output .= '    </td>'.LF;
+   $output .= '  </tr>'.LF;
+
    $output .= '  <tr>'.LF;
    $output .= '    <td>'._('Mail template').'</td>'.LF;
    $output .= '    <td>';
    $output .= getMailtemplateSelection('template', -1);
    $output .= '    </td>';
    $output .= '  </tr>'.LF;
-   
+
    $output .= '  <tr valign="top">'.LF;
    if ($bulk) {
        $output .= t('   <td><span class="verklaring" title="%s">%l</span></td>', array(
@@ -2720,12 +2769,12 @@ function newIncident($bulk=false) {
       $users = array();
       if (!empty($ip)) {
          $networkid = categorize($ip);
-         if (defined('CUSTOM_FUNCTIONS') && 
+         if (defined('CUSTOM_FUNCTIONS') &&
              function_exists("custom_categorize")) {
             $networkid = custom_categorize($ip, $networkid);
          }
-         $consid=getConstituencyIDbyNetworkID($networkid);
-         $contacts=getConstituencyContacts($consid);
+         $consid = getConstituencyIDbyNetworkID($networkid);
+         $contacts = getConstituencyContacts($consid);
          foreach ($contacts as $id=>$data) {
              $users[] = $data['email'];
          }
@@ -2738,7 +2787,7 @@ function newIncident($bulk=false) {
          '%u'=>implode("\r\n", $users)));
       $output .= '  </tr>'.LF;
    }
-   
+
    $output .= '  <tr valign="top">'.LF;
    $output .= t('    <td><span class="verklaring" title="%s">%l</span></td>', array(
       '%s'=>_('Provide 1 external identifier per line'),
@@ -2752,7 +2801,7 @@ function newIncident($bulk=false) {
    } else {
       $output .= '<input type="hidden" name="action" value="add">'.LF;
    }
-   $output .= '<input type="submit" value="'._('Add').'" class="right"/>'.LF;
+   $output .= '<input type="submit" value="'._('Add').'" class="right btn btn-primary"/>'.LF;
    $output .= '</form>'.LF;
    $output .= '</div> <!-- block -->'.LF;
    $output .= '</div> <!-- incident-details -->'.LF;
@@ -2766,11 +2815,11 @@ function addIncident() {
    $ips = fetchFrom('REQUEST', 'ips');
    defaultTo($ips, '');
    $ips = split("\r?\n", $ips);
- 
+
    $users = fetchFrom('REQUEST', 'users');
    defaultTo($users, '');
    $users = split("\r?\n", $users);
-   
+
    $newids = fetchFrom('REQUEST', 'ids');
    defaultTo($newids, '');
    if (empty($newids)) {
@@ -2806,7 +2855,9 @@ function addIncident() {
       'date'=>$date,
       'logging'=>db_escape_string(trim(fetchFrom('POST', 'logging'))),
       'template'=>$template,
-      'desc'=>db_escape_string(trim(fetchFrom('POST', 'desc')))));
+      'subtype'=>db_escape_string(trim(fetchFrom('POST', 'subtype'))),
+      'desc'=>db_escape_string(trim(fetchFrom('POST', 'desc')))
+    ));
 
    foreach ($ips as $ip) {
       $ip = trim($ip);
@@ -2816,12 +2867,13 @@ function addIncident() {
       }
 		$hostname = @gethostbyaddr($ip);
       addIPtoIncident(array(
-			'ip' =>$ip, 
+			'ip' =>$ip,
 			'hostname'=>$hostname,
-		   'incidentid' => $incidentid, 
-         'addressrole' => fetchFrom('POST', 'addressrole', '%d')));
+		  'incidentid' => $incidentid,
+      'addressrole' => fetchFrom('POST', 'addressrole', '%d'))
+    );
    }
- 
+
    foreach ($users as $addr) {
       $addr = strtolower(trim($addr));
       if (empty($addr)) continue;
@@ -2838,7 +2890,7 @@ function addIncident() {
          addUser(array('email'=>$addr));
          $user = getUserByEmail($addr);
 
-      } 
+      }
 
       /* add new user to existing incident */
       addUserToIncident($user['id'], $incidentid, $override);
@@ -2860,13 +2912,15 @@ function addBulkIncidents() {
 
    $state = fetchFrom('POST', 'state', '%d');
    defaultTo($type, getIncidentStateDefault());
-   
+
    $status = getIncidentStatusDefault();
 
    $logging = trim(fetchFrom('POST', 'logging'));
 
+   $subtype = strip_tags(trim(fetchFrom('POST', 'subtype')));
+
    $desc = strip_tags(trim(fetchFrom('POST', 'desc')));
-   
+
    $template = strip_tags(fetchFrom('POST', 'template'));
    if ($template == -1) {
       $template = '';
@@ -2896,7 +2950,7 @@ function addBulkIncidents() {
      if (empty($ip)) {
         continue;
      }
-   
+
      $incidentid = createIncident(array(
         'state'=>$state,
         'status'=>$status,
@@ -2904,14 +2958,17 @@ function addBulkIncidents() {
         'date'=>$date,
         'logging'=>db_escape_string($logging),
         'template'=>$template,
-         'desc'=>db_escape_string($desc)));
-     addIPtoIncident(array(
+        'subtype'=>db_escape_string($subtype),
+        'desc'=>db_escape_string($desc)
+      ));
+
+      addIPtoIncident(array(
 	     'ip' => $ip,
         'incidentid' => $incidentid));
 
      /* add constituency contacts to incident */
      $networkid = categorize($ip);
-     if (defined('CUSTOM_FUNCTIONS') && 
+     if (defined('CUSTOM_FUNCTIONS') &&
          function_exists("custom_categorize")) {
         $networkid = custom_categorize($ip, $networkid);
      }
