@@ -116,6 +116,7 @@ CREATE TABLE constituencies (
     label       varchar(50) not null,  -- with unique index
     name        varchar(100),
     notes       text,
+    type        int,
     primary key (id)
 );
 
@@ -170,6 +171,7 @@ CREATE TABLE incidents (
     state       integer not null,
     status      integer not null,
     type        integer not null,
+    subtype     text,
     incidentdate timestamp,
     logging     text,
     short_desc  text,
@@ -240,6 +242,13 @@ CREATE TABLE constituency_contacts (
     primary key (id),
     foreign key (constituency) references constituencies(id),
     foreign key (userid)       references users(id)
+);
+
+CREATE TABLE constituency_types (
+    id          integer,
+    label       integer not null,  -- with unique index
+    name        varchar(80),
+    primary key (id)
 );
 
 CREATE TABLE networks (
@@ -440,6 +449,7 @@ CREATE SEQUENCE ipaddresses_sequence;
 CREATE SEQUENCE incident_addresses_sequence;
 CREATE SEQUENCE role_assignments_sequence;
 CREATE SEQUENCE constituency_contacts_sequence;
+CREATE SEQUENCE constituency_types_sequence;
 CREATE SEQUENCE networks_sequence;
 CREATE SEQUENCE incident_comments_sequence;
 CREATE SEQUENCE user_comments_sequence;
