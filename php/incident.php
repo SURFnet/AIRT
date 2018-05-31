@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * Incidents.php - incident management interface
+ * Updated leon.wiskie at wiskieit dot nl 26-02-2018 incidentsubtype
  * $Id$
  */
 
@@ -68,7 +69,7 @@ switch ($action) {
         // No template selected, show list again.
         reload();
      }
-     if ($action == _('Auto send')) 
+     if ($action == _('Auto send'))
         $autosend='yes';
      else
         $autosend='no';
@@ -110,11 +111,11 @@ switch ($action) {
    case 'stall':
        stallIncident();
        break;
-  
+
   case 'reopen':
        reopenIncident();
        break;
-   
+
    case 'close':
        closeIncident();
        break;
@@ -122,13 +123,13 @@ switch ($action) {
    //--------------------------------------------------------------------
    case 'addip':
       $incidentid = fetchFrom('SESSION','incidentid', '%d');
-      if ($incidentid=='') {
+      if ($incidentid =='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
 
       $ip = strip_tags(fetchFrom('POST','ip'));
-      if ($ip=='') {
+      if ($ip =='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
@@ -136,9 +137,8 @@ switch ($action) {
       if (preg_match('/([0-9]\.){4}/', $ip) == 0) {
           $ip = gethostbyname($ip);
       }
-
       $addressrole = fetchFrom('POST','addressrole', '%d');
-      if ($addressrole=='') {
+      if ($addressrole =='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
@@ -152,7 +152,7 @@ switch ($action) {
       if (trim($ip) != '') {
          addIPToIncident(array(
 				'ip'=>trim($ip),
-				'incidentid' => $incidentid, 
+				'incidentid' => $incidentid,
 			   'addressrole' => $addressrole));
          addIncidentComment(array(
             'comment'=>t(_('IP address %ip added to incident with role %role'),
@@ -172,13 +172,13 @@ switch ($action) {
     //--------------------------------------------------------------------
    case 'editip':
       $incidentid = fetchFrom('SESSION','incidentid', '%d');
-      if ($incidentid=='') {
+      if ($incidentid =='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
 
       $ip = strip_tags(fetchFrom('REQUEST','ip'));
-      if ($ip=='') {
+      if ($ip =='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
@@ -193,31 +193,31 @@ switch ($action) {
     //--------------------------------------------------------------------
    case 'updateip':
       $id = fetchFrom('POST','id', '%d');
-      if ($id=='') {
+      if ($id =='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
 
       $constituency = fetchFrom('POST','constituency', '%d');
-      if ($constituency=='') {
+      if ($constituency =='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
 
       $ip = strip_tags(fetchFrom('POST','ip'));
-      if ($ip=='') {
+      if ($ip =='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
 
       $incidentid = fetchFrom('POST','incidentid', '%d');
-      if ($incidentid=='') {
+      if ($incidentid =='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
 
       $addressrole = fetchFrom('POST','addressrole', '%d');
-      if ($addressrole=='') {
+      if ($addressrole =='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
@@ -236,12 +236,12 @@ switch ($action) {
       addIncidentComment(array(
          'comment'=>t( _('Details of IP address %ip updated; const=%const, addressrole=%role'),
             array(
-               '%ip'=>$ip,
-               '%const'=>$constLabel,
-               '%role'=>$addressRoleLabel
+               '%ip'=> $ip,
+               '%const'=> $constLabel,
+               '%role'=> $addressRoleLabel
             )
          ),
-         'incidentid'=>$incidentid
+         'incidentid'=> $incidentid
       ));
       generateEvent('updateipdetails', array(
          'incidentid' => $incidentid,
@@ -260,19 +260,19 @@ switch ($action) {
       if (empty($incidentid)) {
          $incidentid = fetchFrom('SESSION','incidentid', '%d');
       }
-      if ($incidentid=='') {
+      if ($incidentid =='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
 
       $ip = strip_tags(fetchFrom('GET','ip'));
-      if ($ip=='') {
+      if ($ip =='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
 
       $addressrole = fetchFrom('GET','addressrole', '%d');
-      if ($addressrole=='') {
+      if ($addressrole =='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
@@ -280,11 +280,11 @@ switch ($action) {
       removeIpFromIncident($ip, $incidentid, $addressrole);
       addIncidentComment(array(
          'comment'=>t(_('IP address %address (%role) removed from incident.'),
-            array('%address'=>$ip,
+            array('%address'=> $ip,
                '%role'=>getAddressRolebyID($addressrole)
             )
          ),
-         'incidentid'=>$incidentid
+         'incidentid'=> $incidentid
       ));
 
       generateEvent('removeipfromincident', array(
@@ -300,7 +300,7 @@ switch ($action) {
     //--------------------------------------------------------------------
    case 'adduser':
       $email = strip_tags(fetchFrom('REQUEST','email'));
-      if ($email=='') {
+      if ($email =='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
@@ -311,7 +311,7 @@ switch ($action) {
       defaultTo($add,'off');
 
       $incidentid = fetchFrom('SESSION','incidentid', '%d');
-      if ($incidentid=='') {
+      if ($incidentid =='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
@@ -337,13 +337,13 @@ switch ($action) {
    //--------------------------------------------------------------------
    case 'deluser':
       $incidentid = fetchFrom('SESSION','incidentid', '%d');
-      if ($incidentid=='') {
+      if ($incidentid =='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
 
       $userid = fetchFrom('GET','userid', '%d');
-      if ($userid=='') {
+      if ($userid =='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
@@ -351,7 +351,7 @@ switch ($action) {
       removeUserFromIncident($userid, $incidentid);
       $user = getUserByUserID($userid);
       addIncidentComment(array(
-         'comment'=>sprintf(_('User %s removed from incident.'), 
+         'comment'=>sprintf(_('User %s removed from incident.'),
             $user['email']),
          'incidentid'=>$incidentid
       ));
@@ -397,28 +397,30 @@ switch ($action) {
    case _('Update'):
    case _('update'):
       $incidentid = fetchFrom('SESSION','incidentid', '%d');
-      if ($incidentid=='') {
+      if ($incidentid =='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
 
       $state = fetchFrom('POST','state', '%d');
-      if ($state=='') {
+      if ($state =='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
 
       $status = fetchFrom('POST','status', '%d');
-      if ($status=='') {
+      if ($status =='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
 
       $type = fetchFrom('POST','type', '%d');
-      if ($type=='') {
+      if ($type =='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
          reload();
       }
+
+      $subtype = strip_tags(trim(fetchFrom('POST', 'subtype')));
 
       $desc = strip_tags(trim(fetchFrom('POST', 'desc')));
       $logging = trim(fetchFrom('POST','logging'));
@@ -434,12 +436,12 @@ switch ($action) {
          $date_year, $date_month, $date_day,
          $date_hour, $date_minute, $date_second));
       generateEvent('incidentupdate', array(
-         'incidentid' => $incidentid,
-         'state' => $state,
-         'status' => $status,
-         'type' => $type,
-         'date' => $date,
-         'desc' => $desc
+         'incidentid'=>$incidentid,
+         'state'=>$state,
+         'status'=>$status,
+         'type'=>$type,
+         'date'=>$date,
+         'desc'=>$desc
       ));
 
       updateIncident($incidentid,array(
@@ -449,11 +451,13 @@ switch ($action) {
          'date'=>$date,
          'logging'=>$logging,
          'template'=>$template,
-         'desc'=>$desc));
+         'subtype'=> $subtype,
+         'desc'=>$desc
+         ));
 
       addIncidentComment(array(
          'comment'=>sprintf(_(
-            'Incident updated: state=%s, status=%s, type=%s, desc=%s'), 
+            'Incident updated: state=%s, status=%s, type=%s, desc=%s'),
             getIncidentStateLabelByID($state),
             getIncidentStatusLabelByID($status),
             getIncidentTypeLabelByID($type),
@@ -484,11 +488,11 @@ switch ($action) {
          $massState = '';
       }
       $massStatus = fetchFrom('POST', 'massstatus', '%d');
-      if ($massStatus=='null') {
+      if ($massStatus =='null') {
          $massStatus = '';
       }
       $massType = fetchFrom('POST', 'masstype', '%d');
-      if ($massType=='null') {
+      if ($massType =='null') {
          $massType = '';
       }
 
@@ -577,7 +581,7 @@ switch ($action) {
          $user = getUserByUserId($userid);
          removeUserFromIncident($userid, $incidentid);
          addIncidentComment(array(
-            'comment'=>sprintf(_('User %s removed from incident.'), 
+            'comment'=>sprintf(_('User %s removed from incident.'),
                $user["email"]),
             'incidentid'=>$incidentid
          ));
@@ -693,7 +697,7 @@ switch ($action) {
       }
 
       $templates = fetchFrom('REQUEST', 'template');
-      $userids=array();
+      $userids = array();
       foreach (array_keys($templates) as $value) {
           if (is_numeric($value)) {
               $userids[] = $value;
