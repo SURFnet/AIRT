@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Updated leon.wiskie at wiskieit dot nl for IPV6 support 19-02-2018
  */
 $public = 1;
 require_once 'SOAP/Server.php';
@@ -33,7 +34,7 @@ require_once LIBDIR.'/network.plib';
 
 if (!in_array($_SERVER['REMOTE_ADDR'], $IMPORTQUEUE_TRUSTED_IPS )) {
 	airt_profile($IMPORTQUEUE_TRUSTED_IPS);
-   airt_profile('Refusing client from '.$_SERVER['REMOTE_ADDR']);
+  airt_profile('Refusing client from '.$_SERVER['REMOTE_ADDR']);
 	die('Access denied.');
 }
 airt_profile('SOAP: Accepted incoming connection');
@@ -141,11 +142,11 @@ class IncidentHandling {
 
    /**
     * Import new contact information. If the constituency already exists,
-    * the networks and/or constituency contacts will be created (if 
+    * the networks and/or constituency contacts will be created (if
     * necesarry) and associated with the constituency
     *
     * @param $importXML XML describing networks, constituency
-    *        and constituency contacts. 
+    *        and constituency contacts.
     * <airt>
     *    <contactData>
     *       <constituency>My Constituency</constituency>
@@ -160,8 +161,8 @@ class IncidentHandling {
     *       </network>
     *   </contactData>
     * </airt>
-    *       
-    *        
+    *
+    *
     */
    function importContact($importXML) {
       airt_profile('begin importContact');
@@ -252,11 +253,12 @@ class IncidentHandling {
             'netmask'=>$netmask
          );
       }
-      
+
       $error = '';
-      
+
       // only add network if it does not yet exist
-      foreach ($networks as $network) {
+      // Updated 27-05-2018
+    	foreach ($networks as $network) {
          airt_profile('Begin processing network '.
             "$network[address]/$network[netmask]");
          if (networkExists($network['address'], $network['netmask'])==true) {
@@ -265,9 +267,9 @@ class IncidentHandling {
                'network'=>$network['address'],
                'netmask'=>$network['netmask'],
                'label'=>'net-'.$network['address'],
-               'name'=>'Network '.$network['address'].'/'.$network['netmask'],
-               'constituency'=>$conid
-            ), $error) === false) {
+ 						 	 'name'=>'Network '.$network['address'].'/'.$network['netmask'],
+						   'constituency'=>$conid
+						), $error) === false) {
                airt_profile('Unable to update network:'.$error);
                return 'Failed to update network';
             }
@@ -278,8 +280,8 @@ class IncidentHandling {
                'network'=>$network['address'],
                'netmask'=>$network['netmask'],
                'label'=>'net-'.$network['address'],
-               'name'=>'Network '.$network['address'].'/'.$network['netmask'],
-               'constituency'=>$conid
+							 'name'=>'Network '.$network['address'].'/'.$network['netmask'],
+							 'constituency'=>$conid
             ), $error) === false) {
                airt_profile('Unable to add network:'.$error);
                return 'Failed to add network';
@@ -314,7 +316,7 @@ class IncidentHandling {
          if (assignUser($userid, $conid, $error) === false) {
             airt_profile("Unable to assign user $userid:$conid:$error");
             return _('Unable to assign user');
-         } 
+         }
          airt_profile('User assigned');
       }
       return 'SUCCESS';
@@ -397,6 +399,4 @@ function generateSAMLTicket($ticket_details) {
    return $content;
 
 }
-
-
 ?>
