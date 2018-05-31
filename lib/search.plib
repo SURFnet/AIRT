@@ -16,9 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- * 
+ *
  * search.plib - Search functions
- * 
+ * UPDATED Leon.wiskie at wiskieit dot nl categorize function for IPv6 29-05-2018
  * $Id$
  */
 require_once LIBDIR.'/airt.plib';
@@ -45,23 +45,36 @@ function reversesortbymask ($networks) {
    return $networks;
 }
 
-/** Categorize IP address based on network 
+/** Categorize IP address based on network
  * @param $ip IP address in dotted notation
  * @return The network id to which the given IP address belongs.
  */
 function categorize($ip) {
-   $networks = reversesortbymask(getNetworks());
-   $category = "-1";
-   $longip   = ip2long($ip);
 
-   foreach ($networks as $id => $data) {
-      $network = ip2long($data["network"]);
-      $netmask = ip2long($data["netmask"]);
-      if (($longip & $netmask) == $network) {
+   if (validateIPV6($ip)) {
+     $networks = getNetworks();
+     foreach ($networks as $id => $data){
+       $subnet = $data['network'].'/'.$data['netmask']; //cidr
+       if(checkinipv6subnet($ip,$subnet))
+       {
          $category = $data["id"];
-      }
-   }
+       }
+     }
 
+   }
+   if (validateIPV4($ip)){
+     $networks = reversesortbymask(getNetworks());
+     $category = "-1";
+     $longip   = ip2long($ip);
+
+     foreach ($networks as $id => $data) {
+        $network = ip2long($data["network"]);
+        $netmask = ip2long($data["netmask"]);
+        if (($longip & $netmask) == $network) {
+           $category = $data["id"];
+        }
+     }
+   }
    return $category;
 } // categorize
 
