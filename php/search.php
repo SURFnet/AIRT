@@ -18,7 +18,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * search.php - Search for additional information on host
- * 
+ * Updated IPV6/IPV4 leon.wiskie at wiskieit dot nl IPV6/IPV4 compliant 31-05-2018
  * $Id$
  */
 require_once 'config.plib';
@@ -126,7 +126,8 @@ function search_host($hostname='') {
    $constituencies = getConstituencies();
 
    $network = $networks[$networkid]["network"];
-   $netmask = netmask2cidr($networks[$networkid]["netmask"]);
+
+   $netmask = $networks[$networkid]["netmask"];
    $netname = $networks[$networkid]["label"];
    $consid  = $networks[$networkid]["constituency"];
    $conslabel = $constituencies[$consid]["label"];
@@ -285,39 +286,19 @@ function search_incident($incidentid) {
 } // search_incident
 
 
-/** Returns TRUE or FALSE depending on whether the
- * IP range has been formulated correct or not
- * \param [in] $matches: Array containing the entire string, the four IP integers, and the mask.
- */ 
-
-function mask_ok ($matches) {
-
-   if (count($matches) == 6 and 
-       0 <= $matches[1] and $matches[1] < 256 and
-       0 <= $matches[2] and $matches[2] < 256 and
-       0 <= $matches[3] and $matches[3] < 256 and
-       0 <= $matches[4] and $matches[4] < 256 and
-       0 <= $matches[5] and $matches[5] < 32) {
-      return(TRUE);   
-   } else {
-     return(FALSE); 
-   }
-} //mask OK
-
-
-
-/** Returns an array containing: 
- * at entry 0 the minimum value of the first affected byte 
+/** Returns an array containing:
+ *
+ * at entry 0 the minimum value of the first affected byte
  * at entry 1 the maximum value of the first affected byte
  * at entry 2 the invariant part of the ip range
- * at entry 3 '' or '.0' or '.0.0' or '.0.0.0' 
+ * at entry 3 '' or '.0' or '.0.0' or '.0.0.0'
  * at entry 4 '' or '.255' or '.255.255' or '.255.255.255'
  * at entry 5 '' or '.%' or '.%.%' or '.%.%.%'
  *
  * The minimum IP value is constructed by concatenating the invariant part, the minimumvalue, and either '' or '.0' or '.0.0' or '.0.0.0'
  * The maximum IP value is constructed by concatenating the invariant part, the maximumvalue, and either '' or '.255' or '.255.255' or '.255.255.255'
  * The formatconstraint of the selected IP values is constructed by concatenating the invariant part, either '_' or '__' or '___', and either '' or '.%' or '.%.%' or '.%.%.%'
- * 
+ *
  * \param [in] $matches: Array containing the entire string, the four IP integers, and the mask.
  */
 
@@ -327,7 +308,7 @@ function mask_limits($matches) {
       $width      = 8-$matches[5];
       $matches[1] = $matches[1] - ($matches[1] % pow(2,$width));
 
-      $span       = pow(2,$width) - 1; 
+      $span       = pow(2,$width) - 1;
 
       $min  = $matches[1];
       $max  = $min + $span;
@@ -363,7 +344,7 @@ function mask_limits($matches) {
       $width      = 32-$matches[5];
       $matches[4] = $matches[4] - ($matches[4] % pow(2,$width));
 
-      $span       = pow(2,$width) - 1; 
+      $span       = pow(2,$width) - 1;
 
       $min = $matches[4];
       $max = $min + $span;
@@ -378,49 +359,16 @@ function mask_limits($matches) {
 } //mask_limits
 
 
-/** Find all incidents within an IP range
- * \param [in] $mask: IP range to search within.
+/** Find all incidents within an IP range IPV6/IPV4
+ * @param [in] $mask: IP range to search within.
+ *
  */
 function search_zoom($mask) {
-   preg_match("/(\d+)\.(\d+)\.(\d+)\.(\d+)\/(\d+)/",$mask,$matches);
+  if(airt_searchhelper($mask) !== null) {
 
-   if (mask_ok($matches)) {
-      $limits = mask_limits($matches);
+      pageHeader(_("Search results for $mask"));
 
-      $min      = $limits[0];
-      $max      = $limits[1];
-      $pre      = $limits[2];
-      $postmin  = $limits[3];
-      $postmax  = $limits[4];
-      $postlike = $limits[5];
-
-      $where_clause = "";
-
-      pageHeader(_("Search results from $pre$min$postmin to $pre$max$postmax"));
-
-      if ($min < 10) {
-         if ($max < 10) {
-       $where_clause  = "a.ip between '$pre$min$postmin' and '$pre$max$postmax' AND a.ip like '$pre"."_$postlike'\n";
-         } else if (9 < $max && $max < 100) {
-      $where_clause  = "((a.ip between '$pre$min$postmin' and '$pre"."9$postmax' AND a.ip like '$pre"."_$postlike')\n";
-            $where_clause .= "OR (a.ip between '$pre"."10$postmin' and '$pre$max$postmax' AND a.ip like '$pre"."__$postlike'))\n";
-         } else if (99 < $max) {
-       $where_clause  = "((a.ip between '$pre$min$postmin' and '$pre"."9$postmax' AND a.ip like '$pre"."_$postlike')\n";
-            $where_clause .= "OR (a.ip between '$pre"."10$postmin' and '$pre"."99$postmax' AND a.ip like '$pre"."__$postlike')\n";
-            $where_clause .= "OR (a.ip between '$pre"."100$postmin' and '$pre$max$postmax' AND a.ip like '$pre"."___$postlike'))\n";
-         }
-      } else if (9 < $min && $min < 100) {
-         if ($max < 100) {
-            $where_clause  = "a.ip between '$pre$min$postmin' and '$pre$max$postmax' AND a.ip like '$pre"."__$postlike'\n";
-         } else {
-            $where_clause  = "((a.ip between '$pre$min$postmin' and '$pre"."99$postmax' AND a.ip like '$pre"."__$postlike')\n";
-            $where_clause .= "OR (a.ip between '$pre"."100$postmin' and '$pre$max$postmax' AND a.ip like '$pre"."___$postlike'))\n";
-         }
-      } else {
-    # $where_clause = "a.ip between '$pre$min$postmin' and '$pre$max$postmax' AND a.ip like '$pre"."___$postlike'\n";
-
-         $where_clause = "a.ip::inet <<= inet '".db_escape_string($mask)."' \n";
-      }
+      $where_clause = "a.ip::inet <<= inet '".db_escape_string($mask)."' \n";
 
       $res = db_query("
          SELECT  i.id as incidentid,
@@ -473,9 +421,9 @@ function search_zoom($mask) {
       } else {
          echo "<I>"._('No incidents within this range')."</I>";
       }
-   } else {
-   echo "<I>$mask "._('is not a correct netmask, 123.45.67.89/22 for instance is')."</I>";
-   }
+    } else {
+      echo "<I>$mask "._('is not a correct netmask, 123.45.67.89/22 for instance is')."</I>";
+    }
 } //search_zoom
 
 
@@ -590,6 +538,11 @@ switch ($action) {
              '%q'=>urlencode($query))));
           exit;
       }
+      if(strstr($query,':') !== false || strstr($query,'::') !== false ) {
+        reload(t(BASEURL.'/search.php?q=%q&qtype=zoom&action=Search', array(
+           '%q'=>urlencode($query))));
+        exit;
+      }
       if (preg_match('@^([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9.]+)$@', $query, $match) > 0) {
           reload(t(BASEURL.'/search.php?q=%q&qtype=zoom&action=Search', array(
              '%q'=>urlencode($query))));
@@ -603,7 +556,6 @@ switch ($action) {
               exit;
           }
       }
-
       if ((preg_match('/^([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)$/', $query, $match) > 0) ||
           (preg_match('/.+\.[^.]+\.[^.]+.+/', $query, $match) > 0)) {
           reload(t(BASEURL.'/search.php?q=%q&qtype=host&action=Search', array(
