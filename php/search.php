@@ -539,7 +539,7 @@ switch ($action) {
           exit;
       }
       if(strstr($query,':') !== false || strstr($query,'::') !== false ) {
-        reload(t(BASEURL.'/search.php?q=%q&qtype=zoom&action=Search', array(
+        reload(t(BASEURL.'/search.php?q=%q&qtype=host&action=Search', array(
            '%q'=>urlencode($query))));
         exit;
       }
