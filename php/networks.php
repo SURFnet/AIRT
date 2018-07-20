@@ -173,16 +173,16 @@ switch ($action) {
       } elseif (validateIPV4($network)) {
         $netmask = strip_tags(fetchFrom('REQUEST', 'netmask', '%s'));
         if (validateIPV4CIDR($netmask) == false) {
-           airt_msg(_('Invalid format for netmask. Valid formats are cidr.'.
-              'e.g /16'));
+           airt_msg(_('Invalid format for netmask. Valid format is cidr length, '.
+              'e.g 16'));
            exit(reload());
         }
       } elseif(validateIPV6($network)) {
         $netmask = strip_tags(fetchFrom('REQUEST', 'netmask', '%s'));
         $network = expandIPV6($network);
         if (validateIPV6CIDR($netmask) == false) {
-           airt_msg(_('Invalid format for netmask. Valid formats are cidr.'.
-              'e.g /32'));
+           airt_msg(_('Invalid format for netmask. Valid formats is cidr length, '.
+              'e.g 32'));
            exit(reload());
         }
       } else {
