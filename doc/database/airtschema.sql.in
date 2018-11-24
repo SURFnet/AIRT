@@ -205,7 +205,7 @@ CREATE TABLE incident_addresses (
     updated      timestamp,
     updatedby    integer,
     primary key  (id),
-    foreign key  (incident) references incidents(id),
+    foreign key  (incident) references incidents(id) on delete cascade,
     foreign key  (constituency) references constituencies(id),
     foreign key  (addedby) references users(id),
     foreign key  (updatedby) references users(id),
@@ -220,7 +220,7 @@ CREATE TABLE incident_users (
     addedby     integer not null,
     mailtemplate_override char(80),
     primary key (id),
-    foreign key (incidentid) references incidents(id),
+    foreign key (incidentid) references incidents(id) on delete cascade,
     foreign key (userid) references users(id),
     foreign key (addedby) references users(id),
     foreign key (mailtemplate_override) references mailtemplates(name)
@@ -268,7 +268,7 @@ CREATE TABLE incident_comments (
     added       timestamp not null,
     addedby     integer not null,
     primary key (id),
-    foreign key (incident) references incidents(id),
+    foreign key (incident) references incidents(id) on delete cascade,
     foreign key (addedby) references users(id)
 );
 
@@ -320,7 +320,7 @@ CREATE TABLE blocks (
     incident      integer not null,
     primary key (id),
     foreign key (lastupdatedby) references users(id),
-    foreign key (incident) references incidents(id)
+    foreign key (incident) references incidents(id) on delete cascade
 );
 
 CREATE TABLE import_queue (
@@ -374,7 +374,7 @@ CREATE TABLE external_incidentids (
   incidentid integer,
   externalid varchar(64),
   primary key (incidentid,externalid),
-  foreign key (incidentid) references incidents(id)
+  foreign key (incidentid) references incidents(id) on delete cascade
 );
 
 CREATE TABLE importqueue_templates (
@@ -394,7 +394,7 @@ CREATE TABLE incident_attachments (
    incident integer,
    filename text,
    primary key (id),
-   foreign key (incident) references incidents(id)
+   foreign key (incident) references incidents(id) on delete cascade
 );
 
 
@@ -434,7 +434,7 @@ CREATE TABLE incident_mail (
     messageid integer,
     incidentid integer,
     PRIMARY KEY (id),
-    FOREIGN KEY (messageid) REFERENCES mailbox(id),
+    FOREIGN KEY (messageid) REFERENCES mailbox(id) on delete cascade,
     FOREIGN KEY (incidentid) REFERENCES incidents(id)
 );
 
