@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * Incidents.php - incident management interface
+ * Updated leon.wiskie@wiskieit.nl 26-02-2018 incidentsubtype
  * $Id$
  */
 
@@ -68,7 +69,7 @@ switch ($action) {
         // No template selected, show list again.
         reload();
      }
-     if ($action == _('Auto send')) 
+     if ($action == _('Auto send'))
         $autosend='yes';
      else
         $autosend='no';
@@ -110,11 +111,11 @@ switch ($action) {
    case 'stall':
        stallIncident();
        break;
-  
+
   case 'reopen':
        reopenIncident();
        break;
-   
+
    case 'close':
        closeIncident();
        break;
@@ -152,7 +153,7 @@ switch ($action) {
       if (trim($ip) != '') {
          addIPToIncident(array(
 				'ip'=>trim($ip),
-				'incidentid' => $incidentid, 
+				'incidentid' => $incidentid,
 			   'addressrole' => $addressrole));
          addIncidentComment(array(
             'comment'=>t(_('IP address %ip added to incident with role %role'),
@@ -351,7 +352,7 @@ switch ($action) {
       removeUserFromIncident($userid, $incidentid);
       $user = getUserByUserID($userid);
       addIncidentComment(array(
-         'comment'=>sprintf(_('User %s removed from incident.'), 
+         'comment'=>sprintf(_('User %s removed from incident.'),
             $user['email']),
          'incidentid'=>$incidentid
       ));
@@ -420,6 +421,8 @@ switch ($action) {
          reload();
       }
 
+      $subtype = strip_tags(trim(fetchFrom('POST', 'subtype')));
+
       $desc = strip_tags(trim(fetchFrom('POST', 'desc')));
       $logging = trim(fetchFrom('POST','logging'));
       $template = trim(strip_tags(fetchFrom('POST','template')));
@@ -434,12 +437,12 @@ switch ($action) {
          $date_year, $date_month, $date_day,
          $date_hour, $date_minute, $date_second));
       generateEvent('incidentupdate', array(
-         'incidentid' => $incidentid,
-         'state' => $state,
-         'status' => $status,
-         'type' => $type,
-         'date' => $date,
-         'desc' => $desc
+         'incidentid'=>$incidentid,
+         'state'=>$state,
+         'status'=>$status,
+         'type'=>$type,
+         'date'=>$date,
+         'desc'=>$desc
       ));
 
       updateIncident($incidentid,array(
@@ -449,11 +452,13 @@ switch ($action) {
          'date'=>$date,
          'logging'=>$logging,
          'template'=>$template,
-         'desc'=>$desc));
+         'subtype'=> $subtype,
+         'desc'=>$desc
+         ));
 
       addIncidentComment(array(
          'comment'=>sprintf(_(
-            'Incident updated: state=%s, status=%s, type=%s, desc=%s'), 
+            'Incident updated: state=%s, status=%s, type=%s, desc=%s'),
             getIncidentStateLabelByID($state),
             getIncidentStatusLabelByID($status),
             getIncidentTypeLabelByID($type),
@@ -577,7 +582,7 @@ switch ($action) {
          $user = getUserByUserId($userid);
          removeUserFromIncident($userid, $incidentid);
          addIncidentComment(array(
-            'comment'=>sprintf(_('User %s removed from incident.'), 
+            'comment'=>sprintf(_('User %s removed from incident.'),
                $user["email"]),
             'incidentid'=>$incidentid
          ));
