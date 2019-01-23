@@ -42,10 +42,11 @@ $SHADOW_SUBJ_MATCH='\w*';
  * Initial distribution configuration has the arrays outcommented, please remove the // and change
  * the initial example values to activate filtering.
  */
-global $SHADOW_ALLOWED_ASN, $SHADOW_UNWANTED_TYPE, $SHADOW_UNWANTED_SUBTYPE ;
+global $SHADOW_ALLOWED_ASN, $SHADOW_UNWANTED_CIDRS, $SHADOW_UNWANTED_TYPE, $SHADOW_UNWANTED_SUBTYPE ;
 // $SHADOW_ALLOWED_ASN = array("1101","1103");
 // $SHADOW_UNWANTED_TYPE = array('cc_ip','spam_url');
 // $SHADOW_UNWANTED_SUBTYPE = array('Mariposa.A','spam');
+// $SHADOW_UNWANTED_CIDRS = ['10.3.4.0/27'];
 
 /* Define arrays containing header keys to be used for certain variables.
  * Each tuple contains a report type and a header key.
@@ -79,6 +80,3 @@ $SHADOW_SUBTYPE_KEY = array(
 // Set to TRUE to enable the use of (defined) subtypes in the template selection
 // When enabled (TRUE) the type/version strings will contain a :subtype parameter.
 $SHADOW_USE_SUBTYPE = FALSE ;
-
-?>
-

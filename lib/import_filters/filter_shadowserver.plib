@@ -57,6 +57,18 @@ function checkAllowedASN($asn) {
         return TRUE ;
 }
 
+function checkDisallowedCidr($ip) {
+    global $SHADOW_UNWANTED_CIDRS;
+
+    if ( isset($SHADOW_UNWANTED_CIDRS) ) {
+        foreach($SHADOW_UNWANTED_CIDRS as $cidr) {
+            if ( cidr_match($ip, $cidr) ) return false;
+        }
+    }
+
+    return true;
+}
+
 function skipUnwantedReportType($type) {
         // If not defined then all report types are allowed
         global $SHADOW_UNWANTED_TYPE ;
@@ -202,6 +214,14 @@ function filter_shadowout($incidents, &$output, $verbosity=false) {
       if (!checkAllowedASN($incident['details'][$asnkey])) {
           if ($verbosity) {
               print "Shadowserver: not importing incident in foreign ASN ".$incident['details'][$asnkey]."\n";
+          }
+          continue;
+      }
+
+      // Skip unwanted IP ranges
+      if (!checkDisallowedCidr($incident['details'][$ipkey])) {
+          if ($verbosity) {
+              print "Shadowserver: not importing incident for IP ".$incident['details'][$ipkey]."\n";
           }
           continue;
       }
