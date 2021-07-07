@@ -2,7 +2,7 @@
 /*
  * AIRT: Application for Incident Response Teams
  * Shadowserver import filter
- * Copyright JP Velders & Xander Jansen SURFcert 2010
+ * Copyright SURF 2010-2021
 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,8 +19,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * shadowserver.cfg - Configuration file for shadowserver import filter
- *
- * $Id$
  */
 
 // Define the maximum number of incidents per IP-addres to be imported
@@ -55,27 +53,69 @@ global $SHADOW_ALLOWED_ASN, $SHADOW_UNWANTED_CIDRS, $SHADOW_UNWANTED_TYPE, $SHAD
  */
 global $SHADOW_ASN_KEY, $SHADOW_IP_KEY, $SHADOW_SUBTYPE_KEY, $SHADOW_USE_SUBTYPE ;
 // What key is used for AS number?
-$SHADOW_ASN_KEY = array(
+$SHADOW_ASN_KEY = [
+      'event4_honeypot_ddos_amp' => 'src_asn',
+      'event6_honeypot_ddos_amp' => 'src_asn',
+      'event4_honeypot_brute_force' => 'src_asn',
+      'event6_honeypot_brute_force' => 'src_asn',
+      'event4_ip_spoofer' => 'src_asn',
+      'event4_honeypot_darknet' => 'src_asn',
+      'event4_sinkhole' => 'src_asn',
+      'event4_sinkhole_http' => 'src_asn',
+      'event4_honeypot_http_scan' => 'src_asn',
+      'event4_honeypot_ics_scan' => 'src_asn',
+      'event4_sinkhole_http_referer' => 'http_referer_asn',
+      'event6_ip_spoofer' => 'src_asn',
+      'event6_honeypot_darknet' => 'src_asn',
+      'event6_sinkhole' => 'src_asn',
+      'event6_sinkhole_http' => 'src_asn',
+      'event6_honeypot_http_scan' => 'src_asn',
+      'event6_honeypot_ics_scan' => 'src_asn',
+      'event6_sinkhole_http_referer' => 'http_referer_asn',
       'proxy' => 'pxy asn',
       '*' => 'asn'
-      );
+      ];
 
 // Set key containing IP-address
-$SHADOW_IP_KEY = array(
+$SHADOW_IP_KEY = [
       'drone' => "drone",
+      'event4_honeypot_ddos_amp' => 'src_ip',
+      'event6_honeypot_ddos_amp' => 'src_ip',
+      'event4_honeypot_brute_force' => 'src_ip',
+      'event6_honeypot_brute_force' => 'src_ip',
+      'event4_ip_spoofer' => 'src_ip',
+      'event4_honeypot_darknet' => 'src_ip',
+      'event4_sinkhole' => 'src_ip',
+      'event4_sinkhole_http' => 'src_ip',
+      'event4_honeypot_http_scan' => 'src_ip',
+      'event4_honeypot_ics_scan' => 'src_ip',
+      'event4_sinkhole_http_referer' => 'http_referer_asn',
+      'event6_ip_spoofer' => 'src_ip',
+      'event6_honeypot_darknet' => 'src_ip',
+      'event6_sinkhole' => 'src_ip',
+      'event6_sinkhole_http' => 'src_ip',
+      'event6_honeypot_http_scan' => 'src_ip',
+      'event6_honeypot_ics_scan' => 'src_ip',
+      'event6_sinkhole_http_referer' => 'http_referer_ip',
       'cc_ip' => "ip address",
       'proxy' => "pxy",
       '*' => "ip"
-      );
+      ];
 
 // Set key containing subtype
-$SHADOW_SUBTYPE_KEY = array(
+$SHADOW_SUBTYPE_KEY = [
       'sinkhole_http_drone' => "type",
+      'microsoft_sinkhole' => "type",
       'sinkhole_http_referer' => "type",
+      'event4_sinkhole_http_referer' => 'infection',
+      'event6_sinkhole_http_referer' => 'infection',
+      'event4_sinkhole_http' => 'infection',
+      'event6_sinkhole_http' => 'infection',
       'drone' => "infection",
       'botnet_drone' => "infection",
+      'blacklist' => "source",
       '*' => "Unspecified"
-      );
+      ];
 
 // Set to TRUE to enable the use of (defined) subtypes in the template selection
 // When enabled (TRUE) the type/version strings will contain a :subtype parameter.
