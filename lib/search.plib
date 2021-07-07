@@ -16,10 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
+ * 
  * search.plib - Search functions
- * UPDATED Leon.wiskie at wiskieit dot nl categorize function for IPv6 29-05-2018
- * $Id$
  */
 require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/constituency.plib';
@@ -52,7 +50,7 @@ function reversesortbymask ($networks) {
 function categorize($ip) {
 
    if (validateIPV6($ip)) {
-     $networks = getNetworks();
+     $networks = getNetworks('v6');
      foreach ($networks as $id => $data){
        $subnet = $data['network'].'/'.$data['netmask']; //cidr
        if(checkinipv6subnet($ip,$subnet))
@@ -62,8 +60,8 @@ function categorize($ip) {
      }
 
    }
-   if (validateIPV4($ip)){
-     $networks = reversesortbymask(getNetworks());
+   elseif (validateIPV4($ip)){
+     $networks = reversesortbymask(getNetworks('v4'));
      $category = "-1";
      $longip   = ip2long($ip);
 
@@ -78,4 +76,3 @@ function categorize($ip) {
    return $category;
 } // categorize
 
-?>

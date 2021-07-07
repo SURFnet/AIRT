@@ -1,6 +1,5 @@
 <?php
 /* vim:syntax=php shiftwidth=3 tabstop=3
- * $Id$
 
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
  * Copyright (C) 2004,2005   Kees Leune <kees@uvt.nl>
@@ -171,12 +170,13 @@ function airt_netsort($a, $b) {
 
 /**
  * Return a list of networks.
+ * @param string $type 'v4' or 'v6' to return only this set.
  * @return Returns an associative array of network information. They key of
  *    the array is the network ID. The value is an associative array with
  *    keys: 'id', 'network', 'netmask', 'label', 'constituency'. The value
  *    of the constituency is the numerical ID of the constituency.
  */
-function getNetworks() {
+function getNetworks($type = null) {
    $res = db_query(
       'SELECT   id, network, netmask, label, constituency
        FROM     networks
@@ -185,13 +185,17 @@ function getNetworks() {
 
    $networks=array();
    while ($row = db_fetch_next($res)) {
-      $networks[$row['id']]=array(
-         'id'          => $row['id'],
-         'network'     => $row['network'],
-         'netmask'     => $row['netmask'],
-         'label'       => $row['label'],
-         'constituency'=> $row['constituency']
-      );
+      if ( $type === null ||
+           ( $type === 'v4' && validateIPV4($row['network']) ) ||
+           ( $type === 'v6' && validateIPV6($row['network']) ) ) {
+        $networks[$row['id']] = [
+           'id'          => $row['id'],
+           'network'     => $row['network'],
+           'netmask'     => $row['netmask'],
+           'label'       => $row['label'],
+           'constituency'=> $row['constituency']
+        ];
+      }
    }
    return $networks;
 }
@@ -309,4 +313,14 @@ function updateNetwork($data, &$error) {
    }
    return true;
 }
-?>
+
+function cidr_match($ip, $range)
+{
+    list ($subnet, $bits) = explode('/', $range);
+    $ip = ip2long($ip);
+    $subnet = ip2long($subnet);
+    $mask = -1 << (32 - $bits);
+    $subnet &= $mask; # nb: in case the supplied subnet wasn't correctly aligned
+    return ($ip & $mask) == $subnet;
+}
+
