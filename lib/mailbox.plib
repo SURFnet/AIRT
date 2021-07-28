@@ -18,8 +18,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * incident.plib - Incident management application logic
- *
- * $Id$
  */
 
 require_once LIBDIR.'/database.plib';
@@ -308,7 +306,7 @@ function removeEmailFromIncident($incidentid, $messageid, &$error='') {
 }
 
 /**
- * Fetch emails for incident
+ * Fetch emails for incident, sorted from newest to oldest
  *
  * @param incidentid 
  * @param error message, if any
@@ -323,8 +321,8 @@ function fetchEmailsForIncident($incidentid, &$messages, &$error='') {
    }
    $q = q('SELECT messageid
       FROM  incident_mail
-      WHERE incidentid=%incidentid', array(
-      '%incidentid'=>$incidentid)
+      WHERE incidentid=%incidentid ORDER BY messageid DESC', [
+      '%incidentid'=>$incidentid]
    );
    if (($res = db_query($q)) === false) {
       $error = _('Database error:').db_errormessage().
@@ -1161,5 +1159,3 @@ function navigate() {
          return;
    }
 }
-
-?>
