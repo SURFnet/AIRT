@@ -20,8 +20,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * import -- import incident reports into the AIRT Queue Manager.
- * 
- * $Id$
  */
 
 define('AIRT_VERSION','@VERSION@');
@@ -60,7 +58,7 @@ foreach ($argv as $param) {
       }
    } else {
       // File parameter.
-      if ($FILENAME!='') {
+      if (!empty($FILENAME)) {
          // Cannot process more than one file, quit.
          fwrite(STDERR, t('ERROR: More than one file name given.')."\n");
          exit(1);
@@ -176,4 +174,3 @@ if ($OPTIONS['--verbose']) {
 }
 return 0;
 
-?>
