@@ -119,6 +119,8 @@ CREATE TABLE constituencies (
     name        varchar(100),
     notes       text,
     type        int,
+    code        varchar(32),
+    guid        varchar(36),
     primary key (id)
 );
 
