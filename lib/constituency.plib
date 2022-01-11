@@ -35,14 +35,16 @@ function getConstituencies() {
        ORDER BY constituencies.label')
    or die(_('Unable to connect to database.'));
 
-   $constituencies=array();
+   $constituencies=[];
    while ($row = db_fetch_next($res)) {
-      $constituencies[$row['id']]=array(
+      $constituencies[$row['id']]=[
          'label' => $row['label'],
          'name'  => $row['name'],
          'ctype' => $row['ctype'],
+         'code'  => $row['code'],
+         'guid'  => $row['guid'],
          'notes' => $row['notes']
-      );
+      ];
   }
   return $constituencies;
 }
@@ -311,7 +313,7 @@ function addConstituency($label, $name, &$error) {
  * @param $error error message, if any
  * @return true on success, false on failure
  */
-function updateConstituency($id, $label, $name, $notes, &$error) {
+function updateConstituency($id, $label, $name, $code, $guid, $notes, &$error) {
    if (!is_numeric($id)) {
       $error = _('Invalid parameter type $id in').' constituency.plib:'.
          __LINE__;
@@ -321,10 +323,14 @@ function updateConstituency($id, $label, $name, $notes, &$error) {
       UPDATE constituencies
       SET  label=%s,
            name=%s,
+           code=%s,
+           guid=%s,
            notes=%s
       WHERE id=%d",
       db_masq_null($label),
       db_masq_null($name),
+      db_masq_null($code),
+      db_masq_null($guid),
       db_masq_null($notes),
       $id));
    if ($res === false) {
@@ -457,6 +463,20 @@ function constituencyDetails() {
     print '<td>'.LF;
     print t('<input type="text" size="30" name="description" value="%v"/>'.LF, array(
        '%v'=>$clist[$cid]['name']));
+    print '</td>'.LF;
+    print '</tr>'.LF;
+    print '<tr>'.LF;
+    print '<td>'._('Type').'</td>'.LF;
+    print '<td>'.LF;
+    print t('%v'.LF, array(
+       '%v'=>$clist[$cid]['ctype']));
+    print '</td>'.LF;
+    print '</tr>'.LF;
+    print '<tr>'.LF;
+    print '<td>'._('Code').'</td>'.LF;
+    print '<td>'.LF;
+    print t('<input type="text" size="16" name="code" value="%vc"> </td></tr><tr><td> Guid</td><td> <input type="text" size="38" name="guid" value="%vg">'.LF, array(
+       '%vc'=>$clist[$cid]['code'],'%vg'=>$clist[$cid]['guid']));
     print '</td>'.LF;
     print '</tr>'.LF;
     print '</table>'.LF;

@@ -40,6 +40,7 @@ switch ($action) {
       $out .= '<tr>'.LF;
       $out .= '<th>'._('Name').'</th>'.LF;
       $out .= '<th>'._('Type').'</th>'.LF;
+      $out .= '<th>'._('Code').'</th>'.LF;
       $out .= '<th>'._('Description').'</th>'.LF;
       $out .= '<th>&nbsp;</th>'.LF;
       $out .= '</tr>'.LF;
@@ -51,6 +52,7 @@ switch ($action) {
          $out .= '<tr>'.LF;
          $out .= '<td>'.strip_tags($row['label']).'</td>'.LF;
          $out .= '<td>'.substr(strip_tags($row['ctype']),0,15).'</td>'.LF;
+         $out .= '<td>'.strip_tags($row['code']).'</td>'.LF;
          $out .= '<td>'.strip_tags($row['name']).'</td>'.LF;
          $out .= '<td>'.LF;
          $out .= '<a href="'.BASEURL.'/constituencies.php?action=edit&cons='.
@@ -105,6 +107,8 @@ switch ($action) {
       if (empty($description)) {
          die(_('Missing information in ').__LINE__);
       }
+      $code = strip_tags(fetchFrom('REQUEST', 'code', '%s'));
+      $guid = strip_tags(fetchFrom('REQUEST', 'guid', '%s'));
 
       $contacts = strip_tags(fetchFrom('REQUEST', 'contacts', '%s'));
       if (empty($contacts)) {
@@ -157,7 +161,7 @@ switch ($action) {
             reload();
             exit;
          }
-         if (updateConstituency($consid, $label, $description, $notes, $error) === false) {
+         if (updateConstituency($consid, $label, $description, $code, $guid, $notes, $error) === false) {
             airt_msg(_('Database error:').$error);
             reload();
             exit;
