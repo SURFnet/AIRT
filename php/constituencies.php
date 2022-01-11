@@ -19,8 +19,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * constituencies.php -- manage constituency data
- *
- * $Id$
  */
 require_once 'config.plib';
 require_once LIBDIR.'/airt.plib';
@@ -41,6 +39,7 @@ switch ($action) {
       $out = '<table class="horizontal">'.LF;
       $out .= '<tr>'.LF;
       $out .= '<th>'._('Name').'</th>'.LF;
+      $out .= '<th>'._('Type').'</th>'.LF;
       $out .= '<th>'._('Description').'</th>'.LF;
       $out .= '<th>&nbsp;</th>'.LF;
       $out .= '</tr>'.LF;
@@ -51,6 +50,7 @@ switch ($action) {
          $consid = $id;
          $out .= '<tr>'.LF;
          $out .= '<td>'.strip_tags($row['label']).'</td>'.LF;
+         $out .= '<td>'.substr(strip_tags($row['ctype']),0,15).'</td>'.LF;
          $out .= '<td>'.strip_tags($row['name']).'</td>'.LF;
          $out .= '<td>'.LF;
          $out .= '<a href="'.BASEURL.'/constituencies.php?action=edit&cons='.
@@ -243,4 +243,3 @@ switch ($action) {
    default:
       die(_('Unknown action: ').$action);
 } // switch
-?>

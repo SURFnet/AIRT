@@ -1,6 +1,5 @@
 <?php
 /* vim:syntax=php shiftwidth=3 tabstop=3
- * $Id$ 
 
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
  * Copyright (C) 2004,2005   Kees Leune <kees@uvt.nl>
@@ -29,7 +28,7 @@ require_once LIBDIR.'/user.plib';
 require_once LIBDIR.'/incident.plib';
 require_once LIBDIR.'/importqueue.plib';
 
-if(!defined('LF')) { define('LF',"\n"); }
+define('LF',"\n");
 
 // Find out whether we run as web server module or as CLI interpreter.
 if ($_SERVER['DOCUMENT_ROOT']=='' || PHP_SAPI == 'cli') {
@@ -252,6 +251,12 @@ function subMenu($menu, $submenu, $title='') {
               '%url'=>BASEURL,
               '%l'=>_('Networks'),
               '%active'=>($submenu == 'networks' ? 'class="active"' : '')));
+
+           $out .= t('  <a href="%url/domains.php" %active>%l</a>'.LF, 
+           array(
+              '%url'=>BASEURL,
+              '%l'=>_('Domains'),
+              '%active'=>($submenu == 'domains' ? 'class="active"' : '')));
 
            $out .= t('  <a href="%url/constituency_contacts.php" %active>%l</a>'.LF, 
            array(
@@ -818,4 +823,3 @@ function formatAvailableLanguages($name, $default='', $extra=array()) {
 function formatRelativeDate($timestamp) {
    return date('Y-m-d H:i:s', $timestamp);
 }
-?>

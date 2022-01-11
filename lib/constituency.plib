@@ -18,11 +18,10 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * constituency.plib - Constituency management application logic
- *
- * $Id$
  */
 require_once LIBDIR.'/database.plib';
 require_once LIBDIR.'/network.plib';
+require_once LIBDIR.'/domain.plib';
 
 /** Return a list of constituencies.
  * @return an associative array containing constituency information. The
@@ -31,9 +30,9 @@ require_once LIBDIR.'/network.plib';
  */
 function getConstituencies() {
    $res = db_query(
-      'SELECT   id, label, name, notes
-       FROM     constituencies
-       ORDER BY label')
+      'SELECT   constituencies.*, constituency_types.name as ctype
+       FROM     constituencies LEFT JOIN constituency_types ON (constituencies.type=constituency_types.id)
+       ORDER BY constituencies.label')
    or die(_('Unable to connect to database.'));
 
    $constituencies=array();
@@ -41,6 +40,7 @@ function getConstituencies() {
       $constituencies[$row['id']]=array(
          'label' => $row['label'],
          'name'  => $row['name'],
+         'ctype' => $row['ctype'],
          'notes' => $row['notes']
       );
   }
@@ -478,7 +478,7 @@ function constituencyDetails() {
     print '<div class="column">'.LF;
 
     print '<div class="block">'.LF;
-    print '<h3>'._('Network').'</h3>'.LF;
+    print '<h3>'._('Networks and domains').'</h3>'.LF;
     print '<table>'.LF;
     print '<tr>'.LF;
     print '<th>'._('Netblock').'</th>'.LF;
@@ -506,6 +506,30 @@ function constituencyDetails() {
            '%id'=>$net['id'],
            '%l'=>_('remove')));
         */
+        print '</td>'.LF;
+        print '</tr>'.LF;
+    }
+    print '</table>'.LF;
+    print '<table>'.LF;
+    print '<tr>'.LF;
+    print '<th>'._('Domain').'</th>'.LF;
+    print '</tr>'.LF;
+    $dlist = getDomains($cid);
+    foreach ($dlist as $domain) {
+        if ($domain['constituency'] != $cid) {
+            continue;
+        }
+        print '<tr>'.LF;
+        print t('<td>%dom</td>'.LF, array(
+           '%dom'=>$domain['domain']));
+        print t('<td><a href="%u/domains.php?action=edit&id=%id">%l</a>'.LF,
+           array('%u'=>BASEURL,
+           '%id'=>$domain['id'],
+           '%l'=>_('edit')));
+        print t('<td><a href="%u/domains.php?action=delete&id=%id">%l</a>'.LF,
+           array('%u'=>BASEURL,
+           '%id'=>$domain['id'],
+           '%l'=>_('delete')));
         print '</td>'.LF;
         print '</tr>'.LF;
     }
@@ -646,4 +670,3 @@ function addConstituencyContactFrontend() {
     airt_msg(_('Constituency contact added.'));
     reload(BASEURL.'/constituencies.php?action=edit&cons='.$cid);
 }
-?>
