@@ -261,6 +261,14 @@ CREATE TABLE networks (
     foreign key (constituency) references constituencies(id)
 );
 
+CREATE TABLE domains (
+    id           integer,
+    domain       varchar(128) not null,
+    constituency integer not null,
+    primary key (id),
+    foreign key (constituency) references constituencies(id)
+);
+
 CREATE TABLE incident_comments ( 
     id          integer,
     incident    integer not null,
