@@ -74,6 +74,7 @@ switch ($action) {
          'menu'=>'constituencies',
          'submenu'=>'domains'));
 
+      print '<p><a href="?action=listplain">list plain</a></p>'.LF;
       print '<table class="table horizontal">'.LF;
       print '<tr>'.LF;
       print '   <td><B>'._('Domain').'</B></td>'.LF;
@@ -107,6 +108,15 @@ switch ($action) {
       print '</table>'.LF;
       print '<h3>'._('Add domain').'</h3>'.LF;
       show_form("");
+      break;
+
+   //-----------------------------------------------------------------
+   case "listplain":
+      header('Content-Type: text/plain');
+      $domainlist = getDomains();
+      foreach ($domainlist as $nid=>$data) {
+         print $data["domain"] . "\n";
+      }
       break;
 
    //-----------------------------------------------------------------
