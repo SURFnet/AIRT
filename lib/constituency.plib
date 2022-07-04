@@ -492,7 +492,10 @@ function constituencyDetails() {
     print '<input type="submit" value="'._('Update').'"/>'.LF;
     print '</div><!-- block -->'.LF;
 
+    generateEvent("showconstituency", ['guid' => $clist[$cid]['guid']]);
+
     print '</form>'.LF;
+
     print '</div><!-- column -->'.LF;
 
     print '<div class="column">'.LF;
