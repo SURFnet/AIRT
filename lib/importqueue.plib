@@ -1,6 +1,5 @@
 <?php
 /* vim: syntax=php tabstop=3 shiftwidth=3
- * $Id$
  *
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
  * Copyright (C) 2005   Tilburg University, The Netherlands
@@ -20,8 +19,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * importqueue.plib -- main library for the import queue ("import" command).
- * 
- * $Id$
  */
 
 // Libraries for the import queue system. These libraries are shared between
@@ -478,14 +475,14 @@ function queueFormatItems($typefilter='all') {
    $openips=array();
    $elements = array();
 
-   if (($res = db_query("select distinct type from import_queue where
-       status='open'")) === false) {
+   if (($res = db_query("select count(*) as cnt, type from import_queue where
+       status='open' group by type")) === false) {
        airt_msg(_('Database error in importqueue.plib:').__LINE__);
        return;
    }
    $types = array();
    while ($row = db_fetch_next($res)) {
-       $types[] = $row['type'];
+       $types[$row['type']] = $row['cnt'];
    }
 
    if (queueGetItems($elements, $error) === false) {
@@ -510,9 +507,10 @@ function queueFormatItems($typefilter='all') {
    $out .= '   <th>'._('No.').'</th>'.LF;
    $out .= '   <th><select onChange="submitMe(\'refresh\')" name="type">';
    $out .= '   <option value="all">'._('Type').'</option>'.LF;
-   foreach ($types as $type) {
-       $out .= t('   <option %d value="%type">%type</option>'.LF, array(
+   foreach ($types as $type => $cnt) {
+       $out .= t('   <option %d value="%type">%type (%num)</option>'.LF, array(
           '%type'=>htmlentities($type),
+          '%num'=>htmlentities($cnt),
           '%d'=>($typefilter == $type) ? 'SELECTED' : ''));
    }
    $out .= '   </select>'.LF;
@@ -1257,7 +1255,7 @@ function getPreferredMailtemplate($filter, $version, &$template, &$error) {
    $q = q("SELECT mailtemplate
            FROM   importqueue_templates
            WHERE  filter='%filter'
-           AND    version='%version'", array(
+           AND    version like '%version'", array(
               '%filter'=>db_escape_string($filter),
               '%version'=>db_escape_string($version)));
    $res = db_query($q);
@@ -1393,4 +1391,3 @@ function importqueueTemplatesFormatItems() {
 
    return $out;
 }
-?>
