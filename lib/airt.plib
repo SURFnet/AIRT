@@ -278,6 +278,11 @@ function subMenu($menu, $submenu, $title='') {
                   '%url'=>BASEURL,
                   '%l'=>_('Inactive templates'),
                   '%active'=>($submenu == 'manage' ? 'class="active"' : '')));
+
+               $out .= t('<a href="%u/importqueue.php?action=preftempl">%l</a><br/>'.LF,
+               array(
+                  '%u'=>BASEURL,
+                  '%l'=>_('Preferred templates')));
            }
 
            $out .= t('   <a href="%url/mailbox.php" %active>%l</a>', 
