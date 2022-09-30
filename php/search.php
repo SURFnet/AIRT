@@ -18,8 +18,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * search.php - Search for additional information on host
- * Updated IPV6/IPV4 leon.wiskie at wiskieit dot nl IPV6/IPV4 compliant 31-05-2018
- * $Id$
  */
 require_once 'config.plib';
 require_once LIBDIR.'/airt.plib';
@@ -141,13 +139,13 @@ function search_host($hostname='') {
 
    print '<div class="search-output-basic">'.LF;
    print _('Search results for the following host:');
-   print '<PRE>';
-   print _('IP Address').'          : '.$ip.'<br/>'.LF;
-   print _('Hostname').'            : '.$hostname.'<br/>'.LF;
-   print _('Network').'             : '.$netname.'(<a href="'.
-      BASEURL.'/search.php?q='.$network.'/'.$netmask.'&action=Search&qtype=zoom">'.$network.'/'.$netmask.'</a>)'.'<br/>'.LF;
-   print _('Constituency').'        : '.$consname.LF.'<br/>';
-   print '</PRE>'.LF;
+   print '<table>';
+   print '<tr><td>' . _('IP Address').':</td><td><kbd>'.$ip.'</kbd></td></tr>'.LF;
+   print '<tr><td>' . _('Hostname').':</td><td><kbd>'.$hostname.'</kbd></td></tr>'.LF;
+   print '<tr><td>' . _('Network').':</td><td>'.$netname.' (<a href="'.
+      BASEURL.'/search.php?q='.$network.'/'.$netmask.'&action=Search&qtype=zoom">'.prettyNetwork($network,$netmask).'</a>)'.'</td></tr>'.LF;
+   print '<tr><td>' . _('Constituency').':</td><td>'.$consname.'</td></tr>' . LF;
+   print '</table>'.LF;
    print '</div>'.LF;
 
    print '<div class="search-constituency">'.LF;
@@ -616,4 +614,3 @@ switch ($action) {
    default:
       die(_('Unknown action.'));
 } // switch
-?>

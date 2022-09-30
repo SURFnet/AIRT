@@ -513,14 +513,8 @@ function constituencyDetails() {
             continue;
         }
         print '<tr>'.LF;
-        if (validateIPV6($net['network'])){
-           $netmask = $net["netmask"];
-        } else {
-           $netmask = netmask2cidr($net["netmask"]);
-        }
-        print t('<td>%net/%cidr</td>'.LF, array(
-           '%net'=>$net['network'],
-           '%cidr'=>$netmask));
+        print t('<td>%net</td>'.LF, [
+           '%net'=>prettyNetwork($net['network'],$net['netmask'])]);
         print t('<td>%label</td>'.LF, array(
            '%label'=>$net['label']));
         print t('<td><a href="%u/networks.php?action=edit&id=%id">%l</a>'.LF,

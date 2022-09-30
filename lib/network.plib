@@ -86,6 +86,20 @@ require_once(LIBDIR.'/v6tools/autoload.php');
      return $addr->expand();
    }
    /**
+    * Pretty print an given network address and mask/cidr
+    *
+    * @param $ip IPv4 or IPv6 address
+    * @param $ip netmask for v4 or cidr length for v6
+    * @return String like "1.2.3.4/24" or "2001:610:a3::45/64"
+    */
+   function prettyNetwork($ip, $mask){
+     if(validateIPV6($ip)) {
+         $addr = new v6tools\IPv6Address($ip);
+         return $addr->compact() . '/' . $mask;
+     }
+     return $ip . '/' . netmask2cidr($mask);
+   }
+   /**
     * Check if ipv6 is in cidr
     * @param $ipv6
     * @param $cidr

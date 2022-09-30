@@ -103,25 +103,14 @@ switch ($action) {
       $count = 0;
       foreach ($networklist as $nid=>$data) {
          $id = $data["id"];
-         $network = $data["network"];
-         if (validateIPV6($network)){
-           $netmask = $data["netmask"];
-         } else {
-           $netmask = netmask2cidr($data["netmask"]);
-         }
          $label        = $data["label"];
          $constituency = $data["constituency"];
          $constituency_name  = $constituencies["$constituency"]["name"];
          $color = ($count++%2==0?"#FFFFFF":"#DDDDDD");
          print t('<tr>', array('%color'=>$color)).LF;
 
-        if($netmask){
-          print t('<td>%network/%netmask</td>', array(
-             '%network'=>$network,
-             '%netmask'=>$netmask)).LF;
-        }else {
-          print t('<td>%network</td>', array('%network'=>$network)).LF;
-        }
+         print t('<td>%network</td>', [
+             '%network'=>prettyNetwork($data['network'],$data['netmask'])]).LF;
          print t('<td>%label</td>', array('%label'=>$label)).LF;
          print t('<td><a href="constituencies.php?action=edit&cons=%constituency">%name</a></td>', array(
             '%constituency'=>$constituency,
