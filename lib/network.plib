@@ -192,7 +192,7 @@ function airt_netsort($a, $b) {
  */
 function getNetworks($type = null) {
    $res = db_query(
-      'SELECT   id, network, netmask, label, constituency
+      'SELECT   id, network, netmask, label, constituency, datasource
        FROM     networks
        ORDER BY network,netmask')
    or die('Unable to connect to database.');
@@ -207,7 +207,8 @@ function getNetworks($type = null) {
            'network'     => $row['network'],
            'netmask'     => $row['netmask'],
            'label'       => $row['label'],
-           'constituency'=> $row['constituency']
+           'constituency'=> $row['constituency'],
+           'datasource'  => $row['datasource'],
         ];
       }
    }

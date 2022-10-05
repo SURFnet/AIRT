@@ -261,6 +261,7 @@ CREATE TABLE networks (
     netmask      varchar(128),
     label        varchar(50) not null,
     constituency integer not null,
+    datasource   varchar(10),
     primary key (id),
     foreign key (constituency) references constituencies(id)
 );

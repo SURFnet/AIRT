@@ -16,9 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- * Updated leon.wiskie at wiskieit dot nl for IPV6 support 19-02-2018
- * $Id$
  */
 require_once 'config.plib';
 require_once LIBDIR.'/airt.plib';
@@ -49,6 +46,7 @@ function show_form($id="") {
          $network = $row["network"];
          $netmask = $row["netmask"];
          $label   = $row["label"];
+         $datasource = $row["datasource"];
          $constituency = $row["constituency"];
       }
    }
@@ -73,6 +71,10 @@ function show_form($id="") {
    print '<tr>'.LF;
    print '   <td>'._('Constituency').'</td>'.LF;
    print t('   <td>%constituencies</td>'.LF, array('%constituencies'=>getConstituencySelection("constituency", $constituency))).LF;
+   print '</tr>'.LF;
+   print '<tr>'.LF;
+   print '   <td>'._('Datasource').'</td>'.LF;
+   print t('   <td><input type="text" disabled size="30" value="%datasource"></td>', array('%datasource'=>$datasource)).LF;
    print '</tr>'.LF;
    print '</table>'.LF;
    print '<p/>'.LF;
@@ -247,4 +249,3 @@ switch ($action) {
    default:
       die(_('Unknown action: ').strip_tags($action));
 } // switch
-?>
