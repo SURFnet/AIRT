@@ -1,6 +1,5 @@
 <?php
 /* vim: syntax=php
- * $Id$ 
 
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
  * Copyright (C) 2004	Kees Leune <kees@uvt.nl>
@@ -79,14 +78,19 @@ function db_query($query, $conn=NULL) {
   if ($conn == NULL) {
     $conn = $db;
   }
-  $res = @pg_query($conn, $query);
-  if (defined('DEBUG') && DEBUG && $res===FALSE) {
-    // PostgreSQL error in debug mode; get verbose.
-    printf('<hr><b><font color="red">PostgreSQL problem</font></b><br>'.LF.
-           '<PRE>QUERY: %s'.LF.
-           '%s</PRE><hr>'.LF,
-           $query,
-           db_errormessage());
+  pg_send_query($conn, $query);
+  $res = pg_get_result($conn);
+  $error = pg_result_error($res);
+  if ($error) {
+    if (defined('DEBUG') && DEBUG) {
+      // PostgreSQL error in debug mode; get verbose.
+      printf('<hr><b><font color="red">PostgreSQL problem</font></b><br><br>'.LF.
+             'QUERY: <pre>%s</pre><br><em>%s</em>'.LF.
+             '<hr>'.LF,
+             htmlspecialchars($query),
+             htmlspecialchars($error));
+    }
+    die("Error while executing database query.");
   }
 
   return $res;
@@ -139,5 +143,3 @@ function db_masq_null($str) {
 function db_escape_string($string) {
   return pg_escape_string($string);
 }
-
-?>
