@@ -1,6 +1,5 @@
 <?php
-/* $Id$
- * login.php - allows users to log in to this site. 
+/* login.php - allows users to log in to this site.
  * vim: syntax=php tabstop=3 shiftwidth=3
 
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
@@ -39,32 +38,26 @@ switch ($action) {
 
     case "check":
        $login = fetchFrom('REQUEST', 'login');
-       if (empty($login)) {
-          airt_error("PARAM_MISSING", "login.php:".__LINE__);
-          reload();
-          break;
-       }
-
        $password = fetchFrom('REQUEST', 'password');
-       if (empty($password)) {
-          airt_error("PARAM_MISSING", "login.php:".__LINE__);
+
+       if (empty($login) || empty($password)) {
+          airt_msg(_("Please enter a username and password to login."));
           reload();
-          break;
+          exit();
        }
 
        $userid = airt_authenticate($login, $password);
        if ($userid == -1) {
           pageHeader(_('Permission denied.'));
           print _('Username and/or password incorrect.');
-			 airt_invalidCredentials();
+          airt_invalidCredentials();
           pageFooter();
-			 exit();
-		 }
+          exit();
+       }
 
-		 airt_initSession($userid);
+       airt_initSession($userid);
        break;
 
     default:
        die(_('Unknown action.'));
 } // switch
-?>
