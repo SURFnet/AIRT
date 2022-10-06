@@ -1,7 +1,5 @@
 <?php
 /* vim:syntax=php shiftwidth=3 tabstop=3
- * $Id$ 
-
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
  * Copyright (C) 2004,2005	Kees Leune <kees@uvt.nl>
 
@@ -46,7 +44,7 @@ function airt_error($errClass, $scope, $user_info='', $sys_info='') {
    global $AIRT_ERRORS;
 
    if (array_key_exists($errClass, $AIRT_ERRORS)) {
-      airt_msg(t('<div style="text-align:center; border-color:red; border-width:1px; border-style:solid; color:red">AIRT ERROR: %msg%info in scope %scope</div>', array(
+      airt_msg(t('AIRT ERROR: %msg%info in scope %scope', array(
                  '%msg'=>$AIRT_ERRORS[$errClass], 
                  '%scope'=>$scope,
                  '%info'=>($user_info=='' ? '' : "($user_info)")
@@ -59,4 +57,3 @@ function airt_error($errClass, $scope, $user_info='', $sys_info='') {
       )));
    }
 }
-?>
