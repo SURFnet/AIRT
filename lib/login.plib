@@ -16,8 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- * $Id$
  */
 require_once LIBDIR."/authentication.plib";
 require_once LIBDIR."/config.plib";
@@ -58,15 +56,15 @@ function airtLoginScreen() {
    }
 
    $out .= '<form method="POST">'.LF;
-   $out .= '<input type="hidden" class="login" name="action" value="check"/>'.LF;
+   $out .= '<input type="hidden" class="login" name="action" value="check">'.LF;
    $out .= '<table>'.LF;
    $out .= '<tr>'.LF;
    $out .= '  <td>'._('Username').': </td>'.LF;
-   $out .= '  <td><input type="text" name="login" size="25"></td>'.LF;
+   $out .= '  <td><input type="text" name="login" size="25" required autocomplete="username"></td>'.LF;
    $out .= '</tr>'.LF;
    $out .= '<tr>'.LF;
    $out .= '  <td>'._('Password').': </td>'.LF;
-   $out .= '  <td><input type="password" name="password" size="25"></td>'.LF;
+   $out .= '  <td><input type="password" name="password" size="25" required autocomplete="current-password"></td>'.LF;
    $out .= '</tr>'.LF;
    $out .= '<tr>'.LF;
    $out .= '  <td/>'.LF;
@@ -127,4 +125,3 @@ function airtLogout() {
     session_destroy();
     reload(BASEURL.'/login.php');
 }
-?>
