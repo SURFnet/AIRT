@@ -58,15 +58,15 @@ function show_form($id="") {
    print '<table>'.LF;
    print '<tr>'.LF;
    print '   <td>'._('Network Address').'</td>'.LF;
-   print t('   <td><input type="text" size="30" name="network" value="%network"></td>', array('%network'=>$network)).LF;
+   print t('   <td><input type="text" required size="30" minlength="4" pattern="^\d[\da-fA-F.:]+$" name="network" value="%network"></td>', array('%network'=>$network)).LF;
    print '</tr>'.LF;
    print '<tr>'.LF;
    print '   <td>'._('Netmask/Prefix or CIDR for IPv6').'</td>'.LF;
-   print t('   <td><input type="text" size="30" name="netmask" value="%netmask"></td>', array('%netmask'=>$netmask)).LF;
+   print t('   <td><input type="text" required minlength="1" maxlength="15" size="30" pattern="^\d[\da-fA-F.:]+$" name="netmask" value="%netmask"></td>', array('%netmask'=>$netmask)).LF;
    print '</tr>'.LF;
    print '<tr>'.LF;
    print '   <td>'._('Label').'</td>'.LF;
-   print t('   <td><input type="text" size="30" name="label" value="%label"></td>', array('%label'=>$label)).LF;
+   print t('   <td><input type="text" required size="30" name="label" value="%label"></td>', array('%label'=>$label)).LF;
    print '</tr>'.LF;
    print '<tr>'.LF;
    print '   <td>'._('Constituency').'</td>'.LF;
@@ -126,6 +126,7 @@ switch ($action) {
       }
       print '</table>'.LF;
       print '<h3>'._('New network').'</h3>'.LF;
+      print '<p>Enter either as IPv4 + netmask, or IPv6 + cidr length.</p>'.LF;
       show_form("");
       break;
 
@@ -148,7 +149,6 @@ switch ($action) {
       break;
 
    //-----------------------------------------------------------------
-   //UPDATED for IPV6
    case "add":
    case "update":
       $id = fetchFrom('POST', 'id', '%d');
@@ -163,9 +163,9 @@ switch ($action) {
           exit(reload());
       } elseif (validateIPV4($network)) {
         $netmask = strip_tags(fetchFrom('REQUEST', 'netmask', '%s'));
-        if (validateIPV4CIDR($netmask) == false) {
-           airt_msg(_('Invalid format for netmask. Valid format is cidr length, '.
-              'e.g 16'));
+        if (validateIPV4mask($netmask) == false) {
+           airt_msg(_('Invalid format for netmask. Valid format is dotted quad subnet mask, '.
+              'e.g 255.255.255.0'));
            exit(reload());
         }
       } elseif(validateIPV6($network)) {
