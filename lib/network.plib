@@ -123,6 +123,22 @@ function checkinipv6subnet($ipv6,$cidr) {
 }
 
 /**
+ * Check if ipv4 is in cidr
+ * @param $ipv4
+ * @param $cidr
+ * @return returns true or false
+ */
+function checkinipv4subnet($ipv4, $cidr)
+{
+  list ($subnet, $bits) = explode('/', $cidr);
+  $ip = ip2long($ipv4);
+  $subnet = ip2long($subnet);
+  $mask = -1 << (32 - $bits);
+  $subnet &= $mask; # nb: in case the supplied subnet wasn't correctly aligned
+  return ($ipv4 & $mask) == $subnet;
+}
+
+/**
  * Convert a netmask (255.255.0.0) to CIDR notation (16).
  * The leading slash in the CIDR notation will not be returned.
  * @param $mask The netmask that needs to be converted
@@ -335,14 +351,4 @@ function updateNetwork($data, &$error) {
       return false;
   }
   return true;
-}
-
-function cidr_match($ip, $range)
-{
-  list ($subnet, $bits) = explode('/', $range);
-  $ip = ip2long($ip);
-  $subnet = ip2long($subnet);
-  $mask = -1 << (32 - $bits);
-  $subnet &= $mask; # nb: in case the supplied subnet wasn't correctly aligned
-  return ($ip & $mask) == $subnet;
 }

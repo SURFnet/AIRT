@@ -58,11 +58,15 @@ function checkAllowedASN($asn) {
 }
 
 function checkDisallowedCidr($ip) {
-    global $SHADOW_UNWANTED_CIDRS;
+    global $SHADOW_UNWANTED_CIDRS, $SHADOW_UNWANTED_CIDRS_V6;
 
-    if ( isset($SHADOW_UNWANTED_CIDRS) ) {
+    if (validateIPV6($ip) && isset($SHADOW_UNWANTED_CIDRS_V6)) {
+        foreach($SHADOW_UNWANTED_CIDRS_V6 as $cidr) {
+            if ( checkinipv6subnet($ip, $cidr) ) return false;
+        }
+    } elseif ( validateIPV4($ip) && isset($SHADOW_UNWANTED_CIDRS) ) {
         foreach($SHADOW_UNWANTED_CIDRS as $cidr) {
-            if ( cidr_match($ip, $cidr) ) return false;
+            if ( checkinipv4subnet($ip, $cidr) ) return false;
         }
     }
 
@@ -521,6 +525,3 @@ function filter_shadowserver($input, &$output, $verbosity=FALSE) {
         if ($verbosity) print "$output";
         return 0;
 }
-?>
-
-
