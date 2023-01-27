@@ -22,103 +22,105 @@
 
 require_once(LIBDIR.'/v6tools/autoload.php');
 
- /**
-  * Validation of IPv6 addres
-  * @param $ip
-  * @return returns true or false
-  */
- function validateIPV6($ip) {
-   if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
-      return true;
-   } else {
-      return false;
-   }
- }
-
- /**
-  * Validation of IPv4 addres
-  * @param $ip
-  * @return returns true or false
-  */
- function validateIPV4($ip) {
-   if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-       return true;
-   } else {
-       return false;
-   }
- }
-
- /**
-  * Validation of IPv4 subnet mask
-  * @param $ip
-  * @return returns true or false
-  */
- function validateIPV4mask($ip) {
-   return validateIPV4($ip);
- }
-
- /**
-  * Validation of IPv6 CIDR
-  * @param $ip
-  * @return returns true or false
-  */
-  function validateIPV6CIDR($cidr) {
-    if (ctype_digit((string)$cidr) && 32 <= $cidr && $cdir <= 128) {
-        return true;
-    } else {
-        return false;
-    }
+/**
+ * Validation of IPv6 addres
+ * @param $ip
+ * @return returns true or false
+ */
+function validateIPV6($ip) {
+  if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+     return true;
+  } else {
+     return false;
   }
+}
 
-  /**
-   * Validation of IPv4 CIDR
-   * @param $ip
-   * @return returns true or false
-   */
-   function validateIPV4CIDR($cidr) {
-     if ((8 <= $cidr) && ($cdir <= 32)) {
-         return true;
-     } else {
-         return false;
-     }
-   }
-   
-   /**
-    * Expand of shorthand IPv6
-    * @param $ipv6
-    * @return returns true or false
-    */
-   function expandIPV6($ipv6){
-     $addr = new v6tools\IPv6Address($ipv6);
-     return $addr->expand();
-   }
-   /**
-    * Pretty print an given network address and mask/cidr
-    *
-    * @param $ip IPv4 or IPv6 address
-    * @param $ip netmask for v4 or cidr length for v6
-    * @return String like "1.2.3.4/24" or "2001:610:a3::45/64"
-    */
-   function prettyNetwork($ip, $mask){
-     if(validateIPV6($ip)) {
-         $addr = new v6tools\IPv6Address($ip);
-         return $addr->compact() . '/' . $mask;
-     }
-     return $ip . '/' . netmask2cidr($mask);
-   }
-   /**
-    * Check if ipv6 is in cidr
-    * @param $ipv6
-    * @param $cidr
-    * @return returns true or false
-    */
-   function checkinipv6subnet($ipv6,$cidr) {
-     if(strpos($cidr,'.')) {
-       return false;
-     }
-     $c = new v6tools\Subnet($cidr);
-     return $c->isInSubnet($ipv6);
-   }
+/**
+ * Validation of IPv4 addres
+ * @param $ip
+ * @return returns true or false
+ */
+function validateIPV4($ip) {
+  if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+/**
+ * Validation of IPv4 subnet mask
+ * @param $ip
+ * @return returns true or false
+ */
+function validateIPV4mask($ip) {
+  return validateIPV4($ip);
+}
+
+/**
+ * Validation of IPv6 CIDR
+ * @param $ip
+ * @return returns true or false
+ */
+function validateIPV6CIDR($cidr) {
+  if (ctype_digit((string)$cidr) && 32 <= $cidr && $cdir <= 128) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+/**
+ * Validation of IPv4 CIDR
+ * @param $ip
+ * @return returns true or false
+ */
+function validateIPV4CIDR($cidr) {
+  if ((8 <= $cidr) && ($cdir <= 32)) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+/**
+ * Expand of shorthand IPv6
+ * @param $ipv6
+ * @return returns true or false
+ */
+function expandIPV6($ipv6) {
+  $addr = new v6tools\IPv6Address($ipv6);
+  return $addr->expand();
+}
+
+/**
+ * Pretty print an given network address and mask/cidr
+ *
+ * @param $ip IPv4 or IPv6 address
+ * @param $ip netmask for v4 or cidr length for v6
+ * @return String like "1.2.3.4/24" or "2001:610:a3::45/64"
+ */
+function prettyNetwork($ip, $mask){
+  if(validateIPV6($ip)) {
+    $addr = new v6tools\IPv6Address($ip);
+    return $addr->compact() . '/' . $mask;
+  }
+  return $ip . '/' . netmask2cidr($mask);
+}
+
+/**
+ * Check if ipv6 is in cidr
+ * @param $ipv6
+ * @param $cidr
+ * @return returns true or false
+ */
+function checkinipv6subnet($ipv6,$cidr) {
+  if(strpos($cidr,'.')) {
+    return false;
+  }
+  $c = new v6tools\Subnet($cidr);
+  return $c->isInSubnet($ipv6);
+}
 
 /**
  * Convert a netmask (255.255.0.0) to CIDR notation (16).
@@ -127,15 +129,15 @@ require_once(LIBDIR.'/v6tools/autoload.php');
  * @return a string containing the CIDR notation of the netmask
  */
 function netmask2cidr($mask) {
-   if ($mask == '0.0.0.0') {
-      return 0;
-   }
-   $pos = strpos(decbin(ip2long($mask)), '0');
-   if ($pos == false) {
-      return 32;
-   } else {
-      return $pos;
-   }
+  if ($mask == '0.0.0.0') {
+     return 0;
+  }
+  $pos = strpos(decbin(ip2long($mask)), '0');
+  if ($pos == false) {
+     return 32;
+  } else {
+     return $pos;
+  }
 }
 
 /**
@@ -228,36 +230,35 @@ function getNetworks($type = null) {
  * @param netmask
  * @return true if the network exist, false if it does not
  */
- function networkExists($network, $netmask) {
-   foreach (getNetworks() as $net) {
-     if ($net['network'] == $network && $net['netmask'] == $netmask) {
-       return true;
-     }
-   }
-   return false;
- }
+function networkExists($network, $netmask) {
+  foreach (getNetworks() as $net) {
+    if ($net['network'] == $network && $net['netmask'] == $netmask) {
+      return true;
+    }
+  }
+  return false;
+}
 
- /**
-  * Check if a given networkmask is valid constructed
-  * @param mask
-  * @return $mask if the network exist, null if it does not
-  */
- function airt_searchhelper($mask) {
-   if(strpos($mask,'/')) {
-      $array = list($ip,$cidr) = explode('/',$mask);
-      if (validateIPV4CIDR($array[1]) && validateIPV4($array[0]) ) {
-        return $mask;
-      } elseif(validateIPV6CIDR($array[1]) && validateIPV6($array[0]) ) {
-        return $mask;
-      }
-      return null;
-   } elseif(validateIPV4($mask) || validateIPV6($mask)) {
-     return $mask;
-   } else {
-     return null;
-   }
- }
-
+/**
+ * Check if a given networkmask is valid constructed
+ * @param mask
+ * @return $mask if the network exist, null if it does not
+ */
+function airt_searchhelper($mask) {
+  if(strpos($mask,'/')) {
+    $array = list($ip,$cidr) = explode('/',$mask);
+    if (validateIPV4CIDR($array[1]) && validateIPV4($array[0]) ) {
+      return $mask;
+    } elseif(validateIPV6CIDR($array[1]) && validateIPV6($array[0]) ) {
+      return $mask;
+    }
+    return null;
+  } elseif(validateIPV4($mask) || validateIPV6($mask)) {
+    return $mask;
+  } else {
+    return null;
+  }
+}
 
 /**
  * Add network details and IPV6 IPV4 moved validation to networks.php
@@ -265,7 +266,6 @@ function getNetworks($type = null) {
  * @error $error error message, if any
  * @return true on success, false on failure
  */
-
 function addNetwork($data, &$error='') {
   $network = $data['network'];
   $netmask = $data['netmask'];
@@ -287,6 +287,7 @@ function addNetwork($data, &$error='') {
    }
    return true;
 }
+
 /**
  * Update network details IPV6 IPV4 moved validation to networks.ph
  * @param $data associative array containing new data
@@ -299,25 +300,25 @@ function updateNetwork($data, &$error) {
   $label = $data['label'];
   $constituency = $data['constituency'];
   if (array_key_exists('id', $data)) {
-      $id = $data['id'];
+    $id = $data['id'];
    } else {
-      // no id given, try finding it through netmask/network
-      foreach (getNetworks() as $nid=>$netw) {
-         if ($netw['netmask'] == $netmask && $netw['network'] == $network) {
-            $id = $nid;
-            break;
-         }
+    // no id given, try finding it through netmask/network
+    foreach (getNetworks() as $nid=>$netw) {
+      if ($netw['netmask'] == $netmask && $netw['network'] == $network) {
+        $id = $nid;
+        break;
       }
-   }
-   if (!isset($id)) {
-      $error = _('Unable to determine id in').' netmask.plib:'.__LINE__;
-      return false;
-   }
-   if (!is_numeric($id)) {
-      $error = _('Invalid parameter type in').' netmask.plib:'.__LINE__;
-      return false;
-   }
-   $res = db_query(q('
+    }
+  }
+  if (!isset($id)) {
+    $error = _('Unable to determine id in').' netmask.plib:'.__LINE__;
+    return false;
+  }
+  if (!is_numeric($id)) {
+    $error = _('Invalid parameter type in').' netmask.plib:'.__LINE__;
+    return false;
+  }
+  $res = db_query(q('
       UPDATE networks
       SET    network=%network,
              netmask=%netmask,
@@ -329,20 +330,19 @@ function updateNetwork($data, &$error) {
          '%label'=>db_masq_null($label),
          '%cons'=>$constituency,
          '%id'=>$id)));
-   if ($res === false) {
+  if ($res === false) {
       $error = db_errormessage();
       return false;
-   }
-   return true;
+  }
+  return true;
 }
 
 function cidr_match($ip, $range)
 {
-    list ($subnet, $bits) = explode('/', $range);
-    $ip = ip2long($ip);
-    $subnet = ip2long($subnet);
-    $mask = -1 << (32 - $bits);
-    $subnet &= $mask; # nb: in case the supplied subnet wasn't correctly aligned
-    return ($ip & $mask) == $subnet;
+  list ($subnet, $bits) = explode('/', $range);
+  $ip = ip2long($ip);
+  $subnet = ip2long($subnet);
+  $mask = -1 << (32 - $bits);
+  $subnet &= $mask; # nb: in case the supplied subnet wasn't correctly aligned
+  return ($ip & $mask) == $subnet;
 }
-
