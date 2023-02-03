@@ -1,6 +1,5 @@
 <?php
 /* vim: syntax=php tabstop=3 shiftwidth=3
- * $Id: mailtemplates.php 1556 2011-12-18 14:48:07Z kees $ 
  * mailtemplates.php - Standard messages
  *
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
@@ -487,9 +486,9 @@ special variables in the template:').'<p>'.LF;
 				/* invoke gpg */
 				$cmd = sprintf("%s %s --homedir %s --default-key %s %s",
 					GPG_BIN, GPG_OPTIONS, GPG_HOMEDIR, GPG_KEYID, $fname);
-				exec($cmd);
+				exec($cmd, $output);
 				if (($sig = file_get_contents("$fname.asc")) == false) {
-					die(_('Unable to read signed message.'));
+					die(_('Unable to read signed message. GPG said: ' . implode("\n", $output)));
 				}
 
 				/* clean up */
@@ -674,4 +673,3 @@ special variables in the template:').'<p>'.LF;
    default:
       die(_('Unknown action: '. $action));
 } // switch
-?>
