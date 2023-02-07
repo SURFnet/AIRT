@@ -497,7 +497,7 @@ function queueFormatItems($typefilter='all') {
    $used_ips = array();
    $js = '<SCRIPT language="JavaScript">'.LF;
    $js .= 'function checkAll() {'.LF;
-   $js .= '   var check=document.forms[1].elements[1].checked;'.LF;
+   $js .= '   var check=document.forms[1].elements[4].checked;'.LF;
    
    $out = '';
    $out .= '<div class="importqueue-overview-body">'.LF;
