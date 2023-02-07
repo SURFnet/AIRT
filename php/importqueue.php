@@ -1,6 +1,5 @@
 <?php
 /* vim:syntax=php shiftwidth=3 tabstop=3
- * $Id$ 
 
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
  * Copyright (C) 2004,2005   Kees Leune <kees@uvt.nl>
@@ -32,29 +31,31 @@ defaultTo($action, 'list');
 /** Helper function to display the queue.
  */
 function showQueue($type='all') {
-   pageHeader(_('Import queue'), array(
+
+   $actions = _('With selected: ') .
+       t('<input type="submit" onClick="submitMe(\'accept\')" name="action" value="%v">'.LF, ['%v'=>_('Accept')]) .
+       t('<input type="submit" onClick="submitMe(\'reject\')" name="action" value="%v">'.LF, ['%v'=>_('Reject')]) .
+       t('<input type="submit" name="action" value="%v">'.LF, ['%v'=>_('Refresh')]);
+
+   pageHeader(_('Import queue'), [
       'menu'=>'incidents',
-      'submenu'=>'importqueue'));
-   $out = '<div class="importqueue-overview-header">'.LF;
-   $out .= '</div><!-- importqueue-overview-header -->'.LF;
-   $out .= '<script language="JavaScript">'.LF;
+      'submenu'=>'importqueue']);
+   $out = '<script>'.LF;
    $out .= '   function submitMe(a) {'.LF;
    $out .= '      document.forms[1].elements[0].value = a;'.LF;
    $out .= '      document.forms[1].submit();'.LF;
    $out .= '   }'.LF;
    $out .= '</script>'.LF;
-   $out .= t('<form action="%u/importqueue.php" method="post">'.LF, array(
-      '%u'=>BASEURL));
+   $out .= t('<form action="%u/importqueue.php" method="post">'.LF, ['%u'=>BASEURL]);
    $out .= '<input type="hidden" name="action" value=""/>'.LF;
+   $out .= '<div class="importqueue-overview-header">'.LF;
+   $out .= $actions;
+   $out .= '<p>';
+   $out .= '</div><!-- importqueue-overview-header -->'.LF;
    $out .= queueFormatItems($type);
    $out .= '<div class="importqueue-overview-footer">'.LF;
-   $out .= '<p/>'._('With selected: ');
-   $out .= t('<input type="submit" onClick="submitMe(\'accept\')" name="action" value="%v">'.LF, array(
-      '%v'=>_('Accept')));
-   $out .= t('<input type="submit" onClick="submitMe(\'reject\')" name="action" value="%v">'.LF, array(
-      '%v'=>_('Reject')));
-   $out .= t('<input type="submit" name="action" value="%v">'.LF, array(
-      '%v'=>_('Refresh')));
+   $out .= '<p>';
+   $out .= $actions;
    $out .= '</div><!-- importqueue-overview-footer -->'.LF;
    $out .= '</form>'.LF;
    print $out;
@@ -273,4 +274,3 @@ switch (strtolower($action)) {
       airt_error('PARAM_INVALID', 'importqueue.php:'.__LINE__);
       reload();
 }
-?>
