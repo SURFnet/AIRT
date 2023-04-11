@@ -12,7 +12,7 @@ package, but if you read this, you likely want to do something more
 elaborate.
 
 For a typical development installation of AIRT (on a personal workstation),
-make sure you have a working Apache and a working PostgreSQL database
+make sure you have a working Apache with PHP and a working PostgreSQL database
 server. Then cd to the source directory and type:
 
 $ ./bootstrap
@@ -55,6 +55,9 @@ bootstrap, configure, and make are "safe", they won't touch anything in your
 live AIRT installation. "make install" is not safe, it will touch things in
 your live AIRT installation, and usually you don't want etc to be touched.
 
+For sending emails, you need to install the php-mail package:
+
+$ apt install php-mail
 
 Site customization
 ------------------
