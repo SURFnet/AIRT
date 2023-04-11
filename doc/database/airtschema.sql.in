@@ -15,10 +15,6 @@
 -- along with this program; if not, write to the Free Software
 -- Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-
--- $Id: airtschema.sql 1235 2008-03-23 00:35:53Z kees $
--- In CVS at $Source$
-
 DROP SEQUENCE incident_types_sequence;
 DROP SEQUENCE incident_states_sequence;
 DROP SEQUENCE incident_status_sequence;
@@ -491,7 +487,7 @@ CREATE UNIQUE INDEX address_roles_label on address_roles(upper(label));
 CREATE SEQUENCE generic_sequence;
 
 CREATE INDEX incident_addresses_index_incident
-          ON incident_addresses ( incident )
+          ON incident_addresses ( incident );
 
 INSERT INTO versions (key, value)
     VALUES ('airtversion','@VERSION@');
