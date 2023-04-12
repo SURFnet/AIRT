@@ -15,10 +15,6 @@
 -- along with this program; if not, write to the Free Software
 -- Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-
--- $Id$
--- In CVS at $Source$
-
 -- 
 -- Preload administrator account and administrator role
 --
@@ -149,7 +145,7 @@ INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_posi
   (nextval('urls_sequence'), 'incident.php', 'Incident management', currval('users_sequence'), CURRENT_TIMESTAMP, 2, NULL);
 INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position)
   VALUES
-  (nextval('urls_sequence'), 'maintenance.php', 'Edit settings', currval('users_sequence'), CURRENT_TIMESTAMP, 5, NULL);
+  (nextval('urls_sequence'), 'settings.php', 'Edit settings', currval('users_sequence'), CURRENT_TIMESTAMP, 5, NULL);
 INSERT INTO urls (id, url, label, createdby, created, menu_position, navbar_position)
   VALUES
   (nextval('urls_sequence'), 'incident.php', 'Incidents', currval('users_sequence'), CURRENT_TIMESTAMP, NULL, 4);
