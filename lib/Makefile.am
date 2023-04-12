@@ -1,4 +1,4 @@
-# AIR: APPLICATIION FOR INCIDENT RESPONSE
+# AIRT: APPLICATIION FOR INCIDENT RESPONSE TEAMS
 # Copyright (C) 2004	Kees Leune <kees@uvt.nl>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -14,18 +14,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-#
-# $Id$
 
-# 
 SUBDIRS = . import_filters export_wrappers
 
 scriptdir=@AIRT_PHPLIBDIR@
 
-script_DATA = airt.plib authentication.plib constituency.plib database.plib \
-	export.plib history.plib incident.plib mailtemplates.plib search.plib \
-	user.plib error.plib network.plib importqueue.plib exportqueue.plib \
-	server.plib profiler.plib mailbox.plib login.plib setup.plib \
-	config.plib formkey.plib
+script_DATA = *.plib v6tools
 
 EXTRA_DIST = $(script_DATA)
