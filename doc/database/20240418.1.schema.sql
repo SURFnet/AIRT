@@ -1,0 +1,2 @@
+ALTER TABLE incidents
+  ADD severity INTEGER NOT NULL DEFAULT 0;

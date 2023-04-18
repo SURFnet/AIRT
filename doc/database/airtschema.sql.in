@@ -176,6 +176,7 @@ CREATE TABLE incidents (
     logging     text,
     short_desc  text,
     pref_templ  varchar(80),
+    severity    integer not null default 0,
     primary key (id),
     foreign key (creator)   references users(id),
     foreign key (updatedby) references users(id),

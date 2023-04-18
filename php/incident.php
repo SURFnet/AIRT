@@ -19,8 +19,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * Incidents.php - incident management interface
- * Updated leon.wiskie@wiskieit.nl 26-02-2018 incidentsubtype
- * $Id$
  */
 
 require_once 'config.plib';
@@ -403,6 +401,7 @@ switch ($action) {
          reload();
       }
 
+      $severity = fetchFrom('POST','severity', '%d');
       $state = fetchFrom('POST','state', '%d');
       if ($state=='') {
          airt_error('PARAM_MISSING', 'incident.php:'.__LINE__);
@@ -448,6 +447,7 @@ switch ($action) {
       updateIncident($incidentid,array(
          'state'=>$state,
          'status'=>$status,
+         'severity'=>$severity,
          'type'=>$type,
          'date'=>$date,
          'logging'=>$logging,
@@ -456,9 +456,11 @@ switch ($action) {
          'desc'=>$desc
          ));
 
+      $SEVERITIES = getIncidentSeverities();
       addIncidentComment(array(
          'comment'=>sprintf(_(
-            'Incident updated: state=%s, status=%s, type=%s, desc=%s'),
+            'Incident updated: severity=%s, state=%s, status=%s, type=%s, desc=%s'),
+            $SEVERITIES[$severity],
             getIncidentStateLabelByID($state),
             getIncidentStatusLabelByID($status),
             getIncidentTypeLabelByID($type),
@@ -762,4 +764,3 @@ switch ($action) {
    default:
       die(_('Unknown action').' '.htmlentities($action));
 }
-?>

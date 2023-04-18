@@ -17,8 +17,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * incident.plib - Incident management application logic
- * Updated leon.wiskie@wiskieit.nl 26-02-2018 for incident subtype
- * $Id$
  */
 
 require_once LIBDIR.'/database.plib';
@@ -30,6 +28,12 @@ require_once LIBDIR.'/mailtemplates.plib';
 require_once LIBDIR.'/profiler.plib';
 require_once LIBDIR.'/mailbox.plib';
 require_once LIBDIR.'/setup.plib';
+
+function getIncidentSeverities()
+{
+  return [0 => 'low', 50 => 'medium', 100 => 'high'];
+}
+
 
 /** Return an associative array with incident states.
  * @param $extras Optionally, an array with extra incident states that are
@@ -231,6 +235,11 @@ function getIncidentTypes($extras=array()) {
    return $types;
 }
 
+function getIncidentSeverityDefault()
+{
+   return 0;
+}
+
 /* Return the current incident type ID system default. If there is no
  * explicit default set, return an empty string. */
 function getIncidentTypeDefault() {
@@ -255,6 +264,27 @@ function setIncidentTypeDefault() {
       incident_types)');
    db_free_result($res);
 }
+
+/* Return an HTML SELECT box containing valid choices for incident severities.
+   When a default choice is not given (""), fetch system default.*/
+function getIncidentSeveritySelection($name, $default='',$extras=array(),
+   $script='') {
+
+   $output = sprintf('<select %s name="%s">'.LF,
+      $script, htmlentities($name));
+   $states = getIncidentSeverities();
+   if ($default=='') {
+      $default = getIncidentSeverityDefault();
+   }
+   foreach ($states as $i=>$l) {
+      $output .= sprintf('<option value="%s" %s>%s</option>'.LF,
+         htmlentities($i),
+         ($i == $default) ? 'SELECTED' : '', htmlentities($l));
+   }
+   $output .= '</select>'.LF;
+   return $output;
+}
+
 
 /* Return an HTML SELECT box containing valid choices for incident types.
    When a default choice is not given (""), fetch system default.*/
@@ -322,6 +352,7 @@ function getOpenIncidents($sqlfilter = "WHERE s1.label IN ('open','stalled')") {
                 u2.phone as updatedby_phone,
                 s2.label as state,
                 s1.label as status,
+                severity,
                 t.label as type,
                 a.ip as ip,
                 a.hostname as hostname,
@@ -391,6 +422,7 @@ function getIncident($id) {
         updatedby,
         state,
         status,
+        severity,
         type,
 	    logging,
         extract(epoch from incidentdate) as incidentdate,
@@ -562,14 +594,15 @@ airt_profile('Starting createIncident');
    // updated
    $q = sprintf(
       'insert into incidents
-      (id, created, creator, updated, updatedby, state, status, type,
+      (id, created, creator, updated, updatedby, severity, state, status, type,
       incidentdate, logging, short_desc, subtype, pref_templ)
       values
-      (%d, CURRENT_TIMESTAMP, %d, CURRENT_TIMESTAMP, %d, %d, %d, %d, %s, %s,
+      (%d, CURRENT_TIMESTAMP, %d, CURRENT_TIMESTAMP, %d, %d, %d, %d, %d, %s, %s,
       %s, %s, %s)',
          $incidentid,
          $_SESSION['userid'],
          $_SESSION['userid'],
+         $params['severity'] == '' ? 'NULL' : $params['severity'] ,
          $params['state'] == '' ? 'NULL' : $params['state'] ,
          $params['status'] == '' ? 'NULL' : $params['status'] ,
          $params['type'] == '' ? 'NULL' : $params['type'],
@@ -594,7 +627,9 @@ airt_profile('Starting createIncident');
    if (empty($params['date'])) {
       $params['date'] = time();
    }
-   $comment = sprintf('state=%s, status=%s, type=%s, date=%s',
+   $SEVERITIES = getIncidentSeverities();
+   $comment = sprintf('severity=%s, state=%s, status=%s, type=%s, date=%s',
+      $SEVERITIES[$params['severity']],
       strip_tags(getIncidentStateLabelByID($params['state'])),
       strip_tags(getIncidentStatusLabelByID($params['status'])),
       strip_tags(getIncidentTypeLabelById($params['type'])),
@@ -938,6 +973,14 @@ function updateIncident($id,$params = array()) {
    // Compile the variable part of the SET clause.
    $set = '';
    $comment = '';
+   if (array_key_exists('severity', $params)) {
+       $SEVERITIES = getIncidentSeverities();
+       if (!empty($params['severity'])) {
+          $set .= sprintf('severity=%d,',$params['severity']);
+          $comment .= t(_('new severity: %s. '), array(
+             '%s'=>$SEVERITIES[$params['severity']]));
+       }
+   }
    if (array_key_exists('state', $params)) {
        if (!empty($params['state'])) {
           $set .= sprintf('state=%d,',$params['state']);
@@ -1761,6 +1804,8 @@ function listIncidents() {
    }
    airt_profile("Archive: ".$archive);
 
+   $SEVERITIES = getIncidentSeverities();
+
    $sortkey = strip_tags(fetchFrom('REQUEST','sortkey'));
    defaultTo($sortkey, 'incidentid');
 
@@ -1834,6 +1879,9 @@ function listIncidents() {
          break;
       case 'type':
          $sqlfilter .= ' ORDER BY type';
+         break;
+      case 'severity':
+         $sqlfilter .= ' ORDER BY severity';
          break;
       case 'updated':
          $sqlfilter .= ' ORDER BY updated';
@@ -1994,6 +2042,19 @@ function listIncidents() {
           '%l'=>_('Type')));
    }
 
+   if ($sortkey == 'severity') {
+       $out .= t('  <th>%l</th>'.LF, array('%l'=>_('Severity')));
+   } else {
+       $out .= t('  <th><a
+       href="%url/incident.php?page=%p&sortkey=severity&status=%status&state=%state&hideStalled=%h">%l</a></th>'.LF, array(
+          '%p'=>$page,
+          '%url'=>BASEURL,
+          '%status'=>$status,
+          '%state'=>$state,
+          '%h'=>$hideStalled+1,
+          '%l'=>_('Severity')));
+   }
+
    if ($sortkey == 'state') {
        $out .= t('  <th>%l</th>'.LF, array('%l'=>_('State')));
    } else {
@@ -2100,6 +2161,8 @@ function listIncidents() {
           }
           $out .= t('   <td>%type</td>'.LF, array(
              '%type'=>htmlentities($data['type'])));
+          $out .= t('   <td>%severity</td>'.LF, array(
+             '%severity'=>htmlentities($SEVERITIES[$data['severity']])));
           $out .= t('   <td>%state</td>'.LF, array(
              '%state'=>htmlentities($data['state'])));
           $out .= t('   <td>%created</td>'.LF, array(
@@ -2239,6 +2302,13 @@ function incidentDetails() {
       '%u'=>BASEURL));
    $output .= '<h3>'._('Basic incident data').'</h3>'.LF;
    $output .= '<table>'.LF;
+
+   $output .= '  <tr>'.LF;
+   $output .= '    <td>'._('Severity').'</td>'.LF;
+   $output .= '    <td>'.getIncidentSeveritySelection('severity', $incident['severity']).
+      '</td>'.LF;
+
+   $output .= '  </tr>'.LF;
    $output .= '  <tr>'.LF;
    $output .= '    <td>'._('Type of incident').'</td>'.LF;
    $output .= '    <td>'.getIncidentTypeSelection('type', $incident['type']).
@@ -2702,6 +2772,10 @@ function newIncident($bulk=false) {
    $output .= '<h3>'._('Basic incident data').'</h3>'.LF;
    $output .= '<table>'.LF;
    $output .= '  <tr>'.LF;
+   $output .= '    <td>'._('Severity').'</td>'.LF;
+   $output .= '    <td>'.getIncidentSeveritySelection('severity', $incident['severity']).
+      '</td>'.LF;
+   $output .= '  <tr>'.LF;
    $output .= '    <td>'._('Type of incident').'</td>'.LF;
    $output .= '    <td>';
    $output .= getIncidentTypeSelection('type', getIncidentTypeDefault());
@@ -2851,6 +2925,7 @@ function addIncident() {
    $incidentid   = createIncident(array(
       'state'=>fetchFrom('POST', 'state', '%d'),
       'status'=>$statusid,
+      'severity'=>fetchFrom('POST', 'severity', '%d'),
       'type'=>fetchFrom('POST', 'type', '%d'),
       'date'=>$date,
       'logging'=>db_escape_string(trim(fetchFrom('POST', 'logging'))),
@@ -2991,4 +3066,3 @@ function addBulkIncidents() {
    }
    reload();
 }
-?>
