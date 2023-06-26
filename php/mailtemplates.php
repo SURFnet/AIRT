@@ -91,6 +91,13 @@ special variables in the template:').'<p>'.LF;
          array(-1=>_('Do not update')));
       print '   </td>'.LF;
       print '</tr>'.LF;
+      print '<tr>'.LF;
+      print '   <td>'._('Severity').'</td>'.LF;
+      print '   <td>'.LF;
+      print getIncidentSeveritySelection("update[severity]", $update['severity'],
+         array(-1=>_('Do not update')));
+      print '   </td>'.LF;
+      print '</tr>'.LF;
       print '</table>'.LF;
       print '<p/>'.LF;
       print _('Select capabilities provided by this template:').'<P/>'.LF;
@@ -162,7 +169,7 @@ special variables in the template:').'<p>'.LF;
          'submenu'=>'templates'));
       print _('Enter your new template in the text field below. Use the following variables in your text body:');
       print '<P>'.LF;
-      $update = array('state'=>-1, 'status'=>-1, 'type'=>-1);
+      $update = array('state'=>-1, 'status'=>-1, 'type'=>-1, 'severity'=>-1);
       print_variables_info();
       print '<P>'.LF;
       print '<form action="'.BASEURL.'/mailtemplates.php" method="POST">'.LF;
@@ -190,6 +197,13 @@ special variables in the template:').'<p>'.LF;
       print '   <td>'._('State').'</td>'.LF;
       print '   <td>'.LF;
       print getIncidentStateSelection("update[state]", $update['state'],
+         array(-1=>_('Do not update')));
+      print '   </td>'.LF;
+      print '</tr>'.LF;
+      print '<tr>'.LF;
+      print '   <td>'._('Severity').'</td>'.LF;
+      print '   <td>'.LF;
+      print getIncidentSeveritySelection("update[severity]", $update['severity'],
          array(-1=>_('Do not update')));
       print '   </td>'.LF;
       print '</tr>'.LF;
@@ -558,6 +572,14 @@ special variables in the template:').'<p>'.LF;
 					addIncidentComment(array(
 						'comment'=>sprintf(_('State updated to %s'),
 							getIncidentStateLabelByID($actions['state'])),
+						'incidentid'=>$incidentid));
+				}
+				if ($actions['severity'] == -1) {
+					$actions['severity'] = '';
+				} else {
+					addIncidentComment(array(
+						'comment'=>sprintf(_('Severity updated to %s'),
+							getIncidentSeverityLabelByID($actions['severity'])),
 						'incidentid'=>$incidentid));
 				}
 				$incident = getIncident($incidentid);

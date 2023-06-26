@@ -272,7 +272,7 @@ function getIncidentSeveritySelection($name, $default='',$extras=array(),
 
    $output = sprintf('<select %s name="%s">'.LF,
       $script, htmlentities($name));
-   $states = getIncidentSeverities();
+   $states = $extras + getIncidentSeverities();
    if ($default=='') {
       $default = getIncidentSeverityDefault();
    }
@@ -751,6 +751,11 @@ function getIncidentTypeLabelByID($id) {
    }
 
    return $out;
+}
+
+function getIncidentSeverityLabelByID($id) {
+  $SEVERITIES = getIncidentSeverities();
+  return $SEVERITIES[$id] ?: 'unknown';
 }
 
 /**
