@@ -354,12 +354,15 @@ function pageHeader($title='', $options=array()) {
       unset($_SESSION['msg']);
    }
 
+   if ((Setup::getOption('instancename', $instance)) === false) {
+      $instance = _('Default instance');
+   }
 
    print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" '.
          '   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'.LF;
    print '<html>'.LF;
    print '  <head>'.LF;
-   print '      <title>AIRT</title>'.LF;
+   print '      <title>AIRT: ' . $title . ' · ' . $instance . '</title>'.LF;
    print t('     <link href="%url/airt-style.css" rel="stylesheet" '.
      'type="text/css">'.LF, array(
      '%url'=>BASEURL));
@@ -372,10 +375,6 @@ function pageHeader($title='', $options=array()) {
    }
    print '<div id="wrapper">'.LF;
    if ($showmenu === true) {
-      if ((Setup::getOption('instancename', $instance)) === false) {
-	 $instance = _('Default instance');
-      }
-
       print '  <div id="header">'.LF.LF;
       print '  <div class="left">'.LF;
       print t('  <a href="%url/incident.php" title="'._('Back to the first page').
