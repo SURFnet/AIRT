@@ -20,9 +20,9 @@ scriptdir=@AIRT_PHPDIR@
 
 script_DATA = *.php
 
-CLEANFILES = config.plib login.php
+CLEANFILES = config.plib
 DISTCLEANFILES = $(CLEANFILES)
 
-EXTRA_DIST = $(script_DATA) config.plib.in login.php.in
+EXTRA_DIST = $(script_DATA) config.plib.in
 
 SUBDIRS = . images
