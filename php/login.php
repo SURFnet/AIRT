@@ -38,12 +38,17 @@ switch ($action) {
 
     case "check":
        $login = fetchFrom('REQUEST', 'login');
-       $password = fetchFrom('REQUEST', 'password');
-
-       if (empty($login) || empty($password)) {
-          airt_msg(_("Please enter a username and password to login."));
+       if (empty($login)) {
+          airt_error("PARAM_MISSING", "login.php:".__LINE__);
           reload();
-          exit();
+          break;
+       }
+
+       $password = fetchFrom('REQUEST', 'password');
+       if (empty($password)) {
+          airt_error("PARAM_MISSING", "login.php:".__LINE__);
+          reload();
+          break;
        }
 
        $userid = airt_authenticate($login, $password);
