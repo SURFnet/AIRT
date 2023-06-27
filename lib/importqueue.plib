@@ -79,7 +79,7 @@ function importqueue_get_filters() {
                }
             } else {
                // Bad filter, complain and quit.
-               fwrite("php://stderr", t('ERROR: Bad filter definition file "%s".',
+               fwrite(STDERR, t('ERROR: Bad filter definition file "%s".',
                                 array('%s'=>$filter_name)).
                               "\n");
                exit(1);
