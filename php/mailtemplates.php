@@ -157,7 +157,7 @@ special variables in the template:').'<p>'.LF;
       if (save_template($template, $message, $update)) {
          airt_error('ERR_FUNC', 'mailtemplates.php:'.__LINE__);
       }
-      templateList();
+      listTemplates(true);
 
       break;
 
@@ -226,7 +226,7 @@ special variables in the template:').'<p>'.LF;
       if (delete_template($template)) {
          airt_error('ERR_FUNC', 'mailtemplates.php'.__LINE__);
       }
-      templateList();
+      listTemplates(true);
 
       break;
 
