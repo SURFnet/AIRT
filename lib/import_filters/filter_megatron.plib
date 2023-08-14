@@ -1,0 +1,360 @@
+<?php
+/* vim: syntax=php tabstop=3 shiftwidth=3
+ *
+ * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
+ * Megatron import filter
+
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+require_once 'Mail/mimeDecode.php';
+
+// Read in the configuration file (contains ASNs, unwanted types etc...
+if (!defined('ETCDIR') || !file_exists(ETCDIR.'/filter_megatron.cfg')) {
+   print("The megatron filter needs a configuration file.  ".ETCDIR."/filter_megatron.cfg not found.\n");
+   exit;
+}
+
+require_once ETCDIR.'/filter_megatron.cfg';
+
+function filter_megatron_getVersion() {
+        return '0.0.1';
+}
+function filter_megatron_checkAllowedASN($asn) {
+        // list of "own" ASNs defined in the configuration file
+        // If not defined then all ASNs are allowed
+        global $MEGATRON_ALLOWED_ASN ;
+        
+        if (isset($MEGATRON_ALLOWED_ASN)) {
+            if (!in_array($asn,$MEGATRON_ALLOWED_ASN)) {
+                return FALSE ;
+            } 
+        }
+        return TRUE ;
+}
+
+function filter_megatron_checkDisallowedCidr($ip) {
+    global $MEGATRON_UNWANTED_CIDRS, $MEGATRON_UNWANTED_CIDRS_V6;
+
+    if (validateIPV6($ip) && isset($MEGATRON_UNWANTED_CIDRS_V6)) {
+        foreach($MEGATRON_UNWANTED_CIDRS_V6 as $cidr) {
+            if ( checkinipv6subnet($ip, $cidr) ) return false;
+        }
+    } elseif ( validateIPV4($ip) && isset($MEGATRON_UNWANTED_CIDRS) ) {
+        foreach($MEGATRON_UNWANTED_CIDRS as $cidr) {
+            if ( checkinipv4subnet($ip, $cidr) ) return false;
+        }
+    }
+
+    return true;
+}
+
+function filter_megatron_checkWantedReportType($type) {
+        global $MEGATRON_WANTED_TYPE;
+        return in_array($type,$MEGATRON_WANTED_TYPE);
+}
+
+function filter_megatron_skipUnwantedSubType($subtype) {
+        // If not defined then all subtype are allowed
+        global $MEGATRON_UNWANTED_SUBTYPE ;
+
+        if (isset($MEGATRON_UNWANTED_SUBTYPE)) {
+            if (in_array($subtype,$MEGATRON_UNWANTED_SUBTYPE)) {
+                return TRUE ;
+            } 
+        }
+        return FALSE ;
+}
+
+
+function filter_megatronout($incidents, &$output, $verbosity=false) {
+   global $MEGATRON_ASN_KEY, $MEGATRON_IP_KEY, $MEGATRON_SUBTYPE_KEY, $MEGATRON_USE_SUBTYPE ;
+
+   $doc = new DOMDocument();
+   $airt = $doc->appendChild($doc->createElement('airt'));
+
+   $id = 0;
+   $incident_ip_count = array() ;
+
+   foreach ($incidents as $incident) {
+
+      // Skip unwanted reports
+      if (!filter_megatron_checkWantedReportType($incident['type'])) {
+          if ($verbosity) {
+              print "Megatron: not importing unwanted report type ".$incident['type']."\n";
+          }
+          continue;
+      }
+
+      // What key is used for timestamp?
+      $timestampkey='nl_timestamp';
+
+      // What key is used for AS number?
+      if (isset($MEGATRON_ASN_KEY[$incident['type']])) {
+         $asnkey=$MEGATRON_ASN_KEY[$incident['type']];
+      } else {
+         $asnkey=$MEGATRON_ASN_KEY['*'];
+      }
+      // Set key containing IP-address
+      if (isset($MEGATRON_IP_KEY[$incident['type']])) {
+         $ipkey=$MEGATRON_IP_KEY[$incident['type']];
+      } else {
+         $ipkey=$MEGATRON_IP_KEY['*'];
+      }
+      // Set key containing subtype
+      if (isset($MEGATRON_SUBTYPE_KEY[$incident['type']])) {
+         $subtypekey=$MEGATRON_SUBTYPE_KEY[$incident['type']];
+      } else {
+         $subtypekey=$MEGATRON_SUBTYPE_KEY['*'];
+      }
+
+      // Only process incidents from allowed ASNs (important for C&C reports)
+      if (!filter_megatron_checkAllowedASN($incident['details'][$asnkey])) {
+          if ($verbosity) {
+              print "Megatron: not importing incident in foreign ASN ".$incident['details'][$asnkey]."\n";
+          }
+          continue;
+      }
+
+      // Skip unwanted IP ranges
+      if (!filter_megatron_checkDisallowedCidr($incident['details'][$ipkey])) {
+          if ($verbosity) {
+              print "Shadowserver: not importing incident for IP ".$incident['details'][$ipkey]."\n";
+          }
+          continue;
+      }
+
+      // Skip unwanted infections
+      if ($subtypekey != 'Unspecified' && filter_megatron_skipUnwantedSubType($incident['details'][$subtypekey]) ) {
+          if ($verbosity) {
+              print "Shadowserver: not importing unwanted subtype ".$incident['details'][$subtypekey]."\n";
+          }
+          continue;
+      }
+
+      // Only import the first MEGATRON_INCIDENT_LIMIT incidents per ip.
+      $key = $incident['details'][$ipkey];
+      if (array_key_exists($key, $incident_ip_count)) {
+         $incident_ip_count[$key]++;
+      } else {
+         $incident_ip_count[$key] = 1;
+      }
+      //$incident_ip_count[$incident['details'][$ipkey]]++;
+      if ($incident_ip_count[$incident['details'][$ipkey]] == MEGATRON_INCIDENT_LIMIT+1) {
+          $incident['type'] .= ":limit-exceeeded";
+          $incident['logging'] = "...Suppressing reports exceeding the limit of ".MEGATRON_INCIDENT_LIMIT." reports per IP address...";
+      }
+      else if ($incident_ip_count[$incident['details'][$ipkey]] > MEGATRON_INCIDENT_LIMIT+1) {
+          if ($verbosity) {
+              print "Megatron: maximum number of incidents for ".$incident['details'][$ipkey]." exceeded.\n";
+          }
+          continue;
+      }
+
+      $queuedata_el = $airt->appendChild($doc->createElement('queuedata'));
+      $queuedata_el->setAttribute('filter', 'filter_megatron');
+      $version = filter_megatron_getVersion().':'.$incident['type'];
+      $shadowtype = 'Megatron: '.$incident['type'];
+
+      if ($MEGATRON_USE_SUBTYPE) {
+          if (!empty($incident['details'][$subtypekey])) {
+              $version .= ':'.$incident['details'][$subtypekey];
+              $shadowtype .= ':'.$incident['details'][$subtypekey];
+          }
+      }
+      $queuedata_el->setAttribute('version', $version);
+
+      $queuedata_el->setAttribute('ref', "#$id");
+      $queuedata_el->appendChild($doc->createElement('status',
+         'open'));
+      $queuedata_el->appendChild($doc->createElement('sender',
+         'NCSC'));
+      $queuedata_el->appendChild($doc->createElement('type',
+         substr($shadowtype,0,50)));
+      $queuedata_el->appendChild($doc->createElement('summary',
+         $shadowtype.' '.$incident['details'][$ipkey].' '.$incident['details'][$timestampkey]));
+
+      $incident_el = $airt->appendChild($doc->createElement('incident'));
+      $incident_el->setAttribute('id', $id);
+
+      $techinfo_el = $incident_el->appendChild(
+         $doc->createElement('technicalInformation'));
+      if (!empty($incident['details'][$ipkey])) {
+         $techinfo_el->appendChild($doc->createElement('ip',
+            $incident['details'][$ipkey]));
+         $techinfo_el->appendChild($doc->createElement('hostname',
+            gethostbyaddr($incident['details'][$ipkey])));
+      } else {
+         if (!empty($incident['details']['host'])) {
+            $techinfo_el->appendChild($doc->createElement('hostname',
+               $incident['details']['host']));
+            $techinfo_el->appendChild($doc->createElement('ip',
+               gethostbyname($incident['details']['host'])));
+         }
+      }
+      $techinfo_el->appendChild($doc->createElement('time_dns_resolving',
+         Date('Y-m-d H:i:s')));
+      $techinfo_el->appendChild($doc->createElement('logging',
+         htmlentities($incident['logging'],ENT_COMPAT,'UTF-8')));
+      $techinfo_el->appendChild($doc->createElement('incident_time',
+         $incident['details'][$timestampkey]));
+
+      $id++;
+   } // foreach $incident
+
+   $output = $doc->saveXML();
+   if ($verbosity) {
+      print "Megatron: incidents per ip summary\n";
+      print_r($incident_ip_count);
+   }
+   return 0;
+}
+
+function filter_megatron($input, &$output, $verbosity=FALSE) {
+        $message = new Mail_mimeDecode($input);
+        $params['include_bodies'] = true;
+        $params['decode_bodies'] = true;
+        $params['decode_headers'] = true;
+        $params['crlf'] = "\n";
+        $decoded = $message->decode($params);
+
+        // NB: due to line length, subject may be indented, so let's not match dates...
+        if ($verbosity) {
+                print "subject: " . $decoded->headers['subject'] . "\n";
+        }
+        if (preg_match('/^Megatron melding - (?P<org>\w+) - (?P<type>[^_]+)_(?P<extra>.*)$/m', 
+            $decoded->headers['subject'], $matches) == true) {
+                if ($verbosity) {
+                        print "Megatron: mail is a Megatron [" .  $matches['type'] . "] report for [" . $matches['org'] . "] dated [" .  $matches['extra'] . "]\n";
+                }
+        } else {
+                if ($verbosity) {
+                        print "Megatron: not a Megatron report mail according to subject\n";
+                }
+                exit;
+        }
+
+        // initialize stuff
+        $incidents = [];
+
+
+        foreach ($decoded->parts as $part) {
+                if ($verbosity) {
+                        print "part: [" . $part->ctype_primary . "]/[" .  $part->ctype_secondary . "]:[" . @$part->disposition . "]\n";
+                }
+                if (isset($part->disposition) && strtolower($part->disposition) == 'attachment' && (
+                                (strtolower($part->ctype_primary) == 'application' && strtolower($part->ctype_secondary) == 'octet-stream' )
+                                ||
+                                (strtolower($part->ctype_primary) == 'application' && strtolower($part->ctype_secondary) == 'zip') 
+                                ||
+                                (strtolower($part->ctype_primary) == 'text' && strtolower($part->ctype_secondary) == 'plain' )
+                        ) ) {
+                        $contents = array();
+                        $filename = $part->d_parameters['filename'];
+                        if ($verbosity) {
+                                print "Megatron: found [" .  $part->ctype_primary .  "]/[" . $part->ctype_secondary . "]:[" .  @$part->disposition . "] [" . $filename . "] part\n";
+                        }
+
+                        if ( preg_match('/^(?P<type>[^.]+)\.csv$/m', $filename, $matches) == true ) {
+                                if ($verbosity) {
+                                        print "Megatron: found a [" . $matches['type'] . "] report\n";
+                                }
+
+                                $contents = explode("\n", $part->body);
+
+                                if ($verbosity) {
+                                        print "content: [";
+                                        if (is_array($contents)) {
+                                                print_r($contents);
+                                        } else {
+                                                print $contents;
+                                        }
+                                        print "]\n" ;
+                                }
+
+                                if (empty($contents)) {
+                                        if ($verbosity) {
+                                                print "Megatron: no report content found !\n";
+                                        }
+                                        exit;
+                                } else {
+                                        $header = $contents[0];
+                                        $headers = str_getcsv($header);
+                                        unset($contents[0]);
+
+                                        foreach($contents as $line) {
+                                                if (! empty($line) ) {
+                                                        $array = str_getcsv($line);
+                                                        $count=0;
+                                                        foreach($array as $key => $value) {
+                                                                $array[$headers[$key]] = $value;
+                                                                $count=max($count,count($array[$headers[$key]]));
+                                                                unset($array[$key]);
+                                                        }
+                                                        for ($i = 0; $i < $count; $i++) {
+                                                            $i_array=[];
+                                                            foreach($array as $key => $value) {
+                                                                if (is_array($value)) {
+                                                                  $i_array[$key] = $value[$i] ;
+                                                                } else {
+                                                                  $i_array[$key] = $value ;
+                                                                }
+                                                            }
+                                                            $incidents[] = ['details' => array_change_key_case($i_array, CASE_LOWER), 'logging' =>  $line, 'type' => $matches['type']];
+                                                        }
+                                                }
+                                        }
+                                }
+                        } else {
+                                if ($verbosity) {
+                                        print "Megatron: did not find a report matching the expected naming convention ([" . $filename .  "])\n";
+                                        exit;
+                                }
+                        }
+                } else {
+                        if ($verbosity) {
+                                print "Megatron: did not find an attachment part ([" . $part->ctype_primary . "]/[" .  $part->ctype_secondary . "]:[" . @$part->disposition . "])\n";
+                        }
+                }
+        }
+
+        foreach ($incidents as $key => $incident) {
+                $detail_array_keys = array();
+
+                if (isset($incident['details']['timestamp'])) {
+                        $timestamp=$incident['details']['timestamp'];
+
+                } elseif (isset($incident['details']['time'])) {
+                        $timestamp=$incident['details']['time'];
+                }
+                if (($datetime = strtotime($timestamp)) == false) {
+                        $datetime = _('Unable to parse timestamp');
+                } else {
+                        $datetime = Date('Y-m-d\TH:i:s', $datetime);
+                }
+                $incidents[$key]['details']['nl_timestamp'] = $datetime;
+
+                if ($verbosity) {
+                        print "Megatron: parsing incident of type [" . $incident['type'] . "] at [" . $datetime . "]\n";
+                        print_r($incident);
+                }
+
+        } // foreach ($incidents)
+
+        if ($verbosity) print "Generating output...\n";
+        filter_megatronout($incidents, $output, $verbosity);
+        if ($verbosity) print "$output";
+        return 0;
+}
