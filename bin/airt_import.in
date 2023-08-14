@@ -51,8 +51,8 @@ foreach ($argv as $param) {
          }
       } else {
          // Unknown option, quit.
-         fwrite(STDERR, t('ERROR: Unknown option "%s".',
-                          array('%s'=>$option)).
+         fwrite(STDERR, sprintf('ERROR: Unknown option "%s".',
+                          $option).
                         "\n");
          exit(1);
       }
@@ -60,7 +60,7 @@ foreach ($argv as $param) {
       // File parameter.
       if (!empty($FILENAME)) {
          // Cannot process more than one file, quit.
-         fwrite(STDERR, t('ERROR: More than one file name given.')."\n");
+         fwrite(STDERR, 'ERROR: More than one file name given.'."\n");
          exit(1);
       }
       $FILENAME = $param;
@@ -92,8 +92,8 @@ $FILTERS = importqueue_get_filters();
 $filter_function = 'filter_'.$OPTIONS['--filter'];
 if (!function_exists($filter_function)) {
    // Bad filter selection, complain and quit.
-   fwrite(STDERR, t('ERROR: No filter "%s" present.',
-                    array('%s'=>$OPTIONS['--filter'])).
+   fwrite(STDERR, sprintf('ERROR: No filter "%s" present.',
+                    $OPTIONS['--filter']).
                     "\n");
    exit(1);
 }
@@ -106,8 +106,8 @@ if ($OPTIONS['--help']) {
 
 if ($OPTIONS['--verbose']) {
    if (VIRTUAL_HOST!='') {
-      echo t('Virtual host is %s',
-              array('%s'=>VIRTUAL_HOST))."\n";
+      echo sprintf('Virtual host is %s',
+              VIRTUAL_HOST)."\n";
    }
 }
 
@@ -115,18 +115,18 @@ if ($OPTIONS['--verbose']) {
 if ($FILENAME=='') {
    $in = STDIN;
    if ($OPTIONS['--verbose']) {
-      echo t('Reading from standard input...')."\n";
+      echo 'Reading from standard input...'."\n";
    }
 } else {
    $in = @fopen($FILENAME,'r');
    if (!$in) {
-      fwrite(STDERR, t('ERROR: no file "%s" present.',
-                       array('%s'=>$FILENAME))."\n");
+      fwrite(STDERR,sprintf('ERROR: no file "%s" present.',
+                       $FILENAME)."\n");
       exit(1);
    }
    if ($OPTIONS['--verbose']) {
-      echo t('Reading from file "%s"...',
-             array('%s'=>$FILENAME))."\n";
+      echo sprintf('Reading from file "%s"...',
+             $FILENAME)."\n";
    }
 }
 
@@ -137,27 +137,27 @@ while ($line = @fgets($in)) {
 }
 @fclose($in);
 if ($OPTIONS['--verbose']) {
-   echo t('Read %d bytes.',
-          array('%d'=>strlen($input)))."\n";
+   echo sprintf('Read %d bytes.',
+          strlen($input))."\n";
 }
 
 
 // Send the file through the filter.
 if ($OPTIONS['--verbose']) {
-   echo t('Filtering through "%s"...',
-          array('%s'=>$OPTIONS['--filter']))."\n";
+   echo sprintf('Filtering through "%s"...',
+          $OPTIONS['--filter'])."\n";
 }
 $filter_output = '';
 if ($filter_function($input,$filter_output,$OPTIONS['--verbose'])) {
    // Problem with filtering.
-   fwrite(STDERR,t('ERROR: %s',
-                   array('%s'=>$filter_output))."\n");
+   fwrite(STDERR,sprintf('ERROR: %s',
+                   $filter_output)."\n");
    exit(1);
 };
 
 // Present the filtered XML to the importer.
 if ($OPTIONS['--verbose']) {
-   echo t('Importing...')."\n";
+   echo 'Importing...'."\n";
 }
 $error = '';
 
@@ -170,7 +170,6 @@ if (import($filter_output,$error,$OPTIONS['--verbose'])) {
 
 // Successful completion.
 if ($OPTIONS['--verbose']) {
-   echo t('Done.')."\n";
+   echo 'Done.'."\n";
 }
 return 0;
-
