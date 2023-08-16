@@ -33,6 +33,7 @@ function filter_megatron_getVersion() {
         return '0.0.1';
 }
 function filter_megatron_checkAllowedASN($asn) {
+        if($asn[0] === 'A' && $asn[1] === 'S') $asn = substr($asn, 2);
         // list of "own" ASNs defined in the configuration file
         // If not defined then all ASNs are allowed
         global $MEGATRON_ALLOWED_ASN ;
@@ -79,6 +80,40 @@ function filter_megatron_skipUnwantedSubType($subtype) {
 }
 
 
+/* function to format the reports into importqueue readable data
+ * pre: $incidents is an array containing incidents.
+ *   Each incident is expected to be an array containing the following keys
+ *   ['type']        type of incident report
+ *   ['logging']  the full log line
+ *   ['details']['ip']       ip address of the offender (if any)
+ *   ['details']['asn']          autonomous system of IP addresses
+ *   ['details']['host']       hostname of the offender (if any)
+ *   ['details']['timestamp']     date and time (if available) of the incident
+ *   ['details']['type']  a subtype, extracted from meta (if any)
+ * $output will contain an XML string of the format
+ *   <?xml version="1.0"?>
+ *   <airt>
+ *      <queuedata filter="" version="" ref="#0">
+ *         <status>open</status>
+ *         <sender>ShadoServer</sender>
+ *         <type>Shadowserver: ...</type>
+ *         <summary>Shadowserver: ...</summary>
+ *      </queuedata>
+ *      <incident id="0">
+ *         <technicalInformation>
+ *            <ip>...</ip>
+ *            <hostname>...</hostname>
+ *            <time_dns_resolving>...</time_dns_resolving>
+ *            <logging>...</logging>
+ *            <incident_time>...</incident_time>
+ *         </technicalInformation>
+ *      </incident>
+ *      <queuedata filter="" version="" ref="#1">
+ *         ....
+ *      </queuedata>
+ *      ....
+ *   </airt>
+ */
 function filter_megatronout($incidents, &$output, $verbosity=false) {
    global $MEGATRON_ASN_KEY, $MEGATRON_IP_KEY, $MEGATRON_SUBTYPE_KEY, $MEGATRON_USE_SUBTYPE ;
 
@@ -89,14 +124,6 @@ function filter_megatronout($incidents, &$output, $verbosity=false) {
    $incident_ip_count = array() ;
 
    foreach ($incidents as $incident) {
-
-      // Skip unwanted reports
-      if (!filter_megatron_checkWantedReportType($incident['type'])) {
-          if ($verbosity) {
-              print "Megatron: not importing unwanted report type ".$incident['type']."\n";
-          }
-          continue;
-      }
 
       // What key is used for timestamp?
       $timestampkey='nl_timestamp';
@@ -246,6 +273,15 @@ function filter_megatron($input, &$output, $verbosity=FALSE) {
                 exit;
         }
 
+        // Skip unwanted reports
+        if (!filter_megatron_checkWantedReportType($matches['type'])) {
+            if ($verbosity) {
+                print "Megatron: not importing unwanted report type ".$matches['type']."\n";
+            }
+            exit;
+        }
+
+
         // initialize stuff
         $incidents = [];
 
@@ -291,6 +327,7 @@ function filter_megatron($input, &$output, $verbosity=FALSE) {
                                         exit;
                                 } else {
                                         $header = $contents[0];
+                                        if($header[0] === ';') $header = substr($header, 1);
                                         $headers = str_getcsv($header);
                                         unset($contents[0]);
 
@@ -339,12 +376,14 @@ function filter_megatron($input, &$output, $verbosity=FALSE) {
                 } elseif (isset($incident['details']['time'])) {
                         $timestamp=$incident['details']['time'];
                 }
-                if (($datetime = strtotime($timestamp)) == false) {
-                        $datetime = _('Unable to parse timestamp');
-                } else {
+                if(!empty($timestamp)) {
+                    if (($datetime = strtotime($timestamp)) == false) {
+                        $datetime = _('Unable to parse timestamp [' . $timestamp .']');
+                    } else {
                         $datetime = Date('Y-m-d\TH:i:s', $datetime);
+                    }
+                    $incidents[$key]['details']['nl_timestamp'] = $datetime;
                 }
-                $incidents[$key]['details']['nl_timestamp'] = $datetime;
 
                 if ($verbosity) {
                         print "Megatron: parsing incident of type [" . $incident['type'] . "] at [" . $datetime . "]\n";
