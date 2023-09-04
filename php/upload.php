@@ -23,7 +23,7 @@ switch ($action) {
         $out .= '<table>'.LF;
         $out .= '<tr>'.LF;
         $out .= '<td>'._('File').':</td>'.LF;
-        $out .= '<td colspan="2"><input type="file" name="file"/><br/>';
+        $out .= '<td colspan="2"><input type="file" name="file" required><br/>';
         $out .= '</td>'.LF;
         $out .= '</tr>'.LF;
         $out .= '</table>'.LF;
@@ -65,7 +65,7 @@ switch ($action) {
         array_walk($fields, create_function('&$val', '$val = strtolower(trim($val));'));
         $iphdr = '';
         foreach (array('ip', 'addr', 'ipaddr', 'ip-addr', 'ip_addr', 'srcip',
-        'src') as $label) {
+        'src', 'src_ip') as $label) {
             if (array_search($label, $fields)!==FALSE) {
                 $iphdr=$label;
                 break;
@@ -78,16 +78,18 @@ switch ($action) {
             'submenu'=>'upload'));
         $out = '<div>'.LF;
         $out .= '<div class="block">'.LF;
+        $out .= _('First line of uploaded file').':'.LF;
+        $out .= '<pre class="withscroll">' . htmlspecialchars($line) .LF. '</pre>'.LF;
         $out .= '<form method="POST">'.LF;
         $out .= '<table>'.LF;
         $out .= '<tr>'.LF;
         $out .= '<td>'._('Separator').':</td>'.LF;
-        $out .= t('<td><input type="text" size="2" name="sep" value="%s"/></td>'.LF, array('%s'=>htmlentities($fs)));
+        $out .= t('<td><input type="text" size="2" name="sep" required maxlength="1" value="%s"/></td>'.LF, array('%s'=>htmlentities($fs)));
         $out .= '<td>'._('Single character field separator').'</td>'.LF;
         $out .= '</tr>'.LF;
         $out .= '<tr>'.LF;
         $out .= '<td>'._('IP address label').':</td>'.LF;
-        $out .= t('<td><input type="text" name="ip_label" value="%s"/></td>'.LF, array('%s'=>htmlentities($iphdr)));
+        $out .= t('<td><input type="text" name="ip_label" required value="%s"/></td>'.LF, array('%s'=>htmlentities($iphdr)));
         $out .= '<td>'._('Column name contain the IP address').'</td>'.LF;
         $out .= '</tr>'.LF;
         $out .= '<tr>'.LF;
@@ -179,7 +181,8 @@ switch ($action) {
             $output .= Date('Y-m-d H:i:s');
             $output .=       '</time_dns_resolving>'.LF;
             $output .= '      <logging>'.LF;
-            $output .= htmlentities(trim(join($sep, $row)));
+//            $output .= htmlentities(trim(join($sep, $row)));
+            $output .= htmlentities(trim(join($sep, str_replace('\n', "\n", preg_replace( '/[^[:print:]]/', '',$row)))));
             $output .= '      </logging>'.LF;
             $output .= '   </technicalInformation>'.LF;
             $output .= '</incident>'.LF;
@@ -197,4 +200,3 @@ switch ($action) {
     default:
         die(_('Unknown action').' '.htmlentities($action));
 }
-?>

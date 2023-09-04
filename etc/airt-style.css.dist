@@ -605,3 +605,7 @@ width: 436px;
 padding: 0px;
 height: 300px;
 }
+
+pre.withscroll {
+  overflow: scroll;
+}
