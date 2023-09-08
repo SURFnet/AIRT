@@ -215,7 +215,8 @@ margin: 0px 5px 5px 0px;
 }
 
 .bulk-options .block{
-width: 300px;
+min-width: 300px;
+max-width: 400px;
 float: left;
 }
 
