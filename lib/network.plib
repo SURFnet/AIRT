@@ -130,6 +130,9 @@ function checkinipv6subnet($ipv6,$cidr) {
  */
 function checkinipv4subnet($ipv4, $cidr)
 {
+  if(strpos($cidr, '/') === false) {
+    throw new \InvalidArgumentException("Missing network cidr length: $cidr");
+  }
   list ($subnet, $bits) = explode('/', $cidr);
   $ip = ip2long($ipv4);
   $subnet = ip2long($subnet);
