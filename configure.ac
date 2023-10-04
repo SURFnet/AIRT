@@ -103,7 +103,6 @@ AC_OUTPUT([Makefile
     lib/import_filters/Makefile
     lib/export_wrappers/Makefile
     php/Makefile
-    php/login.php
     php/config.plib
     php/images/Makefile
     po/Makefile
