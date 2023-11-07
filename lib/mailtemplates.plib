@@ -584,6 +584,7 @@ function prepare_message($global_template, $override_now=0, $incidentids=array()
 	 'replyto'=>$msgdata['replyto'],
 	 'message'=>$msgdata['body']));
 
+	$mailto = composeMailto($msgdata['receiver'], $msgdata['subject'], $msgdata['sender'], $msgdata['replyto'], $msgdata['body']);
 	$agendaval=implode(',', $incidentids);
 	$out = '<FORM method="POST">'.LF;
 	$out .= '<TABLE WIDTH="80">'.LF;
@@ -592,6 +593,7 @@ function prepare_message($global_template, $override_now=0, $incidentids=array()
 	$out .= '<TD><INPUT TYPE="text" size="50" name="to" value="'.$msgdata['receiver'].'"></TD>'.LF;
 	$out .= '<TD rowspan="4" VALIGN="top">'.LF;
 	$out .= template_buttons($incidentids, ($override_next === true) ? 1 : 0);
+	$out .= '<a href="' . $mailto . '">compose external</a>' .LF;
 	$out .= '</TD>'.LF;
 	$out .= '</TR>'.LF;
 	$out .= '<TR>'.LF;
@@ -636,6 +638,15 @@ function prepare_message($global_template, $override_now=0, $incidentids=array()
 	pageFooter();
 } // prepare_message
 
+
+
+function composeMailto($to, $subject, $from, $replyto, $body) {
+    return 'mailto:'.urlencode($to) .
+        '?subject=' . rawurlencode($subject) .
+        '&from=' . rawurlencode($sender) .
+        '&cc=' . rawurlencode($sender) .
+        '&body=' . rawurlencode($body);
+}
 
 function print_variables_info() {
    $out = '<table class="horizontal">'.LF;
