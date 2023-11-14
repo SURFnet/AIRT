@@ -548,7 +548,7 @@ switch ($action) {
       }
 
       if (preg_match('/^('.INCIDENTID_PREFIX.')?([0-9]+)$/', $query, $match) > 0) {
-          if (getIncident($query) !== false) {
+          if (getIncident($match[2]) !== false) {
               reload(BASEURL.'/incident.php?action=details&incidentid='.
                  urlencode($match[2]));
               exit;
