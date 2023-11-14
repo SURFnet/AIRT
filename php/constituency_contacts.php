@@ -1,6 +1,5 @@
 <?php
-/* $Id$
- * $URL$
+/**
  * vim: syntax=php shiftwidth=3 tabstop=3
  * 
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
@@ -21,8 +20,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * constituency_contacts.php -- manage constituency contacts
- * 
- * $Id$
  */
 require_once 'config.plib';
 require_once LIBDIR.'/airt.plib';
@@ -39,7 +36,7 @@ switch ($action) {
          'submenu'=>'contacts'));
 
       $res = db_query("
-         SELECT u.lastname, u.firstname, u.email, u.phone, c.label 
+         SELECT u.lastname, u.firstname, u.email, u.phone, c.label, c.id as consid
          FROM   users u, constituencies c, constituency_contacts cc
          WHERE  u.id = cc.userid
          AND    c.id = cc.constituency
@@ -52,6 +49,7 @@ switch ($action) {
       print '  <th>'._('First name').'</th>'.LF;
       print '  <th>'._('Email').'</th>'.LF;
       print '  <th>'._('Phone').'</th>'.LF;
+      print '  <th>'._('Action').'</th>'.LF;
       print '</tr>'.LF;
       while (($row = db_fetch_next($res)) !== false) {
           print '<tr>'.LF;
@@ -60,6 +58,7 @@ switch ($action) {
           print '<td>'.htmlentities($row['firstname']).'</td>'.LF;
           print '<td>'.htmlentities($row['email']).'</td>'.LF;
           print '<td>'.htmlentities($row['phone']).'</td>'.LF;
+          print '<td><a href="?action=edit&consid=' . urlencode($row['consid']) . '">edit</a></td>'.LF;
           print '</tr>'.LF;
       }
       print '</table>'.LF;
@@ -227,5 +226,3 @@ switch ($action) {
    default:
       die(_('Unknown action: ').strip_tags($action));
 } // switch
-
-?>
