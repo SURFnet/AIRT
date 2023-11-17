@@ -2659,7 +2659,7 @@ function incidentDetails() {
    $output .= '<table>'.LF;
    $output .= '<tr>'.LF;
    $output .= '<td>'._('Email address').':</td>'.LF;
-   $output .= '<td><input onChange="updateCheckboxes()" type="text" size="40" name="email" value="">'.LF;
+   $output .= '<td><input onChange="updateCheckboxes()" type="email" size="40" name="email" value="">'.LF;
    $output .= '<input type="submit" value="'._('Add').'" class="btn btn-primary"></td>'.LF;
    $output .= '</tr>'.LF;
    $output .= '</table>'.LF;
