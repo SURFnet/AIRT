@@ -1,0 +1,191 @@
+<?php
+/* vim: syntax=php tabstop=3 shiftwidth=3
+ *
+ * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
+ * Team Cymru import filter
+
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+// Read in the configuration file (contains ASNs, unwanted types etc...
+if (!defined('ETCDIR') || !file_exists(ETCDIR.'/filter_cymru.cfg')) {
+   print("The cymru filter needs a configuration file.  ".ETCDIR."/filter_cymru.cfg not found.\n");
+   exit;
+}
+
+require_once ETCDIR.'/filter_cymru.cfg';
+
+function filter_cymru_getVersion() {
+        return '1000';
+}
+
+function filter_cymru_checkDisallowedCidr($ip) {
+    global $CYMRU_UNWANTED_CIDRS, $CYMRU_UNWANTED_CIDRS_V6;
+
+    if (validateIPV6($ip) && isset($CYMRU_UNWANTED_CIDRS_V6)) {
+        foreach($CYMRU_UNWANTED_CIDRS_V6 as $cidr) {
+            if ( checkinipv6subnet($ip, $cidr) ) return false;
+        }
+    } elseif ( validateIPV4($ip) && isset($CYMRU_UNWANTED_CIDRS) ) {
+        foreach($CYMRU_UNWANTED_CIDRS as $cidr) {
+            if ( checkinipv4subnet($ip, $cidr) ) return false;
+        }
+    }
+
+    return true;
+}
+
+function filter_cymru_checkUnWantedReportType($type) {
+        global $CYMRU_WANTED_TYPE;
+        return !in_array($type,$CYMRU_WANTED_TYPE);
+}
+
+
+/* function to format the reports into importqueue readable data
+ * pre: $incidents is an array containing incidents.
+ *   Each incident is expected to be an array containing the following keys
+ *   ['type']        type of incident report
+ *   ['logging']  the full log line
+ *   ['details']['ip']       ip address of the offender (if any)
+ *   ['details']['asn']          autonomous system of IP addresses
+ *   ['details']['host']       hostname of the offender (if any)
+ *   ['details']['timestamp']     date and time (if available) of the incident
+ *   ['details']['type']  a subtype, extracted from meta (if any)
+ * $output will contain an XML string of the format
+ *   <?xml version="1.0"?>
+ *   <airt>
+ *      <queuedata filter="" version="" ref="#0">
+ *         <status>open</status>
+ *         <sender></sender>
+ *         <type> ...</type>
+ *         <summary> ...</summary>
+ *      </queuedata>
+ *      <incident id="0">
+ *         <technicalInformation>
+ *            <ip>...</ip>
+ *            <hostname>...</hostname>
+ *            <time_dns_resolving>...</time_dns_resolving>
+ *            <logging>...</logging>
+ *            <incident_time>...</incident_time>
+ *         </technicalInformation>
+ *      </incident>
+ *      <queuedata filter="" version="" ref="#1">
+ *         ....
+ *      </queuedata>
+ *      ....
+ *   </airt>
+ */
+function filter_cymruout($incidents, &$output, $verbosity=false) {
+   $doc = new DOMDocument();
+   $airt = $doc->appendChild($doc->createElement('airt'));
+
+   $id = 0;
+   $incident_ip_count = [];
+
+   foreach ($incidents as $incident) {
+
+      // Skip unwanted IP ranges
+      if (!filter_cymru_checkDisallowedCidr($incident['ip'])) {
+          if ($verbosity) {
+              print "Cymru: not importing incident for IP ".$incident['ip']."\n";
+          }
+          continue;
+      }
+
+      // Only import the first CYMRU_INCIDENT_LIMIT incidents per ip.
+      $key = $incident['ip'];
+      if (array_key_exists($key, $incident_ip_count)) {
+         $incident_ip_count[$key]++;
+      } else {
+         $incident_ip_count[$key] = 1;
+      }
+      if ($incident_ip_count[$incident['ip']] == CYMRU_INCIDENT_LIMIT+1) {
+          $incident['type'] .= ":limit-exceeeded";
+          $incident['logging'] = "...Suppressing reports exceeding the limit of ".CYMRU_INCIDENT_LIMIT." reports per IP address...";
+      }
+      else if ($incident_ip_count[$incident['ip']] > CYMRU_INCIDENT_LIMIT+1) {
+          if ($verbosity) {
+              print "Cymru: maximum number of incidents for ".$incident['ip']." exceeded.\n";
+          }
+          continue;
+      }
+
+      $queuedata_el = $airt->appendChild($doc->createElement('queuedata'));
+      $queuedata_el->setAttribute('filter', 'filter_cymru');
+      $version = filter_cymru_getVersion().':'.$incident['type'];
+      $cymrutype = 'Cymru: '.$incident['type'];
+      $queuedata_el->setAttribute('version', $version);
+
+      $queuedata_el->setAttribute('ref', "#$id");
+      $queuedata_el->appendChild($doc->createElement('status',
+         'open'));
+      $queuedata_el->appendChild($doc->createElement('sender',
+         'Team Cymru'));
+      $queuedata_el->appendChild($doc->createElement('type',
+         substr($cymrutype,0,50)));
+      $queuedata_el->appendChild($doc->createElement('summary',
+         $incident['type'].' '.$incident['info'].' '.$incident['time']));
+
+      $incident_el = $airt->appendChild($doc->createElement('incident'));
+      $incident_el->setAttribute('id', $id);
+
+      $techinfo_el = $incident_el->appendChild(
+         $doc->createElement('technicalInformation'));
+      $techinfo_el->appendChild($doc->createElement('ip',
+         $incident['ip']));
+      $techinfo_el->appendChild($doc->createElement('hostname',
+            gethostbyaddr($incident['ip'])));
+      $techinfo_el->appendChild($doc->createElement('time_dns_resolving',
+         Date('Y-m-d H:i:s')));
+      $techinfo_el->appendChild($doc->createElement('logging',
+         htmlentities("Time: " . $incident['time'] . " UTC\n\n" . $incident['info'],ENT_COMPAT,'UTF-8')));
+      $techinfo_el->appendChild($doc->createElement('incident_time',
+         $incident['time']));
+
+      $id++;
+   } // foreach $incident
+
+   $output = $doc->saveXML();
+   if ($verbosity) {
+      print "Cymru: incidents per ip summary\n";
+      print_r($incident_ip_count);
+   }
+   return 0;
+}
+
+function filter_cymru($input, &$output, $verbosity=FALSE)
+{
+	$incidents = [];
+
+	$lines = explode("\n", $input);
+	foreach($lines as $line) {
+		$line = trim($line);
+		if($line === "" || $line{0} === '#') continue;
+		// category|address|asn|timestamp|optional_information|asninfo
+		$parts = explode('|', $line);
+		$incidents[] = [
+			'type' => $parts[0],
+			'ip' => $parts[1],
+			'asn' => $parts[2],
+			'time' => $parts[3],
+			'info' => $parts[4],
+		];
+	}
+	if ($verbosity) print "Parsed: " . var_export($incidents, true) . "\n";
+        if ($verbosity) print "Generating output...\n";
+	filter_cymruout($incidents, $output, $verbosity);
+        if ($verbosity) print "$output";
+        return 0;
+}
