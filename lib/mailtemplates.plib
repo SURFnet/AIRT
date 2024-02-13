@@ -625,7 +625,7 @@ function prepare_message($global_template, $override_now=0, $incidentids=array()
 	$out .= template_buttons($incidentids, ($override_next === true) ? 1 : 0);
 	print $out;
 	if (defined('GPG_KEYID')) {
-		print '<input type="checkbox" name="sign" checked> '._('Sign').LF;
+		print '<input type="checkbox" name="sign"> '._('Sign').LF;
 	}
 	print '</form>'.LF;
 
