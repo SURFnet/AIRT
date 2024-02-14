@@ -357,12 +357,12 @@ function mask_limits($matches) {
 } //mask_limits
 
 
-/** Find all incidents within an IP range IPV6/IPV4
- * @param [in] $mask: IP range to search within.
- *
+/** Find all incidents within an IP range IPV4/IPV6
+ * \param [in] $mask: IP range to search within.
  */
 function search_zoom($mask) {
-  if(airt_searchhelper($mask) !== null) {
+   $mask = airt_searchhelper($mask);
+   if($mask !== null) {
 
       pageHeader(_("Search results for $mask"));
 

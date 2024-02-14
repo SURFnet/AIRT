@@ -265,10 +265,12 @@ function networkExists($network, $netmask) {
  */
 function airt_searchhelper($mask) {
   if(strpos($mask,'/')) {
-    $array = list($ip,$cidr) = explode('/',$mask);
-    if (validateIPV4CIDR($array[1]) && validateIPV4($array[0]) ) {
+    list($ip,$cidr) = explode('/',$mask);
+    if (validateIPV4mask($cidr) && validateIPV4($ip) ) {
+      return "$ip/" . netmask2cidr($cidr);
+    } elseif (validateIPV4CIDR($cidr) && validateIPV4($ip) ) {
       return $mask;
-    } elseif(validateIPV6CIDR($array[1]) && validateIPV6($array[0]) ) {
+    } elseif(validateIPV6CIDR($cidr) && validateIPV6($ip) ) {
       return $mask;
     }
     return null;
