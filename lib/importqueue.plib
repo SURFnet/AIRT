@@ -476,7 +476,7 @@ function queueFormatItems($typefilter='all') {
    $elements = array();
 
    if (($res = db_query("select count(*) as cnt, type from import_queue where
-       status='open' group by type")) === false) {
+       status='open' group by type order by cnt desc")) === false) {
        airt_msg(_('Database error in importqueue.plib:').__LINE__);
        return;
    }
