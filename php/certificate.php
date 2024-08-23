@@ -27,6 +27,9 @@ Setup::getOption('x509client', $x509client, true);
 if ($x509client != 1) {
     exit;
 }
+
+define('CERT_WARN_DAYS', 10); // Move to config when other values are desired
+
 /* CAUTION: This page expects the option
  * 	SSLOptions +ExportCertData
  * To be set in apache's mod_ssl config!
@@ -65,7 +68,14 @@ if (($row = db_fetch_next($res)) === false) {
     reload(BASEURL.'/login.php');
     exit;
 }
+
+$validTo = $crt['validTo_time_t'];
+$now = time();
+$daysleft = (int) (($validTo - $now) / 86400); //24*60*60
+if ($daysleft <= CERT_WARN_DAYS) {
+    airt_msg(sprintf("Your certificate validity has only %s days remaining. Please renew at your earliest convenience.", $daysleft));
+}
+
 /* init! */
 db_free_result($res);
 airt_initSession($row['id']);
-?>
