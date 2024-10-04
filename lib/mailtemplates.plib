@@ -538,7 +538,7 @@ function prepare_message($global_template, $override_now=0, $incidentids=array()
       foreach ($incident['users'] as $uid) {
          $user = getUserByUserID($uid);
          if (sizeof($to) == 0 || in_array($uid, $to)) {
-            $current['name'][] = $user['lastname'];
+            $current['name'][] = ($user['firstname'] ? "$user[firstname] " : '') . $user['lastname'];
             $current['email'][] = $user['email'];
          }
       }
@@ -685,16 +685,16 @@ function print_variables_info() {
    $out .= '</tr>'.LF;
    $out .= '<tr>'.LF;
    $out .= '<td>@USEREMAIL@</td>'.LF;
-   $out .= '<td>'._('Will be replaced with the email address of the current user').'</td>'.LF;
+   $out .= '<td>'._('Will be replaced with the email address of the addressed user').'</td>'.LF;
    $out .= '</tr>'.LF;
    $out .= '<tr>'.LF;
    $out .= '<td>@USERINFO@</td>'.LF;
-   $out .= '<td>'._('Will be replaced with detailed information about the user, if that
+   $out .= '<td>'._('Will be replaced with detailed information about the addressed user, if that
    information is available.').'</td>'.LF;
    $out .= '</tr>'.LF;
    $out .= '<tr>'.LF;
    $out .= '<td>@USERNAME@</td>'.LF;
-   $out .= '<td>'._('Will be replaced with the name of the current user').'</td>'.LF;
+   $out .= '<td>'._('Will be replaced with the full name of the addressed user').'</td>'.LF;
    $out .= '</tr>'.LF;
    $out .= '<tr>'.LF;
    $out .= '    <td>@XMLDATA@</td>'.LF;

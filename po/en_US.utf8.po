@@ -1313,15 +1313,15 @@ msgstr ""
 msgid "Delimits the subject line of the message"
 msgstr ""
 
-msgid "Will be replaced with the email address of the current user"
+msgid "Will be replaced with the email address of the addressed user"
 msgstr ""
 
 msgid ""
-"Will be replaced with detailed information about the user, if that\n"
+"Will be replaced with detailed information about the addressed user, if that\n"
 "   information is available."
 msgstr ""
 
-msgid "Will be replaced with the name of the current user"
+msgid "Will be replaced with the full name of the addressed user"
 msgstr ""
 
 msgid "Will be replaced with the incident data in XML format"
