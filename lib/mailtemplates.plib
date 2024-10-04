@@ -643,8 +643,8 @@ function prepare_message($global_template, $override_now=0, $incidentids=array()
 function composeMailto($to, $subject, $from, $replyto, $body) {
     return 'mailto:'.urlencode($to) .
         '?subject=' . rawurlencode($subject) .
-        '&from=' . rawurlencode($sender) .
-        '&cc=' . rawurlencode($sender) .
+        '&from=' . rawurlencode($from) .
+        '&cc=' . rawurlencode($from) .
         '&body=' . rawurlencode($body);
 }
 
