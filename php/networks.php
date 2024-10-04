@@ -242,6 +242,7 @@ switch ($action) {
          reload();
          return;
       }
+      airt_msg(t(_('Network %u deleted.'), ['%u'=>$id]));
       reload();
 
       break;
