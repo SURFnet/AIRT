@@ -144,6 +144,12 @@ switch ($action) {
       pageHeader(_('Edit Network'), array(
 		   'menu'=>'constituencies',
 			'submenu'=>'networks'));
+      print '<div class="right">'.LF;
+      print t('<a class="button" href="?action=delete&id=%i">%l</a>', [
+         '%i'=>$id,
+         '%l'=>_('Delete network')]);
+      print '</div>'.LF;
+
       show_form($id);
       pageFooter();
       break;
