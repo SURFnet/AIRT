@@ -429,9 +429,9 @@ function constituencyDetails() {
         reload(BASEURL.'/constituencies.php');
         return;
     }
-    pageHeader(_('Constituency ').htmlentities($clist[$cid]['name']), array(
+    pageHeader(_('Constituency ').$clist[$cid]['name'], [
        'menu'=>'constituencies',
-       'submenu'=>'constituencies'));
+       'submenu'=>'constituencies']);
     print '<div class="right">'.LF;
     print t('<a class="button" href="%u/constituencies.php?action=Delete&consid=%i">%l</a>', array(
        '%u'=>BASEURL,
