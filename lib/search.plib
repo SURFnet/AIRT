@@ -43,6 +43,14 @@ function reversesortbymask ($networks) {
    return $networks;
 }
 
+/* sort the v6 network list by reverse netmask */
+function reversesortbymask6 ($networks) {
+   usort($networks, function($a, $b) {
+      return $a['netmask'] > $b['netmask'];
+   });
+   return $networks;
+}
+
 /** Categorize IP address based on network
  * @param $ip IP address in dotted notation
  * @return The network id to which the given IP address belongs.
@@ -50,7 +58,7 @@ function reversesortbymask ($networks) {
 function categorize($ip) {
 
    if (validateIPV6($ip)) {
-     $networks = getNetworks('v6');
+     $networks = reversesortbymask6(getNetworks('v6'));
      foreach ($networks as $id => $data){
        $subnet = $data['network'].'/'.$data['netmask']; //cidr
        if(checkinipv6subnet($ip,$subnet))
