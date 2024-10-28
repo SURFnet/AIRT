@@ -11,8 +11,7 @@
  */
 
 function filter_iodef_nfsen_getVersion() {
-   $rev = explode(' ','$Rev$');
-   return $rev[1];
+   return '1216';
 }
 
 function filter_iodef_nfsen($input, &$output, $verbosity=TRUE) {
@@ -219,4 +218,3 @@ function filter_iodef_nfsen($input, &$output, $verbosity=TRUE) {
    $output .= "</airt:airt>";
    v_print($output,$verbosity);
 }
-?>

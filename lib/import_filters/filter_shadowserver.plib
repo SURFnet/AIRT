@@ -4,8 +4,7 @@
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
  * ShadowServer import filter
  * by JP Velders & Xander Jansen / SURFcert
- * $Id: filter_shadowserver.plib,v 1.33 2011/06/12 13:54:30 root Exp root $
-
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -41,8 +40,7 @@ if (!defined('ETCDIR') || !file_exists(ETCDIR.'/filter_shadowserver.cfg')) {
 require_once ETCDIR.'/filter_shadowserver.cfg';
 
 function filter_shadowserver_getVersion() {
-        $rev = explode(' ','$Rev$');
-        return $rev[1];
+        return '1557';
 }
 function checkAllowedASN($asn) {
         // list of "own" ASNs defined in the configuration file

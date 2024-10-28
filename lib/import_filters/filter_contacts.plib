@@ -11,8 +11,7 @@
  */
 
 function filter_contacts_getVersion() {
-	$rev = explode(' ','$Rev: 1283 $');
-	return $rev[1];
+	return '1283';
 }
 
 function filter_contacts($input, &$output, $verbosity=TRUE) {
@@ -96,4 +95,3 @@ function filter_contacts($input, &$output, $verbosity=TRUE) {
 
      v_print($output, $verbosity);
 }
-?>

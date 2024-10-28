@@ -17,14 +17,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- * $Id: filter_spamcop.plib 1213 2008-02-15 16:13:17Z kees $
  */
 require_once 'Mail/mimeDecode.php';
 
 function filter_arf_getVersion() {
-	$rev = explode(' ','$Rev: 1213 $');
-	return $rev[1];
+	return '1213';
 }
 
 function filter_arf($input, &$output, $verbosity=FALSE) {
@@ -90,4 +87,3 @@ function filter_arf($input, &$output, $verbosity=FALSE) {
    }
    return 0;
 }
-?>

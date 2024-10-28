@@ -19,14 +19,11 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * filter_mynetwatchman.plib -- filter function for mynetwatchman reports
- * 
- * $Id$
  */
 
 
 function filter_mynetwatchman_getVersion() {
-	$rev = explode(' ','$Rev$');
-	return $rev[1];
+	return '1213';
 }
 
 function filter_mynetwatchman($input, &$output, $verbosity=FALSE) {
@@ -101,4 +98,3 @@ function filter_mynetwatchman($input, &$output, $verbosity=FALSE) {
    }
    return 0;
 }
-?>

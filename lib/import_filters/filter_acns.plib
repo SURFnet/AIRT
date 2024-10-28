@@ -17,13 +17,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- * $Id$
  */
 
 function filter_acns_getVersion() {
-	$rev = explode(' ','$Rev$');
-	return $rev[1];
+	return '1565';
 }
 
 function parse_semi_iso8601($date) {
@@ -183,5 +180,3 @@ function filter_acns($input, &$output, $verbosity=FALSE) {
   }
   return;
 }
-
-?>

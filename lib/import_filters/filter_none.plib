@@ -19,8 +19,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * filter_none.plib -- filter function for the default, inert filter.
- * 
- * $Id$
  */
 
 /* Template filter function, does not do much but conforms to all standards.
@@ -38,5 +36,3 @@ function filter_none($input, &$output, $verbosity=FALSE) {
   $output = $input;
   return 0;
 }
-
-?>
