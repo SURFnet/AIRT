@@ -11,4 +11,3 @@ while ($name = readdir($d)) {
   save_template($name,$body);
 }
 closedir($d);
-?>

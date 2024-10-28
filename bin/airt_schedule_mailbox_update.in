@@ -18,10 +18,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- * airt_export -- spawn off external tasks from the AIRT Export Queue.
- * 
- * $Id: airt_export.in 892 2006-05-16 09:08:27Z hoppie $
  */
 
 define('AIRT_VERSION','@VERSION@');
@@ -88,5 +84,3 @@ if ($verbose) print _('Unlocking.').LF;
 flock($lock, LOCK_UN);
 if ($verbose) print _('Unlocked.').LF;
 exit(0);
-
-?>

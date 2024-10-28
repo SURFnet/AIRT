@@ -20,8 +20,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * airt_export -- spawn off external tasks from the AIRT Export Queue.
- * 
- * $Id$
  */
 
 define('AIRT_VERSION','@VERSION@');
@@ -221,5 +219,3 @@ foreach ($runnable as $id=>$details) {
 // Successful completion.
 msg('airt_export done.');
 return 0;
-
-?>

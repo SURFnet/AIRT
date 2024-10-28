@@ -21,4 +21,3 @@ switch ($action) {
       airt_msg(_('Unknown request'));
       reload($url.'/config.php');
 }
-?>
