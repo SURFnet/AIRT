@@ -2778,7 +2778,7 @@ function newIncident($bulk=false) {
    $output .= '<table>'.LF;
    $output .= '  <tr>'.LF;
    $output .= '    <td>'._('Severity').'</td>'.LF;
-   $output .= '    <td>'.getIncidentSeveritySelection('severity', $incident['severity']).
+   $output .= '    <td>'.getIncidentSeveritySelection('severity').
       '</td>'.LF;
    $output .= '  <tr>'.LF;
    $output .= '    <td>'._('Type of incident').'</td>'.LF;
