@@ -211,7 +211,7 @@ function filter_megatronout($incidents, &$output, $verbosity=false) {
       $queuedata_el->appendChild($doc->createElement('type',
          substr($shadowtype,0,50)));
       $queuedata_el->appendChild($doc->createElement('summary',
-         $shadowtype.' '.$incident['details'][$ipkey].' '.$incident['details'][$timestampkey]));
+         $shadowtype.' '.$incident['details'][$ipkey].' '.($incident['details'][$timestampkey] ?: '')));
 
       $incident_el = $airt->appendChild($doc->createElement('incident'));
       $incident_el->setAttribute('id', $id);
@@ -235,8 +235,10 @@ function filter_megatronout($incidents, &$output, $verbosity=false) {
          Date('Y-m-d H:i:s')));
       $techinfo_el->appendChild($doc->createElement('logging',
          htmlentities($incident['logging'],ENT_COMPAT,'UTF-8')));
-      $techinfo_el->appendChild($doc->createElement('incident_time',
-         $incident['details'][$timestampkey]));
+      if (!empty($incident['details'][$timestampkey])) {
+          $techinfo_el->appendChild($doc->createElement('incident_time',
+             $incident['details'][$timestampkey]));
+      }
 
       $id++;
    } // foreach $incident
@@ -386,7 +388,7 @@ function filter_megatron($input, &$output, $verbosity=FALSE) {
                 }
 
                 if ($verbosity) {
-                        print "Megatron: parsing incident of type [" . $incident['type'] . "] at [" . $datetime . "]\n";
+                        print "Megatron: parsing incident of type [" . $incident['type'] . "] at [" . ($datetime ?: 'unknown') . "]\n";
                         print_r($incident);
                 }
 
