@@ -317,8 +317,8 @@ switch ($action) {
 
       $id = getUserByEmail($email);
       if (!$id) {
-         addUser(array('email'=>strtolower(trim($email))));
-         $id = getUserByEmail($email);
+         addUser(['email'=>strtolower(trim($email))]);
+         $id = getUserByEmail(strtolower(trim($email)));
       }
 
       $user = getUserByUserID($id['id']);
