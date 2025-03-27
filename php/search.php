@@ -208,6 +208,46 @@ function search_host($hostname='') {
    }
    print '</div>'.LF;
 
+   // include recent import queue findings
+   print '<div class="search-previous">'.LF;
+   print '<h3>'._('Recent import queue appearances').'</h3>'.LF;
+   $res = db_query("
+      SELECT id, status, created, sender, type
+      FROM  import_queue iq
+      WHERE   iq.cache_ip = '".db_escape_string($ip)."'
+      ORDER BY id")
+   or die(_('Unable to query iq.'));
+
+   if (db_num_rows($res)) {
+      print '<table class="horizontal">'.LF;
+      print '<tr>'.LF;
+      print '   <th>'._('Importqueue ID').'</th>'.LF;
+      print '   <th>'._('Status').'</th>'.LF;
+      print '   <th>'._('Created').'</th>'.LF;
+      print '   <th>'._('From').'</th>'.LF;
+      print '   <th>'._('Type').'</th>'.LF;
+      print '</tr>'.LF;
+      $count = 0;
+      while ($row = db_fetch_next($res)) {
+         printf("
+<tr>
+   <td>%s</td>
+   <td>%s</td>
+   <td>%s</td>
+   <td>%s</td>
+   <td>%s</td>
+</tr>",
+               $row["id"],
+               $row["status"],
+               Date("d M Y", strtotime($row["created"])),
+               $row["sender"],
+               $row["type"]);
+      }
+      print '</table>'.LF;
+   } else {
+      echo "<I>"._('No findings in Import Queue')."</I>";
+   }
+   print '</div>'.LF;
 
    // call user-defined search function. Must print in unformatted layout
    // additional info about hostname needed to make a decision.
