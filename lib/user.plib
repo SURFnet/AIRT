@@ -143,7 +143,7 @@ function addUser($user, &$status='') {
       $language = '';
    }
    if (array_key_exists('password', $user)) {
-      $password=$user['password'];
+      $password=sha1($user['password']);
    } else {
       $password = '';
    }
@@ -188,7 +188,7 @@ function addUser($user, &$status='') {
       db_masq_null($login),
       db_masq_null($userid),
       db_masq_null($language),
-      db_masq_null(sha1($password)),
+      db_masq_null($password),
       db_masq_null($x509name),
       db_masq_null($notes)
    );

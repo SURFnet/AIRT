@@ -399,4 +399,3 @@ function generateSAMLTicket($ticket_details) {
    return $content;
 
 }
-?>
