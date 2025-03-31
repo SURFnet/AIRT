@@ -194,7 +194,7 @@ function addConstituencyContact($constituencyid, $data, &$error='') {
 /**
  * Remove a constituency contact
  */
-function removeConstituencyContact($constituencyid, $userid, $error='') {
+function removeConstituencyContact($constituencyid, $userid, &$error='') {
    if (!is_numeric($constituencyid)) {
        $error = _('Invalid parameter type in').' constituency.plib:'.__LINE__;
        return false;
