@@ -531,8 +531,8 @@ special variables in the template:').'<p>'.LF;
 			}
 
 			addIncidentComment(array(
-				'comment'=>sprintf(_("Email sent to %s: %s"),
-					$to, $subject),
+				'comment'=>sprintf(_("Email (from template %s) sent to %s: %s"),
+					$template, $to, $subject),
 				'incidentid'=>$incidentid));
 			generateEvent('postsendmail', array(
 				'incidentid'=>$incidentid,
