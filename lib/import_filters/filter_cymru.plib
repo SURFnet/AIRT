@@ -48,8 +48,8 @@ function filter_cymru_checkDisallowedCidr($ip) {
 }
 
 function filter_cymru_checkUnWantedReportType($type) {
-        global $CYMRU_WANTED_TYPE;
-        return !in_array($type,$CYMRU_WANTED_TYPE);
+        global $CYMRU_UNWANTED_TYPE;
+        return !in_array($type,$CYMRU_UNWANTED_TYPE);
 }
 
 
@@ -96,7 +96,13 @@ function filter_cymruout($incidents, &$output, $verbosity=false) {
 
    foreach ($incidents as $incident) {
 
-      // Skip unwanted IP ranges
+      if (!filter_cymru_checkUnWantedReportType($incident['type'])) {
+          if ($verbosity) {
+              print "Cymru: not importing incident for type ".$incident['type']."\n";
+          }
+          continue;
+      }
+
       if (!filter_cymru_checkDisallowedCidr($incident['ip'])) {
           if ($verbosity) {
               print "Cymru: not importing incident for IP ".$incident['ip']."\n";
