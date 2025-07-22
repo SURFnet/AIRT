@@ -19,7 +19,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * Incidents.php - incident management interface
- * $Id$
  */
 ini_set('memory_limit', '96M');
 
@@ -59,4 +58,3 @@ switch (strtolower(fetchFrom('REQUEST', 'action'))) {
           print $error;
        }
 }
-?>

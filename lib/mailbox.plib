@@ -729,6 +729,14 @@ function viewMessage() {
    if (isset($struct->parts)) {
       $n=1;
       foreach ($struct->parts as $index=>$part) {
+         if($part->ctype_primary == 'multipart' && ($part->ctype_secondary == 'alternative' || $part->ctype_secondary == 'mixed')) {
+             foreach($part->parts as $subpart) {
+                 if($subpart->ctype_primary == 'text' && $subpart->ctype_secondary == 'plain') {
+                   print '<pre>'.nl2br(htmlentities(trim($subpart->body))).'</pre>';
+                   break 2;
+                 }
+             }
+         }
          switch ($part->disposition) {
             case '':
             case 'inline':
