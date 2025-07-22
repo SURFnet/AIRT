@@ -432,12 +432,14 @@ function prepare_message($global_template, $override_now=0, $incidentids=array()
       $pageOptions['onload'] = "document.getElementsByName('action')[1].click();";
    }
    pageHeader(_('Send message from template.'), $pageOptions);
-   $current = array(
+   $current = [
       'user'=>'',
       'name'=>'',
       'email'=>'',
       'ip'=>'',
-      'hostname'=>'');
+      'iplist'=>'',
+      'hostname'=>'',
+   ];
 
    $override_next = false;
 
@@ -548,6 +550,7 @@ function prepare_message($global_template, $override_now=0, $incidentids=array()
    if (sizeof($incident['ips']) > 0) {
       $current['ip'] = $incident['ips'][0]['ip'];
       $current['hostname'] = $incident['ips'][0]['hostname'];
+      $current['iplist'] = $incident['ips'];
    }
    $usepref = false;
    $usetemplate = $global_template;
@@ -666,6 +669,11 @@ function print_variables_info() {
       '</td>'.LF;
    $out .= '</tr>'.LF;
    $out .= '<tr>'.LF;
+   $out .= '<td>@IPADDRESSLIST@</td>'.LF;
+   $out .= '<td>'._('Will be replaced with all IP addresses in the incident').
+      '</td>'.LF;
+   $out .= '</tr>'.LF;
+   $out .= '<tr>'.LF;
    $out .= '<td>@LOGGING@</td>'.LF;
    $out .= '<td>'._('Will be replaced with the available logging information').
       '</td>'.LF;
@@ -781,6 +789,13 @@ function replace_vars($msg, $current=array()) {
       $out = preg_replace("/@IPADDRESS@/", $ipaddress, $out);
       $out = preg_replace("/@HOSTNAME@/", $current['hostname'], $out);
 
+      $iplist = '';
+      foreach($current['iplist'] as $listip) {
+        $iplist .= $listip['ip'] .
+          ($listip['hostname'] ? " - " . $listip['hostname'] : '' ) . "\n";
+      }
+      $iplist = trim($iplist);
+      $out = preg_replace("/@IPADDRESSLIST@/", $iplist, $out);
       if (strpos($out, '@PREVIOUS@') !== FALSE) {
          // Fetch previous incidents associated with this IP address.
          $incidents = getIncidentsByIP($ipaddress);
