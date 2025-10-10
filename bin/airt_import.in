@@ -41,7 +41,7 @@ array_shift($argv);               // get rid of argument 0, the command itself.
 foreach ($argv as $param) {
    if (substr($param,0,2)=='--') {
       // Option parameter.
-      @list($option,$value) = split('=',$param);
+      @list($option,$value) = explode('=',$param);
       if (isset($OPTIONS[$option])) {
          // Known option, get new value of the correct type.
          if (is_bool($OPTIONS[$option])) {

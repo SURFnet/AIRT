@@ -2893,18 +2893,18 @@ function newIncident($bulk=false) {
 function addIncident() {
    $ips = fetchFrom('REQUEST', 'ips');
    defaultTo($ips, '');
-   $ips = split("\r?\n", $ips);
+   $ips = preg_split("/\r\n|\n|\r/", $ips);
 
    $users = fetchFrom('REQUEST', 'users');
    defaultTo($users, '');
-   $users = split("\r?\n", $users);
+   $users = preg_split("/\r\n|\n|\r/", $users);
 
    $newids = fetchFrom('REQUEST', 'ids');
    defaultTo($newids, '');
    if (empty($newids)) {
-       $newids = array();
+       $newids = [];
    } else {
-       $newids = split("\r?\n", trim($newids));
+       $newids = preg_split("/\r\n|\n|\r/", trim($newids));
    }
 
    $date_day = trim(fetchFrom('POST', 'date_day', '%d'));
@@ -3018,7 +3018,7 @@ function addBulkIncidents() {
 
    $ips = fetchFrom('REQUEST', 'ips');
    defaultTo($ips, '');
-   $ips = split("\r?\n", $ips);
+   $ips = preg_split("/\r\n|\n|\r/", $ips);
 
    foreach($ips as $ip) {
      $ip = trim($ip);

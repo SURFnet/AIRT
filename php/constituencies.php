@@ -112,12 +112,12 @@ switch ($action) {
 
       $contacts = strip_tags(fetchFrom('REQUEST', 'contacts', '%s'));
       if (empty($contacts)) {
-          $contacts = array();
+          $contacts = [];
       } else {
-          $contacts = split("\r\n", $contacts);
+          $contacts = preg_split("/\r\n|\n|\r/", $contacts);
       }
       if (!is_array($contacts)) {
-          $contacts = array();
+          $contacts = [];
       }
       foreach ($contacts as $key=>$value) {
           $contacts[$key] = strip_tags($value);

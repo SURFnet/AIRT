@@ -657,9 +657,9 @@ function addConstituencyContactFrontend() {
     }
     $contacts = strip_tags(trim(fetchFrom('REQUEST', 'contacts')));
     if (empty($contacts)) {
-        $contacts = array();
+        $contacts = [];
     } else {
-        $contacts = split("\r\n", $contacts);
+        $contacts = preg_split("/\r\n|\n|\r/", $contacts);
     }
     array_walk($contacts, 'strip_tags');
 
