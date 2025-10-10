@@ -30,12 +30,17 @@ defaultTo($action, 'list');
 
 /** Helper function to display the queue.
  */
-function showQueue($type='all') {
+function showQueue($type = 'all', $onlyopen = false) {
 
    $actions = _('With selected: ') .
        t('<input type="submit" onClick="submitMe(\'accept\')" name="action" value="%v">'.LF, ['%v'=>_('Accept')]) .
        t('<input type="submit" onClick="submitMe(\'reject\')" name="action" value="%v">'.LF, ['%v'=>_('Reject')]) .
        t('<input type="submit" name="action" value="%v">'.LF, ['%v'=>_('Refresh')]);
+   if ($onlyopen) {
+       $actions .= _('Show: ') . '<a href="?onlyopen=0">all</a>';
+   } else {
+       $actions .= _('Show: ') . '<a href="?onlyopen=1">only for open/stalled incidents</a>';
+   }
 
    pageHeader(_('Import queue'), [
       'menu'=>'incidents',
@@ -52,7 +57,7 @@ function showQueue($type='all') {
    $out .= $actions;
    $out .= '<p>';
    $out .= '</div><!-- importqueue-overview-header -->'.LF;
-   $out .= queueFormatItems($type);
+   $out .= queueFormatItems($type, $onlyopen);
    $out .= '<div class="importqueue-overview-footer">'.LF;
    $out .= '<p>';
    $out .= $actions;
@@ -192,7 +197,8 @@ switch (strtolower($action)) {
       if (empty($type)) {
           $type = 'all';
       }
-      showQueue($type);
+      $onlyopen=strip_tags(fetchFrom('REQUEST', 'onlyopen'));
+      showQueue($type, $onlyopen);
       break;
 
    // ----------------------------------------------------------------

@@ -176,10 +176,10 @@ function importIncident($doc, $importqueue, &$error='', $verbosity=FALSE) {
 
       // insert
       $newid =
-      queueInsertItem(array( 
+      queueInsertItem([
          'status'=>$status, 'sender'=>$sender, 'type'=>$type,
          'summary'=>$summary, 'content'=>$content, 'filter'=>$filter, 
-         'version'=>$version, 'metatype'=>AIRT_IMPORTQUEUE_METATYPE_INCIDENT),
+         'version'=>$version, 'metatype'=>AIRT_IMPORTQUEUE_METATYPE_INCIDENT],
          $error);
 
       if ($newid === false) {
@@ -469,11 +469,11 @@ function queueGetItem($queueid, &$error) {
 
 /* show a formatted overview of the incident queue
  */
-function queueFormatItems($typefilter='all') {
+function queueFormatItems($typefilter = 'all', $openfilter = false) {
 
    $error = '';
-   $openips=array();
-   $elements = array();
+   $openips = [];
+   $elements = [];
 
    if (($res = db_query("select count(*) as cnt, type from import_queue where
        status='open' group by type order by cnt desc")) === false) {
@@ -494,7 +494,7 @@ function queueFormatItems($typefilter='all') {
    foreach (getOpenincidents() as $id=>$data) {
       $openips[$data['ip']] = $id;
    }
-   $used_ips = array();
+   $used_ips = [];
    $js = '<SCRIPT language="JavaScript">'.LF;
    $js .= 'function checkAll() {'.LF;
    $js .= '   var check=document.forms[1].elements[4].checked;'.LF;
@@ -508,10 +508,10 @@ function queueFormatItems($typefilter='all') {
    $out .= '   <th><select onChange="submitMe(\'refresh\')" name="type">';
    $out .= '   <option value="all">'._('Type').'</option>'.LF;
    foreach ($types as $type => $cnt) {
-       $out .= t('   <option %d value="%type">%type (%num)</option>'.LF, array(
+       $out .= t('   <option %d value="%type">%type (%num)</option>'.LF, [
           '%type'=>htmlentities($type),
           '%num'=>htmlentities($cnt),
-          '%d'=>($typefilter == $type) ? 'SELECTED' : ''));
+          '%d'=>($typefilter == $type) ? 'SELECTED' : '']);
    }
    $out .= '   </select>'.LF;
    $out .= '   </th>';
@@ -522,7 +522,7 @@ function queueFormatItems($typefilter='all') {
    $out .= '</tr>'.LF;
    // process incidents first
    $count = 0;
-   $siblings = array();
+   $siblings = [];
    $constituencies = getConstituencies();
    Setup::getOption('bubblesize', $maxbubblesize, true);
    Setup::getOption('inqueuegroup', $inqueuegroup, true);
@@ -535,6 +535,12 @@ function queueFormatItems($typefilter='all') {
       if ($element['metatype'] != AIRT_IMPORTQUEUE_METATYPE_INCIDENT) {
          continue;
       }
+      $isOpen = array_key_exists($element['cache_ip'], $openips);
+
+      if ($openfilter && !$isOpen) {
+          continue;
+      }
+
       $js .= '   x=document.getElementById("check'.$element['id'].'");';
       $js .= '   x.checked=check;'.LF;
 
@@ -612,17 +618,17 @@ function queueFormatItems($typefilter='all') {
       $used_ips[$ip][] = $element['id'];
 
       if ($group == false) {
-         if (array_key_exists($element['cache_ip'], $openips)) {
+         if ($isOpen) {
             $cur = getIncident($openips[$element['cache_ip']]);
             $out .= t('  <input type="checkbox" %checked% name="add[%id%]">'.LF,
-				    array('%id%' => $id,
-                      '%checked%' => ($inqueuemerge == 0) ? '' : 'checked'));
+				    ['%id%' => $id,
+                      '%checked%' => ($inqueuemerge == 0) ? '' : 'checked']);
             $out .= t(_('<span class="%status">  Add to <a href="%u/incident.php?action=details&incidentid=%id">%label</a></span>').'<br/>'.LF,
-            array(
+            [
                '%u'=>BASEURL,
                '%id'=>$openips[$element['cache_ip']],
                '%status'=>getIncidentStatusDescr($cur['status']),
-               '%label'=>normalize_incidentid($openips[$element['cache_ip']])));
+               '%label'=>normalize_incidentid($openips[$element['cache_ip']])]);
          }
 
          Setup::getOption('correlationage', $correlationage, true);
@@ -632,10 +638,10 @@ function queueFormatItems($typefilter='all') {
             for ($i=0; $i < sizeof($prev3); $i++) {
                $prev = getIncident($prev3[$i]);
                $out .= t(_('  <a href="%u?incidentid=%I&action=details">%i</a> closed %c').'<br/>'.LF, 
-                  array('%i'=>normalize_incidentid(strip_tags($prev['incidentid'])),
+                  ['%i'=>normalize_incidentid(strip_tags($prev['incidentid'])),
                   '%u'=>BASEURL.'/incident.php',
                   '%I'=>urlencode($prev['incidentid']),
-                  '%c'=>formatRelativeDate($prev['updated'])));
+                  '%c'=>formatRelativeDate($prev['updated'])]);
             }
          }
       } // group == false
