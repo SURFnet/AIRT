@@ -826,11 +826,11 @@ function queueToAIRT($id, &$error, $mailtemplate='') {
    airt_profile('Calling web service method: '.$method);
    $ans = $airt_client->call($method, $params);
    if (PEAR::isError($ans)) {
-		airt_profile('SOAP error. Aborting.');
-      echo "<PRE>";
-      echo "SOAP Error:";
+      airt_profile('SOAP error. Aborting.');
+      echo "<pre>";
+      echo "SOAP Error:\n";
       print_r($ans->getFault());
-      echo "</PRE>";
+      echo "</pre>";
       exit;
    }
    return 0;
@@ -1070,8 +1070,11 @@ function queueAddLogging($id, &$error, $template='', &$incidentid) {
    }
    $ans = $airt_client->call($method, $params);
    if (PEAR::isError($ans)) {
-      $error = 'SOAP Error';
-      return 5;
+      echo "<pre>";
+      echo "SOAP Error:\n";
+      print_r($ans->getFault());
+      echo "</pre>";
+      exit;
    }
    addIncidentComment(array(
       'comment'=>_('Logging added to incident from import queue'),
