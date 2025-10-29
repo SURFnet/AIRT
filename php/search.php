@@ -210,12 +210,12 @@ function search_host($hostname='') {
 
    // include recent import queue findings
    print '<div class="search-previous">'.LF;
-   print '<h3>'._('Recent import queue appearances').'</h3>'.LF;
+   print '<h3>'._('Recent import queue appearances (top 10)').'</h3>'.LF;
    $res = db_query("
       SELECT id, status, created, sender, type
       FROM  import_queue iq
       WHERE   iq.cache_ip = '".db_escape_string($ip)."'
-      ORDER BY id")
+      ORDER BY id LIMIT 10")
    or die(_('Unable to query iq.'));
 
    if (db_num_rows($res)) {
