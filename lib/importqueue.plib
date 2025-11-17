@@ -637,10 +637,11 @@ function queueFormatItems($typefilter = 'all', $openfilter = false) {
                filterIncidentsByAge($prev2, $correlationage, $prev3, $error)) {
             for ($i=0; $i < sizeof($prev3); $i++) {
                $prev = getIncident($prev3[$i]);
-               $out .= t(_('  <a href="%u?incidentid=%I&action=details">%i</a> closed %c').'<br/>'.LF, 
+               $out .= t(_('<span class="%status">  <a href="%u?incidentid=%I&action=details">%i</a> closed %c').'</span><br/>'.LF,
                   ['%i'=>normalize_incidentid(strip_tags($prev['incidentid'])),
                   '%u'=>BASEURL.'/incident.php',
                   '%I'=>urlencode($prev['incidentid']),
+                  '%status'=>getIncidentStatusDescr($prev['status']),
                   '%c'=>formatRelativeDate($prev['updated'])]);
             }
          }

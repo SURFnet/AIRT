@@ -306,6 +306,12 @@ clear: both;
    color: #696969 ;
 }
 
+.closed a {
+   text-decoration: line-through;
+   color: #696969;
+}
+
+
 table.horizontal, table.mailbox{
 width: 100%;
 clear: both;
