@@ -162,6 +162,10 @@ switch (strtolower($action)) {
       $out .= '  <td>'.$item['status'].'</td>'.LF;
       $out .= '</tr>'.LF;
       $out .= '<tr>'.LF;
+      $out .= '  <td>'._('Sender').'</td>'.LF;
+      $out .= '  <td>'.$item['sender'].'</td>'.LF;
+      $out .= '</tr>'.LF;
+      $out .= '<tr>'.LF;
       $out .= '  <td>'._('Type').'</td>'.LF;
       $out .= '  <td>'.$item['type'].'</td>'.LF;
       $out .= '</tr>'.LF;
@@ -170,6 +174,13 @@ switch (strtolower($action)) {
       $out .= '  <td>'.$item['summary'].'</td>'.LF;
       $out .= '</tr>'.LF;
       $out .= '<tr>'.LF;
+      if(!empty($item['filter'])) {
+         $out .= '<tr>'.LF;
+         $out .= '  <td>'._('Filter').'</td>'.LF;
+         $out .= '  <td>'.$item['filter'].':'.$item['version'].'</td>'.LF;
+         $out .= '</tr>'.LF;
+         $out .= '<tr>'.LF;
+      }
       $out .= '  <td colspan="2" align="left" nowrap>'.
               _('Input queue data').'</td>'.LF;
       $out .= '</tr>'.LF;
