@@ -487,7 +487,7 @@ function addIPtoIncident($data=array()) {
       return false;
    }
 
-   if (!array_key_exists('ip', $data)) {
+   if (!array_key_exists('ip', $data) || empty($data['ip'])) {
 	   airt_profile('addIPtoIncident: No address');
       return false;
    }

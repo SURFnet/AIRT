@@ -177,20 +177,22 @@ airt_profile('Incident data parsed');
 		'logging'=>$logging));
 airt_profile('Incident '.$incidentid[$i].' created');
 
-	addIPtoIncident(array(
-		'ip'=>$address,
-		'hostname'=>$hostname,
-		'incidentid'=>$incidentid[$i],
-		'addressrole'=>$addressrole));
+	if(!empty($address)) {
+		addIPtoIncident(array(
+			'ip'=>$address,
+			'hostname'=>$hostname,
+			'incidentid'=>$incidentid[$i],
+			'addressrole'=>$addressrole));
 airt_profile('IP addresses added');
 
-	$networkid = categorize($address);
-	$constituencyID = getConstituencyIDbyNetworkID($networkid);
-	$contacts = getConstituencyContacts($constituencyID);
-	foreach ($contacts as $id=>$data) {
-		addUserToIncident($data['userid'], $incidentid[$i]);
-	}
+		$networkid = categorize($address);
+		$constituencyID = getConstituencyIDbyNetworkID($networkid);
+		$contacts = getConstituencyContacts($constituencyID);
+		foreach ($contacts as $id=>$data) {
+			addUserToIncident($data['userid'], $incidentid[$i]);
+		}
 airt_profile('Users added');
+	}
 
 	if ($mailtemplate != '' && $mailtemplate != _('No preferred template')) {
 		setPreferredMailTemplateName($incidentid[$i], $mailtemplate);
