@@ -313,11 +313,7 @@ function subMenu($menu, $submenu, $title='') {
  * Display the page header
  * @in title The title of the page
  */
-function pageHeader($title='', $options=array()) {
-   if (!is_array($options)) {
-       $option = array();
-   }
-
+function pageHeader($title = '', $options = []) {
    if (array_key_exists('event', $options)) {
        $event = $options['event'];
    } else {
