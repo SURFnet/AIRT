@@ -238,16 +238,16 @@ function get_templates($extras=array()) {
  * Get a SELECTION dialog with mail templates
  */
 function getMailtemplateSelection($name, $default='', $extras=array()) {
-   $o = array();
-   $output = sprintf("<select name=\"%s\">\n", htmlentities($name));
+   $o = [];
+   $output = sprintf("<select class=\"searchableselect\" name=\"%s\">\n", htmlentities($name));
    $templates = get_templates();
    foreach ($templates as $label=>$body) {
       $o[$label] = $label;
    }
    $o = $extras + $o;
    foreach ($o as $key=>$label) {
-      $output .= sprintf("<option value=\"%s\" %s>%s</option>\n", 
-         htmlentities($key), ($key == $default) ? "SELECTED" : "", 
+      $output .= sprintf("<option value=\"%s\"%s>%s</option>\n",
+         htmlentities($key), ($key == $default) ? " selected" : "",
          htmlentities($label));
    }
    $output .= "</select>";

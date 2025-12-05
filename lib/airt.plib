@@ -360,8 +360,9 @@ function pageHeader($title = '', $options = []) {
    print '  <head>'.LF;
    print '      <title>AIRT: ' . $title . ' · ' . $instance . '</title>'.LF;
    print t('     <link href="%url/airt-style.css" rel="stylesheet" '.
-     'type="text/css">'.LF, array(
-     '%url'=>BASEURL));
+     'type="text/css">'.LF, [
+     '%url'=>BASEURL]);
+   print '      <link rel="stylesheet" href="extlib/tom-select.default.min.css"><script src="extlib/tom-select.complete.min.js"></script>' . LF;
    print '  </head>'.LF;
 
    if (array_key_exists('onload', $options)) {
@@ -449,6 +450,12 @@ function pageFooter() {
     print '<div id="footer">'.LF;
     print '(C) AIRT Project. Licensed under GNU General Public License, v2';
     print '</div><!-- footer -->'.LF;
+    print '<script>' . LF;
+    print '   document.querySelectorAll(".searchableselect").forEach((el)=>{' . LF;
+    print '      let settings = {closeAfterSelect: true, onItemAdd:function(){ this.blur(); }};' . LF;
+    print '      new TomSelect(el,settings);' . LF;
+    print '});' . LF;
+    print '</script>' . LF;
     print '</body>'.LF;
     print '</html>'.LF;
 
