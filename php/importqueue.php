@@ -135,6 +135,7 @@ switch (strtolower($action)) {
       }
 
       echo '<a href="incident.php">'._('Done').'</a> or <a href="importqueue.php">'._('back to import queue').'</a> ('.$elements.' left).<br/>'.LF;
+      pageFooter();
       break;
 
    // ----------------------------------------------------------------
@@ -210,6 +211,7 @@ switch (strtolower($action)) {
       }
       $onlyopen=strip_tags(fetchFrom('REQUEST', 'onlyopen'));
       showQueue($type, $onlyopen);
+      pageFooter();
       break;
 
    // ----------------------------------------------------------------
