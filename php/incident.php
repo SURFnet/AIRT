@@ -88,10 +88,12 @@ switch ($action) {
     case _('New incident'):
     case 'new':
       newIncident(false);
+      pageFooter();
       break;
     //--------------------------------------------------------------------
     case 'bulkform':
        newIncident(true);
+       pageFooter();
        break;
 
     case 'add':
