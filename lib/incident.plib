@@ -1121,22 +1121,20 @@ function getIncidentsByConstituency($constituencyID) {
       return array();
    }
    $q = q('SELECT incident as incident,
-                t.label as type,
-                to_char(i.created, \'YYYY-MM-DD HH24:MI\') as created
+                severity, status, type,
+                created
          FROM   incident_addresses a
          LEFT JOIN incidents i ON (a.incident = i.id)
-         LEFT JOIN incident_types t ON (i.type = t.id)
          WHERE  constituency=%consid
-         ORDER BY incident', array('%consid'=>$constituencyID));
+         ORDER BY incident DESC', array('%consid'=>$constituencyID));
    $res = db_query($q);
    if (!$res) {
       airt_error('DB_QUERY',__FILE__.':'.__LINE__);
-      return array();
+      return [];
    }
-   $out = array();
+   $out = [];
    while ($row = db_fetch_next($res)) {
-      $out[$row['incident']] = sprintf('%s  %-15s  %s',
-         encode_incidentID($row['incident']), $row['type'], $row['created']);
+      $out[$row['incident']] = $row;
    }
    return $out;
 }

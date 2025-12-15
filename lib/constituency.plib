@@ -618,6 +618,24 @@ function constituencyDetails() {
 
     print '</div><!-- block -->'.LF;
 
+    print '<div class="block">'.LF;
+    print '<h3>'._('Incidents').'</h3>'.LF;
+    print '<table>'.LF;
+    foreach (getIncidentsByConstituency($cid) as $id=>$data) {
+        print '<tr class="' . getIncidentStatusLabelByID($data['status'])  . '">';
+        print t('<td><a href="%url?action=details&incidentid=%id">'.
+             '%incidentid</a></td>'.LF, [
+                '%url'=>BASEURL.'/incident.php',
+                '%id'=>$data['incident'],
+                '%incidentid'=>encode_incidentid($data['incident'])]);
+        print "<td>" . getIncidentSeverityLabelByID($data['severity']) . "</td>";
+        print "<td>" . getIncidentTypeLabelById($data['type']) . "</td>";
+        print "<td>" . substr($data['created'],0,10) . "</td>";
+	print "</tr>" . LF;
+    }
+    print '</table>'.LF;
+    print '</form>'.LF;
+
     print '</div><!-- column -->'.LF;
 
     print '</div><!-- #constituency-details -->'.LF;
