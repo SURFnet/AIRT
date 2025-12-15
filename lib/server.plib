@@ -71,7 +71,7 @@ airt_profile('Credentials ok');
 			$state = getIncidentStateDefault();
 		}
 	}
-
+	$severity = getIncidentSeverityDefault();
 airt_profile('State: '.$state);
 
 	$status = getIncidentStatusDefault();
@@ -167,22 +167,30 @@ airt_profile('Mailtemplate: ok');
 	} // end incident
 
 airt_profile('Incident data parsed');
+	if ($mailtemplate != '' && $mailtemplate != _('No preferred template')) {
+		$usetemplate = $mailtemplate;
+		get_template_actions($usetemplate, $actions);
+		// Override selected fields based on preferred template
+		$type = $actions['type'];
+		$severity = $actions['severity'];
+	}
 
 	// generate an incident id
 	$i = 0 ; // Do we need this index/key ?
-	$incidentid[$i] = createIncident(array(
+	$incidentid[$i] = createIncident([
+		'severity'=>$severity,
 		'state'=>$state,
 		'status'=>$status,
 		'type'=>$type,
-		'logging'=>$logging));
+		'logging'=>$logging]);
 airt_profile('Incident '.$incidentid[$i].' created');
 
 	if(!empty($address)) {
-		addIPtoIncident(array(
+		addIPtoIncident([
 			'ip'=>$address,
 			'hostname'=>$hostname,
 			'incidentid'=>$incidentid[$i],
-			'addressrole'=>$addressrole));
+			'addressrole'=>$addressrole]);
 airt_profile('IP addresses added');
 
 		$networkid = categorize($address);
@@ -194,11 +202,11 @@ airt_profile('IP addresses added');
 airt_profile('Users added');
 	}
 
-	if ($mailtemplate != '' && $mailtemplate != _('No preferred template')) {
-		setPreferredMailTemplateName($incidentid[$i], $mailtemplate);
-		addIncidentComment(array(
-			'comment'=>'Import queue set preferred template to: '.$mailtemplate,
-			'incidentid'=>$incidentid[$i]));
+	if ($usetemplate) {
+		setPreferredMailTemplateName($incidentid[$i], $usetemplate);
+		addIncidentComment([
+			'comment'=>'Import queue set preferred template to: '.$usetemplate,
+			'incidentid'=>$incidentid[$i]]);
 	}
 
 airt_profile('Template added');
@@ -219,4 +227,3 @@ airt_profile('Template added');
 	   return true;
 	}
 }
-?>
