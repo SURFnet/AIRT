@@ -552,8 +552,14 @@ airt_profile('Starting createIncident');
       $params['status'] = getIncidentStatusDefault();
    }
    if (empty($params['type']) || !is_numeric($params['type'])) {
-		airt_profile('False type');
+      airt_profile('False type');
       return false;
+   }
+   if($params['type'] < 0) {
+      $params['type'] = getIncidentTypeDefault();
+   }
+   if($params['severity'] < 0) {
+      $params['severity'] = getIncidentSeverityDefault();
    }
    if (empty($params['logging'])) {
       $params['logging'] = '';
