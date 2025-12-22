@@ -568,8 +568,8 @@ airt_profile('Starting createIncident');
       $params['date'] = '';
    }
    // updated
-   if(empty($param['subtype'])){
-     $param['subtype'] = '';
+   if(empty($params['subtype'])){
+     $params['subtype'] = '';
    }
 
    if (empty($params['desc'])) {
