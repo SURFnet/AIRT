@@ -986,7 +986,7 @@ function updateIncident($id,$params = array()) {
    $comment = '';
    if (array_key_exists('severity', $params)) {
        $SEVERITIES = getIncidentSeverities();
-       if ($params['severity'] >= 0) {
+       if ($params['severity'] !== '' && $params['severity'] >= 0) {
           $set .= sprintf('severity=%d,',$params['severity']);
           $comment .= t(_('new severity: %s. '), array(
              '%s'=>$SEVERITIES[$params['severity']]));
