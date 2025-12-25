@@ -399,7 +399,7 @@ function template_buttons($incidentids, $override='') {
       $override = 1;
    }
    $out .= '<input type="hidden" name="override" value="'.
-         htmlentities($override).'"/>'.LF;
+         htmlentities($override).'">'.LF;
 
    if (sizeof($incidentids) > 0) {
       $out .= '<input type="submit" name="action" value="'._('Send and prepare next').'">'.LF;
@@ -589,30 +589,30 @@ function prepare_message($global_template, $override_now=0, $incidentids=array()
 
 	$mailto = composeMailto($msgdata['receiver'], $msgdata['subject'], $msgdata['sender'], $msgdata['replyto'], $msgdata['body']);
 	$agendaval=implode(',', $incidentids);
-	$out = '<FORM method="POST">'.LF;
-	$out .= '<TABLE WIDTH="80">'.LF;
-	$out .= '<TR>'.LF;
-	$out .= '<TD>'._('To:').'</TD>'.LF;
-	$out .= '<TD><INPUT TYPE="text" size="50" name="to" value="'.$msgdata['receiver'].'"></TD>'.LF;
-	$out .= '<TD rowspan="4" VALIGN="top">'.LF;
+	$out = '<form method="post">'.LF;
+	$out .= '<table width="80">'.LF;
+	$out .= '<tr>'.LF;
+	$out .= '<td>'._('To:').'</td>'.LF;
+	$out .= '<td><input type="text" size="50" name="to" value="'.$msgdata['receiver'].'"></td>'.LF;
+	$out .= '<td rowspan="4" valign="top">'.LF;
 	$out .= template_buttons($incidentids, ($override_next === true) ? 1 : 0);
 	$out .= '<a href="' . $mailto . '">compose external</a>' .LF;
-	$out .= '</TD>'.LF;
-	$out .= '</TR>'.LF;
-	$out .= '<TR>'.LF;
-	$out .= '<TD>'._('Subject:').'</TD>'.LF;
-	$out .= '<TD><INPUT TYPE="text" size="50" name="subject" value="'.htmlentities($msgdata['subject']).'"></TD>'.LF;
-	$out .= '</TR>'.LF;
-	$out .= '<TR>'.LF;
-	$out .= '<TD>'._('From:').'</TD>'.LF;
-	$out .= '<TD><INPUT TYPE="text" size="50" name="from" value="'.htmlentities($msgdata['sender']).'"></TD>'.LF;
-	$out .= '</TR>';
-	$out .= '<TR>';
-	$out .= '<TD>'._('Reply-To:').'</TD>'.LF;
-	$out .= '<TD><INPUT TYPE="text" size="50" name="replyto" value="'.htmlentities($msgdata['replyto']).'"></TD>'.LF;
-	$out .= '</TR>'.LF;
-	$out .= '</TABLE>'.LF;
-	$out .= '<TEXTAREA name="msg" cols="80" rows="25">'.htmlentities($msgdata['body']).'</TEXTAREA>'.LF;
+	$out .= '</td>'.LF;
+	$out .= '</tr>'.LF;
+	$out .= '<tr>'.LF;
+	$out .= '<td>'._('Subject:').'</td>'.LF;
+	$out .= '<td><input type="text" size="50" name="subject" value="'.htmlentities($msgdata['subject']).'"></td>'.LF;
+	$out .= '</tr>'.LF;
+	$out .= '<tr>'.LF;
+	$out .= '<td>'._('From:').'</td>'.LF;
+	$out .= '<td><input type="text" size="50" name="from" value="'.htmlentities($msgdata['sender']).'"></td>'.LF;
+	$out .= '</tr>';
+	$out .= '<tr>';
+	$out .= '<td>'._('Reply-To:').'</td>'.LF;
+	$out .= '<td><input type="text" size="50" name="replyto" value="'.htmlentities($msgdata['replyto']).'"></td>'.LF;
+	$out .= '</tr>'.LF;
+	$out .= '</table>'.LF;
+	$out .= '<textarea name="msg" cols="80" rows="25">'.htmlentities($msgdata['body']).'</textarea>'.LF;
 	$out .= '<P>'.LF;
 # XXX because of this, I cannot do an override on the last incident in 
 # the queue

@@ -1,6 +1,6 @@
 <?php 
 session_start();
-/* $Id$ 
+/*
  * logout.php - Allows users to log out 
  
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
@@ -26,4 +26,3 @@ require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/login.plib';
 scheduleMailArchiveUpdate();
 airtLogout();
-?>

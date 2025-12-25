@@ -354,13 +354,11 @@ function pageHeader($title = '', $options = []) {
       $instance = _('Default instance');
    }
 
-   print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" '.
-         '   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'.LF;
-   print '<html>'.LF;
+   print '<!doctype html>' . LF;
+   print '<html lang="' . (explode('_', $_SESSION['language'])[0] ?? 'en') . '">'.LF;
    print '  <head>'.LF;
    print '      <title>AIRT: ' . $title . ' · ' . $instance . '</title>'.LF;
-   print t('     <link href="%url/airt-style.css" rel="stylesheet" '.
-     'type="text/css">'.LF, [
+   print t('     <link href="%url/airt-style.css" rel="stylesheet">'.LF, [
      '%url'=>BASEURL]);
    print '      <link rel="stylesheet" href="extlib/tom-select.default.min.css"><script src="extlib/tom-select.complete.min.js"></script>' . LF;
    print '  </head>'.LF;
@@ -375,8 +373,8 @@ function pageHeader($title = '', $options = []) {
       print '  <div id="header">'.LF.LF;
       print '  <div class="left">'.LF;
       print t('  <a href="%url/incident.php" title="'._('Back to the first page').
-         '"><img src="images/airt_logo.png" alt="AIRT" id="logo" /></a>'.LF, 
-         array('%url'=>BASEURL));
+         '"><img src="images/airt_logo.png" alt="AIRT" id="logo"></a>'.LF,
+         ['%url'=>BASEURL]);
       print '    <h2>Application for Incident Response Teams</h2>'.LF;
       print '    <h4>'.htmlentities($instance).'</h4>'.LF;
       print '    <div id="navigation">'.LF;
@@ -385,17 +383,17 @@ function pageHeader($title = '', $options = []) {
       print '  </div><!-- left -->'.LF;
       print '  <div class="right">'.LF;
       print t('    <div id="userinfo">'._('Logged in as %name').
-         ' (<a href="%url/logout.php">%l</a>)</div>'.LF, array(
+         ' (<a href="%url/logout.php">%l</a>)</div>'.LF, [
          '%name'=>htmlentities($name),
          '%url'=>BASEURL,
-         '%l'=>_('Log out')));
+         '%l'=>_('Log out')]);
 
-      print t('    <form action="%u/search.php" method="get">'.LF, array(
-         '%u'=>BASEURL));
-      print '      <input type="hidden" name="action" value="query"/>'.LF;
-      print '      <input type="text" name="query" />'.LF;
-      print t('      <input type="submit" value="%l" />', array(
-         '%l'=>_('Search')));
+      print t('    <form action="%u/search.php" method="get">'.LF, [
+         '%u'=>BASEURL]);
+      print '      <input type="hidden" name="action" value="query">'.LF;
+      print '      <input type="text" name="query">'.LF;
+      print t('      <input type="submit" value="%l">', [
+         '%l'=>_('Search')]);
       print '    </form>'.LF;
 
       print LF.'    <div id="tools">'.LF;
@@ -415,9 +413,9 @@ function pageHeader($title = '', $options = []) {
       while (($row = db_fetch_next($res)) !== false) {
          $url = $row['url'];
          $description = $row['label'];
-         print t('<li><a target="_blank" href="%url">%description</a></li>'.LF, array(
+         print t('<li><a target="_blank" href="%url">%description</a></li>'.LF, [
             '%url'=>$url,
-            '%description'=>strip_tags($description)));
+            '%description'=>strip_tags($description)]);
       }
 
       print '    </ul></li>'.LF;
@@ -432,10 +430,10 @@ function pageHeader($title = '', $options = []) {
    } // menu is true
    print LF.'<div class="content">'.LF;
    if (!empty($messages)) {
-       print t('<div class="messages">%msg</div>'.LF, array(
-          '%msg'=>htmlentities($messages)));
+       print t('<div class="messages">%msg</div>'.LF, [
+          '%msg'=>htmlentities($messages)]);
    }
-   print t('<h1>%title</h1>'.LF, array('%title'=>htmlentities($title)));
+   print t('<h1>%title</h1>'.LF, ['%title'=>htmlentities($title)]);
 } // pageheader()
 
 
@@ -444,11 +442,11 @@ function pageHeader($title = '', $options = []) {
  * @in pagefooter The footer of the page
  */
 function pageFooter() {
-    print '<br style="clear: both;" />'.LF;
+    print '<br style="clear: both;">'.LF;
     print '</div><!-- content -->'.LF;
     print '</div><!-- wrapper -->'.LF;
     print '<div id="footer">'.LF;
-    print '(C) AIRT Project. Licensed under GNU General Public License, v2';
+    print '&copy; AIRT Project. Licensed under GNU General Public License, v2';
     print '</div><!-- footer -->'.LF;
     print '<script>' . LF;
     print '   document.querySelectorAll(".searchableselect").forEach((el)=>{' . LF;
@@ -461,13 +459,6 @@ function pageFooter() {
 
 } // pagefooter()
 
-
-/**
- * Format an email addres
- */
-function email($msg) {
-   printf("<a href=\"%s\">%s</a>", $msg, $msg);
-}
 
 /** Encodes an incident ID with the configured prefix.
  * @param $id Numerical incident ID
@@ -506,11 +497,11 @@ function normalize_incidentid($id) {
  */
 function choice($label, $value, $default) {
     if ($value == $default)
-        return sprintf('<OPTION value="%s" SELECTED>%s</OPTION>'.LF,
+        return sprintf('<option value="%s" selected>%s</OPTION>'.LF,
             htmlentities(strip_tags($value)),
             htmlentities(strip_tags($label)));
     else
-        return sprintf('<OPTION value="%s">%s</OPTION>'.LF,
+        return sprintf('<option value="%s">%s</option>'.LF,
             htmlentities(strip_tags($value)),
             htmlentities(strip_tags($label)));
 }
@@ -728,13 +719,13 @@ function reload($url='') {
  * $var_day, $var_month, $var_year, $var_hour, $var_min, $var_sec
  */
 function formatDateInput($var='', $default='') {
-   $months = array(
+   $months = [
       1=>_('Jan'),   7=>_('Jul'),
       2=>_('Feb'),   8=>_('Aug'),
       3=>_('Mar'),    9=>_('Sep'),
       4=>_('Apr'),  10=>_('Oct'),
       5=>_('May'),  11=>_('Nov'),
-      6=>_('Jun'),   12=>_('Dec'));
+      6=>_('Jun'),   12=>_('Dec')];
    $var = strip_tags($var);
    $out = '<select name="'.$var.'_day">'.LF;
    if ($default=='') {
@@ -748,13 +739,13 @@ function formatDateInput($var='', $default='') {
    $today_sec=(int)Date('s', $default);
    for ($i=1;$i<32;$i++) {
       $out .= sprintf('<option %s value="%d">%02d</option>'.LF, 
-         ($i==$today_day)?'SELECTED':'', $i, $i);
+         ($i==$today_day)?'selected':'', $i, $i);
    }
    $out .= '</select>'.LF;
    $out .= '<select name="'.$var.'_month">'.LF;
    for ($i=1;$i<13;$i++) {
       $out .= sprintf('<option %s value="%d">%s</option>'.LF,
-         ($i==$today_month)?'SELECTED':'', $i, $months[$i]);
+         ($i==$today_month)?'selected':'', $i, $months[$i]);
    }
    $out .= '</select>'.LF;
    $out .= '<input type="text" size="4" width="4" name="'.$var.'_year" value="'.$today_year.'">'.LF;
@@ -764,19 +755,19 @@ function formatDateInput($var='', $default='') {
    $out .= '<select name="'.$var.'_hour">'.LF;
    for ($i=0;$i<24;$i++) {
       $out .= sprintf('<option %s value="%d">%02d</option>'.LF,
-         ($i==$today_hour)?'SELECTED':'', $i, $i);
+         ($i==$today_hour)?'selected':'', $i, $i);
    }
    $out .= '</select>'.LF;
    $out .= '<select name="'.$var.'_minute">'.LF;
    for ($i=0;$i<60;$i++) {
       $out .= sprintf('<option %s value="%d">%02d</option>'.LF,
-         ($i==$today_min)?'SELECTED':'', $i, $i);
+         ($i==$today_min)?'selected':'', $i, $i);
    }
    $out .= '</select>'.LF;
    $out .= '<select name="'.$var.'_second">'.LF;
    for ($i=0;$i<60;$i++) {
       $out .= sprintf('<option %s value="%d">%02d</option>'.LF,
-         ($i==$today_sec)?'SELECTED':'', $i, $i);
+         ($i==$today_sec)?'selected':'', $i, $i);
    }
    $out .= '</select>'.LF;
    return $out;
@@ -791,12 +782,12 @@ function getAvailableLanguages() {
    $localedir = LIBDIR.'/locale';
    if (!is_dir($localedir)) {
       airt_msg(_('Unable to open locale directory.'));
-      return array();
+      return [];
    }
    $d = opendir($localedir);
    if ($d == false) {
       airt_msg(_('Unable to open locale directory.'));
-      return array();
+      return [];
    }
    $l = array();
    while ($file = readdir($d)) {

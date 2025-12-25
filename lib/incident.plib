@@ -1824,9 +1824,8 @@ function listIncidents() {
    $hideStalled = fetchFrom('REQUEST', 'hideStalled', '%d');
    defaultTo($hideStalled, 2);
    $hideStalled--;
-   echo "<!-- stalled=$hideStalled -->";
 
-   $filter=array();
+   $filter=[];
 
    if ($status != -1) {
        $f=explode(',', $status);
@@ -2191,32 +2190,32 @@ function listIncidents() {
    $out .= $pager;
    $out .= '</ul>'.LF;
 
-   $out .= '<p/>';
+   $out .= '<p>';
    $out .= _('With selected');
-   $out .= '<div class="bulk-options">'.LF;
+   $out .= '</p><div class="bulk-options">'.LF;
    $out .= '  <div class="block">'.LF;
    $out .= '    <table>'.LF;
    $out .= '    <tr>'.LF;
    $out .= '       <td>'._('State').'</td><td>'.LF;
    $out .= getIncidentStateSelection('massstate', 'null',
-      array('null'=>_('Do not change')));
+      ['null'=>_('Do not change')]);
    $out .= '       </td>'.LF;
    $out .= '    </tr>'.LF;
 
    $out .= '    <tr>'.LF;
    $out .= '      <td>'._('Type').'</td><td>'.LF;
    $out .= getIncidentTypeSelection('masstype', 'null',
-      array('null'=>_('Do not change')));
+      ['null'=>_('Do not change')]);
 
    $out .= '    <tr>'.LF;
    $out .= '      <td>'._(' Status').'</td><td>'.LF;
    $out .= getIncidentStatusSelection('massstatus', 'null',
-      array('null'=>_('Do not change')));
+      ['null'=>_('Do not change')]);
    $out .= '       </td>'.LF;
    $out .= '    </tr>'.LF;
 
    $out .= '    <tr>'.LF;
-   $out .= '      <td/>'.LF;
+   $out .= '      <td></td>'.LF;
    $out .= '      <td><input type="submit" name="action" value="'._('Update selected incidents').'" class="btn btn-primary"></td>'.LF;
    $out .= '    </tr>'.LF;
    $out .= '    </table>'.LF;
@@ -2227,11 +2226,11 @@ function listIncidents() {
    $out .= getMailTemplateSelection('template', 'null', array(
          _('Use preferred template')=>_('Use preferred template')));
    $out .= '     <input type="submit" name="action" value="'. _('Compose').'" class="btn btn-primary">'.LF;
-   $out .= '     <input type="submit" name="action" value="'. _('Auto send').'" class="btn btn-primary"'.LF;
+   $out .= '     <input type="submit" name="action" value="'. _('Auto send').'" class="btn btn-primary">'.LF;
    $out .= '  </div><!-- block -->'.LF;
    $out .= '</div><!-- bulk-options -->'.LF;
    $out .= '</form>'.LF;
-   $out .= '<br style="clear: both;"/>'.LF;
+   $out .= '<br style="clear: both;">'.LF;
 
    if ($archive) {
        pageHeader(_('Incident Archive'), array(
