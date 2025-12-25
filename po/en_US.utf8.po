@@ -422,11 +422,6 @@ msgid "AIRT version 20060807.1, Copyright (C) 2004-2006 Tilburg University "
 msgstr ""
 
 msgid ""
-"AIRT comes with ABSOLUTELY NO WARRANTY; for details <a href=\"license.php"
-"\">click here</a>."
-msgstr ""
-
-msgid ""
 "This is free software, and you are welcome to redistribute it under certain "
 "conditions; See the license for more details."
 msgstr ""

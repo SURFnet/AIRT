@@ -430,13 +430,6 @@ msgstr ""
 "AIRT versiie 20060807.1, Copyright (C) 2004-2006 Universiteit van Tilburg"
 
 msgid ""
-"AIRT comes with ABSOLUTELY NO WARRANTY; for details <a href=\"license.php"
-"\">click here</a>."
-msgstr ""
-"AIRT heeft ABSOLUUT GEEN GARANTIE; voor details, <a href=\"license.php"
-"\">klik hier</a>."
-
-msgid ""
 "This is free software, and you are welcome to redistribute it under certain "
 "conditions; See the license for more details."
 msgstr ""
