@@ -87,4 +87,3 @@ function updateDomain($data, &$error) {
    }
    return true;
 }
-

@@ -1,6 +1,5 @@
 <?php
 /* vim:syntax=php shiftwidth=3 tabstop=3
- * $Id$
 
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
  * Copyright (C) 2004,2005	Kees Leune <kees@uvt.nl>
@@ -51,5 +50,3 @@ function AIRT_Cymru_whois($ip, &$result) {
   $result = implode("\n", $whoisdata);
   return 0;
 }
-
-?>

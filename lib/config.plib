@@ -298,4 +298,3 @@ function saveConfig() {
       airt_msg(_('Settings saved'));
    }
 }
-?>

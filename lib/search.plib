@@ -83,4 +83,3 @@ function categorize($ip) {
    }
    return $category;
 } // categorize
-

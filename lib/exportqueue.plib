@@ -20,8 +20,6 @@
  *
  * exportqueue.plib -- main library for the export queue
  * ("airt_export" command).
- * 
- * $Id$
  */
 
 // This is the common library for all export queue functions, both for CLI
@@ -591,5 +589,3 @@ function getWrapperList() {
    return $wrappers;
 
 }// getWrapperList
-
-?>
