@@ -1,5 +1,5 @@
 <?php
-/* $Id$ 
+/*
  * index.php - Index page for UvT-CERT
  *
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
@@ -18,16 +18,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- * index.php - AIR console
- * $Id$
  */
 require_once 'config.plib';
 require_once LIBDIR.'/airt.plib';
 require_once LIBDIR.'/export.plib';
 require_once LIBDIR.'/incident.plib';
 
-Header('Content-Type: application/xml');
+header('Content-Type: application/xml');
 $iodef=$status='';
 if (exportIODEF(123, $iodef, $status)) {
     print $iodef;
@@ -36,11 +33,8 @@ if (exportIODEF(123, $iodef, $status)) {
 }
 exit;
 
-$selection = array();
+$selection = [];
 foreach (getOpenIncidents() as $id=>$incident) 
    array_push($selection, $id);
 
-Header('Content-Type: application/xml');
-//Header("Content-Type: text/plain");
 print exportIncident($selection);
-?>

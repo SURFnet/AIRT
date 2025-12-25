@@ -1,6 +1,5 @@
 <?php
-/* $Id: certificatelogin.php 250 2005-02-24 12:05:07Z kees $
- *
+/*
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
  * Copyright (C) 2004	Tilburg University, The Netherlands
 

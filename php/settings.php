@@ -1,6 +1,4 @@
 <?php
-/* $Id$ 
- *
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
  * Copyright (C) 2004.2005	Tilburg University, The Netherlands
 
@@ -19,7 +17,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * mainentance.php - Maintenance page for AIRT
- * $Id$
  */
 require_once 'config.plib';
 require_once LIBDIR.'/config.plib';
@@ -88,4 +85,3 @@ print '    </div>'.LF;
 print '</div>'.LF;
 
 pageFooter();
-?>

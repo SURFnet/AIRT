@@ -18,8 +18,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * incident_status.php -- manage incident_status
- * 
- * $Id$
  */
 require_once 'config.plib';
 require_once LIBDIR.'/airt.plib';
@@ -217,5 +215,3 @@ switch ($action) {
     default:
         die(_('Unknown action: ').strip_tags($action));
 } // switch
-
-?>

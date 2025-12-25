@@ -18,8 +18,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * roleassignments.php -- manage roles
- * 
- * $Id$
  */
  exit; // not in production yet
  require_once 'config.plib';

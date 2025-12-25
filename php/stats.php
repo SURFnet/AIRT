@@ -1,7 +1,5 @@
 <?php
-/* $Id$
- * $URL: https://svn.airt.nl/svn/trunk/source/php/stats.php $
- * vim: syntax=php tabstop=3 shiftwidth=3
+/* vim: syntax=php tabstop=3 shiftwidth=3
 
  * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
  * Copyright (C) 2004,2005,2006      Tilburg University, The Netherlands
@@ -409,4 +407,3 @@ switch ($action) {
       airt_msg(_('Unknown action'));
       exit(reload());
 }
-?>
