@@ -1,5 +1,5 @@
 <?php
- * AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
+/* AIRT: APPLICATION FOR INCIDENT RESPONSE TEAMS
  * Copyright (C) 2004.2005	Tilburg University, The Netherlands
 
  * This program is free software; you can redistribute it and/or modify
