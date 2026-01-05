@@ -434,8 +434,8 @@ function prepare_message($global_template, $override_now=0, $incidentids=array()
    pageHeader(_('Send message from template.'), $pageOptions);
    $current = [
       'user'=>'',
-      'name'=>'',
-      'email'=>'',
+      'name'=>[],
+      'email'=>[],
       'ip'=>'',
       'iplist'=>'',
       'hostname'=>'',
