@@ -341,15 +341,15 @@ CREATE TABLE import_queue (
   updated   timestamp,
   status    varchar(16)  not null default 'open',
   sender    varchar(50)  not null,
-  type      varchar(50)  not null,
+  type      varchar(255)  not null,
   metatype  varchar not null, -- 'incident' or 'contact'
-  summary   varchar(100) not null,
+  summary   varchar(255) not null,
   content   text         not null,
   cache_ip  varchar(128),
   cache_constituency varchar(128),
   cache_mailtemplate varchar(80),
   filter    varchar(80),
-  version   varchar(80),
+  version   varchar(255),
   primary key (id)
 );
 
