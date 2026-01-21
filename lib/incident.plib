@@ -2446,7 +2446,7 @@ function incidentDetails() {
    $output .= '   <th>'._('Constituency').'</th>'.LF;
    $output .= '</tr>'.LF;
    foreach ($incident['ips'] as $address) {
-      $cons = getConstituencyIDbyNetworkID(categorize($address['ip']));
+      $cons = $address['constituency'];
       $_SESSION['active_ip'] = $address['ip'];
 
       $output .= '<tr>'.LF;
