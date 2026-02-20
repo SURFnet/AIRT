@@ -27,8 +27,8 @@ switch ($action) {
         $out .= '</td>'.LF;
         $out .= '</tr>'.LF;
         $out .= '</table>'.LF;
-        $out .= '<input type="hidden" name="action" value="upload"/>'.LF;
-        $out .= '<input type="submit" value="'._('Upload file').'"/>'.LF;
+        $out .= '<input type="hidden" name="action" value="upload">'.LF;
+        $out .= '<input type="submit" value="'._('Upload file').'">'.LF;
         $out .= '</form>'.LF;
         $out .= '</div><!-- block -->'.LF;
         $out .= '</div>'.LF;
@@ -95,7 +95,7 @@ switch ($action) {
         $out .= '<tr>'.LF;
         $out .= '<td>'._('CSV filter version identifier').':</td>'.LF;
         $out .= '<td><select name="version">'.LF;
-        $out .= '<option value="" SELECTED>'._('None').'</option>'.LF;
+        $out .= '<option value="" selected>'._('None').'</option>'.LF;
         if (importqueueTemplatesGetItems($items, $error) == 0) {
            foreach ($items as $id=>$item) {
               if ($item['filter'] == 'filter_csv') {
