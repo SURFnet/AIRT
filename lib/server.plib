@@ -176,20 +176,19 @@ airt_profile('Incident data parsed');
 	}
 
 	// generate an incident id
-	$i = 0 ; // Do we need this index/key ?
-	$incidentid[$i] = createIncident([
+	$incidentid = createIncident([
 		'severity'=>$severity,
 		'state'=>$state,
 		'status'=>$status,
 		'type'=>$type,
 		'logging'=>$logging]);
-airt_profile('Incident '.$incidentid[$i].' created');
+airt_profile('Incident '.$incidentid.' created');
 
 	if(!empty($address)) {
 		addIPtoIncident([
 			'ip'=>$address,
 			'hostname'=>$hostname,
-			'incidentid'=>$incidentid[$i],
+			'incidentid'=>$incidentid,
 			'addressrole'=>$addressrole]);
 airt_profile('IP addresses added');
 
@@ -197,33 +196,24 @@ airt_profile('IP addresses added');
 		$constituencyID = getConstituencyIDbyNetworkID($networkid);
 		$contacts = getConstituencyContacts($constituencyID);
 		foreach ($contacts as $id=>$data) {
-			addUserToIncident($data['userid'], $incidentid[$i]);
+			addUserToIncident($data['userid'], $incidentid);
 		}
 airt_profile('Users added');
 	}
 
 	if ($usetemplate) {
-		setPreferredMailTemplateName($incidentid[$i], $usetemplate);
+		setPreferredMailTemplateName($incidentid, $usetemplate);
 		addIncidentComment([
 			'comment'=>'Import queue set preferred template to: '.$usetemplate,
-			'incidentid'=>$incidentid[$i]]);
+			'incidentid'=>$incidentid]);
 	}
 
 airt_profile('Template added');
 
 	if (isset($error)) {
 		return $error;
-		/*
-		$error = 'Import successful. Imported incident with id ';
-		$id_list = '';
-		foreach ($incidentid as $i => $id)
-			$id_list .= "$id, ";
-		$id_list = rtrim($id_list,', ');
-		$error .= $id_list.'.';
-		return $error;
-		*/
 	} else {
 		airt_profile('Success');
-	   return true;
+		return true;
 	}
 }
