@@ -33,6 +33,7 @@ function show_form($id="") {
    $constituency = "";
    $netmask = "";
    $network = "";
+   $datasource = "";
 
    if (!empty($id)) {
       if (!is_numeric($id)) {

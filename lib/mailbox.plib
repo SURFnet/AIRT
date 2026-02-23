@@ -329,6 +329,7 @@ function fetchEmailsForIncident($incidentid, &$messages, &$error='') {
          ' in mailbox.plib:'.__LINE__;
       return false;
    }
+   $messages = [];
    while (($row = db_fetch_next($res)) !== false) {
       $messages[] = $row['messageid'];
    }
