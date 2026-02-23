@@ -31,9 +31,9 @@ defaultTo($action, 'list');
 switch ($action) {
    //-----------------------------------------------------------------
    case "list":
-      pageHeader(_('Constituency contacts'), array(
+      pageHeader(_('Constituency contacts'), [
          'menu'=>'constituencies',
-         'submenu'=>'contacts'));
+         'submenu'=>'contacts']);
 
       $res = db_query("
          SELECT u.lastname, u.firstname, u.email, u.phone, c.label, c.id as consid
@@ -77,9 +77,9 @@ switch ($action) {
       if (!is_numeric($consid)) {
          die(_('Invalid format'));
       }
-      pageHeader(_('Edit constituency assignments'), array(
+      pageHeader(_('Edit constituency assignments'), [
 		   'menu'=>'constituencies',
-			'submenu'=>'contacts'));
+			'submenu'=>'contacts']);
 
       $res = db_query(
          "SELECT label, name
@@ -168,8 +168,7 @@ switch ($action) {
       }
       print '<P><HR>'.LF;
       print '<a href="'.BASEURL.'/constituency_contacts.php">'.
-            _('Select another constituency').'</a> &nbsp;|&nbsp;'.
-            '<a href="'.BASEURL.'/maintenance.php">'._('Settings').'</a>'.LF;
+            _('Select another constituency').'</a>' . LF;
       pageFooter();
       break;
 
