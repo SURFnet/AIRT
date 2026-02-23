@@ -180,8 +180,8 @@ function cidr2netmask($cidr) {
  * @return 1 of $a is larger than $b, 0 if $a is equal to $b and -1 if $a is smaller than $b
  */
 function airt_netsort($a, $b) {
-   $ea = explode('.', $a['network']);
-   $eb = explode('.', $b['network']);
+   $ea = preg_split('/[.:]/', $a['network']);
+   $eb = preg_split('/[.:]/', $b['network']);
 
    if ($ea[0] > $eb[0]) {
       return 1;
