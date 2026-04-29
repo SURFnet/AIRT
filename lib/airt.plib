@@ -589,8 +589,7 @@ function airt_msg($msg, $prio=0) {
  * library calls for this. Gets and formats data from a GET, POST or COOKIE
  * variable, or from REQUEST (combined GET and POST). Same for SESSION.
  *
- * Is safe to use no matter what register_globals or get_magic_quotes_gpc
- * are set to. The return value is of type string in most cases, unless the
+ * The return value is of type string in most cases, unless the
  * requested name has '[]' appended to force it to type array. When a
  * formatting string (such as '%d') is given, this may also lead to return
  * values of type integer or float.
@@ -652,17 +651,6 @@ function fetchFrom($source,$name,$format='') {
       die(sprintf(_(
         "Unknown fetch source type '%s'. Script terminated."),
         $source));
-  }
-
-  // If magic quotes is ON, strip all added slashes.
-  if (get_magic_quotes_gpc()) {
-    if (is_array($value)) {
-       foreach($value as $index=>$val) {
-          $value[$index] = stripSlashes($val);
-       }
-    } else {
-      $value = stripSlashes($value);
-    }
   }
 
   // If format is given, apply it.
