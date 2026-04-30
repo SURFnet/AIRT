@@ -2830,21 +2830,22 @@ function newIncident($bulk=false) {
    $output .= '  </tr>'.LF;
 
    $output .= '  <tr valign="top">'.LF;
-   if ($bulk) {
-       $output .= t('   <td><span class="verklaring" title="%s">%l</span></td>', array(
-          '%s'=>_('Provide 1 IP address or hostname per line. One incident'.
-             ' will be created for each host.'),
-          '%l'=>_('IP Address')));
-   } else {
-       $output .= t('    <td><span class="verklaring" title="%s">%l</span></td>', array(
-          '%s'=>_('Provide 1 IP address or hostname per line. All hosts'.
-             ' will be added to the new incident.'),
-          '%l'=>_('IP Address')));
-   }
    $ip = trim(strip_tags(fetchFrom('REQUEST', 'ip')));
    defaultTo($ip, '');
-   $output .= t('    <td><textarea class="newips" name="ips">%i</textarea></td>'.LF, array(
-      '%i'=>$ip));
+   if ($bulk) {
+       $output .= t('   <td><span class="verklaring" title="%s">%l</span></td>', [
+          '%s'=>_('Provide 1 IP address or hostname per line. One incident'.
+             ' will be created for each host.'),
+          '%l'=>_('IP Address')]);
+       $output .= t('    <td><textarea class="newips" name="ips">%i</textarea></td>'.LF, [
+          '%i'=>$ip]);
+   } else {
+       $output .= t('    <td><span class="verklaring" title="%s">%l</span></td>', [
+          '%s'=>_('Provide 1 IP address or hostname. More can be added after creating the incident.'),
+          '%l'=>_('IP Address')]);
+       $output .= t('    <td><input type="text" class="newips" name="ips" value="%i"></td>'.LF, [
+          '%i'=>$ip]);
+   }
    $output .= '  </tr>'.LF;
 
    if (!$bulk) {
