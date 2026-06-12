@@ -2118,9 +2118,7 @@ function listIncidents() {
    foreach (getOpenIncidents($sqlfilter.' LIMIT '.$pagesize.' OFFSET '.($page-1)*$pagesize) as $id=>$data) {
 		airt_profile("   begin ".$id);
       $script .= 'document.forms[2].elements['.($elcount++).'].checked = check;'.LF;
-		airt_profile("      Fetching incident addresses");
-      $addresses = getAddressesForIncident($id);
-		airt_profile("      Done fetching incident addresses");
+      $addresses = $data['iplist'];
       if (sizeof($addresses) > 0) {
          $constituency = $conslist[$addresses[0]['constituency']]['label'];
          $consnotes = $conslist[$addresses[0]['constituency']]['notes'];
@@ -2146,11 +2144,13 @@ function listIncidents() {
               $out .= t('   <td><span class="verklaring" title="%d"><em>'._('None').'</em></span></td>', array(
                  '%d'=>htmlentities($data['desc'])));
           } else {
-              $out .= t('   <td><span class="verklaring" title="%d"><a href="%u" class="hover">%l</a></span></td>'.LF, array(
+              $out .= t('   <td><span class="verklaring" title="%d"><a href="%u" class="hover">%l</a>%m</span></td>'.LF, [
                   '%u'=>BASEURL.'/search.php?action=Search&qtype=host&q='.
                      urlencode($data['ip']),
                   '%d'=>htmlentities($data['hostname']).' '.htmlentities($data['desc']),
-                  '%l'=>(empty($data['ip']) ? $data['desc'] : $data['ip'])));
+                  '%l'=>(empty($data['ip']) ? $data['desc'] : $data['ip']),
+                  '%m'=>(count($addresses)>1 ? ' +'.(count($addresses)-1): '')
+]);
           }
           if (empty($constituency)) {
               $out .= '   <td><em>'._('Unknown').'</em></td>'.LF;
