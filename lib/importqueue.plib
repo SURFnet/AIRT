@@ -491,8 +491,10 @@ function queueFormatItems($typefilter = 'all', $openfilter = false) {
    if (sizeof($elements) == 0) {
       return _('No items pending<p/>').LF;
    }
-   foreach (getOpenincidents() as $id=>$data) {
-      $openips[$data['ip']] = $id;
+   foreach (getOpenIncidents() as $id=>$data) {
+      foreach($data['iplist'] as $ip) {
+         $openips[$ip['ip']] = $id;
+      }
    }
    $used_ips = [];
    $js = '<SCRIPT language="JavaScript">'.LF;

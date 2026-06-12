@@ -376,6 +376,7 @@ function getOpenIncidents($sqlfilter = "WHERE s1.label IN ('open','stalled')") {
    $incidents=array();
    while ($row = db_fetch_next($res)) {
       $incidents[$row['incidentid']]=$row;
+      $incidents[$row['incidentid']]['iplist'] = getAddressesForIncident($row['incidentid']);
    }
    return $incidents;
 }
@@ -384,12 +385,12 @@ function getOpenIncidents($sqlfilter = "WHERE s1.label IN ('open','stalled')") {
  * incident id.
  */
 function getAddressesForIncident($id) {
-   $out = array();
+   $out = [];
    if (!is_numeric($id)) {
       return $out;
    }
    $id = decode_incidentid($id);
-   $res = db_query(q('SELECT ip,hostname,constituency,addressrole FROM incident_addresses WHERE incident = %id', array('%id'=>$id)));
+   $res = db_query(q('SELECT ip,hostname,constituency,addressrole FROM incident_addresses WHERE incident = %id', ['%id'=>$id]));
    if (!$res) {
       airt_error('DB_QUERY', 'incident.plib:'.__LINE__);
       return array();
