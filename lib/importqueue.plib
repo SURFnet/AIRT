@@ -1035,9 +1035,11 @@ function queueAddLogging($id, &$error, $template='', &$incidentid) {
    }
 
    // fetch open incidents 
-   $openips = array();
-   foreach (getOpenincidents() as $id=>$data) {
-      $openips[$data['ip']] = $id;
+   $openips = [];
+   foreach (getOpenIncidents() as $id=>$data) {
+      foreach($data['iplist'] as $ip) {
+         $openips[$ip['ip']] = $id;
+      }
    }
    if (!array_key_exists($item['cache_ip'], $openips)) {
       $error = _('Invalid cache data');
