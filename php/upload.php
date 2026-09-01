@@ -62,7 +62,7 @@ switch ($action) {
 
         /* first match wins */
         $fields=str_getcsv($line, $fs);
-        array_walk($fields, create_function('&$val', '$val = strtolower(trim($val));'));
+        array_walk($fields, function(&$val) { $val = strtolower(trim($val)); });
         $iphdr = '';
         foreach (array('ip', 'addr', 'ipaddr', 'ip-addr', 'ip_addr', 'srcip',
         'src', 'src_ip') as $label) {
@@ -145,7 +145,7 @@ switch ($action) {
             exit(reload());
         }
         $row = fgetcsv($f, 0, $sep);
-        array_walk($row, create_function('&$val', '$val = strtolower(trim($val));'));
+        array_walk($row, function(&$val) { $val = strtolower(trim($val)); });
         if (($index = array_search(strtolower($ip_label), $row)) === FALSE) {
             airt_msg(_('Index field not found. aborting.'));
             unlink($_SESSION['uploadfile']);
