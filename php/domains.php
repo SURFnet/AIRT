@@ -113,9 +113,9 @@ switch ($action) {
    //-----------------------------------------------------------------
    case "listplain":
       header('Content-Type: text/plain');
-      $domainlist = getDomains();
+      $domainlist = array_unique(array_column(getDomains(), 'domain'));
       foreach ($domainlist as $nid=>$data) {
-         print $data["domain"] . "\n";
+         print $data . "\n";
       }
       break;
 
