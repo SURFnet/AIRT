@@ -154,7 +154,7 @@ function addUser($user, &$status='') {
    }
 
    $tmp = getUserByEmail($email);
-   if (sizeof($tmp) > 0) {
+   if (!empty($tmp)) {
        $status = t(_('Email address %e already in use.'), array(
           '%e'=>$email));
        return false;
