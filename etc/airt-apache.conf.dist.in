@@ -1,5 +1,4 @@
 # Configuration file for AIRT
-# $Id$
 
 # Uncomment this section to enable local extensions to airt.
 # Alias /airt/local/ /usr/local/share/airt/www/
@@ -18,3 +17,8 @@ Alias /airt/ @AIRT_PHPDIR@/
         Deny from all
     </Files>
 </Directory>
+
+Header always set Strict-Transport-Security "max-age=31556952"
+Header always set Content-Security-Policy "default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'; img-src 'self' data:; form-action 'self'; frame-ancestors 'none'; base-uri 'none'; manifest-src 'self'"
+Header always set Referrer-Policy "no-referrer"
+Header always set X-Content-Type-Options "nosniff"
